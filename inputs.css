@@ -1,0 +1,60 @@
+.wr_checkbox {
+    width: 248px; /* 250 - 2 */
+    height: 41px; /* 75 - 2 - 32 */
+    padding: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+}
+
+.wr_checkbox > * {
+    line-height: 41px;
+}
+
+.wr_counter {
+    width: 248px; /* 250 - 2 */
+    height: 41px; /* 75 - 2 - 32 */
+    padding: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+}
+
+.wr_counter > * {
+    line-height: 41px;
+}
+
+.wr_counter_count {
+    font-size: 200%;
+}
+
+.wr_select {
+    min-width: 248px; /* 250 - 2 */
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+    display: table;
+    table-layout: fixed;
+}
+
+.wr_select_option {
+    height: 41px; /* 75 - 2 - 32 */
+    line-height: 41px;
+    padding: 16px;
+    display: table-cell;
+    text-align: center;
+}
+
+.wr_dropdown {
+    width: 248px; /* 250 - 2 */
+    height: 41px; /* 75 - 2 - 32 */
+    padding: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+}
+
+.wr_dropdown > * {
+    line-height: 41px;
+    width: 248px;
+}
