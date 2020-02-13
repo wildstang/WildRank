@@ -24,15 +24,15 @@
 							"name": "Cell Capacity",
 							"id": "pit_body_capacity",
 							"type": "select",
-							"options": ["1", "2", "3", "4", "5"],
-							"default": true
+							"options": ["0", "1", "2", "3", "4", "5"],
+							"default": "0"
 						},
 						{
 							"name": "Control Panel Mech",
 							"id": "pit_body_cp",
 							"type": "select",
 							"options": ["None", "Manual", "Auto"],
-							"default": false
+							"default": "None"
 						}
 					]
 				},
@@ -146,13 +146,13 @@
 								"name": "Crossed Line",
 								"id": "match_auto_motion_cross",
 								"type": "checkbox",
-								"default": false
+								"default": true
 							},
 							{
 								"name": "Collected Cells",
 								"id": "match_auto_motion_cells",
 								"type": "counter",
-								"default": 0
+								"default": 3
 							}
 						]
 					},
@@ -201,31 +201,31 @@
 						"id": "match_teleop_shooting",
 						"inputs": [{
 								"name": "Outer Miss",
-								"id": "match_auto_shooting_outer_miss",
+								"id": "match_teleop_shooting_outer_miss",
 								"type": "counter",
 								"default": 0
 							},
 							{
 								"name": "Outer Goal",
-								"id": "match_auto_shooting_outer_goal",
+								"id": "match_teleop_shooting_outer_goal",
 								"type": "counter",
 								"default": 0
 							},
 							{
 								"name": "Inner Goal",
-								"id": "match_auto_shooting_inner_miss",
+								"id": "match_teleop_shooting_inner_miss",
 								"type": "counter",
 								"default": 0
 							},
 							{
 								"name": "Lower Miss",
-								"id": "match_auto_shooting_lower_miss",
+								"id": "match_teleop_shooting_lower_miss",
 								"type": "counter",
 								"default": 0
 							},
 							{
 								"name": "Lower Goal",
-								"id": "match_auto_shooting_lower_goal",
+								"id": "match_teleop_shooting_lower_goal",
 								"type": "counter",
 								"default": 0
 							}
@@ -280,14 +280,14 @@
 								"id": "match_teleop_climb_attempt",
 								"type": "select",
 								"options": ["NA", "Low", "Level", "High"],
-								"default": "NA"
+								"default": "Level"
 							},
 							{
 								"name": "Climb Result",
 								"id": "match_teleop_climb_result",
 								"type": "select",
 								"options": ["NA", "Failed", "Unlevel", "Level"],
-								"default": "NA"
+								"default": "Failed"
 							},
 							{
 								"name": "Buddy Climb",

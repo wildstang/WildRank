@@ -13,15 +13,32 @@ const valid_input_types = [
     "text"      // extended text entry
 ]
 
+const page_frame = "\
+    <div class=\"wr_page\">\
+        <h2>NAME</h3>\
+        COLUMNS\
+    </div>"
+
+const column_frame = "\
+    <div class=\"wr_column\">\
+        <h3>NAME</h3>\
+        ITEMS\
+    </div>"
+
+const button = "\
+    <div class=\"wr_button\" onclick=\"ONCLICK\">\
+        <label id=\"ID\">NAME</label>\
+    </div>"
+
 const checkbox = "\
     <div class=\"wr_checkbox\" id=\"ID-container\" onclick=\"check('ID')\">\
-        <input type=\"checkbox\" onclick=\"check('ID')\" id=\"ID\" name=\"ID\">\
+        <input type=\"checkbox\" onclick=\"check('ID')\" id=\"ID\" name=\"ID\" CHECKED>\
         <label for=\"ID\" onclick=\"check('ID')\">NAME</label>\
     </div>"
 
 const counter = "\
     <div class=\"wr_counter\" onclick=\"increment('ID')\">\
-        <label class=\"wr_counter_count\" id=\"ID\">0</label>\
+        <label class=\"wr_counter_count\" id=\"ID\">VALUE</label>\
         <label>NAME</label>\
     </div>"
 
@@ -31,7 +48,7 @@ const select = "\
     </div>"
 
 const select_op = "\
-    <span class=\"wr_select_option\" id=\"ID-NAME\" onclick=\"select_option('ID', 'NAME')\">\
+    <span class=\"wr_select_option\" id=\"ID-INDEX\" onclick=\"select_option('ID', 'INDEX')\">\
         <label>NAME</label>\
     </span>"
 
@@ -42,7 +59,9 @@ const dropdown = "\
         </select>\
     </div>"
 
-const dropdown_op = "<option value=\"NAME\">NAME</option>"
+const dropdown_op = "<option value=\"NAME\" SELECTED>NAME</option>"
+
+var config
 
 function check(id)
 {
@@ -58,14 +77,14 @@ function check(id)
     }
 }
 
-function select_option(id, name)
+function select_option(id, index)
 {
     let children = document.getElementById(id).getElementsByClassName("wr_select_option")
     for (let option of children)
     {
         option.style.backgroundColor = "white"
     }
-    document.getElementById(id + "-" + name).style.backgroundColor = "blue"
+    document.getElementById(id + "-" + index).style.backgroundColor = "blue"
 }
 
 function increment(id)
@@ -74,50 +93,148 @@ function increment(id)
     document.getElementById(id).innerHTML = parseInt(current) + 1
 }
 
-function build_config(config)
+function build_page_from_config(config, selected_mode)
 {
-    config[1]["pages"][1]["columns"].forEach(function (column, index)
+    var select_ids = [];
+    config.forEach(function (mode, index)
     {
-        var col_name = column.name
-        var col_id = column.id
-        document.body.innerHTML += "<h3 id=\"" + col_id + "\">" + col_name + "</h3>"
-        column["inputs"].forEach(function (input, index)
+        if (mode.id == selected_mode)
         {
-            var name = input.name
-            var id = input.id
-            var type = input.type
-            var default_val = input.default
-
-            var item = ""
-            switch (type)
+            mode["pages"].forEach(function (page, index)
             {
-                case "checkbox":
-                    item = checkbox
-                    break
-                case "counter":
-                    item = counter
-                    break
-                case "select":
-                    options = ""
-                    input["options"].forEach(function (option, index)
+                var page_name = page.name
+                var page_id = page.id
+                columns = ""
+                page["columns"].forEach(function (column, index)
+                {
+                    var col_name = column.name
+                    var col_id = column.id
+                    items = ""
+                    column["inputs"].forEach(function (input, index)
                     {
-                        options += select_op.replace(/NAME/g, option)
+                        var name = input.name
+                        var id = input.id
+                        var type = input.type
+                        var default_val = input.default
+
+                        var item = ""
+                        switch (type)
+                        {
+                            case "checkbox":
+                                var checked = ""
+                                if (default_val)
+                                {
+                                    checked = "checked"
+                                    select_ids.push(id + "-container")
+                                }
+                                item = checkbox.replace(/CHECKED/g, checked)
+                                break
+                            case "counter":
+                                item = counter.replace(/VALUE/g, default_val)
+                                break
+                            case "select":
+                                options = ""
+                                input["options"].forEach(function (option, index)
+                                {
+                                    op = select_op.replace(/NAME/g, option).replace(/INDEX/g, index)
+                                    if (option == default_val)
+                                    {
+                                        select_ids.push(id + "-" + index)
+                                    }
+                                    options += op
+                                })
+                                item = select.replace(/OPTIONS/g, options)
+                                break
+                            case "dropdown":
+                                options = ""
+                                input["options"].forEach(function (option, index)
+                                {
+                                    var selected = ""
+                                    if (option == default_val)
+                                    {
+                                        selected = "selected"
+                                    }
+                                    options += dropdown_op.replace(/NAME/g, option).replace(/SELECTED/g, selected)
+                                })
+                                item = dropdown.replace(/OPTIONS/g, options)
+                                break
+                        }
+                        items += item.replace(/ID/g, id).replace(/NAME/g, name)
+                        console.log("Found " + type + " " + id + " called " + name)
                     })
-                    item = select.replace(/OPTIONS/g, options)
-                    break
-                case "dropdown":
-                    options = ""
-                    input["options"].forEach(function (option, index)
+                    columns += column_frame.replace(/ID/g, col_id)
+                                        .replace(/NAME/g, col_name)
+                                        .replace(/ITEMS/g, items)
+                })
+                document.body.innerHTML += page_frame.replace(/ID/g, page_id)
+                                                    .replace(/NAME/g, page_name)
+                                                    .replace(/COLUMNS/g, columns)
+            })
+        }
+    })
+    document.body.innerHTML += button.replace(/ID/g, "submit_" + selected_mode).replace(/NAME/g, "Submit").replace(/ONCLICK/g, "get_results_from_page('" + selected_mode + "')")
+
+    select_ids.forEach(function (id, index)
+    {
+        document.getElementById(id).style.backgroundColor = "blue"
+    })
+}
+
+function get_results_from_page(selected_mode)
+{
+    config.forEach(function (mode, index)
+    {
+        if (mode.id == selected_mode)
+        {
+            mode["pages"].forEach(function (page, index)
+            {
+                var page_name = page.name
+                var page_id = page.id
+                columns = ""
+                page["columns"].forEach(function (column, index)
+                {
+                    var col_name = column.name
+                    var col_id = column.id
+                    column["inputs"].forEach(function (input, index)
                     {
-                        options += dropdown_op.replace(/NAME/g, option)
+                        var name = input.name
+                        var id = input.id
+                        var type = input.type
+
+                        var item = ""
+                        switch (type)
+                        {
+                            case "checkbox":
+                                input.result = document.getElementById(id).checked
+                                console.log(name + " checked: " + document.getElementById(id).checked)
+                                break
+                            case "counter":
+                                input.result = parseInt(document.getElementById(id).innerHTML)
+                                console.log(name + " at: " + document.getElementById(id).innerHTML)
+                                break
+                            case "select":
+                                input.result = -1
+                                let children = document.getElementById(id).getElementsByClassName("wr_select_option")
+                                var i = 0;
+                                for (let option of children)
+                                {
+                                    if (option.style.backgroundColor == "blue")
+                                    {
+                                        input.result = i
+                                    }
+                                    i++
+                                }
+                                console.log(name + " checked: " + input["options"][input.result])
+                                break
+                            case "dropdown":
+                                input.result = document.getElementById(id).selectedIndex
+                                console.log(name + " checked: " + input["options"][document.getElementById(id).selectedIndex])
+                                break
+                        }
                     })
-                    item = dropdown.replace(/OPTIONS/g, options)
-                    break
-            }
-            item = item.replace(/ID/g, id).replace(/NAME/g, name)
-            document.body.innerHTML += item
-            console.log("Found " + type + " " + id + " called " + name)
-        })
+                })
+            })
+        }
     })
 }
 
@@ -126,8 +243,9 @@ fetch("default-config.json")
         return response.json()
     })
     .then(data => {
-        var config = data
-        build_config(config)
+        config = data
+        build_page_from_config(config, "pit")
+        build_page_from_config(config, "match")
     })
     .catch(err => {
         console.log("Error config file")
