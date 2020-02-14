@@ -1,0 +1,40 @@
+#event_form {
+    padding: 16px;
+}
+
+.wr_match {
+    padding: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+    margin: 0 auto 16px;
+    overflow: hidden;
+    clear: both;
+    float: left;
+}
+
+.wr_match > * {
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 auto 0;
+}
+
+.wr_match_num {
+    font-size: 200%;
+    width: 70px;
+    text-align: center;
+    padding: 0 auto 0;
+}
+
+.wr_teams {
+    width: 170px;
+}
+
+.blue {
+    color: blue;
+}
+
+.red {
+    color: red;
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>WildRank Web</title>
+        <link rel="stylesheet" type="text/css" href="matches.css">
+        <script src="matches.js"></script>
+    </head>
+    <body>
+        <center>
+            <h1>WildRank Universal Experiment</h1>
+            <form id="event_form" onsubmit="load_event(); return false" action="">
+                Event ID: <input type="text" id="event_id" value="ilch">
+                Year: <input type="number" id="event_year" value="2019">
+                <input type="submit" value="Load Event">
+            </form>
+            <select id="position">
+                <option>Red 1</option>
+                <option>Red 2</option>
+                <option>Red 3</option>
+                <option>Blue 1</option>
+                <option>Blue 2</option>
+                <option>Blue 3</option>
+            </select>
+        </center>
+    </body>
+</html>
