@@ -13,10 +13,6 @@ html, body {
     text-align: center;
 }
 
-#event_form {
-    margin-bottom: 16px;
-}
-
 #body {
     flex-grow: 1;
     overflow: hidden;
@@ -24,21 +20,21 @@ html, body {
     flex-flow: row;
 }
 
-#wr_match_preview {
+#wr_team_preview {
     margin: 8px;
     text-align: center;
     vertical-align: middle;
     flex-grow: 1;
 }
 
-#wr_match_select {
+#wr_team_select {
     width: 296px; /* 280 + 16 */
     overflow-y: scroll;
     overflow-x: hidden;
     scrollbar-width: none;
 }
 
-.wr_match {
+.wr_team {
     padding: 16px;
     border-style: solid;
     border-width: 1px;
@@ -49,30 +45,18 @@ html, body {
     clear: both;
 }
 
-.wr_match > * {
+.wr_team > * {
     text-align: center;
     display: inline-block;
     vertical-align: middle;
     padding: 0 auto 0;
 }
 
-.wr_match_num {
+.wr_team_num {
     font-size: 200%;
     width: 70px;
     text-align: center;
     padding: 0 auto 0;
-}
-
-.wr_teams {
-    width: 170px;
-}
-
-.blue {
-    color: blue;
-}
-
-.red {
-    color: red;
 }
 
 .scouted {

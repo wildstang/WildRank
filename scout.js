@@ -182,22 +182,17 @@ function build_page_from_config(config, selected_mode)
 
 function get_results_from_page(selected_mode)
 {
+    results = {}
     config.forEach(function (mode, index)
     {
         if (mode.id == selected_mode)
         {
             mode["pages"].forEach(function (page, index)
             {
-                var page_name = page.name
-                var page_id = page.id
-                columns = ""
                 page["columns"].forEach(function (column, index)
                 {
-                    var col_name = column.name
-                    var col_id = column.id
                     column["inputs"].forEach(function (input, index)
                     {
-                        var name = input.name
                         var id = input.id
                         var type = input.type
 
@@ -205,30 +200,26 @@ function get_results_from_page(selected_mode)
                         switch (type)
                         {
                             case "checkbox":
-                                input.result = document.getElementById(id).checked
-                                console.log(name + " checked: " + document.getElementById(id).checked)
+                                results[id] = document.getElementById(id).checked
                                 break
                             case "counter":
-                                input.result = parseInt(document.getElementById(id).innerHTML)
-                                console.log(name + " at: " + document.getElementById(id).innerHTML)
+                                results[id] = parseInt(document.getElementById(id).innerHTML)
                                 break
                             case "select":
-                                input.result = -1
+                                results[id] = -1
                                 let children = document.getElementById(id).getElementsByClassName("wr_select_option")
                                 var i = 0;
                                 for (let option of children)
                                 {
                                     if (option.style.backgroundColor == "blue")
                                     {
-                                        input.result = i
+                                        results[id] = i
                                     }
                                     i++
                                 }
-                                console.log(name + " checked: " + input["options"][input.result])
                                 break
                             case "dropdown":
-                                input.result = document.getElementById(id).selectedIndex
-                                console.log(name + " checked: " + input["options"][document.getElementById(id).selectedIndex])
+                                results[id] = document.getElementById(id).selectedIndex
                                 break
                         }
                     })
@@ -236,16 +227,35 @@ function get_results_from_page(selected_mode)
             })
         }
     })
+    localStorage.setItem(scout_mode + '-' + team_num, JSON.stringify(results));
+    window.history.back()
 }
+
+var urlParams = new URLSearchParams(window.location.search)
+const scout_mode = urlParams.get('mode')
+const match_num = urlParams.get('match')
+const team_num = urlParams.get('team')
+const alliance_color = urlParams.get('alliance')
 
 fetch("default-config.json")
     .then(response => {
         return response.json()
     })
     .then(data => {
+        document.getElementById("team").innerHTML = team_num
+        document.getElementById("team").style.color = alliance_color
+
         config = data
-        build_page_from_config(config, "pit")
-        build_page_from_config(config, "match")
+        if (scout_mode == 'match')
+        {
+            document.getElementById("match").innerHTML = match_num
+            build_page_from_config(config, "match")
+        }
+        else
+        {
+            document.getElementById("match").innerHTML = "Pit"
+            build_page_from_config(config, "pit")
+        }
     })
     .catch(err => {
         console.log("Error config file")
