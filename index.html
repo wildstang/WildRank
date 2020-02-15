@@ -12,12 +12,20 @@
             <form>
                 <input type="text" name="event" id="event_id" value="2019ilch">
                 <input name="position" type="number" min="0" max="5" value="0"><br><br>
-                <input type="submit" value="Preload Event (Requires Internet)" onclick="javascript: form.onsubmit='load_event(); return false'; form.action='';"><br><br>
                 <input type="submit" value="Pit Scout" onclick="javascript: form.action='pits.html'">
                 <input type="submit" value="Match Scout" onclick="javascript: form.action='matches.html'"><br><br>
                 <input type="radio" name="type" value="match"> Match
-                <input type="radio" name="type" value="pit"> Pit<br><br>
-                <input type="submit" value="View Results" onclick="javascript: form.action='results.html'">
+                <input type="radio" name="type" value="pit"> Pit
+                <input type="submit" value="View Results" onclick="javascript: form.action='results.html'"><br><br>
+            </form>
+            <form onsubmit="load_event(); return false" action="">
+                <input type="submit" value="Preload Event (Requires Internet)"><br><br>
+            </form>
+            <form onsubmit="upload_all('pit'); return false" action="">
+                <input type="submit" value="Upload Pit Results"><br><br>
+            </form>
+            <form onsubmit="upload_all('match'); return false" action="">
+                <input type="submit" value="Upload Match Results">
             </form>
         </center>
     </body>

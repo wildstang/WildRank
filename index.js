@@ -2,6 +2,7 @@ const API_KEY = ""
 
 function load_event()
 {
+    console.log("Loading event data...")
     let event_id = document.getElementById("event_id").value
 
     fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/matches/simple?X-TBA-Auth-Key=" + API_KEY)
@@ -37,4 +38,18 @@ function load_event()
         .catch(err => {
             console.log("Error loading teams: " + err)
         })
+}
+
+function upload_all(type)
+{
+    let files = Object.keys(localStorage)
+    files.forEach(function (file, index)
+    {
+        if (file.startsWith(type + "-"))
+        {
+            upload = localStorage.getItem(file)
+            console.log("posting " + file)
+            fetch('localhost', {method: "POST", body: upload})
+        }
+    })
 }
