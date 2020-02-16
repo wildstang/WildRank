@@ -22,8 +22,9 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
 
         self._set_response()
         self.wfile.write('POST request for {}'.format(self.path).encode('utf-8'))
-        with open('uploads/test.json', 'w') as f:
-            f.write(post_data.decode('utf-8'))
+        upload = post_data.decode('utf-8').split('|||')
+        with open('uploads/' + upload[0] + '.json', 'w') as f:
+            f.write(upload[1])
 
 Handler = ServerHandler
 

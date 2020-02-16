@@ -1,5 +1,3 @@
-const API_KEY = ""
-
 function load_event()
 {
     console.log("Loading event data...")
@@ -47,7 +45,7 @@ function upload_all(type)
     {
         if (file.startsWith(type + "-"))
         {
-            upload = localStorage.getItem(file)
+            upload = file + '|||' + localStorage.getItem(file)
             console.log("posting " + file)
             fetch('localhost', {method: "POST", body: upload})
         }
