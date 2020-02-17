@@ -227,7 +227,12 @@ function get_results_from_page(selected_mode)
             })
         }
     })
-    localStorage.setItem(scout_mode + '-' + team_num, JSON.stringify(results));
+    let file = scout_mode + '-' + team_num
+    if (scout_mode == 'match')
+    {
+        file = scout_mode + '-' + match_num + '-' + team_num
+    }
+    localStorage.setItem(file, JSON.stringify(results));
     window.history.back()
 }
 
