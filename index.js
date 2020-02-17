@@ -1,3 +1,5 @@
+var qrcode
+
 function load_event()
 {
     console.log("Loading event data...")
@@ -38,16 +40,47 @@ function load_event()
         })
 }
 
-function upload_all(type)
+function get_type()
 {
+    return document.getElementById("type").checked ? "match" : "pit"
+}
+
+function upload_all()
+{
+    let type = get_type()
     let files = Object.keys(localStorage)
     files.forEach(function (file, index)
     {
         if (file.startsWith(type + "-"))
         {
-            upload = file + '|||' + localStorage.getItem(file)
+            upload = file + "|||" + localStorage.getItem(file)
             console.log("posting " + file)
             fetch('localhost', {method: "POST", body: upload})
         }
     })
 }
+
+function merge_results()
+{
+    let type = get_type()
+    let files = Object.keys(localStorage)
+    let combo = {}
+    files.forEach(function (file, index)
+    {
+        if (file.startsWith(type + "-"))
+        {
+            combo[file] = localStorage.getItem(file)
+        }
+    })
+    return combo
+}
+
+function build_qr(type)
+{
+    qrcode.clear()
+    qrcode.makeCode(JSON.stringify(merge_results(type)))
+}
+
+window.addEventListener('load', function() {
+    qrcode = new QRCode(document.getElementById("qrcode"), {width:512, height:512})
+})

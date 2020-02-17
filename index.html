@@ -5,6 +5,7 @@
         <meta charset="utf-8"/>
         <title>WildRank Web</title>
         <script src="keys.js"></script>
+        <script src="qrcodejs/qrcode.js"></script>
         <script src="index.js"></script>
     </head>
     <body>
@@ -14,20 +15,23 @@
                 <input type="text" name="event" id="event_id" value="2019ilch">
                 <input name="position" type="number" min="0" max="5" value="0"><br><br>
                 <input type="submit" value="Pit Scout" onclick="javascript: form.action='pits.html'">
-                <input type="submit" value="Match Scout" onclick="javascript: form.action='matches.html'"><br><br>
-                <input type="radio" name="type" value="match"> Match
-                <input type="radio" name="type" value="pit"> Pit
-                <input type="submit" value="View Results" onclick="javascript: form.action='results.html'"><br><br>
-            </form>
+                <input type="submit" value="Match Scout" onclick="javascript: form.action='matches.html'">
+            </form><br>
             <form onsubmit="load_event(); return false" action="">
-                <input type="submit" value="Preload Event (Requires Internet)"><br><br>
-            </form>
-            <form onsubmit="upload_all('pit'); return false" action="">
-                <input type="submit" value="Upload Pit Results"><br><br>
-            </form>
-            <form onsubmit="upload_all('match'); return false" action="">
-                <input type="submit" value="Upload Match Results">
-            </form>
+                <input type="submit" value="Preload Event (Requires Internet)">
+            </form><br>
+            <form>
+                <input type="radio" name="type" value="match" id="type" checked> Match
+                <input type="radio" name="type" value="pit"> Pit<br><br>
+                <input type="submit" value="View Results" onclick="javascript: form.action='results.html'">
+            </form><br>
+            <form onsubmit="upload_all(); return false" action="">
+                <input type="submit" value="Upload Results">
+            </form><br>
+            <form onsubmit="build_qr(); return false" action="">
+                <input type="submit" value="Build QR Code">
+            </form><br>
+            <div id="qrcode"></div>
         </center>
     </body>
 </html>
