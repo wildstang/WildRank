@@ -1,0 +1,63 @@
+.wr_page {
+    float: left;
+    border-right: 1px solid black;
+    padding-left: 16px;
+}
+
+.wr_column {
+    padding-right: 16px;
+    float: left;
+}
+
+.wr_checkbox, .wr_counter, .wr_dropdown, .wr_button {
+    width: 248px; /* 250 - 2 */
+    height: 41px; /* 75 - 2 - 32 */
+    padding: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+    margin: 0 auto 16px;
+}
+
+.wr_select {
+    min-width: 248px; /* 250 - 2 */
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+    display: table;
+    table-layout: fixed;
+    margin: 0 auto 16px;
+}
+
+.wr_button {
+    clear: both;
+}
+
+.wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover {
+    background-color: lightblue;
+}
+
+.wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > * {
+    line-height: 41px;
+}
+
+.wr_dropdown > * {
+    width: 248px;
+}
+
+.wr_counter_count {
+    font-size: 200%;
+}
+
+.wr_select_option {
+    height: 41px; /* 75 - 2 - 32 */
+    line-height: 41px;
+    padding: 16px;
+    display: table-cell;
+    text-align: center;
+}
+
+.selected {
+    background-color: dodgerblue;
+    color: white;
+}

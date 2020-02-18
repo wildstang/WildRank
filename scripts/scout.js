@@ -69,11 +69,11 @@ function check(id)
     document.getElementById(id).checked = checked
     if (checked)
     {
-        document.getElementById(id + "-container").style.backgroundColor = "blue"
+        document.getElementById(id + "-container").classList.add("selected")
     }
     else
     {
-        document.getElementById(id + "-container").style.backgroundColor = "white"
+        document.getElementById(id + "-container").classList.remove("selected")
     }
 }
 
@@ -82,9 +82,9 @@ function select_option(id, index)
     let children = document.getElementById(id).getElementsByClassName("wr_select_option")
     for (let option of children)
     {
-        option.style.backgroundColor = "white"
+        option.classList.remove("selected")
     }
-    document.getElementById(id + "-" + index).style.backgroundColor = "blue"
+    document.getElementById(id + "-" + index).classList.add("selected")
 }
 
 function increment(id)
@@ -160,7 +160,6 @@ function build_page_from_config(config, selected_mode)
                                 break
                         }
                         items += item.replace(/ID/g, id).replace(/NAME/g, name)
-                        console.log("Found " + type + " " + id + " called " + name)
                     })
                     columns += column_frame.replace(/ID/g, col_id)
                                         .replace(/NAME/g, col_name)
@@ -176,7 +175,7 @@ function build_page_from_config(config, selected_mode)
 
     select_ids.forEach(function (id, index)
     {
-        document.getElementById(id).style.backgroundColor = "blue"
+        document.getElementById(id).classList.add("selected")
     })
 }
 
@@ -211,7 +210,7 @@ function get_results_from_page(selected_mode)
                                 var i = 0;
                                 for (let option of children)
                                 {
-                                    if (option.style.backgroundColor == "blue")
+                                    if (option.classList.contains("selected"))
                                     {
                                         results[id] = i
                                     }
@@ -242,7 +241,7 @@ const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
 
-fetch("default-config.json")
+fetch("config/scout-config.json")
     .then(response => {
         return response.json()
     })
