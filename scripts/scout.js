@@ -1,8 +1,13 @@
 /**
- * wildrank.js
- * Builds the match UI and manages inputs.
+ * file:        pits.js
+ * description: Contains functions for the scouting page of the web app.
+ *              Primarily for building the interface from event and config data.
+ * author:      Liam Fruzyna
+ * date:        2020-02-15
  */
 
+// All possible input types
+// TODO: implement text boxes
 const valid_input_types = [
     "checkbox", // boolean checkbox
     "dropdown", // multiple dropdown options
@@ -13,45 +18,54 @@ const valid_input_types = [
     "text"      // extended text entry
 ]
 
+// HTML template for a scouting page
 const page_frame = "\
     <div class=\"wr_page\">\
         <h2>NAME</h3>\
         COLUMNS\
     </div>"
 
+// HTML template for a page column
 const column_frame = "\
     <div class=\"wr_column\">\
         <h3>NAME</h3>\
         ITEMS\
     </div>"
 
+// HTML template for a button
 const button = "\
     <div class=\"wr_button\" onclick=\"ONCLICK\">\
         <label id=\"ID\">NAME</label>\
     </div>"
 
+// HTML template for a checkbox
 const checkbox = "\
     <div class=\"wr_checkbox\" id=\"ID-container\" onclick=\"check('ID')\">\
         <input type=\"checkbox\" onclick=\"check('ID')\" id=\"ID\" name=\"ID\" CHECKED>\
         <label for=\"ID\" onclick=\"check('ID')\">NAME</label>\
     </div>"
 
+// HTML template for a counter button
+// TODO: implement counting down
 const counter = "\
     <div class=\"wr_counter\" onclick=\"increment('ID')\">\
         <label class=\"wr_counter_count\" id=\"ID\">VALUE</label>\
         <label>NAME</label>\
     </div>"
 
+// HTML template for a selection button
 const select = "\
     <div class=\"wr_select\" id=\"ID\">\
         OPTIONS\
     </div>"
 
+// HTML template for a selection option
 const select_op = "\
     <span class=\"wr_select_option\" id=\"ID-INDEX\" onclick=\"select_option('ID', 'INDEX')\">\
         <label>NAME</label>\
     </span>"
 
+// HTML template for a dropdown selector
 const dropdown = "\
     <div class=\"wr_dropdown\">\
         <select id=\"ID\">\
@@ -59,10 +73,17 @@ const dropdown = "\
         </select>\
     </div>"
 
+// HTML template for a dropdown option
 const dropdown_op = "<option value=\"NAME\" SELECTED>NAME</option>"
 
 var config
 
+/**
+ * function:    check
+ * parameters:  ID of checkbox button
+ * returns:     none
+ * description: Toggles a checkbox when clicked on.
+ */
 function check(id)
 {
     let checked = !document.getElementById(id).checked
@@ -77,6 +98,12 @@ function check(id)
     }
 }
 
+/**
+ * function:    selectio_option
+ * parameters:  ID of selection button and the selected option's index
+ * returns:     none
+ * description: Switches which option is selected on click.
+ */
 function select_option(id, index)
 {
     let children = document.getElementById(id).getElementsByClassName("wr_select_option")
@@ -87,29 +114,46 @@ function select_option(id, index)
     document.getElementById(id + "-" + index).classList.add("selected")
 }
 
+/**
+ * function:    increment
+ * parameters:  ID of counter button
+ * returns:     none
+ * description: Increases the value of the counter on click.
+ */
 function increment(id)
 {
     let current = document.getElementById(id).innerHTML
     document.getElementById(id).innerHTML = parseInt(current) + 1
 }
 
-function build_page_from_config(config, selected_mode)
+/**
+ * function:    build_page_from_config
+ * parameters:  Mode from config to build
+ * returns:     none
+ * description: Builds the page from the config file and the given mode.
+ */
+function build_page_from_config(selected_mode)
 {
     var select_ids = [];
+    // iterate through each mode obj
     config.forEach(function (mode, index)
     {
+        // determine if this is the desired mode
         if (mode.id == selected_mode)
         {
+            // iterate through each page in the mode
             mode["pages"].forEach(function (page, index)
             {
                 var page_name = page.name
                 var page_id = page.id
                 columns = ""
+                // iterate through each column in the page
                 page["columns"].forEach(function (column, index)
                 {
                     var col_name = column.name
                     var col_id = column.id
                     items = ""
+                    // iterate through input in the column
                     column["inputs"].forEach(function (input, index)
                     {
                         var name = input.name
@@ -118,6 +162,7 @@ function build_page_from_config(config, selected_mode)
                         var default_val = input.default
 
                         var item = ""
+                        // build each input from its template
                         switch (type)
                         {
                             case "checkbox":
@@ -136,7 +181,8 @@ function build_page_from_config(config, selected_mode)
                                 options = ""
                                 input["options"].forEach(function (option, index)
                                 {
-                                    op = select_op.replace(/NAME/g, option).replace(/INDEX/g, index)
+                                    op = select_op.replace(/NAME/g, option)
+                                                  .replace(/INDEX/g, index)
                                     if (option == default_val)
                                     {
                                         select_ids.push(id + "-" + index)
@@ -154,7 +200,8 @@ function build_page_from_config(config, selected_mode)
                                     {
                                         selected = "selected"
                                     }
-                                    options += dropdown_op.replace(/NAME/g, option).replace(/SELECTED/g, selected)
+                                    options += dropdown_op.replace(/NAME/g, option)
+                                                          .replace(/SELECTED/g, selected)
                                 })
                                 item = dropdown.replace(/OPTIONS/g, options)
                                 break
@@ -162,23 +209,33 @@ function build_page_from_config(config, selected_mode)
                         items += item.replace(/ID/g, id).replace(/NAME/g, name)
                     })
                     columns += column_frame.replace(/ID/g, col_id)
-                                        .replace(/NAME/g, col_name)
-                                        .replace(/ITEMS/g, items)
+                                           .replace(/NAME/g, col_name)
+                                           .replace(/ITEMS/g, items)
                 })
                 document.body.innerHTML += page_frame.replace(/ID/g, page_id)
-                                                    .replace(/NAME/g, page_name)
-                                                    .replace(/COLUMNS/g, columns)
+                                                     .replace(/NAME/g, page_name)
+                                                     .replace(/COLUMNS/g, columns)
             })
         }
     })
-    document.body.innerHTML += button.replace(/ID/g, "submit_" + selected_mode).replace(/NAME/g, "Submit").replace(/ONCLICK/g, "get_results_from_page('" + selected_mode + "')")
+    // replace placeholders in template and add to screen
+    document.body.innerHTML += button.replace(/ID/g, "submit_" + selected_mode)
+                                     .replace(/NAME/g, "Submit")
+                                     .replace(/ONCLICK/g, "get_results_from_page('" + selected_mode + "')")
 
+    // mark each selected box as such
     select_ids.forEach(function (id, index)
     {
         document.getElementById(id).classList.add("selected")
     })
 }
 
+/**
+ * function:    get_results_from_page
+ * parameters:  Mode from config in use
+ * returns:     none
+ * description: Accumulates the results from page into a new object.
+ */
 function get_results_from_page(selected_mode)
 {
     results = {}
@@ -235,30 +292,34 @@ function get_results_from_page(selected_mode)
     window.history.back()
 }
 
+// read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const scout_mode = urlParams.get('mode')
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
 
+// request the scouting config from the server
 fetch("config/scout-config.json")
     .then(response => {
         return response.json()
     })
     .then(data => {
+        // set the team number in the header
         document.getElementById("team").innerHTML = team_num
         document.getElementById("team").style.color = alliance_color
 
+        // build the page from config for the desired mode
         config = data
         if (scout_mode == 'match')
         {
             document.getElementById("match").innerHTML = match_num
-            build_page_from_config(config, "match")
+            build_page_from_config("match")
         }
         else
         {
             document.getElementById("match").innerHTML = "Pit"
-            build_page_from_config(config, "pit")
+            build_page_from_config("pit")
         }
     })
     .catch(err => {
