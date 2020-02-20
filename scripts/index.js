@@ -103,6 +103,8 @@ function get_type()
 function upload_all()
 {
     let type = get_type()
+    let status = document.getElementById("status")
+    status.innerHTML += "Uploading " + type + " results...<br>"
     // get all files in localStorage
     let files = Object.keys(localStorage)
     files.forEach(function (file, index)
@@ -113,6 +115,7 @@ function upload_all()
             // append file name to data, separated by "|||"
             upload = file + "|||" + localStorage.getItem(file)
             console.log("posting " + file)
+            status.innerHTML += "posting " + file + "<br>"
             // post string to server
             fetch('localhost', {method: "POST", body: upload})
         }
@@ -123,7 +126,7 @@ function upload_all()
  * function:    merge_results
  * parameters:  none
  * returns:     Combined object of all files of a type
- * description: Combines all files of the currently selected type into a single JSON object.
+ * description: Combines all files of the currently selected type into a single CSV file.
  */
 function merge_results()
 {

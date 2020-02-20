@@ -293,7 +293,7 @@ function get_results_from_page(selected_mode)
         file = scout_mode + '-' + match_num + '-' + team_num
     }
     localStorage.setItem(file, JSON.stringify(results));
-    window.history.back()
+    window.location.href()
 }
 
 // read parameters from URL
