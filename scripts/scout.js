@@ -48,7 +48,7 @@ const checkbox = "\
 // HTML template for a counter button
 // TODO: implement counting down
 const counter = "\
-    <div class=\"wr_counter\" onclick=\"increment('ID')\">\
+    <div class=\"wr_counter\" onclick=\"increment('ID', false)\" oncontextmenu=\"increment('ID', true); return false\">\
         <label class=\"wr_counter_count\" id=\"ID\">VALUE</label>\
         <label>NAME</label>\
     </div>"
@@ -116,17 +116,20 @@ function select_option(id, index)
 
 /**
  * function:    increment
- * parameters:  ID of counter button
+ * parameters:  ID of counter button, whether it was a right click
  * returns:     none
- * description: Increases the value of the counter on click.
+ * description: Increases the value of the counter on click, descreases on right.
  */
-function increment(id)
+function increment(id, right)
 {
     let current = document.getElementById(id).innerHTML
-    document.getElementById(id).innerHTML = parseInt(current) + 1
+    let modifier = right ? -1 : 1
+    if (current > 0 || modifier > 0) {
+        document.getElementById(id).innerHTML = parseInt(current) + modifier
+    }
 }
 
-/**
+/** 
  * function:    build_page_from_config
  * parameters:  Mode from config to build
  * returns:     none
@@ -176,6 +179,7 @@ function build_page_from_config(selected_mode)
                                 break
                             case "counter":
                                 item = counter.replace(/VALUE/g, default_val)
+
                                 break
                             case "select":
                                 options = ""

@@ -130,12 +130,22 @@ function merge_results()
     let type = get_type()
     // get all files in localStorage
     let files = Object.keys(localStorage)
-    let combo = {}
+    let combo = ""
+    let header = true
     files.forEach(function (file, index)
     {
+        let parts = file.split("-")
         // determine files which start with the desired type
-        if (file.startsWith(type + "-"))
+        if (parts[0] == type)
         {
+            let results = JSON.parse(localStorage.getItem(file))
+            // assumes all files are formatted the same
+            if (header) {
+                combo += "match,team" + Object.keys(results).join(",")
+                header = false
+            }
+            combo += parts[1] + "," + parts[2] + "," + Object.values(results).join(",")
+                
             // add as a field to the object named by the file name
             combo[file] = localStorage.getItem(file)
         }
@@ -162,7 +172,6 @@ function process_files()
     files.forEach(function (file, index)
     {
         let parts = file.split("-")
-        console.log(parts[0])
         // determine files which start with the desired type
         if (parts[0] == "matches")
         {
@@ -199,7 +208,7 @@ function build_qr(type)
     // remove any existing QR codes
     qrcode.clear()
     // build and place a QR code for the JSON string of the requested results
-    qrcode.makeCode(JSON.stringify(merge_results(type)))
+    qrcode.makeCode(merge_results(type))
 }
 
 // when the page is finished loading
