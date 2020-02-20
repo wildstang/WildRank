@@ -19,6 +19,8 @@ function load_event()
 {
     // get event id from the text box
     let event_id = document.getElementById("event_id").value
+    let status = document.getElementById("status")
+    status.innerHTML += "Requesting event data...<br>"
     console.log("Requesting event data...")
 
     // fetch simple event matches
@@ -27,19 +29,27 @@ function load_event()
             return response.json()
         })
         .then(data => {
-            console.log("Got matches")
-            // sort match objs by match number
-            matches = data.sort(function (a, b) {
-                return b.match_number < a.match_number ?  1
-                        : b.match_number > a.match_number ? -1
-                        : 0;
-            });
+            if (data.length > 0) {
+                status.innerHTML += "got (" + data.length + ") matches<br>"
+                console.log("got (" + data.length + ") matches")
 
-            // store matches as JSON string in matches-[event-id]
-            localStorage.setItem("matches-" + event_id, JSON.stringify(matches))
+                // sort match objs by match number
+                matches = data.sort(function (a, b) {
+                    return b.match_number < a.match_number ?  1
+                            : b.match_number > a.match_number ? -1
+                            : 0;
+                });
+
+                // store matches as JSON string in matches-[event-id]
+                localStorage.setItem("matches-" + event_id, JSON.stringify(matches))
+            }
+            else {
+                status.innerHTML += "no matches received<br>"
+            }
         })
         .catch(err => {
-            console.log("Error loading matches: " + err)
+            console.log("error loading matches: " + err)
+            status.innerHTML += "error loading matches<br>"
         })
 
     // fetch simple event teams
@@ -48,19 +58,27 @@ function load_event()
             return response.json()
         })
         .then(data => {
-            console.log("Got teams")
-            // sort team objs by team number
-            teams = data.sort(function (a, b) {
-                return b.team_number < a.team_number ?  1
-                        : b.team_number > a.team_number ? -1
-                        : 0;
-            });
+            if (data.length > 0) {
+                status.innerHTML += "got (" + data.length + ") teams<br>"
+                console.log("got (" + data.length + ") teams")
 
-            // store teams as JSON string in teams-[event_id]
-            localStorage.setItem("teams-" + event_id, JSON.stringify(teams))
+                // sort team objs by team number
+                teams = data.sort(function (a, b) {
+                    return b.team_number < a.team_number ?  1
+                            : b.team_number > a.team_number ? -1
+                            : 0;
+                });
+
+                // store teams as JSON string in teams-[event_id]
+                localStorage.setItem("teams-" + event_id, JSON.stringify(teams))
+            }
+            else {
+                status.innerHTML += "no teams received<br>"
+            }
         })
         .catch(err => {
-            console.log("Error loading teams: " + err)
+            console.log("error loading teams: " + err)
+            status.innerHTML += "error loading teams<br>"
         })
 }
 
@@ -126,6 +144,51 @@ function merge_results()
 }
 
 /**
+ * function:    process_files
+ * parameters:  none
+ * returns:     none
+ * description: Counts files and displays numbers on screen
+ */
+function process_files()
+{
+    let type = get_type()
+    // get all files in localStorage
+    let files = Object.keys(localStorage)
+    let combo = {}
+    let matches = 0
+    let pits = 0
+    let events = []
+    let teams = []
+    files.forEach(function (file, index)
+    {
+        let parts = file.split("-")
+        console.log(parts[0])
+        // determine files which start with the desired type
+        if (parts[0] == "matches")
+        {
+            events.push(parts[1])
+        }
+        else if (parts[0] == "teams")
+        {
+            teams.push(parts[1])
+        }
+        else if (parts[0] == "match")
+        {
+            ++matches
+        }
+        else if (parts[0] == "pit")
+        {
+            ++pits
+        }
+    })
+    document.getElementById("status").innerHTML += "Found...<br>" +
+                                                    matches + " scouted matches<br>" +
+                                                    pits + " scouted pits<br>" +
+                                                    "Match Events: " + events.join(", ") + "<br>" +
+                                                    "Team Events: " + teams.join(", ") + "<br>"
+}
+
+/**
  * function:    build_qr
  * parameters:  The desired type to build a QR code of.
  * returns:     none
@@ -144,3 +207,6 @@ window.addEventListener('load', function() {
     // initialize the QR code canvas
     qrcode = new QRCode(document.getElementById("qrcode"), {width:512, height:512})
 })
+
+// display status on page load
+window.addEventListener('load', process_files)

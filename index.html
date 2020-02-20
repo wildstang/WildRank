@@ -12,14 +12,15 @@
         <center>
             <h1>WildRank Universal Experiment</h1>
             <form>
-                <input type="text" name="event" id="event_id" value="2019ilch">
-                <input name="position" type="number" min="0" max="5" value="0"><br><br>
+                Event ID: <input type="text" name="event" id="event_id" value="2019ilch"><br><br>
+                Position: <input name="position" type="number" min="0" max="5" value="0"><br><br>
                 <input type="submit" value="Pit Scout" onclick="javascript: form.action='pits.html'">
                 <input type="submit" value="Match Scout" onclick="javascript: form.action='matches.html'">
             </form><br>
             <form onsubmit="load_event(); return false" action="">
-                <input type="submit" value="Preload Event (Requires Internet)">
+                <input type="submit" id="preload" value="Preload Event (Requires Internet)">
             </form><br>
+            <div id="status"></div><br>
             <form>
                 <input type="radio" name="type" value="match" id="type" checked> Match
                 <input type="radio" name="type" value="pit"> Pit<br><br>
