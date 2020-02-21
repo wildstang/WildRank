@@ -73,6 +73,24 @@ const dropdown = "\
         </select>\
     </div>"
 
+// HTML template for a string textbox
+const STR_ENTRY = "\
+    <div class=\"wr_string\">\
+        <input type=\"text\" id=\"ID\" value=\"VALUE\">\
+    </div>"
+
+// HTML template for a number textbox
+const NUM_ENTRY = "\
+    <div class=\"wr_number\">\
+        <input type=\"number\" id=\"ID\" value=\"VALUE\">\
+    </div>"
+
+// HTML template for a text textbox
+const TEXT_ENTRY = "\
+    <div class=\"wr_text\">\
+        <textarea id=\"ID\">VALUE</textarea>\
+    </div>"
+    
 // HTML template for a dropdown option
 const dropdown_op = "<option value=\"NAME\" SELECTED>NAME</option>"
 
@@ -205,9 +223,18 @@ function build_page_from_config(selected_mode)
                                         selected = "selected"
                                     }
                                     options += dropdown_op.replace(/NAME/g, option)
-                                                          .replace(/SELECTED/g, selected)
+                                                            .replace(/SELECTED/g, selected)
                                 })
                                 item = dropdown.replace(/OPTIONS/g, options)
+                                break
+                            case "string":
+                                item = STR_ENTRY.replace(/VALUE/g, default_val)
+                                break
+                            case "number":
+                                item = NUM_ENTRY.replace(/VALUE/g, default_val)
+                                break
+                            case "text":
+                                item = TEXT_ENTRY.replace(/VALUE/g, default_val)
                                 break
                         }
                         items += item.replace(/ID/g, id).replace(/NAME/g, name)
@@ -281,23 +308,30 @@ function get_results_from_page(selected_mode)
                             case "dropdown":
                                 results[id] = document.getElementById(id).selectedIndex
                                 break
+                            case "string":
+                            case "number":
+                            case "text":
+                                results[id] = document.getElementById(id).value
+                                break
                         }
                     })
                 })
             })
         }
     })
-    let file = scout_mode + '-' + team_num
-    if (scout_mode == 'match')
+    let file = ["pit", event_id, team_num].join("-")
+    if (scout_mode == "match")
     {
-        file = scout_mode + '-' + match_num + '-' + team_num
+        file = ["match", event_id, match_num, team_num].join("-")
     }
     localStorage.setItem(file, JSON.stringify(results));
-    window.location.href()
+    window.location.href = document.referrer
 }
 
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
+const event_id = urlParams.get('event')
+const scout_pos = urlParams.get('position')
 const scout_mode = urlParams.get('mode')
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')

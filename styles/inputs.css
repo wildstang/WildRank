@@ -9,9 +9,19 @@
     float: left;
 }
 
-.wr_checkbox, .wr_counter, .wr_dropdown, .wr_button {
+.wr_checkbox, .wr_counter, .wr_dropdown, .wr_button, .wr_string, .wr_number {
     width: 248px; /* 250 - 2 */
     height: 41px; /* 75 - 2 - 32 */
+    padding: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+    margin: 0 auto 16px;
+}
+
+.wr_text {
+    width: 248px; /* 250 - 2 */
+    height: 100px; /* 100 - 2 - 32 */
     padding: 16px;
     border-style: solid;
     border-width: 1px;
@@ -33,16 +43,16 @@
     clear: both;
 }
 
-.wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover {
+.wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_number:hover, .wr_text:hover {
     background-color: lightblue;
 }
 
-.wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > * {
+.wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > * {
     line-height: 41px;
 }
 
-.wr_dropdown > * {
-    width: 248px;
+.wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > * {
+    width: 230px;
 }
 
 .wr_counter_count {

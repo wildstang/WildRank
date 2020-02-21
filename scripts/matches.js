@@ -69,7 +69,7 @@ function start_scouting()
     let team_num = document.getElementById("team_scouting").innerHTML
     let color = document.getElementById("team_scouting").style.color
     // build URL with parameters
-    window.open("scout.html?mode=match&match=" + match_num + "&team=" + team_num + "&alliance=" + color, "_self")
+    window.open("scout.html?mode=match&match=" + match_num + "&team=" + team_num + "&alliance=" + color + "&event=" + event_id + "&position=" + scout_pos, "_self")
 }
 
 /**
@@ -104,7 +104,8 @@ function build_match_list()
 
             // grey out previously scouted matches/teams
             scouted = "not_scouted"
-            if (localStorage.getItem("match-" + number + '-' + team) != null) {
+            if (localStorage.getItem(["match", event_id, number, team].join("-")) != null)
+            {
                 scouted = "scouted"
             }
 

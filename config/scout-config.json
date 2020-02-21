@@ -123,6 +123,29 @@
 							"default": false
 						}
 					]
+				},
+				{
+					"name": "Notes",
+					"id": "pit_notes",
+					"inputs": [{
+							"name": "Robot Name",
+							"id": "pit_notes_name",
+							"type": "string",
+							"default": ""
+						},
+						{
+							"name": "Rating (1-5)",
+							"id": "pit_notes_rating",
+							"type": "number",
+							"default": 3
+						},
+						{
+							"name": "Notes",
+							"id": "pit_notes_notes",
+							"type": "text",
+							"default": ""
+						}
+					]
 				}
 			]
 		}]

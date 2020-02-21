@@ -143,11 +143,22 @@ function merge_results()
         {
             let results = JSON.parse(localStorage.getItem(file))
             // assumes all files are formatted the same
-            if (header) {
-                combo += "match,team" + Object.keys(results).join(",")
+            if (header)
+            {
+                start = "team,"
+                if (type == "match")
+                {
+                    start = "match,team,"
+                }
+                combo += start + Object.keys(results).join(",")
                 header = false
             }
-            combo += parts[1] + "," + parts[2] + "," + Object.values(results).join(",")
+            start = parts[2]
+            if (type == "match")
+            {
+                start += "," + parts[3]
+            }
+            combo += start + "," + Object.values(results).join(",")
                 
             // add as a field to the object named by the file name
             combo[file] = localStorage.getItem(file)

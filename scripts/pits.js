@@ -34,7 +34,7 @@ function open_team(team_num)
 function start_scouting()
 {
     let team_num = document.getElementById("team_num").innerHTML
-    window.open("scout.html?mode=pit&team=" + team_num + "&alliance=black", "_self")
+    window.open("scout.html?mode=pit&team=" + team_num + "&alliance=black&position=0&event=" + event_id, "_self")
 }
 
 /**
@@ -50,7 +50,8 @@ function build_team_list()
         let number = team.team_number
         // determine if the team has already been scouted
         let scouted = "not_scouted"
-        if (localStorage.getItem("pit-" + number) != null) {
+        if (localStorage.getItem(["pit", event_id, number].join("-")) != null)
+        {
             scouted = "scouted"
         }
 
