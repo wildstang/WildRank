@@ -1,6 +1,5 @@
 .wr_page {
     float: left;
-    border-right: 1px solid black;
     padding-left: 16px;
 }
 
@@ -9,34 +8,37 @@
     float: left;
 }
 
-.wr_checkbox, .wr_counter, .wr_dropdown, .wr_button, .wr_string, .wr_number {
-    width: 248px; /* 250 - 2 */
-    height: 41px; /* 75 - 2 - 32 */
-    padding: 16px;
+.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select {
+    font-size: 16px;
+    font-family: "DejaVu Serif";
     border-style: solid;
     border-width: 1px;
     border-radius: 4px;
+    border-color: black;
     margin: 0 auto 16px;
+    padding: 16px;
+}
+
+.wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number {
+    width: 248px; /* 250 - 2 */
+    height: 41px; /* 75 - 2 - 32 */
+}
+
+.wr_dropdown {
+    width: 282px;
+    height: 75px;
 }
 
 .wr_text {
     width: 248px; /* 250 - 2 */
-    height: 100px; /* 100 - 2 - 32 */
-    padding: 16px;
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 4px;
-    margin: 0 auto 16px;
+    height: 132px; /* 75 + 75 + 16 - 2 - 32 */
 }
 
 .wr_select {
-    min-width: 248px; /* 250 - 2 */
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 4px;
+    min-width: 280px; /* 282 - 2 */
     display: table;
     table-layout: fixed;
-    margin: 0 auto 16px;
+    padding: 0px;
 }
 
 .wr_button {

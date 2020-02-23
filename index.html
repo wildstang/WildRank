@@ -4,6 +4,7 @@
     <head>
         <meta charset="utf-8"/>
         <title>WildRank Web</title>
+        <link rel="stylesheet" type="text/css" href="styles/inputs.css">
         <script src="qrcodejs/qrcode.js"></script>
         <script src="scripts/keys.js"></script>
         <script src="scripts/index.js"></script>
@@ -11,28 +12,54 @@
     <body>
         <center>
             <h1>WildRank Universal Experiment</h1>
-            <form>
-                Event ID: <input type="text" name="event" id="event_id" value="2019ilch"><br><br>
-                Position: <input name="position" type="number" min="0" max="5" value="0"><br><br>
-                <input type="submit" value="Pit Scout" onclick="javascript: form.action='pits.html'">
-                <input type="submit" value="Match Scout" onclick="javascript: form.action='matches.html'">
-            </form><br>
-            <form onsubmit="load_event(); return false" action="">
-                <input type="submit" id="preload" value="Preload Event (Requires Internet)">
-            </form><br>
-            <div id="status"></div><br>
-            <form>
-                <input type="radio" name="type" value="match" id="type" checked> Match
-                <input type="radio" name="type" value="pit"> Pit<br><br>
-                <input type="submit" value="View Results" onclick="javascript: form.action='results.html'">
-            </form><br>
-            <form onsubmit="upload_all(); return false" action="">
-                <input type="submit" value="Upload Results">
-            </form><br>
-            <form onsubmit="build_qr(); return false" action="">
-                <input type="submit" value="Build QR Code">
-            </form><br>
-            <div id="qrcode"></div>
         </center>
+        <div class="wr_page">
+            <div class="wr_column">
+                <h3>Options</h3>
+                <input class="wr_string" type="text" id="event_id" value="2019ilch"><br>
+                <select class="wr_dropdown" id="position">
+                    <option>Red 1</option>
+                    <option>Red 2</option>
+                    <option>Red 3</option>
+                    <option>Blue 1</option>
+                    <option>Blue 2</option>
+                    <option>Blue 3</option>
+                </select>
+                <div class="wr_select" id="type_form">
+                    <span class="wr_select_option" id="type_form-2" onclick="select_option('type_form', '2')">
+                        <label>Pit</label>
+                    </span>
+                    <span class="wr_select_option selected" id="type_form-1" onclick="select_option('type_form', '1')">
+                        <label>Match</label>
+                    </span>
+                </div>
+            </div>
+            <div class="wr_column">
+                <h3>Functions</h3>
+                <div class="wr_button" onclick="scout()">
+                    <label>Scout</label>
+                </div>
+                <div class="wr_button" onclick="load_event()">
+                    <label>Preload Event</label>
+                </div>
+                <div class="wr_button" onclick="open_results()">
+                    <label>View Results</label>
+                </div>
+                <div class="wr_button" onclick="upload_all()">
+                    <label>Upload Results</label>
+                </div>
+                <div class="wr_button" onclick="build_qr()">
+                    <label>Build QR Code</label>
+                </div>
+            </div>
+            <div class="wr_column">
+                <h3>Status</h3>
+                <div id="status"></div>
+            </div> 
+            <div class="wr_column">
+                <h3>QR Code</h3>
+                <div id="qrcode"></div>
+            </div> 
+        </div>
     </body>
 </html>

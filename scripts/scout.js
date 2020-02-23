@@ -67,32 +67,21 @@ const select_op = "\
 
 // HTML template for a dropdown selector
 const dropdown = "\
-    <div class=\"wr_dropdown\">\
-        <select id=\"ID\">\
-            OPTIONS\
-        </select>\
-    </div>"
-
-// HTML template for a string textbox
-const STR_ENTRY = "\
-    <div class=\"wr_string\">\
-        <input type=\"text\" id=\"ID\" value=\"VALUE\">\
-    </div>"
-
-// HTML template for a number textbox
-const NUM_ENTRY = "\
-    <div class=\"wr_number\">\
-        <input type=\"number\" id=\"ID\" value=\"VALUE\">\
-    </div>"
-
-// HTML template for a text textbox
-const TEXT_ENTRY = "\
-    <div class=\"wr_text\">\
-        <textarea id=\"ID\">VALUE</textarea>\
-    </div>"
+    <select class=\"wr_dropdown\" id=\"ID\">\
+        OPTIONS\
+    </select>"
     
 // HTML template for a dropdown option
-const dropdown_op = "<option value=\"NAME\" SELECTED>NAME</option>"
+const dropdown_op = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
+
+// HTML template for a string textbox
+const STR_ENTRY = "<input class=\"wr_string\" type=\"text\" id=\"ID\" value=\"VALUE\"><br>"
+
+// HTML template for a number textbox
+const NUM_ENTRY = "<input class=\"wr_number\" type=\"number\" id=\"ID\" value=\"VALUE\"><br>"
+
+// HTML template for a text textbox
+const TEXT_ENTRY = "<textarea class=\"wr_text\" id=\"ID\">VALUE</textarea><br>"
 
 var config
 

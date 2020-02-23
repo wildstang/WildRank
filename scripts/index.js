@@ -9,6 +9,74 @@
 var qrcode
 
 /**
+ * function:    select_option
+ * parameters:  ID of the selector, index of the newly selected option
+ * returns:     none
+ * description: Select a given option in a selector.
+ */
+function select_option(id, index)
+{
+    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
+    for (let option of children)
+    {
+        option.classList.remove("selected")
+    }
+    document.getElementById(id + "-" + index).classList.add("selected")
+}
+
+/**
+ * function:    get_selected_option
+ * parameters:  ID of selected item
+ * returns:     none
+ * description: Returns the selected index of the given select.
+ */
+function get_selected_option(id)
+{
+    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
+    let i = 0
+    for (let option of children)
+    {
+        if (option.classList.contains("selected"))
+        {
+            return i
+        }
+        ++i
+    }
+    return -1
+}
+
+/**
+ * function:    scout
+ * parameters:  none
+ * returns:     none
+ * description: Start the selected scouting mode.
+ */
+function scout()
+{
+    let event = document.getElementById("event_id").value
+    let position = document.getElementById("position").selectedIndex
+    if (get_type() == "match")
+    {
+        document.location.href = "matches.html?event=" + event + "&position=" + position
+    }
+    else
+    {
+        document.location.href = "pits.html?event=" + event
+    }
+}
+
+/**
+ * function:    open_results
+ * parameters:  none
+ * returns:     none
+ * description: Open the results of the selected scouting mode.
+ */
+function open_results()
+{
+    document.location.href = "results.html?type=" + get_type()
+}
+
+/**
  * function:    load_event
  * parameters:  none
  * returns:     none
@@ -90,7 +158,7 @@ function load_event()
  */
 function get_type()
 {
-    return document.getElementById("type").checked ? "match" : "pit"
+    return get_selected_option("type_form") ? "match" : "pit"
 }
 
 /**
