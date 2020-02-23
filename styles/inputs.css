@@ -1,68 +1,92 @@
+:root {
+    --input-width: 275px;
+    --input-height: 75px;
+    --input-padding: 16px;
+    --input-gap: 16px;
+    --border-radius: 4px;
+}
+
 html {
     background-color: rgb(240, 240, 240);
 }
 
 body {
     margin: 0;
+    text-align: center;
 }
 
 .wr_page {
-    float: left;
-    padding-left: 16px;
+    display: inline-block;
+    padding: 0 auto;
+    padding-left: var(--input-gap);
+    text-align: left;
 }
 
 .wr_column {
-    padding-right: 16px;
+    padding-right: var(--input-gap);
     float: left;
 }
 
-#page_header, .wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .wr_column_header, .wr_page_header {
+.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .wr_column_header, .wr_page_header {
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
-    border-width: 1px;
-    border-radius: 4px;
+    border-width: 0px;
+    border-radius: var(--border-radius);
     border-color: rgb(224, 224, 224);
-    margin: 0 auto 16px;
-    padding: 16px;
+    margin: 0 auto var(--input-gap);
+    padding: var(--input-padding);
     background-color: white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #page_header {
+    font-size: 16px;
+    font-family: "DejaVu Serif";
+    border-style: solid;
     width: 100%;
     text-align: center;
-    padding: 16px;
-    margin-bottom: 32px;
-    border-top: 0px;
+    margin-bottom: calc(2*var(--input-gap));
+    background-color: #000080;
+    border-color: #ffb30f;
+    border-width: 0 0 4px 0;
+    padding: var(--input-padding) 0;
+    color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .wr_page_header {
-    margin-right: 16px;
+    margin-right: var(--input-gap);
     font-size: 24px;
+    background-color: #000080;
+    color: #ffb30f;
 }
 
 .wr_column_header {
+    width: calc(var(--input-width) - 2*var(--input-padding));
     font-size: 18px;
+    background-color: #ffb30f;
+    color: #000080;
 }
 
 .wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number {
-    width: 248px; /* 250 - 2 */
-    height: 41px; /* 75 - 2 - 32 */
+    width: calc(var(--input-width) - 2*var(--input-padding));
+    height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
 .wr_dropdown {
-    width: 282px;
-    height: 75px;
+    width: var(--input-width);
+    height: var(--input-height);
 }
 
 .wr_text {
-    width: 248px; /* 250 - 2 */
-    height: 132px; /* 75 + 75 + 16 - 2 - 32 */
+    width: calc(var(--input-width) - 2*var(--input-padding));
+    height: calc(2*var(--input-height) + var(--input-gap) - 2*var(--input-padding));
 }
 
 .wr_select {
-    min-width: 280px; /* 282 - 2 */
+    min-width: var(--input-width);
+    height: var(--input-height);
     display: table;
     table-layout: fixed;
     padding: 0px;
@@ -77,11 +101,7 @@ body {
 }
 
 .wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > * {
-    line-height: 41px;
-}
-
-.wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > * {
-    width: 230px;
+    line-height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
 .wr_counter_count {
@@ -89,11 +109,12 @@ body {
 }
 
 .wr_select_option {
-    height: 41px; /* 75 - 2 - 32 */
-    line-height: 41px;
-    padding: 16px;
+    height: calc(var(--input-height) - 2*var(--input-padding));
+    line-height: calc(var(--input-height) - 2*var(--input-padding));
+    padding: var(--input-padding);
     display: table-cell;
     text-align: center;
+    border-radius: var(--border-radius);
 }
 
 .selected {

@@ -42,7 +42,7 @@ function open_team(team_num)
 function start_scouting()
 {
     let team_num = document.getElementById("team_num").innerHTML
-    window.open("scout.html?mode=pit&team=" + team_num + "&alliance=black&position=0&event=" + event_id, "_self")
+    window.open("scout.html?mode=pit&team=" + team_num + "&alliance=white&position=0&event=" + event_id, "_self")
 }
 
 /**
