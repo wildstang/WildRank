@@ -10,12 +10,12 @@
         <script src="scripts/index.js"></script>
     </head>
     <body>
-        <center>
+        <div id="page_header">
             <h1>WildRank Universal Experiment</h1>
-        </center>
+        </div>
         <div class="wr_page">
             <div class="wr_column">
-                <h3>Options</h3>
+                <h3 class="wr_column_header">Options</h3>
                 <input class="wr_string" type="text" id="event_id" value="2019ilch"><br>
                 <select class="wr_dropdown" id="position">
                     <option>Red 1</option>
@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="wr_column">
-                <h3>Functions</h3>
+                <h3 class="wr_column_header">Functions</h3>
                 <div class="wr_button" onclick="scout()">
                     <label>Scout</label>
                 </div>
@@ -53,12 +53,12 @@
                 </div>
             </div>
             <div class="wr_column">
-                <h3>Status</h3>
-                <div id="status"></div>
+                <h3 class="wr_column_header">Status</h3>
+                <div class="wr_card" id="status"></div>
             </div> 
             <div class="wr_column">
-                <h3>QR Code</h3>
-                <div id="qrcode"></div>
+                <h3 class="wr_column_header">QR Code</h3>
+                <div class="wr_card" id="qrcode"></div>
             </div> 
         </div>
     </body>

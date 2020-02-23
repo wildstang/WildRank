@@ -1,3 +1,11 @@
+html {
+    background-color: rgb(240, 240, 240);
+}
+
+body {
+    margin: 0;
+}
+
 .wr_page {
     float: left;
     padding-left: 16px;
@@ -8,15 +16,34 @@
     float: left;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select {
+#page_header, .wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .wr_column_header, .wr_page_header {
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
     border-width: 1px;
     border-radius: 4px;
-    border-color: black;
+    border-color: rgb(224, 224, 224);
     margin: 0 auto 16px;
     padding: 16px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#page_header {
+    width: 100%;
+    text-align: center;
+    padding: 16px;
+    margin-bottom: 32px;
+    border-top: 0px;
+}
+
+.wr_page_header {
+    margin-right: 16px;
+    font-size: 24px;
+}
+
+.wr_column_header {
+    font-size: 18px;
 }
 
 .wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number {
