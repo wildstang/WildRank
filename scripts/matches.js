@@ -8,7 +8,7 @@
 
 // HTML template for a match option
 const MATCH_BLOCK = "\
-    <div class=\"wr_match CLASS\" onclick=\"open_match(MATCH_NUM)\">\
+    <div id=\"match_MATCH_NUM\" class=\"wr_match CLASS\" onclick=\"open_match(MATCH_NUM)\">\
         <span class=\"wr_match_num\">QMATCH_NUM</span>\
         <span>\
             <div class=\"wr_teams blue\">BLUE_TEAMS</div>\
@@ -50,6 +50,13 @@ function open_match(match_num)
                 team = red_teams[selected]
                 document.getElementById("team_scouting").style.color = 'red'
             }
+
+            // select option
+            document.getElementById("match_" + number).classList.add("selected")
+        }
+        else if (level == "qm" && document.getElementById("match_" + number).classList.contains("selected"))
+        {
+            document.getElementById("match_" + number).classList.remove("selected")
         }
     })
     // place match number and team to scout on pane

@@ -8,7 +8,7 @@
 
 // HTML template for a team option
 const TEAM_BLOCK = "\
-    <div class=\"wr_team CLASS\" onclick=\"open_team(TEAM_NUM)\">\
+    <div id=\"team_TEAM_NUM\" class=\"wr_team CLASS\" onclick=\"open_team(TEAM_NUM)\">\
         <span class=\"wr_team_num\">TEAM_NUM</span>\
     </div>"
 
@@ -23,6 +23,14 @@ var teams;
 function open_team(team_num)
 {
     document.getElementById("team_num").innerHTML = team_num
+    document.getElementById("team_" + team_num).classList.add("selected")
+    teams.forEach(function (team, index) {
+        let number = team.team_number
+        if (number != team_num && document.getElementById("team_" + number).classList.contains("selected"))
+        {
+            document.getElementById("team_" + number).classList.remove("selected")
+        }
+    })
 }
 
 /**

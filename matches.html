@@ -4,6 +4,7 @@
     <head>
         <meta charset="utf-8"/>
         <title>WildRank Web</title>
+        <link rel="stylesheet" type="text/css" href="styles/inputs.css">
         <link rel="stylesheet" type="text/css" href="styles/matches.css">
         <script src="scripts/matches.js"></script>
     </head>
@@ -14,11 +15,13 @@
         <div id="body">
             <div id="wr_match_select"></div>
             <div id="wr_match_preview">
-                <h2>Match Number: <span id="match_num">No Match Selected</span></h2>
-                <h2>Scouting: <span id="team_scouting">No Match Selected</span></h2>
-                <form id="event_form" onsubmit="start_scouting(); return false" action="">
-                    <input type="submit" value="Scout Match!">
-                </form>
+                <div class="wr_card">
+                    <h2>Match Number: <span id="match_num">No Match Selected</span></h2>
+                    <h2>Scouting: <span id="team_scouting">No Match Selected</span></h2>
+                </div>
+                <div class="wr_button" onclick="start_scouting()">
+                    <label>Scout Match!</label>
+                </div>
             </div>
         </div>
     </body>
