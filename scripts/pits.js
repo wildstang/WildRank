@@ -8,8 +8,8 @@
 
 // HTML template for a team option
 const TEAM_BLOCK = "\
-    <div id=\"team_TEAM_NUM\" class=\"wr_team CLASS\" onclick=\"open_team(TEAM_NUM)\">\
-        <span class=\"wr_team_num\">TEAM_NUM</span>\
+    <div id=\"team_TEAM_NUM\" class=\"pit_option CLASS\" onclick=\"open_team(TEAM_NUM)\">\
+        <span class=\"option_number\">TEAM_NUM</span>\
     </div>"
 
 var teams;
@@ -64,7 +64,7 @@ function build_team_list()
         }
 
         // replace placeholders in template and add to screen
-        document.getElementById("wr_team_select").innerHTML += TEAM_BLOCK.replace(/TEAM_NUM/g, number)
+        document.getElementById("option_list").innerHTML += TEAM_BLOCK.replace(/TEAM_NUM/g, number)
                                                                          .replace(/CLASS/g, scouted)
     })
 }

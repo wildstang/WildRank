@@ -29,14 +29,14 @@ html, body {
     flex-flow: row;
 }
 
-#wr_team_preview {
+#preview {
     margin: 8px;
     text-align: center;
     vertical-align: middle;
     flex-grow: 1;
 }
 
-#wr_team_select {
+#option_list {
     width: 299px; /* 300 - 1 */
     overflow-y: scroll;
     overflow-x: hidden;
@@ -48,7 +48,7 @@ html, body {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-.wr_team {
+.pit_option {
     overflow: hidden;
     clear: both;
     font-size: 16px;
@@ -60,18 +60,43 @@ html, body {
     background-color: white;
 }
 
-.wr_team > * {
+.match_option {
+    margin-bottom: 0;
+    overflow: hidden;
+    clear: both;
+    font-size: 16px;
+    font-family: "DejaVu Serif";
+    border-style: solid;
+    border-color: rgb(224, 224, 224);
+    border-width: 0 0 1px 0;
+    padding: 16px;
+    background-color: white;
+}
+
+.match_option > *, .pit_option > * {
     text-align: center;
     display: inline-block;
     vertical-align: middle;
     padding: 0 auto 0;
 }
 
-.wr_team_num {
+.option_number {
     font-size: 200%;
     width: 70px;
     text-align: center;
     padding: 0 auto 0;
+}
+
+.alliance {
+    width: 170px;
+}
+
+.blue {
+    color: blue;
+}
+
+.red {
+    color: red;
 }
 
 .scouted {

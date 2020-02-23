@@ -20,15 +20,15 @@ const valid_input_types = [
 
 // HTML template for a scouting page
 const page_frame = "\
-    <div class=\"wr_page\">\
-        <h2 class=\"wr_page_header\">NAME</h2>\
+    <div class=\"page\">\
+        <h2 class=\"page_header\">NAME</h2>\
         COLUMNS\
     </div>"
 
 // HTML template for a page column
 const column_frame = "\
-    <div class=\"wr_column\">\
-        <h3 class=\"wr_column_header\">NAME</h3>\
+    <div class=\"column\">\
+        <h3 class=\"column_header\">NAME</h3>\
         ITEMS\
     </div>"
 

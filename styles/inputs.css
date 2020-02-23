@@ -15,19 +15,19 @@ body {
     text-align: center;
 }
 
-.wr_page {
+.page {
     display: inline-block;
     padding: 0 auto;
     padding-left: var(--input-gap);
     text-align: left;
 }
 
-.wr_column {
+.column {
     padding-right: var(--input-gap);
     float: left;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .wr_column_header, .wr_page_header {
+.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header {
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
@@ -55,14 +55,14 @@ body {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-.wr_page_header {
+.page_header {
     margin-right: var(--input-gap);
     font-size: 24px;
     background-color: #000080;
     color: #ffb30f;
 }
 
-.wr_column_header {
+.column_header {
     width: calc(var(--input-width) - 2*var(--input-padding));
     font-size: 18px;
     background-color: #ffb30f;

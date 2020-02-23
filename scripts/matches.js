@@ -8,11 +8,11 @@
 
 // HTML template for a match option
 const MATCH_BLOCK = "\
-    <div id=\"match_MATCH_NUM\" class=\"wr_match CLASS\" onclick=\"open_match(MATCH_NUM)\">\
-        <span class=\"wr_match_num\">QMATCH_NUM</span>\
+    <div id=\"match_MATCH_NUM\" class=\"match_option CLASS\" onclick=\"open_match(MATCH_NUM)\">\
+        <span class=\"option_number\">QMATCH_NUM</span>\
         <span>\
-            <div class=\"wr_teams blue\">BLUE_TEAMS</div>\
-            <div class=\"wr_teams red\">RED_TEAMS</div>\
+            <div class=\"alliance blue\">BLUE_TEAMS</div>\
+            <div class=\"alliance red\">RED_TEAMS</div>\
         </span>\
     </div>"
 
@@ -117,7 +117,7 @@ function build_match_list()
             }
 
             // replace placeholders in template and add to screen
-            document.getElementById("wr_match_select").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, number)
+            document.getElementById("option_list").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, number)
                                                                                .replace(/BLUE_TEAMS/g, blue_teams.join(" | "))
                                                                                .replace(/RED_TEAMS/g, red_teams.join(" | "))
                                                                                .replace(/frc/g, "")
