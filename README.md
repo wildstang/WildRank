@@ -27,6 +27,7 @@ When entering a scouting mode both pit and match modes will present the user wit
 - String (one-line text)
 - Number
 - Text (multi-line)
+
 and can be easily configured via a JSON file in /config.
 
 ## Environments
