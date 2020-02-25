@@ -31,7 +31,14 @@ When entering a scouting mode both pit and match modes will present the user wit
 and can be easily configured via a JSON file in /config.
 
 ## Environments
-I have been primarily testing this app on Firefox for desktop but have also tried it on Firefox for Android and Chromium for desktop with general success. The scripts and styles are relatively basic so I don't see why it wouldn't work on most platforms, but extensive testing will be needed. I have also tried it on an iPad running iOS 10.3 (last version it received RIP) and had very little success there. I'm hoping Apple has improved the browser in later versions. I have been unable to try other browsers due to its aging OS, but from my understanding they all use Safari's engine.
+The page should work on most broswers but has not been extensively tested. These setups have tested with general success:
+- Firefox Desktop (primary)
+- Firefox Android
+- Chromium Desktop
+- Safari iPad (iOS 13)
+
+These setups have been tested and do not work:
+- Safari iPad (iOS 10)
 
 ## Execution
 In general any web server should be able to host this app out of the box, but the upload feature requires some more complexity. A simple fork of the built-in Python webserver is included which allows a user to upload results back to the host but this requires a desktop platform or remote host at this time.
