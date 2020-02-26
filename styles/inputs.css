@@ -69,7 +69,6 @@ body {
 }
 
 .column_header {
-    width: calc(var(--input-width) - 2*var(--input-padding));
     font-size: 18px;
     background-color: #ffb30f;
     color: #000080;

@@ -181,7 +181,7 @@ function upload_all()
         if (file.startsWith(type + "-"))
         {
             // append file name to data, separated by "|||"
-            upload = file + "|||" + localStorage.getItem(file)
+            upload = file + "|||[" + localStorage.getItem(file) + "]"
             console.log("posting " + file)
             status.innerHTML += "posting " + file + "<br>"
             // post string to server
@@ -196,13 +196,12 @@ function upload_all()
  * returns:     Combined object of all files of a type
  * description: Combines all files of the currently selected type into a single CSV file.
  */
-function merge_results()
+function merge_results(header)
 {
     let type = get_type()
     // get all files in localStorage
     let files = Object.keys(localStorage)
     let combo = ""
-    let header = true
     files.forEach(function (file, index)
     {
         let parts = file.split("-")
@@ -285,12 +284,12 @@ function process_files()
  * returns:     none
  * description: Builds a QR code which represents the combined results of the requested type as a JSON string.
  */
-function build_qr(type)
+function build_qr()
 {
     // remove any existing QR codes
     qrcode.clear()
     // build and place a QR code for the JSON string of the requested results
-    qrcode.makeCode(merge_results(type))
+    qrcode.makeCode(merge_results(false))
 }
 
 // when the page is finished loading
