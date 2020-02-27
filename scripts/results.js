@@ -1,72 +1,75 @@
 /**
  * file:        results.js
- * description: Contains functions for the results page of the web app.
- *              Primarily for building the interface from result data.
+ * description: Contains functions for the result selection page of the web app.
+ *              Primarily for building the interface from results.
  * author:      Liam Fruzyna
- * date:        2020-02-16
+ * date:        2020-02-26
  */
 
-// read parameters from URL
-var urlParams = new URLSearchParams(window.location.search)
-const type = urlParams.get('type')
+// HTML template for a result option
+const RESULT_BLOCK = "\
+    <div id=\"result_NAME\" class=\"pit_option\" onclick=\"open_result('NAME')\">\
+        <span class=\"long_option_number\">TEXT</span>\
+    </div>"
 
-// load result data on page load
-window.addEventListener('load', function () {
-    headers = true
-    // search all files for results
+var teams;
+
+/**
+ * function:    open_result
+ * parameters:  Selected result name
+ * returns:     none
+ * description: Completes right info pane for a given result.
+ */
+function open_result(name)
+{
+    document.getElementById("result_" + name).classList.add("selected")
     let files = Object.keys(localStorage)
     files.forEach(function (file, index)
     {
-        // only use files for the desired type
-        if (file.startsWith(type + "-"))
+        // determine files which start with the desired type
+        if (file.startsWith(prefix) && file != name && document.getElementById("result_" + file).classList.contains("selected"))
         {
-            // add headers the first time around
-            if (headers)
-            {
-                add_results_row(file, true)
-                headers = false
-            }
-            add_results_row(file)
+            document.getElementById("result_" + file).classList.remove("selected")
         }
     })
-})
+
+    let result = JSON.parse(localStorage.getItem(name))
+    let names = Object.keys(result)
+    let table = "<table>"
+    names.forEach(function (name, index)
+    {
+        table += "<tr><th>" + name + "</th><td>" + result[name] + "</td></tr>"
+    })
+    table += "</table>"
+    document.getElementById("results").innerHTML = table
+}
 
 /**
- * function:    add_results_row
- * parameters:  File to get results from, whether or not to use header
+ * function:    build_team_list
+ * parameters:  none
  * returns:     none
- * description: Adds a row to the results table and optionally a header from a results file.
+ * description: Completes left select result pane with results.
  */
-function add_results_row(file, header=false)
+function build_result_list()
 {
-    // parse JSON from file
-    let = results = JSON.parse(localStorage.getItem(file))
-    let row_str = "<tr>"
-    
-    // add file name column
-    if (header)
+    let files = Object.keys(localStorage)
+    files.forEach(function (file, index)
     {
-        row_str += "<td>file</td>"
-    }
-    else
-    {
-        row_str += "<td>" + file + "</td>"
-    }
-    
-    // add all JSON keys as columns
-    for (var key of Object.keys(results))
-    {
-        if (header)
+        // determine files which start with the desired type
+        if (file.startsWith(prefix))
         {
-            row_str += "<td>" + key + "</ts>"
+            let label = file.substr(prefix.length).replace("-", ": ")
+            document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
+                                                                            .replace(/TEXT/g, label)
         }
-        else
-        {
-            row_str += "<td>" + results[key] + "</td>"
-        }
-    }
-
-    row_str += "</tr>"
-    // add to page
-    document.getElementById("results_tab").innerHTML += row_str
+    })
 }
+
+// read parameters from URL
+var urlParams = new URLSearchParams(window.location.search)
+const event_id = urlParams.get('event')
+const type = urlParams.get('type')
+const prefix = type + "-" + event_id + "-"
+
+// load event data on page load
+window.addEventListener('load', build_result_list)

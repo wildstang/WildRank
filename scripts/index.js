@@ -53,7 +53,7 @@ function get_selected_option(id)
  */
 function scout()
 {
-    let event = document.getElementById("event_id").value
+    let event = get_event()
     let position = document.getElementById("position").selectedIndex
     if (get_type() == "match")
     {
@@ -73,7 +73,7 @@ function scout()
  */
 function open_results()
 {
-    document.location.href = "results.html?type=" + get_type()
+    document.location.href = "results.html?type=" + get_type() + "&event=" + get_event()
 }
 
 /**
@@ -86,7 +86,7 @@ function open_results()
 function load_event()
 {
     // get event id from the text box
-    let event_id = document.getElementById("event_id").value
+    let event_id = get_event()
     let status = document.getElementById("status")
     status.innerHTML += "Requesting event data...<br>"
     console.log("Requesting event data...")
@@ -159,6 +159,17 @@ function load_event()
 function get_type()
 {
     return get_selected_option("type_form") ? "match" : "pit"
+}
+
+/**
+ * function:    get_event
+ * parameters:  none
+ * returns:     Currently selected event ID.
+ * description: Returns text in event id box.
+ */
+function get_event()
+{
+    return document.getElementById("event_id").value
 }
 
 /**

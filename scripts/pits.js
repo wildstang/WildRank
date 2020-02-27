@@ -9,7 +9,7 @@
 // HTML template for a team option
 const TEAM_BLOCK = "\
     <div id=\"team_TEAM_NUM\" class=\"pit_option CLASS\" onclick=\"open_team(TEAM_NUM)\">\
-        <span class=\"option_number\">TEAM_NUM</span>\
+        <span class=\"long_option_number\">TEAM_NUM</span>\
     </div>"
 
 var teams;

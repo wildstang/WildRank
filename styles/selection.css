@@ -87,6 +87,12 @@ html, body {
     padding: 0 auto 0;
 }
 
+.long_option_number {
+    font-size: 200%;
+    text-align: center;
+    padding: 0 auto 0;
+}
+
 .alliance {
     width: 170px;
 }
