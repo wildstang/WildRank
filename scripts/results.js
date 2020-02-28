@@ -33,7 +33,7 @@ function open_result(name)
         }
     })
 
-    let table = "<table><tr><th>Entry</th>"
+    let table = "<tr><th>Entry</th>"
     if (name.startsWith("match"))
     {
         let parts = name.split("-")
@@ -68,8 +68,7 @@ function open_result(name)
         }
         table += "</tr>"
     })
-    table += "</table>"
-    document.getElementById("results").innerHTML = table
+    document.getElementById("results_tab").innerHTML = table
 }
 
 /**

@@ -53,6 +53,14 @@ html, body {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+#results_tab th, td {
+    padding: 8px;
+}
+  
+#results_tab tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
 .pit_option {
     overflow: hidden;
     clear: both;
