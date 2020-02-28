@@ -12,7 +12,7 @@ const RESULT_BLOCK = "\
         <span class=\"long_option_number\">TEXT</span>\
     </div>"
 
-var teams;
+var teams
 
 /**
  * function:    open_result
@@ -173,6 +173,10 @@ function build_result_list()
                                                                             .replace(/TEXT/g, label)
         }
     })
+    if (selected !== null)
+    {
+        first = selected
+    }
     open_result(first)
 }
 
@@ -203,6 +207,7 @@ var urlParams = new URLSearchParams(window.location.search)
 const event_id = urlParams.get('event')
 const type = urlParams.get('type')
 const prefix = type + "-" + event_id + "-"
+const selected = urlParams.get('file')
 
 // load event data on page load
 window.addEventListener('load', collect_results)

@@ -19,6 +19,7 @@ body {
     display: inline-block;
     padding: 0 auto;
     padding-left: var(--input-gap);
+    margin-top: calc(2*var(--input-gap));
     text-align: left;
 }
 
@@ -50,13 +51,12 @@ body {
     -webkit-user-select: none;
 }
 
-#page_header {
+#header {
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
     width: 100%;
     text-align: center;
-    margin-bottom: calc(2*var(--input-gap));
     background-color: #000080;
     border-color: #ffb30f;
     border-width: 0 0 4px 0;
@@ -65,7 +65,7 @@ body {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-#page_header a {
+#header a {
     color: white;
     text-decoration: none;
 }

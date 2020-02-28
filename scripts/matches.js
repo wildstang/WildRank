@@ -16,7 +16,12 @@ const MATCH_BLOCK = "\
         </span>\
     </div>"
 
-var matches;
+const OPEN_RESULT = "\
+    <div class=\"wr_button\" onclick=\"open_result('RESULT')\">\
+        <label>View Results</label>\
+    </div>"
+
+var matches
 
 /**
  * function:    open_match
@@ -62,6 +67,11 @@ function open_match(match_num)
     // place match number and team to scout on pane
     document.getElementById("match_num").innerHTML = match_num
     document.getElementById("team_scouting").innerHTML = team.substr(3)
+}
+
+function open_result(file)
+{
+    document.location.href = "/results.html?type=match&event=" + event_id + "&file=" + file
 }
 
 /**

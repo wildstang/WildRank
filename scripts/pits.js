@@ -12,7 +12,12 @@ const TEAM_BLOCK = "\
         <span class=\"long_option_number\">TEAM_NUM</span>\
     </div>"
 
-var teams;
+const OPEN_RESULT = "\
+    <div class=\"wr_button\" id=\"open_result\" onclick=\"open_result('RESULT')\">\
+        <label>View Results</label>\
+    </div>"
+
+var teams
 
 /**
  * function:    open_team
@@ -22,6 +27,10 @@ var teams;
  */
 function open_team(team_num)
 {
+    if (document.getElementById("open_result") !== null)
+    {
+        document.getElementById("open_result").remove()
+    }
     document.getElementById("team_num").innerHTML = team_num
     document.getElementById("team_" + team_num).classList.add("selected")
     teams.forEach(function (team, index) {
@@ -31,6 +40,17 @@ function open_team(team_num)
             document.getElementById("team_" + number).classList.remove("selected")
         }
     })
+
+    let file = "pit-" + event_id + "-" + team_num
+    if (localStorage.getItem(file) !== null)
+    {
+        document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
+    }
+}
+
+function open_result(file)
+{
+    document.location.href = "/results.html?type=pit&event=" + event_id + "&file=" + file
 }
 
 /**

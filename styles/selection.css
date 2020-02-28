@@ -8,25 +8,6 @@ html, body {
     padding: 0;
 }
 
-#header {
-    font-size: 16px;
-    font-family: "DejaVu Serif";
-    border-style: solid;
-    width: 100%;
-    text-align: center;
-    background-color: #000080;
-    border-color: #ffb30f;
-    border-width: 0 0 4px 0;
-    padding: var(--input-padding) 0;
-    color: white;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-#header a {
-    color: white;
-    text-decoration: none;
-}
-
 #body {
     flex-grow: 1;
     overflow: hidden;
