@@ -22,6 +22,7 @@ var teams;
  */
 function open_result(name)
 {
+    console.log("result_" + name)
     document.getElementById("result_" + name).classList.add("selected")
     let files = Object.keys(localStorage)
     files.forEach(function (file, index)
@@ -53,16 +54,22 @@ function open_result(name)
 function build_result_list()
 {
     let files = Object.keys(localStorage)
+    let first = ""
     files.forEach(function (file, index)
     {
         // determine files which start with the desired type
         if (file.startsWith(prefix))
         {
+            if (first == "")
+            {
+                first = file
+            }
             let label = file.substr(prefix.length).replace("-", ": ")
             document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
                                                                             .replace(/TEXT/g, label)
         }
     })
+    open_result(first)
 }
 
 // read parameters from URL

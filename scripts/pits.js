@@ -53,6 +53,7 @@ function start_scouting()
  */
 function build_team_list()
 {
+    let first = ""
     // iterate through team objs
     teams.forEach(function (team, index) {
         let number = team.team_number
@@ -60,13 +61,19 @@ function build_team_list()
         let scouted = "not_scouted"
         if (localStorage.getItem(["pit", event_id, number].join("-")) != null)
         {
+            first = ""
             scouted = "scouted"
+        }
+        else if (first == "")
+        {
+            first = number
         }
 
         // replace placeholders in template and add to screen
         document.getElementById("option_list").innerHTML += TEAM_BLOCK.replace(/TEAM_NUM/g, number)
-                                                                         .replace(/CLASS/g, scouted)
+                                                                      .replace(/CLASS/g, scouted)
     })
+    open_team(first)
 }
 
 /**

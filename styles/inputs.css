@@ -65,6 +65,11 @@ body {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+#page_header a {
+    color: white;
+    text-decoration: none;
+}
+
 .page_header {
     margin-right: var(--input-gap);
     font-size: 24px;

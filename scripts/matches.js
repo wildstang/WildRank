@@ -87,6 +87,7 @@ function start_scouting()
  */
 function build_match_list()
 {
+    let first = ""
     // iterate through each match obj
     matches.forEach(function (match, index) {
         let level = match.comp_level
@@ -113,7 +114,12 @@ function build_match_list()
             scouted = "not_scouted"
             if (localStorage.getItem(["match", event_id, number, team].join("-")) != null)
             {
+                first = ""
                 scouted = "scouted"
+            }
+            else if (first == "")
+            {
+                first = number
             }
 
             // replace placeholders in template and add to screen
@@ -124,6 +130,7 @@ function build_match_list()
                                                                                .replace(/CLASS/g, scouted)
         }
     })
+    open_match(first)
 }
 
 /**
