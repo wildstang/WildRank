@@ -196,7 +196,7 @@ function upload_all()
             console.log("posting " + file)
             status.innerHTML += "posting " + file + "<br>"
             // post string to server
-            fetch('localhost', {method: "POST", body: upload})
+            fetch(document.getElementById("upload_addr").value, {method: "POST", body: upload})
         }
     })
 }
