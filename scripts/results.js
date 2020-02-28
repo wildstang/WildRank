@@ -50,21 +50,21 @@ function open_result(name)
     table += "</tr>"
 
     let result = results[name]
-    let names = Object.keys(result)
-    names.forEach(function (name, index)
+    let entries = Object.keys(result)
+    entries.forEach(function (entry, index)
     {
-        table += "<tr><th>" + name + "</th><td>" + result[name] + "</td>"
+        table += "<tr><th>" + entry + "</th><td>" + result[entry] + "</td>"
         if (typeof team_results !== 'undefined')
         {
-            table += "<td>" + avg_results(team_results, name).toFixed(2) + "</td>"
+            table += "<td>" + avg_results(team_results, entry).toFixed(2) + "</td>"
         }
         if (typeof match_results !== 'undefined')
         {
-            table += "<td>" + avg_results(match_results, name).toFixed(2) + "</td>"
+            table += "<td>" + avg_results(match_results, entry).toFixed(2) + "</td>"
         }
         if (name.startsWith("match"))
         {
-            table += "<td>" + avg_results(results, name).toFixed(2) + "</td>"
+            table += "<td>" + avg_results(results, entry).toFixed(2) + "</td>"
         }
         table += "</tr>"
     })
@@ -94,6 +94,10 @@ function avg_results(results, column)
         else if (typeof value === 'number')
         {
             sum += value
+        }
+        else if (typeof value === 'string')
+        {
+            sum += value.length
         }
         else
         {
@@ -177,7 +181,10 @@ function build_result_list()
     {
         first = selected
     }
-    open_result(first)
+    if (first != "")
+    {
+        open_result(first)
+    }
 }
 
 var results = {}

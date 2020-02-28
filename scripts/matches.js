@@ -86,7 +86,7 @@ function start_scouting()
     let team_num = document.getElementById("team_scouting").innerHTML
     let color = document.getElementById("team_scouting").style.color
     // build URL with parameters
-    window.open("scout.html?mode=match&match=" + match_num + "&team=" + team_num + "&alliance=" + color + "&event=" + event_id + "&position=" + scout_pos, "_self")
+    window.open("scout.html?mode=match&match=" + match_num + "&team=" + team_num + "&alliance=" + color + "&event=" + event_id + "&position=" + scout_pos + "&user=" + user_id, "_self")
 }
 
 /**
@@ -165,6 +165,7 @@ function load_event()
 var urlParams = new URLSearchParams(window.location.search)
 const scout_pos = urlParams.get('position')
 const event_id = urlParams.get('event')
+const user_id = urlParams.get('user')
 
 // load event data on page load
 window.addEventListener('load', load_event)

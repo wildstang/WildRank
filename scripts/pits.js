@@ -62,7 +62,7 @@ function open_result(file)
 function start_scouting()
 {
     let team_num = document.getElementById("team_num").innerHTML
-    window.open("scout.html?mode=pit&team=" + team_num + "&alliance=white&position=0&event=" + event_id, "_self")
+    window.open("scout.html?mode=pit&team=" + team_num + "&alliance=white&position=0&event=" + event_id + "&user=" + user_id, "_self")
 }
 
 /**
@@ -117,6 +117,7 @@ function load_event()
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const event_id = urlParams.get('event')
+const user_id = urlParams.get('user')
 
 // load event data on page load
 window.addEventListener('load', load_event)

@@ -57,11 +57,11 @@ function scout()
     let position = document.getElementById("position").selectedIndex
     if (get_type() == "match")
     {
-        document.location.href = "matches.html?event=" + event + "&position=" + position
+        document.location.href = "matches.html?event=" + event + "&position=" + position + "&user=" + get_user()
     }
     else
     {
-        document.location.href = "pits.html?event=" + event
+        document.location.href = "pits.html?event=" + event + "&user=" + get_user()
     }
 }
 
@@ -164,12 +164,23 @@ function get_type()
 /**
  * function:    get_event
  * parameters:  none
- * returns:     Currently selected event ID.
+ * returns:     Currently entered event ID.
  * description: Returns text in event id box.
  */
 function get_event()
 {
     return document.getElementById("event_id").value
+}
+
+/**
+ * function:    get_user
+ * parameters:  none
+ * returns:     Currently entered user ID.
+ * description: Returns text in user id box.
+ */
+function get_user()
+{
+    return document.getElementById("user_id").value
 }
 
 /**

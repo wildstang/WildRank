@@ -6,8 +6,9 @@
  * date:        2020-02-15
  */
 
+const start = Date.now()
+
 // All possible input types
-// TODO: implement text boxes
 const valid_input_types = [
     "checkbox", // boolean checkbox
     "dropdown", // multiple dropdown options
@@ -259,6 +260,15 @@ function build_page_from_config(selected_mode)
 function get_results_from_page(selected_mode)
 {
     results = {}
+    results["meta_scouting_duration"] = ((Date.now() - start) / 1000).toFixed(2)
+    results["meta_scouter_id"] = parseInt(user_id)
+    results["meta_scout_mode"] = selected_mode
+    if (selected_mode == "match")
+    {
+        results["meta_match"] = parseInt(match_num)
+        results["meta_position"] = parseInt(scout_pos)
+    }
+    results["meta_team"] = parseInt(team_num)
     config.forEach(function (mode, index)
     {
         if (mode.id == selected_mode)
@@ -320,6 +330,7 @@ function get_results_from_page(selected_mode)
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const event_id = urlParams.get('event')
+const user_id = urlParams.get('user')
 const scout_pos = urlParams.get('position')
 const scout_mode = urlParams.get('mode')
 const match_num = urlParams.get('match')
