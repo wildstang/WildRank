@@ -260,7 +260,7 @@ function build_page_from_config(selected_mode)
 function get_results_from_page(selected_mode)
 {
     results = {}
-    results["meta_scouting_duration"] = ((Date.now() - start) / 1000).toFixed(2)
+    results["meta_scouting_duration"] = (Date.now() - start) / 1000
     results["meta_scouter_id"] = parseInt(user_id)
     results["meta_scout_mode"] = selected_mode
     if (selected_mode == "match")
