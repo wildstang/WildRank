@@ -41,7 +41,8 @@ function open_result(name)
         let match = parseInt(parts[parts.length - 2])
         team_results = get_team_results(team)
         match_results = get_match_results(match)
-        table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th>"
+        scouter_results = get_scouter_results(results[name]["meta_scouter_id"])
+        table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>"
     }
     else
     {
@@ -65,6 +66,10 @@ function open_result(name)
         if (name.startsWith("match"))
         {
             table += "<td>" + avg_results(results, entry).toFixed(2) + "</td>"
+        }
+        if (typeof scouter_results !== 'undefined')
+        {
+            table += "<td>" + avg_results(scouter_results, entry).toFixed(2) + "</td>"
         }
         table += "</tr>"
     })
@@ -151,6 +156,29 @@ function get_match_results(match)
         }
     })
     return match_results
+}
+
+/**
+ * function:    get_scouter_results
+ * parameters:  scouter id
+ * returns:     list of results from a scouter
+ * description: Get all results from the given scouter.
+ */
+function get_scouter_results(user)
+{
+    let files = Object.keys(results)
+    let user_results = {}
+    files.forEach(function (file, index)
+    {
+        let parts = file.split("-")
+        let id = results[file]["meta_scouter_id"]
+        // determine files which start with the desired type
+        if (file.startsWith(prefix) && id == user)
+        {
+            user_results[file] = results[file]
+        }
+    })
+    return user_results
 }
 
 /**
