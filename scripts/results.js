@@ -54,22 +54,23 @@ function open_result(name)
     let entries = Object.keys(result)
     entries.forEach(function (entry, index)
     {
-        table += "<tr><th>" + entry + "</th><td>" + result[entry] + "</td>"
+        let val = result[entry]
+        table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td>" + val + "</td>"
         if (typeof team_results !== 'undefined')
         {
-            table += "<td>" + avg_results(team_results, entry).toFixed(2) + "</td>"
+            table += make_cell(team_results, entry, val)
         }
         if (typeof match_results !== 'undefined')
         {
-            table += "<td>" + avg_results(match_results, entry).toFixed(2) + "</td>"
+            table += make_cell(match_results, entry, val)
         }
         if (name.startsWith("match"))
         {
-            table += "<td>" + avg_results(results, entry).toFixed(2) + "</td>"
+            table += make_cell(results, entry, val)
         }
         if (typeof scouter_results !== 'undefined')
         {
-            table += "<td>" + avg_results(scouter_results, entry).toFixed(2) + "</td>"
+            table += make_cell(scouter_results, entry, val)
         }
         table += "</tr>"
     })
@@ -77,8 +78,31 @@ function open_result(name)
 }
 
 /**
+ * function:    make_cell
+ * parameters:  results to source from, entry to use, base value
+ * returns:     formatted table cell
+ * description: Produce a table cell and color appropriately.
+ */
+function make_cell(results, entry, base)
+{
+    let val = avg_results(results, entry)
+    let delta = base - val
+    let prop = Math.abs(delta / base)
+    let color = ""
+    if (delta > 0.01)
+    {
+        color = "rgba(0,255,0," + prop + ")"
+    }
+    else if (delta < -0.01)
+    {
+        color = "rgba(255,0,0," + prop + ")"
+    }
+    return "<td style=\"background-color: " + color + "\">" + val.toFixed(2) + "</td>"
+}
+
+/**
  * function:    avg_results
- * parameter:   results container, column to sum
+ * parameters:  results container, column to sum
  * returns:     average of all results
  * description: Average all the results for a given column.
  */
