@@ -105,8 +105,8 @@ function load_event()
                 matches = data.sort(function (a, b) {
                     return b.match_number < a.match_number ?  1
                             : b.match_number > a.match_number ? -1
-                            : 0;
-                });
+                            : 0
+                })
 
                 // store matches as JSON string in matches-[event-id]
                 localStorage.setItem("matches-" + event_id, JSON.stringify(matches))

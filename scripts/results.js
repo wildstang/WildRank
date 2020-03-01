@@ -225,15 +225,22 @@ var results = {}
  */
 function collect_results()
 {
+    let unsorted = {}
     let files = Object.keys(localStorage)
     files.forEach(function (file, index)
     {
         // determine files which start with the desired type
         if (file.startsWith(prefix))
         {
-            results[file] = JSON.parse(localStorage.getItem(file))
+            unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
     })
+
+    // sort
+    Object.keys(unsorted).sort().forEach(function(key) {
+        results[key] = unsorted[key];
+    })
+
     build_result_list()
 }
 
