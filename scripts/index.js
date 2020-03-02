@@ -188,7 +188,6 @@ function get_user()
  * parameters:  none
  * returns:     none
  * description: Uploads all files of the currently selected type via POST to localhost.
- * TODO:        This will likely need to be configurable as it is design for uploading to a remote server.
  */
 function upload_all()
 {
@@ -210,6 +209,66 @@ function upload_all()
             fetch(document.getElementById("upload_addr").value, {method: "POST", body: upload})
         }
     })
+}
+
+/**
+ * function:    import_all
+ * parameters:  none
+ * returns:     none
+ * description: Import results from the local /uploads file to localStorage.
+ */
+function import_all()
+{
+    // determine appropriate request for selected mode
+    let request = ""
+    if (get_type() == "match")
+    {
+        request = "getMatchResultNames"
+    }
+    else
+    {
+        request = "getPitResultNames"
+    }
+
+    // request list of available results
+    let status = document.getElementById("status")
+    status.innerHTML += "Requesting local result data...<br>"
+    console.log("Requesting result data...")
+    fetch(request)
+        .then(response => {
+            return response.text()
+        })
+        .then(data => {
+            // get requested results for current event
+            let results = data.split(",").filter(function (r) {
+                return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
+            })
+            status.innerHTML += results.length + " " + get_type() + " results found<br>"
+
+            // request each desired result
+            results.forEach(function (file, index)
+            {
+                fetch('uploads/' + file)
+                    .then(response => {
+                        return response.json()
+                    })
+                    .then(data => {
+                        // save file
+                        localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
+                        status.innerHTML += "got " + file + "<br>"
+                        console.log("got " + file)
+                    })
+                    .catch(err => {
+                        console.log("error requesting result: " + err)
+                        status.innerHTML += "error requesting result<br>"
+                    })
+            })
+
+        })
+        .catch(err => {
+            console.log("error requesting results: " + err)
+            status.innerHTML += "error requesting results<br>"
+        })
 }
 
 /**
