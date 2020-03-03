@@ -17,8 +17,8 @@
 							"name": "Drive Base",
 							"id": "pit_body_drive",
 							"type": "dropdown",
-							"options": ["Swerve", "Mech", "Tank"],
-							"default": "Tank"
+							"options": ["Unknown", "Swerve", "Mech", "Tank"],
+							"default": "Unknown"
 						},
 						{
 							"name": "Cell Capacity",
@@ -101,8 +101,8 @@
 							"name": "Shooter Type",
 							"id": "pit_shooter_type",
 							"type": "dropdown",
-							"options": ["Flywheel", "Catapult", "None"],
-							"default": "None"
+							"options": ["Unknown", "Flywheel", "Catapult", "None"],
+							"default": "Unknown"
 						},
 						{
 							"name": "Lower Port",
@@ -169,13 +169,13 @@
 								"name": "Crossed Line",
 								"id": "match_auto_motion_cross",
 								"type": "checkbox",
-								"default": true
+								"default": false
 							},
 							{
 								"name": "Collected Cells",
 								"id": "match_auto_motion_cells",
 								"type": "counter",
-								"default": 3
+								"default": 0
 							}
 						]
 					},
@@ -303,14 +303,14 @@
 								"id": "match_teleop_climb_attempt",
 								"type": "select",
 								"options": ["NA", "Low", "Level", "High"],
-								"default": "Level"
+								"default": "NA"
 							},
 							{
 								"name": "Climb Result",
 								"id": "match_teleop_climb_result",
 								"type": "select",
 								"options": ["NA", "Failed", "Unlevel", "Level"],
-								"default": "Failed"
+								"default": "NA"
 							},
 							{
 								"name": "Buddy Climb",
