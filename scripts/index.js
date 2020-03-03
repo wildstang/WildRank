@@ -53,6 +53,7 @@ function get_selected_option(id)
  */
 function scout()
 {
+    saveOptions()
     let event = get_event()
     let position = document.getElementById("position").selectedIndex
     if (get_type() == "match")
@@ -73,6 +74,7 @@ function scout()
  */
 function open_results()
 {
+    saveOptions()
     document.location.href = "results.html?type=" + get_type() + "&event=" + get_event()
 }
 
@@ -85,6 +87,7 @@ function open_results()
  */
 function load_event()
 {
+    saveOptions()
     // get event id from the text box
     let event_id = get_event()
     let status = document.getElementById("status")
@@ -191,6 +194,7 @@ function get_user()
  */
 function upload_all()
 {
+    saveOptions()
     let type = get_type()
     let status = document.getElementById("status")
     status.innerHTML += "Uploading " + type + " results...<br>"
@@ -219,6 +223,7 @@ function upload_all()
  */
 function import_all()
 {
+    saveOptions()
     // determine appropriate request for selected mode
     let request = ""
     if (get_type() == "match")
@@ -367,16 +372,53 @@ function process_files()
  */
 function build_qr()
 {
+    saveOptions()
     // remove any existing QR codes
     qrcode.clear()
     // build and place a QR code for the JSON string of the requested results
     qrcode.makeCode(merge_results(false))
 }
 
+function saveOptions()
+{
+    setCookie("event_id", get_event())
+    setCookie("user_id", get_user())
+}
+
+function setCookie(cname, cvalue)
+{
+    var d = new Date();
+    d.setTime(d.getTime() + (7*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname, deflt)
+{
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++)
+    {
+        var c = ca[i];
+        while (c.charAt(0) == ' ')
+        {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0)
+        {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return deflt;
+}
+
 // when the page is finished loading
 window.addEventListener('load', function() {
     // initialize the QR code canvas
     qrcode = new QRCode(document.getElementById("qrcode"), {width:512, height:512})
+    document.getElementById("event_id").value = getCookie("event_id", "2020ilch")
+    document.getElementById("user_id").value = getCookie("user_id", "120001")
 })
 
 // display status on page load
