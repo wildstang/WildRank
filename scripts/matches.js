@@ -67,11 +67,22 @@ function open_match(match_num)
     // place match number and team to scout on pane
     document.getElementById("match_num").innerHTML = match_num
     document.getElementById("team_scouting").innerHTML = team.substr(3)
+
+    if (document.getElementById("open_result") !== null)
+    {
+        document.getElementById("open_result").remove()
+    }
+
+    let file = "match-" + event_id + "-" + match_num + "-" + team.substr(3)
+    if (localStorage.getItem(file) !== null)
+    {
+        document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
+    }
 }
 
 function open_result(file)
 {
-    document.location.href = "/results.html?type=match&event=" + event_id + "&file=" + file
+    document.location.href = "results.html" + build_query({[TYPE_COOKIE]: "match", [EVENT_COOKIE]: event_id, "file": file})
 }
 
 /**
@@ -86,7 +97,7 @@ function start_scouting()
     let team_num = document.getElementById("team_scouting").innerHTML
     let color = document.getElementById("team_scouting").style.color
     // build URL with parameters
-    window.open("scout.html?mode=match&match=" + match_num + "&team=" + team_num + "&alliance=" + color + "&event=" + event_id + "&position=" + scout_pos + "&user=" + user_id, "_self")
+    window.open("scout.html" + build_query({[TYPE_COOKIE]: "match", "match": match_num, "team": team_num, "alliance": color, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}), "_self")
 }
 
 /**
@@ -162,10 +173,9 @@ function load_event()
 }
 
 // read parameters from URL
-var urlParams = new URLSearchParams(window.location.search)
-const scout_pos = urlParams.get('position')
-const event_id = urlParams.get('event')
-const user_id = urlParams.get('user')
+const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 // load event data on page load
 window.addEventListener('load', load_event)

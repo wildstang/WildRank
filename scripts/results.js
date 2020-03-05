@@ -269,10 +269,10 @@ function collect_results()
 }
 
 // read parameters from URL
-var urlParams = new URLSearchParams(window.location.search)
-const event_id = urlParams.get('event')
-const type = urlParams.get('type')
+const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const prefix = type + "-" + event_id + "-"
+var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
 // load event data on page load

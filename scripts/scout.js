@@ -107,22 +107,6 @@ function check(id)
 }
 
 /**
- * function:    selectio_option
- * parameters:  ID of selection button and the selected option's index
- * returns:     none
- * description: Switches which option is selected on click.
- */
-function select_option(id, index)
-{
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
-    for (let option of children)
-    {
-        option.classList.remove("selected")
-    }
-    document.getElementById(id + "-" + index).classList.add("selected")
-}
-
-/**
  * function:    increment
  * parameters:  ID of counter button, whether it was a right click
  * returns:     none
@@ -328,11 +312,12 @@ function get_results_from_page(selected_mode)
 }
 
 // read parameters from URL
+const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
+const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+
 var urlParams = new URLSearchParams(window.location.search)
-const event_id = urlParams.get('event')
-const user_id = urlParams.get('user')
-const scout_pos = urlParams.get('position')
-const scout_mode = urlParams.get('mode')
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')

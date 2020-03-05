@@ -9,43 +9,6 @@
 var qrcode
 
 /**
- * function:    select_option
- * parameters:  ID of the selector, index of the newly selected option
- * returns:     none
- * description: Select a given option in a selector.
- */
-function select_option(id, index)
-{
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
-    for (let option of children)
-    {
-        option.classList.remove("selected")
-    }
-    document.getElementById(id + "-" + index).classList.add("selected")
-}
-
-/**
- * function:    get_selected_option
- * parameters:  ID of selected item
- * returns:     none
- * description: Returns the selected index of the given select.
- */
-function get_selected_option(id)
-{
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
-    let i = 0
-    for (let option of children)
-    {
-        if (option.classList.contains("selected"))
-        {
-            return i
-        }
-        ++i
-    }
-    return -1
-}
-
-/**
  * function:    scout
  * parameters:  none
  * returns:     none
@@ -53,16 +16,17 @@ function get_selected_option(id)
  */
 function scout()
 {
-    saveOptions()
+    save_options()
     let event = get_event()
-    let position = document.getElementById("position").selectedIndex
+    let position = get_position()
+    let user = get_user()
     if (get_type() == "match")
     {
-        document.location.href = "matches.html?event=" + event + "&position=" + position + "&user=" + get_user()
+        document.location.href = "matches.html" + build_query({[EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
     }
     else
     {
-        document.location.href = "pits.html?event=" + event + "&user=" + get_user()
+        document.location.href = "pits.html" + build_query({[EVENT_COOKIE]: event, [USER_COOKIE]: user})
     }
 }
 
@@ -74,8 +38,8 @@ function scout()
  */
 function open_results()
 {
-    saveOptions()
-    document.location.href = "results.html?type=" + get_type() + "&event=" + get_event()
+    save_options()
+    document.location.href = "results.html" + build_query({"type": get_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -87,7 +51,7 @@ function open_results()
  */
 function load_event()
 {
-    saveOptions()
+    save_options()
     // get event id from the text box
     let event_id = get_event()
     let status = document.getElementById("status")
@@ -95,7 +59,7 @@ function load_event()
     console.log("Requesting event data...")
 
     // fetch simple event matches
-    fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/matches/simple?X-TBA-Auth-Key=" + API_KEY)
+    fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/matches/simple" + build_query({"X-TBA-Auth-Key": API_KEY}))
         .then(response => {
             return response.json()
         })
@@ -124,7 +88,7 @@ function load_event()
         })
 
     // fetch simple event teams
-    fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/teams/simple?X-TBA-Auth-Key=" + API_KEY)
+    fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/teams/simple" + build_query({"X-TBA-Auth-Key": API_KEY}))
         .then(response => {
             return response.json()
         })
@@ -187,6 +151,28 @@ function get_user()
 }
 
 /**
+ * function:    get_position
+ * parameters:  none
+ * returns:     Currently selected scouting position index.
+ * description: Returns currently selected scouting position index.
+ */
+function get_position()
+{
+    return document.getElementById("position").selectedIndex
+}
+
+/**
+ * function:    get_upload_addr
+ * parameters:  none
+ * returns:     Currently entered upload server url.
+ * description: Returns text in upload addr textbox.
+ */
+function get_upload_addr()
+{
+    return document.getElementById("position").selectedIndex
+}
+
+/**
  * function:    upload_all
  * parameters:  none
  * returns:     none
@@ -194,7 +180,7 @@ function get_user()
  */
 function upload_all()
 {
-    saveOptions()
+    save_options()
     let type = get_type()
     let status = document.getElementById("status")
     status.innerHTML += "Uploading " + type + " results...<br>"
@@ -223,7 +209,7 @@ function upload_all()
  */
 function import_all()
 {
-    saveOptions()
+    save_options()
     // determine appropriate request for selected mode
     let request = ""
     if (get_type() == "match")
@@ -274,50 +260,6 @@ function import_all()
             console.log("error requesting results: " + err)
             status.innerHTML += "error requesting results<br>"
         })
-}
-
-/**
- * function:    merge_results
- * parameters:  none
- * returns:     Combined object of all files of a type
- * description: Combines all files of the currently selected type into a single CSV file.
- */
-function merge_results(header)
-{
-    let type = get_type()
-    // get all files in localStorage
-    let files = Object.keys(localStorage)
-    let combo = ""
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        // determine files which start with the desired type
-        if (parts[0] == type)
-        {
-            let results = JSON.parse(localStorage.getItem(file))
-            // assumes all files are formatted the same
-            if (header)
-            {
-                start = "team,"
-                if (type == "match")
-                {
-                    start = "match,team,"
-                }
-                combo += start + Object.keys(results).join(",")
-                header = false
-            }
-            start = parts[2]
-            if (type == "match")
-            {
-                start += "," + parts[3]
-            }
-            combo += start + "," + Object.values(results).join(",")
-                
-            // add as a field to the object named by the file name
-            combo[file] = localStorage.getItem(file)
-        }
-    })
-    return combo
 }
 
 /**
@@ -372,54 +314,36 @@ function process_files()
  */
 function build_qr()
 {
-    saveOptions()
+    save_options()
     // remove any existing QR codes
     qrcode.clear()
     // build and place a QR code for the JSON string of the requested results
     qrcode.makeCode(merge_results(false))
 }
 
-function saveOptions()
+/**
+ * function:    save_options
+ * parameters:  none
+ * returns:     none
+ * description: Save some options to cookies.
+ */
+function save_options()
 {
-    setCookie("event_id", get_event())
-    setCookie("user_id", get_user())
-}
-
-function setCookie(cname, cvalue)
-{
-    var d = new Date();
-    d.setTime(d.getTime() + (7*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-function getCookie(cname, deflt)
-{
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++)
-    {
-        var c = ca[i];
-        while (c.charAt(0) == ' ')
-        {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0)
-        {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return deflt;
+    set_cookie(EVENT_COOKIE, get_event())
+    set_cookie(USER_COOKIE, get_user())
+    set_cookie(POSITION_COOKIE, get_position())
+    set_cookie(UPLOAD_COOKIE, get_upload_addr())
+    set_cookie(TYPE_COOKIE, get_type())
 }
 
 // when the page is finished loading
 window.addEventListener('load', function() {
     // initialize the QR code canvas
     qrcode = new QRCode(document.getElementById("qrcode"), {width:512, height:512})
-    document.getElementById("event_id").value = getCookie("event_id", "2020ilch")
-    document.getElementById("user_id").value = getCookie("user_id", "120001")
+    document.getElementById("event_id").value = get_cookie(EVENT_COOKIE, EVENT_DEFAULT)
+    document.getElementById("user_id").value = get_cookie(USER_COOKIE, USER_DEFAULT)
+    document.getElementById("position").selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+    document.getElementById("upload_addr").selectedIndex = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
+    select_option("type_form", get_cookie(TYPE_COOKIE, TYPE_DEFAULT)=="match" ? 1 : 2)
+    process_files()
 })
-
-// display status on page load
-window.addEventListener('load', process_files)
