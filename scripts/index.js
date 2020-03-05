@@ -192,7 +192,7 @@ function upload_all()
         if (file.startsWith(type + "-"))
         {
             // append file name to data, separated by "|||"
-            upload = file + "|||[" + localStorage.getItem(file) + "]"
+            upload = file + "|||" + localStorage.getItem(file)
             console.log("posting " + file)
             status.innerHTML += "posting " + file + "<br>"
             // post string to server
