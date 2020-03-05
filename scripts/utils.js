@@ -6,27 +6,6 @@
  */
 
 /**
- * function:    get_selected_option
- * parameters:  ID of selected item
- * returns:     none
- * description: Returns the selected index of the given select.
- */
-function get_selected_option(id)
-{
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
-    let i = 0
-    for (let option of children)
-    {
-        if (option.classList.contains("selected"))
-        {
-            return i
-        }
-        ++i
-    }
-    return -1
-}
-
-/**
  * function:    merge_results
  * parameters:  none
  * returns:     Combined object of all files of a type
@@ -68,22 +47,6 @@ function merge_results(header)
         }
     })
     return combo
-}
-
-/**
- * function:    select_option
- * parameters:  ID of the selector, index of the newly selected option
- * returns:     none
- * description: Select a given option in a selector.
- */
-function select_option(id, index)
-{
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
-    for (let option of children)
-    {
-        option.classList.remove("selected")
-    }
-    document.getElementById(id + "-" + index).classList.add("selected")
 }
 
 /**
