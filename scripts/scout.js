@@ -179,8 +179,10 @@ function get_results_from_page(selected_mode)
                             case "dropdown":
                                 results[id] = document.getElementById(id).selectedIndex
                                 break
-                            case "string":
                             case "number":
+                                results[id] = parseInt(document.getElementById(id).value)
+                                break
+                            case "string":
                             case "text":
                                 results[id] = document.getElementById(id).value
                                 break
