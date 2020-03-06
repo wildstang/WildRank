@@ -109,3 +109,8 @@ html, body {
     background-color: dodgerblue;
     color: white;
 }
+
+.result_cell {
+    max-width: 250px;
+    table-layout: fixed;
+}

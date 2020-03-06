@@ -56,7 +56,7 @@ function open_result(name)
     entries.forEach(function (entry, index)
     {
         let val = result[entry]
-        table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td>" + get_value(entry, val) + "</td>"
+        table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
         if (typeof team_results !== 'undefined')
         {
             table += make_cell(team_results, entry, val)
@@ -98,7 +98,7 @@ function make_cell(results, entry, base)
     {
         color = "rgba(255,0,0," + prop + ")"
     }
-    return "<td style=\"background-color: " + color + "\">" + get_value(entry, val) + "</td>"
+    return "<td class=\"result_cell\" style=\"background-color: " + color + "\">" + get_value(entry, val) + "</td>"
 }
 
 /**
