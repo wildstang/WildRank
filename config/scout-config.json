@@ -321,6 +321,28 @@
 						]
 					}
 				]
+			},
+			{
+				"name": "Post Match",
+				"id": "match_post",
+				"columns": [{
+						"name": "Notes",
+						"id": "match_notes",
+						"inputs": [{
+								"name": "Rating (1-5)",
+								"id": "match_notes_rating",
+								"type": "number",
+								"default": 3
+							},
+							{
+								"name": "Notes",
+								"id": "match_notes_notes",
+								"type": "text",
+								"default": ""
+							}
+						]
+					}
+				]
 			}
 		]
 	}
