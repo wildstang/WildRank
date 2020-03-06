@@ -135,3 +135,7 @@ body {
     background-color: dodgerblue;
     color: white;
 }
+
+.input_label {
+    margin: 8px;
+}
