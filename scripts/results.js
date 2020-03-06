@@ -120,8 +120,6 @@ function avg_results(results, key)
         case "checkbox":
         case "select":
         case "dropdown":
-        case "string":
-        case "text":
         case "unknown":
             let counts = {}
             let maxVal = values[0]
@@ -137,6 +135,9 @@ function avg_results(results, key)
             })
             return maxVal
         // compute average for numbers
+        case "string":
+        case "text":
+            return "---"
         case "counter":
         case "number":
         default:
