@@ -318,7 +318,7 @@ function get_type(key)
  */
 function get_name(key)
 {
-    var name = key
+    var name = key.replace(/_/g, " ")
     config.pages.forEach(function (page, index)
     {
         page["columns"].forEach(function (column, index)
