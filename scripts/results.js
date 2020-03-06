@@ -13,6 +13,7 @@ const RESULT_BLOCK = "\
     </div>"
 
 var teams
+var config
 
 /**
  * function:    open_result
@@ -55,7 +56,7 @@ function open_result(name)
     entries.forEach(function (entry, index)
     {
         let val = result[entry]
-        table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td>" + val + "</td>"
+        table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td>" + get_value(entry, val) + "</td>"
         if (typeof team_results !== 'undefined')
         {
             table += make_cell(team_results, entry, val)
@@ -97,7 +98,7 @@ function make_cell(results, entry, base)
     {
         color = "rgba(255,0,0," + prop + ")"
     }
-    return "<td style=\"background-color: " + color + "\">" + val.toFixed(2) + "</td>"
+    return "<td style=\"background-color: " + color + "\">" + get_value(entry, val) + "</td>"
 }
 
 /**
@@ -106,34 +107,42 @@ function make_cell(results, entry, base)
  * returns:     average of all results
  * description: Average all the results for a given column.
  */
-function avg_results(results, column)
+function avg_results(results, key)
 {
-    let sum = 0
-    let names = Object.keys(results)
-    names.forEach(function (name, index)
+    let values = []
+    Object.keys(results).forEach(function (name, index)
     {
-        let value = results[name][column]
-        if (typeof value === 'boolean')
-        {
-            if (value)
-            {
-                ++sum
-            }
-        }
-        else if (typeof value === 'number')
-        {
-            sum += value
-        }
-        else if (typeof value === 'string')
-        {
-            sum += value.length
-        }
-        else
-        {
-            ++sum
-        }
+        values.push(results[name][key])
     })
-    return sum / names.length
+    switch (get_type(key))
+    {
+        // compute mode for non-numerics
+        case "checkbox":
+        case "select":
+        case "dropdown":
+        case "string":
+        case "text":
+        case "unknown":
+            let counts = {}
+            let maxVal = values[0]
+            values.forEach(function (val, index)
+            {
+                // increase count of value if it exists already
+                if (Object.keys(counts).includes(val)) counts[val]++
+                // start count of value if it has not been added yet
+                else counts[val] = 1
+
+                // if this was a most frequent increase the max count
+                if (counts[val] > counts[maxVal]) maxVal = val
+            })
+            return maxVal
+        // compute average for numbers
+        case "counter":
+        case "number":
+        default:
+            return values.reduce((a, b) => a + b, 0) / values.length
+    }
+    return 0
 }
 
 /**
@@ -268,6 +277,71 @@ function collect_results()
     build_result_list()
 }
 
+/**
+ * function:    get_type
+ * parameters:  name of result
+ * returns:     type of input
+ * description: Determines the type of input that created the given result.
+ */
+function get_type(key)
+{
+    var type = "unknown"
+    config.pages.forEach(function (page, index)
+    {
+        page["columns"].forEach(function (column, index)
+        {
+            column["inputs"].forEach(function (input, index)
+            {
+                if (input.id == key)
+                {
+                    type = input.type
+                }
+            })
+        })
+    })
+    return type
+}
+
+/**
+ * function:    get_value
+ * parameters:  name of result, raw value stored
+ * returns:     human readable result value
+ * description: Translates less human readable results to more.
+ */
+function get_value(key, value)
+{
+    switch (get_type(key))
+    {
+        case "select":
+        case "dropdown":
+            let option = ""
+            config.pages.forEach(function (page, index)
+            {
+                page["columns"].forEach(function (column, index)
+                {
+                    column["inputs"].forEach(function (input, index)
+                    {
+                        if (input.id == key)
+                        {
+                            option = input.options[value]
+                        }
+                    })
+                })
+            })
+            return option
+        case "checkbox":
+            return value ? "Yes" : "No"
+        case "string":
+        case "text":
+            return value
+        case "number":
+        case "counter":
+        default:
+            if (typeof value == "number") return value.toFixed(2)
+            else return value
+    }
+}
+
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
@@ -275,5 +349,22 @@ const prefix = type + "-" + event_id + "-"
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-// load event data on page load
-window.addEventListener('load', collect_results)
+// get the appropriate configuration for the results
+fetch("config/scout-config.json")
+    .then(response => {
+        return response.json()
+    })
+    .then(data => {
+        // build the page from config for the desired mode
+        data.forEach(function (mode, index)
+        {
+            if (mode.id == type)
+            {
+                config = data[index]
+            }
+        })
+        collect_results()
+    })
+    .catch(err => {
+        console.log("Error config file")
+    })
