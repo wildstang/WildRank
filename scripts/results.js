@@ -57,7 +57,7 @@ function open_result(name)
     {
         let val = result[entry]
         let type = get_type(entry)
-        table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
+        table += "<tr><th id=\"" + entry + "\">" + get_name(entry) + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
         if (typeof team_results !== 'undefined')
         {
             table += make_cell(team_results, entry, val)
@@ -308,6 +308,31 @@ function get_type(key)
         })
     })
     return type
+}
+
+/**
+ * function:    get_name
+ * parameters:  name of result
+ * returns:     name of input
+ * description: Determines the name of input that created the given result.
+ */
+function get_name(key)
+{
+    var name = key
+    config.pages.forEach(function (page, index)
+    {
+        page["columns"].forEach(function (column, index)
+        {
+            column["inputs"].forEach(function (input, index)
+            {
+                if (input.id == key)
+                {
+                    name = input.name
+                }
+            })
+        })
+    })
+    return name
 }
 
 /**
