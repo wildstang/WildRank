@@ -35,6 +35,7 @@ function open_result(name)
     })
 
     let table = "<tr><th>Entry</th>"
+    scouter_results = get_scouter_results(results[name]["meta_scouter_id"])
     if (name.startsWith("match"))
     {
         let parts = name.split("-")
@@ -42,20 +43,20 @@ function open_result(name)
         let match = parseInt(parts[parts.length - 2])
         team_results = get_team_results(team)
         match_results = get_match_results(match)
-        scouter_results = get_scouter_results(results[name]["meta_scouter_id"])
-        table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>"
+        table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th>"
     }
     else
     {
         table += "<th>Value</th>"
     }
-    table += "</tr>"
+    table += "<th>Event Average</th><th>Scouter Average</th></tr>"
 
     let result = results[name]
     let entries = Object.keys(result)
     entries.forEach(function (entry, index)
     {
         let val = result[entry]
+        let type = get_type(entry)
         table += "<tr><th id=\"" + entry + "\">" + entry + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
         if (typeof team_results !== 'undefined')
         {
@@ -65,14 +66,8 @@ function open_result(name)
         {
             table += make_cell(match_results, entry, val)
         }
-        if (name.startsWith("match"))
-        {
-            table += make_cell(results, entry, val)
-        }
-        if (typeof scouter_results !== 'undefined')
-        {
-            table += make_cell(scouter_results, entry, val)
-        }
+        table += make_cell(results, entry, val)
+        table += make_cell(scouter_results, entry, val)
         table += "</tr>"
     })
     document.getElementById("results_tab").innerHTML = table
@@ -86,19 +81,31 @@ function open_result(name)
  */
 function make_cell(results, entry, base)
 {
-    let val = avg_results(results, entry)
-    let delta = base - val
-    let prop = Math.abs(delta / base)
     let color = ""
-    if (delta > 0.01)
+    let val = avg_results(results, entry)
+    if (typeof base === "number" && !entry.startsWith("meta"))
     {
-        color = "rgba(0,255,0," + prop + ")"
+        let delta = base - val
+        let prop = Math.abs(delta / base)
+        if (delta > 0.01)
+        {
+            if (val === 0)
+            {
+                prop = 1
+            }
+            color = " style=\"background-color: rgba(0,255,0," + prop + ")\""
+        }
+        else if (delta < -0.01)
+        {
+            if (base === 0)
+            {
+                prop = 1
+            }
+            color = " style=\"background-color: rgba(255,0,0," + prop + ")\""
+        }
     }
-    else if (delta < -0.01)
-    {
-        color = "rgba(255,0,0," + prop + ")"
-    }
-    return "<td class=\"result_cell\" style=\"background-color: " + color + "\">" + get_value(entry, val) + "</td>"
+    
+    return "<td class=\"result_cell\"" + color + ">" + get_value(entry, val) + "</td>"
 }
 
 /**
@@ -338,7 +345,7 @@ function get_value(key, value)
         case "number":
         case "counter":
         default:
-            if (typeof value == "number") return value.toFixed(2)
+            if (typeof value === "number" && !key.startsWith("meta")) return value.toFixed(2)
             else return value
     }
 }
