@@ -49,7 +49,14 @@ function open_result(name)
     {
         table += "<th>Value</th>"
     }
-    table += "<th>Event Average</th><th>Scouter Average</th></tr>"
+    table += "<th>Event Average</th><th>Scouter Average</th></tr>\
+              <tr><th>Total Results</th><td>1</td>"
+
+    if (name.startsWith("match"))
+    {
+        table += "<td>" + Object.keys(team_results).length + "</td><td>" + Object.keys(match_results).length + "</td>"
+    }
+    table += "<td>" + Object.keys(results).length + "</td><td>" + Object.keys(scouter_results).length + "</td></tr>"
 
     let result = results[name]
     let entries = Object.keys(result)
