@@ -11,8 +11,8 @@ const MATCH_BLOCK = "\
     <div id=\"match_MATCH_NUM\" class=\"match_option CLASS\" onclick=\"open_match(MATCH_NUM)\">\
         <span class=\"option_number\">QMATCH_NUM</span>\
         <span>\
-            <div class=\"alliance blue\">BLUE_TEAMS</div>\
             <div class=\"alliance red\">RED_TEAMS</div>\
+            <div class=\"alliance blue\">BLUE_TEAMS</div>\
         </span>\
     </div>"
 
