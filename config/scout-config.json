@@ -137,6 +137,7 @@
 							"name": "Rating (1-5)",
 							"id": "pit_notes_rating",
 							"type": "number",
+							"options": [1, 5],
 							"default": 3
 						},
 						{
@@ -332,6 +333,7 @@
 								"name": "Rating (1-5)",
 								"id": "match_notes_rating",
 								"type": "number",
+								"options": [1, 5],
 								"default": 3
 							},
 							{

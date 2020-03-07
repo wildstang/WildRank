@@ -64,13 +64,16 @@ const dropdown = "\
 const dropdown_op = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
 
 // HTML template for a string textbox
-const STR_ENTRY = "<h4 class=\"input_label\">NAME</h4><input class=\"wr_string\" type=\"text\" id=\"ID\" value=\"VALUE\"><br>"
+const STR_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
+                   <input class=\"wr_string\" type=\"text\" id=\"ID\" value=\"VALUE\"><br>"
 
 // HTML template for a number textbox
-const NUM_ENTRY = "<h4 class=\"input_label\">NAME</h4><input class=\"wr_number\" type=\"number\" id=\"ID\" value=\"VALUE\"><br>"
+const NUM_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
+                   <input class=\"wr_number\" type=\"number\" id=\"ID\" value=\"VALUE\" BOUNDS><br>"
 
 // HTML template for a text textbox
-const TEXT_ENTRY = "<h4 class=\"input_label\">NAME</h4><textarea class=\"wr_text\" id=\"ID\">VALUE</textarea><br>"
+const TEXT_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
+                    <textarea class=\"wr_text\" id=\"ID\">VALUE</textarea><br>"
 
 /**
  * function:    check

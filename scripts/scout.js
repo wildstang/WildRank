@@ -94,6 +94,14 @@ function build_page_from_config(selected_mode)
                                 break
                             case "number":
                                 item = NUM_ENTRY.replace(/VALUE/g, default_val)
+                                if (Object.keys(input).includes("options") && input.options.length == 2)
+                                {
+                                    item = item.replace(/BOUNDS/g, "min=\"" + input.options[0] + "\" max=\"" + input.options[1] + "\"")
+                                }
+                                else
+                                {
+                                    item = item.replace(/BOUNDS/g, "")
+                                }
                                 break
                             case "text":
                                 item = TEXT_ENTRY.replace(/VALUE/g, default_val)
