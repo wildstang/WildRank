@@ -17,6 +17,11 @@ const OPEN_RESULT = "\
         <label>View Results</label>\
     </div>"
 
+const CONTENTS = "<h2>Team: <span id=\"team_num\">No Match Selected</span></h2>"
+const BUTTON = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
+                    <label>Scout Pit!</label>\
+                </div>"
+
 var teams
 
 /**
@@ -119,5 +124,8 @@ function load_event()
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
+document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+
 // load event data on page load
-window.addEventListener('load', load_event)
+load_event()

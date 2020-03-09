@@ -21,6 +21,12 @@ const OPEN_RESULT = "\
         <label>View Results</label>\
     </div>"
 
+const CONTENTS = "<h2>Match Number: <span id=\"match_num\">No Match Selected</span></h2>\
+                  <h2>Scouting: <span id=\"team_scouting\">No Match Selected</span></h2>"
+const BUTTON = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
+                    <label>Scout Match!</label>\
+                </div>"
+
 var matches
 
 /**
@@ -177,5 +183,7 @@ const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-// load event data on page load
-window.addEventListener('load', load_event)
+document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+
+load_event()

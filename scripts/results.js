@@ -12,6 +12,9 @@ const RESULT_BLOCK = "\
         <span class=\"long_option_number\">TEXT</span>\
     </div>"
 
+const CONTENTS = "<table id=\"results_tab\"></table>"
+const BUTTON = ""
+
 var teams
 var config
 
@@ -387,7 +390,10 @@ const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const prefix = type + "-" + event_id + "-"
 var urlParams = new URLSearchParams(window.location.search)
-const selected = urlParams.get('file')
+const selected = urlParams.get("file")
+
+document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
 
 // get the appropriate configuration for the results
 fetch("config/scout-config.json")

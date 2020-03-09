@@ -22,11 +22,11 @@ function scout()
     let user = get_user()
     if (get_type() == "match")
     {
-        document.location.href = "matches.html" + build_query({[EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+        document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
     }
     else
     {
-        document.location.href = "pits.html" + build_query({[EVENT_COOKIE]: event, [USER_COOKIE]: user})
+        document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
     }
 }
 
@@ -39,7 +39,7 @@ function scout()
 function open_results()
 {
     save_options()
-    document.location.href = "results.html" + build_query({"type": get_type(), [EVENT_COOKIE]: get_event()})
+    document.location.href = "selection.html" + build_query({"page": "results", "type": get_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
