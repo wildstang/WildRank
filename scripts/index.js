@@ -43,6 +43,18 @@ function open_results()
 }
 
 /**
+ * function:    open_whiteboard
+ * parameters:  none
+ * returns:     none
+ * description: Open the virtual whiteboard.
+ */
+function open_whiteboard()
+{
+    save_options()
+    document.location.href = "whiteboard.html"
+}
+
+/**
  * function:    load_event
  * parameters:  none
  * returns:     none
