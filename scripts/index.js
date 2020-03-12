@@ -114,10 +114,23 @@ function load_event()
                     return b.team_number < a.team_number ?  1
                             : b.team_number > a.team_number ? -1
                             : 0;
-                });
-
+                })
                 // store teams as JSON string in teams-[event_id]
                 localStorage.setItem("teams-" + event_id, JSON.stringify(teams))
+
+                // fetch team's avatar for whiteboard
+                teams.forEach(function (team, index)
+                {
+                    fetch("https://www.thebluealliance.com/api/v3/team/frc" + team.team_number + "/media/2020" + build_query({"X-TBA-Auth-Key": API_KEY}))
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(data => {
+                            localStorage.setItem("image-" + team.team_number, data[0].details.base64Image)
+                        })
+                        .catch(err => {
+                        })
+                })
             }
             else {
                 status.innerHTML += "no teams received<br>"
