@@ -51,7 +51,7 @@ function open_results()
 function open_whiteboard()
 {
     save_options()
-    document.location.href = "whiteboard.html"
+    document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -121,12 +121,13 @@ function load_event()
                 // fetch team's avatar for whiteboard
                 teams.forEach(function (team, index)
                 {
-                    fetch("https://www.thebluealliance.com/api/v3/team/frc" + team.team_number + "/media/2020" + build_query({"X-TBA-Auth-Key": API_KEY}))
+                    let year = get_event().substr(0,4)
+                    fetch("https://www.thebluealliance.com/api/v3/team/frc" + team.team_number + "/media/" + year + build_query({"X-TBA-Auth-Key": API_KEY}))
                         .then(response => {
                             return response.json()
                         })
                         .then(data => {
-                            localStorage.setItem("image-" + team.team_number, data[0].details.base64Image)
+                            localStorage.setItem("image-" + year + "-" + team.team_number, data[0].details.base64Image)
                         })
                         .catch(err => {
                         })

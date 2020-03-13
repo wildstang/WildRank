@@ -5,6 +5,28 @@
  * date:        2020-03-10
  */
 
+// HTML template for a match option
+const MATCH_BLOCK = "\
+    <div id=\"match_MATCH_NUM\" class=\"match_option\" onclick=\"open_match(MATCH_NUM)\">\
+        <span class=\"option_number\">QMATCH_NUM</span>\
+        <span>\
+            <div class=\"alliance red\">RED_TEAMS</div>\
+            <div class=\"alliance blue\">BLUE_TEAMS</div>\
+        </span>\
+    </div>"
+
+const CONTENTS = "<canvas id=\"whiteboard\"></canvas>"
+
+const BUTTONS = "\
+    <div class=\"wr_button\" onclick=\"clear_whiteboard()\">\
+        <label>Clear</label>\
+    </div>\
+    <div class=\"wr_button\" onclick=\"init()\">\
+        <label>Reset</label>\
+    </div>"
+
+const MAGNET_SIZE = 100
+
 var mouseX = 0
 var mouseY = 0
 var canvas
@@ -13,64 +35,127 @@ var magnets = []
 var lines = []
 var magnetHeld = -1
 
-var dozer = new Image()
-dozer.src = "/config/dozer.png"
-
-var robot = new Image()
-robot.src = "/config/robot.png"
-
 var mouseDown = false
 var hasChanged = true
 
-window.addEventListener("load", function() {
-    canvas = document.getElementById("whiteboard")
-    canvas.width = 1494
-    canvas.height = 790
-    
-    canvas.addEventListener("mousemove", function(evt) {
-        var rect = canvas.getBoundingClientRect()
-        mouseX = evt.clientX - rect.left
-        mouseY = evt.clientY - rect.top
-        if (hasChanged && mouseDown)
-        {
-            lines.push([{x: mouseX, y: mouseY}])
-            hasChanged = false
-        }
-        else if (mouseDown)
-        {
-            lines[lines.length-1].push({x: mouseX, y: mouseY})
-            lines[lines.length-1].color = "#FFFFFF"
-        }
-        if (magnetHeld >= 0)
-        {
-            magnets[magnetHeld].x = mouseX - (magnets[magnetHeld].width / 2)
-            magnets[magnetHeld].y = mouseY - (magnets[magnetHeld].height / 2)
-            lines[lines.length-1].color = magnets[magnetHeld].color
-        }
-    }, false)
-    
-    canvas.addEventListener("mousedown", function(evt) {
-        let over = intersects_image(mouseX, mouseY)
-        mouseDown = true
-        hasChanged = true
-        if (over >= 0)
-        {
-            magnetHeld = over
-        }
-    }, false)
-    
-    canvas.addEventListener("mouseup", function(evt) {
-        let over = intersects_image(mouseX, mouseY)
-        mouseDown = false
-        hasChanged = true
-        if (magnetHeld >= 0)
-        {
-            magnetHeld = -1
-        }
-    }, false)
+var matches
 
-    init()
-})
+// read parameters from URL
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
+
+// red alliance team images
+var red1 = new Image()
+var red2 = new Image()
+var red3 = new Image()
+
+// blue alliance team images
+var blue1 = new Image()
+var blue2 = new Image()
+var blue3 = new Image()
+
+/**
+ * function:    get_avatar
+ * parameters:  team number
+ * returns:     source of team avatar
+ * description: Fetches the team's avatar string from localStorage and return that or the dozer image if it can't be found.
+ */
+function get_avatar(team_num)
+{
+    let b64img = localStorage.getItem("image-" + year + "-" + team_num)
+    if (b64img == null)
+    {
+        return "/config/dozer.png"
+    }
+    return "data:image/png;base64," + b64img
+}
+
+/**
+ * function:    open_match
+ * parameters:  selected match number
+ * returns:     none
+ * description: Updates robot images with selected match.
+ */
+function open_match(match_num)
+{
+    // iterate through each match obj
+    matches.forEach(function (match, index) {
+        let level = match.comp_level
+        let number = match.match_number
+        let red_teams = match.alliances.red.team_keys
+        let blue_teams = match.alliances.blue.team_keys
+        // find the desired qualifying match
+        if (level == "qm" && number == match_num)
+        {
+            // update avatars
+            red1.src = get_avatar(red_teams[0].substr(3))
+            red2.src = get_avatar(red_teams[1].substr(3))
+            red3.src = get_avatar(red_teams[2].substr(3))
+            
+            blue1.src = get_avatar(blue_teams[0].substr(3))
+            blue2.src = get_avatar(blue_teams[1].substr(3))
+            blue3.src = get_avatar(blue_teams[2].substr(3))
+
+            // select option
+            document.getElementById("match_" + match_num).classList.add("selected")
+        }
+        else if (level == "qm" && document.getElementById("match_" + number).classList.contains("selected"))
+        {
+            document.getElementById("match_" + number).classList.remove("selected")
+        }
+    })
+}
+
+/**
+ * function:    build_match_list
+ * parameters:  none
+ * returns:     none
+ * description: Completes left select match pane with matches from event data.
+ */
+function build_match_list()
+{
+    let first = ""
+    // iterate through each match obj
+    matches.forEach(function (match, index) {
+        let level = match.comp_level
+        let number = match.match_number
+        let red_teams = match.alliances.red.team_keys
+        let blue_teams = match.alliances.blue.team_keys
+        // filter out quals matches
+        if (level == "qm")
+        {
+            if (first == "")
+            {
+                first = number
+            }
+
+            // replace placeholders in template and add to screen
+            document.getElementById("option_list").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, number)
+                                                                           .replace(/BLUE_TEAMS/g, blue_teams.join(" | "))
+                                                                           .replace(/RED_TEAMS/g, red_teams.join(" | "))
+                                                                           .replace(/frc/g, "")
+        }
+    })
+    open_match(first)
+}
+
+/**
+ * function:    load_event
+ * parameters:  none
+ * returns:     none
+ * description: Fetch simple event matches and from localStorage.
+ *              Build match list on load completion.
+ */
+function load_event()
+{
+    let file_name = "matches-" + event_id
+
+    if (localStorage.getItem(file_name) != null)
+    {
+        matches = JSON.parse(localStorage.getItem(file_name))
+        build_match_list()
+    }
+}
 
 /**
  * function:    clear_whiteboard
@@ -114,8 +199,8 @@ function create_magnet(x, y, image, color)
     obj.img = image
     obj.x = x
     obj.y = y
-    obj.width = 100
-    obj.height = 100
+    obj.width = MAGNET_SIZE
+    obj.height = MAGNET_SIZE
     obj.color = color
     magnets.push(obj)
 }
@@ -129,12 +214,12 @@ function create_magnet(x, y, image, color)
 function init() {
     lines = []
     magnets = []
-    create_magnet(250, 125, dozer, "#0000FF")
-    create_magnet(250, 375, dozer, "#0000FF")
-    create_magnet(250, 625, dozer, "#0000FF")
-    create_magnet(1150, 125, robot, "#FF0000")
-    create_magnet(1150, 375, robot, "#FF0000")
-    create_magnet(1150, 625, robot, "#FF0000")
+    create_magnet(250, 125, red1, "#FF0000")
+    create_magnet(250, 375, red2, "#FF0000")
+    create_magnet(250, 625, red3, "#FF0000")
+    create_magnet(1150, 125, blue1, "#0000FF")
+    create_magnet(1150, 375, blue2, "#0000FF")
+    create_magnet(1150, 625, blue3, "#0000FF")
 
     window.requestAnimationFrame(draw);
 }
@@ -149,8 +234,10 @@ function draw() {
     var ctx = document.getElementById("whiteboard").getContext("2d")
 
     ctx.globalCompositeOperation = "destination-over"
+    // reset canvas
     ctx.clearRect(0, 0, 1494, 790)
 
+    // draw each magnet
     magnets.forEach(function (image, index)
     {
         if (image.img.complete)
@@ -159,6 +246,7 @@ function draw() {
         }
     })
 
+    // draw each line
     lines.forEach(function (line, idx)
     {
         ctx.beginPath()
@@ -177,3 +265,68 @@ function draw() {
 
     window.requestAnimationFrame(draw)
 }
+
+window.addEventListener("load", function() {
+    // fill in page template
+    document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+    document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTONS)
+    // load in match data
+    load_event()
+
+    // resize canvas
+    canvas = document.getElementById("whiteboard")
+    canvas.width = 1494
+    canvas.height = 790
+    
+    // track mouse movement on canvas
+    canvas.addEventListener("mousemove", function(evt) {
+        // get mouse position relative to canvas
+        var rect = canvas.getBoundingClientRect()
+        mouseX = evt.clientX - rect.left
+        mouseY = evt.clientY - rect.top
+
+        // add to current line
+        if (hasChanged && mouseDown)
+        {
+            // create if first point
+            lines.push([{x: mouseX, y: mouseY}])
+            hasChanged = false
+        }
+        else if (mouseDown)
+        {
+            lines[lines.length-1].push({x: mouseX, y: mouseY})
+            lines[lines.length-1].color = "#FFFFFF"
+        }
+
+        // move the selected magnet
+        if (magnetHeld >= 0)
+        {
+            magnets[magnetHeld].x = mouseX - (magnets[magnetHeld].width / 2)
+            magnets[magnetHeld].y = mouseY - (magnets[magnetHeld].height / 2)
+            lines[lines.length-1].color = magnets[magnetHeld].color
+        }
+    }, false)
+    
+    // track mouse clicks on canvas
+    canvas.addEventListener("mousedown", function(evt) {
+        // start drawing
+        mouseDown = true
+        hasChanged = true
+        // pick up the clicked magnet
+        let over = intersects_image(mouseX, mouseY)
+        if (over >= 0)
+        {
+            magnetHeld = over
+        }
+    }, false)
+    canvas.addEventListener("mouseup", function(evt) {
+        // stop drawing
+        mouseDown = false
+        hasChanged = true
+        // release any held magnets
+        magnetHeld = -1
+    }, false)
+
+    // add magnets and start drawing
+    init()
+})
