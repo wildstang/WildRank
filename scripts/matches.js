@@ -151,10 +151,10 @@ function build_match_list()
 
             // replace placeholders in template and add to screen
             document.getElementById("option_list").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, number)
-                                                                               .replace(/BLUE_TEAMS/g, blue_teams.join(" | "))
-                                                                               .replace(/RED_TEAMS/g, red_teams.join(" | "))
-                                                                               .replace(/frc/g, "")
-                                                                               .replace(/CLASS/g, scouted)
+                                                                           .replace(/BLUE_TEAMS/g, blue_teams.join(" | "))
+                                                                           .replace(/RED_TEAMS/g, red_teams.join(" | "))
+                                                                           .replace(/frc/g, "")
+                                                                           .replace(/CLASS/g, scouted)
         }
     })
     open_match(first)
@@ -173,8 +173,16 @@ function load_event()
 
     if (localStorage.getItem(file_name) != null)
     {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+
         matches = JSON.parse(localStorage.getItem(file_name))
         build_match_list()
+    }
+    else
+    {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Match Data Found</h2>Please preload event")
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
     }
 }
 
@@ -182,8 +190,5 @@ function load_event()
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
 
 load_event()

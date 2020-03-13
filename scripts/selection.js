@@ -5,7 +5,7 @@
  * date:        2020-03-08
  */
 
- var urlParams = new URLSearchParams(window.location.search)
+var urlParams = new URLSearchParams(window.location.search)
 const page = urlParams.get("page")
 
 let script = document.createElement("script")

@@ -115,17 +115,22 @@ function load_event()
 
     if (localStorage.getItem(file_name) != null)
     {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+        
         teams = JSON.parse(localStorage.getItem(file_name))
         build_team_list()
+    }
+    else
+    {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Team Data Found</h2>Please preload event")
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
     }
 }
 
 // read parameters from URL
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
 
 // load event data on page load
 load_event()

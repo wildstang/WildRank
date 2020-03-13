@@ -287,12 +287,18 @@ function collect_results()
         }
     })
 
+    let num_results = Object.keys(unsorted).length
+    if (num_results == 0)
+    {
+        return 0
+    }
+
     // sort
     Object.keys(unsorted).sort().forEach(function(key) {
         results[key] = unsorted[key];
     })
 
-    build_result_list()
+    return num_results
 }
 
 /**
@@ -392,24 +398,31 @@ const prefix = type + "-" + event_id + "-"
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get("file")
 
-document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
-
 // get the appropriate configuration for the results
 fetch("config/scout-config.json")
     .then(response => {
         return response.json()
     })
     .then(data => {
-        // build the page from config for the desired mode
-        data.forEach(function (mode, index)
+        if (collect_results() > 0)
         {
-            if (mode.id == type)
+            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+
+            data.forEach(function (mode, index)
             {
-                config = data[index]
-            }
-        })
-        collect_results()
+                if (mode.id == type)
+                {
+                    config = data[index]
+                }
+            })
+            build_result_list()
+        }
+        else
+        {
+            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
+            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+        }
     })
     .catch(err => {
         console.log("Error config file")
