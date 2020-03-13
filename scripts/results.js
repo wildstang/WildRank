@@ -18,6 +18,8 @@ const BUTTON = ""
 var teams
 var config
 
+var results = {}
+
 /**
  * function:    open_result
  * parameters:  Selected result name
@@ -67,7 +69,7 @@ function open_result(name)
     {
         let val = result[entry]
         let type = get_type(entry)
-        table += "<tr><th id=\"" + entry + "\">" + get_name(entry) + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
+        table += "<tr><th id=\"" + entry + "\" onclick=\"sort_results('" + entry + "'); build_result_list()\">" + get_name(entry) + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
         if (typeof team_results !== 'undefined')
         {
             table += make_cell(team_results, entry, val)
@@ -242,6 +244,7 @@ function build_result_list()
 {
     let files = Object.keys(results)
     let first = ""
+    document.getElementById("option_list").innerHTML = ""
     files.forEach(function (file, index)
     {
         // determine files which start with the desired type
@@ -265,8 +268,6 @@ function build_result_list()
         open_result(first)
     }
 }
-
-var results = {}
 
 /**
  * function:    collect_results
@@ -293,12 +294,33 @@ function collect_results()
         return 0
     }
 
-    // sort
-    Object.keys(unsorted).sort().forEach(function(key) {
+    // sort results
+    Object.keys(unsorted).sort().forEach(function (key) {
         results[key] = unsorted[key];
     })
 
     return num_results
+}
+
+/**
+ * function:    sort_results
+ * parameters:  key name to sort by
+ * returns:     none
+ * description: Sorts the results by a given key.
+ */
+function sort_results(sort_by)
+{
+    unsorted = results
+    results = []
+    
+    // sort by given key
+    Object.keys(unsorted).sort(function (a, b) {
+        return unsorted[b][sort_by] < unsorted[a][sort_by] ?  1
+                : unsorted[b][sort_by] > unsorted[a][sort_by] ? -1
+                : 0
+    }).forEach(function (key) {
+        results[key] = unsorted[key]
+    })
 }
 
 /**
