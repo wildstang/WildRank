@@ -53,11 +53,13 @@ function scout()
 function open_results()
 {
     save_options()
+    let type = get_type()
+    let event = get_event()
 
     let count = 0
     Object.keys(localStorage).forEach(function (file, index)
     {
-        if (file.startsWith(prefix))
+        if (file.startsWith(type + "-" + event + "-"))
         {
             ++count
         }
@@ -65,7 +67,7 @@ function open_results()
     
     if (count > 0)
     {
-        document.location.href = "selection.html" + build_query({"page": "results", "type": get_type(), [EVENT_COOKIE]: get_event()})
+        document.location.href = "selection.html" + build_query({"page": "results", "type": type, [EVENT_COOKIE]: event})
     }
     else
     {
