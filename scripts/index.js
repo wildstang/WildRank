@@ -22,11 +22,25 @@ function scout()
     let user = get_user()
     if (get_type() == "match")
     {
-        document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+        if (localStorage.getItem("matches-" + event) != null)
+        {
+            document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+        }
+        else
+        {
+            alert("No matches found! Please preload data.")
+        }
     }
     else
     {
-        document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
+        if (localStorage.getItem("teams-" + event) != null)
+        {
+            document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
+        }
+        else
+        {
+            alert("No teams found! Please preload data.")
+        }
     }
 }
 
@@ -39,7 +53,24 @@ function scout()
 function open_results()
 {
     save_options()
-    document.location.href = "selection.html" + build_query({"page": "results", "type": get_type(), [EVENT_COOKIE]: get_event()})
+
+    let count = 0
+    Object.keys(localStorage).forEach(function (file, index)
+    {
+        if (file.startsWith(prefix))
+        {
+            ++count
+        }
+    })
+    
+    if (count > 0)
+    {
+        document.location.href = "selection.html" + build_query({"page": "results", "type": get_type(), [EVENT_COOKIE]: get_event()})
+    }
+    else
+    {
+        alert("No results found!")
+    }
 }
 
 /**
