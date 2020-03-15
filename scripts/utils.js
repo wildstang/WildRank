@@ -136,3 +136,118 @@ function get_cookie(cname, dvalue)
     }
     return dvalue;
 }
+
+/**
+ * function:    get_team_results
+ * parameters:  results to filter, team number
+ * returns:     list of results for team
+ * description: Get all results for the current team.
+ */
+function get_team_results(results, team)
+{
+    let files = Object.keys(results)
+    let team_results = {}
+    files.forEach(function (file, index)
+    {
+        let parts = file.split("-")
+        let number = parseInt(parts[parts.length - 1])
+        // determine files which start with the desired type
+        if (file.startsWith(prefix) && number == team)
+        {
+            team_results[file] = results[file]
+        }
+    })
+    return team_results
+}
+
+/**
+ * function:    get_match_results
+ * parameters:  results to filter, match number
+ * returns:     list of results for match
+ * description: Get all results for the current match.
+ */
+function get_match_results(results, match)
+{
+    let files = Object.keys(results)
+    let match_results = {}
+    files.forEach(function (file, index)
+    {
+        let parts = file.split("-")
+        let number = parseInt(parts[parts.length - 2])
+        // determine files which start with the desired type
+        if (file.startsWith(prefix) && number == match)
+        {
+            match_results[file] = results[file]
+        }
+    })
+    return match_results
+}
+
+/**
+ * function:    get_scouter_results
+ * parameters:  results to filter, scouter id
+ * returns:     list of results from a scouter
+ * description: Get all results from the given scouter.
+ */
+function get_scouter_results(results, user)
+{
+    let files = Object.keys(results)
+    let user_results = {}
+    files.forEach(function (file, index)
+    {
+        let parts = file.split("-")
+        let id = results[file]["meta_scouter_id"]
+        // determine files which start with the desired type
+        if (file.startsWith(prefix) && id == user)
+        {
+            user_results[file] = results[file]
+        }
+    })
+    return user_results
+}
+
+/**
+ * function:    mean
+ * parameters:  array of values
+ * returns:     mean of given values
+ * description: Calculates the mean of a given array of values.
+ */
+function mean(values)
+{
+    return values.reduce((a, b) => a + b, 0) / values.length
+}
+
+/**
+ * function:    median
+ * parameters:  array of values
+ * returns:     median of given values
+ * description: Calculates the median of a given array of values.
+ */
+function median(values)
+{
+    let sorted = values.sort()
+    return sorted[Math.floor(sorted.length / 2)]
+}
+
+/**
+ * function:    mode
+ * parameters:  array of values
+ * returns:     mode of given values
+ * description: Calculates the mode of a given array of values.
+ */
+function mode(values)
+{
+    let counts = {}
+    let maxVal = values[0]
+    values.forEach(function (val, index)
+    {
+        // increase count of value if it exists already
+        if (Object.keys(counts).includes(val)) counts[val]++
+        // start count of value if it has not been added yet
+        else counts[val] = 1
+
+        // if this was a most frequent increase the max count
+        if (counts[val] > counts[maxVal]) maxVal = val
+    })
+    return maxVal
+}

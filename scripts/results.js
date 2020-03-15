@@ -16,7 +16,6 @@ const CONTENTS = "<table id=\"results_tab\"></table>"
 const BUTTON = ""
 
 var teams
-var config
 
 var results = {}
 
@@ -40,14 +39,14 @@ function open_result(name)
     })
 
     let table = "<tr><th>Entry</th>"
-    scouter_results = get_scouter_results(results[name]["meta_scouter_id"])
+    scouter_results = get_scouter_results(results, results[name]["meta_scouter_id"])
     if (name.startsWith("match"))
     {
         let parts = name.split("-")
         let team = parseInt(parts[parts.length - 1])
         let match = parseInt(parts[parts.length - 2])
-        team_results = get_team_results(team)
-        match_results = get_match_results(match)
+        team_results = get_team_results(results, team)
+        match_results = get_match_results(results, match)
         table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th>"
     }
     else
@@ -68,7 +67,6 @@ function open_result(name)
     entries.forEach(function (entry, index)
     {
         let val = result[entry]
-        let type = get_type(entry)
         table += "<tr><th id=\"" + entry + "\" onclick=\"sort_results('" + entry + "'); build_result_list()\">" + get_name(entry) + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
         if (typeof team_results !== 'undefined')
         {
@@ -140,98 +138,17 @@ function avg_results(results, key)
         case "select":
         case "dropdown":
         case "unknown":
-            let counts = {}
-            let maxVal = values[0]
-            values.forEach(function (val, index)
-            {
-                // increase count of value if it exists already
-                if (Object.keys(counts).includes(val)) counts[val]++
-                // start count of value if it has not been added yet
-                else counts[val] = 1
-
-                // if this was a most frequent increase the max count
-                if (counts[val] > counts[maxVal]) maxVal = val
-            })
-            return maxVal
-        // compute average for numbers
+            return mode(values)
+        // don't attempt to use strings
         case "string":
         case "text":
             return "---"
+            // compute average for numbers
         case "counter":
         case "number":
         default:
-            return values.reduce((a, b) => a + b, 0) / values.length
+            return mean(values)
     }
-    return 0
-}
-
-/**
- * function:    get_team_results
- * parameters:  team number
- * returns:     list of results for team
- * description: Get all results for the current team.
- */
-function get_team_results(team)
-{
-    let files = Object.keys(results)
-    let team_results = {}
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        let number = parseInt(parts[parts.length - 1])
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && number == team)
-        {
-            team_results[file] = results[file]
-        }
-    })
-    return team_results
-}
-
-/**
- * function:    get_match_results
- * parameters:  match number
- * returns:     list of results for match
- * description: Get all results for the current match.
- */
-function get_match_results(match)
-{
-    let files = Object.keys(results)
-    let match_results = {}
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        let number = parseInt(parts[parts.length - 2])
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && number == match)
-        {
-            match_results[file] = results[file]
-        }
-    })
-    return match_results
-}
-
-/**
- * function:    get_scouter_results
- * parameters:  scouter id
- * returns:     list of results from a scouter
- * description: Get all results from the given scouter.
- */
-function get_scouter_results(user)
-{
-    let files = Object.keys(results)
-    let user_results = {}
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        let id = results[file]["meta_scouter_id"]
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && id == user)
-        {
-            user_results[file] = results[file]
-        }
-    })
-    return user_results
 }
 
 /**
@@ -323,96 +240,6 @@ function sort_results(sort_by)
     })
 }
 
-/**
- * function:    get_type
- * parameters:  name of result
- * returns:     type of input
- * description: Determines the type of input that created the given result.
- */
-function get_type(key)
-{
-    var type = "unknown"
-    config.pages.forEach(function (page, index)
-    {
-        page["columns"].forEach(function (column, index)
-        {
-            column["inputs"].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    type = input.type
-                }
-            })
-        })
-    })
-    return type
-}
-
-/**
- * function:    get_name
- * parameters:  name of result
- * returns:     name of input
- * description: Determines the name of input that created the given result.
- */
-function get_name(key)
-{
-    var name = key.replace(/_/g, " ")
-    config.pages.forEach(function (page, index)
-    {
-        page["columns"].forEach(function (column, index)
-        {
-            column["inputs"].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    name = input.name
-                }
-            })
-        })
-    })
-    return name
-}
-
-/**
- * function:    get_value
- * parameters:  name of result, raw value stored
- * returns:     human readable result value
- * description: Translates less human readable results to more.
- */
-function get_value(key, value)
-{
-    switch (get_type(key))
-    {
-        case "select":
-        case "dropdown":
-            let option = ""
-            config.pages.forEach(function (page, index)
-            {
-                page["columns"].forEach(function (column, index)
-                {
-                    column["inputs"].forEach(function (input, index)
-                    {
-                        if (input.id == key)
-                        {
-                            option = input.options[value]
-                        }
-                    })
-                })
-            })
-            return option
-        case "checkbox":
-            return value ? "Yes" : "No"
-        case "string":
-        case "text":
-            return value
-        case "number":
-        case "counter":
-        default:
-            if (typeof value === "number" && !key.startsWith("meta")) return value.toFixed(2)
-            else return value
-    }
-}
-
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
@@ -420,32 +247,18 @@ const prefix = type + "-" + event_id + "-"
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get("file")
 
-// get the appropriate configuration for the results
-fetch("config/scout-config.json")
-    .then(response => {
-        return response.json()
-    })
-    .then(data => {
-        if (collect_results() > 0)
-        {
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
-
-            data.forEach(function (mode, index)
-            {
-                if (mode.id == type)
-                {
-                    config = data[index]
-                }
-            })
-            build_result_list()
-        }
-        else
-        {
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
-        }
-    })
-    .catch(err => {
-        console.log("Error config file")
-    })
+// when the page is finished loading
+window.addEventListener('load', function() {
+    load_config(type)
+    if (collect_results() > 0)
+    {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+        build_result_list()
+    }
+    else
+    {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+    }
+})

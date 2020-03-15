@@ -7,7 +7,6 @@
  */
 
 const start = Date.now()
-var config
 
 /** 
  * function:    build_page_from_config
@@ -18,106 +17,98 @@ var config
 function build_page_from_config(selected_mode)
 {
     var select_ids = [];
-    // iterate through each mode obj
-    config.forEach(function (mode, index)
+    // iterate through each page in the mode
+    config.pages.forEach(function (page, index)
     {
-        // determine if this is the desired mode
-        if (mode.id == selected_mode)
+        var page_name = page.name
+        var page_id = page.id
+        columns = ""
+        // iterate through each column in the page
+        page["columns"].forEach(function (column, index)
         {
-            // iterate through each page in the mode
-            mode["pages"].forEach(function (page, index)
+            var col_name = column.name
+            var col_id = column.id
+            items = ""
+            // iterate through input in the column
+            column["inputs"].forEach(function (input, index)
             {
-                var page_name = page.name
-                var page_id = page.id
-                columns = ""
-                // iterate through each column in the page
-                page["columns"].forEach(function (column, index)
+                var name = input.name
+                var id = input.id
+                var type = input.type
+                var default_val = input.default
+
+                var item = ""
+                // build each input from its template
+                switch (type)
                 {
-                    var col_name = column.name
-                    var col_id = column.id
-                    items = ""
-                    // iterate through input in the column
-                    column["inputs"].forEach(function (input, index)
-                    {
-                        var name = input.name
-                        var id = input.id
-                        var type = input.type
-                        var default_val = input.default
-
-                        var item = ""
-                        // build each input from its template
-                        switch (type)
+                    case "checkbox":
+                        var checked = ""
+                        if (default_val)
                         {
-                            case "checkbox":
-                                var checked = ""
-                                if (default_val)
-                                {
-                                    checked = "checked"
-                                    select_ids.push(id + "-container")
-                                }
-                                item = checkbox.replace(/CHECKED/g, checked)
-                                break
-                            case "counter":
-                                item = counter.replace(/VALUE/g, default_val)
-
-                                break
-                            case "select":
-                                options = ""
-                                input["options"].forEach(function (option, index)
-                                {
-                                    op = select_op.replace(/NAME/g, option)
-                                                  .replace(/INDEX/g, index)
-                                    if (option == default_val)
-                                    {
-                                        select_ids.push(id + "-" + index)
-                                    }
-                                    options += op
-                                })
-                                item = SELECT.replace(/OPTIONS/g, options)
-                                break
-                            case "dropdown":
-                                options = ""
-                                input["options"].forEach(function (option, index)
-                                {
-                                    var selected = ""
-                                    if (option == default_val)
-                                    {
-                                        selected = "selected"
-                                    }
-                                    options += dropdown_op.replace(/NAME/g, option)
-                                                            .replace(/SELECTED/g, selected)
-                                })
-                                item = dropdown.replace(/OPTIONS/g, options)
-                                break
-                            case "string":
-                                item = STR_ENTRY.replace(/VALUE/g, default_val)
-                                break
-                            case "number":
-                                item = NUM_ENTRY.replace(/VALUE/g, default_val)
-                                if (Object.keys(input).includes("options") && input.options.length == 2)
-                                {
-                                    item = item.replace(/BOUNDS/g, "min=\"" + input.options[0] + "\" max=\"" + input.options[1] + "\"")
-                                }
-                                else
-                                {
-                                    item = item.replace(/BOUNDS/g, "")
-                                }
-                                break
-                            case "text":
-                                item = TEXT_ENTRY.replace(/VALUE/g, default_val)
-                                break
+                            checked = "checked"
+                            select_ids.push(id + "-container")
                         }
-                        items += item.replace(/ID/g, id).replace(/NAME/g, name)
-                    })
-                    columns += column_frame.replace(/ID/g, col_id)
-                                           .replace(/NAME/g, col_name)
-                                           .replace(/ITEMS/g, items)
-                })
-                document.body.innerHTML += page_frame.replace(/ID/g, page_id)
-                                                     .replace(/NAME/g, page_name)
-                                                     .replace(/COLUMNS/g, columns)
+                        item = checkbox.replace(/CHECKED/g, checked)
+                        break
+                    case "counter":
+                        item = counter.replace(/VALUE/g, default_val)
+
+                        break
+                    case "select":
+                        options = ""
+                        input["options"].forEach(function (option, index)
+                        {
+                            op = select_op.replace(/NAME/g, option)
+                                            .replace(/INDEX/g, index)
+                            if (option == default_val)
+                            {
+                                select_ids.push(id + "-" + index)
+                            }
+                            options += op
+                        })
+                        item = SELECT.replace(/OPTIONS/g, options)
+                        break
+                    case "dropdown":
+                        options = ""
+                        input["options"].forEach(function (option, index)
+                        {
+                            var selected = ""
+                            if (option == default_val)
+                            {
+                                selected = "selected"
+                            }
+                            options += dropdown_op.replace(/NAME/g, option)
+                                                    .replace(/SELECTED/g, selected)
+                        })
+                        item = dropdown.replace(/OPTIONS/g, options)
+                        break
+                    case "string":
+                        item = STR_ENTRY.replace(/VALUE/g, default_val)
+                        break
+                    case "number":
+                        item = NUM_ENTRY.replace(/VALUE/g, default_val)
+                        if (Object.keys(input).includes("options") && input.options.length == 2)
+                        {
+                            item = item.replace(/BOUNDS/g, "min=\"" + input.options[0] + "\" max=\"" + input.options[1] + "\"")
+                        }
+                        else
+                        {
+                            item = item.replace(/BOUNDS/g, "")
+                        }
+                        break
+                    case "text":
+                        item = TEXT_ENTRY.replace(/VALUE/g, default_val)
+                        break
+                }
+                items += item.replace(/ID/g, id).replace(/NAME/g, name)
             })
-        }
+            columns += column_frame.replace(/ID/g, col_id)
+                                    .replace(/NAME/g, col_name)
+                                    .replace(/ITEMS/g, items)
+        })
+        document.body.innerHTML += page_frame.replace(/ID/g, page_id)
+                                                .replace(/NAME/g, page_name)
+                                                .replace(/COLUMNS/g, columns)
     })
     // replace placeholders in template and add to screen
     document.body.innerHTML += button.replace(/ID/g, "submit_" + selected_mode)
@@ -149,56 +140,50 @@ function get_results_from_page(selected_mode)
         results["meta_position"] = parseInt(scout_pos)
     }
     results["meta_team"] = parseInt(team_num)
-    config.forEach(function (mode, index)
+    config.pages.forEach(function (page, index)
     {
-        if (mode.id == selected_mode)
+        page["columns"].forEach(function (column, index)
         {
-            mode["pages"].forEach(function (page, index)
+            column["inputs"].forEach(function (input, index)
             {
-                page["columns"].forEach(function (column, index)
-                {
-                    column["inputs"].forEach(function (input, index)
-                    {
-                        var id = input.id
-                        var type = input.type
+                var id = input.id
+                var type = input.type
 
-                        var item = ""
-                        switch (type)
+                var item = ""
+                switch (type)
+                {
+                    case "checkbox":
+                        results[id] = document.getElementById(id).checked
+                        break
+                    case "counter":
+                        results[id] = parseInt(document.getElementById(id).innerHTML)
+                        break
+                    case "select":
+                        results[id] = -1
+                        let children = document.getElementById(id).getElementsByClassName("wr_select_option")
+                        var i = 0;
+                        for (let option of children)
                         {
-                            case "checkbox":
-                                results[id] = document.getElementById(id).checked
-                                break
-                            case "counter":
-                                results[id] = parseInt(document.getElementById(id).innerHTML)
-                                break
-                            case "select":
-                                results[id] = -1
-                                let children = document.getElementById(id).getElementsByClassName("wr_select_option")
-                                var i = 0;
-                                for (let option of children)
-                                {
-                                    if (option.classList.contains("selected"))
-                                    {
-                                        results[id] = i
-                                    }
-                                    i++
-                                }
-                                break
-                            case "dropdown":
-                                results[id] = document.getElementById(id).selectedIndex
-                                break
-                            case "number":
-                                results[id] = parseInt(document.getElementById(id).value)
-                                break
-                            case "string":
-                            case "text":
-                                results[id] = document.getElementById(id).value
-                                break
+                            if (option.classList.contains("selected"))
+                            {
+                                results[id] = i
+                            }
+                            i++
                         }
-                    })
-                })
+                        break
+                    case "dropdown":
+                        results[id] = document.getElementById(id).selectedIndex
+                        break
+                    case "number":
+                        results[id] = parseInt(document.getElementById(id).value)
+                        break
+                    case "string":
+                    case "text":
+                        results[id] = document.getElementById(id).value
+                        break
+                }
             })
-        }
+        })
     })
     let file = ["pit", event_id, team_num].join("-")
     if (scout_mode == "match")
@@ -220,29 +205,21 @@ const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
 
-// request the scouting config from the server
-fetch("config/scout-config.json")
-    .then(response => {
-        return response.json()
-    })
-    .then(data => {
-        // set the team number in the header
-        document.getElementById("team").innerHTML = team_num
-        document.getElementById("team").style.color = alliance_color
+load_config(scout_mode)
+window.addEventListener('load', function() {
+    // set the team number in the header
+    document.getElementById("team").innerHTML = team_num
+    document.getElementById("team").style.color = alliance_color
 
-        // build the page from config for the desired mode
-        config = data
-        if (scout_mode == 'match')
-        {
-            document.getElementById("match").innerHTML = match_num
-            build_page_from_config("match")
-        }
-        else
-        {
-            document.getElementById("match").innerHTML = "Pit"
-            build_page_from_config("pit")
-        }
-    })
-    .catch(err => {
-        console.log("Error config file")
-    })
+    // build the page from config for the desired mode
+    if (scout_mode == 'match')
+    {
+        document.getElementById("match").innerHTML = match_num
+        build_page_from_config("match")
+    }
+    else
+    {
+        document.getElementById("match").innerHTML = "Pit"
+        build_page_from_config("pit")
+    }
+})

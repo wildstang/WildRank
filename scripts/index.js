@@ -17,30 +17,38 @@ var qrcode
 function scout()
 {
     save_options()
-    let event = get_event()
-    let position = get_position()
-    let user = get_user()
-    if (get_type() == "match")
+    let type = get_selected_type()
+    if (config_exists(type))
     {
-        if (localStorage.getItem("matches-" + event) != null)
+        let event = get_event()
+        let position = get_position()
+        let user = get_user()
+        if (get_selected_type() == "match")
         {
-            document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+            if (localStorage.getItem("matches-" + event) != null)
+            {
+                document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+            }
+            else
+            {
+                alert("No matches found! Please preload data.")
+            }
         }
         else
         {
-            alert("No matches found! Please preload data.")
+            if (localStorage.getItem("teams-" + event) != null)
+            {
+                document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
+            }
+            else
+            {
+                alert("No teams found! Please preload data.")
+            }
         }
     }
     else
     {
-        if (localStorage.getItem("teams-" + event) != null)
-        {
-            document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
-        }
-        else
-        {
-            alert("No teams found! Please preload data.")
-        }
+        alert("No config found for mode: " + type)
     }
 }
 
@@ -53,25 +61,32 @@ function scout()
 function open_results()
 {
     save_options()
-    let type = get_type()
-    let event = get_event()
+    let type = get_selected_type()
+    if (config_exists(type))
+    {
+        let event = get_event()
 
-    let count = 0
-    Object.keys(localStorage).forEach(function (file, index)
-    {
-        if (file.startsWith(type + "-" + event + "-"))
+        let count = 0
+        Object.keys(localStorage).forEach(function (file, index)
         {
-            ++count
+            if (file.startsWith(type + "-" + event + "-"))
+            {
+                ++count
+            }
+        })
+        
+        if (count > 0)
+        {
+            document.location.href = "selection.html" + build_query({"page": "results", "type": type, [EVENT_COOKIE]: event})
         }
-    })
-    
-    if (count > 0)
-    {
-        document.location.href = "selection.html" + build_query({"page": "results", "type": type, [EVENT_COOKIE]: event})
+        else
+        {
+            alert("No results found!")
+        }
     }
     else
     {
-        alert("No results found!")
+        alert("No config found for mode: " + type)
     }
 }
 
@@ -96,7 +111,15 @@ function open_whiteboard()
 function open_ranker()
 {
     save_options()
-    document.location.href = "selection.html" + build_query({"page": "ranker", "type": get_type(), [EVENT_COOKIE]: get_event()})
+    let type = get_selected_type()
+    if (config_exists(type))
+    {
+        document.location.href = "selection.html" + build_query({"page": "ranker", "type": type, [EVENT_COOKIE]: get_event()})
+    }
+    else
+    {
+        alert("No config found for mode: " + type)
+    }
 }
 
 /**
@@ -189,12 +212,12 @@ function load_event()
 }
 
 /**
- * function:    get_type
+ * function:    get_selected_type
  * parameters:  none
  * returns:     Currently selected scouting type.
  * description: Determines whether to use "match" or "pit" scouting based on the "match" radio button.
  */
-function get_type()
+function get_selected_type()
 {
     return get_selected_option("type_form") ? "match" : "pit"
 }
@@ -252,7 +275,7 @@ function get_upload_addr()
 function upload_all()
 {
     save_options()
-    let type = get_type()
+    let type = get_selected_type()
     let status = document.getElementById("status")
     status.innerHTML += "Uploading " + type + " results...<br>"
     // get all files in localStorage
@@ -283,7 +306,7 @@ function import_all()
     save_options()
     // determine appropriate request for selected mode
     let request = ""
-    if (get_type() == "match")
+    if (get_selected_type() == "match")
     {
         request = "getMatchResultNames"
     }
@@ -305,7 +328,7 @@ function import_all()
             let results = data.split(",").filter(function (r) {
                 return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
             })
-            status.innerHTML += results.length + " " + get_type() + " results found<br>"
+            status.innerHTML += results.length + " " + get_selected_type() + " results found<br>"
 
             // request each desired result
             results.forEach(function (file, index)
@@ -341,7 +364,7 @@ function import_all()
  */
 function process_files()
 {
-    let type = get_type()
+    let type = get_selected_type()
     // get all files in localStorage
     let files = Object.keys(localStorage)
     let combo = {}
@@ -404,7 +427,7 @@ function save_options()
     set_cookie(USER_COOKIE, get_user())
     set_cookie(POSITION_COOKIE, get_position())
     set_cookie(UPLOAD_COOKIE, get_upload_addr())
-    set_cookie(TYPE_COOKIE, get_type())
+    set_cookie(TYPE_COOKIE, get_selected_type())
 }
 
 // when the page is finished loading
@@ -417,4 +440,5 @@ window.addEventListener('load', function() {
     document.getElementById("upload_addr").selectedIndex = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
     select_option("type_form", get_cookie(TYPE_COOKIE, TYPE_DEFAULT)=="match" ? 1 : 2)
     process_files()
+    fetch_config()
 })

@@ -45,7 +45,6 @@ const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\">NAME</optio
 var keys = {}
 var teams = {}
 var totals = []
-var config
 var selected = ""
 
 /**
@@ -68,23 +67,12 @@ function avg_results(results, key)
         case "select":
         case "dropdown":
         case "unknown":
-            let counts = {}
-            let maxVal = values[0]
-            values.forEach(function (val, index)
-            {
-                // increase count of value if it exists already
-                if (Object.keys(counts).includes(val)) counts[val]++
-                // start count of value if it has not been added yet
-                else counts[val] = 1
-
-                // if this was a most frequent increase the max count
-                if (counts[val] > counts[maxVal]) maxVal = val
-            })
-            return maxVal
-        // compute average for numbers
+            return mode(values)
+        // don't attempt to use strings
         case "string":
         case "text":
             return "---"
+        // compute average for numbers
         case "counter":
         case "number":
         default:
@@ -92,24 +80,10 @@ function avg_results(results, key)
             {
                 // median
                 case 1:
-                    let sorted = values.sort()
-                    console.log(sorted)
-                    return sorted[Math.floor(sorted.length / 2)]
+                    return median(values)
                 // mode
                 case 2:
-                    let counts = {}
-                    let maxVal = values[0]
-                    values.forEach(function (val, index)
-                    {
-                        // increase count of value if it exists already
-                        if (Object.keys(counts).includes(val)) counts[val]++
-                        // start count of value if it has not been added yet
-                        else counts[val] = 1
-        
-                        // if this was a most frequent increase the max count
-                        if (counts[val] > counts[maxVal]) maxVal = val
-                    })
-                    return maxVal
+                    return mode(values)
                 // min
                 case 3:
                     return Math.min(... values)
@@ -119,33 +93,9 @@ function avg_results(results, key)
                 // mean
                 case 0:
                 default:
-                    return values.reduce((a, b) => a + b, 0) / values.length
+                    return mean(values)
             }
     }
-    return 0
-}
-
-/**
- * function:    get_team_results
- * parameters:  results to filter, team number
- * returns:     list of results for team
- * description: Get all results for the current team.
- */
-function get_team_results(results, team)
-{
-    let files = Object.keys(results)
-    let team_results = {}
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        let number = parseInt(parts[parts.length - 1])
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && number == team)
-        {
-            team_results[file] = results[file]
-        }
-    })
-    return team_results
 }
 
 /**
@@ -219,56 +169,6 @@ function build_team_list()
 }
 
 /**
- * function:    get_type
- * parameters:  name of result
- * returns:     type of input
- * description: Determines the type of input that created the given result.
- */
-function get_type(key)
-{
-    var type = "unknown"
-    config.pages.forEach(function (page, index)
-    {
-        page["columns"].forEach(function (column, index)
-        {
-            column["inputs"].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    type = input.type
-                }
-            })
-        })
-    })
-    return type
-}
-
-/**
- * function:    get_name
- * parameters:  name of result
- * returns:     name of input
- * description: Determines the name of input that created the given result.
- */
-function get_name(key)
-{
-    var name = key.replace(/_/g, " ")
-    config.pages.forEach(function (page, index)
-    {
-        page["columns"].forEach(function (column, index)
-        {
-            column["inputs"].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    name = input.name
-                }
-            })
-        })
-    })
-    return name
-}
-
-/**
  * function:    sort_teams
  * parameters:  key index to sort by
  * returns:     none
@@ -298,13 +198,9 @@ function sort_teams(index)
  */
 function select()
 {
-    let select = document.getElementById("key_selector")
-    sort_teams(select.selectedIndex)
-    document.getElementById("value").innerHTML = "Team: " + selected.substr(1) + "<br>"
-    document.getElementById("value").innerHTML += select.value + ": " + teams[selected][keys[select.selectedIndex]] + "<br>"
-    let val = get_value(keys[select.selectedIndex], totals[keys[select.selectedIndex]])
-    document.getElementById("value").innerHTML += "Overall: " + val
+    sort_teams(document.getElementById("key_selector").selectedIndex)
     build_team_list()
+    open_team(selected)
 }
 
 /**
@@ -317,10 +213,11 @@ function open_team(team_num)
 {
     selected = team_num
     let select = document.getElementById("key_selector")
-    document.getElementById("value").innerHTML = select.value + ": " + teams[selected][keys[select.selectedIndex]] + "<br>"
-    document.getElementById("value").innerHTML += "Average: " + totals[keys[select.selectedIndex]].toFixed(2)
+    document.getElementById("value").innerHTML = "Team: " + selected.substr(1) + "<br>"
+    document.getElementById("value").innerHTML += select.value + ": " + get_value(keys[select.selectedIndex], teams[selected][keys[select.selectedIndex]]) + "<br>"
+    let val = get_value(keys[select.selectedIndex], totals[keys[select.selectedIndex]])
+    document.getElementById("value").innerHTML += "Overall: " + val
 
-    document.getElementById("team_" + team_num).classList.add("selected")
     Object.keys(teams).forEach(function (team, index)
     {
         if (document.getElementById("team_" + team).classList.contains("selected"))
@@ -328,6 +225,7 @@ function open_team(team_num)
             document.getElementById("team_" + team).classList.remove("selected")
         }
     })
+    document.getElementById("team_" + team_num).classList.add("selected")
 }
 
 /**
@@ -346,79 +244,25 @@ function fill_dropdown()
     document.getElementById("key_selector").innerHTML = options
 }
 
-/**
- * function:    get_value
- * parameters:  name of result, raw value stored
- * returns:     human readable result value
- * description: Translates less human readable results to more.
- */
-function get_value(key, value)
-{
-    switch (get_type(key))
-    {
-        case "select":
-        case "dropdown":
-            let option = ""
-            config.pages.forEach(function (page, index)
-            {
-                page["columns"].forEach(function (column, index)
-                {
-                    column["inputs"].forEach(function (input, index)
-                    {
-                        if (input.id == key)
-                        {
-                            option = input.options[value]
-                        }
-                    })
-                })
-            })
-            return option
-        case "checkbox":
-            return value ? "Yes" : "No"
-        case "string":
-        case "text":
-            return value
-        case "number":
-        case "counter":
-        default:
-            if (typeof value === "number" && !key.startsWith("meta")) return value.toFixed(2)
-            else return value
-    }
-}
-
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const prefix = type + "-" + event_id + "-"
 
-// get the appropriate configuration for the results
-fetch("config/scout-config.json")
-    .then(response => {
-        return response.json()
-    })
-    .then(data => {
-        data.forEach(function (mode, index)
-        {
-            if (mode.id == type)
-            {
-                config = data[index]
-            }
-        })
-
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
-        if (collect_results() > 0)
-        {
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-            fill_dropdown()
-            selected = Object.keys(teams)[0]
-            select()
-        }
-        else
-        {
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
-        }
-    })
-    .catch(err => {
-        console.log("Error config file")
-    })
+// when the page is finished loading
+window.addEventListener('load', function() {
+    load_config(type)
+    document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+    if (collect_results() > 0)
+    {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+        fill_dropdown()
+        selected = Object.keys(teams)[0]
+        select()
+    }
+    else
+    {
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+    }
+})
