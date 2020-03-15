@@ -19,7 +19,7 @@ const BUTTON = "\
     </select>\
     <h4 class=\"input_label\">Sort numeric values using:</h4>\
     <div class=\"wr_select\" id=\"type_form\">\
-        <span class=\"wr_select_option selected\" id=\"type_form-1\" onclick=\"select_option('type_form', '1')\">\
+        <span class=\"wr_select_option selected\" id=\"type_form-1\" onclick=\"select_option('type_form', '1'); collect_results(); select()\">\
             <label>Mean</label>\
         </span>\
         <span class=\"wr_select_option\" id=\"type_form-2\" onclick=\"select_option('type_form', '2'); collect_results(); select()\">\
