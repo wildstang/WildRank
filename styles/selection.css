@@ -114,3 +114,20 @@ html, body {
     max-width: 250px;
     table-layout: fixed;
 }
+
+#result_title {
+    text-align: center;
+}
+
+#avatar {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+}
+
+#result_name {
+    display: inline-block;
+    vertical-align: top;
+    line-height: 50px;
+    margin: 0;
+}

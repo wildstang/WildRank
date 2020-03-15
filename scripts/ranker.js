@@ -39,8 +39,8 @@ const BUTTON = "\
         <input type=\"checkbox\" onclick=\"check('reverse'); build_team_list()\" id=\"reverse\" name=\"reverse\">\
         <label for=\"reverse\" onclick=\"check('reverse'); build_team_list()\">Reverse Order</label>\
     </div>"
-    
-const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\">NAME</option>"
+
+const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRC\"> <h2 id=\"result_name\">TEXT</h2></div>"
 
 var keys = {}
 var teams = {}
@@ -214,8 +214,8 @@ function open_team(team_num)
     selected = team_num
     team_num = selected.substr(1)
     let select = document.getElementById("key_selector")
-    document.getElementById("value").innerHTML = "<img src=\"" + get_avatar(team_num, event_id.substr(0,4)) + "\" width=\"50px\"><br>"
-    document.getElementById("value").innerHTML += "Team: " + team_num + " " + get_team_name(team_num, event_id) + "<br>"
+    document.getElementById("value").innerHTML = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
+                                                     .replace(/TEXT/g, team_num + " " + get_team_name(team_num, event_id))
     document.getElementById("value").innerHTML += select.value + ": " + get_value(keys[select.selectedIndex], teams[selected][keys[select.selectedIndex]]) + "<br>"
     let val = get_value(keys[select.selectedIndex], totals[keys[select.selectedIndex]])
     document.getElementById("value").innerHTML += "Overall: " + val
@@ -241,7 +241,7 @@ function fill_dropdown()
     let options = ""
     keys.forEach(function (key, index)
     {
-        options += DROPDOWN_OP.replace(/NAME/g, get_name(key))
+        options += dropdown_op.replace(/NAME/g, get_name(key))
     })
     document.getElementById("key_selector").innerHTML = options
 }

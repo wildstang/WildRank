@@ -12,7 +12,7 @@ const RESULT_BLOCK = "\
         <span class=\"long_option_number\">TEXT</span>\
     </div>"
 
-const CONTENTS = "<table id=\"results_tab\"></table>"
+const CONTENTS = "<div id=\"result_title\"><img id=\"avatar\"> <h2 id=\"result_name\"></h2></div><table id=\"results_tab\"></table>"
 const BUTTON = ""
 
 var teams
@@ -38,13 +38,17 @@ function open_result(name)
         }
     })
 
+    let parts = name.split("-")
+    let team = parseInt(parts[parts.length - 1])
+    document.getElementById("avatar").src = get_avatar(team, event_id.substr(0, 4))
+    document.getElementById("result_name").innerHTML = team + " " + get_team_name(team, event_id)
+
     let table = "<tr><th>Entry</th>"
     scouter_results = get_scouter_results(results, results[name]["meta_scouter_id"])
     if (name.startsWith("match"))
     {
-        let parts = name.split("-")
-        let team = parseInt(parts[parts.length - 1])
         let match = parseInt(parts[parts.length - 2])
+        document.getElementById("result_name").innerHTML += ", Match: " + match
         team_results = get_team_results(results, team)
         match_results = get_match_results(results, match)
         table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th>"
