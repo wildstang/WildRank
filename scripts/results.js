@@ -183,6 +183,7 @@ function build_result_list()
     if (first != "")
     {
         open_result(first)
+        scroll_to("option_list", "result_" + first)
     }
 }
 

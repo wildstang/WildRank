@@ -17,7 +17,7 @@ const MATCH_BLOCK = "\
     </div>"
 
 const OPEN_RESULT = "\
-    <div class=\"wr_button\" onclick=\"open_result('RESULT')\">\
+    <div class=\"wr_button\" id=\"open_result\" onclick=\"open_result('RESULT')\">\
         <label>View Results</label>\
     </div>"
 
@@ -86,9 +86,15 @@ function open_match(match_num)
     }
 }
 
+/**
+ * function:    open_result
+ * parameters:  file to open
+ * returns:     none
+ * description: Opens result page for selected match.
+ */
 function open_result(file)
 {
-    document.location.href = "results.html" + build_query({[TYPE_COOKIE]: "match", [EVENT_COOKIE]: event_id, "file": file})
+    document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: "match", [EVENT_COOKIE]: event_id, "file": file})
 }
 
 /**
@@ -158,6 +164,7 @@ function build_match_list()
         }
     })
     open_match(first)
+    scroll_to("option_list", "match_" + first)
 }
 
 /**

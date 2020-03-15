@@ -56,7 +56,7 @@ function open_team(team_num)
 
 function open_result(file)
 {
-    document.location.href = "results.html" + build_query({[TYPE_COOKIE]: "pit", [EVENT_COOKIE]: event_id, "file": file})
+    document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: "pit", [EVENT_COOKIE]: event_id, "file": file})
 }
 
 /**
@@ -100,6 +100,7 @@ function build_team_list()
                                                                       .replace(/CLASS/g, scouted)
     })
     open_team(first)
+    scroll_to("option_list", "team_" + first)
 }
 
 /**

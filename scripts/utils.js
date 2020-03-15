@@ -251,3 +251,19 @@ function mode(values)
     })
     return maxVal
 }
+
+/**
+ * function:    scroll_to
+ * parameters:  scrollable element, goal item
+ * returns:     none
+ * description: Scrolls a given element so another can be seen.
+ */
+function scroll_to(container, goal)
+{
+    var offset = document.getElementById(goal).getBoundingClientRect().top - document.getElementById(container).getBoundingClientRect().top
+
+    if(offset > window.innerHeight)
+    {
+        document.getElementById(container).scrollBy(0, offset)
+    }
+}
