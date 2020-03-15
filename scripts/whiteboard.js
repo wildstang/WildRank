@@ -55,22 +55,6 @@ var blue2 = new Image()
 var blue3 = new Image()
 
 /**
- * function:    get_avatar
- * parameters:  team number
- * returns:     source of team avatar
- * description: Fetches the team's avatar string from localStorage and return that or the dozer image if it can't be found.
- */
-function get_avatar(team_num)
-{
-    let b64img = localStorage.getItem("image-" + year + "-" + team_num)
-    if (b64img == null)
-    {
-        return "/config/dozer.png"
-    }
-    return "data:image/png;base64," + b64img
-}
-
-/**
  * function:    open_match
  * parameters:  selected match number
  * returns:     none
@@ -88,13 +72,13 @@ function open_match(match_num)
         if (level == "qm" && number == match_num)
         {
             // update avatars
-            red1.src = get_avatar(red_teams[0].substr(3))
-            red2.src = get_avatar(red_teams[1].substr(3))
-            red3.src = get_avatar(red_teams[2].substr(3))
+            red1.src = get_avatar(red_teams[0].substr(3), year)
+            red2.src = get_avatar(red_teams[1].substr(3), year)
+            red3.src = get_avatar(red_teams[2].substr(3), year)
             
-            blue1.src = get_avatar(blue_teams[0].substr(3))
-            blue2.src = get_avatar(blue_teams[1].substr(3))
-            blue3.src = get_avatar(blue_teams[2].substr(3))
+            blue1.src = get_avatar(blue_teams[0].substr(3), year)
+            blue2.src = get_avatar(blue_teams[1].substr(3), year)
+            blue3.src = get_avatar(blue_teams[2].substr(3), year)
 
             // select option
             document.getElementById("match_" + match_num).classList.add("selected")

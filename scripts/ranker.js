@@ -212,8 +212,10 @@ function select()
 function open_team(team_num)
 {
     selected = team_num
+    team_num = selected.substr(1)
     let select = document.getElementById("key_selector")
-    document.getElementById("value").innerHTML = "Team: " + selected.substr(1) + "<br>"
+    document.getElementById("value").innerHTML = "<img src=\"" + get_avatar(team_num, event_id.substr(0,4)) + "\" width=\"50px\"><br>"
+    document.getElementById("value").innerHTML += "Team: " + team_num + " " + get_team_name(team_num, event_id) + "<br>"
     document.getElementById("value").innerHTML += select.value + ": " + get_value(keys[select.selectedIndex], teams[selected][keys[select.selectedIndex]]) + "<br>"
     let val = get_value(keys[select.selectedIndex], totals[keys[select.selectedIndex]])
     document.getElementById("value").innerHTML += "Overall: " + val
@@ -225,7 +227,7 @@ function open_team(team_num)
             document.getElementById("team_" + team).classList.remove("selected")
         }
     })
-    document.getElementById("team_" + team_num).classList.add("selected")
+    document.getElementById("team_" + selected).classList.add("selected")
 }
 
 /**

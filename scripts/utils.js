@@ -267,3 +267,30 @@ function scroll_to(container, goal)
         document.getElementById(container).scrollBy(0, offset)
     }
 }
+
+/**
+ * function:    get_team_name
+ * parameters:  team number, current event
+ * returns:     team name
+ * description: Gets the team name from the team number.
+ */
+function get_team_name(team_num, event)
+{
+    return JSON.parse(localStorage.getItem("teams-" + event)).filter(team => team.team_number == team_num)[0].nickname
+}
+
+/**
+ * function:    get_avatar
+ * parameters:  team number, year to choose
+ * returns:     source of team avatar
+ * description: Fetches the team's avatar string from localStorage and return that or the dozer image if it can't be found.
+ */
+function get_avatar(team_num, year)
+{
+    let b64img = localStorage.getItem("image-" + year + "-" + team_num)
+    if (b64img == null)
+    {
+        return "/config/dozer.png"
+    }
+    return "data:image/png;base64," + b64img
+}
