@@ -88,6 +88,18 @@ function open_whiteboard()
 }
 
 /**
+ * function:    open_ranker
+ * parameters:  none
+ * returns:     none
+ * description: Open the team ranker interface.
+ */
+function open_ranker()
+{
+    save_options()
+    document.location.href = "selection.html" + build_query({"page": "ranker", "type": get_type(), [EVENT_COOKIE]: get_event()})
+}
+
+/**
  * function:    load_event
  * parameters:  none
  * returns:     none

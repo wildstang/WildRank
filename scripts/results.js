@@ -310,13 +310,13 @@ function collect_results()
  */
 function sort_results(sort_by)
 {
-    unsorted = results
-    results = []
+    let unsorted = results
+    results = {}
     
     // sort by given key
     Object.keys(unsorted).sort(function (a, b) {
-        return unsorted[b][sort_by] < unsorted[a][sort_by] ?  1
-                : unsorted[b][sort_by] > unsorted[a][sort_by] ? -1
+        return unsorted[b][sort_by] < unsorted[a][sort_by] ? -1
+                : unsorted[b][sort_by] > unsorted[a][sort_by] ? 1
                 : 0
     }).forEach(function (key) {
         results[key] = unsorted[key]
