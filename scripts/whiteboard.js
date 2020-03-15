@@ -18,6 +18,7 @@ const MATCH_BLOCK = "\
 const CONTENTS = "<canvas id=\"whiteboard\"></canvas>"
 
 const BUTTONS = "\
+    <br>\
     <div class=\"page\">\
         <div class=\"column\">\
             <div class=\"wr_button\" onclick=\"clear_whiteboard()\">\
