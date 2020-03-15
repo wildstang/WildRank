@@ -14,9 +14,31 @@ const RESULT_BLOCK = "\
 
 const CONTENTS = "<h2 id=\"value\"></h2>"
 const BUTTON = "\
-    <h4 class=\"input_label\">NAME</h4>\
+    <h4 class=\"input_label\">Sort by key:</h4>\
     <select class=\"wr_dropdown\" id=\"key_selector\" onchange=\"select()\">\
-    </select>"
+    </select>\
+    <h4 class=\"input_label\">Sort numeric values using:</h4>\
+    <div class=\"wr_select\" id=\"type_form\">\
+        <span class=\"wr_select_option selected\" id=\"type_form-1\" onclick=\"select_option('type_form', '1')\">\
+            <label>Mean</label>\
+        </span>\
+        <span class=\"wr_select_option\" id=\"type_form-2\" onclick=\"select_option('type_form', '2'); collect_results(); select()\">\
+            <label>Median</label>\
+        </span>\
+        <span class=\"wr_select_option\" id=\"type_form-3\" onclick=\"select_option('type_form', '3'); collect_results(); select()\">\
+            <label>Mode</label>\
+        </span>\
+        <span class=\"wr_select_option\" id=\"type_form-4\" onclick=\"select_option('type_form', '4'); collect_results(); select()\">\
+            <label>Min</label>\
+        </span>\
+        <span class=\"wr_select_option\" id=\"type_form-5\" onclick=\"select_option('type_form', '5'); collect_results(); select()\">\
+            <label>Max</label>\
+        </span>\
+    </div>\
+    <div class=\"wr_checkbox\" id=\"reverse-container\" onclick=\"check('reverse'); build_team_list()\">\
+        <input type=\"checkbox\" onclick=\"check('reverse'); build_team_list()\" id=\"reverse\" name=\"reverse\">\
+        <label for=\"reverse\" onclick=\"check('reverse'); build_team_list()\">Reverse Order</label>\
+    </div>"
     
 const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\">NAME</option>"
 
@@ -66,7 +88,39 @@ function avg_results(results, key)
         case "counter":
         case "number":
         default:
-            return values.reduce((a, b) => a + b, 0) / values.length
+            switch (get_selected_option("type_form"))
+            {
+                // median
+                case 1:
+                    let sorted = values.sort()
+                    console.log(sorted)
+                    return sorted[Math.floor(sorted.length / 2)]
+                // mode
+                case 2:
+                    let counts = {}
+                    let maxVal = values[0]
+                    values.forEach(function (val, index)
+                    {
+                        // increase count of value if it exists already
+                        if (Object.keys(counts).includes(val)) counts[val]++
+                        // start count of value if it has not been added yet
+                        else counts[val] = 1
+        
+                        // if this was a most frequent increase the max count
+                        if (counts[val] > counts[maxVal]) maxVal = val
+                    })
+                    return maxVal
+                // min
+                case 3:
+                    return Math.min(... values)
+                // max
+                case 4:
+                    return Math.max(... values)
+                // mean
+                case 0:
+                default:
+                    return values.reduce((a, b) => a + b, 0) / values.length
+            }
     }
     return 0
 }
@@ -124,7 +178,11 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(unsorted[Object.keys(unsorted)[0]])
+    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !["string", "text", "unknown"].includes(get_type(key)))
+    keys.forEach(function (key, index)
+    {
+        totals[key] = avg_results(unsorted, key)
+    })
     Object.keys(teams).forEach(function (team, index)
     {
         let team_results = get_team_results(unsorted, team.substr(1))
@@ -132,10 +190,6 @@ function collect_results()
         {
             teams[team][key] = avg_results(team_results, key)
         })
-    })
-    keys.forEach(function (key, index)
-    {
-        totals[key] = avg_results(unsorted, key)
     })
 
     return num_results
@@ -151,10 +205,16 @@ function build_team_list()
 {
     let team_nums = Object.keys(teams)
     document.getElementById("option_list").innerHTML = ""
+    if (document.getElementById("reverse").checked)
+    {
+        team_nums = team_nums.reverse()
+    }
     team_nums.forEach(function (team, index)
     {
+        let select = document.getElementById("key_selector")
+        let val = get_value(keys[select.selectedIndex], teams[team][keys[select.selectedIndex]])
         document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NUM/g, team)
-                                                                        .replace(/TEXT/g, (index+1) + ": " + team.substr(1) + " - " + teams[team][keys[document.getElementById("key_selector").selectedIndex]])
+                                                                        .replace(/TEXT/g, (index+1) + ": " + team.substr(1) + " - " + val)
     })
 }
 
@@ -240,13 +300,10 @@ function select()
 {
     let select = document.getElementById("key_selector")
     sort_teams(select.selectedIndex)
-    document.getElementById("value").innerHTML = select.value + ": " + teams[selected][keys[select.selectedIndex]] + "<br>"
-    let val = totals[keys[select.selectedIndex]]
-    if (typeof val === "number")
-    {
-        val = val.toFixed(2)
-    }
-    document.getElementById("value").innerHTML += "Average: " + val
+    document.getElementById("value").innerHTML = "Team: " + selected.substr(1) + "<br>"
+    document.getElementById("value").innerHTML += select.value + ": " + teams[selected][keys[select.selectedIndex]] + "<br>"
+    let val = get_value(keys[select.selectedIndex], totals[keys[select.selectedIndex]])
+    document.getElementById("value").innerHTML += "Overall: " + val
     build_team_list()
 }
 
@@ -289,6 +346,46 @@ function fill_dropdown()
     document.getElementById("key_selector").innerHTML = options
 }
 
+/**
+ * function:    get_value
+ * parameters:  name of result, raw value stored
+ * returns:     human readable result value
+ * description: Translates less human readable results to more.
+ */
+function get_value(key, value)
+{
+    switch (get_type(key))
+    {
+        case "select":
+        case "dropdown":
+            let option = ""
+            config.pages.forEach(function (page, index)
+            {
+                page["columns"].forEach(function (column, index)
+                {
+                    column["inputs"].forEach(function (input, index)
+                    {
+                        if (input.id == key)
+                        {
+                            option = input.options[value]
+                        }
+                    })
+                })
+            })
+            return option
+        case "checkbox":
+            return value ? "Yes" : "No"
+        case "string":
+        case "text":
+            return value
+        case "number":
+        case "counter":
+        default:
+            if (typeof value === "number" && !key.startsWith("meta")) return value.toFixed(2)
+            else return value
+    }
+}
+
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
@@ -308,10 +405,10 @@ fetch("config/scout-config.json")
             }
         })
 
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
         if (collect_results() > 0)
         {
             document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-            document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
             fill_dropdown()
             selected = Object.keys(teams)[0]
             select()

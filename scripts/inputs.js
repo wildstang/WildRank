@@ -41,7 +41,7 @@ const counter = "\
     </div>"
 
 // HTML template for a selection button
-const select = "\
+const SELECT = "\
     <h4 class=\"input_label\">NAME</h4>\
     <div class=\"wr_select\" id=\"ID\">\
         OPTIONS\

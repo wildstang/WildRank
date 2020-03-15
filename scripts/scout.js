@@ -73,7 +73,7 @@ function build_page_from_config(selected_mode)
                                     }
                                     options += op
                                 })
-                                item = select.replace(/OPTIONS/g, options)
+                                item = SELECT.replace(/OPTIONS/g, options)
                                 break
                             case "dropdown":
                                 options = ""
