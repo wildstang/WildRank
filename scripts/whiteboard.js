@@ -17,20 +17,23 @@ const MATCH_BLOCK = "\
 
 const CONTENTS = "<canvas id=\"whiteboard\"></canvas>"
 
-const BUTTONS = "\
-    <br>\
+const BUTTONS = "<br>\
     <div class=\"page\">\
+        <h2 class=\"page_header\">Controls</h2>\
         <div class=\"column\">\
             <div class=\"wr_button\" onclick=\"clear_whiteboard()\">\
-                <label>Clear</label>\
+                <label>Clear Lines</label>\
             </div>\
             <div class=\"wr_button\" onclick=\"init()\">\
-                <label>Reset</label>\
+                <label>Reset Whiteboard</label>\
             </div>\
             <div class=\"wr_button\" onclick=\"update_teams()\">\
                 <label>Update Teams</label>\
             </div>\
         </div>\
+    </div>\
+    <div class=\"page\">\
+        <h2 class=\"page_header\">Team Avatars</h2>\
         <div class=\"column\">\
             <h4 class=\"input_label\">Red 1</h4>\
             <input class=\"wr_number\" type=\"number\" id=\"red1\" min=\"0\" max=\"10000\"><br>\
