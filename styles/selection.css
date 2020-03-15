@@ -131,3 +131,7 @@ html, body {
     line-height: 50px;
     margin: 0;
 }
+
+#whiteboard {
+    background-size: 100% 100%; 
+}

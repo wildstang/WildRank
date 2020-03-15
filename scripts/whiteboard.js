@@ -55,6 +55,8 @@ const BUTTONS = "<br>\
     </div>"
 
 const MAGNET_SIZE = 100
+const FIELD_WIDTH = 1500
+const FIELD_HEIGHT = 800
 
 var mouseX = 0
 var mouseY = 0
@@ -273,7 +275,7 @@ function draw() {
 
     ctx.globalCompositeOperation = "destination-over"
     // reset canvas
-    ctx.clearRect(0, 0, 1494, 790)
+    ctx.clearRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
 
     // draw each magnet
     magnets.forEach(function (image, index)
@@ -313,8 +315,9 @@ window.addEventListener("load", function() {
 
     // resize canvas
     canvas = document.getElementById("whiteboard")
-    canvas.width = 1494
-    canvas.height = 790
+    canvas.style.backgroundImage = "url('/config/field-" + year + ".png')"
+    canvas.width = FIELD_WIDTH
+    canvas.height = FIELD_HEIGHT
     
     // track mouse movement on canvas
     canvas.addEventListener("mousemove", function(evt) {

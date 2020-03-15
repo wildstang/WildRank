@@ -139,8 +139,3 @@ body {
 .input_label {
     margin: 8px;
 }
-
-#whiteboard { 
-    background:url(/config/field.png);
-    background-size: 100% 100%;
-}
