@@ -18,11 +18,36 @@ const MATCH_BLOCK = "\
 const CONTENTS = "<canvas id=\"whiteboard\"></canvas>"
 
 const BUTTONS = "\
-    <div class=\"wr_button\" onclick=\"clear_whiteboard()\">\
-        <label>Clear</label>\
-    </div>\
-    <div class=\"wr_button\" onclick=\"init()\">\
-        <label>Reset</label>\
+    <div class=\"page\">\
+        <div class=\"column\">\
+            <div class=\"wr_button\" onclick=\"clear_whiteboard()\">\
+                <label>Clear</label>\
+            </div>\
+            <div class=\"wr_button\" onclick=\"init()\">\
+                <label>Reset</label>\
+            </div>\
+            <div class=\"wr_button\" onclick=\"update_teams()\">\
+                <label>Update Teams</label>\
+            </div>\
+        </div>\
+        <div class=\"column\">\
+            <h4 class=\"input_label\">Red 1</h4>\
+            <input class=\"wr_number\" type=\"number\" id=\"red1\" min=\"0\" max=\"10000\"><br>\
+            <h4 class=\"input_label\">Blue 1</h4>\
+            <input class=\"wr_number\" type=\"number\" id=\"blue1\" min=\"0\" max=\"10000\"><br>\
+        </div>\
+        <div class=\"column\">\
+            <h4 class=\"input_label\">Red 2</h4>\
+            <input class=\"wr_number\" type=\"number\" id=\"red2\" min=\"0\" max=\"10000\"><br>\
+            <h4 class=\"input_label\">Blue 2</h4>\
+            <input class=\"wr_number\" type=\"number\" id=\"blue2\" min=\"0\" max=\"10000\"><br>\
+        </div>\
+        <div class=\"column\">\
+            <h4 class=\"input_label\">Red 3</h4>\
+            <input class=\"wr_number\" type=\"number\" id=\"red3\" min=\"0\" max=\"10000\"><br>\
+            <h4 class=\"input_label\">Blue 3</h4>\
+            <input class=\"wr_number\" type=\"number\" id=\"blue3\" min=\"0\" max=\"10000\"><br>\
+        </div>\
     </div>"
 
 const MAGNET_SIZE = 100
@@ -80,6 +105,14 @@ function open_match(match_num)
             blue2.src = get_avatar(blue_teams[1].substr(3), year)
             blue3.src = get_avatar(blue_teams[2].substr(3), year)
 
+            document.getElementById("red1").value = red_teams[0].substr(3)
+            document.getElementById("red2").value = red_teams[1].substr(3)
+            document.getElementById("red3").value = red_teams[2].substr(3)
+            
+            document.getElementById("blue1").value = blue_teams[0].substr(3)
+            document.getElementById("blue2").value = blue_teams[1].substr(3)
+            document.getElementById("blue3").value = blue_teams[2].substr(3)
+
             // select option
             document.getElementById("match_" + match_num).classList.add("selected")
         }
@@ -88,6 +121,23 @@ function open_match(match_num)
             document.getElementById("match_" + number).classList.remove("selected")
         }
     })
+}
+
+/**
+ * function:    update_teams
+ * parameters:  none
+ * returns:     none
+ * description: Update the teams on the whiteboard with those in the number boxes.
+ */
+function update_teams()
+{
+    red1.src = get_avatar(document.getElementById("red1").value, year)
+    red2.src = get_avatar(document.getElementById("red2").value, year)
+    red3.src = get_avatar(document.getElementById("red3").value, year)
+    
+    blue1.src = get_avatar(document.getElementById("blue1").value, year)
+    blue2.src = get_avatar(document.getElementById("blue2").value, year)
+    blue3.src = get_avatar(document.getElementById("blue3").value, year)
 }
 
 /**
