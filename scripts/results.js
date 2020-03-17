@@ -13,7 +13,7 @@ const RESULT_BLOCK = "\
     </div>"
 
 const CONTENTS = "<div id=\"result_title\"><img id=\"avatar\"> <h2 id=\"result_name\"></h2></div><table id=\"results_tab\"></table>"
-const BUTTON = ""
+const BUTTONS = ""
 
 var teams
 
@@ -258,7 +258,7 @@ window.addEventListener('load', function() {
     if (collect_results() > 0)
     {
         document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTONS)
         build_result_list()
     }
     else

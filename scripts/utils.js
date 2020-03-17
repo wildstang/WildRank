@@ -6,50 +6,6 @@
  */
 
 /**
- * function:    merge_results
- * parameters:  none
- * returns:     Combined object of all files of a type
- * description: Combines all files of the currently selected type into a single CSV file.
- */
-function merge_results(header)
-{
-    let type = get_type()
-    // get all files in localStorage
-    let files = Object.keys(localStorage)
-    let combo = ""
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        // determine files which start with the desired type
-        if (parts[0] == type)
-        {
-            let results = JSON.parse(localStorage.getItem(file))
-            // assumes all files are formatted the same
-            if (header)
-            {
-                start = "team,"
-                if (type == "match")
-                {
-                    start = "match,team,"
-                }
-                combo += start + Object.keys(results).join(",")
-                header = false
-            }
-            start = parts[2]
-            if (type == "match")
-            {
-                start += "," + parts[3]
-            }
-            combo += start + "," + Object.values(results).join(",")
-                
-            // add as a field to the object named by the file name
-            combo[file] = localStorage.getItem(file)
-        }
-    })
-    return combo
-}
-
-/**
  * function:    build_query
  * parameters:  map of query keys to values
  * returns:     query string
@@ -79,6 +35,7 @@ const POSITION_COOKIE = "position"
 const POSITION_DEFAULT = 0
 const UPLOAD_COOKIE = "upload_url"
 const UPLOAD_DEFAULT = "http://localhost:80"
+const TBA_KEY = "X-TBA-Auth-Key"
 
 /**
  * function:    get_parameter
@@ -293,4 +250,70 @@ function get_avatar(team_num, year)
         return "/config/dozer.png"
     }
     return "data:image/png;base64," + b64img
+}
+
+/**
+ * function:    get_event_matches_name
+ * parameters:  event id
+ * returns:     event matches filename
+ * description: Fetches the event's matches filename from localStorage.
+ */
+function get_event_matches_name(event_id)
+{
+    return "matches-" + event_id
+}
+
+/**
+ * function:    get_event_teams_name
+ * parameters:  event id
+ * returns:     event teams filename
+ * description: Fetches the event's teams filename from localStorage.
+ */
+function get_event_teams_name(event_id)
+{
+    return "teams-" + event_id
+}
+
+/**
+ * function:    get_team_avatar_name
+ * parameters:  team number, year
+ * returns:     team avatar filename
+ * description: Fetches the team's avatar filename from localStorage.
+ */
+function get_team_avatar_name(team_num, year)
+{
+    return "image-" + year + "-" + team_num
+}
+
+/**
+ * function:    get_pit_result
+ * parameters:  team number, event id
+ * returns:     pit result filename
+ * description: Fetches the filename for a teams pit result from localStorage.
+ */
+function get_pit_result(team_num, event_id)
+{
+    return "pit-" + event_id + "-" + team_num
+}
+
+/**
+ * function:    get_match_result
+ * parameters:  match number, team number, event id
+ * returns:     team match result filename
+ * description: Fetches the filename for a teams match result from localStorage.
+ */
+function get_match_result(match_num, team_num, event_id)
+{
+    return "match-" + event_id + "-" + match_num + "-" + team_num
+}
+
+/**
+ * function:    file_exists
+ * parameters:  filename
+ * returns:     if the file exists in localStorage
+ * description: Determines if the given filename exists in localStorage.
+ */
+function file_exists(filename)
+{
+    return localStorage.getItem(filename) != null
 }

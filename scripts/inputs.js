@@ -6,35 +6,34 @@
  */
 
 // HTML template for a scouting page
-const page_frame = "\
+const PAGE_FRAME = "\
     <div class=\"page\">\
         <h2 class=\"page_header\">NAME</h2>\
         COLUMNS\
     </div>"
 
 // HTML template for a page column
-const column_frame = "\
+const COLUMN_FRAME = "\
     <div class=\"column\">\
         <h3 class=\"column_header\">NAME</h3>\
         ITEMS\
     </div>"
 
 // HTML template for a button
-const button = "\
+const BUTTON = "\
     <div class=\"wr_button\" onclick=\"ONCLICK\">\
         <label id=\"ID\">NAME</label>\
     </div>"
 
 // HTML template for a checkbox
-const checkbox = "\
+const CHECKBOX = "\
     <div class=\"wr_checkbox\" id=\"ID-container\" onclick=\"check('ID')\">\
         <input type=\"checkbox\" onclick=\"check('ID')\" id=\"ID\" name=\"ID\" CHECKED>\
         <label for=\"ID\" onclick=\"check('ID')\">NAME</label>\
     </div>"
 
 // HTML template for a counter button
-// TODO: implement counting down
-const counter = "\
+const COUNTER = "\
     <div class=\"wr_counter\" onclick=\"increment('ID', false)\" oncontextmenu=\"increment('ID', true); return false\">\
         <label class=\"wr_counter_count\" id=\"ID\">VALUE</label>\
         <label>NAME</label>\
@@ -48,20 +47,20 @@ const SELECT = "\
     </div>"
 
 // HTML template for a selection option
-const select_op = "\
+const SELECT_OP = "\
     <span class=\"wr_select_option\" id=\"ID-INDEX\" onclick=\"select_option('ID', 'INDEX')\">\
         <label>NAME</label>\
     </span>"
 
 // HTML template for a dropdown selector
-const dropdown = "\
+const DROPDOWN = "\
     <h4 class=\"input_label\">NAME</h4>\
     <select class=\"wr_dropdown\" id=\"ID\">\
         OPTIONS\
     </select>"
     
 // HTML template for a dropdown option
-const dropdown_op = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
+const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
 
 // HTML template for a string textbox
 const STR_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
@@ -105,7 +104,8 @@ function increment(id, right)
 {
     let current = document.getElementById(id).innerHTML
     let modifier = right ? -1 : 1
-    if (current > 0 || modifier > 0) {
+    if (current > 0 || modifier > 0)
+    {
         document.getElementById(id).innerHTML = parseInt(current) + modifier
     }
 }

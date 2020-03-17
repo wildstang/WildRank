@@ -23,9 +23,9 @@ const OPEN_RESULT = "\
 
 const CONTENTS = "<h2>Match Number: <span id=\"match_num\">No Match Selected</span></h2>\
                   <h2>Scouting: <span id=\"team_scouting\">No Match Selected</span></h2>"
-const BUTTON = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
+const BUTTONS = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
                     <label>Scout Match!</label>\
-                </div>"
+                 </div>"
 
 var matches
 
@@ -177,19 +177,20 @@ function build_match_list()
 function load_event()
 {
     let file_name = "matches-" + event_id
+    let preview = document.getElementById("preview")
 
     if (localStorage.getItem(file_name) != null)
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
+                                             .replace(/BUTTONS/g, BUTTONS)
 
         matches = JSON.parse(localStorage.getItem(file_name))
         build_match_list()
     }
     else
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Match Data Found</h2>Please preload event")
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+        preview.innerHTML = preview.replace(/CONTENTS/g, "<h2>No Match Data Found</h2>Please preload event")
+                                   .replace(/BUTTONS/g, "")
     }
 }
 

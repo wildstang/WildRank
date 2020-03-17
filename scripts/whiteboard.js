@@ -331,8 +331,9 @@ function draw() {
 
 window.addEventListener("load", function() {
     // fill in page template
-    document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-    document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTONS)
+    let preview = document.getElementById("preview")
+    preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
+                                         .replace(/BUTTONS/g, BUTTONS)
     // load in match data
     load_event()
 
@@ -383,6 +384,7 @@ window.addEventListener("load", function() {
             magnetHeld = over
         }
     }, false)
+
     canvas.addEventListener("mouseup", function(evt) {
         // stop drawing
         mouseDown = false

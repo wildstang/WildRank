@@ -13,7 +13,7 @@ const RESULT_BLOCK = "\
     </div>"
 
 const CONTENTS = "<h2 id=\"value\"></h2>"
-const BUTTON = "\
+const BUTTONS = "\
     <h4 class=\"input_label\">Sort by key:</h4>\
     <select class=\"wr_dropdown\" id=\"key_selector\" onchange=\"select()\">\
     </select>\
@@ -299,7 +299,7 @@ function fill_dropdown()
     let options = ""
     keys.forEach(function (key, index)
     {
-        options += dropdown_op.replace(/NAME/g, get_name(key))
+        options += DROPDOWN_OP.replace(/NAME/g, get_name(key))
     })
     document.getElementById("key_selector").innerHTML = options
     document.getElementById("key_selector_against").innerHTML = options
@@ -313,17 +313,19 @@ const prefix = type + "-" + event_id + "-"
 // when the page is finished loading
 window.addEventListener('load', function() {
     load_config(type)
-    document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+    let preview = document.getElementById("preview")
+    preview.innerHTML = preview.innerHTML.replace(/BUTTONS/g, BUTTONS)
+
     if (collect_results() > 0)
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
+        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
         fill_dropdown()
         selected = Object.keys(teams)[0]
         select()
     }
     else
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+        preview.innerHTML = preview.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
+                                   .replace(/BUTTONS/g, "")
     }
 })

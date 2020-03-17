@@ -18,9 +18,9 @@ const OPEN_RESULT = "\
     </div>"
 
 const CONTENTS = "<h2>Team: <span id=\"team_num\">No Match Selected</span></h2>"
-const BUTTON = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
+const BUTTONS = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
                     <label>Scout Pit!</label>\
-                </div>"
+                 </div>"
 
 var teams
 
@@ -113,19 +113,20 @@ function build_team_list()
 function load_event()
 {
     let file_name = "teams-" + event_id
+    let preview = document.getElementById("preview")
 
     if (localStorage.getItem(file_name) != null)
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTON)
+        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
+                                             .replace(/BUTTONS/g, BUTTONS)
         
         teams = JSON.parse(localStorage.getItem(file_name))
         build_team_list()
     }
     else
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Team Data Found</h2>Please preload event")
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, "<h2>No Team Data Found</h2>Please preload event")
+                                             .replace(/BUTTONS/g, "")
     }
 }
 

@@ -48,18 +48,17 @@ function build_page_from_config(selected_mode)
                             checked = "checked"
                             select_ids.push(id + "-container")
                         }
-                        item = checkbox.replace(/CHECKED/g, checked)
+                        item = CHECKBOX.replace(/CHECKED/g, checked)
                         break
                     case "counter":
-                        item = counter.replace(/VALUE/g, default_val)
-
+                        item = COUNTER.replace(/VALUE/g, default_val)
                         break
                     case "select":
                         options = ""
                         input["options"].forEach(function (option, index)
                         {
-                            op = select_op.replace(/NAME/g, option)
-                                            .replace(/INDEX/g, index)
+                            op = SELECT_OP.replace(/NAME/g, option)
+                                          .replace(/INDEX/g, index)
                             if (option == default_val)
                             {
                                 select_ids.push(id + "-" + index)
@@ -77,10 +76,10 @@ function build_page_from_config(selected_mode)
                             {
                                 selected = "selected"
                             }
-                            options += dropdown_op.replace(/NAME/g, option)
-                                                    .replace(/SELECTED/g, selected)
+                            options += DROPDOWN_OP.replace(/NAME/g, option)
+                                                  .replace(/SELECTED/g, selected)
                         })
-                        item = dropdown.replace(/OPTIONS/g, options)
+                        item = DROPDOWN.replace(/OPTIONS/g, options)
                         break
                     case "string":
                         item = STR_ENTRY.replace(/VALUE/g, default_val)
@@ -102,16 +101,16 @@ function build_page_from_config(selected_mode)
                 }
                 items += item.replace(/ID/g, id).replace(/NAME/g, name)
             })
-            columns += column_frame.replace(/ID/g, col_id)
+            columns += COLUMN_FRAME.replace(/ID/g, col_id)
                                    .replace(/NAME/g, col_name)
                                    .replace(/ITEMS/g, items)
         })
-        document.body.innerHTML += page_frame.replace(/ID/g, page_id)
+        document.body.innerHTML += PAGE_FRAME.replace(/ID/g, page_id)
                                              .replace(/NAME/g, page_name)
                                              .replace(/COLUMNS/g, columns)
     })
     // replace placeholders in template and add to screen
-    document.body.innerHTML += button.replace(/ID/g, "submit_" + selected_mode)
+    document.body.innerHTML += BUTTON.replace(/ID/g, "submit_" + selected_mode)
                                      .replace(/NAME/g, "Submit")
                                      .replace(/ONCLICK/g, "get_results_from_page('" + selected_mode + "')")
 
