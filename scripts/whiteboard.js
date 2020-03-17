@@ -7,8 +7,8 @@
 
 // HTML template for a match option
 const MATCH_BLOCK = "\
-    <div id=\"match_MATCH_NUM\" class=\"match_option\" onclick=\"open_match(MATCH_NUM)\">\
-        <span class=\"option_number\">QMATCH_NUM</span>\
+    <div id=\"match_MATCH_NUM\" class=\"match_option\" onclick=\"open_match('MATCH_NUM')\">\
+        <span class=\"option_number\">MATCH_NAME</span>\
         <span>\
             <div class=\"alliance red\">RED_TEAMS</div>\
             <div class=\"alliance blue\">BLUE_TEAMS</div>\
@@ -29,6 +29,10 @@ const BUTTONS = "<br>\
             </div>\
             <div class=\"wr_button\" onclick=\"update_teams()\">\
                 <label>Update Teams</label>\
+            </div>\
+            <div class=\"wr_checkbox\" id=\"elims-container\" onclick=\"check('elims'); build_match_list()\">\
+                <input type=\"checkbox\" id=\"elims\" onclick=\"check('elims'); build_match_list()\" name=\"elims\">\
+                <label for=\"elims\" onclick=\"check('elims')\">Elimination Matches</label>\
             </div>\
         </div>\
     </div>\
@@ -93,38 +97,48 @@ var blue3 = new Image()
  */
 function open_match(match_num)
 {
+    let use_elims = document.getElementById("elims").checked
+
     // iterate through each match obj
     matches.forEach(function (match, index) {
         let level = match.comp_level
-        let number = match.match_number
-        let red_teams = match.alliances.red.team_keys
-        let blue_teams = match.alliances.blue.team_keys
-        // find the desired qualifying match
-        if (level == "qm" && number == match_num)
+        if ((level == "qm" && !use_elims) || (level != "qm" && use_elims))
         {
-            // update avatars
-            red1.src = get_avatar(red_teams[0].substr(3), year)
-            red2.src = get_avatar(red_teams[1].substr(3), year)
-            red3.src = get_avatar(red_teams[2].substr(3), year)
-            
-            blue1.src = get_avatar(blue_teams[0].substr(3), year)
-            blue2.src = get_avatar(blue_teams[1].substr(3), year)
-            blue3.src = get_avatar(blue_teams[2].substr(3), year)
+            let number = match.match_number
+            let red_teams = match.alliances.red.team_keys
+            let blue_teams = match.alliances.blue.team_keys
+            let set = match.set_number
+            let match_id = level.substr(0, 1).toUpperCase() + set + number
+            let match_div = document.getElementById("match_" + match_id)
+            console.log(match_id)
 
-            document.getElementById("red1").value = red_teams[0].substr(3)
-            document.getElementById("red2").value = red_teams[1].substr(3)
-            document.getElementById("red3").value = red_teams[2].substr(3)
-            
-            document.getElementById("blue1").value = blue_teams[0].substr(3)
-            document.getElementById("blue2").value = blue_teams[1].substr(3)
-            document.getElementById("blue3").value = blue_teams[2].substr(3)
+            // find the desired qualifying match
+            if (match_id == match_num)
+            {
+                // update avatars
+                red1.src = get_avatar(red_teams[0].substr(3), year)
+                red2.src = get_avatar(red_teams[1].substr(3), year)
+                red3.src = get_avatar(red_teams[2].substr(3), year)
+                
+                blue1.src = get_avatar(blue_teams[0].substr(3), year)
+                blue2.src = get_avatar(blue_teams[1].substr(3), year)
+                blue3.src = get_avatar(blue_teams[2].substr(3), year)
 
-            // select option
-            document.getElementById("match_" + match_num).classList.add("selected")
-        }
-        else if (level == "qm" && document.getElementById("match_" + number).classList.contains("selected"))
-        {
-            document.getElementById("match_" + number).classList.remove("selected")
+                document.getElementById("red1").value = red_teams[0].substr(3)
+                document.getElementById("red2").value = red_teams[1].substr(3)
+                document.getElementById("red3").value = red_teams[2].substr(3)
+                
+                document.getElementById("blue1").value = blue_teams[0].substr(3)
+                document.getElementById("blue2").value = blue_teams[1].substr(3)
+                document.getElementById("blue3").value = blue_teams[2].substr(3)
+
+                // select option
+                match_div.classList.add("selected")
+            }
+            else if (match_div.classList.contains("selected"))
+            {
+                match_div.classList.remove("selected")
+            }
         }
     })
 }
@@ -155,22 +169,31 @@ function update_teams()
 function build_match_list()
 {
     let first = ""
+    let use_elims = document.getElementById("elims").checked
+    document.getElementById("option_list").innerHTML = ""
+
     // iterate through each match obj
     matches.forEach(function (match, index) {
         let level = match.comp_level
-        let number = match.match_number
-        let red_teams = match.alliances.red.team_keys
-        let blue_teams = match.alliances.blue.team_keys
+
         // filter out quals matches
-        if (level == "qm")
+        if ((level == "qm" && !use_elims) || (level != "qm" && use_elims))
         {
+            let number = match.match_number
+            let red_teams = match.alliances.red.team_keys
+            let blue_teams = match.alliances.blue.team_keys
+            let set = match.set_number
+            let match_id = level.substr(0, 1).toUpperCase() + set + number
+            let match_name = level.substr(0, 1).toUpperCase() + number
+
             if (first == "")
             {
-                first = number
+                first = match_id
             }
 
             // replace placeholders in template and add to screen
-            document.getElementById("option_list").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, number)
+            document.getElementById("option_list").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, match_id)
+                                                                           .replace(/MATCH_NAME/g, match_name)
                                                                            .replace(/BLUE_TEAMS/g, blue_teams.join(" | "))
                                                                            .replace(/RED_TEAMS/g, red_teams.join(" | "))
                                                                            .replace(/frc/g, "")
