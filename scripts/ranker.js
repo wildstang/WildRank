@@ -17,6 +17,13 @@ const BUTTON = "\
     <h4 class=\"input_label\">Sort by key:</h4>\
     <select class=\"wr_dropdown\" id=\"key_selector\" onchange=\"select()\">\
     </select>\
+    <select class=\"wr_dropdown\" id=\"key_selector_method\" onchange=\"select()\">\
+        <option class=\"wr_dropdown_op\">only</option>\
+        <option class=\"wr_dropdown_op\">vs</option>\
+        <option class=\"wr_dropdown_op\">out of</option>\
+    </select>\
+    <select class=\"wr_dropdown\" id=\"key_selector_against\" onchange=\"select()\">\
+    </select>\
     <h4 class=\"input_label\">Sort numeric values using:</h4>\
     <div class=\"wr_select\" id=\"type_form\">\
         <span class=\"wr_select_option selected\" id=\"type_form-1\" onclick=\"select_option('type_form', '1'); collect_results(); select()\">\
@@ -162,7 +169,10 @@ function build_team_list()
     team_nums.forEach(function (team, index)
     {
         let select = document.getElementById("key_selector")
-        let val = get_value(keys[select.selectedIndex], teams[team][keys[select.selectedIndex]])
+        let against = document.getElementById("key_selector_against")
+        let val = get_value(keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
+                                                                  teams[team][keys[against.selectedIndex]],
+                                                                  document.getElementById("key_selector_method").selectedIndex))
         document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NUM/g, team)
                                                                         .replace(/TEXT/g, (index+1) + ": " + team.substr(1) + " - " + val)
     })
@@ -174,16 +184,23 @@ function build_team_list()
  * returns:     none
  * description: Sorts the teams by a given key.
  */
-function sort_teams(index)
+function sort_teams(index, method_index, against_index)
 {
     let sort_by = keys[index]
+    let sort_by_against = keys[against_index]
     let unsorted = teams
     teams = {}
     
     // sort by given key
     Object.keys(unsorted).sort(function (a, b) {
-        return unsorted[b][sort_by] < unsorted[a][sort_by] ? -1
-                : unsorted[b][sort_by] > unsorted[a][sort_by] ? 1
+        a_val = unsorted[a][sort_by]
+        b_val = unsorted[b][sort_by]
+        a_against_val = unsorted[a][sort_by_against]
+        b_against_val = unsorted[b][sort_by_against]
+        a_val = calc_prop(a_val, a_against_val, method_index)
+        b_val = calc_prop(b_val, b_against_val, method_index)
+        return b_val < a_val ? -1
+                : b_val > a_val ? 1
                 : 0
     }).forEach(function (key) {
         teams[key] = unsorted[key]
@@ -198,9 +215,30 @@ function sort_teams(index)
  */
 function select()
 {
-    sort_teams(document.getElementById("key_selector").selectedIndex)
+    sort_teams(document.getElementById("key_selector").selectedIndex,
+               document.getElementById("key_selector_method").selectedIndex,
+               document.getElementById("key_selector_against").selectedIndex)
     build_team_list()
     open_team(selected)
+}
+
+/**
+ * function:    calc_prop
+ * parameters:  first value, second value, selected method index
+ * returns:     calculated proportion
+ * description: Calculate the proportion between the two provided values with the given method.
+ */
+function calc_prop(val, against_val, method)
+{
+    if (method == 1 && val != 0)
+    {
+        val /= val + against_val
+    }
+    else if (method == 2 && val != 0 && against_val != 0)
+    {
+        val /= against_val
+    }
+    return val
 }
 
 /**
@@ -214,11 +252,31 @@ function open_team(team_num)
     selected = team_num
     team_num = selected.substr(1)
     let select = document.getElementById("key_selector")
-    document.getElementById("value").innerHTML = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
-                                                     .replace(/TEXT/g, team_num + " " + get_team_name(team_num, event_id))
-    document.getElementById("value").innerHTML += select.value + ": " + get_value(keys[select.selectedIndex], teams[selected][keys[select.selectedIndex]]) + "<br>"
-    let val = get_value(keys[select.selectedIndex], totals[keys[select.selectedIndex]])
-    document.getElementById("value").innerHTML += "Overall: " + val
+    let against = document.getElementById("key_selector_against")
+    let method = document.getElementById("key_selector_method").selectedIndex
+    let val = teams[selected][keys[select.selectedIndex]]
+    let against_val = teams[selected][keys[against.selectedIndex]]
+    let key = keys[select.selectedIndex]
+    let against_key = keys[against.selectedIndex]
+    let overall = totals[keys[select.selectedIndex]]
+    let against_overall = totals[keys[against.selectedIndex]]
+
+    let details = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
+                      .replace(/TEXT/g, team_num + " " + get_team_name(team_num, event_id))
+    details += get_name(key) + ": " + get_value(key, val) + "<br>"
+    if (method != 0)
+    {
+        document.getElementById("key_selector_against").style.display = "inline-block"
+        details += get_name(against_key) + ": " + get_value(against_key, against_val) + "<br>"
+        details += "Proportion: " + get_value(key, calc_prop(val, against_val, method)) + "<br>"
+        details += "Overall: " + get_value(key, overall) + ", " + get_value(against_key, against_overall)
+    }
+    else
+    {
+        document.getElementById("key_selector_against").style.display = "none"
+        details += "Overall: " + get_value(key, overall)
+    }
+    document.getElementById("value").innerHTML = details
 
     Object.keys(teams).forEach(function (team, index)
     {
@@ -244,6 +302,7 @@ function fill_dropdown()
         options += dropdown_op.replace(/NAME/g, get_name(key))
     })
     document.getElementById("key_selector").innerHTML = options
+    document.getElementById("key_selector_against").innerHTML = options
 }
 
 // read parameters from URL
