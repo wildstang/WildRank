@@ -21,7 +21,7 @@ const COLUMN_FRAME = "\
 
 // HTML template for a button
 const BUTTON = "\
-    <div class=\"wr_button\" onclick=\"ONCLICK\">\
+    <div id=\"ID_container\" class=\"wr_button\" onclick=\"ONCLICK\">\
         <label id=\"ID\">NAME</label>\
     </div>"
 

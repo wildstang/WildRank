@@ -16,16 +16,15 @@ const MATCH_BLOCK = "\
         </span>\
     </div>"
 
-const OPEN_RESULT = "\
-    <div class=\"wr_button\" id=\"open_result\" onclick=\"open_result('RESULT')\">\
-        <label>View Results</label>\
-    </div>"
+const OPEN_RESULT = BUTTON.replace(/ONCLICK/g, "open_result('RESULT')")
+                          .replace(/NAME/g, "View Results")
+                          .replace(/ID/g, "open_result")
 
 const CONTENTS = "<h2>Match Number: <span id=\"match_num\">No Match Selected</span></h2>\
                   <h2>Scouting: <span id=\"team_scouting\">No Match Selected</span></h2>"
-const BUTTONS = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
-                    <label>Scout Match!</label>\
-                 </div>"
+
+const BUTTONS = BUTTON.replace(/ONCLICK/g, "start_scouting()")
+                      .replace(/NAME/g, "Scout Match!")
 
 var matches
 
@@ -44,6 +43,7 @@ function open_match(match_num)
         let number = match.match_number
         let red_teams = match.alliances.red.team_keys
         let blue_teams = match.alliances.blue.team_keys
+        let match_div = document.getElementById("match_" + number)
         // find the desired qualifying match
         if (level == "qm" && number == match_num)
         {
@@ -63,24 +63,24 @@ function open_match(match_num)
             }
 
             // select option
-            document.getElementById("match_" + number).classList.add("selected")
+            match_div.classList.add("selected")
         }
-        else if (level == "qm" && document.getElementById("match_" + number).classList.contains("selected"))
+        else if (level == "qm" && match_div.classList.contains("selected"))
         {
-            document.getElementById("match_" + number).classList.remove("selected")
+            match_div.classList.remove("selected")
         }
     })
     // place match number and team to scout on pane
     document.getElementById("match_num").innerHTML = match_num
     document.getElementById("team_scouting").innerHTML = team.substr(3)
 
-    if (document.getElementById("open_result") !== null)
+    if (document.getElementById("open_result_container") !== null)
     {
-        document.getElementById("open_result").remove()
+        document.getElementById("open_result_container").remove()
     }
 
-    let file = "match-" + event_id + "-" + match_num + "-" + team.substr(3)
-    if (localStorage.getItem(file) !== null)
+    let file = get_match_result(match_num, team.substr(3), event_id)
+    if (file_exists(file))
     {
         document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
     }
@@ -145,7 +145,7 @@ function build_match_list()
 
             // grey out previously scouted matches/teams
             scouted = "not_scouted"
-            if (localStorage.getItem(["match", event_id, number, team].join("-")) != null)
+            if (file_exists(get_match_result(number, team, event_id)))
             {
                 first = ""
                 scouted = "scouted"
@@ -176,7 +176,7 @@ function build_match_list()
  */
 function load_event()
 {
-    let file_name = "matches-" + event_id
+    let file_name = get_event_matches_name(event_id)
     let preview = document.getElementById("preview")
 
     if (localStorage.getItem(file_name) != null)

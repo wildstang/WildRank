@@ -12,15 +12,14 @@ const TEAM_BLOCK = "\
         <span class=\"long_option_number\">TEAM_NUM</span>\
     </div>"
 
-const OPEN_RESULT = "\
-    <div class=\"wr_button\" id=\"open_result\" onclick=\"open_result('RESULT')\">\
-        <label>View Results</label>\
-    </div>"
+const OPEN_RESULT = BUTTON.replace(/ONCLICK/g, "open_result('RESULT')")
+                          .replace(/NAME/g, "View Results")
+                          .replace(/ID/g, "open_result")
 
 const CONTENTS = "<h2>Team: <span id=\"team_num\">No Match Selected</span></h2>"
-const BUTTONS = "<div class=\"wr_button\" onclick=\"start_scouting()\">\
-                    <label>Scout Pit!</label>\
-                 </div>"
+    
+const BUTTONS = BUTTON.replace(/ONCLICK/g, "start_scouting()")
+                      .replace(/NAME/g, "Scout Pit!")
 
 var teams
 
@@ -42,18 +41,24 @@ function open_team(team_num)
         }
     })
 
-    if (document.getElementById("open_result") !== null)
+    if (document.getElementById("open_result_container") !== null)
     {
-        document.getElementById("open_result").remove()
+        document.getElementById("open_result_container").remove()
     }
     
-    let file = "pit-" + event_id + "-" + team_num
-    if (localStorage.getItem(file) !== null)
+    let file = get_pit_result(team_num, event_id)
+    if (file_exists(file))
     {
         document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
     }
 }
 
+/**
+ * function:    open_result
+ * parameters:  file to open
+ * returns:     none
+ * description: Opens result page for selected team.
+ */
 function open_result(file)
 {
     document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: "pit", [EVENT_COOKIE]: event_id, "file": file})
@@ -85,7 +90,7 @@ function build_team_list()
         let number = team.team_number
         // determine if the team has already been scouted
         let scouted = "not_scouted"
-        if (localStorage.getItem(["pit", event_id, number].join("-")) != null)
+        if (file_exists(get_pit_result(number, event_id)))
         {
             first = ""
             scouted = "scouted"
@@ -112,7 +117,7 @@ function build_team_list()
  */
 function load_event()
 {
-    let file_name = "teams-" + event_id
+    let file_name = get_event_teams_name(event_id)
     let preview = document.getElementById("preview")
 
     if (localStorage.getItem(file_name) != null)
