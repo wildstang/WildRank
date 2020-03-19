@@ -116,7 +116,15 @@ function open_results()
 function open_whiteboard()
 {
     save_options()
-    document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: get_event()})
+    let event = get_event()
+    if (file_exists(get_event_teams_name(event)))
+    {
+        document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: event})
+    }
+    else
+    {
+        alert("No teams found for event")
+    }
 }
 
 /**
@@ -136,6 +144,26 @@ function open_ranker()
     else
     {
         alert("No config found for mode: " + type)
+    }
+}
+
+/**
+ * function:    open_picks
+ * parameters:  none
+ * returns:     none
+ * description: Open the pick list interface.
+ */
+function open_picks()
+{
+    save_options()
+    let event = get_event()
+    if (file_exists(get_event_teams_name(event)))
+    {
+        document.location.href = "selection.html" + build_query({"page": "picklists", [EVENT_COOKIE]: event})
+    }
+    else
+    {
+        alert("No teams found for event")
     }
 }
 

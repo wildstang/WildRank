@@ -125,7 +125,7 @@ html, body {
     width: 50px;
 }
 
-#result_name {
+.result_name {
     display: inline-block;
     vertical-align: top;
     line-height: 50px;
@@ -134,4 +134,10 @@ html, body {
 
 #whiteboard {
     background-size: 100% 100%; 
+}
+
+.pick_list {
+    display: inline-block;
+    width: 300px;
+    vertical-align: top;
 }

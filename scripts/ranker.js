@@ -47,7 +47,7 @@ const BUTTONS = "\
         <label for=\"reverse\" onclick=\"check('reverse'); build_team_list()\">Reverse Order</label>\
     </div>"
 
-const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRC\"> <h2 id=\"result_name\">TEXT</h2></div>"
+const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRC\"> <h2 class=\"result_name\">TEXT</h2></div>"
 
 var keys = {}
 var teams = {}

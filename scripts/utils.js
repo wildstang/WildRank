@@ -300,11 +300,22 @@ function get_pit_result(team_num, event_id)
  * function:    get_match_result
  * parameters:  match number, team number, event id
  * returns:     team match result filename
- * description: Fetches the filename for a teams match result from localStorage.
+ * description: Fetches the filename for a team's match result from localStorage.
  */
 function get_match_result(match_num, team_num, event_id)
 {
     return "match-" + event_id + "-" + match_num + "-" + team_num
+}
+
+/**
+ * function:    get_event_pick_lists_name
+ * parameters:  event id
+ * returns:     event pick lists filename
+ * description: Fetches the filename for an event's pick lists from localStorage.
+ */
+function get_event_pick_lists_name(event_id)
+{
+    return "pick-lists-" + event_id
 }
 
 /**
