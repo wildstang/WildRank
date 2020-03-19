@@ -12,10 +12,12 @@ const TEAM_BLOCK = "\
         <span class=\"long_option_number\">TEAM_NUM</span>\
     </div>"
 
+// HTML template for pick list
 const PICK_LIST = "<div id=\"NAME_list\" class=\"pick_list\">" +
                    BUTTON.replace(/ONCLICK/g, "add_to('NAME', '')")
                          .replace(/NAME/g, "NAME") + "LIST_ITEMS</div>"
 
+// HTML template for new list
 const CREATE_LIST = "<div id=\"create_new_list\" class=\"pick_list\">" +
                     STR_ENTRY.replace(/NAME/g, "New Pick List...")
                              .replace(/ID/g, "pick_list_name")
@@ -38,9 +40,12 @@ var lists = {}
  */
 function open_team(team_num)
 {
+    // build team header
     document.getElementById("avatar").src = get_avatar(team_num, event_id.substr(0,4))
     document.getElementById("team_num").innerHTML = team_num
     document.getElementById("team_name").innerHTML = get_team_name(team_num, event_id)
+
+    // select team button
     document.getElementById("team_" + team_num).classList.add("selected")
     teams.forEach(function (team, index) {
         let number = team.team_number
@@ -49,11 +54,6 @@ function open_team(team_num)
             document.getElementById("team_" + number).classList.remove("selected")
         }
     })
-
-    if (document.getElementById("open_result_container") !== null)
-    {
-        document.getElementById("open_result_container").remove()
-    }
 }
 
 /**
@@ -83,6 +83,7 @@ function add_to(name, after_team)
     }
     else
     {
+        // insert team in list after clicked button (list name will return index of -1 so 0)
         lists[name].splice(lists[name].indexOf(after_team)+1, 0, team_num)
         build_pick_lists()
     }
@@ -103,6 +104,7 @@ function create_list()
     }
     else
     {
+        // add empty array of list name
         lists[name] = []
         build_pick_lists()
     }
@@ -119,17 +121,23 @@ function build_pick_lists()
     let lists_text = ""
     Object.keys(lists).forEach(function (name, index)
     {
+        // add list button
         lists_text += PICK_LIST.replace(/NAME/g, name)
         let list_text = ""
         lists[name].forEach(function (team, index)
         {
-            list_text +=  BUTTON.replace(/ONCLICK/g, "add_to('" + name + "', '" + team + "')\" oncontextmenu=\"remove_team('" + name + "', '" + team + "'); return false")
+            // add team button
+            list_text +=  BUTTON.replace(/ONCLICK/g, "add_to('" + name + "', '" + team + "')\" \
+                                                      oncontextmenu=\"remove_team('" + name + "', '" + team + "'); return false")
                                 .replace(/NAME/g, team)
         })
         lists_text = lists_text.replace(/LIST_ITEMS/g, list_text)
     })
+    // add create list form and add to screen
     lists_text += CREATE_LIST
     document.getElementById("pick_lists").innerHTML = lists_text
+
+    // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
 }
 
@@ -174,9 +182,11 @@ function load_event()
         preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
                                              .replace(/BUTTONS/g, BUTTONS)
         
+        // load teams from localStorage and build team lists
         teams = JSON.parse(localStorage.getItem(file_name))
         build_team_list()
 
+        // load lists in from localStorage, and build lists
         let name = get_event_pick_lists_name(event_id)
         if (file_exists(name))
         {
