@@ -3,6 +3,7 @@
 		"id": "pit",
 		"pages": [{
 			"name": "Pit",
+			"short": "Pit",
 			"id": "pit_pit",
 			"columns": [{
 					"name": "Body",
@@ -156,6 +157,7 @@
 		"id": "match",
 		"pages": [{
 				"name": "Autonomous",
+				"short": "Auto",
 				"id": "match_auto",
 				"columns": [{
 						"name": "Motion",
@@ -218,10 +220,11 @@
 				]
 			},
 			{
-				"name": "Teleop",
+				"name": "Teleoperated",
+				"short": "Tele",
 				"id": "match_teleop",
 				"columns": [{
-						"name": "Teleop",
+						"name": "Shooting",
 						"id": "match_teleop_shooting",
 						"inputs": [{
 								"name": "Outer Miss",
@@ -325,6 +328,7 @@
 			},
 			{
 				"name": "Post Match",
+				"short": "Post",
 				"id": "match_post",
 				"columns": [{
 						"name": "Notes",

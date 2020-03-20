@@ -97,19 +97,17 @@ function get_options(key)
 
 /**
  * function:    get_name
- * parameters:  name of result
+ * parameters:  name of result, if to check for duplicate name
  * returns:     name of input
  * description: Determines the name of input that created the given result.
  */
-function get_name(key)
+function get_name(key, check_duplicates=true)
 {
-    let words = key.split("_")
-    words.forEach(function (word, index)
-    {
-        words[index] = word.substr(0, 1).toUpperCase() + word.substr(1)
-    })
-    let name = words.join(" ")
-    /*config.pages.forEach(function (page, index)
+    let name = key
+    let type = ""
+
+    // find name from key
+    config.pages.forEach(function (page, index)
     {
         page["columns"].forEach(function (column, index)
         {
@@ -118,10 +116,40 @@ function get_name(key)
                 if (input.id == key)
                 {
                     name = input.name
+                    type = page.short
                 }
             })
         })
-    })*/
+    })
+
+    // check for duplicates and append page short to name
+    if (check_duplicates)
+    {
+        config.pages.forEach(function (page, index)
+        {
+            page["columns"].forEach(function (column, index)
+            {
+                column["inputs"].forEach(function (input, index)
+                {
+                    if (input.id != key && input.name == name)
+                    {
+                        name = "(" + type + ") " + name
+                    }
+                })
+            })
+        })
+    }
+
+    // format key name if no name was found
+    if (name == key)
+    {
+        let words = key.split("_")
+        words.forEach(function (word, index)
+        {
+            words[index] = word.substr(0, 1).toUpperCase() + word.substr(1)
+        })
+        name = words.join(" ")
+    }
     return name
 }
 
