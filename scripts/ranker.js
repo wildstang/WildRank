@@ -106,6 +106,36 @@ function avg_results(results, key)
 }
 
 /**
+ * function:    count_options
+ * parameters:  results container, column to sum
+ * returns:     count of individual options
+ * description: Count all the options for a given column.
+ */
+function count_options(results, key)
+{
+    let counts = {}
+    switch (get_type(key))
+    {
+        // compute mode for non-numerics
+        case "select":
+        case "dropdown":
+        case "checkbox":
+            Object.keys(results).forEach(function (name, index)
+            {
+                if (Object.keys(results[name]).includes(key))
+                {
+                    let val = results[name][key]
+                    // increase count of value if it exists already
+                    if (Object.keys(counts).includes(val.toString())) counts[val]++
+                    // start count of value if it has not been added yet
+                    else counts[val] = 1
+                }
+            })
+    }
+    return counts
+}
+
+/**
  * function:    collect_results
  * parameters:  none
  * returns:     none
@@ -139,6 +169,7 @@ function collect_results()
     keys.forEach(function (key, index)
     {
         totals[key] = avg_results(unsorted, key)
+        totals[key + "_options"] = count_options(unsorted, key)
     })
     Object.keys(teams).forEach(function (team, index)
     {
@@ -260,24 +291,52 @@ function open_team(team_num)
     let against_key = keys[against.selectedIndex]
     let overall = totals[keys[select.selectedIndex]]
     let against_overall = totals[keys[against.selectedIndex]]
+    let options = totals[keys[select.selectedIndex] + "_options"]
+    let against_options = totals[keys[against.selectedIndex] + "_options"]
 
+    // team details
     let details = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
                       .replace(/TEXT/g, team_num + " " + get_team_name(team_num, event_id))
     details += get_name(key) + ": " + get_value(key, val) + "<br>"
+
+    // overall stats
+    details += "Overall: " + get_value(key, overall) + "<br>"
+    if (options !== {})
+    {
+        Object.keys(options).forEach(function (option, index)
+        {
+            details += get_value(key, option) + ": " + options[option] + "<br>"
+        })
+    }
+
+    // against stats
     if (method != 0)
     {
         document.getElementById("key_selector_against").style.display = "inline-block"
         details += get_name(against_key) + ": " + get_value(against_key, against_val) + "<br>"
-        details += "Proportion: " + get_value(key, calc_prop(val, against_val, method)) + "<br>"
-        details += "Overall: " + get_value(key, overall) + ", " + get_value(against_key, against_overall)
     }
     else
     {
         document.getElementById("key_selector_against").style.display = "none"
-        details += "Overall: " + get_value(key, overall)
     }
+
+    // against overall stats
+    if (method != 0)
+    {
+        details += "Overall: " + get_value(against_key, against_overall) + "<br>"
+        if (against_options !== {})
+        {
+            Object.keys(against_options).forEach(function (option, index)
+            {
+                details += get_value(key, option) + ": " + against_options[option] + "<br>"
+            })
+        }
+        details += "Proportion: " + get_value(key, calc_prop(val, against_val, method))
+    }
+
     document.getElementById("value").innerHTML = details
 
+    // select team on left
     Object.keys(teams).forEach(function (team, index)
     {
         if (document.getElementById("team_" + team).classList.contains("selected"))

@@ -71,6 +71,31 @@ function get_type(key)
 }
 
 /**
+ * function:    get_options
+ * parameters:  name of input
+ * returns:     options for input
+ * description: Determines the options for a given input.
+ */
+function get_options(key)
+{
+    var options = []
+    config.pages.forEach(function (page, index)
+    {
+        page["columns"].forEach(function (column, index)
+        {
+            column["inputs"].forEach(function (input, index)
+            {
+                if (input.id == key)
+                {
+                    options = input.options
+                }
+            })
+        })
+    })
+    return options
+}
+
+/**
  * function:    get_name
  * parameters:  name of result
  * returns:     name of input
@@ -128,6 +153,10 @@ function get_value(key, value)
             })
             return option
         case "checkbox":
+            if (typeof value === "string")
+            {
+                value = value == "true"
+            }
             return value ? "Yes" : "No"
         case "string":
         case "text":
