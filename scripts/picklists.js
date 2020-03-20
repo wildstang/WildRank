@@ -77,16 +77,18 @@ function remove_team(name, team)
 function add_to(name, after_team)
 {
     let team_num = document.getElementById("team_num").innerHTML
+    if (team_num == after_team)
+    {
+        return
+    }
     if (lists[name].includes(team_num))
     {
-        alert("Team " + team_num + " already exists in list \"" + name + "\"!")
+        //alert("Team " + team_num + " already exists in list \"" + name + "\"!")
+        remove_team(name, team_num)
     }
-    else
-    {
-        // insert team in list after clicked button (list name will return index of -1 so 0)
-        lists[name].splice(lists[name].indexOf(after_team)+1, 0, team_num)
-        build_pick_lists()
-    }
+    // insert team in list after clicked button (list name will return index of -1 so 0)
+    lists[name].splice(lists[name].indexOf(after_team)+1, 0, team_num)
+    build_pick_lists()
 }
 
 /**
