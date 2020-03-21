@@ -257,6 +257,18 @@ function select()
                document.getElementById("key_selector_against").selectedIndex)
     build_team_list()
     open_team(selected)
+    
+    // force mode selected if non-numeric
+    let select = document.getElementById("key_selector")
+    switch (get_type(keys[select.selectedIndex]))
+    {
+        // compute mode for non-numerics
+        case "checkbox":
+        case "select":
+        case "dropdown":
+        case "unknown":
+            select_option("type_form", 3)
+    }
 }
 
 /**
