@@ -34,7 +34,7 @@ const CHECKBOX = "\
 
 // HTML template for a counter button
 const COUNTER = "\
-    <div class=\"wr_counter\" onclick=\"increment('ID', false)\" oncontextmenu=\"increment('ID', true); return false\">\
+    <div class=\"wr_counter\" onclick=\"increment('ID', false)\" oncontextmenu=\"increment('ID', true); return false\" ontouchstart=\"touch_counter('ID', false)\" ontouchend=\"touch_counter('ID', true)\">\
         <label class=\"wr_counter_count\" id=\"ID\">VALUE</label>\
         <label>NAME</label>\
     </div>"
@@ -74,6 +74,8 @@ const NUM_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
 const TEXT_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
                     <textarea class=\"wr_text\" id=\"ID\">VALUE</textarea><br>"
 
+var last_touch = 0
+
 /**
  * function:    check
  * parameters:  ID of checkbox button
@@ -91,6 +93,27 @@ function check(id)
     else
     {
         document.getElementById(id + "-container").classList.remove("selected")
+    }
+}
+
+/**
+ * function:    touch_counter
+ * parameters:  ID of counter button, touch released
+ * returns:     none
+ * description: Respond to touch screen event on counter.
+ */
+function touch_counter(id, release)
+{
+    if (release)
+    {
+        if (Date.now() - last_touch > 500)
+        {
+            increment(id, true)
+        }
+    }
+    else
+    {
+        last_touch = Date.now()
     }
 }
 

@@ -45,7 +45,7 @@ body {
     display: inline-block;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_select_option {
+.wr_checkbox, .wr_counter, .wr_button, .wr_select_option, .page_header, .column_header, .input_label {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
