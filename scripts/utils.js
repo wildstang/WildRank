@@ -233,7 +233,7 @@ function scroll_to(container, goal)
  */
 function get_team_name(team_num, event)
 {
-    return JSON.parse(localStorage.getItem("teams-" + event)).filter(team => team.team_number == team_num)[0].nickname
+    return JSON.parse(localStorage.getItem(get_event_teams_name(event))).filter(team => team.team_number == team_num)[0].nickname
 }
 
 /**

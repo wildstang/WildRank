@@ -90,7 +90,7 @@ function open_result(name)
         {
             table += make_cell(results, entry, val)
         }
-        if (typeof match_results !== 'undefined')
+        if (typeof scouter_results !== 'undefined')
         {
             table += make_cell(scouter_results, entry, val)
         }
