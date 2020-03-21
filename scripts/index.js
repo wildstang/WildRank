@@ -6,13 +6,10 @@
  * date:        2020-02-15
  */
 
-var qrcode
 fetch_config()
 
 // when the page is finished loading
 window.addEventListener('load', function() {
-    // initialize the QR code canvas
-    qrcode = new QRCode(document.getElementById("qrcode"), {width:512, height:512})
     let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
     select_option("type_form", type_cookie == "match" ? 1 : type_cookie == "pit" ? 2 : 3)
     process_files()
@@ -365,21 +362,6 @@ function import_all()
 }
 
 /**
- * function:    build_qr
- * parameters:  The desired type to build a QR code of.
- * returns:     none
- * description: Builds a QR code which represents the combined results of the requested type as a JSON string.
- */
-function build_qr()
-{
-    save_options()
-    // remove any existing QR codes
-    qrcode.clear()
-    // build and place a QR code for the JSON string of the requested results
-    qrcode.makeCode(merge_results(false))
-}
-
-/**
  * HELPER FUNCTIONS
  */
 
@@ -438,51 +420,6 @@ function save_options()
     set_cookie(POSITION_COOKIE, get_position())
     set_cookie(UPLOAD_COOKIE, get_upload_addr())
     set_cookie(TYPE_COOKIE, get_selected_type())
-}
-
-/**
- * function:    merge_results
- * parameters:  none
- * returns:     Combined object of all files of a type
- * description: Combines all files of the currently selected type into a single CSV file.
- */
-function merge_results(header)
-{
-    let type = get_selected_type()
-    load_config(type)
-    // get all files in localStorage
-    let files = Object.keys(localStorage)
-    let combo = ""
-    files.forEach(function (file, index)
-    {
-        let parts = file.split("-")
-        // determine files which start with the desired type
-        if (parts[0] == type)
-        {
-            let results = JSON.parse(localStorage.getItem(file))
-            // assumes all files are formatted the same
-            if (header)
-            {
-                start = "team,"
-                if (type == "match")
-                {
-                    start = "match,team,"
-                }
-                combo += start + Object.keys(results).join(",")
-                header = false
-            }
-            start = parts[2]
-            if (type == "match")
-            {
-                start += "," + parts[3]
-            }
-            combo += start + "," + Object.values(results).join(",")
-                
-            // add as a field to the object named by the file name
-            combo[file] = localStorage.getItem(file)
-        }
-    })
-    return combo
 }
 
 /**
