@@ -16,7 +16,8 @@ window.addEventListener('load', function() {
     document.getElementById("user_id").value = get_cookie(USER_COOKIE, USER_DEFAULT)
     document.getElementById("position").selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
     document.getElementById("upload_addr").selectedIndex = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
-    select_option("type_form", get_cookie(TYPE_COOKIE, TYPE_DEFAULT) == "match" ? 1 : 2)
+    let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
+    select_option("type_form", type_cookie == "match" ? 1 : type_cookie == "pit" ? 2 : 3)
     process_files()
     fetch_config()
 })
@@ -56,6 +57,17 @@ function scout()
             if (file_exists(get_event_teams_name(event)))
             {
                 document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
+            }
+            else
+            {
+                alert("No teams found! Please preload data.")
+            }
+        }
+        else if (type === "notes")
+        {
+            if (file_exists(get_event_teams_name(event)))
+            {
+                document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: -1, [USER_COOKIE]: user})
             }
             else
             {
@@ -137,7 +149,11 @@ function open_ranker()
 {
     save_options()
     let type = get_selected_type()
-    if (config_exists(type))
+    if (type == "notes")
+    {
+        alert("You can't rank notes...")
+    }
+    else if (config_exists(type))
     {
         document.location.href = "selection.html" + build_query({"page": "ranker", [TYPE_COOKIE]: type, [EVENT_COOKIE]: get_event()})
     }
@@ -488,7 +504,7 @@ function status(status)
  */
 function get_selected_type()
 {
-    return get_selected_option("type_form") ? "match" : "pit"
+    return get_selected_option("type_form") == 1 ? "match" : get_selected_option("type_form") == 0 ? "pit" : "notes"
 }
 
 /**

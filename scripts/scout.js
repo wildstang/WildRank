@@ -114,6 +114,17 @@ function build_page_from_config(selected_mode)
                                      .replace(/NAME/g, "Submit")
                                      .replace(/ONCLICK/g, "get_results_from_page('" + selected_mode + "')")
 
+    let teams = team_num.split(",")
+    if (teams.length > 1)
+    {
+        document.body.innerHTML = document.body.innerHTML.replace(/Red 1/g, teams[0])
+                                                         .replace(/Red 2/g, teams[1])
+                                                         .replace(/Red 3/g, teams[2])
+                                                         .replace(/Blue 1/g, teams[3])
+                                                         .replace(/Blue 2/g, teams[4])
+                                                         .replace(/Blue 3/g, teams[5])
+    }
+
     // mark each selected box as such
     select_ids.forEach(function (id, index)
     {
@@ -184,10 +195,15 @@ function get_results_from_page(selected_mode)
             })
         })
     })
-    let file = ["pit", event_id, team_num].join("-")
+
+    let file = get_pit_result(team_num, event_id)
     if (scout_mode == "match")
     {
-        file = ["match", event_id, match_num, team_num].join("-")
+        file = get_match_result(match_num, team_num, event_id)
+    }
+    else if (scout_mode == "notes")
+    {
+        file = get_notes(match_num, event_id)
     }
     localStorage.setItem(file, JSON.stringify(results));
     window.location.href = document.referrer
@@ -200,25 +216,31 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 
 var urlParams = new URLSearchParams(window.location.search)
-const match_num = urlParams.get('match')
-const team_num = urlParams.get('team')
+const match_num = urlParams.get("match")
+const team_num = urlParams.get("team")
 const alliance_color = urlParams.get('alliance')
 
 load_config(scout_mode)
-window.addEventListener('load', function() {
-    // set the team number in the header
-    document.getElementById("team").innerHTML = team_num
+window.addEventListener("load", function() {
     document.getElementById("team").style.color = alliance_color
 
     // build the page from config for the desired mode
-    if (scout_mode == 'match')
+    if (scout_mode == "pit")
+    {
+        document.getElementById("match").innerHTML = "Pit"
+        document.getElementById("team").innerHTML = team_num
+        build_page_from_config("pit")
+    }
+    else if (scout_mode == "match")
     {
         document.getElementById("match").innerHTML = match_num
+        document.getElementById("team").innerHTML = team_num
         build_page_from_config("match")
     }
     else
     {
-        document.getElementById("match").innerHTML = "Pit"
-        build_page_from_config("pit")
+        document.getElementById("match").innerHTML = match_num
+        document.getElementById("team").innerHTML = "Match"
+        build_page_from_config("match")
     }
 })

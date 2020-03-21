@@ -308,6 +308,17 @@ function get_match_result(match_num, team_num, event_id)
 }
 
 /**
+ * function:    get_notes
+ * parameters:  match number, event id
+ * returns:     team notes filename
+ * description: Fetches the filename for a team's notes from localStorage.
+ */
+function get_notes(match_num, event_id)
+{
+    return "notes-" + event_id + "-" + match_num
+}
+
+/**
  * function:    get_event_pick_lists_name
  * parameters:  event id
  * returns:     event pick lists filename

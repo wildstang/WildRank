@@ -49,7 +49,11 @@ function open_match(match_num)
         {
             let selected = scout_pos
             // select appropriate team for position
-            if (selected > 2)
+            if (selected < 0)
+            {
+                document.getElementById("team_scouting").style.color = 'purple'
+            }
+            else if (selected > 2)
             {
                 // shift blue alliance indicies up
                 selected -= 3
@@ -64,6 +68,28 @@ function open_match(match_num)
 
             // select option
             match_div.classList.add("selected")
+
+            // populate team text
+            if (scout_pos < 0)
+            {
+                document.getElementById("team_scouting").innerHTML = ""
+                red_teams.forEach(function (team, index)
+                {
+                    document.getElementById("team_scouting").innerHTML += team.substr(3) + ","
+                })
+                blue_teams.forEach(function (team, index)
+                {
+                    if (index != 0)
+                    {
+                        document.getElementById("team_scouting").innerHTML += ","
+                    }
+                    document.getElementById("team_scouting").innerHTML += team.substr(3)
+                })
+            }
+            else
+            {
+                document.getElementById("team_scouting").innerHTML = team.substr(3)
+            }
         }
         else if (level == "qm" && match_div.classList.contains("selected"))
         {
@@ -72,17 +98,20 @@ function open_match(match_num)
     })
     // place match number and team to scout on pane
     document.getElementById("match_num").innerHTML = match_num
-    document.getElementById("team_scouting").innerHTML = team.substr(3)
 
     if (document.getElementById("open_result_container") !== null)
     {
         document.getElementById("open_result_container").remove()
     }
 
-    let file = get_match_result(match_num, team.substr(3), event_id)
-    if (file_exists(file))
+    let file = get_notes(match_num, event_id)
+    if (scout_pos > -1)
     {
-        document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
+        file = get_match_result(match_num, team.substr(3), event_id)
+        if (file_exists(file))
+        {
+            document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
+        }
     }
 }
 
@@ -108,8 +137,13 @@ function start_scouting()
     let match_num = document.getElementById("match_num").innerHTML
     let team_num = document.getElementById("team_scouting").innerHTML
     let color = document.getElementById("team_scouting").style.color
+    let mode = "match"
+    if (scout_pos < 0)
+    {
+        mode = "notes"
+    }
     // build URL with parameters
-    window.open("scout.html" + build_query({[TYPE_COOKIE]: "match", "match": match_num, "team": team_num, "alliance": color, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}), "_self")
+    window.open("scout.html" + build_query({[TYPE_COOKIE]: mode, "match": match_num, "team": team_num, "alliance": color, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}), "_self")
 }
 
 /**
@@ -141,11 +175,19 @@ function build_match_list()
             {
                 team = red_teams[scout_pos]
             }
-            team = team.substr(3)
+            if (scout_pos > -1)
+            {
+                team = team.substr(3)
+            }
 
             // grey out previously scouted matches/teams
             scouted = "not_scouted"
-            if (file_exists(get_match_result(number, team, event_id)))
+            if (scout_pos > -1 && file_exists(get_match_result(number, team, event_id)))
+            {
+                first = ""
+                scouted = "scouted"
+            }
+            else if (scout_pos < 0 && file_exists(get_notes(number, event_id)))
             {
                 first = ""
                 scouted = "scouted"

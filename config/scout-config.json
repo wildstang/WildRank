@@ -355,5 +355,66 @@
 				]
 			}
 		]
+	},
+	{
+		"name": "Notes Mode",
+		"id": "notes",
+		"pages": [{
+				"name": "Match Notes",
+				"short": "Notes",
+				"id": "notes_match",
+				"columns": [{
+						"name": "Team 1",
+						"id": "notes_match_1",
+						"inputs": [{
+								"name": "Red 1 Notes",
+								"id": "notes_match_1_red",
+								"type": "text",
+								"default": ""
+							},{
+								"name": "Blue 1 Notes",
+								"id": "notes_match_1_blue",
+								"type": "text",
+								"default": ""
+							}
+						]
+					},
+					{
+						"name": "Team 2",
+						"id": "notes_match_2",
+						"inputs": [{
+								"name": "Red 2 Notes",
+								"id": "notes_match_2_red",
+								"type": "text",
+								"default": ""
+							},
+							{
+								"name": "Blue 2 Notes",
+								"id": "notes_match_2_blue",
+								"type": "text",
+								"default": ""
+							}
+						]
+					},
+					{
+						"name": "Team 3",
+						"id": "notes_match_3",
+						"inputs": [{
+								"name": "Red 3 Notes",
+								"id": "notes_match_3_red",
+								"type": "text",
+								"default": ""
+							},
+							{
+								"name": "Blue 3 Notes",
+								"id": "notes_match_3_blue",
+								"type": "text",
+								"default": ""
+							}
+						]
+					}
+				]
+			}
+		]
 	}
 ]
