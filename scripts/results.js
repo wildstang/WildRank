@@ -42,29 +42,35 @@ function open_result(name)
     let team = parseInt(parts[parts.length - 1])
     document.getElementById("avatar").src = get_avatar(team, event_id.substr(0, 4))
     document.getElementById("result_name").innerHTML = team + " " + get_team_name(team, event_id)
+    let table = "<tr>"
+    switch (type)
+    {
+        case "notes":
+            table += "<th>Match</th><th>Notes</th>"
+            break
+        case "match":
+            table += "<th>Entry</th><th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>"
+            break
+        case "pit":
+            table += "<th>Entry</th><th>Pit Value</th><th>Event Average</th><th>Scouter Average</th>"
+            break
+    }
+    table += "</tr><tr><th>Total Results</th><td>1</td>"
 
-    let table = "<tr><th>Entry</th>"
-    scouter_results = get_scouter_results(results, results[name]["meta_scouter_id"])
-    if (name.startsWith("match"))
+    switch (type)
     {
-        let match = parseInt(parts[parts.length - 2])
-        document.getElementById("result_name").innerHTML += ", Match: " + match
-        team_results = get_team_results(results, team)
-        match_results = get_match_results(results, match)
-        table += "<th>Match Value</th><th>Team Average</th><th>Match Average</th>"
+        case "match":
+            let match = parseInt(parts[parts.length - 2])
+            document.getElementById("result_name").innerHTML += ", Match: " + match
+            team_results = get_team_results(results, team)
+            match_results = get_match_results(results, match)
+            table += "<td>" + Object.keys(team_results).length + "</td><td>" + Object.keys(match_results).length + "</td>"
+        case "pit":
+            scouter_results = get_scouter_results(results, results[name]["meta_scouter_id"])
+            table += "<td>" + Object.keys(results).length + "</td><td>" + Object.keys(scouter_results).length + "</td>"
+        case "notes":
+            table += "</tr>"
     }
-    else
-    {
-        table += "<th>Value</th>"
-    }
-    table += "<th>Event Average</th><th>Scouter Average</th></tr>\
-              <tr><th>Total Results</th><td>1</td>"
-
-    if (name.startsWith("match"))
-    {
-        table += "<td>" + Object.keys(team_results).length + "</td><td>" + Object.keys(match_results).length + "</td>"
-    }
-    table += "<td>" + Object.keys(results).length + "</td><td>" + Object.keys(scouter_results).length + "</td></tr>"
 
     let result = results[name]
     let entries = Object.keys(result)
@@ -80,8 +86,14 @@ function open_result(name)
         {
             table += make_cell(match_results, entry, val)
         }
-        table += make_cell(results, entry, val)
-        table += make_cell(scouter_results, entry, val)
+        if (type != "notes")
+        {
+            table += make_cell(results, entry, val)
+        }
+        if (typeof match_results !== 'undefined')
+        {
+            table += make_cell(scouter_results, entry, val)
+        }
         table += "</tr>"
     })
     document.getElementById("results_tab").innerHTML = table
@@ -167,22 +179,17 @@ function avg_results(results, key)
  */
 function build_result_list()
 {
-    let files = Object.keys(results)
     let first = ""
     document.getElementById("option_list").innerHTML = ""
-    files.forEach(function (file, index)
+    Object.keys(results).forEach(function (file, index)
     {
-        // determine files which start with the desired type
-        if (file.startsWith(prefix))
+        if (first == "")
         {
-            if (first == "")
-            {
-                first = file
-            }
-            let label = file.substr(prefix.length).replace("-", ": ")
-            document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
-                                                                            .replace(/TEXT/g, label)
+            first = file
         }
+        let label = file.substr(prefix.length).replace("-", ": ")
+        document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
+                                                                        .replace(/TEXT/g, label)
     })
     if (selected !== null)
     {
@@ -220,12 +227,71 @@ function collect_results()
         return 0
     }
 
+    if (type == "notes")
+    {
+        unsorted = break_notes_into_teams(unsorted)
+    }
+
     // sort results
     Object.keys(unsorted).sort().forEach(function (key) {
         results[key] = unsorted[key];
     })
 
     return num_results
+}
+
+/**
+ * function:    break_notes_into_teams
+ * parameters:  existing results
+ * returns:     results resorted by teams
+ * description: Takes a object of notes results and breaks them into teams.
+ */
+function break_notes_into_teams(notes)
+{
+    teams = {}
+    matches = JSON.parse(localStorage.getItem(get_event_matches_name(event_id)))
+    Object.keys(notes).forEach(function (name, index)
+    {
+        let note = notes[name]
+        let blue_teams = []
+        let red_teams = []
+        // get match teams
+        matches.forEach(function (match, index)
+        {
+            if (match.comp_level == "qm" && match.match_number == note.meta_match)
+            {
+                red_teams = match.alliances.red.team_keys
+                blue_teams = match.alliances.blue.team_keys
+            }
+        })
+        Object.keys(note).forEach(function (key, index)
+        {
+            if (!key.startsWith("meta_"))
+            {
+                // make team name
+                let parts = key.split("_")
+                let pos = parts[2] - 1
+                let team = ""
+                if (parts[3] == "red")
+                {
+                    team = red_teams[pos].substr(3)
+                }
+                else
+                {
+                    team = blue_teams[pos].substr(3)
+                }
+                team = type + "-" + event_id + "-" + team
+
+                // add team to results object
+                if (!Object.keys(teams).includes(team))
+                {
+                    teams[team] = {}
+                }
+                teams[team][note.meta_match] = note[key]
+            }
+        })
+    })
+    return teams
 }
 
 /**

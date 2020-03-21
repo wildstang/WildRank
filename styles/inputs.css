@@ -138,4 +138,5 @@ body {
 
 .input_label {
     margin: 8px;
+    max-width: calc(var(--input-width) - var(--input-padding));
 }

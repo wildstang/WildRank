@@ -117,12 +117,12 @@ function build_page_from_config(selected_mode)
     let teams = team_num.split(",")
     if (teams.length > 1)
     {
-        document.body.innerHTML = document.body.innerHTML.replace(/Red 1/g, teams[0])
-                                                         .replace(/Red 2/g, teams[1])
-                                                         .replace(/Red 3/g, teams[2])
-                                                         .replace(/Blue 1/g, teams[3])
-                                                         .replace(/Blue 2/g, teams[4])
-                                                         .replace(/Blue 3/g, teams[5])
+        document.body.innerHTML = document.body.innerHTML.replace(/Red 1/g, teams[0] + " " + get_team_name(teams[0], event_id))
+                                                         .replace(/Red 2/g, teams[1] + " " + get_team_name(teams[1], event_id))
+                                                         .replace(/Red 3/g, teams[2] + " " + get_team_name(teams[2], event_id))
+                                                         .replace(/Blue 1/g, teams[3] + " " + get_team_name(teams[3], event_id))
+                                                         .replace(/Blue 2/g, teams[4] + " " + get_team_name(teams[4], event_id))
+                                                         .replace(/Blue 3/g, teams[5] + " " + get_team_name(teams[5], event_id))
     }
 
     // mark each selected box as such
@@ -144,7 +144,7 @@ function get_results_from_page(selected_mode)
     results["meta_scouting_duration"] = (Date.now() - start) / 1000
     results["meta_scouter_id"] = parseInt(user_id)
     results["meta_scout_mode"] = selected_mode
-    if (selected_mode == "match")
+    if (selected_mode != "pit")
     {
         results["meta_match"] = parseInt(match_num)
         results["meta_position"] = parseInt(scout_pos)
