@@ -35,6 +35,10 @@
             "y": 625,
             "color": "#0000FF"
         },
-        "draw_color": "#FFFFFF"
+        "draw_color": "#FFFFFF",
+        "field_width": 1500,
+        "field_height": 800,
+        "magnet_size": 100,
+        "line_width": 5
     }
 }

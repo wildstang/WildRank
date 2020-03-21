@@ -133,7 +133,10 @@ html, body {
 }
 
 #whiteboard {
-    background-size: 100% 100%; 
+    background-size: 100% 100%;
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;
 }
 
 .pick_list {

@@ -58,9 +58,12 @@ const BUTTONS = "<br>\
         </div>\
     </div>"
 
-const MAGNET_SIZE = 100
-const FIELD_WIDTH = 1500
-const FIELD_HEIGHT = 800
+var magnet_size
+var field_width
+var field_height
+var line_width
+
+var scale_factor = 1
 
 var mouseX = 0
 var mouseY = 0
@@ -111,7 +114,6 @@ function open_match(match_num)
             let set = match.set_number
             let match_id = level.substr(0, 1).toUpperCase() + set + number
             let match_div = document.getElementById("match_" + match_id)
-            console.log(match_id)
 
             // find the desired qualifying match
             if (match_id == match_num)
@@ -263,8 +265,8 @@ function create_magnet(x, y, image, color)
     obj.img = image
     obj.x = x
     obj.y = y
-    obj.width = MAGNET_SIZE
-    obj.height = MAGNET_SIZE
+    obj.width = magnet_size
+    obj.height = magnet_size
     obj.color = color
     magnets.push(obj)
 }
@@ -279,13 +281,12 @@ function init() {
     lines = []
     magnets = []
     let wb = get_whiteboard_config()
-    draw_color = wb.draw_color
-    create_magnet(wb.red_1.x, wb.red_1.y, red1, wb.red_1.color)
-    create_magnet(wb.red_2.x, wb.red_2.y, red2, wb.red_2.color)
-    create_magnet(wb.red_3.x, wb.red_3.y, red3, wb.red_3.color)
-    create_magnet(wb.blue_1.x, wb.blue_1.y, blue1, wb.blue_1.color)
-    create_magnet(wb.blue_2.x, wb.blue_2.y, blue2, wb.blue_2.color)
-    create_magnet(wb.blue_3.x, wb.blue_3.y, blue3, wb.blue_3.color)
+    create_magnet(wb.red_1.x / scale_factor, wb.red_1.y / scale_factor, red1, wb.red_1.color)
+    create_magnet(wb.red_2.x / scale_factor, wb.red_2.y / scale_factor, red2, wb.red_2.color)
+    create_magnet(wb.red_3.x / scale_factor, wb.red_3.y / scale_factor, red3, wb.red_3.color)
+    create_magnet(wb.blue_1.x / scale_factor, wb.blue_1.y / scale_factor, blue1, wb.blue_1.color)
+    create_magnet(wb.blue_2.x / scale_factor, wb.blue_2.y / scale_factor, blue2, wb.blue_2.color)
+    create_magnet(wb.blue_3.x / scale_factor, wb.blue_3.y / scale_factor, blue3, wb.blue_3.color)
 
     window.requestAnimationFrame(draw);
 }
@@ -301,7 +302,7 @@ function draw() {
 
     ctx.globalCompositeOperation = "destination-over"
     // reset canvas
-    ctx.clearRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT)
+    ctx.clearRect(0, 0, field_width, field_height)
 
     // draw each magnet
     magnets.forEach(function (image, index)
@@ -324,12 +325,67 @@ function draw() {
             }
             ctx.lineTo(p.x, p.y)
         })
-        ctx.lineWidth = 5
+        ctx.lineWidth = line_width
         ctx.strokeStyle = line.color
         ctx.stroke()
     })
 
     window.requestAnimationFrame(draw)
+}
+
+// track mouse movement on canvas
+function mouse_move(evt) {
+    // get mouse position relative to canvas
+    var rect = canvas.getBoundingClientRect()
+    mouseX = evt.clientX - rect.left
+    mouseY = evt.clientY - rect.top
+
+    // add to current line
+    if (hasChanged && mouseDown)
+    {
+        // create if first point
+        lines.push([{x: mouseX, y: mouseY}])
+        hasChanged = false
+    }
+    else if (mouseDown)
+    {
+        lines[lines.length-1].push({x: mouseX, y: mouseY})
+        lines[lines.length-1].color = draw_color
+    }
+
+    // move the selected magnet
+    if (magnetHeld >= 0)
+    {
+        magnets[magnetHeld].x = mouseX - (magnets[magnetHeld].width / 2)
+        magnets[magnetHeld].y = mouseY - (magnets[magnetHeld].height / 2)
+        lines[lines.length-1].color = magnets[magnetHeld].color
+    }
+}
+    
+// track mouse clicks on canvas
+function mouse_down(evt) {
+    // get mouse position relative to canvas
+    var rect = canvas.getBoundingClientRect()
+    mouseX = evt.clientX - rect.left
+    mouseY = evt.clientY - rect.top
+
+    // start drawing
+    mouseDown = true
+    hasChanged = true
+    // pick up the clicked magnet
+    let over = intersects_image(mouseX, mouseY)
+    if (over >= 0)
+    {
+        magnetHeld = over
+    }
+}
+
+function mouse_up(evt) {
+    // stop drawing
+    mouseDown = false
+    hasChanged = true
+    // release any held magnets
+    magnetHeld = -1
 }
 
 window.addEventListener("load", function() {
@@ -340,61 +396,41 @@ window.addEventListener("load", function() {
     // load in match data
     load_event()
 
+    if (navigator.userAgent.includes("iPad"))
+    {
+        scale_factor = 2
+    }
+
+    // get canvas config
+    let wb = get_whiteboard_config()
+    draw_color = wb.draw_color
+    field_height = wb.field_height / scale_factor
+    field_width = wb.field_width / scale_factor
+    magnet_size = wb.magnet_size / scale_factor
+    line_width = wb.line_width / scale_factor
+    console.log(line_width)
+
     // resize canvas
     canvas = document.getElementById("whiteboard")
     canvas.style.backgroundImage = "url('/config/field-" + year + ".png')"
-    canvas.width = FIELD_WIDTH
-    canvas.height = FIELD_HEIGHT
+    canvas.width = field_width
+    canvas.height = field_height
     
     // track mouse movement on canvas
-    canvas.addEventListener("mousemove", function(evt) {
-        // get mouse position relative to canvas
-        var rect = canvas.getBoundingClientRect()
-        mouseX = evt.clientX - rect.left
-        mouseY = evt.clientY - rect.top
-
-        // add to current line
-        if (hasChanged && mouseDown)
-        {
-            // create if first point
-            lines.push([{x: mouseX, y: mouseY}])
-            hasChanged = false
-        }
-        else if (mouseDown)
-        {
-            lines[lines.length-1].push({x: mouseX, y: mouseY})
-            lines[lines.length-1].color = draw_color
-        }
-
-        // move the selected magnet
-        if (magnetHeld >= 0)
-        {
-            magnets[magnetHeld].x = mouseX - (magnets[magnetHeld].width / 2)
-            magnets[magnetHeld].y = mouseY - (magnets[magnetHeld].height / 2)
-            lines[lines.length-1].color = magnets[magnetHeld].color
-        }
+    canvas.addEventListener("touchmove", function(evt) {
+        mouse_move(evt.touches[0])
+        evt.preventDefault();
     }, false)
+    canvas.addEventListener("mousemove", mouse_move, false)
     
     // track mouse clicks on canvas
-    canvas.addEventListener("mousedown", function(evt) {
-        // start drawing
-        mouseDown = true
-        hasChanged = true
-        // pick up the clicked magnet
-        let over = intersects_image(mouseX, mouseY)
-        if (over >= 0)
-        {
-            magnetHeld = over
-        }
+    canvas.addEventListener("touchstart", function(evt) {
+        mouse_down(evt.touches[0])
+        evt.preventDefault();
     }, false)
-
-    canvas.addEventListener("mouseup", function(evt) {
-        // stop drawing
-        mouseDown = false
-        hasChanged = true
-        // release any held magnets
-        magnetHeld = -1
-    }, false)
+    canvas.addEventListener("mousedown", mouse_down, false)
+    canvas.addEventListener("touchend", mouse_up, false)
+    canvas.addEventListener("mouseup", mouse_up, false)
 
     // add magnets and start drawing
     init()
