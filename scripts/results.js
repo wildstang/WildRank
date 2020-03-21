@@ -100,20 +100,24 @@ function make_cell(results, entry, base)
     if (typeof base === "number" && !entry.startsWith("meta"))
     {
         let delta = base - val
-        let prop = Math.abs(delta / base)
+        if (is_negative(entry))
+        {
+            delta *= -1
+        }
+        let prop = Math.abs(delta / base) / 2
         if (delta > 0.01)
         {
-            if (val === 0)
+            if (val === 0 || base === 0)
             {
-                prop = 1
+                prop = val / 2
             }
             color = " style=\"background-color: rgba(0,255,0," + prop + ")\""
         }
         else if (delta < -0.01)
         {
-            if (base === 0)
+            if (base === 0 || val === 0)
             {
-                prop = 1
+                prop = val / 2
             }
             color = " style=\"background-color: rgba(255,0,0," + prop + ")\""
         }

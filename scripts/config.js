@@ -96,6 +96,31 @@ function get_options(key)
 }
 
 /**
+ * function:    is_negative
+ * parameters:  name of input
+ * returns:     if the input is negative
+ * description: Determines if the input should be regarded as a negative trait.
+ */
+function is_negative(key)
+{
+    var negative = false
+    config.pages.forEach(function (page, index)
+    {
+        page["columns"].forEach(function (column, index)
+        {
+            column["inputs"].forEach(function (input, index)
+            {
+                if (key == input.id && input.negative == true)
+                {
+                    negative = true
+                }
+            })
+        })
+    })
+    return negative
+}
+
+/**
  * function:    get_name
  * parameters:  name of result, if to check for duplicate name
  * returns:     name of input

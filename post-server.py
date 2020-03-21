@@ -19,14 +19,8 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('pit-') and f.endswith('.json')]
         elif self.path == '/getMatchResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
-        elif self.path.endswith('.html') or self.path.endswith('.css') or self.path.endswith('.js') or self.path.endswith('.json') or self.path.endswith('.ico') or self.path.endswith('.png') or '.html?' in self.path or self.path == '/':
-            return http.server.SimpleHTTPRequestHandler.do_GET(self)
         else:
-            self.send_response(404)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(str.encode('<h1>OOPSIE WOOPSIE!!</h1>The code monkeys at our headquarters are working VEWY HAWD to fix this!'))
-            return
+            return http.server.SimpleHTTPRequestHandler.do_GET(self)
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
