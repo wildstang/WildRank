@@ -14,7 +14,7 @@ const RESULT_BLOCK = "\
 
 const CONTENTS = "<h2 id=\"value\"></h2>"
 const BUTTONS = "\
-    <h4 class=\"input_label\">Sort by key:</h4>\
+    <h4 class=\"center_text\">Sort by key:</h4>\
     <select class=\"wr_dropdown\" id=\"key_selector\" onchange=\"select()\">\
     </select>\
     <select class=\"wr_dropdown\" id=\"key_selector_method\" onchange=\"select()\">\
@@ -24,7 +24,7 @@ const BUTTONS = "\
     </select>\
     <select class=\"wr_dropdown\" id=\"key_selector_against\" onchange=\"select()\">\
     </select>\
-    <h4 class=\"input_label\">Sort numeric values using:</h4>\
+    <h4 class=\"center_text\">Sort numeric values using:</h4>\
     <div class=\"wr_select\" id=\"type_form\">\
         <span class=\"wr_select_option selected\" id=\"type_form-1\" onclick=\"select_option('type_form', '1'); collect_results(); select()\">\
             <label>Mean</label>\

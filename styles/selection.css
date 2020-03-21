@@ -141,3 +141,7 @@ html, body {
     width: 300px;
     vertical-align: top;
 }
+
+.center_text {
+    margin: 8px;
+}
