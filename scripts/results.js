@@ -241,8 +241,15 @@ function sort_results(sort_by)
     
     // sort by given key
     Object.keys(unsorted).sort(function (a, b) {
-        return unsorted[b][sort_by] < unsorted[a][sort_by] ? -1
-                : unsorted[b][sort_by] > unsorted[a][sort_by] ? 1
+        let left = unsorted[b][sort_by]
+        let right = unsorted[a][sort_by]
+        if (is_negative(sort_by))
+        {
+            right = unsorted[b][sort_by]
+            left = unsorted[a][sort_by]
+        }
+        return left < right ? -1
+                : left > right ? 1
                 : 0
     }).forEach(function (key) {
         results[key] = unsorted[key]

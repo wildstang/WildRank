@@ -224,12 +224,18 @@ function sort_teams(index, method_index, against_index)
     
     // sort by given key
     Object.keys(unsorted).sort(function (a, b) {
-        a_val = unsorted[a][sort_by]
-        b_val = unsorted[b][sort_by]
-        a_against_val = unsorted[a][sort_by_against]
-        b_against_val = unsorted[b][sort_by_against]
+        let a_val = unsorted[a][sort_by]
+        let b_val = unsorted[b][sort_by]
+        let a_against_val = unsorted[a][sort_by_against]
+        let b_against_val = unsorted[b][sort_by_against]
         a_val = calc_prop(a_val, a_against_val, method_index)
         b_val = calc_prop(b_val, b_against_val, method_index)
+        if (is_negative(sort_by))
+        {
+            let old = a_val
+            a_val = b_val
+            b_val = old
+        }
         return b_val < a_val ? -1
                 : b_val > a_val ? 1
                 : 0
