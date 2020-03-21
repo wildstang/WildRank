@@ -21,6 +21,17 @@ function fetch_config()
         .catch(err => {
             console.log("Error config file")
         })
+    fetch("config/config.json")
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            localStorage.setItem("config-defaults", JSON.stringify(data.defaults))
+            localStorage.setItem("config-whiteboard", JSON.stringify(data.whiteboard))
+        })
+        .catch(err => {
+            console.log("Error config file")
+        })
 }
 
 /**
@@ -32,6 +43,28 @@ function fetch_config()
 function load_config(mode)
 {
     config = JSON.parse(localStorage.getItem("config-" + mode))
+}
+
+/**
+ * function:    get_defaults
+ * parameters:  none
+ * returns:     defaults config object
+ * description: Gets the defaults config object from localStorage.
+ */
+function get_defaults()
+{
+    return JSON.parse(localStorage.getItem("config-defaults"))
+}
+
+/**
+ * function:    get_whiteboard_config
+ * parameters:  none
+ * returns:     whiteboard config object
+ * description: Gets the whiteboard config object from localStorage.
+ */
+function get_whiteboard_config()
+{
+    return JSON.parse(localStorage.getItem("config-whiteboard"))
 }
 
 /**

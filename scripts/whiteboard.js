@@ -65,6 +65,7 @@ const FIELD_HEIGHT = 800
 var mouseX = 0
 var mouseY = 0
 var canvas
+var draw_color
 
 var magnets = []
 var lines = []
@@ -277,12 +278,14 @@ function create_magnet(x, y, image, color)
 function init() {
     lines = []
     magnets = []
-    create_magnet(250, 125, red1, "#FF0000")
-    create_magnet(250, 375, red2, "#FF0000")
-    create_magnet(250, 625, red3, "#FF0000")
-    create_magnet(1150, 125, blue1, "#0000FF")
-    create_magnet(1150, 375, blue2, "#0000FF")
-    create_magnet(1150, 625, blue3, "#0000FF")
+    let wb = get_whiteboard_config()
+    draw_color = wb.draw_color
+    create_magnet(wb.red_1.x, wb.red_1.y, red1, wb.red_1.color)
+    create_magnet(wb.red_2.x, wb.red_2.y, red2, wb.red_2.color)
+    create_magnet(wb.red_3.x, wb.red_3.y, red3, wb.red_3.color)
+    create_magnet(wb.blue_1.x, wb.blue_1.y, blue1, wb.blue_1.color)
+    create_magnet(wb.blue_2.x, wb.blue_2.y, blue2, wb.blue_2.color)
+    create_magnet(wb.blue_3.x, wb.blue_3.y, blue3, wb.blue_3.color)
 
     window.requestAnimationFrame(draw);
 }
@@ -360,7 +363,7 @@ window.addEventListener("load", function() {
         else if (mouseDown)
         {
             lines[lines.length-1].push({x: mouseX, y: mouseY})
-            lines[lines.length-1].color = "#FFFFFF"
+            lines[lines.length-1].color = draw_color
         }
 
         // move the selected magnet

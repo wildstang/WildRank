@@ -104,14 +104,10 @@ function open_match(match_num)
         document.getElementById("open_result_container").remove()
     }
 
-    let file = get_notes(match_num, event_id)
-    if (scout_pos > -1)
+    let file = get_match_result(match_num, team.substr(3), event_id)
+    if (file_exists(file))
     {
-        file = get_match_result(match_num, team.substr(3), event_id)
-        if (file_exists(file))
-        {
-            document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
-        }
+        document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
     }
 }
 

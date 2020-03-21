@@ -7,19 +7,24 @@
  */
 
 var qrcode
+fetch_config()
 
 // when the page is finished loading
 window.addEventListener('load', function() {
     // initialize the QR code canvas
     qrcode = new QRCode(document.getElementById("qrcode"), {width:512, height:512})
-    document.getElementById("event_id").value = get_cookie(EVENT_COOKIE, EVENT_DEFAULT)
-    document.getElementById("user_id").value = get_cookie(USER_COOKIE, USER_DEFAULT)
-    document.getElementById("position").selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-    document.getElementById("upload_addr").selectedIndex = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
     let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
     select_option("type_form", type_cookie == "match" ? 1 : type_cookie == "pit" ? 2 : 3)
     process_files()
-    fetch_config()
+    let defaults = get_defaults()
+    while (typeof defaults == "undefined")
+    {
+        defaults = get_defaults()
+    }
+    document.getElementById("event_id").value = get_cookie(EVENT_COOKIE, defaults.event_id)
+    document.getElementById("user_id").value = get_cookie(USER_COOKIE, defaults.user_id)
+    document.getElementById("position").selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+    document.getElementById("upload_addr").selectedIndex = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
 })
 
 /**

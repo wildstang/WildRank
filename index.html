@@ -9,8 +9,8 @@
         <script src="scripts/keys.js"></script>
         <script src="scripts/utils.js"></script>
         <script src="scripts/inputs.js"></script>
-        <script src="scripts/index.js"></script>
         <script src="scripts/config.js"></script>
+        <script src="scripts/index.js"></script>
     </head>
     <body>
         <div id="header">
@@ -21,7 +21,7 @@
             <div class="column">
                 <h3 class="column_header">Options</h3>
                 <h4 class="input_label">Event ID:</h4>
-                <input class="wr_string" type="text" id="event_id" value="2019ilch"><br>
+                <input class="wr_string" type="text" id="event_id"><br>
 
                 <h4 class="input_label">Position:</h4>
                 <select class="wr_dropdown" id="position">
@@ -41,7 +41,7 @@
                     <span class="wr_select_option selected" id="type_form-1" onclick="select_option('type_form', '1')">
                         <label>Match</label>
                     </span>
-                    <span class="wr_select_option selected" id="type_form-3" onclick="select_option('type_form', '3')">
+                    <span class="wr_select_option" id="type_form-3" onclick="select_option('type_form', '3')">
                         <label>Note</label>
                     </span>
                 </div>
@@ -50,7 +50,7 @@
                 <input class="wr_string" type="url" id="upload_addr" value="http://localhost"><br>
 
                 <h4 class="input_label">School ID:</h4>
-                <input class="wr_number" type="number" id="user_id" min="120001" max="923999" value="120001"><br>
+                <input class="wr_number" type="number" id="user_id" min="120001" max="923999"><br>
             </div>
 
             <div class="column">
