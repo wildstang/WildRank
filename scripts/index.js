@@ -49,18 +49,7 @@ function scout()
         let event    = get_event()
         let position = get_position()
         let user     = get_user()
-        if (type === "match")
-        {
-            if (file_exists(get_event_matches_name(event)))
-            {
-                document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
-            }
-            else
-            {
-                alert("No matches found! Please preload data.")
-            }
-        }
-        else if (type === "pit")
+        if (type === "pit")
         {
             if (file_exists(get_event_teams_name(event)))
             {
@@ -68,19 +57,23 @@ function scout()
             }
             else
             {
-                alert("No teams found! Please preload data.")
+                alert("No teams found! Please preload event.")
             }
         }
-        else if (type === "notes")
+        else if (file_exists(get_event_matches_name(event)))
         {
-            if (file_exists(get_event_teams_name(event)))
+            if (type === "match")
+            {
+                document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+            }
+            else if (type === "notes")
             {
                 document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: -1, [USER_COOKIE]: user})
             }
-            else
-            {
-                alert("No teams found! Please preload data.")
-            }
+        }
+        else
+        {
+            alert("No matches found! Please preload event.")
         }
     }
     else
@@ -102,15 +95,7 @@ function open_results()
     if (config_exists(type))
     {
         let event = get_event()
-
-        let count = 0
-        Object.keys(localStorage).forEach(function (file, index)
-        {
-            if (file.startsWith(type + "-" + event + "-"))
-            {
-                ++count
-            }
-        })
+        let count = count_results(event, type)
         
         if (count > 0)
         {
@@ -137,13 +122,13 @@ function open_whiteboard()
 {
     save_options()
     let event = get_event()
-    if (file_exists(get_event_teams_name(event)))
+    if (file_exists(get_event_matches_name(event)))
     {
         document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: event})
     }
     else
     {
-        alert("No teams found for event")
+        alert("No matches found! Please preload event.")
     }
 }
 
@@ -163,7 +148,17 @@ function open_ranker()
     }
     else if (config_exists(type))
     {
-        document.location.href = "selection.html" + build_query({"page": "ranker", [TYPE_COOKIE]: type, [EVENT_COOKIE]: get_event()})
+        let event = get_event()
+        let count = count_results(event, type)
+        
+        if (count > 0)
+        {
+            document.location.href = "selection.html" + build_query({"page": "ranker", [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})
+        }
+        else
+        {
+            alert("No results found!")
+        }
     }
     else
     {
@@ -187,7 +182,7 @@ function open_picks()
     }
     else
     {
-        alert("No teams found for event")
+        alert("No teams found! Please preload event.")
     }
 }
 
@@ -450,6 +445,25 @@ function status(status)
 {
     document.getElementById("status").innerHTML += status + "<br>"
     console.log(status)
+}
+
+/**
+ * function:    count_results
+ * parameters:  event id, scouting type
+ * returns:     number of results
+ * description: Determines how many results of a given type and event exist.
+ */
+function count_results(event_id, type)
+{
+    let count = 0
+    Object.keys(localStorage).forEach(function (file, index)
+    {
+        if (file.startsWith(type + "-" + event_id + "-"))
+        {
+            ++count
+        }
+    })
+    return count
 }
 
 /**
