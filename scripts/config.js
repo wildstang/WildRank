@@ -2,11 +2,11 @@ var config
 
 /**
  * function:    fetch_config
- * parameters:  none
+ * parameters:  function to call on config load
  * returns:     none
  * description: Fetch the configuration and saves to local storage.
  */
-function fetch_config()
+function fetch_config(onConfig)
 {
     fetch("config/scout-config.json")
         .then(response => {
@@ -19,7 +19,7 @@ function fetch_config()
             })
         })
         .catch(err => {
-            console.log("Error config file")
+            console.log("Error config file, " + err)
         })
     fetch("config/config.json")
         .then(response => {
@@ -28,9 +28,13 @@ function fetch_config()
         .then(data => {
             localStorage.setItem("config-defaults", JSON.stringify(data.defaults))
             localStorage.setItem("config-whiteboard", JSON.stringify(data.whiteboard))
+            if (typeof onConfig === "function")
+            {
+                onConfig()
+            }
         })
         .catch(err => {
-            console.log("Error config file")
+            console.log("Error config file, " + err)
         })
 }
 
