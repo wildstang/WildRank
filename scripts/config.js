@@ -26,8 +26,10 @@ function fetch_config(onConfig)
             return response.json()
         })
         .then(data => {
-            localStorage.setItem("config-defaults", JSON.stringify(data.defaults))
-            localStorage.setItem("config-whiteboard", JSON.stringify(data.whiteboard))
+            Object.keys(data).forEach(function (section, index)
+            {
+                localStorage.setItem("config-" + section, JSON.stringify(data[section]))
+            })
             if (typeof onConfig === "function")
             {
                 onConfig()
@@ -50,25 +52,14 @@ function load_config(mode)
 }
 
 /**
- * function:    get_defaults
- * parameters:  none
- * returns:     defaults config object
- * description: Gets the defaults config object from localStorage.
+ * function:    get_config
+ * parameters:  config name
+ * returns:     reads config object
+ * description: Gets the given config object from localStorage.
  */
-function get_defaults()
+function get_config(name)
 {
-    return JSON.parse(localStorage.getItem("config-defaults"))
-}
-
-/**
- * function:    get_whiteboard_config
- * parameters:  none
- * returns:     whiteboard config object
- * description: Gets the whiteboard config object from localStorage.
- */
-function get_whiteboard_config()
-{
-    return JSON.parse(localStorage.getItem("config-whiteboard"))
+    return JSON.parse(localStorage.getItem("config-" + name))
 }
 
 /**

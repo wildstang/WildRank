@@ -23,7 +23,7 @@ window.addEventListener('load', function() {
  */
 function fill_defaults()
 {
-    let defaults = get_defaults()
+    let defaults = get_config("defaults")
     document.getElementById("event_id").value = get_cookie(EVENT_COOKIE, defaults.event_id)
     document.getElementById("user_id").value = get_cookie(USER_COOKIE, defaults.user_id)
     document.getElementById("position").selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
@@ -91,24 +91,32 @@ function scout()
 function open_results()
 {
     save_options()
-    let type = get_selected_type()
-    if (config_exists(type))
+    
+    if (is_admin(get_user()))
     {
-        let event = get_event()
-        let count = count_results(event, type)
-        
-        if (count > 0)
+        let type = get_selected_type()
+        if (config_exists(type))
         {
-            document.location.href = "selection.html" + build_query({"page": "results", "type": type, [EVENT_COOKIE]: event})
+            let event = get_event()
+            let count = count_results(event, type)
+            
+            if (count > 0)
+            {
+                document.location.href = "selection.html" + build_query({"page": "results", "type": type, [EVENT_COOKIE]: event})
+            }
+            else
+            {
+                alert("No results found!")
+            }
         }
         else
         {
-            alert("No results found!")
+            alert("No config found for mode: " + type)
         }
     }
     else
     {
-        alert("No config found for mode: " + type)
+        alert("Results requires admin rights!")
     }
 }
 
@@ -121,14 +129,22 @@ function open_results()
 function open_whiteboard()
 {
     save_options()
-    let event = get_event()
-    if (file_exists(get_event_matches_name(event)))
+
+    if (is_admin(get_user()))
     {
-        document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: event})
+        let event = get_event()
+        if (file_exists(get_event_matches_name(event)))
+        {
+            document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: event})
+        }
+        else
+        {
+            alert("No matches found! Please preload event.")
+        }
     }
     else
     {
-        alert("No matches found! Please preload event.")
+        alert("Whiteboard requires admin rights!")
     }
 }
 
@@ -141,28 +157,36 @@ function open_whiteboard()
 function open_ranker()
 {
     save_options()
-    let type = get_selected_type()
-    if (type == "notes")
+
+    if (is_admin(get_user()))
     {
-        alert("You can't rank notes...")
-    }
-    else if (config_exists(type))
-    {
-        let event = get_event()
-        let count = count_results(event, type)
-        
-        if (count > 0)
+        let type = get_selected_type()
+        if (type == "notes")
         {
-            document.location.href = "selection.html" + build_query({"page": "ranker", [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})
+            alert("You can't rank notes...")
+        }
+        else if (config_exists(type))
+        {
+            let event = get_event()
+            let count = count_results(event, type)
+            
+            if (count > 0)
+            {
+                document.location.href = "selection.html" + build_query({"page": "ranker", [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})
+            }
+            else
+            {
+                alert("No results found!")
+            }
         }
         else
         {
-            alert("No results found!")
+            alert("No config found for mode: " + type)
         }
     }
     else
     {
-        alert("No config found for mode: " + type)
+        alert("Team ranker requires admin rights!")
     }
 }
 
@@ -175,14 +199,22 @@ function open_ranker()
 function open_picks()
 {
     save_options()
-    let event = get_event()
-    if (file_exists(get_event_teams_name(event)))
+
+    if (is_admin(get_user()))
     {
-        document.location.href = "selection.html" + build_query({"page": "picklists", [EVENT_COOKIE]: event})
+        let event = get_event()
+        if (file_exists(get_event_teams_name(event)))
+        {
+            document.location.href = "selection.html" + build_query({"page": "picklists", [EVENT_COOKIE]: event})
+        }
+        else
+        {
+            alert("No teams found! Please preload event.")
+        }
     }
     else
     {
-        alert("No teams found! Please preload event.")
+        alert("Pick lists requires admin rights!")
     }
 }
 
@@ -287,6 +319,7 @@ function preload_event()
 function upload_all()
 {
     save_options()
+
     let type = get_selected_type()
     status("Uploading " + type + " results...")
     // get all files in localStorage
@@ -314,63 +347,70 @@ function import_all()
 {
     save_options()
 
-    var req = new XMLHttpRequest();
-    req.open('GET', document.location, false)
-    req.send(null)
-    if (req.getAllResponseHeaders().toLowerCase().includes("python"))
+    if (is_admin(get_user()))
     {
-        // determine appropriate request for selected mode
-        let request = ""
-        if (get_selected_type() == "match")
+        var req = new XMLHttpRequest();
+        req.open('GET', document.location, false)
+        req.send(null)
+        if (req.getAllResponseHeaders().toLowerCase().includes("python"))
         {
-            request = "getMatchResultNames"
+            // determine appropriate request for selected mode
+            let request = ""
+            if (get_selected_type() == "match")
+            {
+                request = "getMatchResultNames"
+            }
+            else
+            {
+                request = "getPitResultNames"
+            }
+        
+            // request list of available results
+            status("Requesting local result data...")
+            fetch(request)
+                .then(response => {
+                    return response.text()
+                })
+                .then(data => {
+                    // get requested results for current event
+                    let results = data.split(",").filter(function (r) {
+                        return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
+                    })
+                    status(results.length + " " + get_selected_type() + " results found")
+                    
+                    // request each desired result
+                    results.forEach(function (file, index)
+                    {
+                        fetch(get_upload_addr() + '/uploads/' + file)
+                            .then(response => {
+                                return response.json()
+                            })
+                            .then(data => {
+                                // save file
+                                localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
+                                status("got " + file)
+                            })
+                            .catch(err => {
+                                status("error requesting result")
+                                console.log(err)
+                            })
+                    })
+        
+                })
+                .catch(err => {
+                    status("error requesting results")
+                    console.log(err)
+                })
         }
         else
         {
-            request = "getPitResultNames"
+            console.log("Import results is only supported on Python server.")
+            alert("This server cannot do import results!")
         }
-    
-        // request list of available results
-        status("Requesting local result data...")
-        fetch(request)
-            .then(response => {
-                return response.text()
-            })
-            .then(data => {
-                // get requested results for current event
-                let results = data.split(",").filter(function (r) {
-                    return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
-                })
-                status(results.length + " " + get_selected_type() + " results found")
-                
-                // request each desired result
-                results.forEach(function (file, index)
-                {
-                    fetch(get_upload_addr() + '/uploads/' + file)
-                        .then(response => {
-                            return response.json()
-                        })
-                        .then(data => {
-                            // save file
-                            localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
-                            status("got " + file)
-                        })
-                        .catch(err => {
-                            status("error requesting result")
-                            console.log(err)
-                        })
-                })
-    
-            })
-            .catch(err => {
-                status("error requesting results")
-                console.log(err)
-            })
     }
     else
     {
-        console.log("Import results is only supported on Python server.")
-        alert("This server cannot do import results!")
+        alert("Import requires admin rights!")
     }
 }
 
@@ -464,6 +504,19 @@ function count_results(event_id, type)
         }
     })
     return count
+}
+
+/**
+ * function:    is_admin
+ * parameters:  user id
+ * returns:     if the user is an admin
+ * description: Determines if a given user is an admin in the config file.
+ */
+function is_admin(user_id)
+{
+    let admins = get_config("admins")
+    console.log(admins)
+    return admins.length == 0 || admins.includes(parseInt(user_id))
 }
 
 /**

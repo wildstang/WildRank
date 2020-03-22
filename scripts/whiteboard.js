@@ -280,7 +280,7 @@ function create_magnet(x, y, image, color)
 function init() {
     lines = []
     magnets = []
-    let wb = get_whiteboard_config()
+    let wb = get_config("whiteboard")
     create_magnet(wb.red_1.x / scale_factor, wb.red_1.y / scale_factor, red1, wb.red_1.color)
     create_magnet(wb.red_2.x / scale_factor, wb.red_2.y / scale_factor, red2, wb.red_2.color)
     create_magnet(wb.red_3.x / scale_factor, wb.red_3.y / scale_factor, red3, wb.red_3.color)
@@ -402,13 +402,12 @@ window.addEventListener("load", function() {
     }
 
     // get canvas config
-    let wb = get_whiteboard_config()
+    let wb = get_config("whiteboard")
     draw_color = wb.draw_color
     field_height = wb.field_height / scale_factor
     field_width = wb.field_width / scale_factor
     magnet_size = wb.magnet_size / scale_factor
     line_width = wb.line_width / scale_factor
-    console.log(line_width)
 
     // resize canvas
     canvas = document.getElementById("whiteboard")
