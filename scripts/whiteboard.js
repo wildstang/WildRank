@@ -396,13 +396,26 @@ window.addEventListener("load", function() {
     // load in match data
     load_event()
 
-    if (navigator.userAgent.includes("iPad"))
-    {
-        scale_factor = 2
-    }
+    // determine available space as preview width - padding - card padding - extra
+    let preview_width = preview.offsetWidth - 16 - 32 - 4
+    let preview_height = preview.offsetHeight - 16 - 32 - 4
 
     // get canvas config
     let wb = get_config("whiteboard")
+
+    // determine scaling factor based on most limited dimension
+    let scale_factor_w = wb.field_width / preview_width
+    let scale_factor_h = wb.field_height / preview_height
+    if (scale_factor_w > scale_factor_h)
+    {
+        scale_factor = scale_factor_w
+    }
+    else
+    {
+        scale_factor = scale_factor_h
+    }
+
+    // get properties from config
     draw_color = wb.draw_color
     field_height = wb.field_height / scale_factor
     field_width = wb.field_width / scale_factor
