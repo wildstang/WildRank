@@ -312,53 +312,65 @@ function upload_all()
 function import_all()
 {
     save_options()
-    // determine appropriate request for selected mode
-    let request = ""
-    if (get_selected_type() == "match")
+
+    var req = new XMLHttpRequest();
+    req.open('GET', document.location, false)
+    req.send(null)
+    if (req.getAllResponseHeaders().toLowerCase().includes("python"))
     {
-        request = "getMatchResultNames"
+        // determine appropriate request for selected mode
+        let request = ""
+        if (get_selected_type() == "match")
+        {
+            request = "getMatchResultNames"
+        }
+        else
+        {
+            request = "getPitResultNames"
+        }
+    
+        // request list of available results
+        status("Requesting local result data...")
+        fetch(request)
+            .then(response => {
+                return response.text()
+            })
+            .then(data => {
+                // get requested results for current event
+                let results = data.split(",").filter(function (r) {
+                    return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
+                })
+                status(results.length + " " + get_selected_type() + " results found")
+                
+                // request each desired result
+                results.forEach(function (file, index)
+                {
+                    fetch(get_upload_addr() + '/uploads/' + file)
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(data => {
+                            // save file
+                            localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
+                            status("got " + file)
+                        })
+                        .catch(err => {
+                            status("error requesting result")
+                            console.log(err)
+                        })
+                })
+    
+            })
+            .catch(err => {
+                status("error requesting results")
+                console.log(err)
+            })
     }
     else
     {
-        request = "getPitResultNames"
+        console.log("Import results is only supported on Python server.")
+        alert("This server cannot do import results!")
     }
-
-    // request list of available results
-    status("Requesting local result data...")
-    fetch(request)
-        .then(response => {
-            return response.text()
-        })
-        .then(data => {
-            // get requested results for current event
-            let results = data.split(",").filter(function (r) {
-                return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
-            })
-            status(results.length + " " + get_selected_type() + " results found")
-
-            // request each desired result
-            results.forEach(function (file, index)
-            {
-                fetch(get_upload_addr() + '/uploads/' + file)
-                    .then(response => {
-                        return response.json()
-                    })
-                    .then(data => {
-                        // save file
-                        localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
-                        status("got " + file)
-                    })
-                    .catch(err => {
-                        status("error requesting result")
-                        console.log(err)
-                    })
-            })
-
-        })
-        .catch(err => {
-            status("error requesting results")
-            console.log(err)
-        })
 }
 
 /**
