@@ -19,6 +19,8 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('pit-') and f.endswith('.json')]
         elif self.path == '/getMatchResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
+        elif self.path == '/getNoteNames':
+            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('notes-') and f.endswith('.json')]
         else:
             return http.server.SimpleHTTPRequestHandler.do_GET(self)
         self.send_response(200)

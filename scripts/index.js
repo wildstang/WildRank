@@ -360,9 +360,13 @@ function import_all()
             {
                 request = "getMatchResultNames"
             }
-            else
+            else if (get_selected_type() == "pit")
             {
                 request = "getPitResultNames"
+            }
+            else if (get_selected_type() == "notes")
+            {
+                request = "getNoteNames"
             }
         
             // request list of available results
@@ -430,6 +434,8 @@ function process_files()
     let files = Object.keys(localStorage)
     let matches = 0
     let pits = 0
+    let notes = 0
+    let avatars = 0
     let events = []
     let teams = []
     files.forEach(function (file, index)
@@ -452,10 +458,20 @@ function process_files()
         {
             ++pits
         }
+        else if (parts[0] == "notes")
+        {
+            ++notes
+        }
+        else if (parts[0] == "image")
+        {
+            ++avatars
+        }
     })
     status("Found...<br>" +
            matches + " scouted matches<br>" +
            pits + " scouted pits<br>" +
+           notes + " notes<br>" +
+           avatars + " team avatars<br>" +
            "Match Events: " + events.join(", ") + "<br>" +
            "Team Events: " + teams.join(", "))
 }
