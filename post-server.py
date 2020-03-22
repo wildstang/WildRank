@@ -26,6 +26,10 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(str.encode(','.join(files)))
 
+    def end_headers (self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        http.server.SimpleHTTPRequestHandler.end_headers(self)
+
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)

@@ -298,7 +298,7 @@ function upload_all()
             upload = file + "|||" + localStorage.getItem(file)
             status("posting " + file)
             // post string to server
-            fetch(document.getElementById("upload_addr").value, {method: "POST", body: upload})
+            fetch(get_upload_addr(), {method: "POST", body: upload})
         }
     })
 }
@@ -339,7 +339,7 @@ function import_all()
             // request each desired result
             results.forEach(function (file, index)
             {
-                fetch('uploads/' + file)
+                fetch(get_upload_addr() + '/uploads/' + file)
                     .then(response => {
                         return response.json()
                     })
@@ -490,5 +490,5 @@ function get_position()
  */
 function get_upload_addr()
 {
-    return document.getElementById("position").selectedIndex
+    return document.getElementById("upload_addr").value
 }
