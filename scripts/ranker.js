@@ -200,8 +200,9 @@ function save_pick_list()
         lists[name].push(team.substr(1))
     })
 
-    // save to localStorage
+    // save to localStorage and open
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
+    document.location.href = "selection.html" + build_query({"page": "picklists", [EVENT_COOKIE]: event_id})
 }
 
 /**
