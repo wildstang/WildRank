@@ -6,6 +6,8 @@
  * date:        2020-03-13
  */
 
+const SORT_OPTIONS = ["Mean", "Median", "Mode", "Min", "Max"]
+
 // HTML template for a result option
 const RESULT_BLOCK = "\
     <div id=\"team_NUM\" class=\"pit_option\" onclick=\"open_team('NUM')\">\
@@ -19,8 +21,9 @@ const BUTTONS = "\
     build_dropdown("key_selector_method", "", ["only", "vs", "out of"], "", "select()") + " " +
     build_dropdown("key_selector_against", "", [], "", "select()") + "<br>" +
     "<h4 class=\"center_text\">Sort numeric values</h4>" +
-    build_select("type_form", "", ["Mean", "Median", "Mode", "Min", "Max"], "Mean", "collect_results(); select()") +
-    build_checkbox("reverse", "Reverse Order", false, "build_team_list()")
+    build_select("type_form", "", SORT_OPTIONS, "Mean", "collect_results(); select()") +
+    build_checkbox("reverse", "Reverse Order", false, "select()") +
+    build_button("save", "Save to Pick List", "save_pick_list()")
     
 // HTML template for a dropdown option
 const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
@@ -162,6 +165,46 @@ function collect_results()
 }
 
 /**
+ * function:    save_pick_list
+ * parameters:  none
+ * returns:     none
+ * description: Saves the current team rankings into a pick list, named by the sorting order.
+ */
+function save_pick_list()
+{
+    let lists = JSON.parse(localStorage.getItem(get_event_pick_lists_name(event_id)))
+    let name = SORT_OPTIONS[get_selected_option("type_form")] + " of " + document.getElementById("key_selector").value
+    let against = document.getElementById("key_selector_against").value
+    switch (document.getElementById("key_selector_method").selectedIndex)
+    {
+        // single stat
+        case 0:
+            break
+        // vs
+        case 1:
+            name += " vs " + against
+            break
+        // out of
+        case 2:
+            name += " out of " + against
+            break
+    }
+    if (document.getElementById("reverse").checked)
+    {
+        name += " Reversed"
+    }
+
+    lists[name] = []
+    Object.keys(teams).forEach(function (team, index)
+    {
+        lists[name].push(team.substr(1))
+    })
+
+    // save to localStorage
+    localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
+}
+
+/**
  * function:    build_team_list
  * parameters:  none
  * returns:     none
@@ -171,10 +214,6 @@ function build_team_list()
 {
     let team_nums = Object.keys(teams)
     document.getElementById("option_list").innerHTML = ""
-    if (document.getElementById("reverse").checked)
-    {
-        team_nums = team_nums.reverse()
-    }
     team_nums.forEach(function (team, index)
     {
         let select = document.getElementById("key_selector")
@@ -208,7 +247,8 @@ function sort_teams(index, method_index, against_index)
         let b_against_val = unsorted[b][sort_by_against]
         a_val = calc_prop(a_val, a_against_val, method_index)
         b_val = calc_prop(b_val, b_against_val, method_index)
-        if (is_negative(sort_by))
+        let reverse = document.getElementById("reverse").checked
+        if (is_negative(sort_by) ? !reverse : reverse) // Exclusive OR
         {
             let old = a_val
             a_val = b_val
@@ -245,7 +285,7 @@ function select()
         case "select":
         case "dropdown":
         case "unknown":
-            select_option("type_form", 3)
+            select_option("type_form", 2)
     }
 }
 

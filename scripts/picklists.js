@@ -13,7 +13,7 @@ const TEAM_BLOCK = "\
     </div>"
 
 // HTML template for pick list
-const PICK_LIST = "<div id=\"NAME_list\" class=\"pick_list\">" + build_button("list_NAME", "NAME", "add_to('NAME', '')") + "LIST_ITEMS</div>"
+const PICK_LIST = "<div id=\"NAME_list\" class=\"pick_list\">" + build_button("list_NAME", "NAME", "add_to('NAME', '')", "remove_team('NAME', '')") + "LIST_ITEMS</div>"
 
 // HTML template for new list
 const CREATE_LIST = "<div id=\"create_new_list\" class=\"pick_list\">" +
@@ -60,7 +60,14 @@ function open_team(team_num)
  */
 function remove_team(name, team)
 {
-    lists[name].splice(lists[name].indexOf(team), 1);
+    if (team === '')
+    {
+        delete lists[name]
+    }
+    else
+    {
+        lists[name].splice(lists[name].indexOf(team), 1);
+    }
     build_pick_lists()
 }
 
@@ -125,7 +132,7 @@ function build_pick_lists()
         lists[name].forEach(function (team, index)
         {
             // add team button
-            list_text += build_button("", team, "add_to('" + name + "', '" + team + "')\" oncontextmenu=\"remove_team('" + name + "', '" + team + "'); return false")
+            list_text += build_button("", team, "add_to('" + name + "', '" + team + "')", "remove_team('" + name + "', '" + team + "')")
         })
         lists_text = lists_text.replace(/LIST_ITEMS/g, list_text)
     })
@@ -187,6 +194,14 @@ function load_event()
         if (file_exists(name))
         {
             lists = JSON.parse(localStorage.getItem(name))
+            // remove empty lists on page load
+            Object.keys(lists).forEach(function (list, index)
+            {
+                if (lists[list].length == 0)
+                {
+                    delete lists[list]
+                }
+            })
         }
         build_pick_lists()
     }

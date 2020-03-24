@@ -47,9 +47,13 @@ function build_column_frame(column_name, items)
  * returns:     wr_button as a string
  * description: Builds the HTML string of a button object.
  */
-function build_button(id, name, onclick)
+function build_button(id, name, onclick, oncontextmenu="")
 {
-    let html_str = "<div id=\"" + id + "-container\" class=\"wr_button\" onclick=\"" + onclick + "\">"
+    if (oncontextmenu.length > 0)
+    {
+        oncontextmenu += "; return false"
+    }
+    let html_str = "<div id=\"" + id + "-container\" class=\"wr_button\" onclick=\"" + onclick + "\" oncontextmenu=\"" + oncontextmenu + "\" ontouchstart=\"touch_button('" + id + "', false)\" ontouchend=\"touch_button('" + id + "', true)\">"
     html_str += "<label id=\"" + id + "\">" + name + "</label>"
     html_str += "</div>"
     return html_str
@@ -83,7 +87,7 @@ function build_checkbox(id, name, checked=false, onclick="")
  */
 function build_counter(id, name, value)
 {
-    let html_str = "<div class=\"wr_counter\" onclick=\"increment('" + id + "', false)\" oncontextmenu=\"increment('" + id + "', true); return false\" ontouchstart=\"touch_counter('" + id + "', false)\" ontouchend=\"touch_counter('" + id + "', true)\">"
+    let html_str = "<div class=\"wr_counter\" onclick=\"increment('" + id + "', false)\" oncontextmenu=\"increment('" + id + "', true); return false\" ontouchstart=\"touch_button('" + id + "', false)\" ontouchend=\"touch_button('" + id + "', true)\">"
     html_str += "<label class=\"wr_counter_count\" id=\"" + id + "\">" + value + "</label>"
     html_str += "<label>" + name + "</label>"
     html_str += "</div>"
@@ -241,18 +245,18 @@ function check(id)
 }
 
 /**
- * function:    touch_counter
- * parameters:  ID of counter button, touch released
+ * function:    touch_button
+ * parameters:  id of button, touch released
  * returns:     none
- * description: Respond to touch screen event on counter.
+ * description: Respond to touch screen event on button.
  */
-function touch_counter(id, release)
+function touch_button(id, release)
 {
     if (release)
     {
         if (Date.now() - last_touch > 500)
         {
-            increment(id, true)
+            document.getElementById(id).oncontextmenu.apply()
         }
     }
     else
