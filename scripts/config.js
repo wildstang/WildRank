@@ -1,3 +1,10 @@
+/**
+ * file:        config.js
+ * description: Contains functions for managing config files, particularly scouting.
+ * author:      Liam Fruzyna
+ * date:        2020-03-15
+ */
+
 var config
 
 /**

@@ -6,12 +6,33 @@
  * date:        2020-02-15
  */
 
-fetch_config(fill_defaults)
+let page = build_page_frame("", [
+    build_column_frame("Options", [
+        build_str_entry("event_id", "Event ID:"),
+        build_dropdown("position", "Position:", ["Red 1", "Red 2", "Red 3", "Blue 1", "Blue 2", "Blue 3"]),
+        build_select("type_form", "Mode:", ["Pit", "Match", "Note"], "Match"),
+        build_str_entry("upload_addr", "Upload URL:", "http://localhost", "url"),
+        build_num_entry("user_id", "School ID:", "", [100000, 999999])
+    ]),
+    build_column_frame("Functions", [
+        build_button("preload_event", "Preload Event", "preload_event()"),
+        build_button("scout", "Scout", "scout()"),
+        build_button("open_results", "Results", "open_results()"),
+        build_button("open_ranker", "Team Rankings", "open_ranker()"),
+        build_button("open_picks", "Pick Lists", "open_picks()"),
+        build_button("open_whiteboard", "Whiteboard", "open_whiteboard()"),
+        build_button("upload_all", "Upload Results", "upload_all()"),
+        build_button("import_all", "Import Results", "import_all()")
+    ]),
+    build_column_frame("Status", [build_card("status")])
+])
 
 // when the page is finished loading
 window.addEventListener('load', function() {
+    document.body.innerHTML += page
+    fetch_config(fill_defaults)
     let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
-    select_option("type_form", type_cookie == "match" ? 1 : type_cookie == "pit" ? 2 : 3)
+    select_option("type_form", type_cookie == MATCH_MODE ? 1 : PIT_MODE ? 2 : 3)
     process_files()
 })
 
@@ -49,7 +70,7 @@ function scout()
         let event    = get_event()
         let position = get_position()
         let user     = get_user()
-        if (type === "pit")
+        if (type === PIT_MODE)
         {
             if (file_exists(get_event_teams_name(event)))
             {
@@ -62,11 +83,11 @@ function scout()
         }
         else if (file_exists(get_event_matches_name(event)))
         {
-            if (type === "match")
+            if (type === MATCH_MODE)
             {
                 document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
             }
-            else if (type === "notes")
+            else if (type === NOTE_MODE)
             {
                 document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: -1, [USER_COOKIE]: user})
             }
@@ -161,7 +182,7 @@ function open_ranker()
     if (is_admin(get_user()))
     {
         let type = get_selected_type()
-        if (type == "notes")
+        if (type == NOTE_MODE)
         {
             alert("You can't rank notes...")
         }
@@ -356,17 +377,17 @@ function import_all()
         {
             // determine appropriate request for selected mode
             let request = ""
-            if (get_selected_type() == "match")
+            switch (get_selected_type())
             {
-                request = "getMatchResultNames"
-            }
-            else if (get_selected_type() == "pit")
-            {
-                request = "getPitResultNames"
-            }
-            else if (get_selected_type() == "notes")
-            {
-                request = "getNoteNames"
+                case MATCH_MODE:
+                    request = "getMatchResultNames"
+                    break
+                case PIT_MODE:
+                    request = "getPitResultNames"
+                    break
+                case NOTE_MODE:
+                    request = "getNoteNames"
+                    break
             }
         
             // request list of available results
@@ -450,15 +471,15 @@ function process_files()
         {
             teams.push(parts[1])
         }
-        else if (parts[0] == "match")
+        else if (parts[0] == MATCH_MODE)
         {
             ++matches
         }
-        else if (parts[0] == "pit")
+        else if (parts[0] == PIT_MODE)
         {
             ++pits
         }
-        else if (parts[0] == "notes")
+        else if (parts[0] == NOTE_MODE)
         {
             ++notes
         }
@@ -547,7 +568,7 @@ function is_admin(user_id)
  */
 function get_selected_type()
 {
-    return get_selected_option("type_form") == 1 ? "match" : get_selected_option("type_form") == 0 ? "pit" : "notes"
+    return get_selected_option("type_form") == 1 ? MATCH_MODE : get_selected_option("type_form") == 0 ? PIT_MODE : NOTE_MODE
 }
 
 /**

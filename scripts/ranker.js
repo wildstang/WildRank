@@ -14,38 +14,16 @@ const RESULT_BLOCK = "\
 
 const CONTENTS = "<h2 id=\"value\"></h2>"
 const BUTTONS = "\
-    <h4 class=\"center_text\">Sort by key:</h4>\
-    <select class=\"wr_dropdown\" id=\"key_selector\" onchange=\"select()\">\
-    </select>\
-    <select class=\"wr_dropdown\" id=\"key_selector_method\" onchange=\"select()\">\
-        <option class=\"wr_dropdown_op\">only</option>\
-        <option class=\"wr_dropdown_op\">vs</option>\
-        <option class=\"wr_dropdown_op\">out of</option>\
-    </select>\
-    <select class=\"wr_dropdown\" id=\"key_selector_against\" onchange=\"select()\">\
-    </select>\
-    <h4 class=\"center_text\">Sort numeric values using:</h4>\
-    <div class=\"wr_select\" id=\"type_form\">\
-        <span class=\"wr_select_option selected\" id=\"type_form-1\" onclick=\"select_option('type_form', '1'); collect_results(); select()\">\
-            <label>Mean</label>\
-        </span>\
-        <span class=\"wr_select_option\" id=\"type_form-2\" onclick=\"select_option('type_form', '2'); collect_results(); select()\">\
-            <label>Median</label>\
-        </span>\
-        <span class=\"wr_select_option\" id=\"type_form-3\" onclick=\"select_option('type_form', '3'); collect_results(); select()\">\
-            <label>Mode</label>\
-        </span>\
-        <span class=\"wr_select_option\" id=\"type_form-4\" onclick=\"select_option('type_form', '4'); collect_results(); select()\">\
-            <label>Min</label>\
-        </span>\
-        <span class=\"wr_select_option\" id=\"type_form-5\" onclick=\"select_option('type_form', '5'); collect_results(); select()\">\
-            <label>Max</label>\
-        </span>\
-    </div>\
-    <div class=\"wr_checkbox\" id=\"reverse-container\" onclick=\"check('reverse'); build_team_list()\">\
-        <input type=\"checkbox\" onclick=\"check('reverse'); build_team_list()\" id=\"reverse\" name=\"reverse\">\
-        <label for=\"reverse\" onclick=\"check('reverse'); build_team_list()\">Reverse Order</label>\
-    </div>"
+    <h4 class=\"center_text\">Sort by key</h4>" +
+    build_dropdown("key_selector", "", [], "", "select()") + " " +
+    build_dropdown("key_selector_method", "", ["only", "vs", "out of"], "", "select()") + " " +
+    build_dropdown("key_selector_against", "", [], "", "select()") + "<br>" +
+    "<h4 class=\"center_text\">Sort numeric values</h4>" +
+    build_select("type_form", "", ["Mean", "Median", "Mode", "Min", "Max"], "Mean", "collect_results(); select()") +
+    build_checkbox("reverse", "Reverse Order", false, "build_team_list()")
+    
+// HTML template for a dropdown option
+const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
 
 const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRC\"> <h2 class=\"result_name\">TEXT</h2></div>"
 

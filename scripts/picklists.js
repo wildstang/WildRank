@@ -13,17 +13,13 @@ const TEAM_BLOCK = "\
     </div>"
 
 // HTML template for pick list
-const PICK_LIST = "<div id=\"NAME_list\" class=\"pick_list\">" +
-                   BUTTON.replace(/ONCLICK/g, "add_to('NAME', '')")
-                         .replace(/NAME/g, "NAME") + "LIST_ITEMS</div>"
+const PICK_LIST = "<div id=\"NAME_list\" class=\"pick_list\">" + build_button("list_NAME", "NAME", "add_to('NAME', '')") + "LIST_ITEMS</div>"
 
 // HTML template for new list
 const CREATE_LIST = "<div id=\"create_new_list\" class=\"pick_list\">" +
-                    STR_ENTRY.replace(/NAME/g, "New Pick List...")
-                             .replace(/ID/g, "pick_list_name")
-                             .replace(/VALUE/g, "new pick list") +
-                    BUTTON.replace(/ONCLICK/g, "create_list()")
-                          .replace(/NAME/g, "Create") + "</div>"
+                        build_str_entry("pick_list_name", "New Pick List...", "new pick list") +
+                        build_button("create_list", "Create", "create_list()") + 
+                    "</div>"
 
 const CONTENTS = "<img id=\"avatar\"><h2>Add team <label id=\"team_num\"></label>, <label id=\"team_name\"></label>, to...</h2>"
 
@@ -129,9 +125,7 @@ function build_pick_lists()
         lists[name].forEach(function (team, index)
         {
             // add team button
-            list_text +=  BUTTON.replace(/ONCLICK/g, "add_to('" + name + "', '" + team + "')\" \
-                                                      oncontextmenu=\"remove_team('" + name + "', '" + team + "'); return false")
-                                .replace(/NAME/g, team)
+            list_text += build_button("", team, "add_to('" + name + "', '" + team + "')\" oncontextmenu=\"remove_team('" + name + "', '" + team + "'); return false")
         })
         lists_text = lists_text.replace(/LIST_ITEMS/g, list_text)
     })

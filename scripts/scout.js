@@ -10,11 +10,11 @@ const start = Date.now()
 
 /** 
  * function:    build_page_from_config
- * parameters:  Mode from config to build
+ * parameters:  none
  * returns:     none
  * description: Builds the page from the config file and the given mode.
  */
-function build_page_from_config(selected_mode)
+function build_page_from_config()
 {
     var select_ids = [];
     // iterate through each page in the mode
@@ -22,13 +22,12 @@ function build_page_from_config(selected_mode)
     {
         var page_name = page.name
         var page_id = page.id
-        columns = ""
+        columns = []
         // iterate through each column in the page
         page["columns"].forEach(function (column, index)
         {
             var col_name = column.name
-            var col_id = column.id
-            items = ""
+            items = []
             // iterate through input in the column
             column["inputs"].forEach(function (input, index)
             {
@@ -42,77 +41,45 @@ function build_page_from_config(selected_mode)
                 switch (type)
                 {
                     case "checkbox":
-                        var checked = ""
                         if (default_val)
                         {
-                            checked = "checked"
                             select_ids.push(id + "-container")
                         }
-                        item = CHECKBOX.replace(/CHECKED/g, checked)
+                        item = build_checkbox(id, name, default_val)
                         break
                     case "counter":
-                        item = COUNTER.replace(/VALUE/g, default_val)
+                        item = build_counter(id, name, default_val)
                         break
                     case "select":
-                        options = ""
-                        input["options"].forEach(function (option, index)
-                        {
-                            op = SELECT_OP.replace(/NAME/g, option)
-                                          .replace(/INDEX/g, index)
-                            if (option == default_val)
-                            {
-                                select_ids.push(id + "-" + index)
-                            }
-                            options += op
-                        })
-                        item = SELECT.replace(/OPTIONS/g, options)
+                        item = build_select(id, name, input["options"], default_val)
                         break
                     case "dropdown":
-                        options = ""
-                        input["options"].forEach(function (option, index)
-                        {
-                            var selected = ""
-                            if (option == default_val)
-                            {
-                                selected = "selected"
-                            }
-                            options += DROPDOWN_OP.replace(/NAME/g, option)
-                                                  .replace(/SELECTED/g, selected)
-                        })
-                        item = DROPDOWN.replace(/OPTIONS/g, options)
+                        item = build_dropdown(id, name, input["options"], default_val)
                         break
                     case "string":
-                        item = STR_ENTRY.replace(/VALUE/g, default_val)
+                        item = build_str_entry(id, name, default_val)
                         break
                     case "number":
-                        item = NUM_ENTRY.replace(/VALUE/g, default_val)
-                        if (Object.keys(input).includes("options") && input.options.length == 2)
+                        let options = []
+                        if (Object.keys(input).includes("options"))
                         {
-                            item = item.replace(/BOUNDS/g, "min=\"" + input.options[0] + "\" max=\"" + input.options[1] + "\"")
+                            options = input["options"]
                         }
-                        else
-                        {
-                            item = item.replace(/BOUNDS/g, "")
-                        }
+                        item = build_num_entry(id, name, default_val, options)
                         break
                     case "text":
-                        item = TEXT_ENTRY.replace(/VALUE/g, default_val)
+                        item = build_text_entry(id, name, default_val)
                         break
                 }
-                items += item.replace(/ID/g, id).replace(/NAME/g, name)
+                items.push(item)
             })
-            columns += COLUMN_FRAME.replace(/ID/g, col_id)
-                                   .replace(/NAME/g, col_name)
-                                   .replace(/ITEMS/g, items)
+            columns.push(build_column_frame(col_name, items))
         })
-        document.body.innerHTML += PAGE_FRAME.replace(/ID/g, page_id)
-                                             .replace(/NAME/g, page_name)
-                                             .replace(/COLUMNS/g, columns)
+        document.body.innerHTML += build_page_frame(page_name, columns)
+        
     })
     // replace placeholders in template and add to screen
-    document.body.innerHTML += BUTTON.replace(/ID/g, "submit_" + selected_mode)
-                                     .replace(/NAME/g, "Submit")
-                                     .replace(/ONCLICK/g, "get_results_from_page('" + selected_mode + "')")
+    document.body.innerHTML += build_button("submit_" + scout_mode, "Submit", "get_results_from_page()")
 
     let teams = team_num.split(",")
     if (teams.length > 1)
@@ -134,22 +101,25 @@ function build_page_from_config(selected_mode)
 
 /**
  * function:    get_results_from_page
- * parameters:  Mode from config in use
+ * parameters:  none
  * returns:     none
  * description: Accumulates the results from page into a new object.
  */
-function get_results_from_page(selected_mode)
+function get_results_from_page()
 {
     results = {}
     results["meta_scouting_duration"] = (Date.now() - start) / 1000
     results["meta_scouter_id"] = parseInt(user_id)
-    results["meta_scout_mode"] = selected_mode
-    if (selected_mode != "pit")
+    results["meta_scout_mode"] = scout_mode
+    if (scout_mode != PIT_MODE)
     {
         results["meta_match"] = parseInt(match_num)
         results["meta_position"] = parseInt(scout_pos)
     }
-    results["meta_team"] = parseInt(team_num)
+    if (scout_mode != NOTE_MODE)
+    {
+        results["meta_team"] = parseInt(team_num)
+    }
     config.pages.forEach(function (page, index)
     {
         page["columns"].forEach(function (column, index)
@@ -159,7 +129,6 @@ function get_results_from_page(selected_mode)
                 var id = input.id
                 var type = input.type
 
-                var item = ""
                 switch (type)
                 {
                     case "checkbox":
@@ -197,11 +166,11 @@ function get_results_from_page(selected_mode)
     })
 
     let file = get_pit_result(team_num, event_id)
-    if (scout_mode == "match")
+    if (scout_mode == MATCH_MODE)
     {
         file = get_match_result(match_num, team_num, event_id)
     }
-    else if (scout_mode == "notes")
+    else if (scout_mode == NOTE_MODE)
     {
         file = get_notes(match_num, event_id)
     }
@@ -222,25 +191,25 @@ const alliance_color = urlParams.get('alliance')
 
 load_config(scout_mode)
 window.addEventListener("load", function() {
-    document.getElementById("team").style.color = alliance_color
 
     // build the page from config for the desired mode
-    if (scout_mode == "pit")
+    switch (scout_mode)
     {
-        document.getElementById("match").innerHTML = "Pit"
-        document.getElementById("team").innerHTML = team_num
-        build_page_from_config("pit")
+        case PIT_MODE:
+            document.getElementById("match").innerHTML = "Pit"
+            document.getElementById("team").innerHTML = team_num
+            document.getElementById("team").style.color = "white"
+            break
+        case MATCH_MODE:
+            document.getElementById("match").innerHTML = match_num
+            document.getElementById("team").innerHTML = team_num
+            document.getElementById("team").style.color = alliance_color
+            break
+        case NOTE_MODE:
+            document.getElementById("match").innerHTML = match_num
+            document.getElementById("team").innerHTML = "Match " + match_num
+            document.getElementById("team").style.color = "white"
+            break
     }
-    else if (scout_mode == "match")
-    {
-        document.getElementById("match").innerHTML = match_num
-        document.getElementById("team").innerHTML = team_num
-        build_page_from_config("match")
-    }
-    else
-    {
-        document.getElementById("match").innerHTML = match_num
-        document.getElementById("team").innerHTML = "Match"
-        build_page_from_config("match")
-    }
+    build_page_from_config(scout_mode)
 })

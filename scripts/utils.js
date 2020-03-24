@@ -5,6 +5,22 @@
  * date:        2020-03-04
  */
 
+const MATCH_MODE = "match"
+const PIT_MODE   = "pit"
+const NOTE_MODE  = "notes"
+
+const EVENT_COOKIE = "event_id"
+const EVENT_DEFAULT = "2020ilch"
+const USER_COOKIE = "user_id"
+const USER_DEFAULT = "120001"
+const TYPE_COOKIE = "type"
+const TYPE_DEFAULT = MATCH_MODE
+const POSITION_COOKIE = "position"
+const POSITION_DEFAULT = 0
+const UPLOAD_COOKIE = "upload_url"
+const UPLOAD_DEFAULT = "http://localhost:80"
+const TBA_KEY = "X-TBA-Auth-Key"
+
 /**
  * function:    build_query
  * parameters:  map of query keys to values
@@ -24,18 +40,6 @@ function build_query(query)
     }
     return str
 }
-
-const EVENT_COOKIE = "event_id"
-const EVENT_DEFAULT = "2020ilch"
-const USER_COOKIE = "user_id"
-const USER_DEFAULT = "120001"
-const TYPE_COOKIE = "type"
-const TYPE_DEFAULT = "match"
-const POSITION_COOKIE = "position"
-const POSITION_DEFAULT = 0
-const UPLOAD_COOKIE = "upload_url"
-const UPLOAD_DEFAULT = "http://localhost:80"
-const TBA_KEY = "X-TBA-Auth-Key"
 
 /**
  * function:    get_parameter

@@ -16,15 +16,12 @@ const MATCH_BLOCK = "\
         </span>\
     </div>"
 
-const OPEN_RESULT = BUTTON.replace(/ONCLICK/g, "open_result('RESULT')")
-                          .replace(/NAME/g, "View Results")
-                          .replace(/ID/g, "open_result")
+const OPEN_RESULT = build_button("open_result", "View Results", "open_result('RESULT')")
 
 const CONTENTS = "<h2>Match Number: <span id=\"match_num\">No Match Selected</span></h2>\
                   <h2>Scouting: <span id=\"team_scouting\">No Match Selected</span></h2>"
-
-const BUTTONS = BUTTON.replace(/ONCLICK/g, "start_scouting()")
-                      .replace(/NAME/g, "Scout Match!")
+                              
+const BUTTONS = build_button("scout_match", "Scout Match!", "start_scouting()")
 
 var matches
 
@@ -51,7 +48,7 @@ function open_match(match_num)
             // select appropriate team for position
             if (selected < 0)
             {
-                document.getElementById("team_scouting").style.color = 'purple'
+                document.getElementById("team_scouting").style.color = 'black'
             }
             else if (selected > 2)
             {
@@ -133,10 +130,10 @@ function start_scouting()
     let match_num = document.getElementById("match_num").innerHTML
     let team_num = document.getElementById("team_scouting").innerHTML
     let color = document.getElementById("team_scouting").style.color
-    let mode = "match"
+    let mode = MATCH_MODE
     if (scout_pos < 0)
     {
-        mode = "notes"
+        mode = NOTE_MODE
     }
     // build URL with parameters
     window.open("scout.html" + build_query({[TYPE_COOKIE]: mode, "match": match_num, "team": team_num, "alliance": color, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}), "_self")

@@ -5,74 +5,218 @@
  * date:        2020-03-05
  */
 
-// HTML template for a scouting page
-const PAGE_FRAME = "\
-    <div class=\"page\">\
-        <h2 class=\"page_header\">NAME</h2>\
-        COLUMNS\
-    </div>"
+/**
+ * function:    build_page_frame
+ * parameters:  page name, array of columns as strings
+ * returns:     page object as a string
+ * description: Builds the HTML string of a page object given its name and columns.
+ */
+function build_page_frame(page_name, columns)
+{
+    let html_str = "<div class=\"page\">"
+    if (page_name.length > 0)
+    {
+        html_str += "<h2 class=\"page_header\">" + page_name + "</h2>"
+    }
+    html_str += columns.join("")
+    html_str += "</div>"
+    return html_str
+}
 
-// HTML template for a page column
-const COLUMN_FRAME = "\
-    <div class=\"column\">\
-        <h3 class=\"column_header\">NAME</h3>\
-        ITEMS\
-    </div>"
+/**
+ * function:    build_column_frame
+ * parameters:  column name, array of items as strings
+ * returns:     column object as a string
+ * description: Builds the HTML string of a column object given its name and items.
+ */
+function build_column_frame(column_name, items)
+{
+    let html_str = "<div class=\"column\">"
+    if (column_name.length > 0)
+    {
+        html_str += "<h2 class=\"column_header\">" + column_name + "</h2>"
+    }
+    html_str += items.join("")
+    html_str += "</div>"
+    return html_str
+}
 
-// HTML template for a button
-const BUTTON = "\
-    <div id=\"ID_container\" class=\"wr_button\" onclick=\"ONCLICK\">\
-        <label id=\"ID\">NAME</label>\
-    </div>"
+/**
+ * function:    build_button
+ * parameters:  element id, name, javascript onclick response
+ * returns:     wr_button as a string
+ * description: Builds the HTML string of a button object.
+ */
+function build_button(id, name, onclick)
+{
+    let html_str = "<div id=\"" + id + "-container\" class=\"wr_button\" onclick=\"" + onclick + "\">"
+    html_str += "<label id=\"" + id + "\">" + name + "</label>"
+    html_str += "</div>"
+    return html_str
+}
 
-// HTML template for a checkbox
-const CHECKBOX = "\
-    <div class=\"wr_checkbox\" id=\"ID-container\" onclick=\"check('ID')\">\
-        <input type=\"checkbox\" onclick=\"check('ID')\" id=\"ID\" name=\"ID\" CHECKED>\
-        <label for=\"ID\" onclick=\"check('ID')\">NAME</label>\
-    </div>"
+/**
+ * function:    build_checkbox
+ * parameters:  element id, name, default checked state, javascript onclick response
+ * returns:     wr_checkbox as a string
+ * description: Builds the HTML string of a checkbox object.
+ */
+function build_checkbox(id, name, checked=false, onclick="")
+{
+    let html_str = "<div id=\"" + id + "-container\" class=\"wr_checkbox\" onclick=\"check('" + id + "'); " + onclick + "\">"
+    let checked_str = ""
+    if (checked)
+    {
+        checked_str = " checked"
+    }
+    html_str += "<input type=\"checkbox\" onclick=\"check('" + id + "'); " + onclick + "\" id=\"" + id + "\" name=\"" + name + "\"" + checked_str + ">"
+    html_str += "<label for=\"" + id + "\" onclick=\"check('" + id + "')\">" + name + "</label>"
+    html_str += "</div>"
+    return html_str
+}
 
-// HTML template for a counter button
-const COUNTER = "\
-    <div class=\"wr_counter\" onclick=\"increment('ID', false)\" oncontextmenu=\"increment('ID', true); return false\" ontouchstart=\"touch_counter('ID', false)\" ontouchend=\"touch_counter('ID', true)\">\
-        <label class=\"wr_counter_count\" id=\"ID\">VALUE</label>\
-        <label>NAME</label>\
-    </div>"
+/**
+ * function:    build_counter
+ * parameters:  element id, name, default value
+ * returns:     wr_counter as a string
+ * description: Builds the HTML string of a counter object.
+ */
+function build_counter(id, name, value)
+{
+    let html_str = "<div class=\"wr_counter\" onclick=\"increment('" + id + "', false)\" oncontextmenu=\"increment('" + id + "', true); return false\" ontouchstart=\"touch_counter('" + id + "', false)\" ontouchend=\"touch_counter('" + id + "', true)\">"
+    html_str += "<label class=\"wr_counter_count\" id=\"" + id + "\">" + value + "</label>"
+    html_str += "<label>" + name + "</label>"
+    html_str += "</div>"
+    return html_str
+}
 
-// HTML template for a selection button
-const SELECT = "\
-    <h4 class=\"input_label\">NAME</h4>\
-    <div class=\"wr_select\" id=\"ID\">\
-        OPTIONS\
-    </div>"
+/**
+ * function:    build_select
+ * parameters:  element id, name, option strings, default option, javascript onclick response
+ * returns:     wr_select as a string
+ * description: Builds the HTML string of a select object and its options.
+ */
+function build_select(id, name, option_names, default_op, onclick="")
+{
+    let html_str = ""
+    if (name.length != 0)
+    {
+        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+    }
+    html_str += "<div class=\"wr_select\" id=\"" + id + "\">"
+    option_names.forEach(function (op_name, index)
+    {
+        let selected = ""
+        if (op_name == default_op)
+        {
+            selected = " selected"
+        }
+        html_str += "<span class=\"wr_select_option" + selected + "\" id=\"" + id + "-" + index + "\" onclick=\"select_option('" + id + "', '" + index + "'); " + onclick + "\">"
+        html_str += "<label>" + op_name + "</label>"
+        html_str += "</span>"
+    })
+    html_str += "</div>"
+    return html_str
+}
 
-// HTML template for a selection option
-const SELECT_OP = "\
-    <span class=\"wr_select_option\" id=\"ID-INDEX\" onclick=\"select_option('ID', 'INDEX')\">\
-        <label>NAME</label>\
-    </span>"
+/**
+ * function:    build_dropdown
+ * parameters:  element id, name, option strings, default option, javascript onchange response
+ * returns:     wr_dropdown as a string
+ * description: Builds the HTML string of a dropdown object and its options.
+ */
+function build_dropdown(id, name, option_names, default_op="", onchange="")
+{
+    let html_str = ""
+    if (name.length != 0)
+    {
+        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+    }
+    html_str += "<select class=\"wr_dropdown\" id=\"" + id + "\" onchange=\"" + onchange + "\">"
+    option_names.forEach(function (op_name, index)
+    {
+        let selected = ""
+        if (op_name == default_op)
+        {
+            selected = " selected"
+        }
+        html_str += "<option class=\"wr_dropdown_op\" value=\"" + op_name + "\"" + selected + ">" + op_name + "</option>"
+    })
+    html_str += "</select>"
+    return html_str
+}
 
-// HTML template for a dropdown selector
-const DROPDOWN = "\
-    <h4 class=\"input_label\">NAME</h4>\
-    <select class=\"wr_dropdown\" id=\"ID\">\
-        OPTIONS\
-    </select>"
-    
-// HTML template for a dropdown option
-const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
+/**
+ * function:    build_str_entry
+ * parameters:  element id, name, default value, input box type
+ * returns:     wr_string as a string
+ * description: Builds the HTML string of a string object.
+ */
+function build_str_entry(id, name, value="", type="text")
+{
+    let html_str = ""
+    if (name.length != 0)
+    {
+        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+    }
+    html_str += "<input class=\"wr_string\" type=\"" + type + "\" id=\"" + id + "\" value=\"" + value + "\"><br>"
+    return html_str
+}
 
-// HTML template for a string textbox
-const STR_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
-                   <input class=\"wr_string\" type=\"text\" id=\"ID\" value=\"VALUE\"><br>"
+/**
+ * function:    build_num_entry
+ * parameters:  element id, name, default value, optional limits as [min, max]
+ * returns:     wr_string for a number as a string
+ * description: Builds the HTML string of a number object.
+ */
+function build_num_entry(id, name, value="", bounds=[])
+{
+    let html_str = ""
+    if (name.length != 0)
+    {
+        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+    }
+    let bounds_str = ""
+    if (bounds.length > 0)
+    {
+        bounds_str = " min=\"" + bounds[0] + "\""
+        if (bounds.length > 1)
+        {
+            bounds_str += " max=\"" + bounds[1] + "\""
+        }
+    }
+    html_str += "<input class=\"wr_string\" type=\"number\" id=\"" + id + "\" value=\"" + value + "\"" + bounds_str + "><br>"
+    return html_str
+}
 
-// HTML template for a number textbox
-const NUM_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
-                   <input class=\"wr_number\" type=\"number\" id=\"ID\" value=\"VALUE\" BOUNDS><br>"
+/**
+ * function:    build_text_entry
+ * parameters:  element id, name, default value
+ * returns:     wr_text as a string
+ * description: Builds the HTML string of a text object.
+ */
+function build_text_entry(id, name, value="")
+{
+    let html_str = ""
+    if (name.length != 0)
+    {
+        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+    }
+    html_str += "<textarea class=\"wr_text\" id=\"" + id + "\">" + value + "</textarea><br>"
+    return html_str
+}
 
-// HTML template for a text textbox
-const TEXT_ENTRY = "<h4 class=\"input_label\">NAME</h4>\
-                    <textarea class=\"wr_text\" id=\"ID\">VALUE</textarea><br>"
+/**
+ * function:    build_card
+ * parameters:  element id, contents
+ * returns:     wr_card as a string
+ * description: Builds the HTML string of a card object.
+ */
+function build_card(id, contents="")
+{
+    let html_str = "<div class=\"wr_card\" id=\"" + id + "\">" + contents + "</div>"
+    return html_str
+}
 
 var last_touch = 0
 

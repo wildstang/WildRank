@@ -17,46 +17,23 @@ const MATCH_BLOCK = "\
 
 const CONTENTS = "<canvas id=\"whiteboard\"></canvas>"
 
-const BUTTONS = "<br>\
-    <div class=\"page\">\
-        <h2 class=\"page_header\">Controls</h2>\
-        <div class=\"column\">\
-            <div class=\"wr_button\" onclick=\"clear_whiteboard()\">\
-                <label>Clear Lines</label>\
-            </div>\
-            <div class=\"wr_button\" onclick=\"init()\">\
-                <label>Reset Whiteboard</label>\
-            </div>\
-            <div class=\"wr_button\" onclick=\"update_teams()\">\
-                <label>Update Teams</label>\
-            </div>\
-            <div class=\"wr_checkbox\" id=\"elims-container\" onclick=\"check('elims'); build_match_list()\">\
-                <input type=\"checkbox\" id=\"elims\" onclick=\"check('elims'); build_match_list()\" name=\"elims\">\
-                <label for=\"elims\" onclick=\"check('elims')\">Elimination Matches</label>\
-            </div>\
-        </div>\
-    </div>\
-    <div class=\"page\">\
-        <h2 class=\"page_header\">Team Avatars</h2>\
-        <div class=\"column\">\
-            <h4 class=\"input_label\">Red 1</h4>\
-            <input class=\"wr_number\" type=\"number\" id=\"red1\" min=\"0\" max=\"10000\"><br>\
-            <h4 class=\"input_label\">Blue 1</h4>\
-            <input class=\"wr_number\" type=\"number\" id=\"blue1\" min=\"0\" max=\"10000\"><br>\
-        </div>\
-        <div class=\"column\">\
-            <h4 class=\"input_label\">Red 2</h4>\
-            <input class=\"wr_number\" type=\"number\" id=\"red2\" min=\"0\" max=\"10000\"><br>\
-            <h4 class=\"input_label\">Blue 2</h4>\
-            <input class=\"wr_number\" type=\"number\" id=\"blue2\" min=\"0\" max=\"10000\"><br>\
-        </div>\
-        <div class=\"column\">\
-            <h4 class=\"input_label\">Red 3</h4>\
-            <input class=\"wr_number\" type=\"number\" id=\"red3\" min=\"0\" max=\"10000\"><br>\
-            <h4 class=\"input_label\">Blue 3</h4>\
-            <input class=\"wr_number\" type=\"number\" id=\"blue3\" min=\"0\" max=\"10000\"><br>\
-        </div>\
-    </div>"
+const BUTTONS = "<br>" +
+    build_page_frame("Controls", [
+        build_column_frame("", [
+            build_button("clear_lines", "Clear Lines", "clear_whiteboard()"),
+            build_button("reset_whiteboard", "Reset Whiteboard", "init()"),
+            build_button("update_teams", "Update Teams", "update_teams()"),
+            build_checkbox("elims", "Elimination Matches", false, "build_match_list()")
+        ])
+    ]) +
+    build_page_frame("Team Avatars", [
+        build_column_frame("", [build_num_entry("red1", "Red 1", "", bounds=[0, 10000]),
+                                build_num_entry("blue1", "Blue 1", "", bounds=[0, 10000])]),
+        build_column_frame("", [build_num_entry("red2", "Red 2", "", bounds=[0, 10000]),
+                                build_num_entry("blue2", "Blue 2", "", bounds=[0, 10000])]),
+        build_column_frame("", [build_num_entry("red3", "Red 3", "", bounds=[0, 10000]),
+                                build_num_entry("blue3", "Blue 3", "", bounds=[0, 10000])])
+    ])
 
 var magnet_size
 var field_width

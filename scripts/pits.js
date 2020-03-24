@@ -12,14 +12,11 @@ const TEAM_BLOCK = "\
         <span class=\"long_option_number\">TEAM_NUM</span>\
     </div>"
 
-const OPEN_RESULT = BUTTON.replace(/ONCLICK/g, "open_result('RESULT')")
-                          .replace(/NAME/g, "View Results")
-                          .replace(/ID/g, "open_result")
+const OPEN_RESULT = build_button("open_result", "View Results", "open_result('RESULT')")
 
 const CONTENTS = "<h2>Team: <span id=\"team_num\">No Match Selected</span></h2>"
     
-const BUTTONS = BUTTON.replace(/ONCLICK/g, "start_scouting()")
-                      .replace(/NAME/g, "Scout Pit!")
+const BUTTONS = build_button("scout_pit", "Scout Pit!", "start_scouting()")
 
 var teams
 
@@ -61,7 +58,7 @@ function open_team(team_num)
  */
 function open_result(file)
 {
-    document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: "pit", [EVENT_COOKIE]: event_id, "file": file})
+    document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, "file": file})
 }
 
 /**
