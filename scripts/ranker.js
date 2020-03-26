@@ -194,6 +194,10 @@ function save_pick_list()
         name += " Reversed"
     }
 
+    if (lists == null)
+    {
+        lists = {}
+    }
     lists[name] = []
     Object.keys(teams).forEach(function (team, index)
     {

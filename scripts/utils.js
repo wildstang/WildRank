@@ -297,7 +297,7 @@ function get_team_avatar_name(team_num, year)
  */
 function get_pit_result(team_num, event_id)
 {
-    return "pit-" + event_id + "-" + team_num
+    return PIT_MODE + "-" + event_id + "-" + team_num
 }
 
 /**
@@ -308,7 +308,7 @@ function get_pit_result(team_num, event_id)
  */
 function get_match_result(match_num, team_num, event_id)
 {
-    return "match-" + event_id + "-" + match_num + "-" + team_num
+    return MATCH_MODE + "-" + event_id + "-" + match_num + "-" + team_num
 }
 
 /**
@@ -319,7 +319,7 @@ function get_match_result(match_num, team_num, event_id)
  */
 function get_notes(match_num, event_id)
 {
-    return "notes-" + event_id + "-" + match_num
+    return NOTE_MODE + "-" + event_id + "-" + match_num
 }
 
 /**
@@ -330,7 +330,7 @@ function get_notes(match_num, event_id)
  */
 function get_event_pick_lists_name(event_id)
 {
-    return "pick-lists-" + event_id
+    return "picklists-" + event_id
 }
 
 /**
