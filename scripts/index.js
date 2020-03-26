@@ -557,6 +557,81 @@ function is_admin(user_id)
 }
 
 /**
+ * function:    export_spreadsheet
+ * parameters:  event id
+ * returns:     CSV string
+ * description: Exports all results to a CSV file, which can be turned into a complex spreadsheet with a corresponding Python script.
+ */
+function export_spreadsheet(event_id)
+{
+    let combined = {}
+    let keys = ["name", "event", "kind", "team", "match", "team"]
+    Object.keys(localStorage).forEach(function (name, index)
+    {
+        let parts = name.split("-")
+        let kind = parts[0]
+        let event = parts[1]
+        if (event == event_id)
+        {
+            let cont = true
+            let result = {"name": name, "event": event, "kind": kind}
+            // confirm valid result type
+            switch (kind)
+            {
+                case MATCH_MODE:
+                    result["team"] = parts[3]
+                case NOTE_MODE:
+                    result["match"] = parts[2]
+                    break
+                case PIT_MODE:
+                    result["team"] = parts[2]
+                    break
+                default:
+                    cont = false
+                    break
+            }
+
+            if (cont)
+            {
+                // add object to combined
+                let resultJSON = JSON.parse(localStorage.getItem(name))
+                Object.keys(resultJSON).forEach(function (key, index)
+                {
+                    if (!keys.includes(key))
+                    {
+                        keys.push(key)
+                    }
+                    result[key] = resultJSON[key]
+                })
+
+                combined[name] = result
+            }
+        }
+    })
+
+    // build csv
+    var lines = [keys.join()]
+    Object.keys(combined).forEach(function (name, index)
+    {
+        let obj_keys = Object.keys(combined[name])
+        let values = []
+        keys.forEach(function (key, index)
+        {
+            if (obj_keys.includes(key))
+            {
+                values.push(combined[name][key])
+            }
+            else
+            {
+                values.push(NaN)
+            }
+        })
+        lines.push(values.join())
+    })
+    return lines.join("\n")
+}
+
+/**
  * INPUT VALUE FUNCTIONS
  */
 
