@@ -4,6 +4,7 @@ from os.path import isfile, join
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
+VALID_PATHS = ['/config', '/scripts', '/styles', '/favicon.ico', '/index.html', '/scout.html', '/selection.html']
 
 class ServerHandler(http.server.SimpleHTTPRequestHandler):
     def _set_response(self):
@@ -25,10 +26,17 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(str.encode('LiamRank<br>post-server.py<br>2020 Liam Fruzyna'))
+            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>LiamRank</title></head><body><h1>Liam Rank</h1>post-server.py Python3 post-server<br>2020 Liam Fruzyna<br><a href="https://github.com/mail929/LiamRank">MPL Licensed on GitHub</a></body></html>'))
             return
         else:
-            return http.server.SimpleHTTPRequestHandler.do_GET(self)
+            for path in VALID_PATHS:
+                if self.path.startswith(path):
+                    return http.server.SimpleHTTPRequestHandler.do_GET(self)
+            self.send_response(404)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>LiamRank</title></head><body><h1>Liam Rank - 404</h1>{0} not found!</body></html>'.format(self.path)))
+            return
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
