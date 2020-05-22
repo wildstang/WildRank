@@ -30,7 +30,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             return
         else:
             for path in VALID_PATHS:
-                if self.path.startswith(path):
+                if self.path.startswith(path) or self.path == '/':
                     return http.server.SimpleHTTPRequestHandler.do_GET(self)
             self.send_response(404)
             self.send_header('Content-type', 'text/html')
