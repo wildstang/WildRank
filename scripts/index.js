@@ -14,13 +14,15 @@ let page = build_page_frame("", [
         build_str_entry("upload_addr", "Upload URL:", "http://localhost", "url"),
         build_num_entry("user_id", "School ID:", "", [100000, 999999])
     ]),
-    build_column_frame("Functions", [
-        build_button("preload_event", "Preload Event", "preload_event()"),
+    build_column_frame("Pages", [
         build_button("scout", "Scout", "scout()"),
         build_button("open_results", "Results", "open_results()"),
         build_button("open_ranker", "Team Rankings", "open_ranker()"),
         build_button("open_picks", "Pick Lists", "open_picks()"),
-        build_button("open_whiteboard", "Whiteboard", "open_whiteboard()"),
+        build_button("open_whiteboard", "Whiteboard", "open_whiteboard()")
+    ]),
+    build_column_frame("Functions", [
+        build_button("preload_event", "Preload Event", "preload_event()"),
         build_button("upload_all", "Upload Results", "upload_all()"),
         build_button("import_all", "Import Results", "import_all()"),
         build_button("download_csv", "Export Results", "download_csv()")
