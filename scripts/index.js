@@ -22,7 +22,8 @@ let page = build_page_frame("", [
         build_button("open_picks", "Pick Lists", "open_picks()"),
         build_button("open_whiteboard", "Whiteboard", "open_whiteboard()"),
         build_button("upload_all", "Upload Results", "upload_all()"),
-        build_button("import_all", "Import Results", "import_all()")
+        build_button("import_all", "Import Results", "import_all()"),
+        build_button("download_csv", "Export Results", "download_csv()")
     ]),
     build_column_frame("Status", [build_card("status")])
 ])
@@ -437,6 +438,26 @@ function import_all()
     {
         alert("Import requires admin rights!")
     }
+}
+
+/**
+ * function:    download_csv
+ * parameters:  none
+ * returns:     none
+ * description: Export results to a CSV file and download.
+ */
+function download_csv()
+{
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(get_event())));
+    element.setAttribute('download', 'export.csv');
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 /**
