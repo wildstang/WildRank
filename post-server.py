@@ -21,6 +21,12 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
         elif self.path == '/getNoteNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('notes-') and f.endswith('.json')]
+        elif self.path == '/about':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(str.encode('LiamRank<br>post-server.py<br>2020 Liam Fruzyna'))
+            return
         else:
             return http.server.SimpleHTTPRequestHandler.do_GET(self)
         self.send_response(200)

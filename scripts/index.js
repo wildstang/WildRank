@@ -338,27 +338,30 @@ function preload_event()
  * function:    upload_all
  * parameters:  none
  * returns:     none
- * description: Uploads all files of the currently selected type via POST to localhost.
+ * description: Uploads all files of the currently selected type via POST to the listed server.
  */
 function upload_all()
 {
     save_options()
 
-    let type = get_selected_type()
-    status("Uploading " + type + " results...")
-    // get all files in localStorage
-    Object.keys(localStorage).forEach(function (file, index)
+    if (check_server(get_upload_addr()))
     {
-        // determine files which start with the desired type
-        if (file.startsWith(type + "-"))
+        let type = get_selected_type()
+        status("Uploading " + type + " results...")
+        // get all files in localStorage
+        Object.keys(localStorage).forEach(function (file, index)
         {
-            // append file name to data, separated by "|||"
-            upload = file + "|||" + localStorage.getItem(file)
-            status("posting " + file)
-            // post string to server
-            fetch(get_upload_addr(), {method: "POST", body: upload})
-        }
-    })
+            // determine files which start with the desired type
+            if (file.startsWith(type + "-"))
+            {
+                // append file name to data, separated by "|||"
+                upload = file + "|||" + localStorage.getItem(file)
+                status("posting " + file)
+                // post string to server
+                fetch(get_upload_addr(), {method: "POST", body: upload})
+            }
+        })
+    }
 }
 
 /**
@@ -373,10 +376,7 @@ function import_all()
 
     if (is_admin(get_user()))
     {
-        var req = new XMLHttpRequest();
-        req.open('GET', document.location, false)
-        req.send(null)
-        if (req.getAllResponseHeaders().toLowerCase().includes("python"))
+        if (check_server(document.location))
         {
             // determine appropriate request for selected mode
             let request = ""
@@ -430,11 +430,6 @@ function import_all()
                     console.log(err)
                 })
         }
-        else
-        {
-            console.log("Import results is only supported on Python server.")
-            alert("This server cannot do import results!")
-        }
     }
     else
     {
@@ -450,16 +445,19 @@ function import_all()
  */
 function download_csv()
 {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(get_event())));
-    element.setAttribute('download', 'export.csv');
+    if (is_admin(get_user()))
+    {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(get_event())));
+        element.setAttribute('download', 'export.csv');
 
-    element.style.display = 'none';
-    document.body.appendChild(element);
+        element.style.display = 'none';
+        document.body.appendChild(element);
 
-    element.click();
+        element.click();
 
-    document.body.removeChild(element);
+        document.body.removeChild(element);
+    }
 }
 
 /**
@@ -575,7 +573,6 @@ function count_results(event_id, type)
 function is_admin(user_id)
 {
     let admins = get_config("admins")
-    console.log(admins)
     return admins.length == 0 || admins.includes(parseInt(user_id))
 }
 
@@ -652,6 +649,38 @@ function export_spreadsheet(event_id)
         lines.push(values.join())
     })
     return lines.join("\n")
+}
+
+/**
+ * function:    check_server
+ * parameters:  Server address
+ * returns:     If the server is the custom Python web server.
+ * description: Determines if the server is the custom Python web server, if it is not alerts the user.
+ */
+function check_server(server)
+{
+    try
+    {
+        var req = new XMLHttpRequest();
+        req.open('GET', server, false)
+        req.send(null)
+        if (req.getAllResponseHeaders().toLowerCase().includes("python"))
+        {
+            return true
+        }
+        else
+        {
+            console.log("Feature is only supported on Python server.")
+            alert("This server does not support this feature!")
+            return false
+        }
+    }
+    catch (e)
+    {
+        console.log("Unable to communicate with this server.")
+        alert("This server does not support this feature!")
+        return false
+    }
 }
 
 /**
