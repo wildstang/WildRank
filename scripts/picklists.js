@@ -50,6 +50,7 @@ function open_team(team_num)
             document.getElementById("team_" + number).classList.remove("selected")
         }
     })
+    ws(team_num)
 }
 
 /**

@@ -386,6 +386,7 @@ function open_team(team_num)
         }
     })
     document.getElementById("team_" + selected).classList.add("selected")
+    ws(team_num)
 }
 
 /**

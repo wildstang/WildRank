@@ -97,6 +97,7 @@ function open_result(name)
         table += "</tr>"
     })
     document.getElementById("results_tab").innerHTML = table
+    ws(team)
 }
 
 /**

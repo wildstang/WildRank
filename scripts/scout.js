@@ -211,5 +211,6 @@ window.addEventListener("load", function() {
             document.getElementById("team").style.color = "white"
             break
     }
+    ws(team_num)
     build_page_from_config(scout_mode)
 })

@@ -343,3 +343,25 @@ function file_exists(filename)
 {
     return localStorage.getItem(filename) != null
 }
+
+/**
+ * function:    ws
+ * parameters:  team number
+ * returns:     none
+ * description: Makes the header rainbow, if 111 is the team number.
+ */
+function ws(team_num)
+{
+    if (team_num == '111')
+    {
+        document.getElementById('header').style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840)'
+        document.getElementById('header').style['background-size'] = '3600% 3600%'
+        document.getElementById('header').style.animation = 'rainbow 36s ease infinite'
+    }
+    else
+    {
+        document.getElementById('header').style.background = '#000080'
+        document.getElementById('header').style['background-size'] = ''
+        document.getElementById('header').style.animation = ''
+    }
+}
