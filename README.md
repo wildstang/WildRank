@@ -67,7 +67,52 @@ When entering a scouting mode pit, match, and note modes will present the user w
 and can be easily configured via a JSON file in /config.
 
 ## Configuration
-The /config directory contains all necessary configuration files.
+The /config directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
+
+### config.json
+The main configuration file. It supports configuration of default values, admins, and the whiteboard. Whiteboard configuration allows for easy updating for new games, but does not currently support configuration by year.
+
+### scout-config.json
+Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON list with an object for each mode, containing its pages, columns, and inputs.
+
+#### Mode Object
+```
+"name":    "Mode Name",
+"id":      "mode_id",
+"pages":   []
+```
+
+#### Page Object
+```
+"name":    "Page Name",
+"short":   "Page",
+"id":      "page_id",
+"columns": []
+```
+
+#### Column Object
+```
+"name":    "Column Name",
+"id":      "column_id",
+"inputs":  []
+```
+
+#### Input Object
+```
+"name":    "Input Name",
+"id":      "input_id",
+"type":    "input_type",   # checkbox, dropdown, select, string, number, text, counter
+"options": [],             # Only required for dropdowns and selects, [min, max] for number
+"default": "Default Value"
+```
+
+#### dozer.png
+The default robot image, used if TBA does not provide an image for a team. This image can be replaced if you hate dozer.
+![#bringBackDozer](/config/dozer.png)
+
+#### field-XXXX.png
+The image to use for the background of the whiteboard, where XXXX is the year of the event. 3000x1600 is the recomended resolution.
+![The 2020 (and now 2021) "Infinite Recharge" field](/config/field-2020.png)
 
 ## Environments
 The application should work on most broswers but has not been extensively tested on all. These setups have tested with general success:
