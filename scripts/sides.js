@@ -163,7 +163,7 @@ function build_team_list()
  */
 function switch_selecting()
 {
-    selecting = get_selected_option("option_list") == 'Left' ? 'a' : 'b'
+    selecting = get_selected_option("selecting") == 0 ? 'a' : 'b'
 }
 
 /**
