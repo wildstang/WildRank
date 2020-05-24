@@ -15,8 +15,8 @@ const RESULT_BLOCK = "\
     </div>"
 
 const CONTENTS = "<h2 id=\"value\"></h2>"
-const BUTTONS = "\
-    <h4 class=\"center_text\">Sort numeric values</h4>" +
+const BUTTONS = '' +
+    "<h4 class=\"center_text\">Sort numeric values</h4>" +
     build_select("type_form", "", SORT_OPTIONS, "Mean", "collect_results(); select()") +
     build_checkbox("scale_max", "Scale to Maximums", false, "select()") +
     "<div class=\"wr_card\"><table id=\"compare_tab\"></table></div>"
@@ -34,8 +34,9 @@ const COMPARISON = '<tr><td><span style="float:left; padding-right: 16px">AVAL</
 var keys = {}
 var teams = {}
 var maxs = []
-var selectedA = ""
-var selectedB = ""
+var selectedA = ''
+var selectedB = ''
+var selecting = 'a'
 
 /**
  * function:    avg_results
@@ -145,13 +146,24 @@ function collect_results()
 function build_team_list()
 {
     let team_nums = Object.keys(teams)
-    document.getElementById("option_list").innerHTML = ""
+    document.getElementById("option_list").innerHTML = build_select('selecting', '', ['Left', 'Right'], 'Left', 'switch_selecting()')
     team_nums.sort(function (a, b) { return parseInt(a.substr(1)) - parseInt(b.substr(1)) })
     team_nums.forEach(function (team, index)
     {
         document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NUM/g, team)
                                                                         .replace(/TEXT/g, team.substr(1))
     })
+}
+
+/**
+ * function:    switch_selecting
+ * parameters:  none
+ * returns:     none
+ * description: Changes the team to be selecting.
+ */
+function switch_selecting()
+{
+    selecting = get_selected_option("option_list") == 'Left' ? 'a' : 'b'
 }
 
 /**
@@ -178,7 +190,7 @@ function open_team(team_num)
     {
         selectedA = team_num
     }
-    else if (selecting == 'b')
+    else
     {
         selectedB = team_num
     }
