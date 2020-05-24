@@ -18,7 +18,7 @@ let page = build_page_frame("", [
         build_button("scout", "Scout", "scout()"),
         build_button("open_results", "Results", "open_results()"),
         build_button("open_ranker", "Team Rankings", "open_ranker()"),
-        build_button("open_sides", "Side by Side", "open_sides()"),
+        build_button("open_sides", "Side-by-Side", "open_sides()"),
         build_button("open_picks", "Pick Lists", "open_picks()"),
         build_button("open_whiteboard", "Whiteboard", "open_whiteboard()")
     ]),

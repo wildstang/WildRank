@@ -39,57 +39,6 @@ var selectedB = ''
 var selecting = 'a'
 
 /**
- * function:    avg_results
- * parameters:  results container, column to sum, type of ordering
- * returns:     average of all results
- * description: Average all the results for a given column.
- */
-function avg_results(results, key, sort_type)
-{
-    let values = []
-    Object.keys(results).forEach(function (name, index)
-    {
-        values.push(results[name][key])
-    })
-    switch (get_type(key))
-    {
-        // compute mode for non-numerics
-        case "checkbox":
-        case "select":
-        case "dropdown":
-        case "unknown":
-            return mode(values)
-        // don't attempt to use strings
-        case "string":
-        case "text":
-            return "---"
-        // compute average for numbers
-        case "counter":
-        case "number":
-        default:
-            switch (sort_type)
-            {
-                // median
-                case 1:
-                    return median(values)
-                // mode
-                case 2:
-                    return mode(values)
-                // min
-                case 3:
-                    return Math.min(... values)
-                // max
-                case 4:
-                    return Math.max(... values)
-                // mean
-                case 0:
-                default:
-                    return mean(values)
-            }
-    }
-}
-
-/**
  * function:    collect_results
  * parameters:  none
  * returns:     none

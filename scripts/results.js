@@ -109,7 +109,7 @@ function open_result(name)
 function make_cell(results, entry, base)
 {
     let color = ""
-    let val = avg_results(results, entry)
+    let val = avg_results(results, entry, 0)
     if (typeof base === "number" && !entry.startsWith("meta"))
     {
         let delta = base - val
@@ -137,39 +137,6 @@ function make_cell(results, entry, base)
     }
     
     return "<td class=\"result_cell\"" + color + ">" + get_value(entry, val) + "</td>"
-}
-
-/**
- * function:    avg_results
- * parameters:  results container, column to sum
- * returns:     average of all results
- * description: Average all the results for a given column.
- */
-function avg_results(results, key)
-{
-    let values = []
-    Object.keys(results).forEach(function (name, index)
-    {
-        values.push(results[name][key])
-    })
-    switch (get_type(key))
-    {
-        // compute mode for non-numerics
-        case "checkbox":
-        case "select":
-        case "dropdown":
-        case "unknown":
-            return mode(values)
-        // don't attempt to use strings
-        case "string":
-        case "text":
-            return "---"
-            // compute average for numbers
-        case "counter":
-        case "number":
-        default:
-            return mean(values)
-    }
 }
 
 /**
