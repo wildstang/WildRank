@@ -18,6 +18,7 @@ let page = build_page_frame("", [
         build_button("scout", "Scout", "scout()"),
         build_button("open_results", "Results", "open_results()"),
         build_button("open_ranker", "Team Rankings", "open_ranker()"),
+        build_button("open_sides", "Side by Side", "open_sides()"),
         build_button("open_picks", "Pick Lists", "open_picks()"),
         build_button("open_whiteboard", "Whiteboard", "open_whiteboard()")
     ]),
@@ -243,6 +244,48 @@ function open_picks()
 }
 
 /**
+ * function:    open_sides
+ * parameters:  none
+ * returns:     none
+ * description: Open the side-by-side comparison interface.
+ */
+function open_sides()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let type = get_selected_type()
+        if (type == NOTE_MODE)
+        {
+            alert("You can't rank notes...")
+        }
+        else if (config_exists(type))
+        {
+            let event = get_event()
+            let count = count_results(event, type)
+            
+            if (count > 0)
+            {
+                document.location.href = "selection.html" + build_query({"page": "sides", [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})
+            }
+            else
+            {
+                alert("No results found!")
+            }
+        }
+        else
+        {
+            alert("No config found for mode: " + type)
+        }
+    }
+    else
+    {
+        alert("Team ranker requires admin rights!")
+    }
+}
+
+/**
  * function:    preload_event
  * parameters:  none
  * returns:     none
@@ -445,6 +488,8 @@ function import_all()
  */
 function download_csv()
 {
+    save_options()
+
     if (is_admin(get_user()))
     {
         var element = document.createElement('a');
