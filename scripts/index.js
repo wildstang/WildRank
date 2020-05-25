@@ -26,7 +26,8 @@ let page = build_page_frame("", [
         build_button("preload_event", "Preload Event", "preload_event()"),
         build_button("upload_all", "Upload Results", "upload_all()"),
         build_button("import_all", "Import Results", "import_all()"),
-        build_button("download_csv", "Export Results", "download_csv()")
+        build_button("download_csv", "Export Results", "download_csv()"),
+        build_button("reset", "Reset", "reset()")
     ]),
     build_column_frame("Status", [build_card("status")])
 ])
@@ -502,6 +503,34 @@ function download_csv()
         element.click();
 
         document.body.removeChild(element);
+    }
+    else
+    {
+        alert("Download requires admin rights!")
+    }
+}
+
+/**
+ * function:    reset
+ * parameters:  none
+ * returns:     none
+ * description: Reset local storage.
+ */
+function reset()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        if (confirm('Delete all configuration, results, and other app data?'))
+        {
+            localStorage.clear()
+            location.reload()
+        }
+    }
+    else
+    {
+        alert("Reset requires admin rights!")
     }
 }
 

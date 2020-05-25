@@ -44,6 +44,7 @@ and functions allowing users to:
 - Upload results to a Python web server
 - Import results from JSON (Python web server only)
 - Export results to CSV
+- Reset all app data
 
 It also allows control of the:
 - Event
