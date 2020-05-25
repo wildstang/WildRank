@@ -12,12 +12,14 @@ const RESULT_BLOCK = "\
         <span class=\"long_option_number\">TEXT</span>\
     </div>"
 
-const CONTENTS = "<div id=\"result_title\"><img id=\"avatar\"> <h2 id=\"result_name\"></h2></div><table id=\"results_tab\"></table>"
-const BUTTONS = ""
+const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2></div><table id="results_tab"></table>'
+const BUTTONS = ''
 
-var teams
-
+var teams = {}
 var results = {}
+
+var avail_teams = []
+var avail_matches = []
 
 /**
  * function:    open_result
@@ -32,9 +34,9 @@ function open_result(name)
     files.forEach(function (file, index)
     {
         // determine files which start with the desired type
-        if (file.startsWith(prefix) && file != name && document.getElementById("result_" + file).classList.contains("selected"))
+        if (document.getElementById(`result_${file}`) && file.startsWith(prefix) && file != name && document.getElementById(`result_${file}`).classList.contains('selected'))
         {
-            document.getElementById("result_" + file).classList.remove("selected")
+            document.getElementById(`result_${file}`).classList.remove('selected')
         }
     })
 
@@ -147,26 +149,34 @@ function make_cell(results, entry, base)
  */
 function build_result_list()
 {
-    let first = ""
-    document.getElementById("option_list").innerHTML = ""
+    let first = ''
+    document.getElementById('option_list').innerHTML = ''
+    let team = document.getElementById('team_filter').value
+    let match = document.getElementById('match_filter').value
     Object.keys(results).forEach(function (file, index)
     {
-        if (first == "")
+        let label = file.substr(prefix.length).replace('-', ': ')
+        let parts = label.split(': ')
+        if ((team == 'All' || parts[parts.length-1] == team) &&
+            (type != MATCH_MODE || (match == 'All' || parts[0] == match)) &&
+            (type != NOTE_MODE || (match == 'All' || Object.keys(results[file]).includes(match))))
         {
-            first = file
+            if (first == '')
+            {
+                first = file
+            }
+            document.getElementById('option_list').innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
+                                                                            .replace(/TEXT/g, label)
         }
-        let label = file.substr(prefix.length).replace("-", ": ")
-        document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
-                                                                        .replace(/TEXT/g, label)
     })
     if (selected !== null)
     {
         first = selected
     }
-    if (first != "")
+    if (first != '')
     {
         open_result(first)
-        scroll_to("option_list", "result_" + first)
+        scroll_to('option_list', `result_${first}`)
     }
 }
 
@@ -186,6 +196,23 @@ function collect_results()
         if (file.startsWith(prefix))
         {
             unsorted[file] = JSON.parse(localStorage.getItem(file))
+            let mode = unsorted[file].meta_scout_mode
+            if (mode != PIT_MODE)
+            {
+                let match = unsorted[file].meta_match
+                if (!avail_matches.includes(match))
+                {
+                    avail_matches.push(match)
+                }
+            }
+            if (mode != NOTE_MODE)
+            {
+                let team = unsorted[file].meta_team
+                if (!avail_teams.includes(team))
+                {
+                    avail_teams.push(team)
+                }
+            }
         }
     })
 
@@ -195,9 +222,13 @@ function collect_results()
         return 0
     }
 
-    if (type == "notes")
+    if (type == NOTE_MODE)
     {
         unsorted = break_notes_into_teams(unsorted)
+        Object.keys(unsorted).forEach(function (key, index)
+        {
+            avail_teams.push(key.split('-')[2])
+        })
     }
 
     // sort results
@@ -302,8 +333,19 @@ window.addEventListener('load', function() {
     load_config(type)
     if (collect_results() > 0)
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, CONTENTS)
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, BUTTONS)
+        avail_matches = avail_matches.sort(function (a, b) { return parseInt(a) - parseInt(b) })
+        avail_matches.unshift('All')
+        avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
+        avail_teams.unshift('All')
+        document.getElementById('preview').innerHTML = `${build_dropdown('match_filter', '', avail_matches, 'All', 'build_result_list()')}
+            ${build_dropdown('team_filter', '', avail_teams, 'All', 'build_result_list()')}
+            ${document.getElementById('preview').innerHTML}`
+        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, CONTENTS)
+        if (type == PIT_MODE)
+        {
+            document.getElementById('match_filter').style.display = 'none'
+        }
+        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/BUTTONS/g, BUTTONS)
         build_result_list()
     }
     else
