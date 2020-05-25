@@ -5,21 +5,21 @@
  * date:        2020-03-04
  */
 
-const MATCH_MODE = "match"
-const PIT_MODE   = "pit"
-const NOTE_MODE  = "notes"
+const MATCH_MODE = 'match'
+const PIT_MODE   = 'pit'
+const NOTE_MODE  = 'notes'
 
-const EVENT_COOKIE = "event_id"
-const EVENT_DEFAULT = "2020ilch"
-const USER_COOKIE = "user_id"
-const USER_DEFAULT = "120001"
-const TYPE_COOKIE = "type"
+const EVENT_COOKIE = 'event_id'
+const EVENT_DEFAULT = '2020ilch'
+const USER_COOKIE = 'user_id'
+const USER_DEFAULT = '120001'
+const TYPE_COOKIE = 'type'
 const TYPE_DEFAULT = MATCH_MODE
-const POSITION_COOKIE = "position"
+const POSITION_COOKIE = 'position'
 const POSITION_DEFAULT = 0
-const UPLOAD_COOKIE = "upload_url"
-const UPLOAD_DEFAULT = "http://localhost:80"
-const TBA_KEY = "X-TBA-Auth-Key"
+const UPLOAD_COOKIE = 'upload_url'
+const UPLOAD_DEFAULT = 'http://localhost:80'
+const TBA_KEY = 'X-TBA-Auth-Key'
 
 /**
  * function:    build_query
@@ -29,14 +29,14 @@ const TBA_KEY = "X-TBA-Auth-Key"
  */
 function build_query(query)
 {
-    let str = "?"
+    let str = '?'
     for (var key in query)
     {
-        if (str != "?")
+        if (str != '?')
         {
-            str += "&"
+            str += '&'
         }
-        str += key + "=" + query[key]
+        str += `${key}=${query[key]}`
     }
     return str
 }
@@ -51,7 +51,7 @@ function get_parameter(key, dvalue)
 {
     let urlParams = new URLSearchParams(window.location.search)
     let value = urlParams.get(key)
-    if (typeof value !== "undefined")
+    if (typeof value !== 'undefined')
     {
         return value
     }
@@ -67,9 +67,9 @@ function get_parameter(key, dvalue)
 function set_cookie(cname, cvalue)
 {
     var d = new Date();
-    d.setTime(d.getTime() + (7*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    d.setTime(d.getTime() + (7*24*60*60*1000))
+    var expires = `expires=${d.toUTCString()}`
+    document.cookie = `${cname}=${cvalue};${expires};path=/`
 }
 
 /**
@@ -80,7 +80,7 @@ function set_cookie(cname, cvalue)
  */
 function get_cookie(cname, dvalue)
 {
-    var name = cname + "=";
+    var name = `${cname}=`;
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
     for(var i = 0; i <ca.length; i++)
@@ -110,7 +110,7 @@ function get_team_results(results, team)
     let team_results = {}
     files.forEach(function (file, index)
     {
-        let parts = file.split("-")
+        let parts = file.split('-')
         let number = parseInt(parts[parts.length - 1])
         // determine files which start with the desired type
         if (file.startsWith(prefix) && number == team)
@@ -133,7 +133,7 @@ function get_match_results(results, match)
     let match_results = {}
     files.forEach(function (file, index)
     {
-        let parts = file.split("-")
+        let parts = file.split('-')
         let number = parseInt(parts[parts.length - 2])
         // determine files which start with the desired type
         if (file.startsWith(prefix) && number == match)
@@ -156,8 +156,8 @@ function get_scouter_results(results, user)
     let user_results = {}
     files.forEach(function (file, index)
     {
-        let parts = file.split("-")
-        let id = results[file]["meta_scouter_id"]
+        let parts = file.split('-')
+        let id = results[file]['meta_scouter_id']
         // determine files which start with the desired type
         if (file.startsWith(prefix) && id == user)
         {
@@ -248,12 +248,12 @@ function get_team_name(team_num, event)
  */
 function get_avatar(team_num, year)
 {
-    let b64img = localStorage.getItem("image-" + year + "-" + team_num)
+    let b64img = localStorage.getItem(`image-${year}-${team_num}`)
     if (b64img == null)
     {
-        return "/config/dozer.png"
+        return '/config/dozer.png'
     }
-    return "data:image/png;base64," + b64img
+    return `data:image/png;base64,${b64img}`
 }
 
 /**
@@ -264,7 +264,7 @@ function get_avatar(team_num, year)
  */
 function get_event_matches_name(event_id)
 {
-    return "matches-" + event_id
+    return `matches-${event_id}`
 }
 
 /**
@@ -275,7 +275,7 @@ function get_event_matches_name(event_id)
  */
 function get_event_teams_name(event_id)
 {
-    return "teams-" + event_id
+    return `teams-${event_id}`
 }
 
 /**
@@ -286,7 +286,7 @@ function get_event_teams_name(event_id)
  */
 function get_team_avatar_name(team_num, year)
 {
-    return "image-" + year + "-" + team_num
+    return `image-${year}-${team_num}`
 }
 
 /**
@@ -297,7 +297,7 @@ function get_team_avatar_name(team_num, year)
  */
 function get_pit_result(team_num, event_id)
 {
-    return PIT_MODE + "-" + event_id + "-" + team_num
+    return `${PIT_MODE}-${event_id}-${team_num}`
 }
 
 /**
@@ -308,7 +308,7 @@ function get_pit_result(team_num, event_id)
  */
 function get_match_result(match_num, team_num, event_id)
 {
-    return MATCH_MODE + "-" + event_id + "-" + match_num + "-" + team_num
+    return `${MATCH_MODE}-${event_id}-${match_num}-${team_num}`
 }
 
 /**
@@ -319,7 +319,7 @@ function get_match_result(match_num, team_num, event_id)
  */
 function get_notes(match_num, event_id)
 {
-    return NOTE_MODE + "-" + event_id + "-" + match_num
+    return `${NOTE_MODE}-${event_id}-${match_num}`
 }
 
 /**
@@ -330,7 +330,7 @@ function get_notes(match_num, event_id)
  */
 function get_event_pick_lists_name(event_id)
 {
-    return "picklists-" + event_id
+    return `picklists-${event_id}`
 }
 
 /**
@@ -382,18 +382,18 @@ function avg_results(results, key, sort_type)
     switch (get_type(key))
     {
         // compute mode for non-numerics
-        case "checkbox":
-        case "select":
-        case "dropdown":
-        case "unknown":
+        case 'checkbox':
+        case 'select':
+        case 'dropdown':
+        case 'unknown':
             return mode(values)
         // don't attempt to use strings
-        case "string":
-        case "text":
-            return "---"
+        case 'string':
+        case 'text':
+            return '---'
         // compute average for numbers
-        case "counter":
-        case "number":
+        case 'counter':
+        case 'number':
         default:
             switch (sort_type)
             {

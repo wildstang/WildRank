@@ -15,35 +15,35 @@ var config
  */
 function fetch_config(onConfig)
 {
-    fetch("config/scout-config.json")
+    fetch('config/scout-config.json')
         .then(response => {
             return response.json()
         })
         .then(data => {
             data.forEach(function (mode, index)
             {
-                localStorage.setItem("config-" + mode.id, JSON.stringify(mode))
+                localStorage.setItem(`config-${mode.id}`, JSON.stringify(mode))
             })
         })
         .catch(err => {
-            console.log("Error config file, " + err)
+            console.log(`Error config file, ${err}`)
         })
-    fetch("config/config.json")
+    fetch('config/config.json')
         .then(response => {
             return response.json()
         })
         .then(data => {
             Object.keys(data).forEach(function (section, index)
             {
-                localStorage.setItem("config-" + section, JSON.stringify(data[section]))
+                localStorage.setItem(`config-${section}`, JSON.stringify(data[section]))
             })
-            if (typeof onConfig === "function")
+            if (typeof onConfig === 'function')
             {
                 onConfig()
             }
         })
         .catch(err => {
-            console.log("Error config file, " + err)
+            console.log(`Error config file, ${err}`)
         })
 }
 
@@ -55,7 +55,7 @@ function fetch_config(onConfig)
  */
 function load_config(mode)
 {
-    config = JSON.parse(localStorage.getItem("config-" + mode))
+    config = JSON.parse(localStorage.getItem(`config-${mode}`))
 }
 
 /**
@@ -66,7 +66,7 @@ function load_config(mode)
  */
 function get_config(name)
 {
-    return JSON.parse(localStorage.getItem("config-" + name))
+    return JSON.parse(localStorage.getItem(`config-${name}`))
 }
 
 /**
@@ -77,7 +77,7 @@ function get_config(name)
  */
 function config_exists(mode)
 {
-    return localStorage.getItem("config-" + mode) !== null
+    return localStorage.getItem(`config-${mode}`) !== null
 }
 
 /**
@@ -88,12 +88,12 @@ function config_exists(mode)
  */
 function get_type(key)
 {
-    var type = "unknown"
+    var type = 'unknown'
     config.pages.forEach(function (page, index)
     {
-        page["columns"].forEach(function (column, index)
+        page['columns'].forEach(function (column, index)
         {
-            column["inputs"].forEach(function (input, index)
+            column['inputs'].forEach(function (input, index)
             {
                 if (input.id == key)
                 {
@@ -116,9 +116,9 @@ function get_options(key)
     var options = []
     config.pages.forEach(function (page, index)
     {
-        page["columns"].forEach(function (column, index)
+        page['columns'].forEach(function (column, index)
         {
-            column["inputs"].forEach(function (input, index)
+            column['inputs'].forEach(function (input, index)
             {
                 if (input.id == key)
                 {
@@ -141,9 +141,9 @@ function is_negative(key)
     var negative = false
     config.pages.forEach(function (page, index)
     {
-        page["columns"].forEach(function (column, index)
+        page['columns'].forEach(function (column, index)
         {
-            column["inputs"].forEach(function (input, index)
+            column['inputs'].forEach(function (input, index)
             {
                 if (key == input.id && input.negative == true)
                 {
@@ -164,14 +164,14 @@ function is_negative(key)
 function get_name(key, check_duplicates=true)
 {
     let name = key
-    let type = ""
+    let type = ''
 
     // find name from key
     config.pages.forEach(function (page, index)
     {
-        page["columns"].forEach(function (column, index)
+        page['columns'].forEach(function (column, index)
         {
-            column["inputs"].forEach(function (input, index)
+            column['inputs'].forEach(function (input, index)
             {
                 if (input.id == key)
                 {
@@ -187,13 +187,13 @@ function get_name(key, check_duplicates=true)
     {
         config.pages.forEach(function (page, index)
         {
-            page["columns"].forEach(function (column, index)
+            page['columns'].forEach(function (column, index)
             {
-                column["inputs"].forEach(function (input, index)
+                column['inputs'].forEach(function (input, index)
                 {
                     if (input.id != key && input.name == name)
                     {
-                        name = "(" + type + ") " + name
+                        name = `(${type}) ${name}`
                     }
                 })
             })
@@ -203,12 +203,12 @@ function get_name(key, check_duplicates=true)
     // format key name if no name was found
     if (name == key)
     {
-        let words = key.split("_")
+        let words = key.split('_')
         words.forEach(function (word, index)
         {
             words[index] = word.substr(0, 1).toUpperCase() + word.substr(1)
         })
-        name = words.join(" ")
+        name = words.join(' ')
     }
     return name
 }
@@ -223,14 +223,14 @@ function get_value(key, value)
 {
     switch (get_type(key))
     {
-        case "select":
-        case "dropdown":
-            let option = ""
+        case 'select':
+        case 'dropdown':
+            let option = ''
             config.pages.forEach(function (page, index)
             {
-                page["columns"].forEach(function (column, index)
+                page['columns'].forEach(function (column, index)
                 {
-                    column["inputs"].forEach(function (input, index)
+                    column['inputs'].forEach(function (input, index)
                     {
                         if (input.id == key)
                         {
@@ -240,19 +240,19 @@ function get_value(key, value)
                 })
             })
             return option
-        case "checkbox":
-            if (typeof value === "string")
+        case 'checkbox':
+            if (typeof value === 'string')
             {
-                value = value == "true"
+                value = value == 'true'
             }
-            return value ? "Yes" : "No"
-        case "string":
-        case "text":
+            return value ? 'Yes' : 'No'
+        case 'string':
+        case 'text':
             return value
-        case "number":
-        case "counter":
+        case 'number':
+        case 'counter':
         default:
-            if (typeof value === "number" && !key.startsWith("meta")) return value.toFixed(2)
+            if (typeof value === 'number' && !key.startsWith('meta')) return value.toFixed(2)
             else return value
     }
 }

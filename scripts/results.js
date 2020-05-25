@@ -7,10 +7,10 @@
  */
 
 // HTML template for a result option
-const RESULT_BLOCK = "\
-    <div id=\"result_NAME\" class=\"pit_option\" onclick=\"open_result('NAME')\">\
-        <span class=\"long_option_number\">TEXT</span>\
-    </div>"
+const RESULT_BLOCK = `
+    <div id="result_NAME" class="pit_option" onclick="open_result('NAME')">
+        <span class="long_option_number">TEXT</span>
+    </div>`
 
 const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2></div><table id="results_tab"></table>'
 const BUTTONS = ''
@@ -28,7 +28,7 @@ var avail_teams = []
  */
 function open_result(name)
 {
-    document.getElementById("result_" + name).classList.add("selected")
+    document.getElementById(`result_${name}`).classList.add('selected')
     let files = Object.keys(results)
     files.forEach(function (file, index)
     {
@@ -39,38 +39,38 @@ function open_result(name)
         }
     })
 
-    let parts = name.split("-")
+    let parts = name.split('-')
     let team = parseInt(parts[parts.length - 1])
-    document.getElementById("avatar").src = get_avatar(team, event_id.substr(0, 4))
-    document.getElementById("result_name").innerHTML = team + " " + get_team_name(team, event_id)
-    let table = "<tr>"
+    document.getElementById('avatar').src = get_avatar(team, event_id.substr(0, 4))
+    document.getElementById('result_name').innerHTML = `${team}: ${get_team_name(team, event_id)}`
+    let table = '<tr>'
     switch (type)
     {
         case NOTE_MODE:
-            table += "<th>Match</th><th>Notes</th>"
+            table += '<th>Match</th><th>Notes</th>'
             break
         case MATCH_MODE:
-            table += "<th>Entry</th><th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>"
+            table += '<th>Entry</th><th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>'
             break
         case PIT_MODE:
-            table += "<th>Entry</th><th>Pit Value</th><th>Event Average</th><th>Scouter Average</th>"
+            table += '<th>Entry</th><th>Pit Value</th><th>Event Average</th><th>Scouter Average</th>'
             break
     }
-    table += "</tr><tr><th>Total Results</th><td>1</td>"
+    table += '</tr><tr><th>Total Results</th><td>1</td>'
 
     switch (type)
     {
         case MATCH_MODE:
             let match = parseInt(parts[parts.length - 2])
-            document.getElementById("result_name").innerHTML += ", Match: " + match
+            document.getElementById('result_name').innerHTML += `, Match #${match}`
             team_results = get_team_results(results, team)
             match_results = get_match_results(results, match)
-            table += "<td>" + Object.keys(team_results).length + "</td><td>" + Object.keys(match_results).length + "</td>"
+            table += `<td>${Object.keys(team_results).length}</td><td>${Object.keys(match_results).length}</td>`
         case PIT_MODE:
-            scouter_results = get_scouter_results(results, results[name]["meta_scouter_id"])
-            table += "<td>" + Object.keys(results).length + "</td><td>" + Object.keys(scouter_results).length + "</td>"
+            scouter_results = get_scouter_results(results, results[name]['meta_scouter_id'])
+            table += `<td>${Object.keys(results).length}</td><td>${Object.keys(scouter_results).length}</td>`
         case NOTE_MODE:
-            table += "</tr>"
+            table += '</tr>'
     }
 
     let result = results[name]
@@ -78,7 +78,7 @@ function open_result(name)
     entries.forEach(function (entry, index)
     {
         let val = result[entry]
-        table += "<tr><th id=\"" + entry + "\" onclick=\"sort_results('" + entry + "'); build_result_list()\">" + get_name(entry) + "</th><td class=\"result_cell\">" + get_value(entry, val) + "</td>"
+        table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${get_name(entry)}</th><td class="result_cell">${get_value(entry, val)}</td>`
         if (typeof team_results !== 'undefined')
         {
             table += make_cell(team_results, entry, val)
@@ -95,9 +95,9 @@ function open_result(name)
         {
             table += make_cell(scouter_results, entry, val)
         }
-        table += "</tr>"
+        table += '</tr>'
     })
-    document.getElementById("results_tab").innerHTML = table
+    document.getElementById('results_tab').innerHTML = table
     ws(team)
 }
 
@@ -109,9 +109,9 @@ function open_result(name)
  */
 function make_cell(results, entry, base)
 {
-    let color = ""
+    let color = ''
     let val = avg_results(results, entry, 0)
-    if (typeof base === "number" && !entry.startsWith("meta"))
+    if (typeof base === 'number' && !entry.startsWith('meta'))
     {
         let delta = base - val
         if (is_negative(entry))
@@ -125,7 +125,7 @@ function make_cell(results, entry, base)
             {
                 prop = val / 2
             }
-            color = " style=\"background-color: rgba(0,255,0," + prop + ")\""
+            color = `style="background-color: rgba(0,255,0,${prop})"`
         }
         else if (delta < -0.01)
         {
@@ -133,11 +133,11 @@ function make_cell(results, entry, base)
             {
                 prop = val / 2
             }
-            color = " style=\"background-color: rgba(255,0,0," + prop + ")\""
+            color = `style="background-color: rgba(255,0,0,${prop})"`
         }
     }
     
-    return "<td class=\"result_cell\"" + color + ">" + get_value(entry, val) + "</td>"
+    return `<td class="result_cell" ${color}>${get_value(entry, val)}</td>`
 }
 
 /**
@@ -246,7 +246,7 @@ function break_notes_into_teams(notes)
         // get match teams
         matches.forEach(function (match, index)
         {
-            if (match.comp_level == "qm" && match.match_number == note.meta_match)
+            if (match.comp_level == 'qm' && match.match_number == note.meta_match)
             {
                 red_teams = match.alliances.red.team_keys
                 blue_teams = match.alliances.blue.team_keys
@@ -254,13 +254,13 @@ function break_notes_into_teams(notes)
         })
         Object.keys(note).forEach(function (key, index)
         {
-            if (!key.startsWith("meta_"))
+            if (!key.startsWith('meta_'))
             {
                 // make team name
-                let parts = key.split("_")
+                let parts = key.split('_')
                 let pos = parts[2] - 1
-                let team = ""
-                if (parts[3] == "red")
+                let team = ''
+                if (parts[3] == 'red')
                 {
                     team = red_teams[pos].substr(3)
                 }
@@ -268,7 +268,7 @@ function break_notes_into_teams(notes)
                 {
                     team = blue_teams[pos].substr(3)
                 }
-                team = type + "-" + event_id + "-" + team
+                team = `${type}-${event_id}-${team}`
 
                 // add team to results object
                 if (!Object.keys(teams).includes(team))
@@ -313,9 +313,9 @@ function sort_results(sort_by)
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const prefix = type + "-" + event_id + "-"
+const prefix = `${type}-${event_id}-`
 var urlParams = new URLSearchParams(window.location.search)
-const selected = urlParams.get("file")
+const selected = urlParams.get('file')
 
 // when the page is finished loading
 window.addEventListener('load', function() {
@@ -337,7 +337,7 @@ window.addEventListener('load', function() {
     }
     else
     {
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
-        document.getElementById("preview").innerHTML = document.getElementById("preview").innerHTML.replace(/BUTTONS/g, "")
+        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
+        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/BUTTONS/g, '')
     }
 })

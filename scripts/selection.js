@@ -6,8 +6,8 @@
  */
 
 var urlParams = new URLSearchParams(window.location.search)
-const page = urlParams.get("page")
+const page = urlParams.get('page')
 
-let script = document.createElement("script")
-script.src = "/scripts/" + page + ".js"
+let script = document.createElement('script')
+script.src = `/scripts/${page}.js`
 document.head.appendChild(script)
