@@ -70,7 +70,7 @@ and can be easily configured via a JSON file in /config.
 The /config directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
 
 ### config.json
-The main configuration file. It supports configuration of default values, admins, and the whiteboard. Whiteboard configuration allows for easy updating for new games, but does not currently support configuration by year.
+The main configuration file. It supports configuration of default values, admins, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
 
 ### scout-config.json
 Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON list with an object for each mode, containing its pages, columns, and inputs.
@@ -125,4 +125,4 @@ These setups have been tested and do not work:
 - Safari iPad (iOS 10)
 
 ## Execution
-In general any web server should be able to host this app out of the box, but some features requires some more complexity. A simple implementation of the built-in Python webserver is included which allows a user to upload results back to the host but this requires a desktop platform or remote host at this time. It can be launched with `sudo python3 post-server.py`. To use a different web server, use this repository as the root of the server's assets.
+In general any web server should be able to host this app out of the box, but some features requires some more complexity. A simple implementation of the built-in Python webserver is included which allows a user to upload results back to the host but this requires a desktop platform or remote host at this time. It can be launched with `sudo python3 post-server.py`. To use a different web server, use this repository as the root of the server's assets. In order to fetch match data a new "Read API Key" must be obtained from [The Blue Alliance](https://www.thebluealliance.com/account) and placed in keys.js.

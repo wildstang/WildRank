@@ -249,6 +249,24 @@ function create_magnet(x, y, image, color)
 }
 
 /**
+ * function:    get_wb_config
+ * parameters:  year
+ * returns:     whiteboard config
+ * description: Fetches the desired year's config for the whiteboard.
+ */
+function get_wb_config(year)
+{
+    let wbs = get_config("whiteboard")
+    for (var i = 0; i < wbs.length; ++i)
+    {
+        if (wbs[i].year == year)
+        {
+            return wbs[i]
+        }
+    }
+}
+
+/**
  * function:    init
  * parameters:  none
  * returns:     none
@@ -257,7 +275,7 @@ function create_magnet(x, y, image, color)
 function init() {
     lines = []
     magnets = []
-    let wb = get_config("whiteboard")
+    let wb = get_wb_config(year)
     create_magnet(wb.red_1.x / scale_factor, wb.red_1.y / scale_factor, red1, wb.red_1.color)
     create_magnet(wb.red_2.x / scale_factor, wb.red_2.y / scale_factor, red2, wb.red_2.color)
     create_magnet(wb.red_3.x / scale_factor, wb.red_3.y / scale_factor, red3, wb.red_3.color)
@@ -378,7 +396,7 @@ window.addEventListener("load", function() {
     let preview_height = preview.offsetHeight - 16 - 32 - 4
 
     // get canvas config
-    let wb = get_config("whiteboard")
+    let wb = get_wb_config(year)
 
     // determine scaling factor based on most limited dimension
     let scale_factor_w = wb.field_width / preview_width

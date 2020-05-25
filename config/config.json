@@ -4,42 +4,83 @@
         "upload_url": "http://localhost",
         "user_id": 715138
     },
-    "whiteboard": {
-        "red_1": {
-            "x": 250,
-            "y": 125,
-            "color": "#FF0000"
+    "whiteboard": [
+        {
+            "year": "2020",
+            "red_1": {
+                "x": 250,
+                "y": 125,
+                "color": "#FF0000"
+            },
+            "red_2": {
+                "x": 250,
+                "y": 375,
+                "color": "#FF0000"
+            },
+            "red_3": {
+                "x": 250,
+                "y": 625,
+                "color": "#FF0000"
+            },
+            "blue_1": {
+                "x": 1150,
+                "y": 125,
+                "color": "#0000FF"
+            },
+            "blue_2": {
+                "x": 1150,
+                "y": 375,
+                "color": "#0000FF"
+            },
+            "blue_3": {
+                "x": 1150,
+                "y": 625,
+                "color": "#0000FF"
+            },
+            "draw_color": "#FFFFFF",
+            "field_width": 1500,
+            "field_height": 800,
+            "magnet_size": 100,
+            "line_width": 5
         },
-        "red_2": {
-            "x": 250,
-            "y": 375,
-            "color": "#FF0000"
-        },
-        "red_3": {
-            "x": 250,
-            "y": 625,
-            "color": "#FF0000"
-        },
-        "blue_1": {
-            "x": 1150,
-            "y": 125,
-            "color": "#0000FF"
-        },
-        "blue_2": {
-            "x": 1150,
-            "y": 375,
-            "color": "#0000FF"
-        },
-        "blue_3": {
-            "x": 1150,
-            "y": 625,
-            "color": "#0000FF"
-        },
-        "draw_color": "#FFFFFF",
-        "field_width": 1500,
-        "field_height": 800,
-        "magnet_size": 100,
-        "line_width": 5
-    },
+        {
+            "year": "2019",
+            "red_1": {
+                "x": 100,
+                "y": 100,
+                "color": "#FF0000"
+            },
+            "red_2": {
+                "x": 100,
+                "y": 350,
+                "color": "#FF0000"
+            },
+            "red_3": {
+                "x": 100,
+                "y": 600,
+                "color": "#FF0000"
+            },
+            "blue_1": {
+                "x": 1300,
+                "y": 100,
+                "color": "#0000FF"
+            },
+            "blue_2": {
+                "x": 1300,
+                "y": 350,
+                "color": "#0000FF"
+            },
+            "blue_3": {
+                "x": 1300,
+                "y": 600,
+                "color": "#0000FF"
+            },
+            "draw_color": "#FFFFFF",
+            "field_width": 1500,
+            "field_height": 800,
+            "magnet_size": 100,
+            "line_width": 5
+        }
+    ],
     "admins": [715138]
 }
