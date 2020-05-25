@@ -37,7 +37,7 @@ window.addEventListener('load', function() {
     document.body.innerHTML += page
     fetch_config(fill_defaults)
     let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
-    select_option('type_form', type_cookie == MATCH_MODE ? 1 : PIT_MODE ? 2 : 3)
+    select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
     process_files()
 })
 
