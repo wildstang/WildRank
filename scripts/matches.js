@@ -21,7 +21,7 @@ const OPEN_RESULT = build_button("open_result", "View Results", "open_result('RE
 const CONTENTS = "<h2>Match Number: <span id=\"match_num\">No Match Selected</span></h2>\
                   <h2>Scouting: <span id=\"team_scouting\">No Match Selected</span></h2>"
                               
-const BUTTONS = build_button("scout_match", "Scout Match!", "start_scouting()")
+const BUTTONS = `${build_button("scout_match", "Scout Match!", "start_scouting()")}<div id="view_result"></div>`
 
 var matches
 
@@ -104,7 +104,11 @@ function open_match(match_num)
     let file = get_match_result(match_num, team.substr(3), event_id)
     if (file_exists(file))
     {
-        document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
+        document.getElementById('view_result').innerHTML = OPEN_RESULT.replace(/RESULT/g, file)
+    }
+    else
+    {
+        document.getElementById('view_result').innerHTML = ''
     }
 }
 
@@ -116,7 +120,7 @@ function open_match(match_num)
  */
 function open_result(file)
 {
-    document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: "match", [EVENT_COOKIE]: event_id, "file": file})
+    document.location.href = "selection.html" + build_query({"page": "results", [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, "file": file})
 }
 
 /**

@@ -1,5 +1,5 @@
 /**
- * file:        pits.js
+ * file:        scout.js
  * description: Contains functions for the scouting page of the web app.
  *              Primarily for building the interface from event and config data.
  * author:      Liam Fruzyna

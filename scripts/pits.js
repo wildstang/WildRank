@@ -16,7 +16,7 @@ const OPEN_RESULT = build_button("open_result", "View Results", "open_result('RE
 
 const CONTENTS = "<h2>Team: <span id=\"team_num\">No Match Selected</span></h2>"
     
-const BUTTONS = build_button("scout_pit", "Scout Pit!", "start_scouting()")
+const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting()')}<div id="view_result"></div>`
 
 var teams
 
@@ -46,7 +46,11 @@ function open_team(team_num)
     let file = get_pit_result(team_num, event_id)
     if (file_exists(file))
     {
-        document.getElementById("preview").innerHTML += OPEN_RESULT.replace(/RESULT/g, file)
+        document.getElementById('view_result').innerHTML = OPEN_RESULT.replace(/RESULT/g, file)
+    }
+    else
+    {
+        document.getElementById('view_result').innerHTML = ''
     }
 }
 
@@ -70,7 +74,7 @@ function open_result(file)
 function start_scouting()
 {
     let team_num = document.getElementById("team_num").innerHTML
-    window.open("scout.html" + build_query({[TYPE_COOKIE]: "pit", "team": team_num, "alliance": "white", [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id}), "_self")
+    window.open("scout.html" + build_query({[TYPE_COOKIE]: PIT_MODE, "team": team_num, "alliance": "white", [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id}), "_self")
 }
 
 /**

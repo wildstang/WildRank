@@ -47,13 +47,13 @@ function open_result(name)
     let table = "<tr>"
     switch (type)
     {
-        case "notes":
+        case NOTE_MODE:
             table += "<th>Match</th><th>Notes</th>"
             break
-        case "match":
+        case MATCH_MODE:
             table += "<th>Entry</th><th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>"
             break
-        case "pit":
+        case PIT_MODE:
             table += "<th>Entry</th><th>Pit Value</th><th>Event Average</th><th>Scouter Average</th>"
             break
     }
@@ -61,16 +61,16 @@ function open_result(name)
 
     switch (type)
     {
-        case "match":
+        case MATCH_MODE:
             let match = parseInt(parts[parts.length - 2])
             document.getElementById("result_name").innerHTML += ", Match: " + match
             team_results = get_team_results(results, team)
             match_results = get_match_results(results, match)
             table += "<td>" + Object.keys(team_results).length + "</td><td>" + Object.keys(match_results).length + "</td>"
-        case "pit":
+        case PIT_MODE:
             scouter_results = get_scouter_results(results, results[name]["meta_scouter_id"])
             table += "<td>" + Object.keys(results).length + "</td><td>" + Object.keys(scouter_results).length + "</td>"
-        case "notes":
+        case NOTE_MODE:
             table += "</tr>"
     }
 
@@ -88,7 +88,7 @@ function open_result(name)
         {
             table += make_cell(match_results, entry, val)
         }
-        if (type != "notes")
+        if (type != NOTE_MODE)
         {
             table += make_cell(results, entry, val)
         }
@@ -341,11 +341,11 @@ window.addEventListener('load', function() {
             ${build_page_frame('', [
                 build_column_frame('', [ build_dropdown('match_filter', 'Match:', avail_matches, 'All', 'build_result_list()') ]),
                 build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
-            ], false)} ${document.getElementById('preview').innerHTML}`
+            ], false)}<br>${document.getElementById('preview').innerHTML}`
         document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, CONTENTS)
         if (type == PIT_MODE)
         {
-            document.getElementById('match_filter').style.display = 'none'
+            document.getElementById('match_filter').parentElement.style.display = 'none'
         }
         document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/BUTTONS/g, BUTTONS)
         build_result_list()
