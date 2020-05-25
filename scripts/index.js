@@ -399,7 +399,7 @@ function upload_all()
             if (file.startsWith(`${type}-`))
             {
                 // append file name to data, separated by '|||'
-                upload = `${file} ||| ${localStorage.getItem(file)}`
+                upload = `${file}|||${localStorage.getItem(file)}`
                 status(`posting ${file}`)
                 // post string to server
                 fetch(get_upload_addr(), {method: 'POST', body: upload})
