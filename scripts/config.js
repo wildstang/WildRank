@@ -256,3 +256,12 @@ function get_value(key, value)
             else return value
     }
 }
+
+window.addEventListener('load', function()
+{
+    let theme = get_config('theme')
+    Object.keys(theme).forEach(function (key, index)
+    {
+        document.documentElement.style.setProperty(`--${key}`, theme[key])
+    })
+})

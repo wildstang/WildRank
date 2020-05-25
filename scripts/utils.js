@@ -360,7 +360,7 @@ function ws(team_num)
     }
     else
     {
-        document.getElementById('header').style.background = '#000080'
+        document.getElementById('header').style.background = get_config('theme')['primary-color']
         document.getElementById('header').style['background-size'] = ''
         document.getElementById('header').style.animation = ''
     }

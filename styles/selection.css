@@ -40,7 +40,7 @@ html, body {
 }
   
 #results_tab tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: var(--alt-table-color);
 }
 
 .pit_option {
@@ -49,10 +49,10 @@ html, body {
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
-    border-color: rgb(224, 224, 224);
+    border-color: var(--border-color);
     border-width: 0 0 1px 0;
     padding: 16px;
-    background-color: white;
+    background-color: var(--foreground-color);
 }
 
 .match_option {
@@ -62,10 +62,10 @@ html, body {
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
-    border-color: rgb(224, 224, 224);
+    border-color: var(--border-color);
     border-width: 0 0 1px 0;
     padding: 16px;
-    background-color: white;
+    background-color: var(--foreground-color);
 }
 
 .match_option > *, .pit_option > * {
@@ -93,21 +93,21 @@ html, body {
 }
 
 .blue {
-    color: blue;
+    color: var(--blue-alliance-color);
 }
 
 .red {
-    color: red;
+    color: var(--red-alliance-color);
 }
 
 .scouted {
-    background-color: gray;
-    color: white;
+    background-color: var(--inactive-color);
+    color: var(--inactive-text-color);
 }
 
 .selected {
-    background-color: dodgerblue;
-    color: white;
+    background-color: var(--active-color);
+    color: var(--active-text-color);
 }
 
 .result_cell {

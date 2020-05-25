@@ -71,7 +71,7 @@ and can be easily configured via a JSON file in /config.
 The /config directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
 
 ### config.json
-The main configuration file. It supports configuration of default values, admins, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
+The main configuration file. It supports configuration of default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
 
 ### scout-config.json
 Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON list with an object for each mode, containing its pages, columns, and inputs.

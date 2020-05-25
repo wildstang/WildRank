@@ -82,5 +82,25 @@
             "line_width": 5
         }
     ],
-    "admins": [715138]
+    "admins": [715138],
+    "theme": {
+        "primary-color": "#000080",
+        "primary-text-color": "#FFFFFF",
+        "secondary-color": "#FFB30F",
+        "secondary-text-color": "#000000",
+        "background-color": "#F0F0F0",
+        "background-text-color": "#000000",
+        "foreground-color": "#FFFFFF",
+        "foreground-text-color": "#000000",
+        "active-color": "#1E90FF",
+        "active-text-color": "#FFFFFF",
+        "hover-color": "#ADD8E6",
+        "hover-text-color": "#ADD8E6",
+        "border-color": "#000000",
+        "inactive-color": "#C0C0C0",
+        "inactive-text-color": "#FFFFFF",
+        "red-alliance-color": "#FF0000",
+        "blue-alliance-color": "#0000FF",
+        "alt-table-color": "#F2F2F2"
+    }
 }
