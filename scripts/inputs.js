@@ -13,18 +13,11 @@
  */
 function build_page_frame(page_name, columns, top_margin=true)
 {
-    let html_str = "<div class=\"page\">"
-    if (!top_margin)
-    {
-        html_str = "<div class=\"page no_top_margin\">"
-    }
-    if (page_name.length > 0)
-    {
-        html_str += "<h2 class=\"page_header\">" + page_name + "</h2>"
-    }
-    html_str += columns.join("")
-    html_str += "</div>"
-    return html_str
+    let header = page_name.length > 0 ? `<h2 class="page_header">${page_name}</h2>` : ''
+    return `<div class="page ${top_margin ? '' : 'no_top_margin'}">
+            ${header}
+            ${columns.join('')}
+        </div>`
 }
 
 /**
@@ -35,14 +28,11 @@ function build_page_frame(page_name, columns, top_margin=true)
  */
 function build_column_frame(column_name, items)
 {
-    let html_str = "<div class=\"column\">"
-    if (column_name.length > 0)
-    {
-        html_str += "<h2 class=\"column_header\">" + column_name + "</h2>"
-    }
-    html_str += items.join("")
-    html_str += "</div>"
-    return html_str
+    let header = column_name.length > 0 ? `<h2 class="column_header">${column_name}</h2>` : ''
+    return `<div class="column">
+            ${header}
+            ${items.join('')}
+        </div>`
 }
 
 /**
@@ -51,18 +41,13 @@ function build_column_frame(column_name, items)
  * returns:     wr_button as a string
  * description: Builds the HTML string of a button object.
  */
-function build_button(id, name, onclick, onsecondary="")
+function build_button(id, name, onclick, onsecondary='')
 {
-    let oncontextmenu = ""
-    if (onsecondary.length > 0)
-    {
-        oncontextmenu = onsecondary + "; return false"
-    }
-    onsecondary = onsecondary.replace(/'/g, "\\'")
-    let html_str = "<div id=\"" + id + "-container\" class=\"wr_button\" onclick=\"" + onclick + "\" oncontextmenu=\"" + oncontextmenu + "\" ontouchstart=\"touch_button(false)\" ontouchend=\"touch_button('" + onsecondary + "')\">"
-    html_str += "<label id=\"" + id + "\">" + name + "</label>"
-    html_str += "</div>"
-    return html_str
+    let oncontextmenu = onsecondary.length > 0 ? onsecondary + '; return false' : ''
+    onsecondary = onsecondary.replace(/'/g, '\\\'')
+    return `<div id="${id}-container" class="wr_button" onclick="${onclick}" oncontextmenu="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
+            <label id="${id}">${name}</label>
+        </div>`
 }
 
 /**
@@ -71,18 +56,12 @@ function build_button(id, name, onclick, onsecondary="")
  * returns:     wr_checkbox as a string
  * description: Builds the HTML string of a checkbox object.
  */
-function build_checkbox(id, name, checked=false, onclick="")
+function build_checkbox(id, name, checked=false, onclick='')
 {
-    let html_str = "<div id=\"" + id + "-container\" class=\"wr_checkbox\" onclick=\"check('" + id + "'); " + onclick + "\">"
-    let checked_str = ""
-    if (checked)
-    {
-        checked_str = " checked"
-    }
-    html_str += "<input type=\"checkbox\" onclick=\"check('" + id + "'); " + onclick + "\" id=\"" + id + "\" name=\"" + name + "\"" + checked_str + ">"
-    html_str += "<label for=\"" + id + "\" onclick=\"check('" + id + "')\">" + name + "</label>"
-    html_str += "</div>"
-    return html_str
+    return `<div id="${id}-container" class="wr_checkbox" onclick="check('${id}'); ${onclick}">
+            <input type="checkbox" onclick="check('${id}'); ${onclick}" id="${id}" name="${name}" ${checked ? 'checked' : ''}>
+            <label for="${id}" onclick="check('${id}')">${name}</label>
+        </div>`
 }
 
 /**
@@ -93,11 +72,10 @@ function build_checkbox(id, name, checked=false, onclick="")
  */
 function build_counter(id, name, value)
 {
-    let html_str = "<div class=\"wr_counter\" onclick=\"increment('" + id + "', false)\" oncontextmenu=\"increment('" + id + "', true); return false\" ontouchstart=\"touch_button(false)\" ontouchend=\"touch_button('increment(\\'" + id + "\\', true)')\">"
-    html_str += "<label class=\"wr_counter_count\" id=\"" + id + "\">" + value + "</label>"
-    html_str += "<label>" + name + "</label>"
-    html_str += "</div>"
-    return html_str
+    return `<div class="wr_counter" onclick="increment('${id}', false)" oncontextmenu="increment('${id}', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true)')\">
+            <label class="wr_counter_count" id="${id}">${value}</label>
+            <label>${name}</label>
+        </div>`
 }
 
 /**
@@ -106,27 +84,17 @@ function build_counter(id, name, value)
  * returns:     wr_select as a string
  * description: Builds the HTML string of a select object and its options.
  */
-function build_select(id, name, option_names, default_op, onclick="")
+function build_select(id, name, option_names, default_op, onclick='')
 {
-    let html_str = ""
-    if (name.length != 0)
-    {
-        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
-    }
-    html_str += "<div class=\"wr_select\" id=\"" + id + "\">"
+    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let options = ''
     option_names.forEach(function (op_name, index)
     {
-        let selected = ""
-        if (op_name == default_op)
-        {
-            selected = " selected"
-        }
-        html_str += "<span class=\"wr_select_option" + selected + "\" id=\"" + id + "-" + index + "\" onclick=\"select_option('" + id + "', '" + index + "'); " + onclick + "\">"
-        html_str += "<label>" + op_name + "</label>"
-        html_str += "</span>"
+        options += `<span class="wr_select_option ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
+                <label>${op_name}</label>
+            </span>`
     })
-    html_str += "</div>"
-    return html_str
+    return `${label}<div class="wr_select" id="${id}">${options}</div>`
 }
 
 /**
@@ -135,25 +103,15 @@ function build_select(id, name, option_names, default_op, onclick="")
  * returns:     wr_dropdown as a string
  * description: Builds the HTML string of a dropdown object and its options.
  */
-function build_dropdown(id, name, option_names, default_op="", onchange="")
+function build_dropdown(id, name, option_names, default_op='', onchange='')
 {
-    let html_str = ""
-    if (name.length != 0)
-    {
-        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
-    }
-    html_str += "<select class=\"wr_dropdown\" id=\"" + id + "\" onchange=\"" + onchange + "\">"
+    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let options = ''
     option_names.forEach(function (op_name, index)
     {
-        let selected = ""
-        if (op_name == default_op)
-        {
-            selected = " selected"
-        }
-        html_str += "<option class=\"wr_dropdown_op\" value=\"" + op_name + "\"" + selected + ">" + op_name + "</option>"
+        options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name == default_op ? 'selected' : ''}>${op_name}</option>`
     })
-    html_str += "</select>"
-    return html_str
+    return `${label}<select class="wr_dropdown" id="${id}" onchange="${onchange}">${options}</select>`
 }
 
 /**
@@ -162,15 +120,10 @@ function build_dropdown(id, name, option_names, default_op="", onchange="")
  * returns:     wr_string as a string
  * description: Builds the HTML string of a string object.
  */
-function build_str_entry(id, name, value="", type="text")
+function build_str_entry(id, name, value='', type='text')
 {
-    let html_str = ""
-    if (name.length != 0)
-    {
-        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
-    }
-    html_str += "<input class=\"wr_string\" type=\"" + type + "\" id=\"" + id + "\" value=\"" + value + "\"><br>"
-    return html_str
+    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    return `${label}<input class="wr_string" type="${type}" id="${id}" value="${value}">`
 }
 
 /**
@@ -179,24 +132,11 @@ function build_str_entry(id, name, value="", type="text")
  * returns:     wr_string for a number as a string
  * description: Builds the HTML string of a number object.
  */
-function build_num_entry(id, name, value="", bounds=[])
+function build_num_entry(id, name, value='', bounds=[])
 {
-    let html_str = ""
-    if (name.length != 0)
-    {
-        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
-    }
-    let bounds_str = ""
-    if (bounds.length > 0)
-    {
-        bounds_str = " min=\"" + bounds[0] + "\""
-        if (bounds.length > 1)
-        {
-            bounds_str += " max=\"" + bounds[1] + "\""
-        }
-    }
-    html_str += "<input class=\"wr_string\" type=\"number\" id=\"" + id + "\" value=\"" + value + "\"" + bounds_str + "><br>"
-    return html_str
+    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
+    return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" ${bounds_str}>`
 }
 
 /**
@@ -205,15 +145,10 @@ function build_num_entry(id, name, value="", bounds=[])
  * returns:     wr_text as a string
  * description: Builds the HTML string of a text object.
  */
-function build_text_entry(id, name, value="")
+function build_text_entry(id, name, value='')
 {
-    let html_str = ""
-    if (name.length != 0)
-    {
-        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
-    }
-    html_str += "<textarea class=\"wr_text\" id=\"" + id + "\">" + value + "</textarea><br>"
-    return html_str
+    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    return `${label}<textarea class="wr_text" id="${id}">${value}</textarea>`
 }
 
 /**
@@ -222,10 +157,9 @@ function build_text_entry(id, name, value="")
  * returns:     wr_card as a string
  * description: Builds the HTML string of a card object.
  */
-function build_card(id, contents="")
+function build_card(id, contents='')
 {
-    let html_str = "<div class=\"wr_card\" id=\"" + id + "\">" + contents + "</div>"
-    return html_str
+    return `<div class="wr_card" id="${id}">${contents}</div>`
 }
 
 var last_touch = 0
@@ -242,11 +176,11 @@ function check(id)
     document.getElementById(id).checked = checked
     if (checked)
     {
-        document.getElementById(id + "-container").classList.add("selected")
+        document.getElementById(`${id}-container`).classList.add('selected')
     }
     else
     {
-        document.getElementById(id + "-container").classList.remove("selected")
+        document.getElementById(`${id}-container`).classList.remove('selected')
     }
 }
 
@@ -295,11 +229,11 @@ function increment(id, right)
  */
 function get_selected_option(id)
 {
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
+    let children = document.getElementById(id).getElementsByClassName('wr_select_option')
     let i = 0
     for (let option of children)
     {
-        if (option.classList.contains("selected"))
+        if (option.classList.contains('selected'))
         {
             return i
         }
@@ -316,10 +250,10 @@ function get_selected_option(id)
  */
 function select_option(id, index)
 {
-    let children = document.getElementById(id).getElementsByClassName("wr_select_option")
+    let children = document.getElementById(id).getElementsByClassName('wr_select_option')
     for (let option of children)
     {
-        option.classList.remove("selected")
+        option.classList.remove('selected')
     }
-    document.getElementById(id + "-" + index).classList.add("selected")
+    document.getElementById(`${id}-${index}`).classList.add('selected')
 }
