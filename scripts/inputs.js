@@ -7,13 +7,17 @@
 
 /**
  * function:    build_page_frame
- * parameters:  page name, array of columns as strings
+ * parameters:  page name, array of columns as strings, if to add top margin
  * returns:     page object as a string
  * description: Builds the HTML string of a page object given its name and columns.
  */
-function build_page_frame(page_name, columns)
+function build_page_frame(page_name, columns, top_margin=true)
 {
     let html_str = "<div class=\"page\">"
+    if (!top_margin)
+    {
+        html_str = "<div class=\"page no_top_margin\">"
+    }
     if (page_name.length > 0)
     {
         html_str += "<h2 class=\"page_header\">" + page_name + "</h2>"
@@ -107,7 +111,7 @@ function build_select(id, name, option_names, default_op, onclick="")
     let html_str = ""
     if (name.length != 0)
     {
-        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
     }
     html_str += "<div class=\"wr_select\" id=\"" + id + "\">"
     option_names.forEach(function (op_name, index)
@@ -136,7 +140,7 @@ function build_dropdown(id, name, option_names, default_op="", onchange="")
     let html_str = ""
     if (name.length != 0)
     {
-        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
     }
     html_str += "<select class=\"wr_dropdown\" id=\"" + id + "\" onchange=\"" + onchange + "\">"
     option_names.forEach(function (op_name, index)
@@ -163,7 +167,7 @@ function build_str_entry(id, name, value="", type="text")
     let html_str = ""
     if (name.length != 0)
     {
-        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
     }
     html_str += "<input class=\"wr_string\" type=\"" + type + "\" id=\"" + id + "\" value=\"" + value + "\"><br>"
     return html_str
@@ -180,7 +184,7 @@ function build_num_entry(id, name, value="", bounds=[])
     let html_str = ""
     if (name.length != 0)
     {
-        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
     }
     let bounds_str = ""
     if (bounds.length > 0)
@@ -206,7 +210,7 @@ function build_text_entry(id, name, value="")
     let html_str = ""
     if (name.length != 0)
     {
-        html_str + "<h4 class=\"input_label\">" + name + "</h4>"
+        html_str += "<h4 class=\"input_label\">" + name + "</h4>"
     }
     html_str += "<textarea class=\"wr_text\" id=\"" + id + "\">" + value + "</textarea><br>"
     return html_str

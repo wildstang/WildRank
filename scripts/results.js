@@ -337,9 +337,11 @@ window.addEventListener('load', function() {
         avail_matches.unshift('All')
         avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
         avail_teams.unshift('All')
-        document.getElementById('preview').innerHTML = `${build_dropdown('match_filter', '', avail_matches, 'All', 'build_result_list()')}
-            ${build_dropdown('team_filter', '', avail_teams, 'All', 'build_result_list()')}
-            ${document.getElementById('preview').innerHTML}`
+        document.getElementById('preview').innerHTML = `\
+            ${build_page_frame('', [
+                build_column_frame('', [ build_dropdown('match_filter', 'Match:', avail_matches, 'All', 'build_result_list()') ]),
+                build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
+            ], false)} ${document.getElementById('preview').innerHTML}`
         document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, CONTENTS)
         if (type == PIT_MODE)
         {

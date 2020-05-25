@@ -6,30 +6,30 @@
  * date:        2020-02-15
  */
 
-let page = build_page_frame("", [
-    build_column_frame("Options", [
-        build_str_entry("event_id", "Event ID:"),
-        build_dropdown("position", "Position:", ["Red 1", "Red 2", "Red 3", "Blue 1", "Blue 2", "Blue 3"]),
-        build_select("type_form", "Mode:", ["Pit", "Match", "Note"], "Match"),
+let page = build_page_frame('', [
+    build_column_frame('Options', [
+        build_str_entry('event_id', 'Event ID:'),
+        build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
+        build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
         build_str_entry('upload_addr', 'Upload URL:', `http://${document.location.href.split('/')[2]}`, 'url'),
-        build_num_entry("user_id", "School ID:", "", [100000, 999999])
+        build_num_entry('user_id', 'School ID:', '', [100000, 999999])
     ]),
-    build_column_frame("Pages", [
-        build_button("scout", "Scout", "scout()"),
-        build_button("open_results", "Results", "open_results()"),
-        build_button("open_ranker", "Team Rankings", "open_ranker()"),
-        build_button("open_sides", "Side-by-Side", "open_sides()"),
-        build_button("open_picks", "Pick Lists", "open_picks()"),
-        build_button("open_whiteboard", "Whiteboard", "open_whiteboard()")
+    build_column_frame('Pages', [
+        build_button('scout', 'Scout', 'scout()'),
+        build_button('open_results', 'Results', 'open_results()'),
+        build_button('open_ranker', 'Team Rankings', 'open_ranker()'),
+        build_button('open_sides', 'Side-by-Side', 'open_sides()'),
+        build_button('open_picks', 'Pick Lists', 'open_picks()'),
+        build_button('open_whiteboard', 'Whiteboard', 'open_whiteboard()')
     ]),
-    build_column_frame("Functions", [
-        build_button("preload_event", "Preload Event", "preload_event()"),
-        build_button("upload_all", "Upload Results", "upload_all()"),
-        build_button("import_all", "Import Results", "import_all()"),
-        build_button("download_csv", "Export Results", "download_csv()"),
-        build_button("reset", "Reset", "reset()")
+    build_column_frame('Functions', [
+        build_button('preload_event', 'Preload Event', 'preload_event()'),
+        build_button('upload_all', 'Upload Results', 'upload_all()'),
+        build_button('import_all', 'Import Results', 'import_all()'),
+        build_button('download_csv', 'Export Results', 'download_csv()'),
+        build_button('reset', 'Reset', 'reset()')
     ]),
-    build_column_frame("Status", [build_card("status")])
+    build_column_frame('Status', [build_card('status')])
 ])
 
 // when the page is finished loading
@@ -37,7 +37,7 @@ window.addEventListener('load', function() {
     document.body.innerHTML += page
     fetch_config(fill_defaults)
     let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
-    select_option("type_form", type_cookie == MATCH_MODE ? 1 : PIT_MODE ? 2 : 3)
+    select_option('type_form', type_cookie == MATCH_MODE ? 1 : PIT_MODE ? 2 : 3)
     process_files()
 })
 
@@ -49,11 +49,11 @@ window.addEventListener('load', function() {
  */
 function fill_defaults()
 {
-    let defaults = get_config("defaults")
-    document.getElementById("event_id").value = get_cookie(EVENT_COOKIE, defaults.event_id)
-    document.getElementById("user_id").value = get_cookie(USER_COOKIE, defaults.user_id)
-    document.getElementById("position").selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-    document.getElementById("upload_addr").selectedIndex = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
+    let defaults = get_config('defaults')
+    document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, defaults.event_id)
+    document.getElementById('user_id').value = get_cookie(USER_COOKIE, defaults.user_id)
+    document.getElementById('position').selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+    document.getElementById('upload_addr').selectedIndex = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
 }
 
 /**
@@ -79,32 +79,32 @@ function scout()
         {
             if (file_exists(get_event_teams_name(event)))
             {
-                document.location.href = "selection.html" + build_query({"page": "pits", [EVENT_COOKIE]: event, [USER_COOKIE]: user})
+                document.location.href = `selection.html${build_query({'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user})}`
             }
             else
             {
-                alert("No teams found! Please preload event.")
+                alert('No teams found! Please preload event.')
             }
         }
         else if (file_exists(get_event_matches_name(event)))
         {
             if (type === MATCH_MODE)
             {
-                document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+                document.location.href = `selection.html${build_query({'page': 'matches', [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})}`
             }
             else if (type === NOTE_MODE)
             {
-                document.location.href = "selection.html" + build_query({"page": "matches", [EVENT_COOKIE]: event, [POSITION_COOKIE]: -1, [USER_COOKIE]: user})
+                document.location.href = `selection.html${build_query({'page': 'matches', [EVENT_COOKIE]: event, [POSITION_COOKIE]: -1, [USER_COOKIE]: user})}`
             }
         }
         else
         {
-            alert("No matches found! Please preload event.")
+            alert('No matches found! Please preload event.')
         }
     }
     else
     {
-        alert("No config found for mode: " + type)
+        alert(`No config found for mode: ${type}`)
     }
 }
 
@@ -128,21 +128,21 @@ function open_results()
             
             if (count > 0)
             {
-                document.location.href = "selection.html" + build_query({"page": "results", "type": type, [EVENT_COOKIE]: event})
+                document.location.href = `selection.html${build_query({'page': 'results', 'type': type, [EVENT_COOKIE]: event})}`
             }
             else
             {
-                alert("No results found!")
+                alert('No results found!')
             }
         }
         else
         {
-            alert("No config found for mode: " + type)
+            alert(`No config found for mode: ${type}`)
         }
     }
     else
     {
-        alert("Results requires admin rights!")
+        alert('Results requires admin rights!')
     }
 }
 
@@ -161,16 +161,16 @@ function open_whiteboard()
         let event = get_event()
         if (file_exists(get_event_matches_name(event)))
         {
-            document.location.href = "selection.html" + build_query({"page": "whiteboard", [EVENT_COOKIE]: event})
+            document.location.href = `selection.html${build_query({'page': 'whiteboard', [EVENT_COOKIE]: event})}`
         }
         else
         {
-            alert("No matches found! Please preload event.")
+            alert('No matches found! Please preload event.')
         }
     }
     else
     {
-        alert("Whiteboard requires admin rights!")
+        alert('Whiteboard requires admin rights!')
     }
 }
 
@@ -189,7 +189,7 @@ function open_ranker()
         let type = get_selected_type()
         if (type == NOTE_MODE)
         {
-            alert("You can't rank notes...")
+            alert('You can\'t rank notes...')
         }
         else if (config_exists(type))
         {
@@ -198,21 +198,21 @@ function open_ranker()
             
             if (count > 0)
             {
-                document.location.href = "selection.html" + build_query({"page": "ranker", [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})
+                document.location.href = `selection.html${build_query({'page': 'ranker', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
             }
             else
             {
-                alert("No results found!")
+                alert('No results found!')
             }
         }
         else
         {
-            alert("No config found for mode: " + type)
+            alert(`No config found for mode: ${type}`)
         }
     }
     else
     {
-        alert("Team ranker requires admin rights!")
+        alert('Team ranker requires admin rights!')
     }
 }
 
@@ -231,16 +231,16 @@ function open_picks()
         let event = get_event()
         if (file_exists(get_event_teams_name(event)))
         {
-            document.location.href = "selection.html" + build_query({"page": "picklists", [EVENT_COOKIE]: event})
+            document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: event})}`
         }
         else
         {
-            alert("No teams found! Please preload event.")
+            alert('No teams found! Please preload event.')
         }
     }
     else
     {
-        alert("Pick lists requires admin rights!")
+        alert('Pick lists requires admin rights!')
     }
 }
 
@@ -259,7 +259,7 @@ function open_sides()
         let type = get_selected_type()
         if (type == NOTE_MODE)
         {
-            alert("You can't rank notes...")
+            alert('You can\'t rank notes...')
         }
         else if (config_exists(type))
         {
@@ -268,21 +268,21 @@ function open_sides()
             
             if (count > 0)
             {
-                document.location.href = "selection.html" + build_query({"page": "sides", [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})
+                document.location.href = `selection.html${build_query({'page': 'sides', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
             }
             else
             {
-                alert("No results found!")
+                alert('No results found!')
             }
         }
         else
         {
-            alert("No config found for mode: " + type)
+            alert(`No config found for mode: ${type}`)
         }
     }
     else
     {
-        alert("Team ranker requires admin rights!")
+        alert('Team ranker requires admin rights!')
     }
 }
 
@@ -299,17 +299,17 @@ function preload_event()
 
     // get event id from the text box
     let event_id = get_event()
-    status("Requesting event data...")
+    status('Requesting event data...')
 
     // fetch simple event matches
-    fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/matches/simple" + build_query({[TBA_KEY]: API_KEY}))
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches/simple${build_query({[TBA_KEY]: API_KEY})}`)
         .then(response => {
             return response.json()
         })
         .then(data => {
             if (data.length > 0)
             {
-                status("got (" + data.length + ") matches")
+                status(`got (${data.length}) matches`)
 
                 // sort match objs by match number
                 matches = data.sort(function (a, b)
@@ -324,23 +324,23 @@ function preload_event()
             }
             else
             {
-                status("no matches received")
+                status('no matches received')
             }
         })
         .catch(err => {
-            status("error loading matches")
+            status('error loading matches')
             console.log(err)
         })
 
     // fetch simple event teams
-    fetch("https://www.thebluealliance.com/api/v3/event/" + event_id + "/teams/simple" + build_query({[TBA_KEY]: API_KEY}))
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_KEY]: API_KEY})}`)
         .then(response => {
             return response.json()
         })
         .then(data => {
             if (data.length > 0)
             {
-                status("got (" + data.length + ") teams")
+                status(`got (${data.length}) teams`)
 
                 // sort team objs by team number
                 teams = data.sort(function (a, b)
@@ -356,7 +356,7 @@ function preload_event()
                 teams.forEach(function (team, index)
                 {
                     let year = get_event().substr(0,4)
-                    fetch("https://www.thebluealliance.com/api/v3/team/frc" + team.team_number + "/media/" + year + build_query({[TBA_KEY]: API_KEY}))
+                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_KEY]: API_KEY})}`)
                         .then(response => {
                             return response.json()
                         })
@@ -364,16 +364,16 @@ function preload_event()
                             localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
                         })
                         .catch(err => {
-                            console.log("error loading avatar: " + err)
+                            console.log(`error loading avatar: ${err}`)
                         })
                 })
             }
             else {
-                status("no teams received")
+                status('no teams received')
             }
         })
         .catch(err => {
-            status("error loading teams")
+            status('error loading teams')
             console.log(err)
         })
 }
@@ -398,7 +398,7 @@ function upload_all()
             // determine files which start with the desired type
             if (file.startsWith(`${type}-`))
             {
-                // append file name to data, separated by "|||"
+                // append file name to data, separated by '|||'
                 upload = `${file} ||| ${localStorage.getItem(file)}`
                 status(`posting ${file}`)
                 // post string to server
@@ -530,7 +530,7 @@ function reset()
     }
     else
     {
-        alert("Reset requires admin rights!")
+        alert('Reset requires admin rights!')
     }
 }
 
@@ -556,13 +556,13 @@ function process_files()
     let teams = []
     files.forEach(function (file, index)
     {
-        let parts = file.split("-")
+        let parts = file.split('-')
         // determine files which start with the desired type
-        if (parts[0] == "matches")
+        if (parts[0] == 'matches')
         {
             events.push(parts[1])
         }
-        else if (parts[0] == "teams")
+        else if (parts[0] == 'teams')
         {
             teams.push(parts[1])
         }
@@ -578,18 +578,18 @@ function process_files()
         {
             ++notes
         }
-        else if (parts[0] == "image")
+        else if (parts[0] == 'image')
         {
             ++avatars
         }
     })
-    status("Found...<br>" +
-           matches + " scouted matches<br>" +
-           pits + " scouted pits<br>" +
-           notes + " notes<br>" +
-           avatars + " team avatars<br>" +
-           "Match Events: " + events.join(", ") + "<br>" +
-           "Team Events: " + teams.join(", "))
+    status(`Found...<br>\
+           ${matches} scouted matches<br>\
+           ${pits} scouted pits<br>\
+           ${notes} match notes<br>\
+           ${avatars} team avatars<br>\
+           match events: ${events.join(', ')}<br>\
+           team events: ${teams.join(', ')}`)
 }
 
 /**
@@ -615,7 +615,7 @@ function save_options()
  */
 function status(status)
 {
-    document.getElementById("status").innerHTML += status + "<br>"
+    document.getElementById('status').innerHTML += `${status}<br>`
     console.log(status)
 }
 
@@ -630,7 +630,7 @@ function count_results(event_id, type)
     let count = 0
     Object.keys(localStorage).forEach(function (file, index)
     {
-        if (file.startsWith(type + "-" + event_id + "-"))
+        if (file.startsWith(`${type}-${event_id}-`))
         {
             ++count
         }
@@ -646,7 +646,7 @@ function count_results(event_id, type)
  */
 function is_admin(user_id)
 {
-    let admins = get_config("admins")
+    let admins = get_config('admins')
     return admins.length == 0 || admins.includes(parseInt(user_id))
 }
 
@@ -659,26 +659,26 @@ function is_admin(user_id)
 function export_spreadsheet(event_id)
 {
     let combined = {}
-    let keys = ["name", "event", "kind", "team", "match", "team"]
+    let keys = ['name', 'event', 'kind', 'team', 'match', 'team']
     Object.keys(localStorage).forEach(function (name, index)
     {
-        let parts = name.split("-")
+        let parts = name.split('-')
         let kind = parts[0]
         let event = parts[1]
         if (event == event_id)
         {
             let cont = true
-            let result = {"name": name, "event": event, "kind": kind}
+            let result = {'name': name, 'event': event, 'kind': kind}
             // confirm valid result type
             switch (kind)
             {
                 case MATCH_MODE:
-                    result["team"] = parts[3]
+                    result['team'] = parts[3]
                 case NOTE_MODE:
-                    result["match"] = parts[2]
+                    result['match'] = parts[2]
                     break
                 case PIT_MODE:
-                    result["team"] = parts[2]
+                    result['team'] = parts[2]
                     break
                 default:
                     cont = false
@@ -722,7 +722,7 @@ function export_spreadsheet(event_id)
         })
         lines.push(values.join())
     })
-    return lines.join("\n")
+    return lines.join('\n')
 }
 
 /**
@@ -738,21 +738,21 @@ function check_server(server)
         var req = new XMLHttpRequest();
         req.open('GET', server, false)
         req.send(null)
-        if (req.getAllResponseHeaders().toLowerCase().includes("python"))
+        if (req.getAllResponseHeaders().toLowerCase().includes('python'))
         {
             return true
         }
         else
         {
-            console.log("Feature is only supported on Python server.")
-            alert("This server does not support this feature!")
+            console.log('Feature is only supported on Python server.')
+            alert('This server does not support this feature!')
             return false
         }
     }
     catch (e)
     {
-        console.log("Unable to communicate with this server.")
-        alert("This server does not support this feature!")
+        console.log('Unable to communicate with this server.')
+        alert('This server does not support this feature!')
         return false
     }
 }
@@ -765,11 +765,11 @@ function check_server(server)
  * function:    get_selected_type
  * parameters:  none
  * returns:     Currently selected scouting type.
- * description: Determines whether to use "match" or "pit" scouting based on the "match" radio button.
+ * description: Determines whether to use 'match' or 'pit' scouting based on the 'match' radio button.
  */
 function get_selected_type()
 {
-    return get_selected_option("type_form") == 1 ? MATCH_MODE : get_selected_option("type_form") == 0 ? PIT_MODE : NOTE_MODE
+    return get_selected_option('type_form') == 1 ? MATCH_MODE : get_selected_option('type_form') == 0 ? PIT_MODE : NOTE_MODE
 }
 
 /**
@@ -780,7 +780,7 @@ function get_selected_type()
  */
 function get_event()
 {
-    return document.getElementById("event_id").value
+    return document.getElementById('event_id').value
 }
 
 /**
@@ -791,7 +791,7 @@ function get_event()
  */
 function get_user()
 {
-    return document.getElementById("user_id").value
+    return document.getElementById('user_id').value
 }
 
 /**
@@ -802,7 +802,7 @@ function get_user()
  */
 function get_position()
 {
-    return document.getElementById("position").selectedIndex
+    return document.getElementById('position').selectedIndex
 }
 
 /**
@@ -813,5 +813,5 @@ function get_position()
  */
 function get_upload_addr()
 {
-    return document.getElementById("upload_addr").value
+    return document.getElementById('upload_addr').value
 }

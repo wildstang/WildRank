@@ -15,11 +15,11 @@ const RESULT_BLOCK = "\
     </div>"
 
 const CONTENTS = "<h2 id=\"value\"></h2>"
-const BUTTONS = '' +
-    "<h4 class=\"center_text\">Sort numeric values</h4>" +
-    build_select("type_form", "", SORT_OPTIONS, "Mean", "collect_results(); select()") +
-    build_checkbox("scale_max", "Scale to Maximums", false, "select()") +
-    "<div class=\"wr_card\"><table id=\"compare_tab\"></table></div>"
+const BUTTONS = `<br>\
+    ${build_page_frame('', [
+        build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
+        build_column_frame('', [ '<h4 class="input_label">Bars</h4>', build_checkbox('scale_max', 'Scale to Maximums', false, 'select()') ])
+    ], false)}<br><div class="wr_card"><table id="compare_tab"></table></div>`
 
 const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRCA\"> <h2 class=\"result_name\">NAMEA</h2></div>\
               vs\
