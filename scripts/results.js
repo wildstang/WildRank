@@ -19,7 +19,6 @@ var teams = {}
 var results = {}
 
 var avail_teams = []
-var avail_matches = []
 
 /**
  * function:    open_result
@@ -151,15 +150,12 @@ function build_result_list()
 {
     let first = ''
     document.getElementById('option_list').innerHTML = ''
-    let team = document.getElementById('team_filter').value
-    let match = document.getElementById('match_filter').value
     Object.keys(results).forEach(function (file, index)
     {
         let label = file.substr(prefix.length).replace('-', ': ')
         let parts = label.split(': ')
-        if ((team == 'All' || parts[parts.length-1] == team) &&
-            (type != MATCH_MODE || (match == 'All' || parts[0] == match)) &&
-            (type != NOTE_MODE || (match == 'All' || Object.keys(results[file]).includes(match))))
+        if (type != MATCH_MODE || (document.getElementById('team_filter').value == 'All' || 
+            parts[parts.length-1] == document.getElementById('team_filter').value))
         {
             if (first == '')
             {
@@ -196,16 +192,7 @@ function collect_results()
         if (file.startsWith(prefix))
         {
             unsorted[file] = JSON.parse(localStorage.getItem(file))
-            let mode = unsorted[file].meta_scout_mode
-            if (mode != PIT_MODE)
-            {
-                let match = unsorted[file].meta_match
-                if (!avail_matches.includes(match))
-                {
-                    avail_matches.push(match)
-                }
-            }
-            if (mode != NOTE_MODE)
+            if (unsorted[file].meta_scout_mode == MATCH_MODE)
             {
                 let team = unsorted[file].meta_team
                 if (!avail_teams.includes(team))
@@ -225,15 +212,17 @@ function collect_results()
     if (type == NOTE_MODE)
     {
         unsorted = break_notes_into_teams(unsorted)
-        Object.keys(unsorted).forEach(function (key, index)
-        {
-            avail_teams.push(key.split('-')[2])
-        })
     }
 
     // sort results
-    Object.keys(unsorted).sort().forEach(function (key) {
-        results[key] = unsorted[key];
+    Object.keys(unsorted).sort(function (a, b)
+    { 
+        return parseInt(a.split('-')[2]) - parseInt(b.split('-')[2])
+    })
+    .forEach(function (key)
+    {
+        console.log(key)
+        results[key] = unsorted[key]
     })
 
     return num_results
@@ -333,20 +322,16 @@ window.addEventListener('load', function() {
     load_config(type)
     if (collect_results() > 0)
     {
-        avail_matches = avail_matches.sort(function (a, b) { return parseInt(a) - parseInt(b) })
-        avail_matches.unshift('All')
-        avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
-        avail_teams.unshift('All')
-        document.getElementById('preview').innerHTML = `\
-            ${build_page_frame('', [
-                build_column_frame('', [ build_dropdown('match_filter', 'Match:', avail_matches, 'All', 'build_result_list()') ]),
-                build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
-            ], false)}<br>${document.getElementById('preview').innerHTML}`
-        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, CONTENTS)
-        if (type == PIT_MODE)
+        if (type == MATCH_MODE)
         {
-            document.getElementById('match_filter').parentElement.style.display = 'none'
+            avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
+            avail_teams.unshift('All')
+            document.getElementById('preview').innerHTML = `\
+                ${build_page_frame('', [
+                    build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
+                ], false)}<br>${document.getElementById('preview').innerHTML}`
         }
+        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, CONTENTS)
         document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/BUTTONS/g, BUTTONS)
         build_result_list()
     }
