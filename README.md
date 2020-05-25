@@ -24,7 +24,7 @@ A single client can act as a central server and receive results uploaded from ot
 If all clients are using the Python web server, they can each upload results to themselves, leaving JSON files in /uploads. These files may then be transferred by any means, including flash drives, network storage, email, etc. This process is not as seemless as the above system, but can allow rapid synchronization without a continuous network connection.
 
 ### Data Export (In Progress)
-If no clients run the Python web server, results can be exported in bulk to a CSV file which then is downloaded and may be transferred by any means. Work is curently in progress to then intelligently combine these CSV files into an Excel Spreadsheet. This again is not the most seamless method, but does not require any Python web servers. It does, however, require any analysis to be done in Excel, but this may be seen as an advantage for some users.
+If no clients run the Python web server, results can be exported in bulk to a CSV file which then is downloaded and may be transferred by any means. A basic Python script, `csv2xls.py` can combine these CSV files into an Excel Spreadsheet. This again is not the most seamless method, but does not require any Python web servers. It does, however, require any analysis to be done in Excel, but this may be seen as an advantage for some users.
 
 ### QR Codes (Abandoned)
 QR codes were originally planned to be used to transfer results between clients. While this would allow for smooth, network-free, wireless data transfer, I found the size of the QR code to be extremely limiting (5-10 matches). Plus, not every device has a camera. 
