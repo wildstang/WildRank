@@ -4,7 +4,7 @@ from os.path import isfile, join
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
-VALID_PATHS = ['/config', '/scripts', '/styles', '/favicon.ico', '/index.html', '/scout.html', '/selection.html']
+VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/scout.html', '/selection.html']
 
 class ServerHandler(http.server.SimpleHTTPRequestHandler):
     def _set_response(self):

@@ -11,7 +11,7 @@ let page = build_page_frame("", [
         build_str_entry("event_id", "Event ID:"),
         build_dropdown("position", "Position:", ["Red 1", "Red 2", "Red 3", "Blue 1", "Blue 2", "Blue 3"]),
         build_select("type_form", "Mode:", ["Pit", "Match", "Note"], "Match"),
-        build_str_entry("upload_addr", "Upload URL:", "http://localhost", "url"),
+        build_str_entry('upload_addr', 'Upload URL:', `http://${document.location.href.split('/')[2]}`, 'url'),
         build_num_entry("user_id", "School ID:", "", [100000, 999999])
     ]),
     build_column_frame("Pages", [
@@ -391,18 +391,18 @@ function upload_all()
     if (check_server(get_upload_addr()))
     {
         let type = get_selected_type()
-        status("Uploading " + type + " results...")
+        status(`Uploading ${type} results...`)
         // get all files in localStorage
         Object.keys(localStorage).forEach(function (file, index)
         {
             // determine files which start with the desired type
-            if (file.startsWith(type + "-"))
+            if (file.startsWith(`${type}-`))
             {
                 // append file name to data, separated by "|||"
-                upload = file + "|||" + localStorage.getItem(file)
-                status("posting " + file)
+                upload = `${file} ||| ${localStorage.getItem(file)}`
+                status(`posting ${file}`)
                 // post string to server
-                fetch(get_upload_addr(), {method: "POST", body: upload})
+                fetch(get_upload_addr(), {method: 'POST', body: upload})
             }
         })
     }
@@ -423,61 +423,61 @@ function import_all()
         if (check_server(document.location))
         {
             // determine appropriate request for selected mode
-            let request = ""
+            let request = ''
             switch (get_selected_type())
             {
                 case MATCH_MODE:
-                    request = "getMatchResultNames"
+                    request = 'getMatchResultNames'
                     break
                 case PIT_MODE:
-                    request = "getPitResultNames"
+                    request = 'getPitResultNames'
                     break
                 case NOTE_MODE:
-                    request = "getNoteNames"
+                    request = 'getNoteNames'
                     break
             }
         
             // request list of available results
-            status("Requesting local result data...")
+            status('Requesting local result data...')
             fetch(request)
                 .then(response => {
                     return response.text()
                 })
                 .then(data => {
                     // get requested results for current event
-                    let results = data.split(",").filter(function (r) {
+                    let results = data.split(',').filter(function (r) {
                         return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
                     })
-                    status(results.length + " " + get_selected_type() + " results found")
+                    status(`${results.length} ${get_selected_type()} results found`)
                     
                     // request each desired result
                     results.forEach(function (file, index)
                     {
-                        fetch(get_upload_addr() + '/uploads/' + file)
+                        fetch(`${get_upload_addr()}/uploads/${file}`)
                             .then(response => {
                                 return response.json()
                             })
                             .then(data => {
                                 // save file
                                 localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
-                                status("got " + file)
+                                status(`got ${file}`)
                             })
                             .catch(err => {
-                                status("error requesting result")
+                                status('Error requesting result')
                                 console.log(err)
                             })
                     })
         
                 })
                 .catch(err => {
-                    status("error requesting results")
+                    status('Error requesting results')
                     console.log(err)
                 })
         }
     }
     else
     {
-        alert("Import requires admin rights!")
+        alert('Import requires admin rights!')
     }
 }
 
@@ -506,7 +506,7 @@ function download_csv()
     }
     else
     {
-        alert("Download requires admin rights!")
+        alert('Download requires admin rights!')
     }
 }
 
