@@ -11,7 +11,7 @@ let page = build_page_frame('', [
         build_str_entry('event_id', 'Event ID:'),
         build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
         build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
-        build_str_entry('upload_addr', 'Upload URL:', `http://${document.location.href.split('/')[2]}`, 'url'),
+        build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'),
         build_num_entry('user_id', 'School ID:', '', [100000, 999999])
     ]),
     build_column_frame('Pages', [
@@ -420,7 +420,7 @@ function import_all()
 
     if (is_admin(get_user()))
     {
-        if (check_server(document.location))
+        if (check_server(document.location.href))
         {
             // determine appropriate request for selected mode
             let request = ''
@@ -726,6 +726,21 @@ function export_spreadsheet(event_id)
 }
 
 /**
+ * function:    parse_server_addr
+ * parameters:  URL
+ * returns:     The web server's address
+ * description: Removes the path from the end of a URL.
+ */
+function parse_server_addr(addr)
+{
+    if (addr.indexOf('/', 8) > -1)
+    {
+        return addr.substr(0, addr.lastIndexOf('/'))
+    }
+    return addr
+}
+
+/**
  * function:    check_server
  * parameters:  Server address
  * returns:     If the server is the custom Python web server.
@@ -735,10 +750,11 @@ function check_server(server)
 {
     try
     {
-        var req = new XMLHttpRequest();
-        req.open('GET', server, false)
+        let check_addr = `${parse_server_addr(server)}/about`
+        var req = new XMLHttpRequest()
+        req.open('GET', check_addr, false)
         req.send(null)
-        if (req.getAllResponseHeaders().toLowerCase().includes('python'))
+        if (req.responseText.includes('Python3 post-server'))
         {
             return true
         }
@@ -752,7 +768,7 @@ function check_server(server)
     catch (e)
     {
         console.log('Unable to communicate with this server.')
-        alert('This server does not support this feature!')
+        alert('Unable to find a compatible server!')
         return false
     }
 }
