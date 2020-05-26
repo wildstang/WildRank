@@ -20,6 +20,8 @@ const POSITION_DEFAULT = 0
 const UPLOAD_COOKIE = 'upload_url'
 const UPLOAD_DEFAULT = 'http://localhost:80'
 const TBA_KEY = 'X-TBA-Auth-Key'
+const THEME_COOKIE = 'theme'
+const THEME_DEFAULT = 'light'
 
 /**
  * function:    build_query
@@ -95,6 +97,7 @@ function get_cookie(cname, dvalue)
             return c.substring(name.length, c.length);
         }
     }
+    set_cookie(cname, dvalue)
     return dvalue;
 }
 

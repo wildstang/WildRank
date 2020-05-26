@@ -221,7 +221,6 @@ function collect_results()
     })
     .forEach(function (key)
     {
-        console.log(key)
         results[key] = unsorted[key]
     })
 

@@ -48,19 +48,19 @@ function open_match(match_num)
             // select appropriate team for position
             if (selected < 0)
             {
-                document.getElementById("team_scouting").style.color = 'black'
+                document.getElementById("team_scouting").style.color = get_config('theme')['foreground-text-color']
             }
             else if (selected > 2)
             {
                 // shift blue alliance indicies up
                 selected -= 3
                 team = blue_teams[selected]
-                document.getElementById("team_scouting").style.color = 'blue'
+                document.getElementById("team_scouting").style.color = get_config('theme')['blue']
             }
             else
             {
                 team = red_teams[selected]
-                document.getElementById("team_scouting").style.color = 'red'
+                document.getElementById("team_scouting").style.color = get_config('theme')['red']
             }
 
             // select option
@@ -179,7 +179,7 @@ function build_match_list()
 
             // grey out previously scouted matches/teams
             scouted = "not_scouted"
-            if (scout_pos > -1 && file_exists(get_match_result(number, team, event_id)))
+            if (scout_pos >= 0 && file_exists(get_match_result(number, team, event_id)))
             {
                 first = ""
                 scouted = "scouted"

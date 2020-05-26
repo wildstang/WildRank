@@ -260,6 +260,10 @@ function get_value(key, value)
 window.addEventListener('load', function()
 {
     let theme = get_config('theme')
+    if (get_cookie(THEME_COOKIE, THEME_DEFAULT) == 'dark')
+    {
+        theme = get_config('dark-theme')
+    }
     Object.keys(theme).forEach(function (key, index)
     {
         document.documentElement.style.setProperty(`--${key}`, theme[key])
