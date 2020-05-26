@@ -9,13 +9,24 @@ var config
 
 /**
  * function:    fetch_config
- * parameters:  function to call on config load
+ * parameters:  function to call on config load, force reload
  * returns:     none
  * description: Fetch the configuration and saves to local storage.
  */
-function fetch_config(onConfig)
+function fetch_config(onConfig, force=false)
 {
-    fetch('config/scout-config.json')
+    let init = {}
+    if (force)
+    {
+        let headers = new Headers()
+        headers.append('pragma', 'no-cache')
+        headers.append('cache-control', 'no-cache')
+        init = {
+            method: 'GET',
+            headers: headers
+        }
+    }
+    fetch('config/scout-config.json', init)
         .then(response => {
             return response.json()
         })
@@ -28,7 +39,7 @@ function fetch_config(onConfig)
         .catch(err => {
             console.log(`Error config file, ${err}`)
         })
-    fetch('config/config.json')
+    fetch('config/config.json', init)
         .then(response => {
             return response.json()
         })

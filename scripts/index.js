@@ -525,7 +525,7 @@ function reset()
         if (confirm('Delete all configuration, results, and other app data?'))
         {
             localStorage.clear()
-            location.reload()
+            fetch_config(function() { location.reload() }, true)
         }
     }
     else
