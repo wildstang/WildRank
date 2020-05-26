@@ -95,7 +95,7 @@
         "active-color": "#1E90FF",
         "active-text-color": "#FFFFFF",
         "hover-color": "#ADD8E6",
-        "hover-text-color": "#ADD8E6",
+        "hover-text-color": "#000000",
         "border-color": "#000000",
         "inactive-color": "#C0C0C0",
         "inactive-text-color": "#FFFFFF",

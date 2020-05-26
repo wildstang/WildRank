@@ -26,6 +26,7 @@
 
 html {
     background-color: var(--background-color);
+    color: var(--background-text-color);
     touch-action: manipulation;
 }
 
@@ -61,6 +62,7 @@ body {
     margin: 0 auto var(--input-gap);
     padding: var(--input-padding);
     background-color: var(--foreground-color);
+    color: var(--foreground-text-color);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
@@ -141,6 +143,7 @@ body {
 
 .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_number:hover, .wr_text:hover {
     background-color: var(--hover-color);
+    color: var(--hover-text-color);
 }
 
 .wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > * {
