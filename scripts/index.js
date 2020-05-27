@@ -788,7 +788,7 @@ function switch_theme()
     if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
     {
         set_cookie(THEME_COOKIE, theme)
-        location.reload()
+        apply_theme()
     }
 }
 

@@ -285,6 +285,24 @@ function get_theme()
     return theme
 }
 
+/**
+ * function:    apply_theme
+ * parameters:  none
+ * returns:     none
+ * description: Applys the current theme to page.
+ */
+function apply_theme()
+{
+    let theme = get_theme()
+    if (typeof theme !== 'undefined')
+    {
+        Object.keys(theme).forEach(function (key, index)
+        {
+            document.documentElement.style.setProperty(`--${key}`, theme[key])
+        })
+    }
+}
+
 window.addEventListener('load', function()
 {
     // read title from config
@@ -295,12 +313,5 @@ window.addEventListener('load', function()
         document.getElementById('title').innerHTML = title
     }
 
-    let theme = get_theme()
-    if (typeof theme !== 'undefined')
-    {
-        Object.keys(theme).forEach(function (key, index)
-        {
-            document.documentElement.style.setProperty(`--${key}`, theme[key])
-        })
-    }
+    apply_theme()
 })
