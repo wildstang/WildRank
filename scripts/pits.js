@@ -12,11 +12,11 @@ const TEAM_BLOCK = `
         <span class="long_option_number">TEAM_NUM</span>
     </div>`
 
-const OPEN_RESULT = build_button('open_result', 'View Results', `open_result('RESULT')`)
+const OPEN_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + build_button('open_result', 'View Results', `open_result('RESULT')`)
 
 const CONTENTS = '<h2>Team: <span id="team_num">No Match Selected</span></h2>'
     
-const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting()')}<div id="view_result"></div>`
+const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}<div id="view_result"></div>`
 
 var teams
 
@@ -67,14 +67,14 @@ function open_result(file)
 
 /**
  * function:    start_scouting
- * parameters:  none
+ * parameters:  Edit existing results
  * returns:     none
  * description: Open scouting mode for the desired team in the current tab.
  */
-function start_scouting()
+function start_scouting(edit)
 {
     let team_num = document.getElementById('team_num').innerHTML
-    window.open(`scout.html${build_query({[TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id})}`, '_self')
+    window.open(`scout.html${build_query({[TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})}`, '_self')
 }
 
 /**

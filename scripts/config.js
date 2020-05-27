@@ -268,6 +268,23 @@ function get_value(key, value)
     }
 }
 
+/**
+ * function:    get_theme
+ * parameters:  none
+ * returns:     Current theme JSON object.
+ * description: Fetches the current theme as a JSON object.
+ */
+function get_theme()
+{
+    // read theme from config
+    let theme = get_config('theme')
+    if (get_cookie(THEME_COOKIE, THEME_DEFAULT) == 'dark')
+    {
+        theme = get_config('dark-theme')
+    }
+    return theme
+}
+
 window.addEventListener('load', function()
 {
     // read title from config
@@ -278,12 +295,7 @@ window.addEventListener('load', function()
         document.getElementById('title').innerHTML = title
     }
 
-    // read theme from config
-    let theme = get_config('theme')
-    if (get_cookie(THEME_COOKIE, THEME_DEFAULT) == 'dark')
-    {
-        theme = get_config('dark-theme')
-    }
+    let theme = get_theme()
     if (typeof theme !== 'undefined')
     {
         Object.keys(theme).forEach(function (key, index)
