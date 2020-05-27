@@ -270,13 +270,25 @@ function get_value(key, value)
 
 window.addEventListener('load', function()
 {
+    // read title from config
+    let title = get_config('title')
+    if (typeof title !== 'undefined')
+    {
+        document.title = title
+        document.getElementById('title').innerHTML = title
+    }
+
+    // read theme from config
     let theme = get_config('theme')
     if (get_cookie(THEME_COOKIE, THEME_DEFAULT) == 'dark')
     {
         theme = get_config('dark-theme')
     }
-    Object.keys(theme).forEach(function (key, index)
+    if (typeof theme !== 'undefined')
     {
-        document.documentElement.style.setProperty(`--${key}`, theme[key])
-    })
+        Object.keys(theme).forEach(function (key, index)
+        {
+            document.documentElement.style.setProperty(`--${key}`, theme[key])
+        })
+    }
 })
