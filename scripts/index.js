@@ -12,7 +12,8 @@ let page = build_page_frame('', [
         build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
         build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
         build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'),
-        build_num_entry('user_id', 'School ID:', '', [100000, 999999])
+        build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
+        build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
     build_column_frame('Pages', [
         build_button('scout', 'Scout', 'scout()'),
@@ -36,8 +37,6 @@ let page = build_page_frame('', [
 window.addEventListener('load', function() {
     document.body.innerHTML += page
     fetch_config(fill_defaults)
-    let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
-    select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
     process_files()
 })
 
@@ -54,6 +53,10 @@ function fill_defaults()
     document.getElementById('user_id').value = get_cookie(USER_COOKIE, defaults.user_id)
     document.getElementById('position').selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
     document.getElementById('upload_addr').selectedIndex = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
+    let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
+    select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
+    let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    select_option('theme_switch', theme == 'light' ? 0 : 1)
 }
 
 /**
@@ -770,6 +773,22 @@ function check_server(server)
         console.log('Unable to communicate with this server.')
         alert('Unable to find a compatible server!')
         return false
+    }
+}
+
+/**
+ * function:    switch_theme
+ * parameters:  none
+ * returns:     none
+ * description: Checks for a theme switch and updates.
+ */
+function switch_theme()
+{
+    let theme = get_selected_option('theme_switch') == 0 ? 'light' : 'dark'
+    if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
+    {
+        set_cookie(THEME_COOKIE, theme)
+        location.reload()
     }
 }
 
