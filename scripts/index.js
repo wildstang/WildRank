@@ -304,81 +304,90 @@ function preload_event()
     let event_id = get_event()
     status('Requesting event data...')
 
-    // fetch simple event matches
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches/simple${build_query({[TBA_KEY]: API_KEY})}`)
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            if (data.length > 0)
-            {
-                status(`got (${data.length}) matches`)
-
-                // sort match objs by match number
-                matches = data.sort(function (a, b)
+    if (!API_KEY)
+    {
+        status('No API key found for TBA!')
+    }
+    else
+    {
+        // fetch simple event matches
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches/simple${build_query({[TBA_KEY]: API_KEY})}`)
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                if (data.length > 0)
                 {
-                    return b.match_number < a.match_number ?  1
-                            : b.match_number > a.match_number ? -1
-                            : 0
-                })
+                    status(`Got (${data.length}) matches`)
 
-                // store matches as JSON string in matches-[event-id]
-                localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
-            }
-            else
-            {
-                status('no matches received')
-            }
-        })
-        .catch(err => {
-            status('error loading matches')
-            console.log(err)
-        })
+                    // sort match objs by match number
+                    matches = data.sort(function (a, b)
+                    {
+                        return b.match_number < a.match_number ?  1
+                                : b.match_number > a.match_number ? -1
+                                : 0
+                    })
 
-    // fetch simple event teams
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_KEY]: API_KEY})}`)
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            if (data.length > 0)
-            {
-                status(`got (${data.length}) teams`)
-
-                // sort team objs by team number
-                teams = data.sort(function (a, b)
+                    // store matches as JSON string in matches-[event-id]
+                    localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
+                }
+                else
                 {
-                    return b.team_number < a.team_number ?  1
-                            : b.team_number > a.team_number ? -1
-                            : 0;
-                })
-                // store teams as JSON string in teams-[event_id]
-                localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
+                    status('No matches received!')
+                }
+            })
+            .catch(err => {
+                status('Error loading matches!')
+                console.log(err)
+            })
 
-                // fetch team's avatar for whiteboard
-                teams.forEach(function (team, index)
+        // fetch simple event teams
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_KEY]: API_KEY})}`)
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                if (data.length > 0)
                 {
-                    let year = get_event().substr(0,4)
-                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_KEY]: API_KEY})}`)
-                        .then(response => {
-                            return response.json()
-                        })
-                        .then(data => {
-                            localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
-                        })
-                        .catch(err => {
-                            console.log(`error loading avatar: ${err}`)
-                        })
-                })
-            }
-            else {
-                status('no teams received')
-            }
-        })
-        .catch(err => {
-            status('error loading teams')
-            console.log(err)
-        })
+                    status(`Got (${data.length}) teams`)
+
+                    // sort team objs by team number
+                    teams = data.sort(function (a, b)
+                    {
+                        return b.team_number < a.team_number ?  1
+                                : b.team_number > a.team_number ? -1
+                                : 0;
+                    })
+                    // store teams as JSON string in teams-[event_id]
+                    localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
+
+                    // fetch team's avatar for whiteboard
+                    teams.forEach(function (team, index)
+                    {
+                        let year = get_event().substr(0,4)
+                        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_KEY]: API_KEY})}`)
+                            .then(response => {
+                                return response.json()
+                            })
+                            .then(data => {
+                                localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
+                            })
+                            .catch(err =>
+                            {
+                                console.log(`Error loading avatar: ${err}!`)
+                            })
+                    })
+                }
+                else
+                {
+                    status('No teams received!')
+                }
+            })
+            .catch(err => {
+                status('Error loading teams!')
+                console.log(err)
+            })
+    }
 }
 
 /**
@@ -403,7 +412,7 @@ function upload_all()
             {
                 // append file name to data, separated by '|||'
                 upload = `${file}|||${localStorage.getItem(file)}`
-                status(`posting ${file}`)
+                status(`Posting ${file}`)
                 // post string to server
                 fetch(get_upload_addr(), {method: 'POST', body: upload})
             }
@@ -463,7 +472,7 @@ function import_all()
                             .then(data => {
                                 // save file
                                 localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
-                                status(`got ${file}`)
+                                status(`Got ${file}`)
                             })
                             .catch(err => {
                                 status('Error requesting result')
@@ -591,8 +600,8 @@ function process_files()
            ${pits} scouted pits<br>\
            ${notes} match notes<br>\
            ${avatars} team avatars<br>\
-           match events: ${events.join(', ')}<br>\
-           team events: ${teams.join(', ')}`)
+           Match events: ${events.join(', ')}<br>\
+           Team events: ${teams.join(', ')}`)
 }
 
 /**
