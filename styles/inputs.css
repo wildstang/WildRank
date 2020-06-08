@@ -53,6 +53,7 @@ body {
 }
 
 .wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header {
+    display: block;
     font-size: 16px;
     font-family: "DejaVu Serif";
     border-style: solid;
@@ -132,7 +133,7 @@ body {
 .wr_select {
     min-width: var(--input-width);
     height: var(--input-height);
-    display: inline-table;
+    display: table;
     table-layout: fixed;
     padding: 0px;
 }
