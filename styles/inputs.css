@@ -139,6 +139,7 @@ body {
 
 .wr_button {
     clear: both;
+    text-align: center;
 }
 
 .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_number:hover, .wr_text:hover {
