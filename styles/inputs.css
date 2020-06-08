@@ -132,7 +132,7 @@ body {
 .wr_select {
     min-width: var(--input-width);
     height: var(--input-height);
-    display: table;
+    display: inline-table;
     table-layout: fixed;
     padding: 0px;
 }
