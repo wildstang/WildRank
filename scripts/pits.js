@@ -14,11 +14,91 @@ const TEAM_BLOCK = `
 
 const OPEN_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + build_button('open_result', 'View Results', `open_result('RESULT')`)
 
-const CONTENTS = '<h2>Team: <span id="team_num">No Match Selected</span></h2>'
+const CONTENTS = `<h2>Team: <span id="team_num">No Team Selected</span></h2>
+                    <img id="photo" alt="No image available">`
     
-const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}<div id="view_result"></div>`
+const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
+                <div id="view_result"></div>
+                <video id="prevue" height="0">Video stream not available</video>
+                ${build_button('capture', 'Capture Robot', 'capture()')}`
 
 var teams
+var team = ''
+
+var streaming = false
+var canvas
+
+/**
+ * function:    init_camera
+ * parameters:  none
+ * returns:     none
+ * description: Initializes camera preview
+ */
+function init_camera()
+{
+    let video = document.getElementById('prevue')
+    canvas = document.createElement('canvas')
+
+    // get video stream
+    navigator.mediaDevices.getUserMedia({video: true, audio: false})
+        .then(function(stream)
+        {
+            video.srcObject = stream
+            video.play()
+        })
+        .catch(function(err)
+        {
+            console.log(err)
+        })
+
+    // initialize camera dimensions, when available
+    video.addEventListener('canplay', function(e)
+    {
+        if (!streaming)
+        {
+            // calculate preview width
+            let width = 320 // default resolution is low bc localStorage has a limit
+            let height = video.videoHeight / (video.videoWidth/width)
+            if (isNaN(height))
+            {
+                height = width / (4/3)
+            }
+
+            // apply dimensions
+            video.setAttribute('width', width)
+            video.setAttribute('height', height)
+            canvas.setAttribute('width', width)
+            canvas.setAttribute('height', height)
+            streaming = true
+        }
+    }, false)
+}
+
+/**
+ * function:    capture
+ * parameters:  none
+ * returns:     none
+ * description: Captures an image from the camera.
+ */
+function capture()
+{
+    if (streaming)
+    {
+        // capture image to canvas
+        let video = document.getElementById('prevue')
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+        // place canvas on frame
+        let photo = document.getElementById('photo')
+        photo.setAttribute('src', canvas.toDataURL('image/png'))
+
+        // save image to file
+        localStorage.setItem(get_team_image_name(team, event_id), canvas.toDataURL('image/png'))
+    }
+    else
+    {
+        alert('Camera not found! Have you allowed the camera permission?')
+    }
+}
 
 /**
  * function:    open_team
@@ -28,6 +108,7 @@ var teams
  */
 function open_team(team_num)
 {
+    team = team_num
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById(`team_${team_num}`).classList.add('selected')
     teams.forEach(function (team, index) {
@@ -51,6 +132,17 @@ function open_team(team_num)
     else
     {
         document.getElementById('view_result').innerHTML = ''
+    }
+    
+    file = get_team_image_name(team_num, event_id)
+    if (file_exists(file))
+    {
+        let image = localStorage.getItem(get_team_image_name(team_num, event_id))
+        document.getElementById('photo').setAttribute('src', image)
+    }
+    else
+    {
+        document.getElementById('photo').setAttribute('src', '')
     }
 }
 
@@ -134,6 +226,7 @@ function load_event()
         preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, '<h2>No Team Data Found</h2>Please preload event')
                                              .replace(/BUTTONS/g, '')
     }
+    init_camera()
 }
 
 // read parameters from URL

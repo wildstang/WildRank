@@ -12,7 +12,7 @@ const RESULT_BLOCK = `
         <span class="long_option_number">TEXT</span>
     </div>`
 
-const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2></div><table id="results_tab"></table>'
+const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2></div><img id="photo"><table id="results_tab"></table>'
 const BUTTONS = ''
 
 var teams = {}
@@ -57,6 +57,17 @@ function open_result(name)
             break
     }
     table += '</tr><tr><th>Total Results</th><td>1</td>'
+
+    let file = get_team_image_name(team, event_id)
+    if (file_exists(file))
+    {
+        let image = localStorage.getItem(get_team_image_name(team, event_id))
+        document.getElementById('photo').setAttribute('src', image)
+    }
+    else
+    {
+        document.getElementById('photo').setAttribute('src', '')
+    }
 
     switch (type)
     {

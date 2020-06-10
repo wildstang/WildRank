@@ -251,7 +251,7 @@ function get_team_name(team_num, event)
  */
 function get_avatar(team_num, year)
 {
-    let b64img = localStorage.getItem(`image-${year}-${team_num}`)
+    let b64img = localStorage.getItem(get_team_avatar_name(team_num, year))
     if (b64img == null)
     {
         return '/config/dozer.png'
@@ -289,7 +289,18 @@ function get_event_teams_name(event_id)
  */
 function get_team_avatar_name(team_num, year)
 {
-    return `image-${year}-${team_num}`
+    return `avatar-${year}-${team_num}`
+}
+
+/**
+ * function:    get_team_image_name
+ * parameters:  team number, event
+ * returns:     team image filename
+ * description: Fetches the team's image filename from localStorage.
+ */
+function get_team_image_name(team_num, event)
+{
+    return `image-${event}-${team_num}`
 }
 
 /**
