@@ -1,8 +1,8 @@
-import socketserver, http.server, logging
+import socketserver, http.server, logging, base64
 from os import listdir
 from os.path import isfile, join
 
-PORT = 80
+PORT = 8080
 UPLOAD_PATH = 'uploads/'
 VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/scout.html', '/selection.html']
 
@@ -22,6 +22,8 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         # request for results
         if self.path == '/getPitResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('pit-') and f.endswith('.json')]
+        if self.path == '/getImageNames':
+            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('image-') and f.endswith('.json')]
         elif self.path == '/getMatchResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
         elif self.path == '/getNoteNames':
@@ -76,8 +78,20 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         # save result
         upload = post_data.decode('utf-8').split('|||')
         if len(upload) > 1:
-            with open(UPLOAD_PATH + upload[0] + '.json', 'w') as f:
-                f.write(upload[1])
+            file = upload[0]
+            content = upload[1]
+
+            if 'data:image/png;base64,' in content:
+                file += '.png'
+                content = content.replace('data:image/png;base64,', '')
+                with open(UPLOAD_PATH + file, 'wb') as f:
+                    f.write(base64.b64decode(content))
+                return
+            elif '.' not in file:
+                file += '.json'
+
+            with open(UPLOAD_PATH + file, 'w') as f:
+                f.write(content)
 
 # start HTTP server
 Handler = ServerHandler

@@ -408,10 +408,11 @@ function upload_all()
         Object.keys(localStorage).forEach(function (file, index)
         {
             // determine files which start with the desired type
-            if (file.startsWith(`${type}-`))
+            if (file.startsWith(`${type}-`) || (type == 'pit' && file.startsWith(`image-${get_event()}-`)))
             {
+                let content = localStorage.getItem(file)
                 // append file name to data, separated by '|||'
-                upload = `${file}|||${localStorage.getItem(file)}`
+                upload = `${file}|||${content}`
                 status(`Posting ${file}`)
                 // post string to server
                 fetch(get_upload_addr(), {method: 'POST', body: upload})

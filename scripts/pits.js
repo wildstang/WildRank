@@ -87,12 +87,18 @@ function capture()
         // capture image to canvas
         let video = document.getElementById('prevue')
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+
         // place canvas on frame
         let photo = document.getElementById('photo')
-        photo.setAttribute('src', canvas.toDataURL('image/png'))
+        let image = canvas.toDataURL('image/png')
+        photo.setAttribute('src', image)
 
         // save image to file
-        localStorage.setItem(get_team_image_name(team, event_id), canvas.toDataURL('image/png'))
+        let file = get_team_image_name(team, event_id)
+        localStorage.setItem(file, image)
+        
+        // post file to server
+        fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${file}|||${image}`})
     }
     else
     {
@@ -133,16 +139,32 @@ function open_team(team_num)
     {
         document.getElementById('view_result').innerHTML = ''
     }
-    
+
+    let photo = document.getElementById('photo')
+    photo.setAttribute('onerror', `use_cached_image(${team_num})`)
     file = get_team_image_name(team_num, event_id)
+    photo.setAttribute('src', `/uploads/${file}.png`)
+}
+
+/**
+ * function:    use_cached_image
+ * parameters:  team number
+ * returns:     none
+ * description: Run on image loading error, attempts to load from localStorage instead.
+ */
+function use_cached_image(team_num)
+{
+    let file = get_team_image_name(team_num, event_id)
+    let photo = document.getElementById('photo')
+    photo.setAttribute('onerror', '') // avoid endless loop
     if (file_exists(file))
     {
         let image = localStorage.getItem(get_team_image_name(team_num, event_id))
-        document.getElementById('photo').setAttribute('src', image)
+        photo.setAttribute('src', image)
     }
     else
     {
-        document.getElementById('photo').setAttribute('src', '')
+        photo.setAttribute('src', '')
     }
 }
 
