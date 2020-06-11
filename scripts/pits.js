@@ -26,7 +26,8 @@ var teams
 var team = ''
 
 var streaming = false
-var canvas
+var full_canvas
+var low_canvas
 
 /**
  * function:    init_camera
@@ -37,7 +38,8 @@ var canvas
 function init_camera()
 {
     let video = document.getElementById('prevue')
-    canvas = document.createElement('canvas')
+    full_canvas = document.createElement('canvas')
+    low_canvas = document.createElement('canvas')
 
     // get video stream
     navigator.mediaDevices.getUserMedia({video: true, audio: false})
@@ -65,10 +67,12 @@ function init_camera()
             }
 
             // apply dimensions
-            video.setAttribute('width', width)
-            video.setAttribute('height', height)
-            canvas.setAttribute('width', width)
-            canvas.setAttribute('height', height)
+            video.setAttribute('width', video.videoWidth)
+            video.setAttribute('height', video.videoHeight)
+            low_canvas.setAttribute('width', width)
+            low_canvas.setAttribute('height', height)
+            full_canvas.setAttribute('width', video.videoWidth)
+            full_canvas.setAttribute('height', video.videoHeight)
             streaming = true
         }
     }, false)
@@ -86,19 +90,21 @@ function capture()
     {
         // capture image to canvas
         let video = document.getElementById('prevue')
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+        low_canvas.getContext('2d').drawImage(video, 0, 0, low_canvas.width, low_canvas.height)
+        full_canvas.getContext('2d').drawImage(video, 0, 0, full_canvas.width, full_canvas.height)
 
         // place canvas on frame
         let photo = document.getElementById('photo')
-        let image = canvas.toDataURL('image/png')
-        photo.setAttribute('src', image)
+        let low_res = low_canvas.toDataURL('image/png')
+        let full_res = full_canvas.toDataURL('image/png')
+        photo.setAttribute('src', full_res)
 
         // save image to file
         let file = get_team_image_name(team, event_id)
-        localStorage.setItem(file, image)
+        localStorage.setItem(file, low_res)
         
         // post file to server
-        fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${file}|||${image}`})
+        fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${file}|||${full_res}`})
     }
     else
     {
