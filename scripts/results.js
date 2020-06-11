@@ -58,16 +58,10 @@ function open_result(name)
     }
     table += '</tr><tr><th>Total Results</th><td>1</td>'
 
-    let file = get_team_image_name(team, event_id)
-    if (file_exists(file))
-    {
-        let image = localStorage.getItem(get_team_image_name(team, event_id))
-        document.getElementById('photo').setAttribute('src', image)
-    }
-    else
-    {
-        document.getElementById('photo').setAttribute('src', '')
-    }
+    let photo = document.getElementById('photo')
+    photo.setAttribute('onerror', `use_cached_image(${team}, "photo")`)
+    file = get_team_image_name(team, event_id)
+    photo.setAttribute('src', `/uploads/${file}.png`)
 
     switch (type)
     {

@@ -430,3 +430,25 @@ function avg_results(results, key, sort_type)
             }
     }
 }
+
+/**
+* function:    use_cached_image
+* parameters:  team number, image element id
+* returns:     none
+* description: Run on image loading error, attempts to load from localStorage instead.
+*/
+function use_cached_image(team_num, image_id)
+{
+    let file = get_team_image_name(team_num, event_id)
+    let photo = document.getElementById(image_id)
+    photo.setAttribute('onerror', '') // avoid endless loop
+    if (file_exists(file))
+    {
+        let image = localStorage.getItem(get_team_image_name(team_num, event_id))
+        photo.setAttribute('src', image)
+    }
+    else
+    {
+        photo.setAttribute('src', '')
+    }
+}

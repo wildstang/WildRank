@@ -2,7 +2,7 @@ import socketserver, http.server, logging, base64
 from os import listdir
 from os.path import isfile, join
 
-PORT = 8080
+PORT = 80
 UPLOAD_PATH = 'uploads/'
 VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/scout.html', '/selection.html']
 
