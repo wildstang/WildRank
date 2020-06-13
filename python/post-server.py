@@ -41,9 +41,6 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             # check if its a known file
             for path in VALID_PATHS:
                 if self.path.startswith(path) or self.path == '/':
-                    # add /assets in front of files
-                    if '.' in path or self.path == '/':
-                        self.path = '/assets{0}'.format(self.path)
                     return http.server.SimpleHTTPRequestHandler.do_GET(self)
             
             # send 404 otherwise
