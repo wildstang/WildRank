@@ -8,7 +8,7 @@
 
 const OPEN_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + build_button('open_result', 'View Results', `open_result('RESULT')`)
 
-const CONTENTS = `<h2>Team: <span id="team_num">No Team Selected</span></h2>
+const CONTENTS = `<img id="avatar"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                     <img id="photo" alt="No image available">`
     
 const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
@@ -114,8 +114,9 @@ function capture()
  */
 function open_option(team_num)
 {
-    team = team_num
+    document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
     document.getElementById('team_num').innerHTML = team_num
+    document.getElementById('team_name').innerHTML = get_team_name(team_num, event_id)
     document.getElementById(`option_${team_num}`).classList.add('selected')
     teams.forEach(function (team, index) {
         let number = team.team_number

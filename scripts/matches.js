@@ -9,8 +9,9 @@
 const OPEN_RESULT = build_button('open_result', 'View Results', `open_result('RESULT')`)
 const EDIT_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`)
 
-const CONTENTS = `<h2>Match Number: <span id="match_num">No Match Selected</span></h2>
-                  <h2>Scouting: <span id="team_scouting">No Match Selected</span></h2>`
+const CONTENTS = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
+                  <img id="avatar"><h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>
+                  <img id="photo" alt="No image available">`
                               
 const BUTTONS = `${build_button('scout_match', 'Scout Match!', 'start_scouting(false)')}<div id='view_result'></div>`
 
@@ -40,6 +41,7 @@ function open_match(match_num)
             if (selected < 0)
             {
                 document.getElementById('team_scouting').style.color = get_theme()['foreground-text-color']
+                document.getElementById('team_name').style.color = get_theme()['foreground-text-color']
             }
             else if (selected > 2)
             {
@@ -47,11 +49,13 @@ function open_match(match_num)
                 selected -= 3
                 team = blue_teams[selected]
                 document.getElementById('team_scouting').style.color = get_theme()['blue-alliance-color']
+                document.getElementById('team_name').style.color = get_theme()['blue-alliance-color']
             }
             else
             {
                 team = red_teams[selected]
                 document.getElementById('team_scouting').style.color = get_theme()['red-alliance-color']
+                document.getElementById('team_name').style.color = get_theme()['red-alliance-color']
             }
 
             // select option
@@ -60,6 +64,10 @@ function open_match(match_num)
             // populate team text
             if (scout_pos < 0)
             {
+                // remove single team elements
+                document.getElementById('avatar').style = 'display: none'
+                document.getElementById('photo').style = 'display: none'
+
                 document.getElementById('team_scouting').innerHTML = ''
                 red_teams.forEach(function (team, index)
                 {
@@ -76,7 +84,16 @@ function open_match(match_num)
             }
             else
             {
-                document.getElementById('team_scouting').innerHTML = team.substr(3)
+                let team_num = team.substr(3)
+                document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
+                document.getElementById('team_scouting').innerHTML = team_num
+                document.getElementById('team_name').innerHTML = get_team_name(team_num, event_id)
+
+                // find photo
+                let photo = document.getElementById('photo')
+                photo.setAttribute('onerror', `use_cached_image(${team_num}, "photo")`)
+                let file = get_team_image_name(team_num, event_id)
+                photo.setAttribute('src', `/uploads/${file}.png`)
             }
         }
         else if (level == 'qm' && match_div.classList.contains('selected'))
