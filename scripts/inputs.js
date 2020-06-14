@@ -164,19 +164,19 @@ function build_card(id, contents='')
 
 /**
  * function:    build_match_option
- * parameters:  match number, list of red teams, list of blue teams, selected class string, match name
+ * parameters:  match id, list of red teams, list of blue teams, selected class string, match name
  * returns:     match option as a string
  * description: Builds the HTML string of a match option object.
  */
-function build_match_option(match_num, red_teams, blue_teams, selected='', match_name='')
+function build_match_option(match_id, red_teams, blue_teams, selected='', match_name='')
 {
     if (!match_name)
     {
-        match_name = `Q${match_num}`
+        match_name = `Q${match_id}`
     }
     let red_str = red_teams.join(' | ').replace(/frc/g, '')
     let blue_str = blue_teams.join(' | ').replace(/frc/g, '')
-    return `<div id="match_${match_num}" class="match_option ${selected}" onclick="open_match('${match_num}')">
+    return `<div id="match_${match_id}" class="match_option ${selected}" onclick="open_match('${match_id}')">
                 <span class="option_number">${match_name}</span>
                 <span>
                     <div class="alliance red">${red_str}</div>
@@ -187,18 +187,18 @@ function build_match_option(match_num, red_teams, blue_teams, selected='', match
 
 /**
  * function:    build_option
- * parameters:  option text, selected class string, option name
+ * parameters:  option id, selected class string, option name
  * returns:     option as a string
  * description: Builds the HTML string of a option object.
  */
-function build_option(option_txt, selected='', option_name='')
+function build_option(option_id, selected='', option_name='')
 {
     if (!option_name)
     {
-        option_name = option_txt
+        option_name = option_id
     }
-    return `<div id="option_${option_txt}" class="pit_option ${selected}" onclick="open_option('${option_txt}')">
-                <span class="long_option_number">${option_txt}</span>
+    return `<div id="option_${option_id}" class="pit_option ${selected}" onclick="open_option('${option_id}')">
+                <span class="long_option_number">${option_name}</span>
             </div>`
 }
 
