@@ -6,48 +6,42 @@
  * date:        2020-03-19
  */
 
-// HTML template for a team option
-const TEAM_BLOCK = "\
-    <div id=\"team_TEAM_NUM\" class=\"pit_option\" onclick=\"open_team(TEAM_NUM)\">\
-        <span class=\"long_option_number\">TEAM_NUM</span>\
-    </div>"
-
 // HTML template for pick list
-const PICK_LIST = "<div id=\"NAME_list\" class=\"pick_list\">" + build_button("list_NAME", "NAME", "add_to('NAME', '')", "remove_team('NAME', '')") + "LIST_ITEMS</div>"
+const PICK_LIST = `<div id="NAME_list" class="pick_list">${build_button("list_NAME", "NAME", "add_to('NAME', '')", "remove_team('NAME', '')")}LIST_ITEMS</div>`
 
 // HTML template for new list
-const CREATE_LIST = "<div id=\"create_new_list\" class=\"pick_list\">" +
-                        build_str_entry("pick_list_name", "New Pick List...", "new pick list") +
-                        build_button("create_list", "Create", "create_list()") + 
-                    "</div>"
+const CREATE_LIST = `<div id="create_new_list" class="pick_list">
+                        ${build_str_entry("pick_list_name", "New Pick List...", "new pick list")}
+                        ${build_button("create_list", "Create", "create_list()")}
+                    </div>`
 
-const CONTENTS = "<img id=\"avatar\"><h2>Add team <label id=\"team_num\"></label>, <label id=\"team_name\"></label>, to...</h2>"
+const CONTENTS = '<img id="avatar"><h2>Add team <label id="team_num"></label>, <label id="team_name"></label>, to...</h2>'
 
-const BUTTONS = "<div id=\"pick_lists\"></div>"
+const BUTTONS = '<div id="pick_lists"></div>'
 
 var teams
 var lists = {}
 
 /**
- * function:    open_team
+ * function:    open_option
  * parameters:  Selected team number
  * returns:     none
  * description: Completes right info pane for a given team number.
  */
-function open_team(team_num)
+function open_option(team_num)
 {
     // build team header
-    document.getElementById("avatar").src = get_avatar(team_num, event_id.substr(0,4))
-    document.getElementById("team_num").innerHTML = team_num
-    document.getElementById("team_name").innerHTML = get_team_name(team_num, event_id)
+    document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0,4))
+    document.getElementById('team_num').innerHTML = team_num
+    document.getElementById('team_name').innerHTML = get_team_name(team_num, event_id)
 
     // select team button
-    document.getElementById("team_" + team_num).classList.add("selected")
+    document.getElementById(`option_${team_num}`).classList.add('selected')
     teams.forEach(function (team, index) {
         let number = team.team_number
-        if (number != team_num && document.getElementById("team_" + number).classList.contains("selected"))
+        if (number != team_num && document.getElementById(`option_${number}`).classList.contains('selected'))
         {
-            document.getElementById("team_" + number).classList.remove("selected")
+            document.getElementById(`option_${number}`).classList.remove('selected')
         }
     })
     ws(team_num)
@@ -80,14 +74,13 @@ function remove_team(name, team)
  */
 function add_to(name, after_team)
 {
-    let team_num = document.getElementById("team_num").innerHTML
+    let team_num = document.getElementById('team_num').innerHTML
     if (team_num == after_team)
     {
         return
     }
     if (lists[name].includes(team_num))
     {
-        //alert("Team " + team_num + " already exists in list \"" + name + "\"!")
         remove_team(name, team_num)
     }
     // insert team in list after clicked button (list name will return index of -1 so 0)
@@ -103,10 +96,10 @@ function add_to(name, after_team)
  */
 function create_list()
 {
-    let name = document.getElementById("pick_list_name").value
+    let name = document.getElementById('pick_list_name').value
     if (Object.keys(lists).includes(name))
     {
-        alert("List \"" + name + "\" already exists!")
+        alert(`List "${name}" already exists!`)
     }
     else
     {
@@ -124,22 +117,22 @@ function create_list()
  */
 function build_pick_lists()
 {
-    let lists_text = ""
+    let lists_text = ''
     Object.keys(lists).forEach(function (name, index)
     {
         // add list button
         lists_text += PICK_LIST.replace(/NAME/g, name)
-        let list_text = ""
+        let list_text = ''
         lists[name].forEach(function (team, index)
         {
             // add team button
-            list_text += build_button("", team, "add_to('" + name + "', '" + team + "')", "remove_team('" + name + "', '" + team + "')")
+            list_text += build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`)
         })
         lists_text = lists_text.replace(/LIST_ITEMS/g, list_text)
     })
     // add create list form and add to screen
     lists_text += CREATE_LIST
-    document.getElementById("pick_lists").innerHTML = lists_text
+    document.getElementById('pick_lists').innerHTML = lists_text
 
     // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
@@ -153,20 +146,20 @@ function build_pick_lists()
  */
 function build_team_list()
 {
-    let first = ""
+    let first = ''
     // iterate through team objs
     teams.forEach(function (team, index) {
         let number = team.team_number
-        if (first == "")
+        if (first == '')
         {
             first = number
         }
 
         // replace placeholders in template and add to screen
-        document.getElementById("option_list").innerHTML += TEAM_BLOCK.replace(/TEAM_NUM/g, number)
+        document.getElementById('option_list').innerHTML += build_option(number)
     })
-    open_team(first)
-    scroll_to("option_list", "team_" + first)
+    open_option(first)
+    scroll_to('option_list', `option_${first}`)
 }
 
 /**
@@ -179,7 +172,7 @@ function build_team_list()
 function load_event()
 {
     let file_name = get_event_teams_name(event_id)
-    let preview = document.getElementById("preview")
+    let preview = document.getElementById('preview')
 
     if (localStorage.getItem(file_name) != null)
     {
@@ -208,8 +201,8 @@ function load_event()
     }
     else
     {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, "<h2>No Team Data Found</h2>Please preload event")
-                                             .replace(/BUTTONS/g, "")
+        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, '<h2>No Team Data Found</h2>Please preload event')
+                                             .replace(/BUTTONS/g, '')
     }
 }
 

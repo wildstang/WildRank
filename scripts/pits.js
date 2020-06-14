@@ -6,12 +6,6 @@
  * date:        2020-02-15
  */
 
-// HTML template for a team option
-const TEAM_BLOCK = `
-    <div id="team_TEAM_NUM" class="pit_option CLASS" onclick="open_team(TEAM_NUM)">
-        <span class="long_option_number">TEAM_NUM</span>
-    </div>`
-
 const OPEN_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + build_button('open_result', 'View Results', `open_result('RESULT')`)
 
 const CONTENTS = `<h2>Team: <span id="team_num">No Team Selected</span></h2>
@@ -113,21 +107,21 @@ function capture()
 }
 
 /**
- * function:    open_team
+ * function:    open_option
  * parameters:  Selected team number
  * returns:     none
  * description: Completes right info pane for a given team number.
  */
-function open_team(team_num)
+function open_option(team_num)
 {
     team = team_num
     document.getElementById('team_num').innerHTML = team_num
-    document.getElementById(`team_${team_num}`).classList.add('selected')
+    document.getElementById(`option_${team_num}`).classList.add('selected')
     teams.forEach(function (team, index) {
         let number = team.team_number
-        if (number != team_num && document.getElementById(`team_${number}`).classList.contains('selected'))
+        if (number != team_num && document.getElementById(`option_${number}`).classList.contains('selected'))
         {
-            document.getElementById(`team_${number}`).classList.remove('selected')
+            document.getElementById(`option_${number}`).classList.remove('selected')
         }
     })
 
@@ -200,11 +194,10 @@ function build_team_list()
         }
 
         // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += TEAM_BLOCK.replace(/TEAM_NUM/g, number)
-                                                                      .replace(/CLASS/g, scouted)
+        document.getElementById('option_list').innerHTML += build_option(number, scouted)
     })
-    open_team(first)
-    scroll_to('option_list', `team_${first}`)
+    open_option(first)
+    scroll_to('option_list', `option_${first}`)
 }
 
 /**

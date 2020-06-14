@@ -6,16 +6,6 @@
  * date:        2020-02-15
  */
 
-// HTML template for a match option
-const MATCH_BLOCK = `
-    <div id="match_MATCH_NUM" class="match_option CLASS" onclick="open_match(MATCH_NUM)">
-        <span class="option_number">QMATCH_NUM</span>
-        <span>
-            <div class="alliance red">RED_TEAMS</div>
-            <div class="alliance blue">BLUE_TEAMS</div>
-        </span>
-    </div>`
-
 const OPEN_RESULT = build_button('open_result', 'View Results', `open_result('RESULT')`)
 const EDIT_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`)
 
@@ -201,11 +191,7 @@ function build_match_list()
             }
 
             // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, number)
-                                                                           .replace(/BLUE_TEAMS/g, blue_teams.join(' | '))
-                                                                           .replace(/RED_TEAMS/g, red_teams.join(' | '))
-                                                                           .replace(/frc/g, '')
-                                                                           .replace(/CLASS/g, scouted)
+            document.getElementById('option_list').innerHTML += build_match_option(number, red_teams, blue_teams, scouted)
         }
     })
     open_match(first)

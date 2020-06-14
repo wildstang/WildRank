@@ -6,30 +6,24 @@
  * date:        2020-05-24
  */
 
-const SORT_OPTIONS = ["Mean", "Median", "Mode", "Min", "Max"]
+const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
-// HTML template for a result option
-const RESULT_BLOCK = "\
-    <div id=\"team_NUM\" class=\"pit_option\" onclick=\"open_team('NUM')\">\
-        <span class=\"long_option_number\">TEXT</span>\
-    </div>"
-
-const CONTENTS = "<h2 id=\"value\"></h2>"
-const BUTTONS = `<br>\
+const CONTENTS = `<h2 id="value"></h2>`
+const BUTTONS = `<br>
     ${build_page_frame('', [
         build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
         build_column_frame('', [ '<h4 class="input_label">Bars</h4>', build_checkbox('scale_max', 'Scale to Maximums', false, 'select()') ])
     ], false)}<br><div class="wr_card"><table id="compare_tab"></table></div>`
 
-const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRCA\"> <h2 class=\"result_name\">NAMEA</h2></div>\
-              vs\
-              <div id=\"result_title\"><img id=\"avatar\" src=\"SRCB\"> <h2 class=\"result_name\">NAMEB</h2></div>"
+const TEAM = `<div id="result_title"><img id="avatar" src="SRCA"> <h2 class="result_name">NAMEA</h2></div>
+              vs
+              <div id="result_title"><img id="avatar" src="SRCB"> <h2 class="result_name">NAMEB</h2></div>`
 
-const COMPARISON = '<tr><td><span style="float:left; padding-right: 16px">AVAL</span>\
-                            <span style="float:right; width:AWIDTHpx; height:20px; background-color:ACOLOR"></span></td>\
-                        <th>ENTRY</th>\
-                        <td><span style="float:right; padding-left: 16px">BVAL</span>\
-                            <span style="float:left; width:BWIDTHpx; height:20px; background-color:BCOLOR"></span></td></tr>'
+const COMPARISON = `<tr><td><span style="float:left; padding-right: 16px">AVAL</span>
+                            <span style="float:right; width:AWIDTHpx; height:20px; background-color:ACOLOR"></span></td>
+                        <th>ENTRY</th>
+                        <td><span style="float:right; padding-left: 16px">BVAL</span>
+                            <span style="float:left; width:BWIDTHpx; height:20px; background-color:BCOLOR"></span></td></tr>`
 
 var keys = {}
 var teams = {}
@@ -52,11 +46,11 @@ function collect_results()
         // determine files which start with the desired type
         if (file.startsWith(prefix))
         {
-            let parts = file.split("-")
+            let parts = file.split('-')
             let team = parts[parts.length - 1]
             if (!Object.keys(teams).includes(team))
             {
-                teams["#" + team] = {}
+                teams[`#${team}`] = {}
             }
             unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
@@ -68,7 +62,7 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !["string", "text", "unknown"].includes(get_type(key)))
+    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !['string', 'text', 'unknown'].includes(get_type(key)))
     // calculate max for each value
     keys.forEach(function (key, index)
     {
@@ -79,7 +73,7 @@ function collect_results()
         let team_results = get_team_results(unsorted, team.substr(1))
         keys.forEach(function (key, index)
         {
-            teams[team][key] = avg_results(team_results, key, get_selected_option("type_form"))
+            teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
         })
     })
 
@@ -95,12 +89,11 @@ function collect_results()
 function build_team_list()
 {
     let team_nums = Object.keys(teams)
-    document.getElementById("option_list").innerHTML = build_select('selecting', '', ['Left', 'Right'], 'Left', 'switch_selecting()')
+    document.getElementById('option_list').innerHTML = build_select('selecting', '', ['Left', 'Right'], 'Left', 'switch_selecting()')
     team_nums.sort(function (a, b) { return parseInt(a.substr(1)) - parseInt(b.substr(1)) })
     team_nums.forEach(function (team, index)
     {
-        document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NUM/g, team)
-                                                                        .replace(/TEXT/g, team.substr(1))
+        document.getElementById('option_list').innerHTML += build_option(team, '', team.substr(1))
     })
 }
 
@@ -112,7 +105,7 @@ function build_team_list()
  */
 function switch_selecting()
 {
-    selecting = get_selected_option("selecting") == 0 ? 'a' : 'b'
+    selecting = get_selected_option('selecting') == 0 ? 'a' : 'b'
 }
 
 /**
@@ -128,12 +121,12 @@ function select()
 }
 
 /**
- * function:    open_team
+ * function:    open_option
  * parameters:  team number
  * returns:     none
  * description: Updates a selected team.
  */
-function open_team(team_num)
+function open_option(team_num)
 {
     if (selecting == 'a')
     {
@@ -181,11 +174,11 @@ function open_teams(team_numA, team_numB)
 
     // team details
     let details = TEAM.replace(/SRCA/g, get_avatar(team_numA, event_id.substr(0,4)))
-                      .replace(/NAMEA/g, team_numA + " " + get_team_name(team_numA, event_id))
+                      .replace(/NAMEA/g, `${team_numA} ${get_team_name(team_numA, event_id)}`)
                       .replace(/SRCB/g, get_avatar(team_numB, event_id.substr(0,4)))
-                      .replace(/NAMEB/g, team_numB + " " + get_team_name(team_numB, event_id))
+                      .replace(/NAMEB/g, `${team_numB} ${get_team_name(team_numB, event_id)}`)
 
-    document.getElementById("value").innerHTML = details
+    document.getElementById('value').innerHTML = details
 
     let compare = `<tr><th>${team_numA}</th><th></th><th>${team_numB}</th></tr>`
     keys.forEach(function (key, index)
@@ -265,29 +258,29 @@ function open_teams(team_numA, team_numB)
                              .replace(/BCOLOR/g, num2color(bColor))
     })
 
-    document.getElementById("compare_tab").innerHTML = compare
+    document.getElementById('compare_tab').innerHTML = compare
 
     // select team on left
     Object.keys(teams).forEach(function (team, index)
     {
-        if (document.getElementById("team_" + team).classList.contains("selected"))
+        if (document.getElementById(`option_${team}`).classList.contains('selected'))
         {
-            document.getElementById("team_" + team).classList.remove("selected")
+            document.getElementById(`option_${team}`).classList.remove('selected')
         }
     })
-    document.getElementById("team_" + selectedA).classList.add("selected")
-    document.getElementById("team_" + selectedB).classList.add("selected")
+    document.getElementById(`option_${selectedA}`).classList.add('selected')
+    document.getElementById(`option_${selectedB}`).classList.add('selected')
 }
 
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const prefix = type + "-" + event_id + "-"
+const prefix = `${type}-${event_id}-`
 
 // when the page is finished loading
 window.addEventListener('load', function() {
     load_config(type)
-    let preview = document.getElementById("preview")
+    let preview = document.getElementById('preview')
     preview.innerHTML = preview.innerHTML.replace(/BUTTONS/g, BUTTONS)
 
     if (collect_results() > 0)
@@ -299,7 +292,7 @@ window.addEventListener('load', function() {
     }
     else
     {
-        preview.innerHTML = preview.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
-                                   .replace(/BUTTONS/g, "")
+        preview.innerHTML = preview.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
+                                   .replace(/BUTTONS/g, '')
     }
 })

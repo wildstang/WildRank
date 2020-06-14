@@ -162,6 +162,46 @@ function build_card(id, contents='')
     return `<div class="wr_card" id="${id}">${contents}</div>`
 }
 
+/**
+ * function:    build_match_option
+ * parameters:  match number, list of red teams, list of blue teams, selected class string, match name
+ * returns:     match option as a string
+ * description: Builds the HTML string of a match option object.
+ */
+function build_match_option(match_num, red_teams, blue_teams, selected='', match_name='')
+{
+    if (!match_name)
+    {
+        match_name = `Q${match_num}`
+    }
+    let red_str = red_teams.join(' | ').replace(/frc/g, '')
+    let blue_str = blue_teams.join(' | ').replace(/frc/g, '')
+    return `<div id="match_${match_num}" class="match_option ${selected}" onclick="open_match('${match_num}')">
+                <span class="option_number">${match_name}</span>
+                <span>
+                    <div class="alliance red">${red_str}</div>
+                    <div class="alliance blue">${blue_str}</div>
+                </span>
+            </div>`
+}
+
+/**
+ * function:    build_option
+ * parameters:  option text, selected class string, option name
+ * returns:     option as a string
+ * description: Builds the HTML string of a option object.
+ */
+function build_option(option_txt, selected='', option_name='')
+{
+    if (!option_name)
+    {
+        option_name = option_txt
+    }
+    return `<div id="option_${option_txt}" class="pit_option ${selected}" onclick="open_option('${option_txt}')">
+                <span class="long_option_number">${option_txt}</span>
+            </div>`
+}
+
 var last_touch = 0
 
 /**

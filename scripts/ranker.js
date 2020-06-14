@@ -6,34 +6,28 @@
  * date:        2020-03-13
  */
 
-const SORT_OPTIONS = ["Mean", "Median", "Mode", "Min", "Max"]
+const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
-// HTML template for a result option
-const RESULT_BLOCK = "\
-    <div id=\"team_NUM\" class=\"pit_option\" onclick=\"open_team('NUM')\">\
-        <span class=\"long_option_number\">TEXT</span>\
-    </div>"
-
-const CONTENTS = "<h2 id=\"value\"></h2>"
-const BUTTONS = "\
-    <h4 class=\"center_text\">Sort by key</h4>" +
-    build_dropdown("key_selector", "", [], "", "select()") + " " +
-    build_dropdown("key_selector_method", "", ["only", "vs", "out of"], "", "select()") + " " +
-    build_dropdown("key_selector_against", "", [], "", "select()") + "<br>" +
-    "<h4 class=\"center_text\">Sort numeric values</h4>" +
-    build_select("type_form", "", SORT_OPTIONS, "Mean", "collect_results(); select()") +
-    build_checkbox("reverse", "Reverse Order", false, "select()") +
-    build_button("save", "Save to Pick List", "save_pick_list()")
+const CONTENTS = '<h2 id="value"></h2>'
+const BUTTONS = `
+    <h4 class="center_text">Sort by key</h4>
+    ${build_dropdown('key_selector', '', [], '', 'select()')}
+    ${build_dropdown('key_selector_method', '', ['only', 'vs', 'out of'], '', 'select()')}
+    ${build_dropdown('key_selector_against', '', [], '', 'select()')}<br>
+    <h4 class="center_text">Sort numeric values</h4>
+    ${build_select('type_form', '', SORT_OPTIONS, 'Mean', 'collect_results(); select()')}
+    ${build_checkbox('reverse', 'Reverse Order', false, 'select()')}
+    ${build_button('save', 'Save to Pick List', 'save_pick_list()')}`
     
 // HTML template for a dropdown option
-const DROPDOWN_OP = "<option class=\"wr_dropdown_op\" value=\"NAME\" SELECTED>NAME</option>"
+const DROPDOWN_OP = '<option class="wr_dropdown_op" value="NAME" SELECTED>NAME</option>'
 
-const TEAM = "<div id=\"result_title\"><img id=\"avatar\" src=\"SRC\"> <h2 class=\"result_name\">TEXT</h2></div>"
+const TEAM = '<div id="result_title"><img id="avatar" src="SRC"> <h2 class="result_name">TEXT</h2></div>'
 
 var keys = {}
 var teams = {}
 var totals = []
-var selected = ""
+var selected = ''
 
 /**
  * function:    count_options
@@ -47,9 +41,9 @@ function count_options(results, key)
     switch (get_type(key))
     {
         // compute mode for non-numerics
-        case "select":
-        case "dropdown":
-        case "checkbox":
+        case 'select':
+        case 'dropdown':
+        case 'checkbox':
             Object.keys(results).forEach(function (name, index)
             {
                 if (Object.keys(results[name]).includes(key))
@@ -79,11 +73,11 @@ function collect_results()
         // determine files which start with the desired type
         if (file.startsWith(prefix))
         {
-            let parts = file.split("-")
+            let parts = file.split('-')
             let team = parts[parts.length - 1]
             if (!Object.keys(teams).includes(team))
             {
-                teams["#" + team] = {}
+                teams[`#${team}`] = {}
             }
             unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
@@ -95,18 +89,18 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !["string", "text", "unknown"].includes(get_type(key)))
+    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !['string', 'text', 'unknown'].includes(get_type(key)))
     keys.forEach(function (key, index)
     {
-        totals[key] = avg_results(unsorted, key, get_selected_option("type_form"))
-        totals[key + "_options"] = count_options(unsorted, key)
+        totals[key] = avg_results(unsorted, key, get_selected_option('type_form'))
+        totals[`${key}_options`] = count_options(unsorted, key)
     })
     Object.keys(teams).forEach(function (team, index)
     {
         let team_results = get_team_results(unsorted, team.substr(1))
         keys.forEach(function (key, index)
         {
-            teams[team][key] = avg_results(team_results, key, get_selected_option("type_form"))
+            teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
         })
     })
 
@@ -122,25 +116,25 @@ function collect_results()
 function save_pick_list()
 {
     let lists = JSON.parse(localStorage.getItem(get_event_pick_lists_name(event_id)))
-    let name = SORT_OPTIONS[get_selected_option("type_form")] + " of " + document.getElementById("key_selector").value
-    let against = document.getElementById("key_selector_against").value
-    switch (document.getElementById("key_selector_method").selectedIndex)
+    let name = `${SORT_OPTIONS[get_selected_option('type_form')]} of ${document.getElementById('key_selector').value}`
+    let against = document.getElementById('key_selector_against').value
+    switch (document.getElementById('key_selector_method').selectedIndex)
     {
         // single stat
         case 0:
             break
         // vs
         case 1:
-            name += " vs " + against
+            name += ` vs ${against}`
             break
         // out of
         case 2:
-            name += " out of " + against
+            name += ` out of ${against}`
             break
     }
-    if (document.getElementById("reverse").checked)
+    if (document.getElementById('reverse').checked)
     {
-        name += " Reversed"
+        name += ' Reversed'
     }
 
     if (lists == null)
@@ -155,7 +149,7 @@ function save_pick_list()
 
     // save to localStorage and open
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
-    document.location.href = "selection.html" + build_query({"page": "picklists", [EVENT_COOKIE]: event_id})
+    document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: event_id})}`
 }
 
 /**
@@ -167,16 +161,15 @@ function save_pick_list()
 function build_team_list()
 {
     let team_nums = Object.keys(teams)
-    document.getElementById("option_list").innerHTML = ""
+    document.getElementById('option_list').innerHTML = ''
     team_nums.forEach(function (team, index)
     {
-        let select = document.getElementById("key_selector")
-        let against = document.getElementById("key_selector_against")
+        let select = document.getElementById('key_selector')
+        let against = document.getElementById('key_selector_against')
         let val = get_value(keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
                                                                   teams[team][keys[against.selectedIndex]],
-                                                                  document.getElementById("key_selector_method").selectedIndex))
-        document.getElementById("option_list").innerHTML += RESULT_BLOCK.replace(/NUM/g, team)
-                                                                        .replace(/TEXT/g, (index+1) + ": " + team.substr(1) + " - " + val)
+                                                                  document.getElementById('key_selector_method').selectedIndex))
+        document.getElementById('option_list').innerHTML += build_option(team, `${index+1}: ${team.substr(1)} - ${val}`)
     })
 }
 
@@ -201,7 +194,7 @@ function sort_teams(index, method_index, against_index)
         let b_against_val = unsorted[b][sort_by_against]
         a_val = calc_prop(a_val, a_against_val, method_index)
         b_val = calc_prop(b_val, b_against_val, method_index)
-        let reverse = document.getElementById("reverse").checked
+        let reverse = document.getElementById('reverse').checked
         if (is_negative(sort_by) ? !reverse : reverse) // Exclusive OR
         {
             let old = a_val
@@ -224,22 +217,22 @@ function sort_teams(index, method_index, against_index)
  */
 function select()
 {
-    sort_teams(document.getElementById("key_selector").selectedIndex,
-               document.getElementById("key_selector_method").selectedIndex,
-               document.getElementById("key_selector_against").selectedIndex)
+    sort_teams(document.getElementById('key_selector').selectedIndex,
+               document.getElementById('key_selector_method').selectedIndex,
+               document.getElementById('key_selector_against').selectedIndex)
     build_team_list()
-    open_team(selected)
+    open_option(selected)
     
     // force mode selected if non-numeric
-    let select = document.getElementById("key_selector")
+    let select = document.getElementById('key_selector')
     switch (get_type(keys[select.selectedIndex]))
     {
         // compute mode for non-numerics
-        case "checkbox":
-        case "select":
-        case "dropdown":
-        case "unknown":
-            select_option("type_form", 2)
+        case 'checkbox':
+        case 'select':
+        case 'dropdown':
+        case 'unknown':
+            select_option('type_form', 2)
     }
 }
 
@@ -263,78 +256,78 @@ function calc_prop(val, against_val, method)
 }
 
 /**
- * function:    open_team
+ * function:    open_option
  * parameters:  team number
  * returns:     none
  * description: Updates the selected team.
  */
-function open_team(team_num)
+function open_option(team_num)
 {
     selected = team_num
     team_num = selected.substr(1)
-    let select = document.getElementById("key_selector")
-    let against = document.getElementById("key_selector_against")
-    let method = document.getElementById("key_selector_method").selectedIndex
+    let select = document.getElementById('key_selector')
+    let against = document.getElementById('key_selector_against')
+    let method = document.getElementById('key_selector_method').selectedIndex
     let val = teams[selected][keys[select.selectedIndex]]
     let against_val = teams[selected][keys[against.selectedIndex]]
     let key = keys[select.selectedIndex]
     let against_key = keys[against.selectedIndex]
     let overall = totals[keys[select.selectedIndex]]
     let against_overall = totals[keys[against.selectedIndex]]
-    let options = totals[keys[select.selectedIndex] + "_options"]
-    let against_options = totals[keys[against.selectedIndex] + "_options"]
+    let options = totals[`${keys[select.selectedIndex]}_options`]
+    let against_options = totals[`${keys[against.selectedIndex]}_options`]
 
     // team details
     let details = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
-                      .replace(/TEXT/g, team_num + " " + get_team_name(team_num, event_id))
-    details += get_name(key) + ": " + get_value(key, val) + "<br>"
+                      .replace(/TEXT/g, `${team_num} ${get_team_name(team_num, event_id)}`)
+    details += `${get_name(key)}: ${get_value(key, val)}<br>`
 
     // overall stats
-    details += "Overall: " + get_value(key, overall) + "<br>"
+    details += `Overall: ${get_value(key, overall)}<br>`
     if (options !== {})
     {
         Object.keys(options).forEach(function (option, index)
         {
-            details += get_value(key, option) + ": " + options[option] + "<br>"
+            details += `${get_value(key, option)}: ${options[option]}<br>`
         })
     }
 
     // against stats
     if (method != 0)
     {
-        document.getElementById("key_selector_against").style.display = "inline-block"
-        details += get_name(against_key) + ": " + get_value(against_key, against_val) + "<br>"
+        document.getElementById('key_selector_against').style.display = 'inline-block'
+        details += `${get_name(against_key)}: ${get_value(against_key, against_val)}<br>`
     }
     else
     {
-        document.getElementById("key_selector_against").style.display = "none"
+        document.getElementById('key_selector_against').style.display = 'none'
     }
 
     // against overall stats
     if (method != 0)
     {
-        details += "Overall: " + get_value(against_key, against_overall) + "<br>"
+        details += `Overall: ${get_value(against_key, against_overall)}<br>`
         if (against_options !== {})
         {
             Object.keys(against_options).forEach(function (option, index)
             {
-                details += get_value(key, option) + ": " + against_options[option] + "<br>"
+                details += `${get_value(key, option)}: ${against_options[option]}<br>`
             })
         }
-        details += "Proportion: " + get_value(key, calc_prop(val, against_val, method))
+        details += `Proportion: ${get_value(key, calc_prop(val, against_val, method))}`
     }
 
-    document.getElementById("value").innerHTML = details
+    document.getElementById('value').innerHTML = details
 
     // select team on left
     Object.keys(teams).forEach(function (team, index)
     {
-        if (document.getElementById("team_" + team).classList.contains("selected"))
+        if (document.getElementById(`option_${team}`).classList.contains('selected'))
         {
-            document.getElementById("team_" + team).classList.remove("selected")
+            document.getElementById(`option_${team}`).classList.remove('selected')
         }
     })
-    document.getElementById("team_" + selected).classList.add("selected")
+    document.getElementById(`option_${selected}`).classList.add('selected')
     ws(team_num)
 }
 
@@ -346,24 +339,24 @@ function open_team(team_num)
  */
 function fill_dropdown()
 {
-    let options = ""
+    let options = ''
     keys.forEach(function (key, index)
     {
         options += DROPDOWN_OP.replace(/NAME/g, get_name(key))
     })
-    document.getElementById("key_selector").innerHTML = options
-    document.getElementById("key_selector_against").innerHTML = options
+    document.getElementById('key_selector').innerHTML = options
+    document.getElementById('key_selector_against').innerHTML = options
 }
 
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const prefix = type + "-" + event_id + "-"
+const prefix = `${type}-${event_id}-`
 
 // when the page is finished loading
 window.addEventListener('load', function() {
     load_config(type)
-    let preview = document.getElementById("preview")
+    let preview = document.getElementById('preview')
     preview.innerHTML = preview.innerHTML.replace(/BUTTONS/g, BUTTONS)
 
     if (collect_results() > 0)
@@ -375,7 +368,7 @@ window.addEventListener('load', function() {
     }
     else
     {
-        preview.innerHTML = preview.replace(/CONTENTS/g, "<h2>No Results Found</h2>")
-                                   .replace(/BUTTONS/g, "")
+        preview.innerHTML = preview.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
+                                   .replace(/BUTTONS/g, '')
     }
 })

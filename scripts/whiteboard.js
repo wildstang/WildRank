@@ -5,35 +5,25 @@
  * date:        2020-03-10
  */
 
-// HTML template for a match option
-const MATCH_BLOCK = "\
-    <div id=\"match_MATCH_NUM\" class=\"match_option\" onclick=\"open_match('MATCH_NUM')\">\
-        <span class=\"option_number\">MATCH_NAME</span>\
-        <span>\
-            <div class=\"alliance red\">RED_TEAMS</div>\
-            <div class=\"alliance blue\">BLUE_TEAMS</div>\
-        </span>\
-    </div>"
+const CONTENTS = '<canvas id="whiteboard"></canvas>'
 
-const CONTENTS = "<canvas id=\"whiteboard\"></canvas>"
-
-const BUTTONS = "<br>" +
-    build_page_frame("Controls", [
-        build_column_frame("", [
-            build_button("clear_lines", "Clear Lines", "clear_whiteboard()"),
-            build_button("reset_whiteboard", "Reset Whiteboard", "init()"),
-            build_button("update_teams", "Update Teams", "update_teams()"),
-            build_checkbox("elims", "Elimination Matches", false, "build_match_list()")
+const BUTTONS = `<br>
+    ${build_page_frame('Controls', [
+        build_column_frame('', [
+            build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
+            build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
+            build_button('update_teams', 'Update Teams', 'update_teams()'),
+            build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
         ])
-    ]) +
-    build_page_frame("Team Avatars", [
-        build_column_frame("", [build_num_entry("red1", "Red 1", "", bounds=[0, 10000]),
-                                build_num_entry("blue1", "Blue 1", "", bounds=[0, 10000])]),
-        build_column_frame("", [build_num_entry("red2", "Red 2", "", bounds=[0, 10000]),
-                                build_num_entry("blue2", "Blue 2", "", bounds=[0, 10000])]),
-        build_column_frame("", [build_num_entry("red3", "Red 3", "", bounds=[0, 10000]),
-                                build_num_entry("blue3", "Blue 3", "", bounds=[0, 10000])])
-    ])
+    ])}
+    ${build_page_frame('Team Avatars', [
+        build_column_frame('', [build_num_entry('red1', 'Red 1', '', bounds=[0, 10000]),
+                                build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000])]),
+        build_column_frame('', [build_num_entry('red2', 'Red 2', '', bounds=[0, 10000]),
+                                build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000])]),
+        build_column_frame('', [build_num_entry('red3', 'Red 3', '', bounds=[0, 10000]),
+                                build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000])])
+    ])}`
 
 var magnet_size
 var field_width
@@ -78,19 +68,19 @@ var blue3 = new Image()
  */
 function open_match(match_num)
 {
-    let use_elims = document.getElementById("elims").checked
+    let use_elims = document.getElementById('elims').checked
 
     // iterate through each match obj
     matches.forEach(function (match, index) {
         let level = match.comp_level
-        if ((level == "qm" && !use_elims) || (level != "qm" && use_elims))
+        if ((level == 'qm' && !use_elims) || (level != 'qm' && use_elims))
         {
             let number = match.match_number
             let red_teams = match.alliances.red.team_keys
             let blue_teams = match.alliances.blue.team_keys
             let set = match.set_number
-            let match_id = level.substr(0, 1).toUpperCase() + set + number
-            let match_div = document.getElementById("match_" + match_id)
+            let match_id = `${level.substr(0, 1).toUpperCase()}${set}${number}`
+            let match_div = document.getElementById(`match_${match_id}`)
 
             // find the desired qualifying match
             if (match_id == match_num)
@@ -104,20 +94,20 @@ function open_match(match_num)
                 blue2.src = get_avatar(blue_teams[1].substr(3), year)
                 blue3.src = get_avatar(blue_teams[2].substr(3), year)
 
-                document.getElementById("red1").value = red_teams[0].substr(3)
-                document.getElementById("red2").value = red_teams[1].substr(3)
-                document.getElementById("red3").value = red_teams[2].substr(3)
+                document.getElementById('red1').value = red_teams[0].substr(3)
+                document.getElementById('red2').value = red_teams[1].substr(3)
+                document.getElementById('red3').value = red_teams[2].substr(3)
                 
-                document.getElementById("blue1").value = blue_teams[0].substr(3)
-                document.getElementById("blue2").value = blue_teams[1].substr(3)
-                document.getElementById("blue3").value = blue_teams[2].substr(3)
+                document.getElementById('blue1').value = blue_teams[0].substr(3)
+                document.getElementById('blue2').value = blue_teams[1].substr(3)
+                document.getElementById('blue3').value = blue_teams[2].substr(3)
 
                 // select option
-                match_div.classList.add("selected")
+                match_div.classList.add('selected')
             }
-            else if (match_div.classList.contains("selected"))
+            else if (match_div.classList.contains('selected'))
             {
-                match_div.classList.remove("selected")
+                match_div.classList.remove('selected')
             }
         }
     })
@@ -131,13 +121,13 @@ function open_match(match_num)
  */
 function update_teams()
 {
-    red1.src = get_avatar(document.getElementById("red1").value, year)
-    red2.src = get_avatar(document.getElementById("red2").value, year)
-    red3.src = get_avatar(document.getElementById("red3").value, year)
+    red1.src = get_avatar(document.getElementById('red1').value, year)
+    red2.src = get_avatar(document.getElementById('red2').value, year)
+    red3.src = get_avatar(document.getElementById('red3').value, year)
     
-    blue1.src = get_avatar(document.getElementById("blue1").value, year)
-    blue2.src = get_avatar(document.getElementById("blue2").value, year)
-    blue3.src = get_avatar(document.getElementById("blue3").value, year)
+    blue1.src = get_avatar(document.getElementById('blue1').value, year)
+    blue2.src = get_avatar(document.getElementById('blue2').value, year)
+    blue3.src = get_avatar(document.getElementById('blue3').value, year)
 }
 
 /**
@@ -148,35 +138,31 @@ function update_teams()
  */
 function build_match_list()
 {
-    let first = ""
-    let use_elims = document.getElementById("elims").checked
-    document.getElementById("option_list").innerHTML = ""
+    let first = ''
+    let use_elims = document.getElementById('elims').checked
+    document.getElementById('option_list').innerHTML = ''
 
     // iterate through each match obj
     matches.forEach(function (match, index) {
         let level = match.comp_level
 
         // filter out quals matches
-        if ((level == "qm" && !use_elims) || (level != "qm" && use_elims))
+        if ((level == 'qm' && !use_elims) || (level != 'qm' && use_elims))
         {
             let number = match.match_number
             let red_teams = match.alliances.red.team_keys
             let blue_teams = match.alliances.blue.team_keys
             let set = match.set_number
-            let match_id = level.substr(0, 1).toUpperCase() + set + number
-            let match_name = level.substr(0, 1).toUpperCase() + number
+            let match_id = `${level.substr(0, 1).toUpperCase()}${set}${number}`
+            let match_name = `${level.substr(0, 1).toUpperCase()}${number}`
 
-            if (first == "")
+            if (first == '')
             {
                 first = match_id
             }
 
             // replace placeholders in template and add to screen
-            document.getElementById("option_list").innerHTML += MATCH_BLOCK.replace(/MATCH_NUM/g, match_id)
-                                                                           .replace(/MATCH_NAME/g, match_name)
-                                                                           .replace(/BLUE_TEAMS/g, blue_teams.join(" | "))
-                                                                           .replace(/RED_TEAMS/g, red_teams.join(" | "))
-                                                                           .replace(/frc/g, "")
+            document.getElementById('option_list').innerHTML += build_match_option(match_id, red_teams, blue_teams, '', match_name)
         }
     })
     open_match(first)
@@ -191,7 +177,7 @@ function build_match_list()
  */
 function load_event()
 {
-    let file_name = "matches-" + event_id
+    let file_name = `matches-${event_id}`
 
     if (localStorage.getItem(file_name) != null)
     {
@@ -256,7 +242,7 @@ function create_magnet(x, y, image, color)
  */
 function get_wb_config(year)
 {
-    let wbs = get_config("whiteboard")
+    let wbs = get_config('whiteboard')
     for (var i = 0; i < wbs.length; ++i)
     {
         if (wbs[i].year == year)
@@ -293,9 +279,9 @@ function init() {
  * description: Draw one frame of the whiteboard, including all magnets and lines.
  */
 function draw() {
-    var ctx = document.getElementById("whiteboard").getContext("2d")
+    var ctx = document.getElementById('whiteboard').getContext('2d')
 
-    ctx.globalCompositeOperation = "destination-over"
+    ctx.globalCompositeOperation = 'destination-over'
     // reset canvas
     ctx.clearRect(0, 0, field_width, field_height)
 
@@ -383,9 +369,9 @@ function mouse_up(evt) {
     magnetHeld = -1
 }
 
-window.addEventListener("load", function() {
+window.addEventListener('load', function() {
     // fill in page template
-    let preview = document.getElementById("preview")
+    let preview = document.getElementById('preview')
     preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
                                          .replace(/BUTTONS/g, BUTTONS)
     // load in match data
@@ -418,26 +404,26 @@ window.addEventListener("load", function() {
     line_width = wb.line_width / scale_factor
 
     // resize canvas
-    canvas = document.getElementById("whiteboard")
-    canvas.style.backgroundImage = "url('/config/field-" + year + ".png')"
+    canvas = document.getElementById('whiteboard')
+    canvas.style.backgroundImage = `url('/config/field-${year}.png')`
     canvas.width = field_width
     canvas.height = field_height
     
     // track mouse movement on canvas
-    canvas.addEventListener("touchmove", function(evt) {
+    canvas.addEventListener('touchmove', function(evt) {
         mouse_move(evt.touches[0])
         evt.preventDefault();
     }, false)
-    canvas.addEventListener("mousemove", mouse_move, false)
+    canvas.addEventListener('mousemove', mouse_move, false)
     
     // track mouse clicks on canvas
-    canvas.addEventListener("touchstart", function(evt) {
+    canvas.addEventListener('touchstart', function(evt) {
         mouse_down(evt.touches[0])
         evt.preventDefault();
     }, false)
-    canvas.addEventListener("mousedown", mouse_down, false)
-    canvas.addEventListener("touchend", mouse_up, false)
-    canvas.addEventListener("mouseup", mouse_up, false)
+    canvas.addEventListener('mousedown', mouse_down, false)
+    canvas.addEventListener('touchend', mouse_up, false)
+    canvas.addEventListener('mouseup', mouse_up, false)
 
     // add magnets and start drawing
     init()

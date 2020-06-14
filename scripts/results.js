@@ -6,12 +6,6 @@
  * date:        2020-02-26
  */
 
-// HTML template for a result option
-const RESULT_BLOCK = `
-    <div id="result_NAME" class="pit_option" onclick="open_result('NAME')">
-        <span class="long_option_number">TEXT</span>
-    </div>`
-
 const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2></div><img id="photo"><table id="results_tab"></table>'
 const BUTTONS = ''
 
@@ -21,21 +15,21 @@ var results = {}
 var avail_teams = []
 
 /**
- * function:    open_result
+ * function:    open_option
  * parameters:  Selected result name
  * returns:     none
  * description: Completes right info pane for a given result.
  */
-function open_result(name)
+function open_option(name)
 {
-    document.getElementById(`result_${name}`).classList.add('selected')
+    document.getElementById(`option_${name}`).classList.add('selected')
     let files = Object.keys(results)
     files.forEach(function (file, index)
     {
         // determine files which start with the desired type
-        if (document.getElementById(`result_${file}`) && file.startsWith(prefix) && file != name && document.getElementById(`result_${file}`).classList.contains('selected'))
+        if (document.getElementById(`option_${file}`) && file.startsWith(prefix) && file != name && document.getElementById(`option_${file}`).classList.contains('selected'))
         {
-            document.getElementById(`result_${file}`).classList.remove('selected')
+            document.getElementById(`option_${file}`).classList.remove('selected')
         }
     })
 
@@ -166,8 +160,7 @@ function build_result_list()
             {
                 first = file
             }
-            document.getElementById('option_list').innerHTML += RESULT_BLOCK.replace(/NAME/g, file)
-                                                                            .replace(/TEXT/g, label)
+            document.getElementById('option_list').innerHTML += build_option(file, '', label)
         }
     })
     if (selected !== null)
@@ -176,8 +169,8 @@ function build_result_list()
     }
     if (first != '')
     {
-        open_result(first)
-        scroll_to('option_list', `result_${first}`)
+        open_option(first)
+        scroll_to('option_list', `option_${first}`)
     }
 }
 
