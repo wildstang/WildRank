@@ -111,23 +111,35 @@ function build_page_from_config()
  * function:    get_results_from_page
  * parameters:  none
  * returns:     none
- * description: Accumulates the results from page into a new object.
+ * description: Accumulates the results from the page into a new object.
  */
 function get_results_from_page()
 {
     results = {}
-    results['meta_scouting_duration'] = (Date.now() - start) / 1000
+
+    // scouter metadata
     results['meta_scouter_id'] = parseInt(user_id)
+    results['meta_scout_time'] = Math.round(start / 1000)
+    results['meta_scouting_duration'] = (Date.now() - start) / 1000
+
+    // scouting metadata
     results['meta_scout_mode'] = scout_mode
+    results['meta_position'] = parseInt(scout_pos)
+    results['meta_event_id'] = event_id
+
+    // match metadata
     if (scout_mode != PIT_MODE)
     {
         results['meta_match'] = parseInt(match_num)
-        results['meta_position'] = parseInt(scout_pos)
     }
+
+    // team metadata
     if (scout_mode != NOTE_MODE)
     {
         results['meta_team'] = parseInt(team_num)
     }
+
+    // get each result
     config.pages.forEach(function (page, index)
     {
         page['columns'].forEach(function (column, index)
@@ -173,6 +185,7 @@ function get_results_from_page()
         })
     })
 
+    // get result name
     let file = get_pit_result(team_num, event_id)
     if (scout_mode == MATCH_MODE)
     {
