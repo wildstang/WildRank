@@ -114,6 +114,7 @@ function capture()
  */
 function open_option(team_num)
 {
+    team = team_num
     document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = get_team_name(team_num, event_id)
