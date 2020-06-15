@@ -32,18 +32,24 @@ function open_option(user_id)
     {
         let parts = file.split('-')
 
+        let result = JSON.parse(localStorage.getItem(file))
+        let summary = `${unix_to_match_time(result.meta_scout_time)}, ${result.meta_scouting_duration} secs<br><br>`
+
         // build columns for each result type
         if (parts[0] == PIT_MODE)
         {
             pits.push(build_button(file, `Team ${parts[2]}`, `open_result('${file}')`))
+            pits.push(summary)
         }
         else if (parts[0] == MATCH_MODE)
         {
             matches.push(build_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
+            matches.push(`${get_delta(parts[2], result.meta_scout_time)}, ${summary}`)
         }
         else if (parts[0] == NOTE_MODE)
         {
             notes.push(build_button(file, `Match ${parts[2]}`, `open_result('${file}')`))
+            notes.push(`${get_delta(parts[2], result.meta_scout_time)}, ${summary}`)
         }
     })
 
@@ -57,6 +63,34 @@ function open_option(user_id)
     // update page
     document.getElementById(`option_${user_id}`).classList.add('selected')
     document.getElementById('contents').innerHTML = table
+}
+
+/**
+ * function:    get_delta
+ * parameters:  match number, scouting duration
+ * returns:     string description of match start delta
+ * description: Describes how early/late a scouter started scouting.
+ */
+function get_delta(match_num, duration)
+{
+    let match = get_match(match_num, event_id)
+    if (match.actual_time > 0)
+    {
+        let delta = duration - match.actual_time
+        if (delta > 0)
+        {
+            return `${delta} secs late`
+        }
+        else if (delta < 0)
+        {
+            return `${-delta} secs early`
+        }
+        else
+        {
+            ', on time'
+        }
+    }
+    return ''
 }
 
 /**

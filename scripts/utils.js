@@ -233,6 +233,46 @@ function scroll_to(container, goal)
 }
 
 /**
+ * function:    get_match
+ * parameters:  match number, current event
+ * returns:     match object
+ * description: Gets the match object from event data.
+ */
+function get_match(match_num, event, comp_level='qm')
+{
+    let matches = JSON.parse(localStorage.getItem(get_event_matches_name(event)))
+    if (matches && matches.length > 0)
+    {
+        let results = matches.filter(match => match.match_number == match_num && match.comp_level == comp_level)
+        if (results && results.length > 0)
+        {
+            return results[0]
+        }
+    }
+    return null
+}
+
+/**
+ * function:    get_team
+ * parameters:  team number, current event
+ * returns:     team object
+ * description: Gets the team object from event data.
+ */
+function get_team(team_num, event)
+{
+    let teams = JSON.parse(localStorage.getItem(get_event_teams_name(event)))
+    if (teams && teams.length > 0)
+    {
+        let results = teams.filter(team => team.team_number == team_num)
+        if (results && results.length > 0)
+        {
+            return results[0]
+        }
+    }
+    return null
+}
+
+/**
  * function:    get_team_name
  * parameters:  team number, current event
  * returns:     team name
@@ -240,7 +280,12 @@ function scroll_to(container, goal)
  */
 function get_team_name(team_num, event)
 {
-    return JSON.parse(localStorage.getItem(get_event_teams_name(event))).filter(team => team.team_number == team_num)[0].nickname
+    let team = get_team(team_num, event)
+    if (team)
+    {
+        return team.nickname
+    }
+    return 'team not found'
 }
 
 /**
@@ -251,8 +296,12 @@ function get_team_name(team_num, event)
  */
 function get_team_location(team_num, event)
 {
-    let team = JSON.parse(localStorage.getItem(get_event_teams_name(event))).filter(team => team.team_number == team_num)[0]
-    return `${team.city}, ${team.state_prov}, ${team.country}`
+    let team = get_team(team_num, event)
+    if (team)
+    {
+        return `${team.city}, ${team.state_prov}, ${team.country}`
+    }
+    return 'team not found'
 }
 
 /**
@@ -266,7 +315,11 @@ function get_team_rankings(team_num, event)
     let rankings = JSON.parse(localStorage.getItem(get_event_rankings_name(event)))
     if (rankings && rankings.length > 0)
     {
-        return rankings.filter(rank => rank.team_key == `frc${team_num}`)[0]
+        let results = rankings.filter(rank => rank.team_key == `frc${team_num}`)
+        if (results && results.length > 0)
+        {
+            return results[0]
+        }
     }
     return null
 }
