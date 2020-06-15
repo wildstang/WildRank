@@ -280,6 +280,13 @@ function open_option(team_num)
     // team details
     let details = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
                       .replace(/TEXT/g, `${team_num} ${get_team_name(team_num, event_id)}`)
+
+    // populate ranking
+    let rankings = get_team_rankings(team_num, event_id)
+    if (rankings)
+    {
+        details += `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})<br>`
+    }
     details += `${get_name(key)}: ${get_value(key, val)}<br>`
 
     // overall stats

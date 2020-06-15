@@ -244,6 +244,34 @@ function get_team_name(team_num, event)
 }
 
 /**
+ * function:    get_team_location
+ * parameters:  team number, current event
+ * returns:     team location
+ * description: Gets the team location from the team number.
+ */
+function get_team_location(team_num, event)
+{
+    let team = JSON.parse(localStorage.getItem(get_event_teams_name(event))).filter(team => team.team_number == team_num)[0]
+    return `${team.city}, ${team.state_prov}, ${team.country}`
+}
+
+/**
+ * function:    get_team_rankings
+ * parameters:  team number, current event
+ * returns:     team rankings object
+ * description: Gets the team rankings from the team number.
+ */
+function get_team_rankings(team_num, event)
+{
+    let rankings = JSON.parse(localStorage.getItem(get_event_rankings_name(event)))
+    if (rankings && rankings.length > 0)
+    {
+        return rankings.filter(rank => rank.team_key == `frc${team_num}`)[0]
+    }
+    return null
+}
+
+/**
  * function:    get_avatar
  * parameters:  team number, year to choose
  * returns:     source of team avatar
@@ -279,6 +307,17 @@ function get_event_matches_name(event_id)
 function get_event_teams_name(event_id)
 {
     return `teams-${event_id}`
+}
+
+/**
+ * function:    get_event_rankings_name
+ * parameters:  event id
+ * returns:     event rankings filename
+ * description: Fetches the event's rankings filename from localStorage.
+ */
+function get_event_rankings_name(event_id)
+{
+    return `rankings-${event_id}`
 }
 
 /**
@@ -451,4 +490,27 @@ function use_cached_image(team_num, image_id)
     {
         photo.setAttribute('src', '')
     }
+}
+
+/**
+ * function:    unix_to_match_time
+ * paramters:   unix timestamp
+ * returns:     Time in format Day Hour:Minute
+ * description: Converts a given unix timestamp to Day Hour:Minute.
+ */
+function unix_to_match_time(unix_time)
+{
+    let time = new Date(unix_time * 1000)
+    let mins = `${time.getMinutes()}`
+    if (mins.length == 1)
+    {
+        mins = `0${mins}`
+    }
+    let hours = `${time.getHours()}`
+    if (hours.length == 1)
+    {
+        hours = `0${hours}`
+    }
+    let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
+    return `${day} ${hours}:${mins}`
 }

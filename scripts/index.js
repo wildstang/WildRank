@@ -15,13 +15,18 @@ let page = build_page_frame('', [
         build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
-    build_column_frame('Pages', [
+    build_column_frame('Interactive', [
         build_button('scout', 'Scout', 'scout()'),
-        build_button('open_results', 'Results', 'open_results()'),
         build_button('open_ranker', 'Team Rankings', 'open_ranker()'),
         build_button('open_sides', 'Side-by-Side', 'open_sides()'),
         build_button('open_picks', 'Pick Lists', 'open_picks()'),
         build_button('open_whiteboard', 'Whiteboard', 'open_whiteboard()')
+    ]),
+    build_column_frame('Data', [
+        build_button('open_results', 'Results', 'open_results()'),
+        build_button('open_teamssco', 'Team Overview', 'open_teams()'),
+        build_button('open_matches', 'Match Overview', 'open_matches()'),
+        build_button('open_users', 'User Overview', 'open_users()')
     ]),
     build_column_frame('Functions', [
         build_button('preload_event', 'Preload Event', 'preload_event()'),
@@ -178,6 +183,94 @@ function open_whiteboard()
 }
 
 /**
+ * function:    open_teams
+ * parameters:  none
+ * returns:     none
+ * description: Open the team overview.
+ */
+function open_teams()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let event = get_event()
+        
+        if (file_exists(get_event_teams_name(event)))
+        {
+            document.location.href = `selection.html${build_query({'page': 'teams', [EVENT_COOKIE]: event, [USER_COOKIE]: get_user()})}`
+        }
+        else
+        {
+            alert('No teams found! Please preload event.')
+        }
+    }
+    else
+    {
+        alert('Team overview requires admin rights!')
+    }
+}
+
+/**
+ * function:    open_matches
+ * parameters:  none
+ * returns:     none
+ * description: Open the match overview.
+ */
+function open_matches()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let event = get_event()
+        
+        if (file_exists(get_event_matches_name(event)))
+        {
+            document.location.href = `selection.html${build_query({'page': 'match-overview', [EVENT_COOKIE]: event, [USER_COOKIE]: get_user()})}`
+        }
+        else
+        {
+            alert('No matches found! Please preload event.')
+        }
+    }
+    else
+    {
+        alert('Match overview requires admin rights!')
+    }
+}
+
+/**
+ * function:    open_users
+ * parameters:  none
+ * returns:     none
+ * description: Open the user overview.
+ */
+function open_users()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let event = get_event()
+        let count = count_results(event, MATCH_MODE) + count_results(event, PIT_MODE) + count_results(event, NOTE_MODE)
+
+        if (count > 0)
+        {
+            document.location.href = `selection.html${build_query({'page': 'users', [EVENT_COOKIE]: event, [USER_COOKIE]: get_user()})}`
+        }
+        else
+        {
+            alert('No results found!')
+        }
+    }
+    else
+    {
+        alert('User overview requires admin rights!')
+    }
+}
+
+/**
  * function:    open_ranker
  * parameters:  none
  * returns:     none
@@ -321,7 +414,7 @@ function preload_event()
                     status(`Got (${data.length}) matches`)
 
                     // sort match objs by match number
-                    matches = data.sort(function (a, b)
+                    let matches = data.sort(function (a, b)
                     {
                         return b.match_number < a.match_number ?  1
                                 : b.match_number > a.match_number ? -1
@@ -352,7 +445,7 @@ function preload_event()
                     status(`Got (${data.length}) teams`)
 
                     // sort team objs by team number
-                    teams = data.sort(function (a, b)
+                    let teams = data.sort(function (a, b)
                     {
                         return b.team_number < a.team_number ?  1
                                 : b.team_number > a.team_number ? -1
@@ -385,6 +478,37 @@ function preload_event()
             })
             .catch(err => {
                 status('Error loading teams!')
+                console.log(err)
+            })
+
+        // fetch simple event teams
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_KEY]: API_KEY})}`)
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                if (data.hasOwnProperty('rankings'))
+                {
+                    data = data.rankings
+                    status(`Got (${data.length}) rankings`)
+
+                    // sort rankings objs by team number
+                    let rankings = data.sort(function (a, b)
+                    {
+                        return b.rank < a.rank ?  1
+                                : b.rank > a.rank ? -1
+                                : 0;
+                    })
+                    // store rankings as JSON string in rankings-[event_id]
+                    localStorage.setItem(get_event_rankings_name(event_id), JSON.stringify(rankings))
+                }
+                else
+                {
+                    status('No rankings received!')
+                }
+            })
+            .catch(err => {
+                status('Error loading rankings!')
                 console.log(err)
             })
     }

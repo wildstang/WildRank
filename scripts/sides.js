@@ -15,9 +15,9 @@ const BUTTONS = `<br>
         build_column_frame('', [ '<h4 class="input_label">Bars</h4>', build_checkbox('scale_max', 'Scale to Maximums', false, 'select()') ])
     ], false)}<br><div class="wr_card"><table id="compare_tab"></table></div>`
 
-const TEAM = `<div id="result_title"><img id="avatar" src="SRCA"> <h2 class="result_name">NAMEA</h2></div>
+const TEAM = `<div id="result_title"><img id="avatar" src="SRCA"> <h2 class="result_name">NAMEA</h2><br>RANKA</div>
               vs
-              <div id="result_title"><img id="avatar" src="SRCB"> <h2 class="result_name">NAMEB</h2></div>`
+              <div id="result_title"><img id="avatar" src="SRCB"> <h2 class="result_name">NAMEB</h2><br>RANKB</div>`
 
 const COMPARISON = `<tr><td><span style="float:left; padding-right: 16px">AVAL</span>
                             <span style="float:right; width:AWIDTHpx; height:20px; background-color:ACOLOR"></span></td>
@@ -172,11 +172,19 @@ function open_teams(team_numA, team_numB)
     selectedB = team_numB
     team_numB = selectedB.substr(1)
 
+    // populate ranking
+    let rankingA = get_team_rankings(team_numA, event_id)
+    let rankingB = get_team_rankings(team_numB, event_id)
+    let rankA = rankingA ? `Rank: ${rankingA.rank} (${rankingA.record.wins}-${rankingA.record.losses}-${rankingA.record.ties})<br>` : ''
+    let rankB = rankingB ? `Rank: ${rankingB.rank} (${rankingB.record.wins}-${rankingB.record.losses}-${rankingB.record.ties})<br>` : ''
+
     // team details
     let details = TEAM.replace(/SRCA/g, get_avatar(team_numA, event_id.substr(0,4)))
                       .replace(/NAMEA/g, `${team_numA} ${get_team_name(team_numA, event_id)}`)
+                      .replace(/RANKA/g, rankA)
                       .replace(/SRCB/g, get_avatar(team_numB, event_id.substr(0,4)))
                       .replace(/NAMEB/g, `${team_numB} ${get_team_name(team_numB, event_id)}`)
+                      .replace(/RANKB/g, rankB)
 
     document.getElementById('value').innerHTML = details
 

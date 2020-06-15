@@ -6,7 +6,7 @@
  * date:        2020-02-26
  */
 
-const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2></div><img id="photo"><table id="results_tab"></table>'
+const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div><img id="photo"><table id="results_tab"></table>'
 const BUTTONS = ''
 
 var teams = {}
@@ -37,6 +37,15 @@ function open_option(name)
     let team = parseInt(parts[parts.length - 1])
     document.getElementById('avatar').src = get_avatar(team, event_id.substr(0, 4))
     document.getElementById('result_name').innerHTML = `${team}: ${get_team_name(team, event_id)}`
+    document.getElementById('location').innerHTML = get_team_location(team, event_id)
+
+    // populate ranking
+    let rankings = get_team_rankings(team, event_id)
+    if (rankings)
+    {
+        document.getElementById('ranking').innerHTML = `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
+    }
+
     let table = '<tr>'
     switch (type)
     {
@@ -163,7 +172,7 @@ function build_result_list()
             document.getElementById('option_list').innerHTML += build_option(file, '', label)
         }
     })
-    if (selected !== null)
+    if (selected !== null && selected != '')
     {
         first = selected
     }
