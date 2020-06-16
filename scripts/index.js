@@ -62,6 +62,7 @@ function fill_defaults()
     select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
     let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     select_option('theme_switch', theme == 'light' ? 0 : 1)
+    apply_theme()
 }
 
 /**

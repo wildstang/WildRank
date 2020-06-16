@@ -293,6 +293,14 @@ function get_theme()
  */
 function apply_theme()
 {
+    // read title from config
+    let title = get_config('title')
+    if (typeof title !== 'undefined')
+    {
+        document.title = title
+        document.getElementById('title').innerHTML = title
+    }
+
     let theme = get_theme()
     if (typeof theme !== 'undefined')
     {
@@ -305,13 +313,5 @@ function apply_theme()
 
 window.addEventListener('load', function()
 {
-    // read title from config
-    let title = get_config('title')
-    if (typeof title !== 'undefined')
-    {
-        document.title = title
-        document.getElementById('title').innerHTML = title
-    }
-
     apply_theme()
 })
