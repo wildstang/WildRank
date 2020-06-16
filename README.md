@@ -9,10 +9,13 @@ LiamRank is a FIRST Robotics Competition scouting web app and a spiritual succes
 Before moving on it is important to understand that this application includes a custom implementation of the [Python 3 HTTP Server](https://docs.python.org/3/library/http.server.html). While this server does not absolutely need to be used, it does significantly improve the quality of life. It enables "uploading" results to local or remote clients and importing these results from file. Only a single "central server" needs to be using this web server to use these features, but if manual file transfer is desired to avoid a wireless connection, all clients must be running this web server.
 
 ### Internet
-An internet connection is required to preload event data before scouting begins, but this can be performed without an external server. Once all teams and matches are downloaded from TBA, an internet connection is no longer required and won't be until the next event.
+An internet connection is required to preload event data before scouting begins, but this can be performed without an external server. Once all teams and matches are downloaded from TBA, an internet connection is no longer required and won't be until the next event for most features. Ranking data is also fetched but is obviously not complete before an event. Features using ranking data as well as actual match times are not intended to be used by regular scouters but by strategy leads who may be operating with more flexibility for finding an internet connection.
 
 ### Data Storage
-Data is stored in JavaScript LocalStorage as JSON strings. Results may be exported as either individual JSON files or a bulk CSV.
+Data is stored in JavaScript localStorage as JSON strings. Results may be exported as either individual JSON files or a bulk CSV.
+
+### Image Storage
+Pit scouting mode allows a scouter to capture a single image of each robot. Due to limits on localStorage space images stored on the device are limited to 360p (note: this is still likely too big and may have to be reduced later). However, full resolution images are uploaded to the Python server if in use. Images from localStorage can also be backed up to a Python server later with the normal pit upload results functionality. Warning: pit uploads will overwrite high resolution automatic uploads.
 
 ## Synchronization Concepts
 Depending on your desired frequency of synchronization and abidance to the rules (I do not condone breaking of any FIRST rules nor intend to provide any interpretation of said rules), there are many ways to transfer data between clients. These concepts are listed below...

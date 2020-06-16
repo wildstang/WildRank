@@ -534,6 +534,7 @@ function upload_all()
             // determine files which start with the desired type
             if (file.startsWith(`${type}-`) || (type == 'pit' && file.startsWith(`image-${get_event()}-`)))
             {
+                // TODO don't overwrite higher resolution images
                 let content = localStorage.getItem(file)
                 // append file name to data, separated by '|||'
                 upload = `${file}|||${content}`
