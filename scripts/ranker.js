@@ -169,7 +169,7 @@ function build_team_list()
         let val = get_value(keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
                                                                   teams[team][keys[against.selectedIndex]],
                                                                   document.getElementById('key_selector_method').selectedIndex))
-        document.getElementById('option_list').innerHTML += build_option(team, `${index+1}: ${team.substr(1)} - ${val}`)
+        document.getElementById('option_list').innerHTML += build_option(team, '', `${index+1}: ${team.substr(1)} - ${val}`)
     })
 }
 
