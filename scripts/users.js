@@ -53,8 +53,10 @@ function open_option(user_id)
         }
     })
 
+    let user_class = is_admin(user_id) ? '(admin)' : ''
+
     // build page
-    let table = build_page_frame(user_id, [
+    let table = build_page_frame(`${user_id} ${user_class}`, [
         build_column_frame('Pits', pits),
         build_column_frame('Matches', matches),
         build_column_frame('Notes', notes)

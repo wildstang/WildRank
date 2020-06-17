@@ -167,6 +167,18 @@ function is_negative(key)
 }
 
 /**
+ * function:    is_admin
+ * parameters:  user id
+ * returns:     if the user is an admin
+ * description: Determines if a given user is an admin in the config file.
+ */
+function is_admin(user_id)
+{
+    let admins = get_config('admins')
+    return admins.length == 0 || admins.includes(parseInt(user_id))
+}
+
+/**
  * function:    get_name
  * parameters:  name of result, if to check for duplicate name
  * returns:     name of input

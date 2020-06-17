@@ -28,7 +28,7 @@ let page = build_page_frame('', [
         build_button('open_matches', 'Match Overview', 'open_matches()'),
         build_button('open_users', 'User Overview', 'open_users()')
     ]),
-    build_column_frame('Functions', [
+    build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', 'preload_event()'),
         build_button('upload_all', 'Upload Results', 'upload_all()'),
         build_button('import_all', 'Import Results', 'import_all()'),
@@ -438,7 +438,7 @@ function preload_event()
             .then(data => {
                 if (data.length > 0)
                 {
-                    status(`Got (${data.length}) matches`)
+                    status(`${data.length} matches received`)
 
                     // sort match objs by match number
                     let matches = data.sort(function (a, b)
@@ -469,7 +469,7 @@ function preload_event()
             .then(data => {
                 if (data.length > 0)
                 {
-                    status(`Got (${data.length}) teams`)
+                    status(`${data.length} teams received`)
 
                     // sort team objs by team number
                     let teams = data.sort(function (a, b)
@@ -482,6 +482,8 @@ function preload_event()
                     localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
 
                     // fetch team's avatar for whiteboard
+                    var avatars = 0
+                    var success = 0
                     teams.forEach(function (team, index)
                     {
                         let year = get_event().substr(0,4)
@@ -491,10 +493,21 @@ function preload_event()
                             })
                             .then(data => {
                                 localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
+                                ++avatars
+                                ++success
+                                if (avatars == teams.length)
+                                {
+                                    status(`${success} avatars received`)
+                                }
                             })
                             .catch(err =>
                             {
                                 console.log(`Error loading avatar: ${err}!`)
+                                ++avatars
+                                if (avatars == teams.length)
+                                {
+                                    status(`${success} avatars received`)
+                                }
                             })
                     })
                 }
@@ -517,7 +530,7 @@ function preload_event()
                 if (data.hasOwnProperty('rankings'))
                 {
                     data = data.rankings
-                    status(`Got (${data.length}) rankings`)
+                    status(`${data.length} rankings received`)
 
                     // sort rankings objs by team number
                     let rankings = data.sort(function (a, b)
@@ -717,8 +730,10 @@ function process_files()
     let pits = 0
     let notes = 0
     let avatars = 0
+    let images = 0
     let events = []
     let teams = []
+    let rankings = []
     files.forEach(function (file, index)
     {
         let parts = file.split('-')
@@ -730,6 +745,10 @@ function process_files()
         else if (parts[0] == 'teams')
         {
             teams.push(parts[1])
+        }
+        else if (parts[0] == 'rankings')
+        {
+            rankings.push(parts[1])
         }
         else if (parts[0] == MATCH_MODE)
         {
@@ -745,16 +764,23 @@ function process_files()
         }
         else if (parts[0] == 'image')
         {
+            ++images
+        }
+        else if (parts[0] == 'avatar')
+        {
             ++avatars
         }
     })
-    status(`Found...<br>\
-           ${matches} scouted matches<br>\
-           ${pits} scouted pits<br>\
-           ${notes} match notes<br>\
-           ${avatars} team avatars<br>\
-           Match events: ${events.join(', ')}<br>\
-           Team events: ${teams.join(', ')}`)
+    status(`Results...<br>
+           Match: ${matches}<br>
+           Pit: ${pits}<br>
+           Image: ${images}<br>
+           Note: ${notes}<br>
+           Events...<br>
+           Matches: ${events.join(', ')}<br>
+           Teams: ${teams.join(', ')}<br>
+           Avatars: ${avatars}<br>
+           Rankings: ${rankings.join(', ')}`)
 }
 
 /**
@@ -781,7 +807,7 @@ function save_options()
 function status(status)
 {
     document.getElementById('status').innerHTML += `${status}<br>`
-    console.log(status)
+    console.log(status.replace(/<br>/g, '\n'))
 }
 
 /**
@@ -801,18 +827,6 @@ function count_results(event_id, type)
         }
     })
     return count
-}
-
-/**
- * function:    is_admin
- * parameters:  user id
- * returns:     if the user is an admin
- * description: Determines if a given user is an admin in the config file.
- */
-function is_admin(user_id)
-{
-    let admins = get_config('admins')
-    return admins.length == 0 || admins.includes(parseInt(user_id))
 }
 
 /**
