@@ -25,6 +25,11 @@ function open_option(user_id)
     })
 
     // iterate through each result
+    let total_pit = 0
+    let total_match = 0
+    let total_notes = 0
+    let total_match_delta = 0
+    let total_notes_delta = 0
     let pits = []
     let matches = []
     let notes = []
@@ -33,27 +38,60 @@ function open_option(user_id)
         let parts = file.split('-')
 
         let result = JSON.parse(localStorage.getItem(file))
-        let summary = `${unix_to_match_time(result.meta_scout_time)}, ${result.meta_scouting_duration} secs<br><br>`
+        let duration = result.meta_scouting_duration
+        let summary = `${unix_to_match_time(result.meta_scout_time)} for ${duration} secs`
 
         // build columns for each result type
         if (parts[0] == PIT_MODE)
         {
             pits.push(build_button(file, `Team ${parts[2]}`, `open_result('${file}')`))
-            pits.push(summary)
+            pits.push(build_card('', summary))
+            total_pit += duration
         }
         else if (parts[0] == MATCH_MODE)
         {
             matches.push(build_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
-            matches.push(`${get_delta(parts[2], result.meta_scout_time)}, ${summary}`)
+            let delta = get_delta(parts[2], result.meta_scout_time)
+            matches.push(build_card('', `${delta} secs behind<br>${summary}`))
+            total_match += duration
+            total_match_delta += delta
         }
         else if (parts[0] == NOTE_MODE)
         {
             notes.push(build_button(file, `Match ${parts[2]}`, `open_result('${file}')`))
-            notes.push(`${get_delta(parts[2], result.meta_scout_time)}, ${summary}`)
+            let delta = get_delta(parts[2], result.meta_scout_time)
+            notes.push(build_card('', `${delta} secs behind<br>${summary}`))
+            total_notes += duration
+            total_notes_delta += delta
         }
     })
 
     let user_class = is_admin(user_id) ? '(admin)' : ''
+
+    if (pits.length > 0)
+    {
+        pits.unshift(build_card('', `<b>${pits.length/2}</b> pits scouted<br><br>Mean Duration: <b>${total_pit / (pits.length / 2)}</b> secs`))
+    }
+    else
+    {
+        pits = [build_card('', 'No pits scouted')]
+    }
+    if (matches.length > 0)
+    {
+        matches.unshift(build_card('', `<b>${matches.length/2}</b> matches scouted<br>Mean Delay: <b>${total_match_delta / (matches.length / 2)}</b> secs<br>Mean Duration: <b>${total_match / (matches.length / 2)}</b> secs`))
+    }
+    else
+    {
+        matches = [build_card('', 'No matches scouted')]
+    }
+    if (notes.length > 0)
+    {
+        notes.unshift(build_card('', `<b>${notes.length/2}</b> match notes taken<br>Mean Delay: <b>${total_notes_delta / (notes.length / 2)}</b> secs<br>Mean Duration: <b>${total_notes / (notes.length / 2)}</b> secs`))
+    }
+    else
+    {
+        notes = [build_card('', 'No match notes taken')]
+    }
 
     // build page
     let table = build_page_frame(`${user_id} ${user_class}`, [
@@ -69,30 +107,22 @@ function open_option(user_id)
 
 /**
  * function:    get_delta
- * parameters:  match number, scouting duration
- * returns:     string description of match start delta
- * description: Describes how early/late a scouter started scouting.
+ * parameters:  match number, scouting start time
+ * returns:     difference between match and scouting start
+ * description: Returns how late a scouter started scouting.
  */
-function get_delta(match_num, duration)
+function get_delta(match_num, scout_time)
 {
     let match = get_match(match_num, event_id)
     if (match.actual_time > 0)
     {
-        let delta = duration - match.actual_time
-        if (delta > 0)
-        {
-            return `${delta} secs late`
-        }
-        else if (delta < 0)
-        {
-            return `${-delta} secs early`
-        }
-        else
-        {
-            ', on time'
-        }
+        return scout_time - match.actual_time
     }
-    return ''
+    else if (match.predicted_time > 0)
+    {
+        return scout_time - match.predicted_time
+    }
+    return 0
 }
 
 /**
