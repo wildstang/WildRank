@@ -174,3 +174,7 @@ body {
     margin: 8px;
     max-width: calc(var(--input-width) - var(--input-padding));
 }
+
+.disabled {
+    background-color: var(--background-color);
+}

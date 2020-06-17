@@ -12,7 +12,7 @@ let page = build_page_frame('', [
         build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
         build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
         build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'),
-        build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
+        build_num_entry('user_id', 'School ID:', '', [100000, 999999], 'hide_buttons()'),
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
     build_column_frame('Interactive', [
@@ -24,7 +24,7 @@ let page = build_page_frame('', [
     ]),
     build_column_frame('Data', [
         build_button('open_results', 'Results', 'open_results()'),
-        build_button('open_teamssco', 'Team Overview', 'open_teams()'),
+        build_button('open_teams', 'Team Overview', 'open_teams()'),
         build_button('open_matches', 'Match Overview', 'open_matches()'),
         build_button('open_users', 'User Overview', 'open_users()')
     ]),
@@ -63,6 +63,32 @@ function fill_defaults()
     let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     select_option('theme_switch', theme == 'light' ? 0 : 1)
     apply_theme()
+    hide_buttons()
+}
+
+const ADMIN_BUTTONS = ['open_ranker-container', 'open_sides-container', 'open_picks-container', 'open_whiteboard-container',
+    'open_results-container', 'open_teams-container', 'open_matches-container', 'open_users-container',
+    'import_all-container', 'download_csv-container', 'reset-container']
+
+/**
+ * function:    hide_buttons
+ * parameters:  none
+ * returns:     none
+ * description: Dims buttons if their functionality is not currently available to the user.
+ */
+function hide_buttons()
+{
+    ADMIN_BUTTONS.forEach(function (id, index)
+    {
+        if (!is_admin(get_user()))
+        {
+            document.getElementById(id).classList.add('disabled')
+        }
+        else
+        {
+            document.getElementById(id).classList.remove('disabled')
+        }
+    })
 }
 
 /**

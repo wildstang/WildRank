@@ -128,15 +128,15 @@ function build_str_entry(id, name, value='', type='text')
 
 /**
  * function:    build_num_entry
- * parameters:  element id, name, default value, optional limits as [min, max]
+ * parameters:  element id, name, default value, optional limits as [min, max], on text change function
  * returns:     wr_string for a number as a string
  * description: Builds the HTML string of a number object.
  */
-function build_num_entry(id, name, value='', bounds=[])
+function build_num_entry(id, name, value='', bounds=[], on_text_change='')
 {
     let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
-    return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" ${bounds_str}>`
+    return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" ${bounds_str}>`
 }
 
 /**
