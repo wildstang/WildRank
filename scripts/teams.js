@@ -10,10 +10,9 @@ const CONTENTS = `<img id="avatar">
                   <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                   <h3 id="location"></h3>
                   <h3 id="ranking"></h3>
-                  <img id="photo" alt="No image available">
-                  <table id="contents"></table>`
+                  <img id="photo" alt="No image available">`
     
-const BUTTONS = ``
+const BUTTONS = `<div id="matches"></div>`
 
 var teams
 
@@ -53,12 +52,12 @@ function open_option(team_num)
 
     // add pit row
     let result_file = get_pit_result(team_num, event_id)
-    let result = build_button(result_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
+    let pit_button = build_button(result_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
     if (localStorage.getItem(result_file) != null)
     {
-        result = build_button(result_file, 'View Result', `open_result('${result_file}')`)
+        pit_button = build_button(result_file, 'View Pit Results', `open_result('${result_file}')`)
     }
-    let table = `<tr><td>Pit</td><td>${result}</td></tr>`
+    let cards = []
 
     // add row for each match
     let file_name = get_event_matches_name(event_id)
@@ -83,32 +82,51 @@ function open_option(team_num)
                 // make match row
                 if (alliance)
                 {
-                    // make match button
-                    result_file = get_match_result(match.match_number, team_num, event_id)
-                    result = build_button(result_file, 'Scout Match', `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
-                    if (localStorage.getItem(result_file) != null)
-                    {
-                        result = build_button(result_file, 'View Result', `open_result('${result_file}')`)
-                    }
-
                     // add time
                     let actual = match.actual_time
                     let predicted = match.predicted_time
+                    let scheduled = match.time
                     let time = ''
                     if (actual > 0)
                     {
-                        time = `${unix_to_match_time(actual)}`
+                        let winner = match.winning_alliance
+                        let score = `<span class="red">${match.alliances.red.score}</span> - <span class="blue">${match.alliances.blue.score}</span>`
+                        if (winner == 'blue')
+                        {
+                            score = `<span class="blue">${match.alliances.blue.score}</span> - <span class="red">${match.alliances.red.score}</span>`
+                        }
+                        let result = `<b>${winner == alliance ? 'W' : 'L'}</b><br>${score}`
+                        time = `${unix_to_match_time(actual)}<br>${result}`
                     }
                     else if (predicted > 0)
                     {
-                        time = `${unix_to_match_time(predicted)} (projected)`
+                        time = `${unix_to_match_time(predicted)} (Projected)`
+                    }
+                    else if (scheduled > 0)
+                    {
+                        time = `${unix_to_match_time(scheduled)}`
+                    }
+
+                    let match_num = `<span class="${alliance}">${match.match_number}</span>`
+                    // make match button
+                    result_file = get_match_result(match.match_number, team_num, event_id)
+                    result = build_button(result_file, `Scout Match ${match_num}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
+                    if (localStorage.getItem(result_file) != null)
+                    {
+                        result = build_button(result_file, `Match ${match_num} Results`, `open_result('${result_file}')`)
                     }
                     
-                    table += `<tr><td class="${alliance}">${match.match_number}</td><td>${result}</td><td>${time}</td></tr>`
+                    cards.push(result)
+                    cards.push(build_card('', `<center>${time}</center>`))
                 }
             }
         })
-        document.getElementById('contents').innerHTML = table
+
+        document.getElementById('matches').innerHTML = build_page_frame('', [
+            pit_button,
+            build_column_frame('', cards.splice(0, cards.length/2)),
+            build_column_frame('', cards)
+        ])
     }
 }
 

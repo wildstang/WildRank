@@ -1,5 +1,6 @@
 {
     "title": "LiamRank",
+    "time-format": 24,
     "defaults": {
         "event_id": "2020ilch",
         "upload_url": "http://localhost",

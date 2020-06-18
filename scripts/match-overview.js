@@ -7,10 +7,9 @@
  */
 
 const CONTENTS = `<h2>Match <span id="match_num">No Match Selected</span></h2>
-                  <h3 id="time"></h3>
-                  <table id="contents"></table>`
+                  <h3 id="time"></h3>`
                               
-const BUTTONS = ``
+const BUTTONS = `<div id="teams"></div>`
 
 var matches
 
@@ -49,43 +48,61 @@ function open_match(match_num)
 
             // make row for match notes
             let result_file = get_notes(match_num, event_id)
-            let result = build_button(result_file, 'Scout Match Notes', `scout('${NOTE_MODE}', '${Object.keys(teams).join(',')}', 'white', '${match.match_number}')`)
+            let note_button = build_button(result_file, 'Take Match Notes', `scout('${NOTE_MODE}', '${Object.keys(teams).join(',')}', 'white', '${match.match_number}')`)
             if (localStorage.getItem(result_file) != null)
             {
-                result = build_button(result_file, 'View Match Notes', `scout('${NOTE_MODE}', '${Object.keys(teams).join(',')}', 'white', '${match.match_number}', true)`)
+                note_button = build_button(result_file, 'View Match Notes', `scout('${NOTE_MODE}', '${Object.keys(teams).join(',')}', 'white', '${match.match_number}', true)`)
             }
-            let table = `<tr><td>Notes</td><td>${result}</td></tr>`
+            let reds = []
+            let blues = []
 
             // make a row for each team
             Object.keys(teams).forEach(function (team_num, index)
             {
                 let alliance = teams[team_num]
-                result_file = get_match_result(match_num, team_num, event_id)
-                result = build_button(result_file, 'Scout Match', `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
-                if (localStorage.getItem(result_file) != null)
-                {
-                    result = build_button(result_file, 'View Result', `open_result('${result_file}')`)
-                }
                 let rank = ''
                 let rankings = get_team_rankings(team_num, event_id)
                 if (rankings)
                 {
-                    rank = `${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
+                    rank = `#${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
                 }
-                table += `<tr><td class="${alliance}">${team_num}</td><td>${result}</td><td>${rank}</td></tr>`
+                let team = `<span class="${alliance}">${team_num}</span>`
+                
+                result_file = get_match_result(match_num, team_num, event_id)
+                let button = build_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
+                if (localStorage.getItem(result_file) != null)
+                {
+                    button = build_button(result_file, `${team} Results`, `open_result('${result_file}')`)
+                }
+
+                let team_info = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center>`
+                if (alliance == 'red')
+                {
+                    reds.push(button)
+                    reds.push(build_card('', team_info))
+                }
+                else
+                {
+                    blues.push(button)
+                    blues.push(build_card('', team_info))
+                }
             })
-            document.getElementById('contents').innerHTML = table
+            document.getElementById('teams').innerHTML = build_page_frame('', [
+                note_button,
+                build_column_frame('', reds),
+                build_column_frame('', blues)
+            ])
 
             // place match time
             let actual = match.actual_time
             let predicted = match.predicted_time
             if (actual > 0)
             {
-                document.getElementById('time').innerHTML = `Time: ${unix_to_match_time(actual)}`
+                document.getElementById('time').innerHTML = unix_to_match_time(actual)
             }
             else if (predicted > 0)
             {
-                document.getElementById('time').innerHTML = `Projected: ${unix_to_match_time(predicted)}`
+                document.getElementById('time').innerHTML = `${unix_to_match_time(predicted)} (Projected)`
             }
 
             // place match number and team to scout on pane

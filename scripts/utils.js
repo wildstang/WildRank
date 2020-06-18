@@ -565,5 +565,18 @@ function unix_to_match_time(unix_time)
         hours = `0${hours}`
     }
     let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
-    return `${day} ${hours}:${mins}`
+    let part = ''
+    if (get_config('time-format') == 12)
+    {
+        if (hours > 12)
+        {
+            hours -= 12
+            part = 'PM'
+        }
+        else
+        {
+            part = 'AM'
+        }
+    }
+    return `${day} ${hours}:${mins} ${part}`
 }
