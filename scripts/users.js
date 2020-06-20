@@ -58,7 +58,7 @@ function open_option(user_id)
         }
         else if (parts[0] == NOTE_MODE)
         {
-            notes.push(build_button(file, `Match ${parts[2]}`, `open_result('${file}')`))
+            notes.push(build_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
             let delta = get_delta(parts[2], result.meta_scout_time)
             notes.push(build_card('', `${delta} secs behind<br>${summary}`))
             total_notes += duration
@@ -70,7 +70,7 @@ function open_option(user_id)
 
     if (pits.length > 0)
     {
-        pits.unshift(build_card('', `<b>${pits.length/2}</b> pits scouted<br><br>Mean Duration: <b>${total_pit / (pits.length / 2)}</b> secs`))
+        pits.unshift(build_card('', `<b>${pits.length/2}</b> pits scouted<br><br>Mean Duration: <b>${Math.round(total_pit / (pits.length / 2))}</b> secs`))
     }
     else
     {
@@ -78,7 +78,7 @@ function open_option(user_id)
     }
     if (matches.length > 0)
     {
-        matches.unshift(build_card('', `<b>${matches.length/2}</b> matches scouted<br>Mean Delay: <b>${total_match_delta / (matches.length / 2)}</b> secs<br>Mean Duration: <b>${total_match / (matches.length / 2)}</b> secs`))
+        matches.unshift(build_card('', `<b>${matches.length/2}</b> matches scouted<br>Mean Delay: <b>${Math.round(total_match_delta / (matches.length / 2))}</b> secs<br>Mean Duration: <b>${Math.round(total_match / (matches.length / 2))}</b> secs`))
     }
     else
     {
@@ -86,7 +86,7 @@ function open_option(user_id)
     }
     if (notes.length > 0)
     {
-        notes.unshift(build_card('', `<b>${notes.length/2}</b> match notes taken<br>Mean Delay: <b>${total_notes_delta / (notes.length / 2)}</b> secs<br>Mean Duration: <b>${total_notes / (notes.length / 2)}</b> secs`))
+        notes.unshift(build_card('', `<b>${notes.length/2}</b> match notes taken<br>Mean Delay: <b>${Math.round(total_notes_delta / (notes.length / 2))}</b> secs<br>Mean Duration: <b>${Math.round(total_notes / (notes.length / 2))}</b> secs`))
     }
     else
     {
@@ -180,7 +180,7 @@ function load_user()
         // build list of users and results
         Object.keys(localStorage).forEach(function (file, index)
         {
-            if (file.startsWith(`match-${event_id}-`) || file.startsWith(`pit-${event_id}-`) || file.startsWith(`notes-${event_id}-`))
+            if (file.startsWith(`${MATCH_MODE}-${event_id}-`) || file.startsWith(`${PIT_MODE}-${event_id}-`) || file.startsWith(`${NOTE_MODE}-${event_id}-`))
             {
                 let user = JSON.parse(localStorage.getItem(file)).meta_scouter_id
                 if (users.hasOwnProperty(user))

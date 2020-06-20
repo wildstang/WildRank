@@ -132,12 +132,7 @@ function get_results_from_page()
     {
         results['meta_match'] = parseInt(match_num)
     }
-
-    // team metadata
-    if (scout_mode != NOTE_MODE)
-    {
-        results['meta_team'] = parseInt(team_num)
-    }
+    results['meta_team'] = parseInt(team_num)
 
     // get each result
     config.pages.forEach(function (page, index)
@@ -191,11 +186,7 @@ function get_results_from_page()
     {
         file = get_match_result(match_num, team_num, event_id)
     }
-    else if (scout_mode == NOTE_MODE)
-    {
-        file = get_notes(match_num, event_id)
-    }
-    localStorage.setItem(file, JSON.stringify(results));
+    localStorage.setItem(file, JSON.stringify(results))
     window.location.href = document.referrer
 }
 
@@ -226,8 +217,6 @@ window.addEventListener('load', function()
             case PIT_MODE:
                 file = get_pit_result(team_num, event_id)
                 break
-            case NOTE_MODE:
-                file = get_notes(match_num, event_id)
                 break
         }
         edit = file_exists(file)
@@ -253,11 +242,6 @@ window.addEventListener('load', function()
             document.getElementById('match').innerHTML = match_num
             document.getElementById('team').innerHTML = team_num
             document.getElementById('team').style.color = alliance_color
-            break
-        case NOTE_MODE:
-            document.getElementById('match').innerHTML = match_num
-            document.getElementById('team').innerHTML = `Match ${match_num}`
-            document.getElementById('team').style.color = 'white'
             break
     }
     ws(team_num)

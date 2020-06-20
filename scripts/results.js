@@ -162,7 +162,7 @@ function build_result_list()
     {
         let label = file.substr(prefix.length).replace('-', ': ')
         let parts = label.split(': ')
-        if (type != MATCH_MODE || (document.getElementById('team_filter').value == 'All' || 
+        if (type == PIT_MODE || (document.getElementById('team_filter').value == 'All' || 
             parts[parts.length-1] == document.getElementById('team_filter').value))
         {
             if (first == '')
@@ -199,7 +199,7 @@ function collect_results()
         if (file.startsWith(prefix))
         {
             unsorted[file] = JSON.parse(localStorage.getItem(file))
-            if (unsorted[file].meta_scout_mode == MATCH_MODE)
+            if (unsorted[file].meta_scout_mode != PIT_MODE)
             {
                 let team = unsorted[file].meta_team
                 if (!avail_teams.includes(team))
@@ -216,11 +216,6 @@ function collect_results()
         return 0
     }
 
-    if (type == NOTE_MODE)
-    {
-        unsorted = break_notes_into_teams(unsorted)
-    }
-
     // sort results
     Object.keys(unsorted).sort(function (a, b)
     { 
@@ -232,60 +227,6 @@ function collect_results()
     })
 
     return num_results
-}
-
-/**
- * function:    break_notes_into_teams
- * parameters:  existing results
- * returns:     results resorted by teams
- * description: Takes a object of notes results and breaks them into teams.
- */
-function break_notes_into_teams(notes)
-{
-    teams = {}
-    matches = JSON.parse(localStorage.getItem(get_event_matches_name(event_id)))
-    Object.keys(notes).forEach(function (name, index)
-    {
-        let note = notes[name]
-        let blue_teams = []
-        let red_teams = []
-        // get match teams
-        matches.forEach(function (match, index)
-        {
-            if (match.comp_level == 'qm' && match.match_number == note.meta_match)
-            {
-                red_teams = match.alliances.red.team_keys
-                blue_teams = match.alliances.blue.team_keys
-            }
-        })
-        Object.keys(note).forEach(function (key, index)
-        {
-            if (!key.startsWith('meta_'))
-            {
-                // make team name
-                let parts = key.split('_')
-                let pos = parts[2] - 1
-                let team = ''
-                if (parts[3] == 'red')
-                {
-                    team = red_teams[pos].substr(3)
-                }
-                else
-                {
-                    team = blue_teams[pos].substr(3)
-                }
-                team = `${type}-${event_id}-${team}`
-
-                // add team to results object
-                if (!Object.keys(teams).includes(team))
-                {
-                    teams[team] = {}
-                }
-                teams[team][note.meta_match] = note[key]
-            }
-        })
-    })
-    return teams
 }
 
 /**
@@ -325,10 +266,17 @@ const selected = urlParams.get('file')
 
 // when the page is finished loading
 window.addEventListener('load', function() {
-    load_config(type)
+    if (type == NOTE_MODE)
+    {
+        load_config(MATCH_MODE)
+    }
+    else
+    {
+        load_config(type)
+    }
     if (collect_results() > 0)
     {
-        if (type == MATCH_MODE)
+        if (type != PIT_MODE)
         {
             avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
             avail_teams.unshift('All')

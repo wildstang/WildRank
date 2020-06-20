@@ -47,12 +47,7 @@ function open_match(match_num)
             })
 
             // make row for match notes
-            let result_file = get_notes(match_num, event_id)
-            let note_button = build_button(result_file, 'Take Match Notes', `scout('${NOTE_MODE}', '${Object.keys(teams).join(',')}', 'white', '${match.match_number}')`)
-            if (localStorage.getItem(result_file) != null)
-            {
-                note_button = build_button(result_file, 'View Match Notes', `scout('${NOTE_MODE}', '${Object.keys(teams).join(',')}', 'white', '${match.match_number}', true)`)
-            }
+            let note_button = build_button('note_button', 'Take Match Notes', `notes('${match.match_number}', ${notes_taken(match_num, event_id)})`)
             let reds = []
             let blues = []
 
@@ -68,7 +63,7 @@ function open_match(match_num)
                 }
                 let team = `<span class="${alliance}">${team_num}</span>`
                 
-                result_file = get_match_result(match_num, team_num, event_id)
+                let result_file = get_match_result(match_num, team_num, event_id)
                 let button = build_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
                 if (localStorage.getItem(result_file) != null)
                 {
@@ -138,6 +133,19 @@ function open_result(file)
 function scout(mode, team, alliance, match, edit=false)
 {
     document.location.href = `/scout.html${build_query({[TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance, 'edit': edit})}`
+}
+
+/**
+ * function:    notes
+ * parameters:  match number
+ * returns:     none
+ * description: Loads the note taking page for a button when pressed.
+ */
+function notes(match, edit=false)
+{
+    let teams = get_match_teams(match, event_id)
+    document.location.href = `/scout.html${build_query({[TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'edit': edit,
+        'red1': teams['red1'], 'red2': teams['red2'], 'red3': teams['red3'], 'blue1': teams['blue1'], 'blue2': teams['blue2'], 'blue3': teams['blue3']})}`
 }
 
 /**

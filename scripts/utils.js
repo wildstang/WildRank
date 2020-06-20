@@ -7,7 +7,7 @@
 
 const MATCH_MODE = 'match'
 const PIT_MODE   = 'pit'
-const NOTE_MODE  = 'notes'
+const NOTE_MODE  = 'note'
 
 const EVENT_COOKIE = 'event_id'
 const EVENT_DEFAULT = '2020ilch'
@@ -341,6 +341,46 @@ function get_avatar(team_num, year)
 }
 
 /**
+ * function:    get_match_teams
+ * parameters:  match number, event id
+ * returns:     all teams in match
+ * description: Returns all teams in the match with their alliances.
+ */
+function get_match_teams(match_num, event_id)
+{
+    let match = get_match(match_num, event_id)
+    let teams = {}
+    let red_teams = match.alliances.red.team_keys
+    let blue_teams = match.alliances.blue.team_keys
+    teams['red1'] = red_teams[0].substr(3)
+    teams['red2'] = red_teams[1].substr(3)
+    teams['red3'] = red_teams[2].substr(3)
+    teams['blue1'] = blue_teams[0].substr(3)
+    teams['blue2'] = blue_teams[1].substr(3)
+    teams['blue3'] = blue_teams[2].substr(3)
+    return teams
+}
+
+/**
+ * function:    notes_taken
+ * parameters:  match number, event id
+ * returns:     if notes have been taken
+ * description: Determines if any notes have been take for a given match.
+ */
+function notes_taken(match_num, event_id)
+{
+    let teams = Object.values(get_match_teams(match_num, event_id))
+    for (let i = 0; i < teams.length; ++i)
+    {
+        if (file_exists(get_note(teams[i], match_num, event_id)))
+        {
+            return true
+        }
+    }
+    return false
+}
+
+/**
  * function:    get_event_matches_name
  * parameters:  event id
  * returns:     event matches filename
@@ -418,14 +458,14 @@ function get_match_result(match_num, team_num, event_id)
 }
 
 /**
- * function:    get_notes
- * parameters:  match number, event id
+ * function:    get_note
+ * parameters:  team number, match number, event id
  * returns:     team notes filename
  * description: Fetches the filename for a team's notes from localStorage.
  */
-function get_notes(match_num, event_id)
+function get_note(team_num, match_num, event_id)
 {
-    return `${NOTE_MODE}-${event_id}-${match_num}`
+    return `${NOTE_MODE}-${event_id}-${match_num}-${team_num}`
 }
 
 /**

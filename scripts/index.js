@@ -105,7 +105,7 @@ function scout()
 {
     save_options()
     let type = get_selected_type()
-    if (config_exists(type))
+    if (config_exists(type) || type == NOTE_MODE)
     {
         let event    = get_event()
         let position = get_position()
@@ -156,7 +156,7 @@ function open_results()
     if (is_admin(get_user()))
     {
         let type = get_selected_type()
-        if (config_exists(type))
+        if (config_exists(type) || type == NOTE_MODE)
         {
             let event = get_event()
             let count = count_results(event, type)
@@ -852,9 +852,9 @@ function export_spreadsheet(event_id)
             switch (kind)
             {
                 case MATCH_MODE:
-                    result['team'] = parts[3]
                 case NOTE_MODE:
                     result['match'] = parts[2]
+                    result['team'] = parts[3]
                     break
                 case PIT_MODE:
                     result['team'] = parts[2]

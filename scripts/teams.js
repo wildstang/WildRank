@@ -10,7 +10,8 @@ const CONTENTS = `<img id="avatar">
                   <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                   <h3 id="location"></h3>
                   <h3 id="ranking"></h3>
-                  <img id="photo" alt="No image available">`
+                  <img id="photo" alt="No image available">
+                  <div id="notes"></div>`
     
 const BUTTONS = `<div id="matches"></div>`
 
@@ -43,6 +44,25 @@ function open_option(team_num)
     {
         document.getElementById('ranking').innerHTML = `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
     }
+
+    let notes = ''
+    Object.keys(localStorage).forEach(function (file, index)
+    {
+        if (file.startsWith(`${NOTE_MODE}-`))
+        {
+            let result = JSON.parse(localStorage.getItem(file))
+            if (result.meta_team == team_num && result.meta_event_id == event_id)
+            {
+                if (notes == '')
+                {
+                    notes = '<br><b>Notes:</b>'
+                }
+                notes += '<br>'
+                notes += result.notes
+            }
+        }
+    })
+    document.getElementById('notes').innerHTML = notes
 
     // find robot photo
     let photo = document.getElementById('photo')
@@ -115,8 +135,8 @@ function open_option(team_num)
                     {
                         result = build_button(result_file, `Match ${match_num} Results`, `open_result('${result_file}')`)
                     }
-                    
                     cards.push(result)
+                    
                     cards.push(build_card('', `<center>${time}</center>`))
                 }
             }

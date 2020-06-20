@@ -110,12 +110,11 @@ function open_match(match_num)
     }
 
     let file = get_match_result(match_num, team.substr(3), event_id)
-    let note = get_notes(match_num, event_id)
-    if (file_exists(file))
+    if (file_exists(file) && scout_pos >= 0)
     {
         document.getElementById('view_result').innerHTML = EDIT_RESULT.replace(/RESULT/g, file) + OPEN_RESULT.replace(/RESULT/g, file)
     }
-    else if (file_exists(note))
+    else if (notes_taken(match_num, event_id))
     {
         document.getElementById('view_result').innerHTML = EDIT_RESULT.replace(/RESULT/g, file)
     }
@@ -153,7 +152,21 @@ function start_scouting(edit)
         mode = NOTE_MODE
     }
     // build URL with parameters
-    window.open(`scout.html${build_query({[TYPE_COOKIE]: mode, 'match': match_num, 'team': team_num, 'alliance': color, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id, 'edit': edit})}`, '_self')
+    let query = ''
+    if (mode == NOTE_MODE)
+    {
+        let teams = get_match_teams(match_num, event_id)
+        query = build_query({[TYPE_COOKIE]: mode, 'match': match_num, 
+            'red1': teams['red1'], 'red2': teams['red2'], 'red3': teams['red3'], 
+            'blue1': teams['blue1'], 'blue2': teams['blue2'], 'blue3': teams['blue3'], 
+            [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id, 'edit': edit})
+    }
+    else
+    {
+        query = build_query({[TYPE_COOKIE]: mode, 'match': match_num, 'team': team_num, 'alliance': color, 
+            [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id, 'edit': edit})
+    }
+    window.open(`scout.html${query}`, '_self')
 }
 
 /**
@@ -197,7 +210,7 @@ function build_match_list()
                 first = ''
                 scouted = 'scouted'
             }
-            else if (scout_pos < 0 && file_exists(get_notes(number, event_id)))
+            else if (scout_pos < 0 && notes_taken(number, event_id))
             {
                 first = ''
                 scouted = 'scouted'
