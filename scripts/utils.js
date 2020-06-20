@@ -224,11 +224,20 @@ function mode(values)
  */
 function scroll_to(container, goal)
 {
-    var offset = document.getElementById(goal).getBoundingClientRect().top - document.getElementById(container).getBoundingClientRect().top
+    let option_top = document.getElementById(goal).getBoundingClientRect().top
+    let container_top = document.getElementById(container).getBoundingClientRect().top
+    let option_bottom = document.getElementById(goal).getBoundingClientRect().bottom
+    let container_bottom = document.getElementById(container).getBoundingClientRect().bottom
+    let offset_top = option_top - container_top
+    let offset_bottom = option_bottom - container_bottom
 
-    if(offset > window.innerHeight)
+    if(offset_bottom > 0)
     {
-        document.getElementById(container).scrollBy(0, offset)
+        document.getElementById(container).scrollBy(0, offset_bottom)
+    }
+    else if(offset_top < 0)
+    {
+        document.getElementById(container).scrollBy(0, offset_top)
     }
 }
 
