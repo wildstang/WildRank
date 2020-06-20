@@ -214,6 +214,8 @@ function open_teams(team_numA, team_numB)
 
         if (typeof teams[selectedA][key] == 'number' && type != 'select' && type != 'dropdown')
         {
+            aVal = parseFloat(aVal)
+            bVal = parseFloat(bVal)
             // color and scale bars according to proportion
             if (aVal > bVal)
             {

@@ -205,6 +205,10 @@ function mode(values)
     let maxVal = values[0]
     values.forEach(function (val, index)
     {
+        if (val == null)
+        {
+            val = 'null'
+        }
         // increase count of value if it exists already
         if (Object.keys(counts).includes(val.toString())) counts[val]++
         // start count of value if it has not been added yet

@@ -160,6 +160,9 @@ function open_match(match_num)
     number_span.style.color = color
     name_span.style.color = color
 
+    // clear old buttons
+    result_buttons.innerHTML = ''
+
     // populate team text
     if (scout_mode == NOTE_MODE)
     {
@@ -229,7 +232,7 @@ function start_scouting(edit)
         let team_num = document.getElementById('team_scouting').innerHTML
         let color = document.getElementById('team_scouting').style.color
         query = build_query({'page': 'scout', 'match': match_num, 'team': team_num, 'alliance': color, 
-            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, 'edit': edit})
+            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, [POSITION_COOKIE]: scout_pos, 'edit': edit})
     }
     window.open(`index.html${query}`, '_self')
 }
