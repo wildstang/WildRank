@@ -6,16 +6,63 @@
  * date:        2020-06-13
  */
 
-const CONTENTS = `<img id="avatar">
-                  <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
-                  <h3 id="location"></h3>
-                  <h3 id="ranking"></h3>
-                  <img id="photo" alt="No image available">
-                  <div id="notes"></div>`
-    
-const BUTTONS = `<div id="matches"></div>`
+// read parameters from URL
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var teams
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch event teams from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    let file_name = get_event_teams_name(event_id)
+    if (localStorage.getItem(file_name) != null)
+    {
+        contents_card.innerHTML = `<img id="avatar">
+                                    <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
+                                    <h3 id="location"></h3>
+                                    <h3 id="ranking"></h3>
+                                    <img id="photo" alt="No image available">
+                                    <div id="notes"></div>`
+        buttons_container.innerHTML = '<div id="matches"></div>'
+        
+        build_options_list(JSON.parse(localStorage.getItem(file_name)))
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
+    }
+}
+
+/**
+ * function:    build_options_list
+ * parameters:  teams
+ * returns:     none
+ * description: Completes left select team pane with teams from event data.
+ */
+function build_options_list(teams)
+{
+    let first = ''
+    // iterate through team objs
+    teams.forEach(function (team, index)
+    {
+        let number = team.team_number
+        // determine if the team has already been scouted
+        let scouted = 'not_scouted'
+        if (first == '')
+        {
+            first = number
+        }
+
+        // replace placeholders in template and add to screen
+        document.getElementById('option_list').innerHTML += build_option(number, scouted)
+    })
+    open_option(first)
+    scroll_to('option_list', `option_${first}`)
+}
 
 /**
  * function:    open_option
@@ -26,10 +73,7 @@ var teams
 function open_option(team_num)
 {
     // select new option
-    teams.forEach(function (team, index)
-    {
-        document.getElementById(`option_${team.team_number}`).classList.remove('selected')
-    })
+    deselect_all()
     document.getElementById(`option_${team_num}`).classList.add('selected')
 
     // populate top
@@ -169,66 +213,5 @@ function open_result(file)
  */
 function scout(mode, team, alliance, match='')
 {
-    document.location.href = `/scout.html${build_query({[TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance})}`
+    document.location.href = `/index.html${build_query({'page': 'scout', [TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance})}`
 }
-
-/**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select team pane with teams from event data.
- */
-function build_team_list()
-{
-    let first = ''
-    // iterate through team objs
-    teams.forEach(function (team, index)
-    {
-        let number = team.team_number
-        // determine if the team has already been scouted
-        let scouted = 'not_scouted'
-        if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number, scouted)
-    })
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
-}
-
-/**
- * function:    load_event
- * parameters:  none
- * returns:     none
- * description: Fetch simple event teams from localStorage.
- *              Build team list on load completion.
- */
-function load_event()
-{
-    let file_name = get_event_teams_name(event_id)
-    let preview = document.getElementById('preview')
-
-    if (localStorage.getItem(file_name) != null)
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
-                                             .replace(/BUTTONS/g, BUTTONS)
-        
-        teams = JSON.parse(localStorage.getItem(file_name))
-        build_team_list()
-    }
-    else
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, '<h2>No Team Data Found</h2>Please preload event')
-                                             .replace(/BUTTONS/g, '')
-    }
-}
-
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-// load event data on page load
-load_event()

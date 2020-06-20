@@ -25,14 +25,21 @@ function build_page()
     build_note_box(blue2, 'blue2', blues)
     build_note_box(blue3, 'blue3', blues)
 
+    let scouting = 0
+    const descriptions = ['No One', 'Red Alliance', 'Blue Alliance', 'Both Alliances']
+    const colors = ['white', 'red', 'blue', 'white']
     if (reds.length > 0)
     {
         document.body.innerHTML += build_page_frame('Red Alliance', reds)
+        scouting += 1
     }
     if (blues.length > 0)
     {
         document.body.innerHTML += build_page_frame('Blue Alliance', blues)
+        scouting += 2
     }
+
+    document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${colors[scouting]}">${descriptions[scouting]}</span>`
     document.body.innerHTML += build_button(`submit_notes`, 'Submit', 'get_results_from_page()')
 }
 
@@ -129,7 +136,5 @@ var results = {}
 
 window.addEventListener('load', function()
 {
-    // build the page from config for the desired mode
-    document.getElementById('match').innerHTML = match_num
     build_page()
 })

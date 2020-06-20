@@ -8,26 +8,46 @@
 
 const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
-const CONTENTS = '<h2 id="value"></h2>'
-const BUTTONS = `
-    <h4 class="center_text">Sort by key</h4>
-    ${build_dropdown('key_selector', '', [], '', 'select()')}
-    ${build_dropdown('key_selector_method', '', ['only', 'vs', 'out of'], '', 'select()')}
-    ${build_dropdown('key_selector_against', '', [], '', 'select()')}<br>
-    <h4 class="center_text">Sort numeric values</h4>
-    ${build_select('type_form', '', SORT_OPTIONS, 'Mean', 'collect_results(); select()')}
-    ${build_checkbox('reverse', 'Reverse Order', false, 'select()')}
-    ${build_button('save', 'Save to Pick List', 'save_pick_list()')}`
-    
-// HTML template for a dropdown option
-const DROPDOWN_OP = '<option class="wr_dropdown_op" value="NAME" SELECTED>NAME</option>'
-
-const TEAM = '<div id="result_title"><img id="avatar" src="SRC"> <h2 class="result_name">TEXT</h2></div>'
-
 var keys = {}
 var teams = {}
 var totals = []
 var selected = ''
+
+// read parameters from URL
+const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const prefix = `${type}-${event_id}-`
+
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch results from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    load_config(type)
+    buttons_container.innerHTML = `<h4 class="center_text">Sort by key</h4>
+        ${build_dropdown('key_selector', '', [], '', 'select()')}
+        ${build_dropdown('key_selector_method', '', ['only', 'vs', 'out of'], '', 'select()')}
+        ${build_dropdown('key_selector_against', '', [], '', 'select()')}<br>
+        <h4 class="center_text">Sort numeric values</h4>
+        ${build_select('type_form', '', SORT_OPTIONS, 'Mean', 'collect_results(); select()')}
+        ${build_checkbox('reverse', 'Reverse Order', false, 'select()')}
+        ${build_button('save', 'Save to Pick List', 'save_pick_list()')}`
+
+    if (collect_results() > 0)
+    {
+        contents_card.innerHTML = '<h2 id="value"></h2>'
+        fill_dropdown()
+        selected = Object.keys(teams)[0]
+        select()
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Results Found</h2>'
+    }
+}
 
 /**
  * function:    count_options
@@ -278,8 +298,7 @@ function open_option(team_num)
     let against_options = totals[`${keys[against.selectedIndex]}_options`]
 
     // team details
-    let details = TEAM.replace(/SRC/g, get_avatar(team_num, event_id.substr(0,4)))
-                      .replace(/TEXT/g, `${team_num} ${get_team_name(team_num, event_id)}`)
+    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name">${team_num} ${get_team_name(team_num, event_id)}</h2></div>`
 
     // populate ranking
     let rankings = get_team_rankings(team_num, event_id)
@@ -349,33 +368,9 @@ function fill_dropdown()
     let options = ''
     keys.forEach(function (key, index)
     {
-        options += DROPDOWN_OP.replace(/NAME/g, get_name(key))
+        let name = get_name(key)
+        options += `<option class="wr_dropdown_op" value="${name}">${name}</option>`
     })
     document.getElementById('key_selector').innerHTML = options
     document.getElementById('key_selector_against').innerHTML = options
 }
-
-// read parameters from URL
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const prefix = `${type}-${event_id}-`
-
-// when the page is finished loading
-window.addEventListener('load', function() {
-    load_config(type)
-    let preview = document.getElementById('preview')
-    preview.innerHTML = preview.innerHTML.replace(/BUTTONS/g, BUTTONS)
-
-    if (collect_results() > 0)
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
-        fill_dropdown()
-        selected = Object.keys(teams)[0]
-        select()
-    }
-    else
-    {
-        preview.innerHTML = preview.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
-                                   .replace(/BUTTONS/g, '')
-    }
-})

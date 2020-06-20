@@ -217,7 +217,6 @@ window.addEventListener('load', function()
             case PIT_MODE:
                 file = get_pit_result(team_num, event_id)
                 break
-                break
         }
         edit = file_exists(file)
         if (edit)
@@ -234,14 +233,10 @@ window.addEventListener('load', function()
     switch (scout_mode)
     {
         case PIT_MODE:
-            document.getElementById('match').innerHTML = 'Pit'
-            document.getElementById('team').innerHTML = team_num
-            document.getElementById('team').style.color = 'white'
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
-            document.getElementById('match').innerHTML = match_num
-            document.getElementById('team').innerHTML = team_num
-            document.getElementById('team').style.color = alliance_color
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num}</span>`
             break
     }
     ws(team_num)

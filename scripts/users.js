@@ -5,10 +5,73 @@
  * author:      Liam Fruzyna
  * date:        2020-06-13
  */
-                              
-const BUTTONS = `<div id="contents"></div>`
+
+// read parameters from URL
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var users = {}
+
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch user results from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    if (Object.keys(localStorage).length > 0)
+    {
+        contents_card.style = 'display: none'
+        buttons_container.innerHTML = '<div id="contents"></div>'
+        
+        // build list of users and results
+        Object.keys(localStorage).forEach(function (file, index)
+        {
+            if (file.startsWith(`${MATCH_MODE}-${event_id}-`) || file.startsWith(`${PIT_MODE}-${event_id}-`) || file.startsWith(`${NOTE_MODE}-${event_id}-`))
+            {
+                let user = JSON.parse(localStorage.getItem(file)).meta_scouter_id
+                if (users.hasOwnProperty(user))
+                {
+                    users[user].push(file)
+                }
+                else
+                {
+                    users[user] = [file]
+                }
+            }
+        })
+        
+        build_options_list()
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Results Found</h2>'
+    }
+}
+
+/**
+ * function:    build_options_list
+ * parameters:  none
+ * returns:     none
+ * description: Completes left select user pane with users from event data.
+ */
+function build_options_list()
+{
+    let first = ''
+    // iterate through each match obj
+    Object.keys(users).forEach(function (user, index) {
+        if (first == '')
+        {
+            first = user
+        }
+
+        // replace placeholders in template and add to screen
+        document.getElementById('option_list').innerHTML += build_option(user)
+    })
+    open_option(first)
+    scroll_to('option_list', `option_${first}`)
+}
 
 /**
  * function:    open_option
@@ -140,70 +203,3 @@ function open_result(file)
     }
     document.location.href = `/selection.html${build_query({'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: type, 'file': file})}`
 }
-
-/**
- * function:    build_user_list
- * parameters:  none
- * returns:     none
- * description: Completes left select user pane with user ids.
- */
-function build_user_list()
-{
-    let first = ''
-    // iterate through each match obj
-    Object.keys(users).forEach(function (user, index) {
-        if (first == '')
-        {
-            first = user
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(user)
-    })
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
-}
-
-/**
- * function:    load_user
- * parameters:  none
- * returns:     none
- * description: Discover users from all result data
- */
-function load_user()
-{
-    if (Object.keys(localStorage).length > 0)
-    {
-        preview.innerHTML = preview.innerHTML.replace(/BUTTONS/g, BUTTONS)
-        document.getElementById('contents_card').style = 'display: none'
-        
-        // build list of users and results
-        Object.keys(localStorage).forEach(function (file, index)
-        {
-            if (file.startsWith(`${MATCH_MODE}-${event_id}-`) || file.startsWith(`${PIT_MODE}-${event_id}-`) || file.startsWith(`${NOTE_MODE}-${event_id}-`))
-            {
-                let user = JSON.parse(localStorage.getItem(file)).meta_scouter_id
-                if (users.hasOwnProperty(user))
-                {
-                    users[user].push(file)
-                }
-                else
-                {
-                    users[user] = [file]
-                }
-            }
-        })
-        build_user_list()
-    }
-    else
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
-                                             .replace(/BUTTONS/g, '')
-    }
-}
-
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-load_user()

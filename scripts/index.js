@@ -6,7 +6,12 @@
  * date:        2020-02-15
  */
 
-let page = build_page_frame('', [
+ /**
+  * PAGE INIT
+  */
+
+ // generate page
+const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
         build_str_entry('event_id', 'Event ID:'),
         build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
@@ -40,18 +45,18 @@ let page = build_page_frame('', [
 
 // when the page is finished loading
 window.addEventListener('load', function() {
-    document.body.innerHTML += page
-    fetch_config(fill_defaults)
+    document.body.innerHTML += PAGE_FRAME
+    fetch_config(on_config)
     process_files()
 })
 
 /**
- * function:    fill_defaults
+ * function:    on_config
  * parameters:  none
  * returns:     none
- * description: Fetch defaults and populate inputs with defaults.
+ * description: Fetch defaults, populate inputs with defaults, and apply theme.
  */
-function fill_defaults()
+function on_config()
 {
     let defaults = get_config('defaults')
     document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, defaults.event_id)
@@ -60,12 +65,14 @@ function fill_defaults()
     document.getElementById('upload_addr').selectedIndex = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
     let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
     select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
+
     let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     select_option('theme_switch', theme == 'light' ? 0 : 1)
     apply_theme()
     hide_buttons()
 }
 
+// buttons that require admin access
 const ADMIN_BUTTONS = ['open_ranker-container', 'open_sides-container', 'open_picks-container', 'open_whiteboard-container',
     'open_results-container', 'open_teams-container', 'open_matches-container', 'open_users-container',
     'import_all-container', 'download_csv-container', 'reset-container']
@@ -78,6 +85,7 @@ const ADMIN_BUTTONS = ['open_ranker-container', 'open_sides-container', 'open_pi
  */
 function hide_buttons()
 {
+    // dim if in admin list but user is not
     ADMIN_BUTTONS.forEach(function (id, index)
     {
         if (!is_admin(get_user()))
@@ -92,7 +100,7 @@ function hide_buttons()
 }
 
 /**
- * BUTTON RESPONSES
+ * INTERACTIVE BUTTON RESPONSES
  */
 
 /**
@@ -123,14 +131,7 @@ function scout()
         }
         else if (file_exists(get_event_matches_name(event)))
         {
-            if (type === MATCH_MODE)
-            {
-                document.location.href = `selection.html${build_query({'page': 'matches', [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})}`
-            }
-            else if (type === NOTE_MODE)
-            {
-                document.location.href = `selection.html${build_query({'page': 'matches', [EVENT_COOKIE]: event, [POSITION_COOKIE]: -1, [USER_COOKIE]: user})}`
-            }
+            document.location.href = `selection.html${build_query({'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})}`
         }
         else
         {
@@ -142,6 +143,150 @@ function scout()
         alert(`No config found for mode: ${type}`)
     }
 }
+
+/**
+ * function:    open_ranker
+ * parameters:  none
+ * returns:     none
+ * description: Open the team ranker interface.
+ */
+function open_ranker()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let type = get_selected_type()
+        if (type == NOTE_MODE)
+        {
+            alert('You can\'t rank notes...')
+        }
+        else if (config_exists(type))
+        {
+            let event = get_event()
+            let count = count_results(event, type)
+            
+            if (count > 0)
+            {
+                document.location.href = `selection.html${build_query({'page': 'ranker', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
+            }
+            else
+            {
+                alert('No results found!')
+            }
+        }
+        else
+        {
+            alert(`No config found for mode: ${type}`)
+        }
+    }
+    else
+    {
+        alert('Team ranker requires admin rights!')
+    }
+}
+
+/**
+ * function:    open_sides
+ * parameters:  none
+ * returns:     none
+ * description: Open the side-by-side comparison interface.
+ */
+function open_sides()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let type = get_selected_type()
+        if (type == NOTE_MODE)
+        {
+            alert('You can\'t rank notes...')
+        }
+        else if (config_exists(type))
+        {
+            let event = get_event()
+            let count = count_results(event, type)
+            
+            if (count > 0)
+            {
+                document.location.href = `selection.html${build_query({'page': 'sides', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
+            }
+            else
+            {
+                alert('No results found!')
+            }
+        }
+        else
+        {
+            alert(`No config found for mode: ${type}`)
+        }
+    }
+    else
+    {
+        alert('Team ranker requires admin rights!')
+    }
+}
+
+/**
+ * function:    open_picks
+ * parameters:  none
+ * returns:     none
+ * description: Open the pick list interface.
+ */
+function open_picks()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let event = get_event()
+        if (file_exists(get_event_teams_name(event)))
+        {
+            document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: event})}`
+        }
+        else
+        {
+            alert('No teams found! Please preload event.')
+        }
+    }
+    else
+    {
+        alert('Pick lists requires admin rights!')
+    }
+}
+
+/**
+ * function:    open_whiteboard
+ * parameters:  none
+ * returns:     none
+ * description: Open the virtual whiteboard.
+ */
+function open_whiteboard()
+{
+    save_options()
+
+    if (is_admin(get_user()))
+    {
+        let event = get_event()
+        if (file_exists(get_event_matches_name(event)))
+        {
+            document.location.href = `selection.html${build_query({'page': 'whiteboard', [EVENT_COOKIE]: event})}`
+        }
+        else
+        {
+            alert('No matches found! Please preload event.')
+        }
+    }
+    else
+    {
+        alert('Whiteboard requires admin rights!')
+    }
+}
+
+/**
+ * DATA BUTTON RESPONSES
+ */
 
 /**
  * function:    open_results
@@ -178,34 +323,6 @@ function open_results()
     else
     {
         alert('Results requires admin rights!')
-    }
-}
-
-/**
- * function:    open_whiteboard
- * parameters:  none
- * returns:     none
- * description: Open the virtual whiteboard.
- */
-function open_whiteboard()
-{
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        if (file_exists(get_event_matches_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'whiteboard', [EVENT_COOKIE]: event})}`
-        }
-        else
-        {
-            alert('No matches found! Please preload event.')
-        }
-    }
-    else
-    {
-        alert('Whiteboard requires admin rights!')
     }
 }
 
@@ -298,116 +415,8 @@ function open_users()
 }
 
 /**
- * function:    open_ranker
- * parameters:  none
- * returns:     none
- * description: Open the team ranker interface.
+ * TRANSFER BUTTON RESPONSES
  */
-function open_ranker()
-{
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let type = get_selected_type()
-        if (type == NOTE_MODE)
-        {
-            alert('You can\'t rank notes...')
-        }
-        else if (config_exists(type))
-        {
-            let event = get_event()
-            let count = count_results(event, type)
-            
-            if (count > 0)
-            {
-                document.location.href = `selection.html${build_query({'page': 'ranker', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
-            }
-            else
-            {
-                alert('No results found!')
-            }
-        }
-        else
-        {
-            alert(`No config found for mode: ${type}`)
-        }
-    }
-    else
-    {
-        alert('Team ranker requires admin rights!')
-    }
-}
-
-/**
- * function:    open_picks
- * parameters:  none
- * returns:     none
- * description: Open the pick list interface.
- */
-function open_picks()
-{
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        if (file_exists(get_event_teams_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: event})}`
-        }
-        else
-        {
-            alert('No teams found! Please preload event.')
-        }
-    }
-    else
-    {
-        alert('Pick lists requires admin rights!')
-    }
-}
-
-/**
- * function:    open_sides
- * parameters:  none
- * returns:     none
- * description: Open the side-by-side comparison interface.
- */
-function open_sides()
-{
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let type = get_selected_type()
-        if (type == NOTE_MODE)
-        {
-            alert('You can\'t rank notes...')
-        }
-        else if (config_exists(type))
-        {
-            let event = get_event()
-            let count = count_results(event, type)
-            
-            if (count > 0)
-            {
-                document.location.href = `selection.html${build_query({'page': 'sides', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
-            }
-            else
-            {
-                alert('No results found!')
-            }
-        }
-        else
-        {
-            alert(`No config found for mode: ${type}`)
-        }
-    }
-    else
-    {
-        alert('Team ranker requires admin rights!')
-    }
-}
 
 /**
  * function:    preload_event
@@ -929,10 +938,13 @@ function check_server(server)
 {
     try
     {
+        // send request to /about
         let check_addr = `${parse_server_addr(server)}/about`
         var req = new XMLHttpRequest()
         req.open('GET', check_addr, false)
         req.send(null)
+
+        // confirm Python server
         if (req.responseText.includes('Python3 post-server'))
         {
             return true

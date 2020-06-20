@@ -6,21 +6,74 @@
  * date:        2020-03-19
  */
 
-// HTML template for pick list
-const PICK_LIST = `<div id="NAME_list" class="pick_list">${build_button("list_NAME", "NAME", "add_to('NAME', '')", "remove_team('NAME', '')")}LIST_ITEMS</div>`
-
-// HTML template for new list
-const CREATE_LIST = `<div id="create_new_list" class="pick_list">
-                        ${build_str_entry("pick_list_name", "New Pick List...", "new pick list")}
-                        ${build_button("create_list", "Create", "create_list()")}
-                    </div>`
-
-const CONTENTS = '<img id="avatar"><h2>Add team <label id="team_num"></label>, <label id="team_name"></label>, to...</h2>'
-
-const BUTTONS = '<div id="pick_lists"></div>'
-
-var teams
 var lists = {}
+
+// read parameters from URL
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch simple event matches from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    let file_name = get_event_teams_name(event_id)
+    if (localStorage.getItem(file_name) != null)
+    {
+        contents_card.innerHTML = '<img id="avatar"><h2>Add team <label id="team_num"></label>, <label id="team_name"></label>, to...</h2>'
+        buttons_container.innerHTML = '<div id="pick_lists"></div>'
+        
+        // load teams from localStorage and build team lists
+        teams = JSON.parse(localStorage.getItem(file_name))
+        build_team_list(teams)
+
+        // load lists in from localStorage, and build lists
+        let name = get_event_pick_lists_name(event_id)
+        if (file_exists(name))
+        {
+            lists = JSON.parse(localStorage.getItem(name))
+            // remove empty lists on page load
+            Object.keys(lists).forEach(function (list, index)
+            {
+                if (lists[list].length == 0)
+                {
+                    delete lists[list]
+                }
+            })
+        }
+        build_pick_lists()
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
+    }
+}
+
+/**
+ * function:    build_team_list
+ * parameters:  teams
+ * returns:     none
+ * description: Completes left select team pane with teams from event data.
+ */
+function build_team_list(teams)
+{
+    let first = ''
+    // iterate through team objs
+    teams.forEach(function (team, index) {
+        let number = team.team_number
+        if (first == '')
+        {
+            first = number
+        }
+
+        // replace placeholders in template and add to screen
+        document.getElementById('option_list').innerHTML += build_option(number)
+    })
+    open_option(first)
+    scroll_to('option_list', `option_${first}`)
+}
 
 /**
  * function:    open_option
@@ -30,6 +83,8 @@ var lists = {}
  */
 function open_option(team_num)
 {
+    deselect_all()
+
     // build team header
     document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0,4))
     document.getElementById('team_num').innerHTML = team_num
@@ -37,13 +92,6 @@ function open_option(team_num)
 
     // select team button
     document.getElementById(`option_${team_num}`).classList.add('selected')
-    teams.forEach(function (team, index) {
-        let number = team.team_number
-        if (number != team_num && document.getElementById(`option_${number}`).classList.contains('selected'))
-        {
-            document.getElementById(`option_${number}`).classList.remove('selected')
-        }
-    })
     ws(team_num)
 }
 
@@ -121,93 +169,21 @@ function build_pick_lists()
     Object.keys(lists).forEach(function (name, index)
     {
         // add list button
-        lists_text += PICK_LIST.replace(/NAME/g, name)
         let list_text = ''
         lists[name].forEach(function (team, index)
         {
             // add team button
             list_text += build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`)
         })
-        lists_text = lists_text.replace(/LIST_ITEMS/g, list_text)
+        lists_text += `<div id="${name}_list" class="pick_list">${build_button(`list_${name}`, name, `add_to('${name}', '')`, `remove_team('${name}', '')`)}${list_text}</div>`
     })
     // add create list form and add to screen
-    lists_text += CREATE_LIST
+    lists_text += `<div id="create_new_list" class="pick_list">
+            ${build_str_entry("pick_list_name", "New Pick List...", "new pick list")}
+            ${build_button("create_list", "Create", "create_list()")}
+        </div>`
     document.getElementById('pick_lists').innerHTML = lists_text
 
     // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
 }
-
-/**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select team pane with teams from event data.
- */
-function build_team_list()
-{
-    let first = ''
-    // iterate through team objs
-    teams.forEach(function (team, index) {
-        let number = team.team_number
-        if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number)
-    })
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
-}
-
-/**
- * function:    load_event
- * parameters:  none
- * returns:     none
- * description: Fetch simple event teams and from localStorage.
- *              Build team list on load completion.
- */
-function load_event()
-{
-    let file_name = get_event_teams_name(event_id)
-    let preview = document.getElementById('preview')
-
-    if (localStorage.getItem(file_name) != null)
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
-                                             .replace(/BUTTONS/g, BUTTONS)
-        
-        // load teams from localStorage and build team lists
-        teams = JSON.parse(localStorage.getItem(file_name))
-        build_team_list()
-
-        // load lists in from localStorage, and build lists
-        let name = get_event_pick_lists_name(event_id)
-        if (file_exists(name))
-        {
-            lists = JSON.parse(localStorage.getItem(name))
-            // remove empty lists on page load
-            Object.keys(lists).forEach(function (list, index)
-            {
-                if (lists[list].length == 0)
-                {
-                    delete lists[list]
-                }
-            })
-        }
-        build_pick_lists()
-    }
-    else
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, '<h2>No Team Data Found</h2>Please preload event')
-                                             .replace(/BUTTONS/g, '')
-    }
-}
-
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-
-// load event data on page load
-load_event()

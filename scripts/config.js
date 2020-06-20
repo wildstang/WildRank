@@ -16,6 +16,8 @@ var config
 function fetch_config(onConfig, force=false)
 {
     let init = {}
+
+    // force reload config if requested
     if (force)
     {
         let headers = new Headers()
@@ -26,6 +28,8 @@ function fetch_config(onConfig, force=false)
             headers: headers
         }
     }
+
+    // fetch scouting modes config
     fetch('config/scout-config.json', init)
         .then(response => {
             return response.json()
@@ -39,6 +43,8 @@ function fetch_config(onConfig, force=false)
         .catch(err => {
             console.log(`Error config file, ${err}`)
         })
+
+    // fetch general config
     fetch('config/config.json', init)
         .then(response => {
             return response.json()
@@ -323,6 +329,7 @@ function apply_theme()
     }
 }
 
+// apply theme on every page load
 window.addEventListener('load', function()
 {
     apply_theme()

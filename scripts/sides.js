@@ -8,29 +8,46 @@
 
 const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
-const CONTENTS = `<h2 id="value"></h2>`
-const BUTTONS = `<br>
-    ${build_page_frame('', [
-        build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
-        build_column_frame('', [ '<h4 class="input_label">Bars</h4>', build_checkbox('scale_max', 'Scale to Maximums', false, 'select()') ])
-    ], false)}<br><div class="wr_card"><table id="compare_tab"></table></div>`
-
-const TEAM = `<div id="result_title"><img id="avatar" src="SRCA"> <h2 class="result_name">NAMEA</h2><br>RANKA</div>
-              vs
-              <div id="result_title"><img id="avatar" src="SRCB"> <h2 class="result_name">NAMEB</h2><br>RANKB</div>`
-
-const COMPARISON = `<tr><td><span style="float:left; padding-right: 16px">AVAL</span>
-                            <span style="float:right; width:AWIDTHpx; height:20px; background-color:ACOLOR"></span></td>
-                        <th>ENTRY</th>
-                        <td><span style="float:right; padding-left: 16px">BVAL</span>
-                            <span style="float:left; width:BWIDTHpx; height:20px; background-color:BCOLOR"></span></td></tr>`
-
 var keys = {}
 var teams = {}
 var maxs = []
 var selectedA = ''
 var selectedB = ''
 var selecting = 'a'
+
+// read parameters from URL
+const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const prefix = `${type}-${event_id}-`
+
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch simple event matches from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    load_config(type)
+    buttons_container.innerHTML = `<br>
+        ${build_page_frame('', [
+            build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
+            build_column_frame('', [ '<h4 class="input_label">Bars</h4>', build_checkbox('scale_max', 'Scale to Maximums', false, 'select()') ])
+        ], false)}<br>
+        <div class="wr_card"><table id="compare_tab"></table></div>`
+
+    if (collect_results() > 0)
+    {
+        contents_card.innerHTML = '<h2 id="value"></h2>'
+        selectedA = Object.keys(teams)[0]
+        selectedB = Object.keys(teams)[1]
+        select()
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Results Found</h2>'
+    }
+}
 
 /**
  * function:    collect_results
@@ -179,12 +196,8 @@ function open_teams(team_numA, team_numB)
     let rankB = rankingB ? `Rank: ${rankingB.rank} (${rankingB.record.wins}-${rankingB.record.losses}-${rankingB.record.ties})<br>` : ''
 
     // team details
-    let details = TEAM.replace(/SRCA/g, get_avatar(team_numA, event_id.substr(0,4)))
-                      .replace(/NAMEA/g, `${team_numA} ${get_team_name(team_numA, event_id)}`)
-                      .replace(/RANKA/g, rankA)
-                      .replace(/SRCB/g, get_avatar(team_numB, event_id.substr(0,4)))
-                      .replace(/NAMEB/g, `${team_numB} ${get_team_name(team_numB, event_id)}`)
-                      .replace(/RANKB/g, rankB)
+    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_numA, event_id.substr(0,4))}"> <h2 class="result_name">${team_numA} ${get_team_name(team_numA, event_id)}</h2><br>${rankA}</div> vs
+        <div id="result_title"><img id="avatar" src="${get_avatar(team_numB, event_id.substr(0,4))}"> <h2 class="result_name">${team_numB} ${get_team_name(team_numB, event_id)}</h2><br>${rankB}</div>`
 
     document.getElementById('value').innerHTML = details
 
@@ -257,13 +270,11 @@ function open_teams(team_numA, team_numB)
             bColor *= -1
         }
         
-        compare += COMPARISON.replace(/ENTRY/g, get_name(key))
-                             .replace(/AVAL/g, aVal)
-                             .replace(/AWIDTH/g, aWidth)
-                             .replace(/ACOLOR/g, num2color(aColor))
-                             .replace(/BVAL/g, bVal)
-                             .replace(/BWIDTH/g, bWidth)
-                             .replace(/BCOLOR/g, num2color(bColor))
+        compare += `<tr><td><span style="float:left; padding-right: 16px">${aVal}</span>
+            <span style="float:right; width:${aWidth}px; height:20px; background-color:${num2color(aColor)}"></span></td>
+            <th>${get_name(key)}</th>
+            <td><span style="float:right; padding-left: 16px">${bVal}</span>
+            <span style="float:left; width:${bWidth}px; height:20px; background-color:${num2color(bColor)}"></span></td></tr>`
     })
 
     document.getElementById('compare_tab').innerHTML = compare
@@ -279,28 +290,3 @@ function open_teams(team_numA, team_numB)
     document.getElementById(`option_${selectedA}`).classList.add('selected')
     document.getElementById(`option_${selectedB}`).classList.add('selected')
 }
-
-// read parameters from URL
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const prefix = `${type}-${event_id}-`
-
-// when the page is finished loading
-window.addEventListener('load', function() {
-    load_config(type)
-    let preview = document.getElementById('preview')
-    preview.innerHTML = preview.innerHTML.replace(/BUTTONS/g, BUTTONS)
-
-    if (collect_results() > 0)
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
-        selectedA = Object.keys(teams)[0]
-        selectedB = Object.keys(teams)[1]
-        select()
-    }
-    else
-    {
-        preview.innerHTML = preview.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
-                                   .replace(/BUTTONS/g, '')
-    }
-})

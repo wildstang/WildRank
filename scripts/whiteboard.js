@@ -5,26 +5,6 @@
  * date:        2020-03-10
  */
 
-const CONTENTS = '<canvas id="whiteboard"></canvas>'
-
-const BUTTONS = `<br>
-    ${build_page_frame('Controls', [
-        build_column_frame('', [
-            build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
-            build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
-            build_button('update_teams', 'Update Teams', 'update_teams()'),
-            build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
-        ])
-    ])}
-    ${build_page_frame('Team Avatars', [
-        build_column_frame('', [build_num_entry('red1', 'Red 1', '', bounds=[0, 10000]),
-                                build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000])]),
-        build_column_frame('', [build_num_entry('red2', 'Red 2', '', bounds=[0, 10000]),
-                                build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000])]),
-        build_column_frame('', [build_num_entry('red3', 'Red 3', '', bounds=[0, 10000]),
-                                build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000])])
-    ])}`
-
 var magnet_size
 var field_width
 var field_height
@@ -369,11 +349,35 @@ function mouse_up(evt) {
     magnetHeld = -1
 }
 
-window.addEventListener('load', function() {
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     matches
+ * description: Fetch simple event matches from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
     // fill in page template
     let preview = document.getElementById('preview')
-    preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
-                                         .replace(/BUTTONS/g, BUTTONS)
+    contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
+    buttons_container.innerHTML = '<br>' +
+        build_page_frame('Controls', [
+            build_column_frame('', [
+                build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
+                build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
+                build_button('update_teams', 'Update Teams', 'update_teams()'),
+                build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
+            ])
+        ]) +
+        build_page_frame('Team Avatars', [
+            build_column_frame('', [build_num_entry('red1', 'Red 1', '', bounds=[0, 10000]),
+                                    build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000])]),
+            build_column_frame('', [build_num_entry('red2', 'Red 2', '', bounds=[0, 10000]),
+                                    build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000])]),
+            build_column_frame('', [build_num_entry('red3', 'Red 3', '', bounds=[0, 10000]),
+                                    build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000])])
+        ])
+
     // load in match data
     load_event()
 
@@ -427,4 +431,4 @@ window.addEventListener('load', function() {
 
     // add magnets and start drawing
     init()
-})
+}

@@ -15,13 +15,16 @@ document.head.appendChild(script)
 // respond to keyboard inputs
 document.onkeydown = function(e)
 {
+    // on arrow key press
     if (e.which == 38 || e.which == 40)
     {
-        let list = document.getElementById('option_list').children
-        for (let i = 0; i < list.length; ++i)
+        // find currently selected option
+        let options = document.getElementById('option_list').children
+        for (let i = 0; i < options.length; ++i)
         {
-            if (list[i].classList.contains('selected'))
+            if (options[i].classList.contains('selected'))
             {
+                // increment/decrement selected index by arrow press
                 let new_index = i
                 if (e.which == 38) 
                 {
@@ -31,13 +34,34 @@ document.onkeydown = function(e)
                 {
                     new_index += 1
                 }
-                if (new_index >= 0 && new_index < list.length)
+                // click on newly selected option and scroll
+                if (new_index >= 0 && new_index < options.length)
                 {
-                    list[new_index].click()
-                    scroll_to('option_list', list[new_index].id)
+                    options[new_index].click()
+                    scroll_to('option_list', options[new_index].id)
                     return false
                 }
             }
         }
     }
 }
+
+/**
+ * function:    deselect_all
+ * parameters:  none
+ * returns:     none
+ * description: Deselects all options in option_list.
+ */
+function deselect_all()
+{
+    let options = document.getElementById('option_list').children
+    for (let i = 0; i < options.length; ++i)
+    {
+        options[i].classList.remove('selected')
+    }
+}
+
+window.addEventListener('load', function()
+{
+    init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'))
+})

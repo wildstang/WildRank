@@ -6,13 +6,55 @@
  * date:        2020-02-26
  */
 
-const CONTENTS = '<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div><img id="photo"><table id="results_tab"></table>'
-const BUTTONS = ''
-
 var teams = {}
 var results = {}
 
 var avail_teams = []
+
+// read parameters from URL
+const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const prefix = `${type}-${event_id}-`
+var urlParams = new URLSearchParams(window.location.search)
+const selected = urlParams.get('file')
+
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch results from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    if (type == NOTE_MODE)
+    {
+        load_config(MATCH_MODE)
+    }
+    else
+    {
+        load_config(type)
+    }
+    if (collect_results() > 0)
+    {
+        contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
+                                    <img id="photo">
+                                    <table id="results_tab"></table>`
+        if (type != PIT_MODE)
+        {
+            avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
+            avail_teams.unshift('All')
+            document.getElementById('preview').innerHTML = `\
+                ${build_page_frame('', [
+                    build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
+                ], false)}<br>${document.getElementById('preview').innerHTML}`
+        }
+        build_result_list()
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Results Found</h2>'
+    }
+}
 
 /**
  * function:    open_option
@@ -256,42 +298,3 @@ function sort_results(sort_by)
         results[key] = unsorted[key]
     })
 }
-
-// read parameters from URL
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const prefix = `${type}-${event_id}-`
-var urlParams = new URLSearchParams(window.location.search)
-const selected = urlParams.get('file')
-
-// when the page is finished loading
-window.addEventListener('load', function() {
-    if (type == NOTE_MODE)
-    {
-        load_config(MATCH_MODE)
-    }
-    else
-    {
-        load_config(type)
-    }
-    if (collect_results() > 0)
-    {
-        if (type != PIT_MODE)
-        {
-            avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
-            avail_teams.unshift('All')
-            document.getElementById('preview').innerHTML = `\
-                ${build_page_frame('', [
-                    build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
-                ], false)}<br>${document.getElementById('preview').innerHTML}`
-        }
-        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, CONTENTS)
-        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/BUTTONS/g, BUTTONS)
-        build_result_list()
-    }
-    else
-    {
-        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/CONTENTS/g, '<h2>No Results Found</h2>')
-        document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML.replace(/BUTTONS/g, '')
-    }
-})

@@ -6,22 +6,74 @@
  * date:        2020-02-15
  */
 
-const OPEN_RESULT = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + build_button('open_result', 'View Results', `open_result('RESULT')`)
+// read parameters from URL
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-const CONTENTS = `<img id="avatar"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
-                    <img id="photo" alt="No image available">`
-    
-const BUTTONS = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
-                <div id="view_result"></div>
-                <video id="prevue" height="0">Video stream not available</video>
-                ${build_button('capture', 'Capture Robot', 'capture()')}`
-
-var teams
 var team = ''
 
 var streaming = false
 var full_canvas
 var low_canvas
+
+/**
+ * function:    init_page
+ * parameters:  contents card, buttons container
+ * returns:     none
+ * description: Fetch event teams from localStorage. Initialize page contents.
+ */
+function init_page(contents_card, buttons_container)
+{
+    let file_name = get_event_teams_name(event_id)
+    if (localStorage.getItem(file_name) != null)
+    {
+        contents_card.innerHTML = `<img id="avatar"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
+                                    <img id="photo" alt="No image available">`
+        buttons_container.innerHTML = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
+                                        <div id="view_result"></div>
+                                        <video id="prevue" height="0">Video stream not available</video>
+                                        ${build_button('capture', 'Capture Robot', 'capture()')}`
+        
+        init_camera()
+        
+        build_options_list(JSON.parse(localStorage.getItem(file_name)))
+    }
+    else
+    {
+        contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
+    }
+}
+
+/**
+ * function:    build_options_list
+ * parameters:  teams
+ * returns:     none
+ * description: Completes left select team pane with matches from teams data.
+ */
+function build_options_list(teams)
+{
+    let first = ''
+    // iterate through team objs
+    teams.forEach(function (team, index) {
+        let number = team.team_number
+        // determine if the team has already been scouted
+        let scouted = 'not_scouted'
+        if (file_exists(get_pit_result(number, event_id)))
+        {
+            first = ''
+            scouted = 'scouted'
+        }
+        else if (first == '')
+        {
+            first = number
+        }
+
+        // replace placeholders in template and add to screen
+        document.getElementById('option_list').innerHTML += build_option(number, scouted)
+    })
+    open_option(first)
+    scroll_to('option_list', `option_${first}`)
+}
 
 /**
  * function:    init_camera
@@ -114,34 +166,34 @@ function capture()
  */
 function open_option(team_num)
 {
+    deselect_all()
+
+    // fill team info
     team = team_num
     document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = get_team_name(team_num, event_id)
     document.getElementById(`option_${team_num}`).classList.add('selected')
-    teams.forEach(function (team, index) {
-        let number = team.team_number
-        if (number != team_num && document.getElementById(`option_${number}`).classList.contains('selected'))
-        {
-            document.getElementById(`option_${number}`).classList.remove('selected')
-        }
-    })
 
     if (document.getElementById('open_result_container') !== null)
     {
         document.getElementById('open_result_container').remove()
     }
     
+    // show edit/view result buttons
     let file = get_pit_result(team_num, event_id)
+    let result_buttons = document.getElementById('view_result')
     if (file_exists(file))
     {
-        document.getElementById('view_result').innerHTML = OPEN_RESULT.replace(/RESULT/g, file)
+        result_buttons.innerHTML = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + 
+            build_button('open_result', 'View Results', `open_result('${file}')`)
     }
     else
     {
-        document.getElementById('view_result').innerHTML = ''
+        result_buttons.innerHTML = ''
     }
 
+    // load photo
     let photo = document.getElementById('photo')
     photo.setAttribute('onerror', `use_cached_image(${team_num}, "photo")`)
     file = get_team_image_name(team_num, event_id)
@@ -168,71 +220,5 @@ function open_result(file)
 function start_scouting(edit)
 {
     let team_num = document.getElementById('team_num').innerHTML
-    window.open(`scout.html${build_query({[TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})}`, '_self')
+    window.open(`index.html${build_query({'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})}`, '_self')
 }
-
-/**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select team pane with teams from event data.
- */
-function build_team_list()
-{
-    let first = ''
-    // iterate through team objs
-    teams.forEach(function (team, index) {
-        let number = team.team_number
-        // determine if the team has already been scouted
-        let scouted = 'not_scouted'
-        if (file_exists(get_pit_result(number, event_id)))
-        {
-            first = ''
-            scouted = 'scouted'
-        }
-        else if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number, scouted)
-    })
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
-}
-
-/**
- * function:    load_event
- * parameters:  none
- * returns:     none
- * description: Fetch simple event teams and from localStorage.
- *              Build team list on load completion.
- */
-function load_event()
-{
-    let file_name = get_event_teams_name(event_id)
-    let preview = document.getElementById('preview')
-
-    if (localStorage.getItem(file_name) != null)
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, CONTENTS)
-                                             .replace(/BUTTONS/g, BUTTONS)
-        
-        teams = JSON.parse(localStorage.getItem(file_name))
-        build_team_list()
-    }
-    else
-    {
-        preview.innerHTML = preview.innerHTML.replace(/CONTENTS/g, '<h2>No Team Data Found</h2>Please preload event')
-                                             .replace(/BUTTONS/g, '')
-    }
-    init_camera()
-}
-
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-// load event data on page load
-load_event()

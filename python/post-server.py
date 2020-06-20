@@ -4,7 +4,7 @@ from os.path import isfile, join
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
-VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/scout.html', '/selection.html']
+VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/selection.html', '/?']
 
 class ServerHandler(http.server.SimpleHTTPRequestHandler):
 
@@ -27,7 +27,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path == '/getMatchResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
         elif self.path == '/getNoteNames':
-            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('notes-') and f.endswith('.json')]
+            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('note-') and f.endswith('.json')]
         
         # about page, used to check server version
         elif self.path == '/about':
