@@ -588,33 +588,40 @@ function use_cached_image(team_num, image_id, method, hide=true)
     let full_res = get_team_image_name(team_num, event_id, true)
     let low_res = get_team_image_name(team_num, event_id)
 
-    // if first attempt, attempt full res from server
-    if (method == '')
+    if (get_config('settings').use_images)
     {
-        photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "full_res", ${hide})`)
-        photo.setAttribute('src', `/uploads/${full_res}.png`)
+        // if first attempt, attempt full res from server
+        if (method == '')
+        {
+            photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "full_res", ${hide})`)
+            photo.setAttribute('src', `/uploads/${full_res}.png`)
+        }
+        // if full res from server not found and low res exists in localstorage, use that
+        else if (method == 'full_res' && file_exists(low_res))
+        {
+            photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "local", ${hide})`)
+            photo.setAttribute('src', localStorage.getItem(low_res))
+        }
+        // if everything else has failed, attempt low res from server
+        else if (method != 'low_res')
+        {
+            photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "low_res", ${hide})`)
+            photo.setAttribute('src', `/uploads/${low_res}.png`)
+        }
+        // if low res from server fails too, give up and hide if requested (default)
+        else
+        {
+            photo.setAttribute('onerror', '')
+            photo.setAttribute('src', '')
+            if (hide)
+            {
+                photo.setAttribute('style', 'display: none')
+            }
+        }
     }
-    // if full res from server not found and low res exists in localstorage, use that
-    else if (method == 'full_res' && file_exists(low_res))
-    {
-        photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "local", ${hide})`)
-        photo.setAttribute('src', localStorage.getItem(low_res))
-    }
-    // if everything else has failed, attempt low res from server
-    else if (method != 'low_res')
-    {
-        photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "low_res", ${hide})`)
-        photo.setAttribute('src', `/uploads/${low_res}.png`)
-    }
-    // if low res from server fails too, give up and hide if requested (default)
     else
     {
-        photo.setAttribute('onerror', '')
-        photo.setAttribute('src', '')
-        if (hide)
-        {
-            photo.setAttribute('style', 'display: none')
-        }
+        photo.setAttribute('style', 'display: none')
     }
 }
 
@@ -639,7 +646,7 @@ function unix_to_match_time(unix_time)
     }
     let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
     let part = ''
-    if (get_config('time-format') == 12)
+    if (get_config('settings').time_format == 12)
     {
         if (hours > 12)
         {

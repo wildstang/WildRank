@@ -72,7 +72,7 @@ function fetch_config(onConfig, force=false)
  */
 function load_config(mode)
 {
-    config = JSON.parse(localStorage.getItem(`config-${mode}`))
+    config = get_config(mode)
 }
 
 /**
@@ -312,7 +312,7 @@ function get_theme()
 function apply_theme()
 {
     // read title from config
-    let title = get_config('title')
+    let title = get_config('settings').title
     if (typeof title !== 'undefined')
     {
         document.title = title

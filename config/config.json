@@ -1,6 +1,9 @@
 {
-    "title": "LiamRank",
-    "time-format": 24,
+    "settings": {
+        "title": "LiamRank",
+        "time_format": 24,
+        "use_images": true
+    },
     "defaults": {
         "event_id": "2020ilch",
         "upload_url": "http://localhost",
