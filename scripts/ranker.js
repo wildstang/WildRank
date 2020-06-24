@@ -299,6 +299,7 @@ function open_option(team_num)
 
     // team details
     let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name">${team_num} ${get_team_name(team_num, event_id)}</h2></div>`
+    details += '<img id="photo" alt="No image available"><br>'
 
     // populate ranking
     let rankings = get_team_rankings(team_num, event_id)
@@ -344,6 +345,7 @@ function open_option(team_num)
     }
 
     document.getElementById('value').innerHTML = details
+    use_cached_image(team_num, 'photo', '')
 
     // select team on left
     Object.keys(teams).forEach(function (team, index)

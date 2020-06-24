@@ -439,13 +439,13 @@ function get_team_avatar_name(team_num, year)
 
 /**
  * function:    get_team_image_name
- * parameters:  team number, event
+ * parameters:  team number, event, full resolution image
  * returns:     team image filename
  * description: Fetches the team's image filename from localStorage.
  */
-function get_team_image_name(team_num, event)
+function get_team_image_name(team_num, event, full_res=false)
 {
-    return `image-${event}-${team_num}`
+    return `image-${event}-${team_num}${full_res ? '-full' : ''}`
 }
 
 /**
@@ -578,23 +578,43 @@ function avg_results(results, key, sort_type)
 
 /**
 * function:    use_cached_image
-* parameters:  team number, image element id
+* parameters:  team number, image element id, previous method, hide if not found
 * returns:     none
-* description: Run on image loading error, attempts to load from localStorage instead.
+* description: Select the next image location to attempt.
 */
-function use_cached_image(team_num, image_id)
+function use_cached_image(team_num, image_id, method, hide=true)
 {
-    let file = get_team_image_name(team_num, event_id)
     let photo = document.getElementById(image_id)
-    photo.setAttribute('onerror', '') // avoid endless loop
-    if (file_exists(file))
+    let full_res = get_team_image_name(team_num, event_id, true)
+    let low_res = get_team_image_name(team_num, event_id)
+
+    // if first attempt, attempt full res from server
+    if (method == '')
     {
-        let image = localStorage.getItem(get_team_image_name(team_num, event_id))
-        photo.setAttribute('src', image)
+        photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "full_res", ${hide})`)
+        photo.setAttribute('src', `/uploads/${full_res}.png`)
     }
+    // if full res from server not found and low res exists in localstorage, use that
+    else if (method == 'full_res' && file_exists(low_res))
+    {
+        photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "local", ${hide})`)
+        photo.setAttribute('src', localStorage.getItem(low_res))
+    }
+    // if everything else has failed, attempt low res from server
+    else if (method != 'low_res')
+    {
+        photo.setAttribute('onerror', `use_cached_image(${team_num}, "${image_id}", "low_res", ${hide})`)
+        photo.setAttribute('src', `/uploads/${low_res}.png`)
+    }
+    // if low res from server fails too, give up and hide if requested (default)
     else
     {
+        photo.setAttribute('onerror', '')
         photo.setAttribute('src', '')
+        if (hide)
+        {
+            photo.setAttribute('style', 'display: none')
+        }
     }
 }
 

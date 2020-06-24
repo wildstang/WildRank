@@ -109,10 +109,7 @@ function open_option(team_num)
     document.getElementById('notes').innerHTML = notes
 
     // find robot photo
-    let photo = document.getElementById('photo')
-    photo.setAttribute('onerror', `use_cached_image(${team_num}, "photo")`)
-    file = get_team_image_name(team_num, event_id)
-    photo.setAttribute('src', `/uploads/${file}.png`)
+    use_cached_image(team_num, 'photo', '')
 
     // add pit row
     let result_file = get_pit_result(team_num, event_id)

@@ -183,9 +183,7 @@ function open_match(match_num)
         name_span.innerHTML = get_team_name(team_num, event_id)
 
         // find photo
-        let photo = document.getElementById('photo')
-        photo.setAttribute('onerror', `use_cached_image(${team_num}, "photo")`)
-        photo.setAttribute('src', `/uploads/${get_team_image_name(team_num, event_id)}.png`)
+        use_cached_image(team_num, 'photo', '')
         
         // create result buttons
         let file = get_match_result(match_num, team.substr(3), event_id)

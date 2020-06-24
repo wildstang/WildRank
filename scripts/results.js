@@ -103,10 +103,7 @@ function open_option(name)
     }
     table += '</tr><tr><th>Total Results</th><td>1</td>'
 
-    let photo = document.getElementById('photo')
-    photo.setAttribute('onerror', `use_cached_image(${team}, "photo")`)
-    file = get_team_image_name(team, event_id)
-    photo.setAttribute('src', `/uploads/${file}.png`)
+    use_cached_image(team, 'photo', '')
 
     switch (type)
     {

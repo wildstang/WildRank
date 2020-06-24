@@ -146,11 +146,10 @@ function capture()
         photo.setAttribute('src', full_res)
 
         // save image to file
-        let file = get_team_image_name(team, event_id)
-        localStorage.setItem(file, low_res)
+        localStorage.setItem(get_team_image_name(team, event_id), low_res)
         
         // post file to server
-        fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${file}|||${full_res}`})
+        fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${get_team_image_name(team, event_id, true)}|||${full_res}`})
     }
     else
     {
@@ -194,10 +193,7 @@ function open_option(team_num)
     }
 
     // load photo
-    let photo = document.getElementById('photo')
-    photo.setAttribute('onerror', `use_cached_image(${team_num}, "photo")`)
-    file = get_team_image_name(team_num, event_id)
-    photo.setAttribute('src', `/uploads/${file}.png`)
+    use_cached_image(team_num, 'photo', '', false)
 }
 
 /**
