@@ -780,16 +780,16 @@ function process_files()
             ++avatars
         }
     })
-    status(`Results...<br>
-           Match: ${matches}<br>
-           Pit: ${pits}<br>
-           Image: ${images}<br>
-           Note: ${notes}<br>
-           Events...<br>
-           Matches: ${events.join(', ')}<br>
-           Teams: ${teams.join(', ')}<br>
-           Avatars: ${avatars}<br>
-           Rankings: ${rankings.join(', ')}`)
+    status(`<table><tr><th>Results...</th></tr>
+            <tr><td>Match<td></td><td>${matches}</td></tr>
+            <tr><td>Pit<td></td><td>${pits}</td></tr>
+            <tr><td>Image<td></td><td>${images}</td></tr>
+            <tr><td>Note<td></td><td>${notes}</td></tr>
+            <tr><th>Events...</th></tr>
+            <tr><td>Match<td></td><td>${events.join(', ')}</td></tr>
+            <tr><td>Team<td></td><td>${teams.join(', ')}</td></tr>
+            <tr><td>Avatar<td></td><td>${avatars}</td></tr>
+            <tr><td>Ranking<td></td><td>${rankings.join(', ')}</td></tr></table>`)
 }
 
 /**
