@@ -118,7 +118,7 @@ body {
 
 .wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number {
     width: calc(var(--input-width) - 2*var(--input-padding));
-    height: calc(var(--input-height) - 2*var(--input-padding));
+    min-height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
 .wr_dropdown {
