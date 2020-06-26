@@ -788,8 +788,8 @@ function process_files()
             <tr><th>Events...</th></tr>
             <tr><td>Match<td></td><td>${events.join(', ')}</td></tr>
             <tr><td>Team<td></td><td>${teams.join(', ')}</td></tr>
-            <tr><td>Avatar<td></td><td>${avatars}</td></tr>
-            <tr><td>Ranking<td></td><td>${rankings.join(', ')}</td></tr></table>`)
+            <tr><td>Ranking<td></td><td>${rankings.join(', ')}</td></tr>
+            <tr><td>Avatar<td></td><td>${avatars}</td></tr></table>`)
 }
 
 /**

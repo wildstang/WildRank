@@ -103,13 +103,13 @@ function open_option(team_num)
  */
 function remove_team(name, team)
 {
-    if (team === '')
-    {
-        delete lists[name]
-    }
-    else
+    if (team !== '')
     {
         lists[name].splice(lists[name].indexOf(team), 1);
+    }
+    else if (confirm(`Are you sure you want to delete "${name}"`))
+    {
+        delete lists[name]
     }
     build_pick_lists()
 }
