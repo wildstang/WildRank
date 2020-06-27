@@ -22,8 +22,8 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         # request for results
         if self.path == '/getPitResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('pit-') and f.endswith('.json')]
-        if self.path == '/getImageNames':
-            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('image-') and f.endswith('.json')]
+        elif self.path == '/getImageNames':
+            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('image-') and f.endswith('.png')]
         elif self.path == '/getMatchResultNames':
             files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
         elif self.path == '/getNoteNames':
