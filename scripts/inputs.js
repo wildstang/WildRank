@@ -116,14 +116,14 @@ function build_dropdown(id, name, option_names, default_op='', onchange='')
 
 /**
  * function:    build_str_entry
- * parameters:  element id, name, default value, input box type
+ * parameters:  element id, name, default value, input box type, on text change function
  * returns:     wr_string as a string
  * description: Builds the HTML string of a string object.
  */
-function build_str_entry(id, name, value='', type='text')
+function build_str_entry(id, name, value='', type='text', on_text_change='')
 {
     let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
-    return `${label}<input class="wr_string" type="${type}" id="${id}" value="${value}">`
+    return `${label}<input class="wr_string" type="${type}" id="${id}" value="${value}" onKeyUp="${on_text_change}">`
 }
 
 /**
