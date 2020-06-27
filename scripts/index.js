@@ -13,35 +13,53 @@
  // generate page
 const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
-        build_str_entry('event_id', 'Event ID:'),
+        build_str_entry('event_id', 'Event ID:', '', 'text', 'hide_buttons()'),
         build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
-        build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
+        build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match', 'hide_buttons()'),
         build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'),
         build_num_entry('user_id', 'School ID:', '', [100000, 999999], 'hide_buttons()'),
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
     build_column_frame('Interactive', [
-        build_button('scout', 'Scout', 'scout()'),
-        build_button('open_ranker', 'Team Rankings', 'open_ranker()'),
-        build_button('open_sides', 'Side-by-Side', 'open_sides()'),
-        build_button('open_picks', 'Pick Lists', 'open_picks()'),
-        build_button('open_whiteboard', 'Whiteboard', 'open_whiteboard()')
+        build_button('scout', 'Scout', `check_press('scout-container', scout)`),
+        build_button('open_ranker', 'Team Rankings', `check_press('open_ranker-container', open_ranker)`),
+        build_button('open_sides', 'Side-by-Side', `check_press('open_sides-container', open_sides)`),
+        build_button('open_picks', 'Pick Lists', `check_press('open_picks-container', open_picks)`),
+        build_button('open_whiteboard', 'Whiteboard', `check_press('open_whiteboard-container', open_whiteboard)`),
     ]),
     build_column_frame('Data', [
-        build_button('open_results', 'Results', 'open_results()'),
-        build_button('open_teams', 'Team Overview', 'open_teams()'),
-        build_button('open_matches', 'Match Overview', 'open_matches()'),
-        build_button('open_users', 'User Overview', 'open_users()')
+        build_button('open_results', 'Results', `check_press('open_results-container', open_results)`),
+        build_button('open_teams', 'Team Overview', `check_press('open_teams-container', open_teams)`),
+        build_button('open_matches', 'Match Overview', `check_press('open_matches-container', open_matches)`),
+        build_button('open_users', 'User Overview', `check_press('open_users-container', open_users)`),
     ]),
     build_column_frame('Transfer', [
-        build_button('preload_event', 'Preload Event', 'preload_event()'),
-        build_button('upload_all', 'Upload Results', 'upload_all()'),
-        build_button('import_all', 'Import Results', 'import_all()'),
-        build_button('download_csv', 'Export Results', 'download_csv()'),
-        build_button('reset', 'Reset', 'reset()')
+        build_button('preload_event', 'Preload Event', `check_press('preload_event-container', preload_event)`),
+        build_button('upload_all', 'Upload Results', `check_press('upload_all-container', upload_all)`),
+        build_button('import_all', 'Import Results', `check_press('import_all-container', import_all)`),
+        build_button('download_csv', 'Export Results', `check_press('download_csv-container', download_csv)`),
+        build_button('reset', 'Reset', `check_press('reset-container', reset)`)
     ]),
     build_column_frame('Status', [build_card('status')])
 ])
+
+// requirements for each button
+const BUTTONS = {
+    'scout-container': { limits: ['event'], configs: ['type', 'settings'] },
+    'open_ranker-container': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_sides-container': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_picks-container': { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_whiteboard-container': { limits: ['event', 'admin'], configs: ['whiteboard', 'settings'] },
+    'open_results-container': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
+    'open_teams-container': { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_matches-container': { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_users-container': { limits: ['event', 'admin', 'any'], configs: ['settings'] },
+    'preload_event-container': { limits: [], configs: [] },
+    'upload_all-container': { limits: ['results'], configs: [] },
+    'import_all-container': { limits: ['admin'], configs: [] },
+    'download_csv-container': { limits: ['event', 'admin', 'any'], configs: [] },
+    'reset-container': { limits: ['admin'], configs: [] }
+}
 
 // when the page is finished loading
 window.addEventListener('load', function() {
@@ -72,11 +90,6 @@ function on_config()
     hide_buttons()
 }
 
-// buttons that require admin access
-const ADMIN_BUTTONS = ['open_ranker-container', 'open_sides-container', 'open_picks-container', 'open_whiteboard-container',
-    'open_results-container', 'open_teams-container', 'open_matches-container', 'open_users-container',
-    'import_all-container', 'download_csv-container', 'reset-container']
-
 /**
  * function:    hide_buttons
  * parameters:  none
@@ -85,15 +98,16 @@ const ADMIN_BUTTONS = ['open_ranker-container', 'open_sides-container', 'open_pi
  */
 function hide_buttons()
 {
-    // dim if in admin list but user is not
-    ADMIN_BUTTONS.forEach(function (id, index)
+    Object.keys(BUTTONS).forEach(function (id, index)
     {
-        if (!is_admin(get_user()))
+        if (is_blocked(id))
         {
+            // dim the button if blocked
             document.getElementById(id).classList.add('disabled')
         }
         else
         {
+            // umdim otherwise
             document.getElementById(id).classList.remove('disabled')
         }
     })
@@ -111,36 +125,17 @@ function hide_buttons()
  */
 function scout()
 {
-    save_options()
-    let type = get_selected_type()
-    if (config_exists(type) || type == NOTE_MODE)
+    let type     = get_selected_type()
+    let event    = get_event()
+    let position = get_position()
+    let user     = get_user()
+    if (type === PIT_MODE)
     {
-        let event    = get_event()
-        let position = get_position()
-        let user     = get_user()
-        if (type === PIT_MODE)
-        {
-            if (file_exists(get_event_teams_name(event)))
-            {
-                document.location.href = `selection.html${build_query({'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user})}`
-            }
-            else
-            {
-                alert('No teams found! Please preload event.')
-            }
-        }
-        else if (file_exists(get_event_matches_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})}`
-        }
-        else
-        {
-            alert('No matches found! Please preload event.')
-        }
+        document.location.href = `selection.html${build_query({'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user})}`
     }
     else
     {
-        alert(`No config found for mode: ${type}`)
+        document.location.href = `selection.html${build_query({'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})}`
     }
 }
 
@@ -152,38 +147,7 @@ function scout()
  */
 function open_ranker()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let type = get_selected_type()
-        if (type == NOTE_MODE)
-        {
-            alert('You can\'t rank notes...')
-        }
-        else if (config_exists(type))
-        {
-            let event = get_event()
-            let count = count_results(event, type)
-            
-            if (count > 0)
-            {
-                document.location.href = `selection.html${build_query({'page': 'ranker', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
-            }
-            else
-            {
-                alert('No results found!')
-            }
-        }
-        else
-        {
-            alert(`No config found for mode: ${type}`)
-        }
-    }
-    else
-    {
-        alert('Team ranker requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})}`
 }
 
 /**
@@ -194,38 +158,7 @@ function open_ranker()
  */
 function open_sides()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let type = get_selected_type()
-        if (type == NOTE_MODE)
-        {
-            alert('You can\'t rank notes...')
-        }
-        else if (config_exists(type))
-        {
-            let event = get_event()
-            let count = count_results(event, type)
-            
-            if (count > 0)
-            {
-                document.location.href = `selection.html${build_query({'page': 'sides', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event})}`
-            }
-            else
-            {
-                alert('No results found!')
-            }
-        }
-        else
-        {
-            alert(`No config found for mode: ${type}`)
-        }
-    }
-    else
-    {
-        alert('Team ranker requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})}`
 }
 
 /**
@@ -236,24 +169,7 @@ function open_sides()
  */
 function open_picks()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        if (file_exists(get_event_teams_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: event})}`
-        }
-        else
-        {
-            alert('No teams found! Please preload event.')
-        }
-    }
-    else
-    {
-        alert('Pick lists requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: get_event()})}`
 }
 
 /**
@@ -264,24 +180,7 @@ function open_picks()
  */
 function open_whiteboard()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        if (file_exists(get_event_matches_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'whiteboard', [EVENT_COOKIE]: event})}`
-        }
-        else
-        {
-            alert('No matches found! Please preload event.')
-        }
-    }
-    else
-    {
-        alert('Whiteboard requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'whiteboard', [EVENT_COOKIE]: get_event()})}`
 }
 
 /**
@@ -296,34 +195,7 @@ function open_whiteboard()
  */
 function open_results()
 {
-    save_options()
-    
-    if (is_admin(get_user()))
-    {
-        let type = get_selected_type()
-        if (config_exists(type) || type == NOTE_MODE)
-        {
-            let event = get_event()
-            let count = count_results(event, type)
-            
-            if (count > 0)
-            {
-                document.location.href = `selection.html${build_query({'page': 'results', 'type': type, [EVENT_COOKIE]: event})}`
-            }
-            else
-            {
-                alert('No results found!')
-            }
-        }
-        else
-        {
-            alert(`No config found for mode: ${type}`)
-        }
-    }
-    else
-    {
-        alert('Results requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})}`
 }
 
 /**
@@ -334,25 +206,7 @@ function open_results()
  */
 function open_teams()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        
-        if (file_exists(get_event_teams_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'teams', [EVENT_COOKIE]: event, [USER_COOKIE]: get_user()})}`
-        }
-        else
-        {
-            alert('No teams found! Please preload event.')
-        }
-    }
-    else
-    {
-        alert('Team overview requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})}`
 }
 
 /**
@@ -363,25 +217,7 @@ function open_teams()
  */
 function open_matches()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        
-        if (file_exists(get_event_matches_name(event)))
-        {
-            document.location.href = `selection.html${build_query({'page': 'match-overview', [EVENT_COOKIE]: event, [USER_COOKIE]: get_user()})}`
-        }
-        else
-        {
-            alert('No matches found! Please preload event.')
-        }
-    }
-    else
-    {
-        alert('Match overview requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'match-overview', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})}`
 }
 
 /**
@@ -392,26 +228,7 @@ function open_matches()
  */
 function open_users()
 {
-    save_options()
-
-    if (is_admin(get_user()))
-    {
-        let event = get_event()
-        let count = count_results(event, MATCH_MODE) + count_results(event, PIT_MODE) + count_results(event, NOTE_MODE)
-
-        if (count > 0)
-        {
-            document.location.href = `selection.html${build_query({'page': 'users', [EVENT_COOKIE]: event, [USER_COOKIE]: get_user()})}`
-        }
-        else
-        {
-            alert('No results found!')
-        }
-    }
-    else
-    {
-        alert('User overview requires admin rights!')
-    }
+    document.location.href = `selection.html${build_query({'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})}`
 }
 
 /**
@@ -427,8 +244,6 @@ function open_users()
  */
 function preload_event()
 {
-    save_options()
-
     // get event id from the text box
     let event_id = get_event()
     status('Requesting event data...')
@@ -447,8 +262,6 @@ function preload_event()
             .then(data => {
                 if (data.length > 0)
                 {
-                    status(`${data.length} matches received`)
-
                     // sort match objs by match number
                     let matches = data.sort(function (a, b)
                     {
@@ -459,6 +272,8 @@ function preload_event()
 
                     // store matches as JSON string in matches-[event-id]
                     localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
+                    status(`${data.length} matches received`)
+                    hide_buttons()
                 }
                 else
                 {
@@ -478,8 +293,6 @@ function preload_event()
             .then(data => {
                 if (data.length > 0)
                 {
-                    status(`${data.length} teams received`)
-
                     // sort team objs by team number
                     let teams = data.sort(function (a, b)
                     {
@@ -489,6 +302,8 @@ function preload_event()
                     })
                     // store teams as JSON string in teams-[event_id]
                     localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
+                    status(`${data.length} teams received`)
+                    hide_buttons()
 
                     // fetch team's avatar for whiteboard
                     var avatars = 0
@@ -539,7 +354,6 @@ function preload_event()
                 if (data.hasOwnProperty('rankings'))
                 {
                     data = data.rankings
-                    status(`${data.length} rankings received`)
 
                     // sort rankings objs by team number
                     let rankings = data.sort(function (a, b)
@@ -550,6 +364,8 @@ function preload_event()
                     })
                     // store rankings as JSON string in rankings-[event_id]
                     localStorage.setItem(get_event_rankings_name(event_id), JSON.stringify(rankings))
+                    status(`${data.length} rankings received`)
+                    hide_buttons()
                 }
                 else
                 {
@@ -571,8 +387,6 @@ function preload_event()
  */
 function upload_all()
 {
-    save_options()
-
     if (check_server(get_upload_addr()))
     {
         let type = get_selected_type()
@@ -603,68 +417,61 @@ function upload_all()
  */
 function import_all()
 {
-    save_options()
-
-    if (is_admin(get_user()))
+    if (check_server(document.location.href))
     {
-        if (check_server(document.location.href))
+        // determine appropriate request for selected mode
+        let request = ''
+        switch (get_selected_type())
         {
-            // determine appropriate request for selected mode
-            let request = ''
-            switch (get_selected_type())
-            {
-                case MATCH_MODE:
-                    request = 'getMatchResultNames'
-                    break
-                case PIT_MODE:
-                    request = 'getPitResultNames'
-                    break
-                case NOTE_MODE:
-                    request = 'getNoteNames'
-                    break
-            }
-        
-            // request list of available results
-            status('Requesting local result data...')
-            fetch(request)
-                .then(response => {
-                    return response.text()
-                })
-                .then(data => {
-                    // get requested results for current event
-                    let results = data.split(',').filter(function (r) {
-                        return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
-                    })
-                    status(`${results.length} ${get_selected_type()} results found`)
-                    
-                    // request each desired result
-                    results.forEach(function (file, index)
-                    {
-                        fetch(`${get_upload_addr()}/uploads/${file}`)
-                            .then(response => {
-                                return response.json()
-                            })
-                            .then(data => {
-                                // save file
-                                localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
-                                status(`Got ${file}`)
-                            })
-                            .catch(err => {
-                                status('Error requesting result')
-                                console.log(err)
-                            })
-                    })
-        
-                })
-                .catch(err => {
-                    status('Error requesting results')
-                    console.log(err)
-                })
+            case MATCH_MODE:
+                request = 'getMatchResultNames'
+                break
+            case PIT_MODE:
+                request = 'getPitResultNames'
+                break
+            case NOTE_MODE:
+                request = 'getNoteNames'
+                break
         }
-    }
-    else
-    {
-        alert('Import requires admin rights!')
+    
+        // request list of available results
+        status('Requesting local result data...')
+        fetch(request)
+            .then(response => {
+                return response.text()
+            })
+            .then(data => {
+                // get requested results for current event
+                console.log(data)
+                let results = data.split(',').filter(function (r) {
+                    return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
+                })
+                console.log(results)
+                status(`${results.length} ${get_selected_type()} results found`)
+                
+                // request each desired result
+                results.forEach(function (file, index)
+                {
+                    fetch(`${get_upload_addr()}/uploads/${file}`)
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(data => {
+                            // save file
+                            localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
+                            status(`Got ${file}`)
+                            hide_buttons()
+                        })
+                        .catch(err => {
+                            status('Error requesting result')
+                            console.log(err)
+                        })
+                })
+            })
+            .catch(err => {
+                status('Error requesting results')
+                console.log(err)
+            })
     }
 }
 
@@ -676,25 +483,16 @@ function import_all()
  */
 function download_csv()
 {
-    save_options()
+    var element = document.createElement('a')
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(get_event())))
+    element.setAttribute('download', 'export.csv')
 
-    if (is_admin(get_user()))
-    {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(get_event())));
-        element.setAttribute('download', 'export.csv');
+    element.style.display = 'none'
+    document.body.appendChild(element)
 
-        element.style.display = 'none';
-        document.body.appendChild(element);
+    element.click()
 
-        element.click();
-
-        document.body.removeChild(element);
-    }
-    else
-    {
-        alert('Download requires admin rights!')
-    }
+    document.body.removeChild(element)
 }
 
 /**
@@ -705,19 +503,10 @@ function download_csv()
  */
 function reset()
 {
-    save_options()
-
-    if (is_admin(get_user()))
+    if (confirm('Delete all configuration, results, and other app data?'))
     {
-        if (confirm('Delete all configuration, results, and other app data?'))
-        {
-            localStorage.clear()
-            fetch_config(function() { location.reload() }, true)
-        }
-    }
-    else
-    {
-        alert('Reset requires admin rights!')
+        localStorage.clear()
+        fetch_config(function() { location.reload() }, true)
     }
 }
 
@@ -977,6 +766,81 @@ function switch_theme()
     {
         set_cookie(THEME_COOKIE, theme)
         apply_theme()
+    }
+}
+
+/**
+ * function:    is_blocked
+ * parameters:  button container id
+ * returns:     reason why button is blocked
+ * description: Determines if a button should be blocked and explains why.
+ */
+function is_blocked(id)
+{
+    let type = get_selected_type()
+    let event = get_event()
+    let limits = BUTTONS[id].limits
+    let configs = BUTTONS[id].configs
+
+    // check each provided limiting parameter
+    if (limits.includes('event') && (!file_exists(get_event_matches_name(event)) || 
+        !file_exists(get_event_teams_name(event)) || !file_exists(get_event_rankings_name(event))))
+    {
+        return `Missing event data.`
+    }
+    else if (limits.includes('admin') && !is_admin(get_user()))
+    {
+        return `Admin access required.`
+    }
+    else if (limits.includes('no-notes') && type == NOTE_MODE)
+    {
+        return `Cannot rank notes.`
+    }
+    else if (limits.includes('results') && !count_results(event, type))
+    {
+        return `No ${type} results found.`
+    }
+    else if (limits.includes('any') && !count_results(event, PIT_MODE) && !count_results(event, MATCH_MODE) && !count_results(event, NOTE_MODE))
+    {
+        return `No results found.`
+    }
+    else
+    {
+        // check that all necessary configs are present
+        for (let i = 0; i < configs.length; ++i)
+        {
+            let config = configs[i]
+            if (config == 'type')
+            {
+                config = type
+            }
+            if (config != NOTE_MODE && !config_exists(config))
+            {
+                return `Missing ${config} configuration.`
+            }
+        }
+    }
+    return false
+}
+
+/**
+ * function:    check_press
+ * parameters:  button container id, button press function
+ * returns:     none
+ * description: Attempts to operate a button press otherwise explains why not.
+ */
+function check_press(id, on_press)
+{
+    save_options()
+    let blocked = is_blocked(id)
+    if (blocked)
+    {
+        // warn the user if the button cannot be used
+        alert(blocked)
+    }
+    else
+    {
+        on_press()
     }
 }
 
