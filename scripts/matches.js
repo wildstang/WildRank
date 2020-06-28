@@ -203,7 +203,7 @@ function open_match(match_num)
  */
 function open_result(file)
 {
-    document.location.href = `selection.html${build_query({'page': 'results', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, 'file': file})}`
+    document.location.href = build_url('selection', {'page': 'results', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, 'file': file})
 }
 
 /**
@@ -220,17 +220,17 @@ function start_scouting(edit)
     if (scout_mode == NOTE_MODE)
     {
         let teams = get_match_teams(match_num, event_id)
-        query = build_query({'page': NOTE_MODE, 'match': match_num, 
+        query = {'page': NOTE_MODE, 'match': match_num, 
             'red1': teams['red1'], 'red2': teams['red2'], 'red3': teams['red3'], 
             'blue1': teams['blue1'], 'blue2': teams['blue2'], 'blue3': teams['blue3'], 
-            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, 'edit': edit})
+            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, 'edit': edit}
     }
     else
     {
         let team_num = document.getElementById('team_scouting').innerHTML
         let color = document.getElementById('team_scouting').style.color
-        query = build_query({'page': 'scout', 'match': match_num, 'team': team_num, 'alliance': color, 
-            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, [POSITION_COOKIE]: scout_pos, 'edit': edit})
+        query = {'page': 'scout', 'match': match_num, 'team': team_num, 'alliance': color, 
+            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, [POSITION_COOKIE]: scout_pos, 'edit': edit}
     }
-    window.open(`index.html${query}`, '_self')
+    window.location.href = build_url('index', query)
 }

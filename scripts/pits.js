@@ -204,7 +204,7 @@ function open_option(team_num)
  */
 function open_result(file)
 {
-    document.location.href = `selection.html${build_query({'page': 'results', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, 'file': file})}`
+    document.location.href = build_url('selection', {'page': 'results', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, 'file': file})
 }
 
 /**
@@ -216,5 +216,5 @@ function open_result(file)
 function start_scouting(edit)
 {
     let team_num = document.getElementById('team_num').innerHTML
-    window.open(`index.html${build_query({'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})}`, '_self')
+    window.location.href = build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})
 }

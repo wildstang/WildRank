@@ -24,6 +24,17 @@ const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'light'
 
 /**
+ * function:    build_url
+ * parameters:  page, map of query keys to values
+ * returns:     url string
+ * description: Builds a url string from a query given object.
+ */
+function build_url(page, query)
+{
+    return `${page}.html${build_query(query)}`
+}
+
+/**
  * function:    build_query
  * parameters:  map of query keys to values
  * returns:     query string

@@ -21,44 +21,44 @@ const PAGE_FRAME = build_page_frame('', [
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
     build_column_frame('Interactive', [
-        build_button('scout', 'Scout', `check_press('scout-container', scout)`),
-        build_button('open_ranker', 'Team Rankings', `check_press('open_ranker-container', open_ranker)`),
-        build_button('open_sides', 'Side-by-Side', `check_press('open_sides-container', open_sides)`),
-        build_button('open_picks', 'Pick Lists', `check_press('open_picks-container', open_picks)`),
-        build_button('open_whiteboard', 'Whiteboard', `check_press('open_whiteboard-container', open_whiteboard)`),
+        build_button('scout', 'Scout', `check_press('scout', scout)`),
+        build_button('open_ranker', 'Team Rankings', `check_press('open_ranker', open_ranker)`),
+        build_button('open_sides', 'Side-by-Side', `check_press('open_sides', open_sides)`),
+        build_button('open_picks', 'Pick Lists', `check_press('open_picks', open_picks)`),
+        build_button('open_whiteboard', 'Whiteboard', `check_press('open_whiteboard', open_whiteboard)`),
     ]),
     build_column_frame('Data', [
-        build_button('open_results', 'Results', `check_press('open_results-container', open_results)`),
-        build_button('open_teams', 'Team Overview', `check_press('open_teams-container', open_teams)`),
-        build_button('open_matches', 'Match Overview', `check_press('open_matches-container', open_matches)`),
-        build_button('open_users', 'User Overview', `check_press('open_users-container', open_users)`),
+        build_button('open_results', 'Results', `check_press('open_results', open_results)`),
+        build_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
+        build_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
+        build_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
     ]),
     build_column_frame('Transfer', [
-        build_button('preload_event', 'Preload Event', `check_press('preload_event-container', preload_event)`),
-        build_button('upload_all', 'Upload Results', `check_press('upload_all-container', upload_all)`),
-        build_button('import_all', 'Import Results', `check_press('import_all-container', import_all)`),
-        build_button('download_csv', 'Export Results', `check_press('download_csv-container', download_csv)`),
-        build_button('reset', 'Reset', `check_press('reset-container', reset)`)
+        build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
+        build_button('upload_all', 'Upload Results', `check_press('upload_all', upload_all)`),
+        build_button('import_all', 'Import Results', `check_press('import_all', import_all)`),
+        build_button('download_csv', 'Export Results', `check_press('download_csv', download_csv)`),
+        build_button('reset', 'Reset', `check_press('reset', reset)`)
     ]),
     build_column_frame('Status', [build_card('status')])
 ])
 
 // requirements for each button
 const BUTTONS = {
-    'scout-container': { limits: ['event'], configs: ['type', 'settings'] },
-    'open_ranker-container': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_sides-container': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_picks-container': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_whiteboard-container': { limits: ['event', 'admin'], configs: ['whiteboard', 'settings'] },
-    'open_results-container': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
-    'open_teams-container': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_matches-container': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_users-container': { limits: ['event', 'admin', 'any'], configs: ['settings'] },
-    'preload_event-container': { limits: [], configs: [] },
-    'upload_all-container': { limits: ['results'], configs: [] },
-    'import_all-container': { limits: ['admin'], configs: [] },
-    'download_csv-container': { limits: ['event', 'admin', 'any'], configs: [] },
-    'reset-container': { limits: ['admin'], configs: [] }
+    'scout': { limits: ['event'], configs: ['type', 'settings'] },
+    'open_ranker': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_sides': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_picks': { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_whiteboard': { limits: ['event', 'admin'], configs: ['whiteboard', 'settings'] },
+    'open_results': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
+    'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_users': { limits: ['event', 'admin', 'any'], configs: ['settings'] },
+    'preload_event': { limits: [], configs: [] },
+    'upload_all': { limits: ['results'], configs: [] },
+    'import_all': { limits: ['admin'], configs: [] },
+    'download_csv': { limits: ['event', 'admin', 'any'], configs: [] },
+    'reset': { limits: ['admin'], configs: [] }
 }
 
 // when the page is finished loading
@@ -100,15 +100,16 @@ function hide_buttons()
 {
     Object.keys(BUTTONS).forEach(function (id, index)
     {
+        let button = document.getElementById(`${id}-container`)
         if (is_blocked(id))
         {
             // dim the button if blocked
-            document.getElementById(id).classList.add('disabled')
+            button.classList.add('disabled')
         }
         else
         {
             // umdim otherwise
-            document.getElementById(id).classList.remove('disabled')
+            button.classList.remove('disabled')
         }
     })
 }
@@ -131,11 +132,11 @@ function scout()
     let user     = get_user()
     if (type === PIT_MODE)
     {
-        document.location.href = `selection.html${build_query({'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user})}`
+        document.location.href = build_url('selection', {'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user})
     }
     else
     {
-        document.location.href = `selection.html${build_query({'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})}`
+        document.location.href = build_url('selection', {'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
     }
 }
 
@@ -147,7 +148,7 @@ function scout()
  */
 function open_ranker()
 {
-    document.location.href = `selection.html${build_query({'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})}`
+    document.location.href = build_url('selection', {'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -158,7 +159,7 @@ function open_ranker()
  */
 function open_sides()
 {
-    document.location.href = `selection.html${build_query({'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})}`
+    document.location.href = build_url('selection', {'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -169,7 +170,7 @@ function open_sides()
  */
 function open_picks()
 {
-    document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: get_event()})}`
+    document.location.href = build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -180,7 +181,7 @@ function open_picks()
  */
 function open_whiteboard()
 {
-    document.location.href = `selection.html${build_query({'page': 'whiteboard', [EVENT_COOKIE]: get_event()})}`
+    document.location.href = build_url('selection', {'page': 'whiteboard', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -195,7 +196,7 @@ function open_whiteboard()
  */
 function open_results()
 {
-    document.location.href = `selection.html${build_query({'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})}`
+    document.location.href = build_url('selection', {'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -206,7 +207,7 @@ function open_results()
  */
 function open_teams()
 {
-    document.location.href = `selection.html${build_query({'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})}`
+    document.location.href = build_url('selection', {'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -217,7 +218,7 @@ function open_teams()
  */
 function open_matches()
 {
-    document.location.href = `selection.html${build_query({'page': 'match-overview', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})}`
+    document.location.href = build_url('selection', {'page': 'match-overview', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -228,7 +229,7 @@ function open_matches()
  */
 function open_users()
 {
-    document.location.href = `selection.html${build_query({'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})}`
+    document.location.href = build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
