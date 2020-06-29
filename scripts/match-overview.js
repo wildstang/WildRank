@@ -118,7 +118,7 @@ function open_match(match_num)
     }
 
     // make row for match notes
-    let note_button = build_button('note_button', 'Take Match Notes', `notes('${match_num}', ${notes_taken(match_num, event_id)})`)
+    let note_button = build_link_button('note_button', 'Take Match Notes', `notes('${match_num}', ${notes_taken(match_num, event_id)})`)
     let reds = []
     let blues = []
 
@@ -136,10 +136,10 @@ function open_match(match_num)
         
         // build button to either scout or result
         let result_file = get_match_result(match_num, team_num, event_id)
-        let button = build_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match_num}')`)
+        let button = build_link_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match_num}')`)
         if (localStorage.getItem(result_file) != null)
         {
-            button = build_button(result_file, `${team} Results`, `open_result('${result_file}')`)
+            button = build_link_button(result_file, `${team} Results`, `open_result('${result_file}')`)
         }
 
         // add button and description to appropriate column
@@ -172,7 +172,7 @@ function open_match(match_num)
  */
 function open_result(file)
 {
-    document.location.href = `/selection.html${build_query({'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: file.split('-')[0], 'file': file})}`
+    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: file.split('-')[0], 'file': file})
 }
 
 /**
@@ -183,7 +183,7 @@ function open_result(file)
  */
 function scout(mode, team, alliance, match, edit=false)
 {
-    document.location.href = `/index.html${build_query({'page': 'scout', [TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance, 'edit': edit})}`
+    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance, 'edit': edit})
 }
 
 /**
@@ -195,6 +195,6 @@ function scout(mode, team, alliance, match, edit=false)
 function notes(match, edit=false)
 {
     let teams = get_match_teams(match, event_id)
-    document.location.href = `/index.html${build_query({'page': NOTE_MODE, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'edit': edit,
-        'red1': teams['red1'], 'red2': teams['red2'], 'red3': teams['red3'], 'blue1': teams['blue1'], 'blue2': teams['blue2'], 'blue3': teams['blue3']})}`
+    return build_url('index', {'page': NOTE_MODE, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'edit': edit,
+        'red1': teams['red1'], 'red2': teams['red2'], 'red3': teams['red3'], 'blue1': teams['blue1'], 'blue2': teams['blue2'], 'blue3': teams['blue3']})
 }

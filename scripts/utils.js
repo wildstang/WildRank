@@ -24,6 +24,19 @@ const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'light'
 
 /**
+ * function:    window_open
+ * parameters:  url, option
+ * returns:     none
+ * description: Opens in window if url is not empty.
+ */
+function window_open(url, option)
+{
+    if (url != '')
+    {
+        window.open(url, option)
+    }
+}
+/**
  * function:    build_url
  * parameters:  page, map of query keys to values
  * returns:     url string

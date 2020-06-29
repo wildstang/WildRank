@@ -21,17 +21,17 @@ const PAGE_FRAME = build_page_frame('', [
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
     build_column_frame('Interactive', [
-        build_button('scout', 'Scout', `check_press('scout', scout)`),
-        build_button('open_ranker', 'Team Rankings', `check_press('open_ranker', open_ranker)`),
-        build_button('open_sides', 'Side-by-Side', `check_press('open_sides', open_sides)`),
-        build_button('open_picks', 'Pick Lists', `check_press('open_picks', open_picks)`),
-        build_button('open_whiteboard', 'Whiteboard', `check_press('open_whiteboard', open_whiteboard)`),
+        build_link_button('scout', 'Scout', `check_press('scout', scout)`),
+        build_link_button('open_ranker', 'Team Rankings', `check_press('open_ranker', open_ranker)`),
+        build_link_button('open_sides', 'Side-by-Side', `check_press('open_sides', open_sides)`),
+        build_link_button('open_picks', 'Pick Lists', `check_press('open_picks', open_picks)`),
+        build_link_button('open_whiteboard', 'Whiteboard', `check_press('open_whiteboard', open_whiteboard)`),
     ]),
     build_column_frame('Data', [
-        build_button('open_results', 'Results', `check_press('open_results', open_results)`),
-        build_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
-        build_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
-        build_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
+        build_link_button('open_results', 'Results', `check_press('open_results', open_results)`),
+        build_link_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
+        build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
+        build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
@@ -130,14 +130,16 @@ function scout()
     let event    = get_event()
     let position = get_position()
     let user     = get_user()
+    let query    = ''
     if (type === PIT_MODE)
     {
-        document.location.href = build_url('selection', {'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user})
+        query = {'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user}
     }
     else
     {
-        document.location.href = build_url('selection', {'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user})
+        query = {'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user}
     }
+    return build_url('selection', query)
 }
 
 /**
@@ -148,7 +150,7 @@ function scout()
  */
 function open_ranker()
 {
-    document.location.href = build_url('selection', {'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -159,7 +161,7 @@ function open_ranker()
  */
 function open_sides()
 {
-    document.location.href = build_url('selection', {'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -170,7 +172,7 @@ function open_sides()
  */
 function open_picks()
 {
-    document.location.href = build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -181,7 +183,7 @@ function open_picks()
  */
 function open_whiteboard()
 {
-    document.location.href = build_url('selection', {'page': 'whiteboard', [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'whiteboard', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -196,7 +198,7 @@ function open_whiteboard()
  */
 function open_results()
 {
-    document.location.href = build_url('selection', {'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -207,7 +209,7 @@ function open_results()
  */
 function open_teams()
 {
-    document.location.href = build_url('selection', {'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -218,7 +220,7 @@ function open_teams()
  */
 function open_matches()
 {
-    document.location.href = build_url('selection', {'page': 'match-overview', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'match-overview', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -229,7 +231,7 @@ function open_matches()
  */
 function open_users()
 {
-    document.location.href = build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -838,10 +840,11 @@ function check_press(id, on_press)
     {
         // warn the user if the button cannot be used
         alert(blocked)
+        return ''
     }
     else
     {
-        on_press()
+        return on_press()
     }
 }
 

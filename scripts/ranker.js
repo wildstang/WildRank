@@ -34,7 +34,7 @@ function init_page(contents_card, buttons_container)
         <h4 class="center_text">Sort numeric values</h4>
         ${build_select('type_form', '', SORT_OPTIONS, 'Mean', 'collect_results(); select()')}
         ${build_checkbox('reverse', 'Reverse Order', false, 'select()')}
-        ${build_button('save', 'Save to Pick List', 'save_pick_list()')}`
+        ${build_link_button('save', 'Save to Pick List', 'save_pick_list()')}`
 
     if (collect_results() > 0)
     {
@@ -169,7 +169,7 @@ function save_pick_list()
 
     // save to localStorage and open
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
-    document.location.href = `selection.html${build_query({'page': 'picklists', [EVENT_COOKIE]: event_id})}`
+    return build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: event_id})
 }
 
 /**

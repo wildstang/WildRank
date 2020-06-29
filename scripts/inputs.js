@@ -45,9 +45,20 @@ function build_button(id, name, onclick, onsecondary='')
 {
     let oncontextmenu = onsecondary.length > 0 ? onsecondary + '; return false' : ''
     onsecondary = onsecondary.replace(/'/g, '\\\'')
-    return `<div id="${id}-container" class="wr_button" onclick="${onclick}" oncontextmenu="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
+    return `<div id="${id}-container" class="wr_button" onclick="${onclick}" oncontextmenu="${oncontextmenu}" onauxclick="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
             <label id="${id}">${name}</label>
         </div>`
+}
+
+/**
+ * function:    build_link_button
+ * parameters:  element id, name, link, url pre-check function
+ * returns:     wr_button as a string
+ * description: Builds the HTML string of a button object for a link.
+ */
+function build_link_button(id, name, url)
+{
+    return build_button(id, name, `window_open(${url}, '_self')`, `window_open(${url}, '_blank')`)
 }
 
 /**

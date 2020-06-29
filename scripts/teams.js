@@ -113,10 +113,10 @@ function open_option(team_num)
 
     // add pit row
     let result_file = get_pit_result(team_num, event_id)
-    let pit_button = build_button(result_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
+    let pit_button = build_link_button(result_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
     if (localStorage.getItem(result_file) != null)
     {
-        pit_button = build_button(result_file, 'View Pit Results', `open_result('${result_file}')`)
+        pit_button = build_link_button(result_file, 'View Pit Results', `open_result('${result_file}')`)
     }
     let cards = []
 
@@ -171,10 +171,10 @@ function open_option(team_num)
                     let match_num = `<span class="${alliance}">${match.match_number}</span>`
                     // make match button
                     result_file = get_match_result(match.match_number, team_num, event_id)
-                    result = build_button(result_file, `Scout Match ${match_num}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
+                    result = build_link_button(result_file, `Scout Match ${match_num}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match.match_number}')`)
                     if (localStorage.getItem(result_file) != null)
                     {
-                        result = build_button(result_file, `Match ${match_num} Results`, `open_result('${result_file}')`)
+                        result = build_link_button(result_file, `Match ${match_num} Results`, `open_result('${result_file}')`)
                     }
                     cards.push(result)
                     
@@ -199,7 +199,7 @@ function open_option(team_num)
  */
 function open_result(file)
 {
-    document.location.href = `/selection.html${build_query({'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: file.split('-')[0], 'file': file})}`
+    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: file.split('-')[0], 'file': file})
 }
 
 /**
@@ -210,5 +210,5 @@ function open_result(file)
  */
 function scout(mode, team, alliance, match='')
 {
-    document.location.href = `/index.html${build_query({'page': 'scout', [TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance})}`
+    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance})
 }

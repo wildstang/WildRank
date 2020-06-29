@@ -37,8 +37,8 @@ function init_page(contents_card, buttons_container)
                                     <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>
                                     ${image}`
         
-        buttons_container.innerHTML = `${build_button('scout_match', button_txt, 'start_scouting(false)')}
-                                        <div id='view_result'></div>`
+        buttons_container.innerHTML = build_link_button('scout_match', button_txt, 'start_scouting(false)') +
+                                        '<div id="view_result"></div>'
 
         build_options_list(JSON.parse(localStorage.getItem(file_name)))
     }
@@ -171,7 +171,7 @@ function open_match(match_num)
         // create edit button
         if (notes_taken(match_num, event_id))
         {
-            result_buttons.innerHTML = build_button('scout_match', 'Edit Notes', 'start_scouting(true)')
+            result_buttons.innerHTML = build_link_button('scout_match', 'Edit Notes', 'start_scouting(true)')
         }
     }
     else
@@ -189,8 +189,8 @@ function open_match(match_num)
         let file = get_match_result(match_num, team.substr(3), event_id)
         if (file_exists(file))
         {
-            result_buttons.innerHTML = build_button('open_result', 'View Results', `open_result('${file}')`) + 
-                build_button('edit_result', 'Edit Results', `start_scouting(true)`)
+            result_buttons.innerHTML = build_link_button('open_result', 'View Results', `open_result('${file}')`) + 
+                build_link_button('edit_result', 'Edit Results', `start_scouting(true)`)
         }
     }
 }
@@ -203,7 +203,7 @@ function open_match(match_num)
  */
 function open_result(file)
 {
-    document.location.href = build_url('selection', {'page': 'results', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, 'file': file})
+    return build_url('selection', {'page': 'results', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, 'file': file})
 }
 
 /**
@@ -232,5 +232,5 @@ function start_scouting(edit)
         query = {'page': 'scout', 'match': match_num, 'team': team_num, 'alliance': color, 
             [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, [POSITION_COOKIE]: scout_pos, 'edit': edit}
     }
-    window.location.href = build_url('index', query)
+    return build_url('index', query)
 }

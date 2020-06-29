@@ -29,7 +29,7 @@ function init_page(contents_card, buttons_container)
     {
         contents_card.innerHTML = `<img id="avatar"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <img id="photo" alt="No image available">`
-        buttons_container.innerHTML = `${build_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
+        buttons_container.innerHTML = `${build_link_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
                                         <div id="view_result"></div>
                                         <video id="prevue" height="0">Video stream not available</video>
                                         ${build_button('capture', 'Capture Robot', 'capture()')}`
@@ -184,8 +184,8 @@ function open_option(team_num)
     let result_buttons = document.getElementById('view_result')
     if (file_exists(file))
     {
-        result_buttons.innerHTML = build_button('edit_result', 'Edit Results', `start_scouting(true)`) + 
-            build_button('open_result', 'View Results', `open_result('${file}')`)
+        result_buttons.innerHTML = build_link_button('edit_result', 'Edit Results', `start_scouting(true)`) + 
+            build_link_button('open_result', 'View Results', `open_result('${file}')`)
     }
     else
     {
@@ -204,7 +204,7 @@ function open_option(team_num)
  */
 function open_result(file)
 {
-    document.location.href = build_url('selection', {'page': 'results', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, 'file': file})
+    return build_url('selection', {'page': 'results', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, 'file': file})
 }
 
 /**
@@ -216,5 +216,5 @@ function open_result(file)
 function start_scouting(edit)
 {
     let team_num = document.getElementById('team_num').innerHTML
-    window.location.href = build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})
+    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})
 }

@@ -107,13 +107,13 @@ function open_option(user_id)
         // build columns for each result type
         if (parts[0] == PIT_MODE)
         {
-            pits.push(build_button(file, `Team ${parts[2]}`, `open_result('${file}')`))
+            pits.push(build_link_button(file, `Team ${parts[2]}`, `open_result('${file}')`))
             pits.push(build_card('', summary))
             total_pit += duration
         }
         else if (parts[0] == MATCH_MODE)
         {
-            matches.push(build_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
+            matches.push(build_link_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
             let delta = get_delta(parts[2], result.meta_scout_time)
             matches.push(build_card('', `${delta} secs behind<br>${summary}`))
             total_match += duration
@@ -121,7 +121,7 @@ function open_option(user_id)
         }
         else if (parts[0] == NOTE_MODE)
         {
-            notes.push(build_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
+            notes.push(build_link_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
             let delta = get_delta(parts[2], result.meta_scout_time)
             notes.push(build_card('', `${delta} secs behind<br>${summary}`))
             total_notes += duration
@@ -201,5 +201,5 @@ function open_result(file)
     {
         file = ''
     }
-    document.location.href = `/selection.html${build_query({'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: type, 'file': file})}`
+    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: type, 'file': file})
 }
