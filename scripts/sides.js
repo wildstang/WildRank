@@ -245,14 +245,14 @@ function open_teams(team_numA, team_numB)
                 let options = get_options(key)
                 if (typeof options !== 'undefined' && options.length == 2)
                 {
-                    scale_to = options[2]
+                    scale_to = parseFloat(options[1])
                 }
                 else
                 {
-                    scale_to = maxs[key]
+                    scale_to = parseFloat(maxs[key])
                 }
-                aWidth = 250 * (teams[selectedA][key] / scale_to)
-                bWidth = 250 * (teams[selectedB][key] / scale_to)
+                aWidth = 250 * (aVal / scale_to)
+                bWidth = 250 * (bVal / scale_to)
             }
         }
         else if (typeof teams[selectedA][key] == 'boolean')
