@@ -168,11 +168,11 @@ function num2color(num)
     switch (num)
     {
         case 1:
-            return 'green'
+            return 'var(--green-alliance-color)'
         case 0:
-            return 'blue'
+            return 'var(--blue-alliance-color)'
         case -1:
-            return 'red'
+            return 'var(--red-alliance-color)'
     }
 }
 

@@ -15,32 +15,32 @@
             "red_1": {
                 "x": 250,
                 "y": 125,
-                "color": "#FF0000"
+                "color": "#FF4136"
             },
             "red_2": {
                 "x": 250,
                 "y": 375,
-                "color": "#FF0000"
+                "color": "#FF4136"
             },
             "red_3": {
                 "x": 250,
                 "y": 625,
-                "color": "#FF0000"
+                "color": "#FF4136"
             },
             "blue_1": {
                 "x": 1150,
                 "y": 125,
-                "color": "#0000FF"
+                "color": "#0074D9"
             },
             "blue_2": {
                 "x": 1150,
                 "y": 375,
-                "color": "#0000FF"
+                "color": "#0074D9"
             },
             "blue_3": {
                 "x": 1150,
                 "y": 625,
-                "color": "#0000FF"
+                "color": "#0074D9"
             },
             "draw_color": "#FFFFFF",
             "field_width": 1500,
@@ -53,32 +53,32 @@
             "red_1": {
                 "x": 100,
                 "y": 100,
-                "color": "#FF0000"
+                "color": "#FF4136"
             },
             "red_2": {
                 "x": 100,
                 "y": 350,
-                "color": "#FF0000"
+                "color": "#FF4136"
             },
             "red_3": {
                 "x": 100,
                 "y": 600,
-                "color": "#FF0000"
+                "color": "#FF4136"
             },
             "blue_1": {
                 "x": 1300,
                 "y": 100,
-                "color": "#0000FF"
+                "color": "#0074D9"
             },
             "blue_2": {
                 "x": 1300,
                 "y": 350,
-                "color": "#0000FF"
+                "color": "#0074D9"
             },
             "blue_3": {
                 "x": 1300,
                 "y": 600,
-                "color": "#0000FF"
+                "color": "#0074D9"
             },
             "draw_color": "#FFFFFF",
             "field_width": 1500,
@@ -106,8 +106,9 @@
         "border-color": "#000000",
         "inactive-color": "#C0C0C0",
         "inactive-text-color": "#FFFFFF",
-        "red-alliance-color": "#FF0000",
-        "blue-alliance-color": "#0000FF",
+        "red-alliance-color": "#FF4136",
+        "blue-alliance-color": "#0074D9",
+        "green-alliance-color": "#2ECC40",
         "alt-table-color": "#F2F2F2",
         "font": "mono"
     },
@@ -129,8 +130,9 @@
         "border-color": "#000000",
         "inactive-color": "#332940",
         "inactive-text-color": "#F0F0F0",
-        "red-alliance-color": "#FF0000",
-        "blue-alliance-color": "#0000FF",
+        "red-alliance-color": "#FF4136",
+        "blue-alliance-color": "#0074D9",
+        "green-alliance-color": "#2ECC40",
         "alt-table-color": "#332940",
         "font": "mono"
     }

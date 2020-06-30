@@ -21,8 +21,9 @@
     --border-color: #000000;
     --inactive-color: #C0C0C0;
     --inactive-text-color: #FFFFFF;
-    --red-alliance-color: #FF0000;
-    --blue-alliance-color: #0000FF;
+    --red-alliance-color: #FF4136;
+    --blue-alliance-color: #0074D9;
+    --green-alliance-color: #2ECC40;
     --alt-table-color: #F2F2F2;
     --font: "mono"
 }
