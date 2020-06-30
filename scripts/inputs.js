@@ -185,8 +185,8 @@ function build_match_option(match_id, red_teams, blue_teams, selected='', match_
     {
         match_name = `Q${match_id}`
     }
-    let red_str = red_teams.join(' | ').replace(/frc/g, '')
-    let blue_str = blue_teams.join(' | ').replace(/frc/g, '')
+    let red_str = red_teams.join(' ').replace(/frc/g, '')
+    let blue_str = blue_teams.join(' ').replace(/frc/g, '')
     return `<div id="match_${match_id}" class="match_option ${selected}" onclick="open_match('${match_id}')">
                 <span class="option_number">${match_name}</span>
                 <span>

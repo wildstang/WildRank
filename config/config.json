@@ -108,7 +108,8 @@
         "inactive-text-color": "#FFFFFF",
         "red-alliance-color": "#FF0000",
         "blue-alliance-color": "#0000FF",
-        "alt-table-color": "#F2F2F2"
+        "alt-table-color": "#F2F2F2",
+        "font": "mono"
     },
     "dark-theme": {
         "primary-color": "#000080",
@@ -130,6 +131,7 @@
         "inactive-text-color": "#F0F0F0",
         "red-alliance-color": "#FF0000",
         "blue-alliance-color": "#0000FF",
-        "alt-table-color": "#332940"
+        "alt-table-color": "#332940",
+        "font": "mono"
     }
 }

@@ -24,12 +24,14 @@
     --red-alliance-color: #FF0000;
     --blue-alliance-color: #0000FF;
     --alt-table-color: #F2F2F2;
+    --font: "mono"
 }
 
 html {
     background-color: var(--background-color);
     color: var(--background-text-color);
     touch-action: manipulation;
+    font-family: var(--font);
 }
 
 body {
@@ -57,7 +59,6 @@ body {
 .wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header {
     display: block;
     font-size: 16px;
-    font-family: "DejaVu Serif";
     border-style: solid;
     border-width: 0px;
     border-radius: var(--border-radius);
@@ -82,7 +83,6 @@ body {
 
 #header {
     font-size: 16px;
-    font-family: "DejaVu Serif";
     border-style: solid;
     width: 100%;
     text-align: center;
