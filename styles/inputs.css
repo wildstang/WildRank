@@ -12,6 +12,8 @@
     --background-text-color: #000000;
     --foreground-color: #FFFFFF;
     --foreground-text-color: #000000;
+    --disabled-color: #F0F0F0;
+    --disabled-text-color: #000000;
     --active-color: #1E90FF;
     --active-text-color: #FFFFFF;
     --hover-color: #ADD8E6;
@@ -177,5 +179,7 @@ body {
 }
 
 .disabled {
-    background-color: var(--background-color);
+    color: var(--disabled-text-color);
+    background-color: var(--disabled-color);
+    box-shadow: unset;
 }
