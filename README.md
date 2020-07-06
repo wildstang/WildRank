@@ -36,11 +36,12 @@ QR codes were originally planned to be used to transfer results between clients.
 ### Index
 The index (or homepage) of the app is more of a control panel, not intended for everyday scouters to interact with. It provides access to pages allowing users to:
 - Enter a scouting mode (Pit, Match, Note)
-- View local results
 - Rank teams
 - Compare teams side-by-side
 - Create pick lists
 - Prepare for matches on a whiteboard
+- View results
+- View overviews of teams, matches, or users
 
 and functions allowing users to:
 - Preload event data from TBA
@@ -74,7 +75,23 @@ and can be easily configured via a JSON file in /config.
 The /config directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
 
 ### config.json
-The main configuration file. It supports configuration of title, default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
+The main configuration file. It supports configuration of general settings, default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
+
+#### Settings
+| Category   | Setting     | Description |
+| ---------- | ----------- | ----------- |
+| settings   |             | Object, contains global app settings |
+| settings   | title       | String, name of app displayed in title and header |
+| settings   | time_format | Integer, 12 or 24, format to use when displaying times |
+| settings   | use_images  | Boolean, whether to display images across the app |
+| defaults   |             | Object, contains app defaults |
+| defaults   | event_id    | String, default selected event id |
+| defaults   | upload_url  | String, default selected upload url |
+| defaults   | user_id     | Integer, default selected user id |
+| whiteboard |             | List of objects, contains whiteboard configuration objects |
+| admins     |             | List of integers, user ids with administrator privileges |
+| theme      |             | Object, values to use for various css variables in light theme |
+| dark-theme |             | Object, values to use for various css variables in dark theme |
 
 ### scout-config.json
 Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON list with an object for each mode, containing its pages, columns, and inputs.
