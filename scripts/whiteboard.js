@@ -66,14 +66,6 @@ function open_match(match_num)
             if (match_id == match_num)
             {
                 // update avatars
-                red1.src = get_avatar(red_teams[0].substr(3), year)
-                red2.src = get_avatar(red_teams[1].substr(3), year)
-                red3.src = get_avatar(red_teams[2].substr(3), year)
-                
-                blue1.src = get_avatar(blue_teams[0].substr(3), year)
-                blue2.src = get_avatar(blue_teams[1].substr(3), year)
-                blue3.src = get_avatar(blue_teams[2].substr(3), year)
-
                 document.getElementById('red1').value = red_teams[0].substr(3)
                 document.getElementById('red2').value = red_teams[1].substr(3)
                 document.getElementById('red3').value = red_teams[2].substr(3)
@@ -81,6 +73,8 @@ function open_match(match_num)
                 document.getElementById('blue1').value = blue_teams[0].substr(3)
                 document.getElementById('blue2').value = blue_teams[1].substr(3)
                 document.getElementById('blue3').value = blue_teams[2].substr(3)
+
+                update_teams()
 
                 // select option
                 match_div.classList.add('selected')
@@ -351,11 +345,11 @@ function mouse_up(evt) {
 
 /**
  * function:    init_page
- * parameters:  contents card, buttons container
+ * parameters:  contents card, buttons container, reload event
  * returns:     matches
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page(contents_card, buttons_container, reload=true)
 {
     // fill in page template
     let preview = document.getElementById('preview')
@@ -370,16 +364,19 @@ function init_page(contents_card, buttons_container)
             ])
         ]) +
         build_page_frame('Team Avatars', [
-            build_column_frame('', [build_num_entry('red1', 'Red 1', '', bounds=[0, 10000]),
-                                    build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000])]),
-            build_column_frame('', [build_num_entry('red2', 'Red 2', '', bounds=[0, 10000]),
-                                    build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000])]),
-            build_column_frame('', [build_num_entry('red3', 'Red 3', '', bounds=[0, 10000]),
-                                    build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000])])
+            build_column_frame('Red Teams', [build_num_entry('red1', 'Red 1', '', bounds=[0, 10000]),
+                                            build_num_entry('red2', 'Red 2', '', bounds=[0, 10000]),
+                                            build_num_entry('red3', 'Red 3', '', bounds=[0, 10000])]),
+            build_column_frame('Blue Teams', [build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000]),
+                                            build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000]),
+                                            build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000])])
         ])
 
     // load in match data
-    load_event()
+    if (reload)
+    {
+        load_event()
+    }
 
     // determine available space as preview width - padding - card padding - extra
     let preview_width = preview.offsetWidth - 16 - 32 - 4

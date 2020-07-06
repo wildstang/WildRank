@@ -61,6 +61,31 @@ function deselect_all()
     }
 }
 
+/**
+ * function:    toggle_menu
+ * parameters:  none
+ * returns:     none
+ * description: Toggles options menu on image click.
+ */
+function toggle_menu()
+{
+    let list = document.getElementById('option_list')
+    if (getComputedStyle(list).display == 'block')
+    {
+        list.style.display = 'none'
+    }
+    else
+    {
+        list.style.display = 'block'
+    }
+
+    // rescale whiteboard
+    if (document.getElementById('whiteboard'))
+    {
+        init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'), false)
+    }
+}
+
 window.addEventListener('load', function()
 {
     init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'))

@@ -146,3 +146,12 @@ html, body {
 .center_text {
     margin: 8px;
 }
+
+#menu_toggle {
+    padding: 8px;
+    height: 50px;
+    width: auto;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}

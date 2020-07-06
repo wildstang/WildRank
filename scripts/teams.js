@@ -189,6 +189,8 @@ function open_option(team_num)
             build_column_frame('', cards)
         ])
     }
+
+    ws(team_num)
 }
 
 /**

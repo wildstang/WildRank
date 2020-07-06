@@ -110,7 +110,7 @@
         "blue-alliance-color": "#0074D9",
         "green-alliance-color": "#2ECC40",
         "alt-table-color": "#F2F2F2",
-        "font": "mono"
+        "font": "mono, courier"
     },
     "dark-theme": {
         "primary-color": "#000080",
@@ -134,6 +134,6 @@
         "blue-alliance-color": "#0074D9",
         "green-alliance-color": "#2ECC40",
         "alt-table-color": "#332940",
-        "font": "mono"
+        "font": "mono, courier"
     }
 }
