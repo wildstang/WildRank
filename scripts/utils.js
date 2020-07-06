@@ -612,6 +612,7 @@ function use_cached_image(team_num, image_id, method, hide=true)
     let full_res = get_team_image_name(team_num, event_id, true)
     let low_res = get_team_image_name(team_num, event_id)
 
+    photo.setAttribute('style', 'display: inline')
     if (get_config('settings').use_images)
     {
         // if first attempt, attempt full res from server
