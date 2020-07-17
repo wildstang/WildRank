@@ -92,8 +92,7 @@ function get_results_from_page()
     save_team_result(results, blue2, 'blue2')
     save_team_result(results, blue3, 'blue3')
 
-    // get result name
-    window.location.href = document.referrer
+    window.location.href = build_url('selection', {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id})
 }
 
 /**
