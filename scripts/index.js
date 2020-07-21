@@ -737,7 +737,7 @@ function check_server(server)
         req.send(null)
 
         // confirm Python server
-        if (req.responseText.includes('Python3 post-server'))
+        if (req.responseText.includes('POST server'))
         {
             return true
         }
