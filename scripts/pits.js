@@ -88,7 +88,7 @@ function init_camera()
     low_canvas = document.createElement('canvas')
 
     // get video stream
-    navigator.mediaDevices.getUserMedia({video: true, audio: false})
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
         .then(function(stream)
         {
             video.srcObject = stream
@@ -166,6 +166,7 @@ function capture()
 function open_option(team_num)
 {
     deselect_all()
+    document.getElementById('prevue').play()
 
     // fill team info
     team = team_num
