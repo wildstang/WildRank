@@ -88,7 +88,7 @@ function init_camera()
     low_canvas = document.createElement('canvas')
 
     // get video stream
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
         .then(function(stream)
         {
             video.srcObject = stream
