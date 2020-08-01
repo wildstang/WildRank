@@ -45,7 +45,7 @@ body {
     padding: 0 auto;
     padding-left: var(--input-gap);
     margin-top: calc(2*var(--input-gap));
-    text-align: left;
+    text-align: center;
 }
 
 .no_top_margin {
@@ -53,8 +53,10 @@ body {
 }
 
 .column {
+    display: inline-block;
     padding-right: var(--input-gap);
-    float: left;
+    text-align: left;
+    vertical-align:top;
 }
 
 .wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header {
@@ -112,6 +114,7 @@ body {
     font-size: 24px;
     background-color: var(--primary-color);
     color: var(--secondary-color);
+    text-align: left;
 }
 
 .column_header {
