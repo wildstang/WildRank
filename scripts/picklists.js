@@ -96,93 +96,47 @@ function open_option(team_num)
 }
 
 /**
- * function:    remove_team
- * parameters:  list name, team number
- * returns:     none
- * description: Removes the clicked team from the containing list.
- */
-function remove_team(name, team)
-{
-    if (team !== '')
-    {
-        lists[name].splice(lists[name].indexOf(team), 1);
-    }
-    else if (confirm(`Are you sure you want to delete "${name}"`))
-    {
-        delete lists[name]
-    }
-    build_pick_lists()
-}
-
-/**
- * function:    add_to
- * parameters:  list name, team number
- * returns:     none
- * description: Adds the selected team to the selected list after the clicked team.
- */
-function add_to(name, after_team)
-{
-    let team_num = document.getElementById('team_num').innerHTML
-    if (team_num == after_team)
-    {
-        return
-    }
-    if (lists[name].includes(team_num))
-    {
-        remove_team(name, team_num)
-    }
-    // insert team in list after clicked button (list name will return index of -1 so 0)
-    lists[name].splice(lists[name].indexOf(after_team)+1, 0, team_num)
-    build_pick_lists()
-}
-
-/**
- * function:    create_list
+ * function:    select_list
  * parameters:  none
  * returns:     none
- * description: Creates a new list, if it doesn't already exist.
+ * description: Display a list's teams when selected.
  */
-function create_list()
+function selectList()
 {
-    let name = document.getElementById('pick_list_name').value
+    // use first list name if dropdown isn't created
+    let name = document.getElementById('list_names') == null ? Object.keys(lists)[0] : document.getElementById('list_names').value
+    // create new dropdown with current selection as default
+    let list_text = ''
     if (Object.keys(lists).includes(name))
     {
-        alert(`List "${name}" already exists!`)
-    }
-    else
-    {
-        // add empty array of list name
-        lists[name] = []
-        build_pick_lists()
-    }
-}
-
-/**
- * function:    build_pick_lists
- * parameters:  none
- * returns:     none
- * description: Builds HTML elements of all pick lists with buttons.
- */
-function build_pick_lists()
-{
-    let lists_text = ''
-    Object.keys(lists).forEach(function (name, index)
-    {
-        // add list button
-        let list_text = ''
+        list_text += build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`)
         lists[name].forEach(function (team, index)
         {
             // add team button
             list_text += build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`)
         })
-        lists_text += `<div id="${name}_list" class="pick_list">${build_button(`list_${name}`, name, `add_to('${name}', '')`, `remove_team('${name}', '')`)}${list_text}</div>`
-    })
+    }
+    document.getElementById('teams').innerHTML = list_text
+}
+
+/**
+ * function:    build_pick_lists
+ * parameters:  selected list name
+ * returns:     none
+ * description: Builds HTML elements of all pick lists with buttons.
+ */
+function build_pick_lists(list_name='')
+{
+    let lists_text = `${build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='selectList()')}<div id="teams"></div>`
+
     // add create list form and add to screen
     lists_text += `<div id="create_new_list" class="pick_list">
             ${build_str_entry("pick_list_name", "New Pick List...", "new pick list")}
             ${build_button("create_list", "Create", "create_list()")}
         </div>`
     document.getElementById('pick_lists').innerHTML = lists_text
+
+    selectList()
 
     // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))

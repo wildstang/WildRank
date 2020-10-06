@@ -9,6 +9,10 @@ var urlParams = new URLSearchParams(window.location.search)
 const page = urlParams.get('page')
 
 let script = document.createElement('script')
+script.src = `/scripts/mini-picklists.js`
+document.head.appendChild(script)
+
+script = document.createElement('script')
 script.src = `/scripts/${page}.js`
 document.head.appendChild(script)
 

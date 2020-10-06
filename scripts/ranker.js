@@ -34,7 +34,8 @@ function init_page(contents_card, buttons_container)
         <h4 class="center_text">Sort numeric values</h4>
         ${build_select('type_form', '', SORT_OPTIONS, 'Mean', 'collect_results(); select()')}
         ${build_checkbox('reverse', 'Reverse Order', false, 'select()')}
-        ${build_link_button('save', 'Save to Pick List', 'save_pick_list()')}`
+        ${build_link_button('save', 'Save to Pick List', 'save_pick_list()')}
+        <div id="pick_lists"></div>`
 
     if (collect_results() > 0)
     {
@@ -42,6 +43,7 @@ function init_page(contents_card, buttons_container)
         fill_dropdown()
         selected = Object.keys(teams)[0]
         select()
+        setup_picklists()
     }
     else
     {
@@ -298,7 +300,7 @@ function open_option(team_num)
     let against_options = totals[`${keys[against.selectedIndex]}_options`]
 
     // team details
-    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name">${team_num} ${get_team_name(team_num, event_id)}</h2></div>`
+    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name"><span id="team_num">${team_num}</span> ${get_team_name(team_num, event_id)}</h2></div>`
     details += '<img id="photo" alt="No image available"><br>'
 
     // populate ranking

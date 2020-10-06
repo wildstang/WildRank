@@ -27,9 +27,10 @@ function init_page(contents_card, buttons_container)
                                     <h3 id="ranking"></h3>
                                     <img id="photo" alt="No image available">
                                     <div id="notes"></div>`
-        buttons_container.innerHTML = '<div id="matches"></div>'
+        buttons_container.innerHTML = '<div id="matches"></div><div id="pick_lists"></div>'
         
         build_options_list(JSON.parse(localStorage.getItem(file_name)))
+        setup_picklists()
     }
     else
     {

@@ -37,8 +37,9 @@ function init_page(contents_card, buttons_container)
     if (collect_results() > 0)
     {
         contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
-                                    <img id="photo">
-                                    <table id="results_tab"></table>`
+                                   <img id="photo">
+                                   <table id="results_tab"></table>`
+        buttons_container.innerHTML = '<div id="pick_lists"></div>'
         if (type != PIT_MODE)
         {
             avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
@@ -49,6 +50,7 @@ function init_page(contents_card, buttons_container)
                 ], false)}<br>${document.getElementById('preview').innerHTML}`
         }
         build_result_list()
+        setup_picklists()
     }
     else
     {
@@ -78,7 +80,7 @@ function open_option(name)
     let parts = name.split('-')
     let team = parseInt(parts[parts.length - 1])
     document.getElementById('avatar').src = get_avatar(team, event_id.substr(0, 4))
-    document.getElementById('result_name').innerHTML = `${team}: ${get_team_name(team, event_id)}`
+    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${get_team_name(team, event_id)}`
     document.getElementById('location').innerHTML = get_team_location(team, event_id)
 
     // populate ranking
