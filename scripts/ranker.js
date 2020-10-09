@@ -34,8 +34,7 @@ function init_page(contents_card, buttons_container)
         <h4 class="center_text">Sort numeric values</h4>
         ${build_select('type_form', '', SORT_OPTIONS, 'Mean', 'collect_results(); select()')}
         ${build_checkbox('reverse', 'Reverse Order', false, 'select()')}
-        ${build_link_button('save', 'Save to Pick List', 'save_pick_list()')}
-        <div id="pick_lists"></div>`
+        ${build_link_button('save', 'Save to Pick List', 'save_pick_list()')}`
 
     if (collect_results() > 0)
     {

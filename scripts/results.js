@@ -39,7 +39,7 @@ function init_page(contents_card, buttons_container)
         contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
                                    <img id="photo">
                                    <table id="results_tab"></table>`
-        buttons_container.innerHTML = '<div id="pick_lists"></div>'
+        buttons_container.innerHTML = ''
         if (type != PIT_MODE)
         {
             avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })

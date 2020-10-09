@@ -1,30 +1,25 @@
 html, body {
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-flow: column;
     margin: 0;
     padding: 0;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-flow: column;
 }
 
 #body {
-    flex-grow: 1;
     overflow: hidden;
     display: flex;
     flex-flow: row;
 }
 
-#preview {
-    padding: 8px;
-    text-align: center;
-    vertical-align: middle;
-    flex-grow: 1;
-    overflow-y: scroll;
-}
-
 #option_list {
-    width: 299px; /* 300 - 1 */
+    min-width: 299px; /* 300 - 1 */
+    max-width: 299px; /* 300 - 1 */
     overflow-y: scroll;
     overflow-x: hidden;
     scrollbar-width: none;
@@ -33,6 +28,29 @@ html, body {
     border-width: 0 1px 0 0;
     margin: 0;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#right {
+    flex-grow: 1;
+    display: flex;
+    flex-flow: column;
+    overflow-x: hidden;
+}
+
+#preview {
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#pick_lists {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#pick_lists .wr_button, #pick_lists .wr_dropdown {
+    margin-bottom: 0;
 }
 
 #results_tab th, td {
