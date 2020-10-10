@@ -23,7 +23,7 @@ function init_page(contents_card, buttons_container)
     if (localStorage.getItem(file_name) != null)
     {
         contents_card.innerHTML = '<img id="avatar"><h2>Add team <label id="team_num"></label>, <label id="team_name"></label>, to...</h2>'
-        buttons_container.innerHTML = '<div id="pick_lists"></div>'
+        buttons_container.innerHTML = '<div id="picklists"></div>'
         
         // load teams from localStorage and build team lists
         teams = JSON.parse(localStorage.getItem(file_name))
@@ -127,14 +127,14 @@ function selectList()
  */
 function build_pick_lists(list_name='')
 {
-    let lists_text = `${build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='selectList()')}<div id="teams"></div>`
+    let lists_text = `<div class="pick_list">${build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='selectList()')}<div id="teams"></div></div>`
 
     // add create list form and add to screen
     lists_text += `<div id="create_new_list" class="pick_list">
             ${build_str_entry("pick_list_name", "New Pick List...", "new pick list")}
             ${build_button("create_list", "Create", "create_list()")}
         </div>`
-    document.getElementById('pick_lists').innerHTML = lists_text
+    document.getElementById('picklists').innerHTML = lists_text
 
     selectList()
 
