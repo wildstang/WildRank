@@ -41,11 +41,11 @@ function build_column_frame(column_name, items)
  * returns:     wr_button as a string
  * description: Builds the HTML string of a button object.
  */
-function build_button(id, name, onclick, onsecondary='')
+function build_button(id, name, onclick, onsecondary='', additional_classes='')
 {
     let oncontextmenu = onsecondary.length > 0 ? onsecondary + '; return false' : ''
     onsecondary = onsecondary.replace(/'/g, '\\\'')
-    return `<div id="${id}-container" class="wr_button" onclick="${onclick}" oncontextmenu="${oncontextmenu}" onauxclick="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
+    return `<div id="${id}-container" class="wr_button ${additional_classes}" onclick="${onclick}" oncontextmenu="${oncontextmenu}" onauxclick="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
             <label id="${id}">${name}</label>
         </div>`
 }

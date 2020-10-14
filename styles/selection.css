@@ -42,7 +42,7 @@ body {
     text-align: center;
     vertical-align: middle;
     overflow-y: scroll;
-    overflow-x: hidden;
+    overflow-x: auto;
 }
 
 #pick_lists {

@@ -87,11 +87,11 @@ function selectList(name='')
     let list_text = `<tr><td>${build_dropdown('list_names', '', Object.keys(lists), default_op=name, onchange='selectList()')}</td>`
     if (Object.keys(lists).includes(name))
     {
-        list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`)}</td>`
+        list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`, 'pick_item')}</td>`
         lists[name].forEach(function (team, index)
         {
             // add team button
-            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`)}</td>`
+            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`, 'pick_item')}</td>`
         })
     }
     document.getElementById('teams').innerHTML = `${list_text}</tr>`
