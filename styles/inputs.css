@@ -28,6 +28,12 @@
     --font: "mono"
 }
 
+@media (max-width: 615px) {
+    :root {
+        --input-width: 90vw;
+    }
+}
+
 html {
     background-color: var(--background-color);
     color: var(--background-text-color);
