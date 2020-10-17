@@ -45,7 +45,7 @@ function build_button(id, name, onclick, onsecondary='', additional_classes='')
 {
     let oncontextmenu = onsecondary.length > 0 ? onsecondary + '; return false' : ''
     onsecondary = onsecondary.replace(/'/g, '\\\'')
-    return `<div id="${id}-container" class="wr_button ${additional_classes}" onclick="${onclick}" oncontextmenu="${oncontextmenu}" onauxclick="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
+    return `<div id="${id}-container" class="wr_button ${additional_classes}" onclick="${onclick}" oncontextmenu="return false" onauxclick="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
             <label id="${id}">${name}</label>
         </div>`
 }
