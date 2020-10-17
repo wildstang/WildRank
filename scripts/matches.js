@@ -12,6 +12,8 @@ const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
+var generate = ''
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -28,7 +30,7 @@ function init_page(contents_card, buttons_container)
         let button_txt = 'Take Match Notes'
         if (scout_mode == MATCH_MODE)
         {
-            avatar = '<img id="avatar">'
+            avatar = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">`
             image = '<img id="photo" alt="No image available">'
             button_txt = 'Scout Match'
         }
@@ -230,7 +232,7 @@ function start_scouting(edit)
         let team_num = document.getElementById('team_scouting').innerHTML
         let color = document.getElementById('team_scouting').style.color
         query = {'page': 'scout', 'match': match_num, 'team': team_num, 'alliance': color, 
-            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, [POSITION_COOKIE]: scout_pos, 'edit': edit}
+            [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_mode, [POSITION_COOKIE]: scout_pos, 'edit': edit, 'generate': generate}
     }
     return build_url('index', query)
 }

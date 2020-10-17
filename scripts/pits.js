@@ -11,6 +11,7 @@ const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var team = ''
+var generate = ''
 
 var streaming = false
 var full_canvas
@@ -27,7 +28,7 @@ function init_page(contents_card, buttons_container)
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
-        contents_card.innerHTML = `<img id="avatar"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
+        contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <img id="photo" alt="No image available">`
         buttons_container.innerHTML = `${build_link_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
                                         <div id="view_result"></div>
@@ -217,5 +218,5 @@ function open_result(file)
 function start_scouting(edit)
 {
     let team_num = document.getElementById('team_num').innerHTML
-    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit})
+    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit, 'generate': generate })
 }

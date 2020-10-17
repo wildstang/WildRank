@@ -209,6 +209,7 @@ var urlParams = new URLSearchParams(window.location.search)
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
+const generate = urlParams.get('generate')
 var edit = urlParams.get('edit') == 'true'
 var results = {}
 
@@ -250,4 +251,88 @@ window.addEventListener('load', function()
     }
     ws(team_num)
     build_page_from_config(scout_mode)
+    if (generate == 'random')
+    {
+        generate_results()
+    }
 })
+
+/**
+ * function:    generate_results
+ * parameters:  none
+ * returns:     none
+ * description: Populates the page with randomly generated results.
+ */
+function generate_results()
+{
+    config.pages.forEach(function (page, index)
+    {
+        page['columns'].forEach(function (column, index)
+        {
+            column['inputs'].forEach(function (input, index)
+            {
+                var id = input.id
+                var type = input.type
+                var options = input.options
+
+                switch (type)
+                {
+                    case 'checkbox':
+                        document.getElementById(id).checked = random_bool()
+                        break
+                    case 'counter':
+                        document.getElementById(id).innerHTML = random_int()
+                        break
+                    case 'select':
+                        select_option(id, random_int(0, options.length - 1))
+                        break
+                    case 'dropdown':
+                        document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
+                        break
+                    case 'number':
+                        let min = 0
+                        let max = 10
+                        if (options.length == 2)
+                        {
+                            min = options[0]
+                            max = options[1]
+                        }
+                        else if (options.length == 1)
+                        {
+                            max = options[0]
+                        }
+                        document.getElementById(id).value = random_int(min, max)
+                        break
+                    case 'string':
+                        document.getElementById(id).value = "Random result"
+                        break
+                    case 'text':
+                        document.getElementById(id).value = "This result was randomly generated"
+                        break
+                }
+            })
+        })
+    })
+}
+
+/**
+ * function:    random_bool
+ * parameters:  odds of producing a 0
+ * returns:     random boolean
+ * description: Generates a random boolean.
+ */
+function random_bool(low_odds=0.5)
+{
+    return Math.random() >= low_odds
+}
+
+/**
+ * function:    random_int
+ * parameters:  minimum and maximum result
+ * returns:     random integer from min to max
+ * description: Generates a random integer between two given bounds.
+ */
+function random_int(min=0, max=10)
+{
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
