@@ -1,10 +1,12 @@
 import socketserver, http.server, logging, base64
-from os import listdir
+from os import listdir, environ
 from os.path import isfile, join
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
 VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/selection.html', '/?']
+
+TBA_KEY = environ.get('TBA_KEY')
 
 class ServerHandler(http.server.SimpleHTTPRequestHandler):
 
@@ -35,6 +37,13 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>LiamRank</title></head><body><h1>Liam Rank</h1>post-server.py Python3 POST server<br>2020 Liam Fruzyna<br><a href="https://github.com/mail929/LiamRank">MPL Licensed on GitHub</a></body></html>'))
+            return
+
+        if self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
+            self.send_response(200)
+            self.send_header('Content-type', 'text/js')
+            self.end_headers()
+            self.wfile.write(str.encode('API_KEY="{0}"'.format(TBA_KEY)))
             return
 
         else:

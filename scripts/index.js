@@ -253,6 +253,7 @@ function preload_event()
 
     if (!API_KEY)
     {
+        alert('No API key found for TBA!')
         status('No API key found for TBA!')
     }
     else
@@ -260,6 +261,9 @@ function preload_event()
         // fetch simple event matches
         fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches/simple${build_query({[TBA_KEY]: API_KEY})}`)
             .then(response => {
+                if (response.status == 401) {
+                    alert('Invalid API Key Suspected')
+                }
                 return response.json()
             })
             .then(data => {

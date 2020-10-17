@@ -8,6 +8,8 @@ LiamRank is a FIRST Robotics Competition scouting web app and a spiritual succes
 ### Python Web Server
 Before moving on it is important to understand that this application includes a custom implementation of the [Python 3 HTTP Server](https://docs.python.org/3/library/http.server.html). While this server does not absolutely need to be used, it does significantly improve the quality of life. It enables "uploading" results to local or remote clients and importing these results from file. Only a single "central server" needs to be using this web server to use these features, but if manual file transfer is desired to avoid a wireless connection, all clients must be running this web server.
 
+These features will be available on some other clients are well. [LiamRank Android](https://github.com/mail929/liamrank-android) contains its own custom web server implementing these features and there are plans for an iOS version which will likely support them as well.
+
 ### Internet
 An internet connection is required to preload event data before scouting begins, but this can be performed without an external server. Once all teams and matches are downloaded from TBA, an internet connection is no longer required and won't be until the next event for most features. Ranking data is also fetched but is obviously not complete before an event. Features using ranking data as well as actual match times are not intended to be used by regular scouters but by strategy leads who may be operating with more flexibility for finding an internet connection.
 
