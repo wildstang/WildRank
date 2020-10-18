@@ -155,12 +155,6 @@ body {
     -webkit-user-select: none;
 }
 
-.pick_list {
-    display: inline-block;
-    width: 300px;
-    vertical-align: top;
-}
-
 .center_text {
     margin: 8px;
 }
