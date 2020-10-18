@@ -103,27 +103,39 @@ function open_option(team_num)
  */
 function build_pick_lists(list_name='')
 {
-    let column_items = [ build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='build_pick_lists()') ]
-
-    // use first list name if dropdown isn't created
-    let name = document.getElementById('list_names') == null ? Object.keys(lists)[0] : document.getElementById('list_names').value
-    // create new dropdown with current selection as default
-    if (Object.keys(lists).includes(name))
+    // determine what list is currently selected
+    if (!Object.keys(lists).includes(list_name))
     {
-        column_items.push(build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`))
-        lists[name].forEach(function (team, index)
+        if (document.getElementById('list_names'))
+        {
+            list_name = document.getElementById('list_names').value
+        }
+        if (!Object.keys(lists).includes(list_name) && Object.keys(lists).length > 0)
+        {
+            list_name = Object.keys(lists)[0]
+        }
+    }
+
+    // rebuild dropdown
+    let column_items = [ build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='build_pick_lists()') ]
+    
+    // build selected list
+    if (Object.keys(lists).length > 0)
+    {
+        column_items.push(build_button('', 'Add to Top', `add_to('${list_name}', '')`, `remove_team('${list_name}', '')`))
+        lists[list_name].forEach(function (team, index)
         {
             // add team button
-            column_items.push(build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`))
+            column_items.push(build_button('', team, `add_to('${list_name}', '${team}')`, `remove_team('${list_name}', '${team}')`))
         })
     }
 
+    // build page
     document.getElementById('buttons_container').innerHTML = build_column_frame('Pick List', column_items) + build_column_frame('New Pick List', [
         build_str_entry('pick_list_name', '', 'new pick list'),
         build_button('create_list', 'Create', 'create_list()')
     ])
     
-
     // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
 }
