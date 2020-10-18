@@ -6,8 +6,6 @@
  * date:        2020-03-19
  */
 
-var lists = {}
-
 // read parameters from URL
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 
