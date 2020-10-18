@@ -43,7 +43,7 @@ function init_page(contents_card, buttons_container)
                 }
             })
         }
-        build_pick_lists()
+        build_pick_lists_full()
     }
     else
     {
@@ -96,12 +96,12 @@ function open_option(team_num)
 }
 
 /**
- * function:    select_list
+ * function:    select_list_full
  * parameters:  none
  * returns:     none
  * description: Display a list's teams when selected.
  */
-function selectList()
+function select_list_full()
 {
     // use first list name if dropdown isn't created
     let name = document.getElementById('list_names') == null ? Object.keys(lists)[0] : document.getElementById('list_names').value
@@ -120,14 +120,14 @@ function selectList()
 }
 
 /**
- * function:    build_pick_lists
+ * function:    build_pick_lists_full
  * parameters:  selected list name
  * returns:     none
  * description: Builds HTML elements of all pick lists with buttons.
  */
-function build_pick_lists(list_name='')
+function build_pick_lists_full(list_name='')
 {
-    let lists_text = `<div class="pick_list">${build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='selectList()')}<div id="teams"></div></div>`
+    let lists_text = `<div class="pick_list">${build_dropdown('list_names', '', Object.keys(lists), default_op=list_name, onchange='select_list_full()')}<div id="teams"></div></div>`
 
     // add create list form and add to screen
     lists_text += `<div id="create_new_list" class="pick_list">
@@ -136,7 +136,7 @@ function build_pick_lists(list_name='')
         </div>`
     document.getElementById('picklists').innerHTML = lists_text
 
-    selectList()
+    select_list_full()
 
     // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))

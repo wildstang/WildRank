@@ -76,7 +76,7 @@ function create_list()
  * returns:     none
  * description: Display a list's teams when selected.
  */
-function selectList(name='')
+function select_list(name='')
 {
     // use first list name if dropdown isn't created
     if (name == '')
@@ -84,7 +84,7 @@ function selectList(name='')
         name = document.getElementById('list_names') == null ? Object.keys(lists)[0] : document.getElementById('list_names').value
     }
     // create new dropdown with current selection as default
-    let list_text = `<tr><td>${build_dropdown('list_names', '', Object.keys(lists), default_op=name, onchange='selectList()')}</td>`
+    let list_text = `<tr><td>${build_dropdown('list_names', '', Object.keys(lists), default_op=name, onchange='select_list()')}</td>`
     if (Object.keys(lists).includes(name))
     {
         list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`, 'pick_item')}</td>`
@@ -108,7 +108,7 @@ function build_pick_lists(list_name='')
     let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
     document.getElementById('pick_lists').innerHTML = lists_text
 
-    selectList(list_name)
+    select_list(list_name)
 
     // save to localStorage
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
