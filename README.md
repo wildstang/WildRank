@@ -26,7 +26,7 @@ Depending on your desired frequency of synchronization and abidance to the rules
 A single client can act as a central server and receive results uploaded from other clients. This requires only the central server to use the Python web server, but limits only Python web server clients to data analysis. The central server would then occasionally import these results to read them from file.
 
 ### External Transfer
-If all clients are using the Python web server, they can each upload results to themselves, leaving JSON files in /uploads. These files may then be transferred by any means, including flash drives, network storage, email, etc. This process is not as seemless as the above system, but can allow rapid synchronization without a continuous network connection.
+If all clients are using the Python web server, they can each upload results to themselves, leaving JSON files in `/uploads`. These files may then be transferred by any means, including flash drives, network storage, email, etc. This process is not as seemless as the above system, but can allow rapid synchronization without a continuous network connection.
 
 ### Data Export (In Progress)
 If no clients run the Python web server, results can be exported in bulk to a CSV file which then is downloaded and may be transferred by any means. A basic Python script, `csv2xls.py` can combine these CSV files into an Excel Spreadsheet. This again is not the most seamless method, but does not require any Python web servers. It does, however, require any analysis to be done in Excel, but this may be seen as an advantage for some users.
@@ -71,10 +71,10 @@ When entering a scouting mode pit, match, and note modes will present the user w
 - Number
 - Text (multi-line)
 
-and can be easily configured via a JSON file in /config.
+and can be easily configured via a JSON file in `/config`.
 
 ## Configuration
-The /config directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
+The `/config` directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
 
 ### config.json
 The main configuration file. It supports configuration of general settings, default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
@@ -96,7 +96,7 @@ The main configuration file. It supports configuration of general settings, defa
 | dark-theme |             | Object, values to use for various css variables in dark theme |
 
 ### scout-config.json
-Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON list with an object for each mode, containing its pages, columns, and inputs.
+Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON object containing lists with an object for each mode, containing its pages, columns, and inputs for each year.
 
 #### Mode Object
 ```

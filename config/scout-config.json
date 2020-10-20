@@ -1,359 +1,427 @@
-[{
-		"name": "Pit Scouting",
-		"id": "pit",
-		"pages": [{
-			"name": "Pit",
-			"short": "Pit",
-			"id": "pit_pit",
-			"columns": [{
-					"name": "Body",
-					"id": "pit_body",
-					"inputs": [{
-							"name": "Short Bot",
-							"id": "pit_body_short",
-							"type": "checkbox",
-							"default": false
-						},
-						{
-							"name": "Drive Base",
-							"id": "pit_body_drive",
-							"type": "dropdown",
-							"options": ["Unknown", "Swerve", "Mech", "Tank"],
-							"default": "Unknown"
-						},
-						{
-							"name": "Cell Capacity",
-							"id": "pit_body_capacity",
-							"type": "select",
-							"options": ["0", "1", "2", "3", "4", "5"],
-							"default": "0"
-						},
-						{
-							"name": "Control Panel Mech",
-							"id": "pit_body_cp",
-							"type": "select",
-							"options": ["None", "Manual", "Auto"],
-							"default": "None"
-						}
-					]
-				},
+{
+	"2020":[
+		{
+			"name":"Pit Scouting",
+			"id":"pit",
+			"pages":[
 				{
-					"name": "Climb Mech",
-					"id": "pit_climb",
-					"inputs": [{
-							"name": "Climb Level",
-							"id": "pit_climb_level",
-							"type": "checkbox",
-							"default": false
+					"name":"Pit",
+					"short":"Pit",
+					"id":"pit_pit",
+					"columns":[
+						{
+							"name":"Body",
+							"id":"pit_body",
+							"inputs":[
+								{
+									"name":"Short Bot",
+									"id":"pit_body_short",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Drive Base",
+									"id":"pit_body_drive",
+									"type":"dropdown",
+									"options":[
+										"Unknown",
+										"Swerve",
+										"Mech",
+										"Tank"
+									],
+									"default":"Unknown"
+								},
+								{
+									"name":"Cell Capacity",
+									"id":"pit_body_capacity",
+									"type":"select",
+									"options":[
+										"0",
+										"1",
+										"2",
+										"3",
+										"4",
+										"5"
+									],
+									"default":"0"
+								},
+								{
+									"name":"Control Panel Mech",
+									"id":"pit_body_cp",
+									"type":"select",
+									"options":[
+										"None",
+										"Manual",
+										"Auto"
+									],
+									"default":"None"
+								}
+							]
 						},
 						{
-							"name": "Climb Low",
-							"id": "pit_climb_low",
-							"type": "checkbox",
-							"default": false
+							"name":"Climb Mech",
+							"id":"pit_climb",
+							"inputs":[
+								{
+									"name":"Climb Level",
+									"id":"pit_climb_level",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Climb Low",
+									"id":"pit_climb_low",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Climb High",
+									"id":"pit_climb_high",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Adjust Weight",
+									"id":"pit_climb_adjust",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Buddy Bar",
+									"id":"pit_climb_buddy",
+									"type":"checkbox",
+									"default":false
+								}
+							]
 						},
 						{
-							"name": "Climb High",
-							"id": "pit_climb_high",
-							"type": "checkbox",
-							"default": false
+							"name":"Accumulation",
+							"id":"pit_accum",
+							"inputs":[
+								{
+									"name":"Ground",
+									"id":"pit_accum_ground",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Lower LS",
+									"id":"pit_accum_lower",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Upper LS",
+									"id":"pit_accum_upper",
+									"type":"checkbox",
+									"default":false
+								}
+							]
 						},
 						{
-							"name": "Adjust Weight",
-							"id": "pit_climb_adjust",
-							"type": "checkbox",
-							"default": false
+							"name":"Shooter",
+							"id":"pit_shooter",
+							"inputs":[
+								{
+									"name":"Shooter Type",
+									"id":"pit_shooter_type",
+									"type":"dropdown",
+									"options":[
+										"Unknown",
+										"Flywheel",
+										"Catapult",
+										"None"
+									],
+									"default":"Unknown"
+								},
+								{
+									"name":"Lower Port",
+									"id":"pit_shooter_lower",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Outer Port",
+									"id":"pit_shooter_upper",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Vision Aiming",
+									"id":"pit_shooter_vision",
+									"type":"checkbox",
+									"default":false
+								}
+							]
 						},
 						{
-							"name": "Buddy Bar",
-							"id": "pit_climb_buddy",
-							"type": "checkbox",
-							"default": false
-						}
-					]
-				},
-				{
-					"name": "Accumulation",
-					"id": "pit_accum",
-					"inputs": [{
-							"name": "Ground",
-							"id": "pit_accum_ground",
-							"type": "checkbox",
-							"default": false
-						},
-						{
-							"name": "Lower LS",
-							"id": "pit_accum_lower",
-							"type": "checkbox",
-							"default": false
-						},
-						{
-							"name": "Upper LS",
-							"id": "pit_accum_upper",
-							"type": "checkbox",
-							"default": false
-						}
-					]
-				},
-				{
-					"name": "Shooter",
-					"id": "pit_shooter",
-					"inputs": [{
-							"name": "Shooter Type",
-							"id": "pit_shooter_type",
-							"type": "dropdown",
-							"options": ["Unknown", "Flywheel", "Catapult", "None"],
-							"default": "Unknown"
-						},
-						{
-							"name": "Lower Port",
-							"id": "pit_shooter_lower",
-							"type": "checkbox",
-							"default": false
-						},
-						{
-							"name": "Outer Port",
-							"id": "pit_shooter_upper",
-							"type": "checkbox",
-							"default": false
-						},
-						{
-							"name": "Vision Aiming",
-							"id": "pit_shooter_vision",
-							"type": "checkbox",
-							"default": false
-						}
-					]
-				},
-				{
-					"name": "Notes",
-					"id": "pit_notes",
-					"inputs": [{
-							"name": "Robot Name",
-							"id": "pit_notes_name",
-							"type": "string",
-							"default": ""
-						},
-						{
-							"name": "Rating (1-5)",
-							"id": "pit_notes_rating",
-							"type": "number",
-							"options": [1, 5],
-							"default": 3
-						},
-						{
-							"name": "Notes",
-							"id": "pit_notes_notes",
-							"type": "text",
-							"default": ""
+							"name":"Notes",
+							"id":"pit_notes",
+							"inputs":[
+								{
+									"name":"Robot Name",
+									"id":"pit_notes_name",
+									"type":"string",
+									"default":""
+								},
+								{
+									"name":"Rating (1-5)",
+									"id":"pit_notes_rating",
+									"type":"number",
+									"options":[
+										1,
+										5
+									],
+									"default":3
+								},
+								{
+									"name":"Notes",
+									"id":"pit_notes_notes",
+									"type":"text",
+									"default":""
+								}
+							]
 						}
 					]
 				}
 			]
-		}]
-	},
-	{
-		"name": "Match Scouting",
-		"id": "match",
-		"pages": [{
-				"name": "Autonomous",
-				"short": "Auto",
-				"id": "match_auto",
-				"columns": [{
-						"name": "Motion",
-						"id": "match_auto_motion",
-						"inputs": [{
-								"name": "Moved",
-								"id": "match_auto_motion_moved",
-								"type": "checkbox",
-								"default": false
-							},
-							{
-								"name": "Crossed Line",
-								"id": "match_auto_motion_cross",
-								"type": "checkbox",
-								"default": false
-							},
-							{
-								"name": "Collected Cells",
-								"id": "match_auto_motion_cells",
-								"type": "counter",
-								"default": 0
-							}
-						]
-					},
-					{
-						"name": "Shooting",
-						"id": "match_auto_shooting",
-						"inputs": [{
-								"name": "Outer Miss",
-								"id": "match_auto_shooting_outer_miss",
-								"type": "counter",
-								"negative": true,
-								"default": 0
-							},
-							{
-								"name": "Outer Goal",
-								"id": "match_auto_shooting_outer_goal",
-								"type": "counter",
-								"default": 0
-							},
-							{
-								"name": "Inner Goal",
-								"id": "match_auto_shooting_inner_miss",
-								"type": "counter",
-								"default": 0
-							},
-							{
-								"name": "Lower Miss",
-								"id": "match_auto_shooting_lower_miss",
-								"type": "counter",
-								"negative": true,
-								"default": 0
-							},
-							{
-								"name": "Lower Goal",
-								"id": "match_auto_shooting_lower_goal",
-								"type": "counter",
-								"default": 0
-							}
-						]
-					}
-				]
-			},
-			{
-				"name": "Teleoperated",
-				"short": "Tele",
-				"id": "match_teleop",
-				"columns": [{
-						"name": "Shooting",
-						"id": "match_teleop_shooting",
-						"inputs": [{
-								"name": "Outer Miss",
-								"id": "match_teleop_shooting_outer_miss",
-								"type": "counter",
-								"negative": true,
-								"default": 0
-							},
-							{
-								"name": "Outer Goal",
-								"id": "match_teleop_shooting_outer_goal",
-								"type": "counter",
-								"default": 0
-							},
-							{
-								"name": "Inner Goal",
-								"id": "match_teleop_shooting_inner_miss",
-								"type": "counter",
-								"default": 0
-							},
-							{
-								"name": "Lower Miss",
-								"id": "match_teleop_shooting_lower_miss",
-								"type": "counter",
-								"negative": true,
-								"default": 0
-							},
-							{
-								"name": "Lower Goal",
-								"id": "match_teleop_shooting_lower_goal",
-								"type": "counter",
-								"default": 0
-							}
-						]
-					}, {
-						"name": "Accumulation",
-						"id": "match_teleop_accum",
-						"inputs": [{
-								"name": "Ground",
-								"id": "match_teleop_accum_ground",
-								"type": "counter",
-								"default": 0
-							},
-							{
-								"name": "Lower LS",
-								"id": "match_teleop_accum_lower",
-								"type": "counter",
-								"default": 0
-							},
-							{
-								"name": "Upper LS",
-								"id": "match_teleop_accum_upper",
-								"type": "counter",
-								"default": 0
-							}
-						]
-					},
-					{
-						"name": "Control Panel",
-						"id": "match_teleop_cp",
-						"inputs": [{
-								"name": "Spin Control Panel",
-								"id": "match_teleop_cp_spin",
-								"type": "select",
-								"options": ["NA", "Failed", "Spun"],
-								"default": "NA"
-							},
-							{
-								"name": "Match Control Panel",
-								"id": "match_teleop_cp_match",
-								"type": "select",
-								"options": ["NA", "Failed", "Matched"],
-								"default": "NA"
-							}
-						]
-					},
-					{
-						"name": "Climb",
-						"id": "match_teleop_climb",
-						"inputs": [{
-								"name": "Climb Attempt",
-								"id": "match_teleop_climb_attempt",
-								"type": "select",
-								"options": ["NA", "Low", "Level", "High"],
-								"default": "NA"
-							},
-							{
-								"name": "Climb Result",
-								"id": "match_teleop_climb_result",
-								"type": "select",
-								"options": ["NA", "Failed", "Unlevel", "Level"],
-								"default": "NA"
-							},
-							{
-								"name": "Buddy Climb",
-								"id": "match_teleop_climb_buddy",
-								"type": "checkbox",
-								"default": false
-							}
-						]
-					}
-				]
-			},
-			{
-				"name": "Post Match",
-				"short": "Post",
-				"id": "match_post",
-				"columns": [{
-						"name": "Notes",
-						"id": "match_notes",
-						"inputs": [{
-								"name": "Rating (1-5)",
-								"id": "match_notes_rating",
-								"type": "number",
-								"options": [1, 5],
-								"default": 3
-							},
-							{
-								"name": "Notes",
-								"id": "match_notes_notes",
-								"type": "text",
-								"default": ""
-							}
-						]
-					}
-				]
-			}
-		]
-	}
-]
+		},
+		{
+			"name":"Match Scouting",
+			"id":"match",
+			"pages":[
+				{
+					"name":"Autonomous",
+					"short":"Auto",
+					"id":"match_auto",
+					"columns":[
+						{
+							"name":"Motion",
+							"id":"match_auto_motion",
+							"inputs":[
+								{
+									"name":"Moved",
+									"id":"match_auto_motion_moved",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Crossed Line",
+									"id":"match_auto_motion_cross",
+									"type":"checkbox",
+									"default":false
+								},
+								{
+									"name":"Collected Cells",
+									"id":"match_auto_motion_cells",
+									"type":"counter",
+									"default":0
+								}
+							]
+						},
+						{
+							"name":"Shooting",
+							"id":"match_auto_shooting",
+							"inputs":[
+								{
+									"name":"Outer Miss",
+									"id":"match_auto_shooting_outer_miss",
+									"type":"counter",
+									"negative":true,
+									"default":0
+								},
+								{
+									"name":"Outer Goal",
+									"id":"match_auto_shooting_outer_goal",
+									"type":"counter",
+									"default":0
+								},
+								{
+									"name":"Inner Goal",
+									"id":"match_auto_shooting_inner_miss",
+									"type":"counter",
+									"default":0
+								},
+								{
+									"name":"Lower Miss",
+									"id":"match_auto_shooting_lower_miss",
+									"type":"counter",
+									"negative":true,
+									"default":0
+								},
+								{
+									"name":"Lower Goal",
+									"id":"match_auto_shooting_lower_goal",
+									"type":"counter",
+									"default":0
+								}
+							]
+						}
+					]
+				},
+				{
+					"name":"Teleoperated",
+					"short":"Tele",
+					"id":"match_teleop",
+					"columns":[
+						{
+							"name":"Shooting",
+							"id":"match_teleop_shooting",
+							"inputs":[
+								{
+									"name":"Outer Miss",
+									"id":"match_teleop_shooting_outer_miss",
+									"type":"counter",
+									"negative":true,
+									"default":0
+								},
+								{
+									"name":"Outer Goal",
+									"id":"match_teleop_shooting_outer_goal",
+									"type":"counter",
+									"default":0
+								},
+								{
+									"name":"Inner Goal",
+									"id":"match_teleop_shooting_inner_miss",
+									"type":"counter",
+									"default":0
+								},
+								{
+									"name":"Lower Miss",
+									"id":"match_teleop_shooting_lower_miss",
+									"type":"counter",
+									"negative":true,
+									"default":0
+								},
+								{
+									"name":"Lower Goal",
+									"id":"match_teleop_shooting_lower_goal",
+									"type":"counter",
+									"default":0
+								}
+							]
+						},
+						{
+							"name":"Accumulation",
+							"id":"match_teleop_accum",
+							"inputs":[
+								{
+									"name":"Ground",
+									"id":"match_teleop_accum_ground",
+									"type":"counter",
+									"default":0
+								},
+								{
+									"name":"Lower LS",
+									"id":"match_teleop_accum_lower",
+									"type":"counter",
+									"default":0
+								},
+								{
+									"name":"Upper LS",
+									"id":"match_teleop_accum_upper",
+									"type":"counter",
+									"default":0
+								}
+							]
+						},
+						{
+							"name":"Control Panel",
+							"id":"match_teleop_cp",
+							"inputs":[
+								{
+									"name":"Spin Control Panel",
+									"id":"match_teleop_cp_spin",
+									"type":"select",
+									"options":[
+										"NA",
+										"Failed",
+										"Spun"
+									],
+									"default":"NA"
+								},
+								{
+									"name":"Match Control Panel",
+									"id":"match_teleop_cp_match",
+									"type":"select",
+									"options":[
+										"NA",
+										"Failed",
+										"Matched"
+									],
+									"default":"NA"
+								}
+							]
+						},
+						{
+							"name":"Climb",
+							"id":"match_teleop_climb",
+							"inputs":[
+								{
+									"name":"Climb Attempt",
+									"id":"match_teleop_climb_attempt",
+									"type":"select",
+									"options":[
+										"NA",
+										"Low",
+										"Level",
+										"High"
+									],
+									"default":"NA"
+								},
+								{
+									"name":"Climb Result",
+									"id":"match_teleop_climb_result",
+									"type":"select",
+									"options":[
+										"NA",
+										"Failed",
+										"Unlevel",
+										"Level"
+									],
+									"default":"NA"
+								},
+								{
+									"name":"Buddy Climb",
+									"id":"match_teleop_climb_buddy",
+									"type":"checkbox",
+									"default":false
+								}
+							]
+						}
+					]
+				},
+				{
+					"name":"Post Match",
+					"short":"Post",
+					"id":"match_post",
+					"columns":[
+						{
+							"name":"Notes",
+							"id":"match_notes",
+							"inputs":[
+								{
+									"name":"Rating (1-5)",
+									"id":"match_notes_rating",
+									"type":"number",
+									"options":[
+										1,
+										5
+									],
+									"default":3
+								},
+								{
+									"name":"Notes",
+									"id":"match_notes_notes",
+									"type":"text",
+									"default":""
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -39,7 +39,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>LiamRank</title></head><body><h1>Liam Rank</h1>post-server.py Python3 POST server<br>2020 Liam Fruzyna<br><a href="https://github.com/mail929/LiamRank">MPL Licensed on GitHub</a></body></html>'))
             return
 
-        if self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
+        elif self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
             self.send_response(200)
             self.send_header('Content-type', 'text/js')
             self.end_headers()

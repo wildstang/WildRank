@@ -18,6 +18,7 @@ var selecting = 'a'
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
 const prefix = `${type}-${event_id}-`
 
 /**
@@ -28,7 +29,7 @@ const prefix = `${type}-${event_id}-`
  */
 function init_page(contents_card, buttons_container)
 {
-    load_config(type)
+    load_config(type, year)
     buttons_container.innerHTML = `<br>
         ${build_page_frame('', [
             build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),

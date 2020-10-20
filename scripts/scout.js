@@ -202,6 +202,7 @@ function get_results_from_page()
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 
@@ -213,7 +214,7 @@ const generate = urlParams.get('generate')
 var edit = urlParams.get('edit') == 'true'
 var results = {}
 
-load_config(scout_mode)
+load_config(scout_mode, year)
 window.addEventListener('load', function()
 {
     if (edit)

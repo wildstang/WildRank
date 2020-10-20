@@ -35,10 +35,14 @@ function fetch_config(onConfig, force=false)
             return response.json()
         })
         .then(data => {
-            data.forEach(function (mode, index)
+            let years = Object.keys(data)
+            for (let i = 0; i < years.length; ++i)
             {
-                localStorage.setItem(`config-${mode.id}`, JSON.stringify(mode))
-            })
+                Object.values(data)[i].forEach(function (mode, index)
+                {
+                    localStorage.setItem(`config-${years[i]}-${mode.id}`, JSON.stringify(mode))
+                })
+            }
         })
         .catch(err => {
             console.log(`Error config file, ${err}`)
@@ -66,13 +70,13 @@ function fetch_config(onConfig, force=false)
 
 /**
  * function:    load_config
- * parameters:  scouting mode
+ * parameters:  scouting mode, year
  * returns:     none
  * description: Set the config to the desired mode.
  */
-function load_config(mode)
+function load_config(mode, year)
 {
-    config = get_config(mode)
+    config = get_config(`${year}-${mode}`)
 }
 
 /**
@@ -88,13 +92,13 @@ function get_config(name)
 
 /**
  * function:    exists
- * parameters:  scouting mode
+ * parameters:  scouting mode, year
  * returns:     none
  * description: Returns true if the config exists for the given mode.
  */
-function config_exists(mode)
+function config_exists(mode, year)
 {
-    return localStorage.getItem(`config-${mode}`) !== null
+    return localStorage.getItem(`config-${year}-${mode}`) !== null || localStorage.getItem(`config-${mode}`) !== null
 }
 
 /**

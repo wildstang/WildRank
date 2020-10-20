@@ -786,6 +786,7 @@ function is_blocked(id)
 {
     let type = get_selected_type()
     let event = get_event()
+    let year = event.substr(0,4)
     let limits = BUTTONS[id].limits
     let configs = BUTTONS[id].configs
 
@@ -821,7 +822,7 @@ function is_blocked(id)
             {
                 config = type
             }
-            if (config != NOTE_MODE && !config_exists(config))
+            if (config != NOTE_MODE && !config_exists(config, year))
             {
                 return `Missing ${config} configuration.`
             }

@@ -14,6 +14,7 @@ var avail_teams = []
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
 const prefix = `${type}-${event_id}-`
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
@@ -28,11 +29,11 @@ function init_page(contents_card, buttons_container)
 {
     if (type == NOTE_MODE)
     {
-        load_config(MATCH_MODE)
+        load_config(MATCH_MODE, year)
     }
     else
     {
-        load_config(type)
+        load_config(type, year)
     }
     if (collect_results() > 0)
     {

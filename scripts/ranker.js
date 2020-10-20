@@ -16,6 +16,7 @@ var selected = ''
 // read parameters from URL
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
 const prefix = `${type}-${event_id}-`
 
 /**
@@ -26,7 +27,7 @@ const prefix = `${type}-${event_id}-`
  */
 function init_page(contents_card, buttons_container)
 {
-    load_config(type)
+    load_config(type, year)
     buttons_container.innerHTML = `<h4 class="center_text">Sort by key</h4>
         ${build_dropdown('key_selector', '', [], '', 'select()')}
         ${build_dropdown('key_selector_method', '', ['only', 'vs', 'out of'], '', 'select()')}
