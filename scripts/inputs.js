@@ -45,7 +45,14 @@ function build_button(id, name, onclick, onsecondary='', additional_classes='')
 {
     let oncontextmenu = onsecondary.length > 0 ? onsecondary + '; return false' : ''
     onsecondary = onsecondary.replace(/'/g, '\\\'')
-    return `<div id="${id}-container" class="wr_button ${additional_classes}" onclick="${onclick}" oncontextmenu="return false" onauxclick="${oncontextmenu}" ontouchstart="${touch_button(false)}" ontouchend="${touch_button(onsecondary)}">
+    /*
+     * Notes for handling clicks:
+     * onauxclick handles both button 2 and 3 clicks
+     * oncontextmenu handles only 2, need to be false to hide menu reguardless of onauxclick
+     * holding on some devices (Android) can activate contextmenu/aux and on touch start
+     * I'm not sure what the return value means and if it is needed in onauxclick 
+     */
+    return `<div id="${id}-container" class="wr_button ${additional_classes}" onclick="${onclick}" oncontextmenu="return false" onauxclick="${oncontextmenu}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondary}')">
             <label id="${id}">${name}</label>
         </div>`
 }
@@ -83,7 +90,7 @@ function build_checkbox(id, name, checked=false, onclick='')
  */
 function build_counter(id, name, value)
 {
-    return `<div class="wr_counter" onclick="increment('${id}', false)" oncontextmenu="increment('${id}', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true)')\">
+    return `<div class="wr_counter" onclick="increment('${id}', false)" oncontextmenu="return false" onauxclick="increment('${id}', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true)')\">
             <label class="wr_counter_count" id="${id}">${value}</label>
             <label>${name}</label>
         </div>`
