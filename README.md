@@ -131,11 +131,11 @@ Allows configuration of the inputs of each of the scouting mode. The configurati
 
 #### dozer.png
 The default robot image, used if TBA does not provide an image for a team. This image can be replaced if you hate dozer.
-![#bringBackDozer](/config/dozer.png)
+![#bringBackDozer](/assets/dozer.png)
 
 #### field-XXXX.png
 The image to use for the background of the whiteboard, where XXXX is the year of the event. 3000x1600 is the recomended resolution.
-![The 2020 (and now 2021) "Infinite Recharge" field](/config/field-2020.png)
+![The 2020 (and now 2021) "Infinite Recharge" field](/assets/field-2020.png)
 
 ## Environments
 The application should work on most broswers but has not been extensively tested on all. These setups have tested with general success:

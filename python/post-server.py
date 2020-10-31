@@ -1,6 +1,7 @@
 import socketserver, http.server, logging, base64
 from os import listdir, environ
 from os.path import isfile, join
+from shutil import copyfile
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
@@ -98,6 +99,13 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
 
             with open(UPLOAD_PATH + file, 'w') as f:
                 f.write(content)
+
+# setup config if not
+for f in listdir('assets'):
+    aFile = join('assets', f)
+    cFile = join('config', f)
+    if not isfile(cFile):
+        copyfile(aFile, cFile)
 
 # start HTTP server
 Handler = ServerHandler
