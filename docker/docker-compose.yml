@@ -1,0 +1,13 @@
+version: '3.6'
+
+services:
+
+  wildrank:
+    image: mail929/liamrank
+    container_name: wildrank
+    environment:
+      - TBA_KEY=[TBA_KEY]
+    volumes:
+      - ./config:/config
+      - ./uploads:/uploads
+    restart: unless-stopped
