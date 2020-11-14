@@ -107,7 +107,7 @@ fn handle_connection(mut stream: TcpStream) {
         }
         // return TBA API key
         else if req == "scripts/keys.js" {
-            let api_key = env::var("TBA_KEY").unwrap_or("none".to_string());
+            let api_key = env::var("TBA_KEY").unwrap_or("".to_string());
             if api_key.len() > 0 {
                 return send_str_response(stream, "200 OK", "text/js", &format!("API_KEY=\"{}\"", api_key));
             }
