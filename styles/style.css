@@ -1,0 +1,62 @@
+:root {
+    --input-padding: 16px;
+    --primary-color: #000080;
+    --primary-text-color: #FFFFFF;
+    --secondary-color: #FFB30F;
+    --secondary-text-color: #000000;
+    --background-color: #F0F0F0;
+    --background-text-color: #000000;
+    --foreground-color: #FFFFFF;
+    --foreground-text-color: #000000;
+    --disabled-color: #F0F0F0;
+    --disabled-text-color: #000000;
+    --active-color: #1E90FF;
+    --active-text-color: #FFFFFF;
+    --hover-color: #ADD8E6;
+    --hover-text-color: #ADD8E6;
+    --border-color: #000000;
+    --inactive-color: #C0C0C0;
+    --inactive-text-color: #FFFFFF;
+    --red-alliance-color: #FF4136;
+    --blue-alliance-color: #0074D9;
+    --green-alliance-color: #2ECC40;
+    --alt-table-color: #F2F2F2;
+    --font: "mono"
+}
+
+html {
+    background-color: var(--background-color);
+    color: var(--background-text-color);
+    touch-action: manipulation;
+    font-family: var(--font);
+}
+
+body {
+    margin: 0;
+    text-align: center;
+}
+
+#header {
+    position: relative;
+    font-size: 16px;
+    border-style: solid;
+    width: 100%;
+    text-align: center;
+    background-color: var(--primary-color);
+    border-color: var(--secondary-color);
+    border-width: 0 0 4px 0;
+    padding: var(--input-padding) 0;
+    color: var(--primary-text-color);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+@keyframes rainbow { 
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+
+#header a {
+    color: var(--primary-text-color);
+    text-decoration: none;
+}
