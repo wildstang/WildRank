@@ -5,10 +5,10 @@ LiamRank is a FIRST Robotics Competition scouting web app and a spiritual succes
 
 ## Disconnected Nature
 
-### Python Web Server
-Before moving on it is important to understand that this application includes a custom implementation of the [Python 3 HTTP Server](https://docs.python.org/3/library/http.server.html). While this server does not absolutely need to be used, it does significantly improve the quality of life. It enables "uploading" results to local or remote clients and importing these results from file. Only a single "central server" needs to be using this web server to use these features, but if manual file transfer is desired to avoid a wireless connection, all clients must be running this web server.
+### Web Servers
+Before moving on it is important to understand the applications relationship with web servers. In order to be both flexible and offline, the application was designed so only a standard web server is needed to use most features. A few features do require a custom web server. These features are uploading and importing results directly from either a local or remote web server. Only a single "central server" needs to be using a custom web server to use these features, but if manual file transfer is desired to avoid a wireless connection, all clients must be running this web server.
 
-These features will be available on some other clients are well. [LiamRank Android](https://github.com/mail929/liamrank-android) contains its own custom web server implementing these features and there are plans for an iOS version which will likely support them as well. Out of pure lockdown induced bordem I ported the web server to Rust. It is available in the `rust-webserver` directory, can be built using `cargo build --release`, and run using `rust-webserver/target/release/liamrank-webserver`. This version should give improved performance, but is not as rigorously tested.
+There are a variety of provided custom web servers to enable this functionality. The primary server is a custom implementation of the [Python 3 HTTP Server](https://docs.python.org/3/library/http.server.html). This server will always be up to date with the latest version of the application and can be run with `python3 python/post-server.py`. Out of pure lockdown induced bordem I ported the web server to Rust. It is available in the `rust-webserver` directory, can be built using `cargo build --release`, and run using `rust-webserver/target/release/liamrank-webserver`. This version should give improved performance, but is not as rigorously tested. Of course there are mobile clients are well. Both [LiamRank Android](https://github.com/mail929/liamrank-android) and [LiamRank iOS](https://github.com/mail929/liamrank-ios) run their own custom web server and webviews for their respective mobile operating systems. The Android version is available on the [Play Store](https://play.google.com/store/apps/details?id=net.fruzyna.liamrank.android), but the iOS version will need to be built with Xcode.
 
 ### Internet
 An internet connection is required to preload event data before scouting begins, but this can be performed without an external server. Once all teams and matches are downloaded from TBA, an internet connection is no longer required and won't be until the next event for most features. Ranking data is also fetched but is obviously not complete before an event. Features using ranking data as well as actual match times are not intended to be used by regular scouters but by strategy leads who may be operating with more flexibility for finding an internet connection.
@@ -17,19 +17,19 @@ An internet connection is required to preload event data before scouting begins,
 Data is stored in JavaScript localStorage as JSON strings. Results may be exported as either individual JSON files or a bulk CSV.
 
 ### Image Storage
-Pit scouting mode allows a scouter to capture a single image of each robot. Due to limits on localStorage space images stored on the device are limited to 360p (note: this is still likely too big and may have to be reduced later). However, full resolution images are uploaded to the Python server if in use. Images from localStorage can also be backed up to a Python server later with the normal pit upload results functionality. Warning: pit uploads will overwrite high resolution automatic uploads.
+Pit scouting mode allows a scouter to capture a single image of each robot. Due to limits on localStorage space images stored on the device are limited to 360p (note: this is still likely too big and may have to be reduced later). However, full resolution images are uploaded to a custom server if in use. Images from localStorage can also be backed up to a custom web server later with the normal pit upload results functionality. Warning: pit uploads will overwrite high resolution automatic uploads. Note: image capture is not available on the iOS app due to limitations of WebRTC on WKWebView.
 
 ## Synchronization Concepts
 Depending on your desired frequency of synchronization and abidance to the rules (I do not condone breaking of any FIRST rules nor intend to provide any interpretation of said rules), there are many ways to transfer data between clients. These concepts are listed below...
 
 ### Central Server
-A single client can act as a central server and receive results uploaded from other clients. This requires only the central server to use the Python web server, but limits only Python web server clients to data analysis. The central server would then occasionally import these results to read them from file.
+A single client can act as a central server and receive results uploaded from other clients. This requires only the central server to use a custom web server, but limits only custom web server clients to complete data analysis. The central server would then occasionally import these results to read them from file. This concept requires some kind of temporary network connection. One option is passing around an Ethernet cable with an appropriate adapter for the devices in use. 
 
-### External Transfer
-If all clients are using the Python web server, they can each upload results to themselves, leaving JSON files in `/uploads`. These files may then be transferred by any means, including flash drives, network storage, email, etc. This process is not as seemless as the above system, but can allow rapid synchronization without a continuous network connection.
+### External File Transfer
+If all clients are using a custom web server, they can each upload results to themselves, leaving JSON files in `/uploads`. These files may then be transferred by any means, including flash drives, network storage, email, etc. This process is not as seemless as the above system, but can allow rapid synchronization without a network connection.
 
 ### Data Export (In Progress)
-If no clients run the Python web server, results can be exported in bulk to a CSV file which then is downloaded and may be transferred by any means. A basic Python script, `csv2xls.py` can combine these CSV files into an Excel Spreadsheet. This again is not the most seamless method, but does not require any Python web servers. It does, however, require any analysis to be done in Excel, but this may be seen as an advantage for some users.
+If no clients run a custom web server, results can be exported in bulk to a CSV file which then is downloaded and may be transferred by any means. A basic Python script, `csv2xls.py` can combine these CSV files into an Excel Spreadsheet. This again is not the most seamless method, but does not require any custom web servers. It does, however, require any analysis to be done in Excel, but this may be seen as an advantage for some users.
 
 ### QR Codes (Abandoned)
 QR codes were originally planned to be used to transfer results between clients. While this would allow for smooth, network-free, wireless data transfer, I found the size of the QR code to be extremely limiting (5-10 matches). Plus, not every device has a camera. 
@@ -47,8 +47,8 @@ The index (or homepage) of the app is more of a control panel, not intended for 
 
 and functions allowing users to:
 - Preload event data from TBA
-- Upload results to a Python web server
-- Import results from JSON (Python web server only)
+- Upload results to a custom web server
+- Import results from JSON (custom web server only)
 - Export results to CSV
 - Reset all app data
 
@@ -74,7 +74,7 @@ When entering a scouting mode pit, match, and note modes will present the user w
 and can be easily configured via a JSON file in `/config`.
 
 ## Configuration
-The `/config` directory contains all necessary configuration files and shouldn't need any changes for basic operation. However, there is no promise of updates for future competitions.
+The `/assets` directory contains all necessary configuration files and assets and shouldn't need any changes for basic operation. However, if not using a custom web server this directory will have to be changes to `/config` and there is no promise of updates for future competitions.
 
 ### config.json
 The main configuration file. It supports configuration of general settings, default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
@@ -148,4 +148,4 @@ These setups have been tested and do not work:
 - Safari iPad (iOS 10)
 
 ## Execution
-In general any web server should be able to host this app out of the box, but some features requires some more complexity. A simple implementation of the built-in Python webserver is included which allows a user to upload results back to the host but this requires a desktop platform or remote host at this time. It can be launched with `sudo python3 post-server.py`. To use a different web server, use this repository as the root of the server's assets. In order to fetch match data a new "Read API Key" must be obtained from [The Blue Alliance](https://www.thebluealliance.com/account) and placed in keys.js.
+In general any web server should be able to host this app out of the box, but some features requires some more complexity. A simple implementation of the built-in Python web server is included which allows a user to upload results back to the host but this requires a desktop platform or remote host at this time. It can be launched with `sudo python3 post-server.py`. To use a different web server, use this repository as the root of the server's assets. In order to fetch match data a new "Read API Key" must be obtained from [The Blue Alliance](https://www.thebluealliance.com/account) and placed in keys.js. There is also an included Dockerfile and docker-compose. A simple `docker-compose up -d` in `/docker` can start an instance of the Python web server.
