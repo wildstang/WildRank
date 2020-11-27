@@ -23,14 +23,16 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         files = []
 
         # request for results
+        start = 'image-'
+        ext = '.json'
         if self.path == '/getPitResultNames':
-            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('pit-') and f.endswith('.json')]
+            start = 'pit-'
         elif self.path == '/getImageNames':
-            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('image-') and f.endswith('.png')]
+            ext = '.png'
         elif self.path == '/getMatchResultNames':
-            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('match-') and f.endswith('.json')]
+            start = 'match-'
         elif self.path == '/getNoteNames':
-            files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith('note-') and f.endswith('.json')]
+            start = 'note-'
         
         # about page, used to check server version
         elif self.path == '/about':
@@ -61,6 +63,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # send joined results
+        files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith(start) and f.endswith(ext)]
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
