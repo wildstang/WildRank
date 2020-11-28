@@ -31,11 +31,12 @@ function init_page(contents_card, buttons_container)
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <img id="photo" alt="No image available">`
         buttons_container.innerHTML = `${build_link_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
-                                        <div id="view_result"></div>
-                                        <video id="prevue" height="0">Video stream not available</video>
-                                        ${build_button('capture', 'Capture Robot', 'capture()')}`
+                                        <div id="view_result"></div>`
+        camera_view = `<video id="prevue" height="0">Video stream not available</video>
+                        ${build_button('capture', 'Capture Robot', 'capture()')}`
         
         if (navigator.mediaDevices) {
+            buttons_container.innerHTML += camera_view
             init_camera()
         }
         
