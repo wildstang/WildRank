@@ -170,7 +170,9 @@ function capture()
 function open_option(team_num)
 {
     deselect_all()
-    document.getElementById('prevue').play()
+    if (navigator.mediaDevices) {
+        document.getElementById('prevue').play()
+    }
 
     // fill team info
     team = team_num
