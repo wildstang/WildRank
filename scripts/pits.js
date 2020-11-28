@@ -35,7 +35,9 @@ function init_page(contents_card, buttons_container)
                                         <video id="prevue" height="0">Video stream not available</video>
                                         ${build_button('capture', 'Capture Robot', 'capture()')}`
         
-        init_camera()
+        if (navigator.mediaDevices) {
+            init_camera()
+        }
         
         build_options_list(JSON.parse(localStorage.getItem(file_name)))
     }
