@@ -99,5 +99,16 @@ function toggle_menu()
 
 window.addEventListener('load', function()
 {
+    // fix for selection pages being cut off by notch/home bar
+    let iPad = navigator.userAgent.match(/iPad/) ||
+                (navigator.userAgent.match(/Mac/) && navigator.maxTouchPoints && navigator.maxTouchPoints > 2)
+    let iPhone = navigator.userAgent.match(/iPhone/) || navigator.platform == "iPhone"
+    if (iPhone) {
+        document.body.style.height = "93%"
+    }
+    else if (iPad) {
+        document.body.style.height = "97%"
+    }
+
     init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'))
 })
