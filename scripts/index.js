@@ -490,9 +490,10 @@ function import_all()
  */
 function download_csv()
 {
-    var element = document.createElement('a')
-    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(get_event())))
-    element.setAttribute('download', 'export.csv')
+    let event = get_event()
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(event)))
+    element.setAttribute('download', `${get_user()}-${event}-export.csv`)
 
     element.style.display = 'none'
     document.body.appendChild(element)
@@ -643,7 +644,7 @@ function count_results(event_id, type)
 function export_spreadsheet(event_id)
 {
     let combined = {}
-    let keys = ['name', 'event', 'kind', 'team', 'match', 'team']
+    let keys = ['name', 'event', 'kind', 'match', 'team']
     Object.keys(localStorage).forEach(function (name, index)
     {
         let parts = name.split('-')
@@ -706,7 +707,7 @@ function export_spreadsheet(event_id)
         })
         lines.push(values.join())
     })
-    return lines.join('\n')
+    return lines.join('\n').replace(/,NaN/g, ',')
 }
 
 /**

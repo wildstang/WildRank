@@ -4,8 +4,9 @@
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.utils import get_column_letter
 import pandas as pd
-import sys
+import sys, string
 
 # read in the given csv file
 if len(sys.argv) < 2:
@@ -17,7 +18,7 @@ if len(sys.argv) < 3:
     wb = Workbook()
     wb.create_sheet('pit')
     wb.create_sheet('match')
-    wb.create_sheet('notes')
+    wb.create_sheet('note')
 else:
     # load in existing workbook
     wb = load_workbook(sys.argv[2])
@@ -31,8 +32,8 @@ for row in dataframe_to_rows(df, index=False, header=True):
             ws = wb['pit']
         elif kind == 'match':
             ws = wb['match']
-        elif kind == 'notes':
-            ws = wb['notes']
+        elif kind == 'note':
+            ws = wb['note']
         else:
             continue
 
@@ -68,7 +69,23 @@ for row in dataframe_to_rows(df, index=False, header=True):
         # add header to each sheet
         wb['pit'].append(row)
         wb['match'].append(row)
-        wb['notes'].append(row)
+        wb['note'].append(row)
+
+# remove empty columns from sheets
+for sheet in ['pit', 'match', 'note']:
+    i = 1
+    while i <= len(wb[sheet][1]):
+        # get list of column names
+        cols = list(map(lambda cell: cell.value, list(wb[sheet][1])))
+        # get all non-nan cells
+        cells = [cell.value for cell in wb[sheet][get_column_letter(i)] if str(cell.value) != 'nan']
+        # remove header
+        name = cells.pop(0)
+        if len(cells) == 0:
+            print('Deleting empty column from', sheet, '-', name)
+            wb[sheet].delete_cols(cols.index(name)+1)
+        else:
+            i += 1
 
 # write workbook to file
 wb.save('export.xlsx')
