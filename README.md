@@ -38,7 +38,7 @@ Depending on your desired frequency of synchronization and abidance to the rules
 A single client can act as a central server and receive results uploaded from other clients. This requires only the central server to use a custom web server, but limits only custom web server clients to perform complete data analysis. The central server (or potentially other custom web server clients) would then occasionally import these results to read them from file into their LocalStorage. This concept requires some kind of temporary network connection. One option is passing around an Ethernet cable with an appropriate adapter for the devices in use.
 
 ### Mesh
-Basically upload results locally then clients can import from each client, this way sucks.
+If every client runs a custom server, the clients can on their own upload their results to the local server, then when ready the remote server could import results from each client. This concept allows either networked or physical file transfer. It is not ideal for a networked connection as it requires a lot of user input and remote importing is not supported on all web browsers.
 
 ### External File Transfer
 If all clients are using a custom web server, they can each upload results to their local server, leaving JSON files in `/uploads`. These files may then be transferred by any means, including flash drives, network storage, email, etc. This process is not as seemless as the above system, but can allow rapid synchronization without any or an indirect network connection.
