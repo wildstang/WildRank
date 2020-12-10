@@ -17,6 +17,9 @@ switch (page)
     case NOTE_MODE:
         script.src = `/scripts/notes.js`
         break
+    case 'config-generator':
+        script.src = `/scripts/config-generator.js`
+        break
     case 'index':
     default:
         script.src = `/scripts/index.js`

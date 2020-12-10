@@ -16,7 +16,7 @@ const start = Date.now()
  */
 function build_page_from_config()
 {
-    var select_ids = [];
+    var select_ids = []
     // iterate through each page in the mode
     config.pages.forEach(function (page, index)
     {

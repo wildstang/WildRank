@@ -32,6 +32,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
         build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
         build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
+        build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
@@ -53,7 +54,8 @@ const BUTTONS = {
     'open_results': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
     'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_users': { limits: ['event', 'admin', 'any'], configs: ['settings'] },
+    'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
+    'open_config': { limits: ['admin', 'any'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },
     'upload_all': { limits: ['results'], configs: [] },
     'import_all': { limits: ['admin'], configs: [] },
@@ -232,6 +234,17 @@ function open_matches()
 function open_users()
 {
     return build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
+ * function:    open_config
+ * parameters:  none
+ * returns:     none
+ * description: Open the user overview.
+ */
+function open_config()
+{
+    return build_url('index', {'page': 'config-generator', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**

@@ -123,13 +123,24 @@ function build_select(id, name, option_names, default_op, onclick='')
  */
 function build_dropdown(id, name, option_names, default_op='', onchange='')
 {
-    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let label = name.length != 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let options = ''
     option_names.forEach(function (op_name, index)
     {
-        options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name == default_op ? 'selected' : ''}>${op_name}</option>`
+        options += build_dropdown_op(op_name, default_op)
     })
     return `${label}<select class="wr_dropdown" id="${id}" onchange="${onchange}">${options}</select>`
+}
+
+/**
+ * function:    build_dropdown_op
+ * parameters:  name, default option
+ * returns:     wr_dropdown_op as a string
+ * description: Builds the HTML string of a dropdown option object.
+ */
+function build_dropdown_op(op_name, default_op='')
+{
+    return `<option class="wr_dropdown_op" value="${op_name}" ${op_name == default_op ? 'selected' : ''}>${op_name}</option>`
 }
 
 /**
@@ -140,7 +151,7 @@ function build_dropdown(id, name, option_names, default_op='', onchange='')
  */
 function build_str_entry(id, name, value='', type='text', on_text_change='')
 {
-    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     return `${label}<input class="wr_string" type="${type}" id="${id}" value="${value}" onKeyUp="${on_text_change}">`
 }
 
@@ -152,7 +163,7 @@ function build_str_entry(id, name, value='', type='text', on_text_change='')
  */
 function build_num_entry(id, name, value='', bounds=[], on_text_change='')
 {
-    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
     return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" ${bounds_str}>`
 }
