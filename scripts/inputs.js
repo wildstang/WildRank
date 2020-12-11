@@ -37,7 +37,7 @@ function build_column_frame(column_name, items)
 
 /**
  * function:    build_button
- * parameters:  element id, name, javascript onclick response
+ * parameters:  element id, name, javascript onclick response, additional css classes
  * returns:     wr_button as a string
  * description: Builds the HTML string of a button object.
  */
@@ -94,6 +94,25 @@ function build_counter(id, name, value)
             <label class="wr_counter_count" id="${id}">${value}</label>
             <label>${name}</label>
         </div>`
+}
+
+/**
+ * function:    build_multi_button
+ * parameters:  element id, name, option strings, javascript onclick responses, additional css classes
+ * returns:     wr_select as a string
+ * description: Builds the HTML string of a multi button object and its options.
+ */
+function build_multi_button(id, name, option_names, onclicks, additional_classes='')
+{
+    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let options = ''
+    option_names.forEach(function (op_name, index)
+    {
+        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" ontouchstart="touch_button(false)" ontouchend="touch_button('')">
+                <label>${op_name}</label>
+            </span>`
+    })
+    return `${label}<div class="wr_select ${additional_classes}" id="${id}">${options}</div>`
 }
 
 /**

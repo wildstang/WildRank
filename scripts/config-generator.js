@@ -35,13 +35,14 @@ function build_preview_from_config()
         config.pages.forEach(function (page, index)
         {
             var page_name = page.name
-            var page_id = page.id
-            columns = []
+            var pid = page.id
+            columns = [build_multi_button(`${pid}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${pid}', 0)`, `shift('${pid}', 1)`, `shift('${pid}', 2)`], 'slim')]
             // iterate through each column in the page
             page['columns'].forEach(function (column, index)
             {
                 var col_name = column.name
-                items = []
+                var cid = column.id
+                items = [build_multi_button(`${cid}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${cid}', 0)`, `shift('${cid}', 1)`, `shift('${cid}', 2)`], 'slim')]
                 // iterate through input in the column
                 column['inputs'].forEach(function (input, index)
                 {
@@ -86,6 +87,7 @@ function build_preview_from_config()
                             break
                     }
                     items.push(item)
+                    items.push(build_multi_button(`${id}_edit`, '', ['&#9650;', 'X', '&#9660;'], [`shift('${id}', 0)`, `shift('${id}', 1)`, `shift('${id}', 2)`], 'slim'))
                 })
                 columns.push(build_column_frame(col_name, items))
             })
@@ -99,6 +101,73 @@ function build_preview_from_config()
     {
         document.getElementById(id).classList.add('selected')
     })
+}
+
+/** 
+ * function:    apply_shift_function
+ * parameters:  id to shift, shift function, array of items, index to check
+ * returns:     if id found
+ * description: Applies the shift function to an id in a array, if there.
+ */
+function apply_shift_function(id, func, array, i)
+{
+    if (array[i].id == id)
+    {
+        // left/up
+        if (func == 0 && i > 0)
+        {
+            [array[i-1], array[i]] = [array[i], array[i-1]]
+        }
+        // delete
+        else if (func == 1)
+        {
+            array.splice(i, 1)
+        }
+        // right/down
+        else if (func == 2 && i+1 < array.length)
+        {
+            [array[i], array[i+1]] = [array[i+1], array[i]]
+        }
+        return true
+    }
+    return false
+}
+
+/** 
+ * function:    shift
+ * parameters:  id to shift, shift function
+ * returns:     none
+ * description: Searches for id to apply shift function to.
+ */
+function shift(id, func)
+{
+    let found = false
+    for (let i = 0; i < config.length; ++i)
+    {
+        let pages = config[i].pages
+        for (let j = 0; j < pages.length; ++j)
+        {
+            found = apply_shift_function(id, func, pages, j)
+            if (found) break
+            let columns = pages[j].columns
+            for (let k = 0; k < columns.length; ++k)
+            {
+                found = apply_shift_function(id, func, columns, k)
+                if (found) break
+                let inputs = columns[k].inputs
+                for (let l = 0; l < inputs.length; ++l)
+                {
+                    found = apply_shift_function(id, func, inputs, l)
+                    if (found) break
+                }
+                if (found) break
+            }
+            if (found) break
+        }
+        if (found) break
+    }
+
+    build_page()
 }
 
 /** 
