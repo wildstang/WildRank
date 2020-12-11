@@ -126,7 +126,8 @@ function build_page()
                                     build_num_entry('new-element-max', 'Max:'),
                                     build_str_entry('new-element-default', 'Default:')]),
             build_column_frame('', [build_button('new-element-submit', 'Add', 'create_element()')])
-        ]) + build_page_frame('Add Item', [
+        ]) + build_page_frame('Config', [
+            build_column_frame('', [build_button('load-config', 'Load Current Config', 'load_config()')]),
             build_column_frame('', [build_str_entry('save-config-name', 'Config Name')]),
             build_column_frame('', [build_button('save-config', 'Save', 'save_config()')]),
             build_column_frame('', [build_button('apply-config', 'Apply', 'apply_config()')])
@@ -388,6 +389,18 @@ function save_config()
 function apply_config()
 {
     config.forEach(cfg => localStorage.setItem(`config-${year}-${cfg.id}`, JSON.stringify(cfg)))
+}
+
+/** 
+ * function:    load_config
+ * parameters:  none
+ * returns:     none
+ * description: Loads in the current config.
+ */
+function load_config()
+{
+    config = [get_config(`${year}-pit`), get_config(`${year}-match`)]
+    build_page()
 }
 
 /** 
