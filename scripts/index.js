@@ -266,7 +266,7 @@ function open_config()
  */
 function open_settings()
 {
-    return build_url('index', {'page': 'settings', [USER_COOKIE]: get_user()})
+    return build_url('index', {'page': 'settings', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
