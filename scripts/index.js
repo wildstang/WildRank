@@ -6,11 +6,11 @@
  * date:        2020-02-15
  */
 
- /**
-  * PAGE INIT
-  */
+/**
+ * PAGE INIT
+ */
 
- // generate page
+// generate page
 const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
         build_str_entry('event_id', 'Event ID:', '', 'text', 'hide_buttons()'),
@@ -38,7 +38,11 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('upload_all', 'Upload Results', `check_press('upload_all', upload_all)`),
         build_button('import_all', 'Import Results', `check_press('import_all', import_all)`),
         build_button('download_csv', 'Export Results', `check_press('download_csv', download_csv)`),
-        build_button('reset', 'Reset', `check_press('reset', reset)`)
+    ]),
+    build_column_frame('Configuration', [
+        build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
+        build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
+        build_button('reset', 'Reset', `check_press('reset', reset)`),
     ]),
     build_column_frame('Status', [build_card('status')])
 ])
@@ -53,7 +57,9 @@ const BUTTONS = {
     'open_results': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
     'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_users': { limits: ['event', 'admin', 'any'], configs: ['settings'] },
+    'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
+    'open_config': { limits: ['admin'], configs: [] },
+    'open_settings': { limits: ['admin'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },
     'upload_all': { limits: ['results'], configs: [] },
     'import_all': { limits: ['admin'], configs: [] },
@@ -62,9 +68,18 @@ const BUTTONS = {
 }
 
 // when the page is finished loading
-window.addEventListener('load', function() {
+window.addEventListener('load', function()
+{
     document.body.innerHTML += PAGE_FRAME
-    fetch_config(on_config)
+    let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
+    if (configs >= 8)
+    {
+        on_config()
+    }
+    else
+    {
+        fetch_config(on_config)
+    }
     process_files()
 })
 
@@ -232,6 +247,28 @@ function open_matches()
 function open_users()
 {
     return build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
+ * function:    open_config
+ * parameters:  none
+ * returns:     none
+ * description: Open the config generator.
+ */
+function open_config()
+{
+    return build_url('index', {'page': 'config-generator', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
+ * function:    open_settings
+ * parameters:  none
+ * returns:     none
+ * description: Open the settings editor.
+ */
+function open_settings()
+{
+    return build_url('index', {'page': 'settings', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**

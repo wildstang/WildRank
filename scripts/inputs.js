@@ -37,7 +37,7 @@ function build_column_frame(column_name, items)
 
 /**
  * function:    build_button
- * parameters:  element id, name, javascript onclick response
+ * parameters:  element id, name, javascript onclick response, additional css classes
  * returns:     wr_button as a string
  * description: Builds the HTML string of a button object.
  */
@@ -97,6 +97,25 @@ function build_counter(id, name, value)
 }
 
 /**
+ * function:    build_multi_button
+ * parameters:  element id, name, option strings, javascript onclick responses, additional css classes
+ * returns:     wr_select as a string
+ * description: Builds the HTML string of a multi button object and its options.
+ */
+function build_multi_button(id, name, option_names, onclicks, additional_classes='')
+{
+    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let options = ''
+    option_names.forEach(function (op_name, index)
+    {
+        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" ontouchstart="touch_button(false)" ontouchend="touch_button('')">
+                <label>${op_name}</label>
+            </span>`
+    })
+    return `${label}<div class="wr_select ${additional_classes}" id="${id}">${options}</div>`
+}
+
+/**
  * function:    build_select
  * parameters:  element id, name, option strings, default option, javascript onclick response
  * returns:     wr_select as a string
@@ -123,13 +142,24 @@ function build_select(id, name, option_names, default_op, onclick='')
  */
 function build_dropdown(id, name, option_names, default_op='', onchange='')
 {
-    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let label = name.length != 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let options = ''
     option_names.forEach(function (op_name, index)
     {
-        options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name == default_op ? 'selected' : ''}>${op_name}</option>`
+        options += build_dropdown_op(op_name, default_op)
     })
     return `${label}<select class="wr_dropdown" id="${id}" onchange="${onchange}">${options}</select>`
+}
+
+/**
+ * function:    build_dropdown_op
+ * parameters:  name, default option
+ * returns:     wr_dropdown_op as a string
+ * description: Builds the HTML string of a dropdown option object.
+ */
+function build_dropdown_op(op_name, default_op='')
+{
+    return `<option class="wr_dropdown_op" value="${op_name}" ${op_name == default_op ? 'selected' : ''}>${op_name}</option>`
 }
 
 /**
@@ -140,8 +170,20 @@ function build_dropdown(id, name, option_names, default_op='', onchange='')
  */
 function build_str_entry(id, name, value='', type='text', on_text_change='')
 {
-    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     return `${label}<input class="wr_string" type="${type}" id="${id}" value="${value}" onKeyUp="${on_text_change}">`
+}
+
+/**
+ * function:    build_color_entry
+ * parameters:  element id, name, default color
+ * returns:     wr_color as a string
+ * description: Builds the HTML string of a color object.
+ */
+function build_color_entry(id, name, color='')
+{
+    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
+    return `${label}<div class="wr_color"><input class="color_text" type="text" id="${id}" value="${color}" onKeyUp="setColor('${id}')"><span class="color_box" id="${id}_color" style="background-color: ${color}"></span></div>`
 }
 
 /**
@@ -152,7 +194,7 @@ function build_str_entry(id, name, value='', type='text', on_text_change='')
  */
 function build_num_entry(id, name, value='', bounds=[], on_text_change='')
 {
-    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
+    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
     return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" ${bounds_str}>`
 }
@@ -282,7 +324,7 @@ function increment(id, right)
 /**
  * function:    get_selected_option
  * parameters:  ID of selected item
- * returns:     none
+ * returns:     index of selected option
  * description: Returns the selected index of the given select.
  */
 function get_selected_option(id)
@@ -314,4 +356,19 @@ function select_option(id, index)
         option.classList.remove('selected')
     }
     document.getElementById(`${id}-${index}`).classList.add('selected')
+}
+
+/**
+ * function:    set_color
+ * parameters:  element id
+ * returns:     none
+ * description: Updates the color box base on color text.
+ */
+function setColor(id)
+{
+    let color = document.getElementById(id).value
+    if (color.startsWith('#') && color.length == 7)
+    {
+        document.getElementById(`${id}_color`).style.backgroundColor = color
+    }
 }

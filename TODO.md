@@ -7,7 +7,7 @@
 - Overview view?
 
 ## Web App
-- JSON Generator
+- Import/Export JSON archive
 
 ## Android Client
 - Investigate importing from remote server

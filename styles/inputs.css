@@ -30,7 +30,7 @@
     vertical-align:top;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header {
+.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header, .wr_color {
     display: block;
     font-size: 16px;
     border-style: solid;
@@ -74,13 +74,21 @@
     min-height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
-.wr_button.pick_item {
+.wr_checkbox.slim, .wr_counter.slim, .wr_button.slim, .wr_string.slim, .wr_number.slim {
+    min-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+}
+
+.wr_button.pick_item, .wr_slim_button.pick_item {
     width: calc(var(--input-width)/2 - 2*var(--input-padding));
 }
 
 .wr_dropdown {
     width: var(--input-width);
     height: var(--input-height);
+}
+
+.wr_dropdown.slim {
+    height: var(--input-height)/2;
 }
 
 .wr_text {
@@ -94,6 +102,10 @@
     display: table;
     table-layout: fixed;
     padding: 0px;
+}
+
+.wr_select.slim {
+    height: var(--input-height)/2;
 }
 
 .wr_button {
@@ -110,6 +122,10 @@
     line-height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
+.wr_button.slim > *, .wr_checkbox.slim > *, .wr_counter.slim > *, .wr_dropdown.slim > *, .wr_string.slim > *, .wr_number.slim > *, .wr_text.slim > * {
+    line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+}
+
 .wr_counter_count {
     font-size: 200%;
 }
@@ -121,6 +137,38 @@
     display: table-cell;
     text-align: center;
     border-radius: var(--border-radius);
+}
+
+.wr_select_option.slim {
+    height: calc(var(--input-height)/2 - 2*var(--input-padding));
+    line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+}
+
+.wr_color {
+    width: calc(var(--input-width) - 2*var(--input-padding));
+    height: calc(var(--input-height) - 2*var(--input-padding));
+}
+
+.color_text {
+    display: inline-block;
+    width: calc(var(--input-width) - var(--input-height) - 2*var(--input-padding));
+    height: calc(var(--input-height) - 2*(var(--input-padding)));
+    float: left;
+    padding: 0;
+    margin: 0;
+    margin-top: 1px;
+    border: none;
+    font-size: 16px;
+}
+
+.color_box {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    margin-left: 30px;
+    width: calc(var(--input-height) - 2*(var(--input-padding)));
+    height: calc(var(--input-height) - 2*(var(--input-padding)));
+    border: 0px solid black; /* TODO fix issues compensating for border */
 }
 
 .selected {
