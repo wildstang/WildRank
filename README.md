@@ -60,6 +60,8 @@ The index (or homepage) of the app is more of a control panel, not intended for 
 - Prepare for matches on a whiteboard
 - View results
 - View summaries of teams, matches, or users
+- Generate new configurations
+- Edit app settings
 
 and functions allowing users to:
 - Preload event data from TBA
@@ -91,10 +93,10 @@ and can be easily configured via a JSON file in `/config`.
 
 
 ## Configuration
-The `/assets` directory contains all necessary configuration files and assets and shouldn't need any changes for basic operation. However, if not using a custom web server this directory will have to be changes to `/config` and there is no promise of updates for future competitions.
+The `/assets` directory contains all necessary configuration files and assets and shouldn't need any changes for basic operation. However, if not using a custom web server this directory will have to be changed to `/config` and there is no promise of updates for future competitions.
 
 ### config.json
-The main configuration file. It supports configuration of general settings, default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year.
+The main configuration file. It supports configuration of general settings, default values, admins, theme, and the whiteboard. Whiteboard configuration allows for easy updating for new games by adding a new entry to the "whiteboard" list with the desired year. Most of these settings may be edited using the built in settings editor. Settings can either be applied to the current config in localStorage or downloaded to a file.
 
 #### Settings
 | Category   | Setting     | Description |
@@ -113,7 +115,7 @@ The main configuration file. It supports configuration of general settings, defa
 | dark-theme |             | Object, values to use for various css variables in dark theme |
 
 ### scout-config.json
-Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON object containing lists with an object for each mode, containing its pages, columns, and inputs for each year.
+Allows configuration of the inputs of each of the scouting mode. The configuration file is organized as a JSON object containing lists with an object for each mode, containing its pages, columns, and inputs for each year. New configurations may be created with the built in config generator, they may be applied to the current config in localStorage or downloaded to a file.
 
 #### Mode Object
 ```

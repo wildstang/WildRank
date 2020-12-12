@@ -32,15 +32,17 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
         build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
         build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
-        build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
-        build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
         build_button('upload_all', 'Upload Results', `check_press('upload_all', upload_all)`),
         build_button('import_all', 'Import Results', `check_press('import_all', import_all)`),
         build_button('download_csv', 'Export Results', `check_press('download_csv', download_csv)`),
-        build_button('reset', 'Reset', `check_press('reset', reset)`)
+    ]),
+    build_column_frame('Configuration', [
+        build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
+        build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
+        build_button('reset', 'Reset', `check_press('reset', reset)`),
     ]),
     build_column_frame('Status', [build_card('status')])
 ])
