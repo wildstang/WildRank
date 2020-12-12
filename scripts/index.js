@@ -6,11 +6,11 @@
  * date:        2020-02-15
  */
 
- /**
-  * PAGE INIT
-  */
+/**
+ * PAGE INIT
+ */
 
- // generate page
+// generate page
 const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
         build_str_entry('event_id', 'Event ID:', '', 'text', 'hide_buttons()'),
@@ -33,6 +33,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
         build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
         build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
+        build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
@@ -55,7 +56,8 @@ const BUTTONS = {
     'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
-    'open_config': { limits: ['admin', 'any'], configs: ['settings'] },
+    'open_config': { limits: ['admin'], configs: [] },
+    'open_settings': { limits: ['admin'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },
     'upload_all': { limits: ['results'], configs: [] },
     'import_all': { limits: ['admin'], configs: [] },
@@ -64,9 +66,18 @@ const BUTTONS = {
 }
 
 // when the page is finished loading
-window.addEventListener('load', function() {
+window.addEventListener('load', function()
+{
     document.body.innerHTML += PAGE_FRAME
-    fetch_config(on_config)
+    let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
+    if (configs >= 8)
+    {
+        on_config()
+    }
+    else
+    {
+        fetch_config(on_config)
+    }
     process_files()
 })
 
@@ -240,11 +251,22 @@ function open_users()
  * function:    open_config
  * parameters:  none
  * returns:     none
- * description: Open the user overview.
+ * description: Open the config generator.
  */
 function open_config()
 {
     return build_url('index', {'page': 'config-generator', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
+ * function:    open_settings
+ * parameters:  none
+ * returns:     none
+ * description: Open the settings editor.
+ */
+function open_settings()
+{
+    return build_url('index', {'page': 'settings', [USER_COOKIE]: get_user()})
 }
 
 /**

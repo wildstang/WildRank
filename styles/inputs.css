@@ -30,7 +30,7 @@
     vertical-align:top;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header {
+.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header, .wr_color {
     display: block;
     font-size: 16px;
     border-style: solid;
@@ -142,6 +142,33 @@
 .wr_select_option.slim {
     height: calc(var(--input-height)/2 - 2*var(--input-padding));
     line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+}
+
+.wr_color {
+    width: calc(var(--input-width) - 2*var(--input-padding));
+    height: calc(var(--input-height) - 2*var(--input-padding));
+}
+
+.color_text {
+    display: inline-block;
+    width: calc(var(--input-width) - var(--input-height) - 2*var(--input-padding));
+    height: calc(var(--input-height) - 2*(var(--input-padding)));
+    float: left;
+    padding: 0;
+    margin: 0;
+    margin-top: 1px;
+    border: none;
+    font-size: 16px;
+}
+
+.color_box {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    margin-left: 30px;
+    width: calc(var(--input-height) - 2*(var(--input-padding)));
+    height: calc(var(--input-height) - 2*(var(--input-padding)));
+    border: 0px solid black; /* TODO fix issues compensating for border */
 }
 
 .selected {

@@ -175,6 +175,18 @@ function build_str_entry(id, name, value='', type='text', on_text_change='')
 }
 
 /**
+ * function:    build_color_entry
+ * parameters:  element id, name, default color
+ * returns:     wr_color as a string
+ * description: Builds the HTML string of a color object.
+ */
+function build_color_entry(id, name, color='')
+{
+    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
+    return `${label}<div class="wr_color"><input class="color_text" type="text" id="${id}" value="${color}" onKeyUp="setColor('${id}')"><span class="color_box" id="${id}_color" style="background-color: ${color}"></span></div>`
+}
+
+/**
  * function:    build_num_entry
  * parameters:  element id, name, default value, optional limits as [min, max], on text change function
  * returns:     wr_string for a number as a string
@@ -312,7 +324,7 @@ function increment(id, right)
 /**
  * function:    get_selected_option
  * parameters:  ID of selected item
- * returns:     none
+ * returns:     index of selected option
  * description: Returns the selected index of the given select.
  */
 function get_selected_option(id)
@@ -344,4 +356,19 @@ function select_option(id, index)
         option.classList.remove('selected')
     }
     document.getElementById(`${id}-${index}`).classList.add('selected')
+}
+
+/**
+ * function:    set_color
+ * parameters:  element id
+ * returns:     none
+ * description: Updates the color box base on color text.
+ */
+function setColor(id)
+{
+    let color = document.getElementById(id).value
+    if (color.startsWith('#') && color.length == 7)
+    {
+        document.getElementById(`${id}_color`).style.backgroundColor = color
+    }
 }
