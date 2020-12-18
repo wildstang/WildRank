@@ -42,6 +42,7 @@ const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Configuration', [
         build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
         build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
+        build_link_button('about', 'About', `'/index.html?page=about'`),
         build_button('reset', 'Reset', `check_press('reset', reset)`),
     ]),
     build_column_frame('Status', [build_card('status')])

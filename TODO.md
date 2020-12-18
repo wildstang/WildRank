@@ -16,7 +16,6 @@
   - Alternative release locations
 
 ## iOS Client
-- Toast-like release notification
 - Colored status bar
 - Investigate importing from remote server
 - Manual release entry option

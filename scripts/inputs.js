@@ -217,9 +217,9 @@ function build_text_entry(id, name, value='')
  * returns:     wr_card as a string
  * description: Builds the HTML string of a card object.
  */
-function build_card(id, contents='')
+function build_card(id, contents='', limitWidth=false)
 {
-    return `<div class="wr_card" id="${id}">${contents}</div>`
+    return `<div class="wr_card" id="${id}"${limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${contents}</div><br>`
 }
 
 /**
