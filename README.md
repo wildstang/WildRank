@@ -25,7 +25,7 @@ Pit scouting mode allows a scouter to capture a single image of each robot. Due 
 Liam Rank provides multiple functions for exporting data from the application.
 
 ### Upload/Import
-JSON result data and robot images stored in the browser's LocalStorage can be uploaded to a given server, where the address is entered in the "Upload URL" field. When received by the server content is stored in the `/uploads` directory. Once available to the server and client can import these results using the address from the same "Upload URL" field. Some browsers limit what addresses a website can interact with so cross-server data transfer may have limited results.
+JSON result data and robot images stored in the browser's LocalStorage can be uploaded to a given server, where the address is entered in the "Upload URL" field. When received by the server content is stored in the `/uploads` directory. Once available to the server and client can import these results using the address from the same "Upload URL" field. Some browsers limit what addresses a website can interact with so cross-server data transfer may have limited results. Browser localStorage stored results can be downloaded using the "Export Raw" function.
 
 ### Export
 The export results functionality exports JSON result data stored in the browser's LocalStorage to a combined CSV file. This file is downloaded and can be run through the provided `python/csv2xls.py` to combine with other exports.

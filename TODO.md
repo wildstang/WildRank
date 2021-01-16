@@ -7,7 +7,6 @@
 - Overview view?
 
 ## Web App
-- Import/Export JSON archive
 
 ## Android Client
 - Investigate importing from remote server

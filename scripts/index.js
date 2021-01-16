@@ -38,6 +38,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('upload_all', 'Upload Results', `check_press('upload_all', upload_all)`),
         build_button('import_all', 'Import Results', `check_press('import_all', import_all)`),
         build_button('download_csv', 'Export Results', `check_press('download_csv', download_csv)`),
+        build_button('export_zip', 'Export Raw', `check_press('export_zip', export_zip)`),
     ]),
     build_column_frame('Configuration', [
         build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
@@ -65,6 +66,7 @@ const BUTTONS = {
     'upload_all': { limits: ['results'], configs: [] },
     'import_all': { limits: ['admin'], configs: [] },
     'download_csv': { limits: ['event', 'admin', 'any'], configs: [] },
+    'export_zip': { limits: ['event', 'admin', 'any'], configs: [] },
     'reset': { limits: ['admin'], configs: [] }
 }
 
@@ -539,6 +541,69 @@ function download_csv()
     element.click()
 
     document.body.removeChild(element)
+}
+
+/**
+ * function:    export_zip
+ * paramters:   none
+ * returns:     none
+ * description: Creates and downloads a zip archive containing all localStorage files.
+ */
+function export_zip()
+{
+    let zip = JSZip()
+
+    // determine which files to use
+    let files = Object.keys(localStorage).filter(function(file)
+    {
+        if (!file.startsWith('avatar-') && file.includes(get_event()))
+        {
+            return true
+        }
+        return false
+    })
+
+    // add each file to the zip
+    files.forEach(function(file) 
+    {
+        let name = file
+        let base64 = false
+        let data = localStorage.getItem(file)
+        if (data.startsWith('data:image/png;base64,'))
+        {
+            name += '.png'
+            base64 = true
+            data = data.substr(data.indexOf(',') + 1)
+        }
+        else if (name.startsWith('avatar-'))
+        {
+            // JSZip doesn't seem to like avatars' base64
+            name += '.b64'
+            base64 = false
+        }
+        else
+        {
+            name += '.json'
+        }
+        zip.file(name, data, { base64: base64 })
+    })
+
+    // download zip
+    zip.generateAsync({ type: 'base64' })
+        .then(function(base64)
+        {
+            let event = get_event()
+            let element = document.createElement('a')
+            element.setAttribute('href', `data:application/zip;base64,${base64}`)
+            element.setAttribute('download', `${get_user()}-${event}-export.zip`)
+        
+            element.style.display = 'none'
+            document.body.appendChild(element)
+        
+            element.click()
+        
+            document.body.removeChild(element)
+        })
 }
 
 /**
