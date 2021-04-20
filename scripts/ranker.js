@@ -305,31 +305,33 @@ function open_option(team_num)
     let stddev = ''
     let against_stddev = ''
     let type = get_type(key)
-    if (typeof teams[selected][key] == 'number' && type != 'select' && type != 'dropdown')
+    if (get_selected_option('type_form') == 0 && typeof teams[selected][key] == 'number' && type != 'select' && type != 'dropdown')
     {
-        stddev = ` (${get_value(key, stddevs[selected][keys[select.selectedIndex]])})`
-        against_stddev = ` (${get_value(key, stddevs[selected][keys[against.selectedIndex]])})`
+        stddev = ` <font size="-1">(${get_value(key, stddevs[selected][keys[select.selectedIndex]])})</font>`
+        against_stddev = ` <font size="-1">(${get_value(key, stddevs[selected][keys[against.selectedIndex]])})</font>`
     }
 
     // team details
     let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name"><span id="team_num">${team_num}</span> ${get_team_name(team_num, event_id)}</h2></div>`
     details += '<img id="photo" alt="No image available"><br>'
 
+    details += '<table style="margin:auto; text-align:left">'
+
     // populate ranking
     let rankings = get_team_rankings(team_num, event_id)
     if (rankings)
     {
-        details += `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})<br>`
+        details += `<tr><td>Rank:</td><td>${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})</td></tr>`
     }
-    details += `${get_name(key)}: ${get_value(key, val)}${stddev}<br>`
+    details += `<tr><td>${get_name(key)}:</td><td>${get_value(key, val)}${stddev}</td></tr>`
 
     // overall stats
-    details += `Overall: ${get_value(key, overall)}<br>`
+    details += `<tr><td>Overall:</td><td>${get_value(key, overall)}</td></tr>`
     if (options !== {})
     {
         Object.keys(options).forEach(function (option, index)
         {
-            details += `${get_value(key, option)}: ${options[option]}<br>`
+            details += `<tr><td>${get_value(key, option)}:</td><td>${options[option]}</td></tr>`
         })
     }
 
@@ -337,7 +339,7 @@ function open_option(team_num)
     if (method != 0)
     {
         document.getElementById('key_selector_against').style.display = 'inline-block'
-        details += `${get_name(against_key)}: ${get_value(against_key, against_val)}${against_stddev}<br>`
+        details += `<tr><td>${get_name(against_key)}:</td><td>${get_value(against_key, against_val)}${against_stddev}</td></tr>`
     }
     else
     {
@@ -347,16 +349,17 @@ function open_option(team_num)
     // against overall stats
     if (method != 0)
     {
-        details += `Overall: ${get_value(against_key, against_overall)}<br>`
+        details += `<tr><td>Overall:</td><td>${get_value(against_key, against_overall)}</td></tr>`
         if (against_options !== {})
         {
             Object.keys(against_options).forEach(function (option, index)
             {
-                details += `${get_value(key, option)}: ${against_options[option]}<br>`
+                details += `<tr><td>${get_value(key, option)}:</td><td>${against_options[option]}</td></tr>`
             })
         }
-        details += `Proportion: ${get_value(key, calc_prop(val, against_val, method))}`
+        details += `<tr><td>Proportion:</td><td>${get_value(key, calc_prop(val, against_val, method))}</td></tr>`
     }
+    details += '</table>'
 
     document.getElementById('value').innerHTML = details
     use_cached_image(team_num, 'photo', '')

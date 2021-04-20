@@ -221,22 +221,22 @@ function open_teams(team_numA, team_numB)
 
         if (typeof teams[selectedA][key] == 'number' && type != 'select' && type != 'dropdown')
         {
-            aVal = parseFloat(aVal)
-            bVal = parseFloat(bVal)
+            let aFloat = parseFloat(aVal)
+            let bFloat = parseFloat(bVal)
             // color and scale bars according to proportion
-            if (aVal > bVal)
+            if (aFloat > bFloat)
             {
                 aColor = 1
                 bColor = -1
-                bWidth *= bVal / aVal
+                bWidth *= bFloat / aFloat
             }
-            else if (aVal < bVal)
+            else if (aFloat < bFloat)
             {
                 aColor = -1
                 bColor = 1
-                aWidth *= aVal / bVal
+                aWidth *= aFloat / bFloat
             }
-            else if (aVal == 0)
+            else if (aFloat == 0)
             {
                 // if both values are 0, make bars short
                 aWidth *= 0.1
@@ -255,12 +255,25 @@ function open_teams(team_numA, team_numB)
                 {
                     scale_to = parseFloat(maxs[key])
                 }
-                aWidth = 250 * (aVal / scale_to)
-                bWidth = 250 * (bVal / scale_to)
+                aWidth = 250 * (aFloat / scale_to)
+                bWidth = 250 * (bFloat / scale_to)
+            }
+
+            if (aVal.indexOf('.') < 2)
+            {
+                aVal = '&nbsp;' + aVal
+            }
+            if (bVal.indexOf('.') < 2)
+            {
+                bVal = '&nbsp;' + bVal
             }
             
-            aVal += ` (${get_value(key, stddevs[selectedA][key])})`
-            bVal += ` (${get_value(key, stddevs[selectedB][key])})`
+            // only show std dev for means
+            if (get_selected_option('type_form') == 0)
+            {
+                aVal += ` <font size="-1">(${get_value(key, stddevs[selectedA][key])})</font>`
+                bVal = `<font size="-1">(${get_value(key, stddevs[selectedB][key])})</font> ` + bVal
+            }
         }
         else if (typeof teams[selectedA][key] == 'boolean')
         {
