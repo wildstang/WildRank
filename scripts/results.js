@@ -161,6 +161,7 @@ function make_cell(results, entry, base)
 {
     let color = ''
     let val = avg_results(results, entry, 0)
+    let valStr = get_value(entry, val)
     if (typeof base === 'number' && !entry.startsWith('meta'))
     {
         let delta = base - val
@@ -185,9 +186,16 @@ function make_cell(results, entry, base)
             }
             color = `style="background-color: rgba(255,0,0,${prop})"`
         }
+
+        // add std dev if proper number
+        let type = get_type(entry)
+        if (type != 'select' && type != 'dropdown')
+        {
+            valStr += ` (${get_value(entry, avg_results(results, entry, 5))})`
+        }
     }
     
-    return `<td class="result_cell" ${color}>${get_value(entry, val)}</td>`
+    return `<td class="result_cell" ${color}>${valStr}</td>`
 }
 
 /**
