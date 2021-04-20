@@ -32,6 +32,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
         build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
         build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
+        build_link_button('open_pivot', 'Pivot Table', `check_press('open_pivot', open_pivot)`),
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
@@ -60,6 +61,7 @@ const BUTTONS = {
     'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
+    'open_pivot': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
     'open_config': { limits: ['admin'], configs: [] },
     'open_settings': { limits: ['admin'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },
@@ -250,6 +252,17 @@ function open_matches()
 function open_users()
 {
     return build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
+ * function:    open_pivot
+ * parameters:  none
+ * returns:     none
+ * description: Open the pivot table page.
+ */
+function open_pivot()
+{
+    return build_url('selection', {'page': 'pivot', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
