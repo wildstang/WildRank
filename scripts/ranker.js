@@ -10,6 +10,7 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
 var keys = {}
 var teams = {}
+var stddevs = {}
 var totals = []
 var selected = ''
 
@@ -100,6 +101,7 @@ function collect_results()
             if (!Object.keys(teams).includes(team))
             {
                 teams[`#${team}`] = {}
+                stddevs[`#${team}`] = {}
             }
             unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
@@ -123,6 +125,7 @@ function collect_results()
         keys.forEach(function (key, index)
         {
             teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
+            stddevs[team][key] = avg_results(team_results, key, 5)
         })
     })
 
@@ -299,6 +302,15 @@ function open_option(team_num)
     let options = totals[`${keys[select.selectedIndex]}_options`]
     let against_options = totals[`${keys[against.selectedIndex]}_options`]
 
+    let stddev = ''
+    let against_stddev = ''
+    let type = get_type(key)
+    if (typeof teams[selected][key] == 'number' && type != 'select' && type != 'dropdown')
+    {
+        stddev = ` (${get_value(key, stddevs[selected][keys[select.selectedIndex]])})`
+        against_stddev = ` (${get_value(key, stddevs[selected][keys[against.selectedIndex]])})`
+    }
+
     // team details
     let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name"><span id="team_num">${team_num}</span> ${get_team_name(team_num, event_id)}</h2></div>`
     details += '<img id="photo" alt="No image available"><br>'
@@ -309,7 +321,7 @@ function open_option(team_num)
     {
         details += `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})<br>`
     }
-    details += `${get_name(key)}: ${get_value(key, val)}<br>`
+    details += `${get_name(key)}: ${get_value(key, val)}${stddev}<br>`
 
     // overall stats
     details += `Overall: ${get_value(key, overall)}<br>`
@@ -325,7 +337,7 @@ function open_option(team_num)
     if (method != 0)
     {
         document.getElementById('key_selector_against').style.display = 'inline-block'
-        details += `${get_name(against_key)}: ${get_value(against_key, against_val)}<br>`
+        details += `${get_name(against_key)}: ${get_value(against_key, against_val)}${against_stddev}<br>`
     }
     else
     {

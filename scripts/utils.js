@@ -206,6 +206,17 @@ function mean(values)
 }
 
 /**
+ * function:    std_dev
+ * parameters:  array of values
+ * returns:     standard deviation of given values
+ * description: Calculates the standard deviation of a given array of values. 
+ */
+function std_dev(values)
+{
+    return Math.sqrt(values.map(x => Math.pow(x - mean(values), 2)).reduce((a, b) => a + b) / values.length)
+}
+
+/**
  * function:    median
  * parameters:  array of values
  * returns:     median of given values
@@ -592,6 +603,9 @@ function avg_results(results, key, sort_type)
                 // max
                 case 4:
                     return Math.max(... values)
+                // std dev
+                case 5:
+                    return std_dev(values)
                 // mean
                 case 0:
                 default:

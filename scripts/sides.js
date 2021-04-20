@@ -11,6 +11,7 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 var keys = {}
 var teams = {}
 var maxs = []
+var stddevs = {}
 var selectedA = ''
 var selectedB = ''
 var selecting = 'a'
@@ -69,6 +70,7 @@ function collect_results()
             if (!Object.keys(teams).includes(team))
             {
                 teams[`#${team}`] = {}
+                stddevs[`#${team}`] = {}
             }
             unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
@@ -92,6 +94,7 @@ function collect_results()
         keys.forEach(function (key, index)
         {
             teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
+            stddevs[team][key] = avg_results(team_results, key, 5)
         })
     })
 
@@ -255,6 +258,9 @@ function open_teams(team_numA, team_numB)
                 aWidth = 250 * (aVal / scale_to)
                 bWidth = 250 * (bVal / scale_to)
             }
+            
+            aVal += ` (${get_value(key, stddevs[selectedA][key])})`
+            bVal += ` (${get_value(key, stddevs[selectedB][key])})`
         }
         else if (typeof teams[selectedA][key] == 'boolean')
         {
