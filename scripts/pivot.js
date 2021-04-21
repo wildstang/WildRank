@@ -126,16 +126,16 @@ function build_table()
     
                         if (val > base)
                         {
-                            colors = [0, 256, 0, (val - base) / (max - base)]
+                            colors = [0, 256, 0, (val - base) / (max - base) / 2]
                         }
                         else if (val < base)
                         {
-                            colors = [256, 0, 0, (base - val) / (base - min)]
+                            colors = [256, 0, 0, (base - val) / (base - min) / 2]
                         }
 
                         if (is_negative(key))
                         {
-                            colors = [colors[1], colors[0], colors[2], colors[3] / 3]
+                            colors = [colors[1], colors[0], colors[2], colors[3]]
                         }
                         color = `style="background-color: rgba(${colors.join(',')}`
                     }
