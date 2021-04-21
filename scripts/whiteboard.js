@@ -314,7 +314,7 @@ function mouse_move(evt) {
         lines.push([{x: mouseX, y: mouseY}])
         hasChanged = false
     }
-    else if (mouseDown && draw_on_drag)
+    else if (mouseDown && (draw_on_drag || magnetHeld < 0))
     {
         lines[lines.length-1].push({x: mouseX, y: mouseY})
         lines[lines.length-1].color = draw_color
