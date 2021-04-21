@@ -20,6 +20,7 @@ var draw_color
 var magnets = []
 var lines = []
 var magnetHeld = -1
+var draw_on_drag = false
 
 var mouseDown = false
 var hasChanged = true
@@ -140,6 +141,17 @@ function build_match_list()
         }
     })
     open_match(first)
+}
+
+/**
+ * function:    draw_drag
+ * parameters:  none
+ * returns:     none
+ * description: Toggles drawing on magnet drawing from checkbox change.
+ */
+function draw_drag()
+{
+    draw_on_drag = document.getElementById('draw_drag').checked
 }
 
 /**
@@ -302,7 +314,7 @@ function mouse_move(evt) {
         lines.push([{x: mouseX, y: mouseY}])
         hasChanged = false
     }
-    else if (mouseDown)
+    else if (mouseDown && draw_on_drag)
     {
         lines[lines.length-1].push({x: mouseX, y: mouseY})
         lines[lines.length-1].color = draw_color
@@ -360,7 +372,8 @@ function init_page(contents_card, buttons_container, reload=true)
                 build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
                 build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
                 build_button('update_teams', 'Update Teams', 'update_teams()'),
-                build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
+                build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()'),
+                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()')
             ])
         ]) +
         build_page_frame('Team Avatars', [
