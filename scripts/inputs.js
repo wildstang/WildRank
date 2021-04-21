@@ -251,13 +251,13 @@ function build_match_option(match_id, red_teams, blue_teams, selected='', match_
  * returns:     option as a string
  * description: Builds the HTML string of a option object.
  */
-function build_option(option_id, selected='', option_name='')
+function build_option(option_id, selected='', option_name='', style='')
 {
     if (!option_name)
     {
         option_name = option_id
     }
-    return `<div id="option_${option_id}" class="pit_option ${selected}" onclick="open_option('${option_id}')">
+    return `<div id="option_${option_id}" class="pit_option ${selected}" onclick="open_option('${option_id}')" style="${style}">
                 <span class="long_option_number">${option_name}</span>
             </div>`
 }

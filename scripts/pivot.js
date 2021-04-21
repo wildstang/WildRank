@@ -56,7 +56,7 @@ function build_list(keys)
     keys.forEach(function (key, index)
     {
         // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key))
+        document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
     })
 }
 
@@ -116,39 +116,38 @@ function build_table()
                 let val = avg_results(team_results, key, get_selected_option('type_form'))
                 let valStr = get_value(key, val)
                 let base = avg_results(results, key, get_selected_option('type_form'))
+                let min = avg_results(results, key, 3)
+                let max = avg_results(results, key, 4)
                 if (typeof base === 'number' && !key.startsWith('meta'))
                 {
-                    let delta = base - val
-                    if (is_negative(key))
+                    if (val != base)
                     {
-                        delta *= -1
-                    }
-                    let prop = Math.abs(delta / base) / 2
-                    if (delta > 0.01)
-                    {
-                        if (val === 0 || base === 0)
+                        let colors = [0,0,0]
+    
+                        if (val > base)
                         {
-                            prop = val / 2
+                            colors = [0, 256, 0, (val - base) / (max - base)]
                         }
-                        color = `style="background-color: rgba(0,255,0,${prop})"`
-                    }
-                    else if (delta < -0.01)
-                    {
-                        if (base === 0 || val === 0)
+                        else if (val < base)
                         {
-                            prop = val / 2
+                            colors = [256, 0, 0, (base - val) / (base - min)]
                         }
-                        color = `style="background-color: rgba(255,0,0,${prop})"`
+
+                        if (is_negative(key))
+                        {
+                            colors = [colors[1], colors[0], colors[2], colors[3] / 3]
+                        }
+                        color = `style="background-color: rgba(${colors.join(',')}`
                     }
             
                     // add std dev if proper number
                     let type = get_type(key)
-                    if (type != 'select' && type != 'dropdown')
+                    if (get_selected_option('type_form') == 0 && type != 'select' && type != 'dropdown')
                     {
-                        valStr += ` (${get_value(key, avg_results(results, key, 5))})`
+                        valStr += ` (${get_value(key, avg_results(team_results, key, 5))})`
                     }
                 }
-                table += `<td class="result_cell" ${color}>${valStr}</td>`
+                table += `<td class="result_cell" ${color})">${valStr}</td>`
             })
             table += '</tr>'
         }
