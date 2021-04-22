@@ -41,6 +41,8 @@ var blue1 = new Image()
 var blue2 = new Image()
 var blue3 = new Image()
 
+var game_piece = new Image()
+
 /**
  * function:    open_match
  * parameters:  selected match number
@@ -221,6 +223,24 @@ function create_magnet(x, y, image, color)
 }
 
 /**
+ * function:    add_game_piece
+ * paramters:   name of game piece
+ * returns:     none
+ * description: Adds a game piece to the field.
+ */
+function add_game_piece()
+{
+    var obj = {}
+    obj.img = game_piece
+    obj.x = field_width / 2 - magnet_size / 2
+    obj.y = field_height / 2 - magnet_size / 2
+    obj.width = magnet_size
+    obj.height = magnet_size
+    obj.color = 'white'
+    magnets.push(obj)
+}
+
+/**
  * function:    get_wb_config
  * parameters:  year
  * returns:     whiteboard config
@@ -254,6 +274,9 @@ function init() {
     create_magnet(wb.blue_1.x / scale_factor, wb.blue_1.y / scale_factor, blue1, wb.blue_1.color)
     create_magnet(wb.blue_2.x / scale_factor, wb.blue_2.y / scale_factor, blue2, wb.blue_2.color)
     create_magnet(wb.blue_3.x / scale_factor, wb.blue_3.y / scale_factor, blue3, wb.blue_3.color)
+
+    // determine game piece by game
+    game_piece.src = `/config/${wb.game_piece_image}`
 
     window.requestAnimationFrame(draw);
 }
@@ -373,7 +396,8 @@ function init_page(contents_card, buttons_container, reload=true)
                 build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
                 build_button('update_teams', 'Update Teams', 'update_teams()'),
                 build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()'),
-                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()')
+                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
+                build_button('add_game_piece', 'Add Game Piece', 'add_game_piece()')
             ])
         ]) +
         build_page_frame('Team Avatars', [

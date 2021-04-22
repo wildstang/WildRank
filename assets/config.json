@@ -46,7 +46,8 @@
             "field_width": 1500,
             "field_height": 800,
             "magnet_size": 100,
-            "line_width": 5
+            "line_width": 5,
+            "game_piece_image": "power_cell.png"
         },
         {
             "year": "2019",
