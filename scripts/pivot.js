@@ -17,6 +17,8 @@ const prefix = `${type}-${event_id}-`
 var keys = []
 var teams = []
 var results = {}
+var lists = {}
+var all_teams = []
 
 /**
  * function:    init_page
@@ -31,12 +33,20 @@ function init_page(contents_card, buttons_container)
                                     build_button('export_table', 'Export Table', 'export_table()')
         
     load_config(type, year)
+    
+    // load in pick lists
+    let name = get_event_pick_lists_name(event_id)
+    if (file_exists(name))
+    {
+        lists = JSON.parse(localStorage.getItem(name))
+    }
 
-    // load teams from localStorage
+    // load all event teams from localStorage
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
-        teams = JSON.parse(localStorage.getItem(file_name))
+        all_teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
+        teams = all_teams
     }
 
     // load keys from localStorage and build list
@@ -53,12 +63,43 @@ function init_page(contents_card, buttons_container)
  */
 function build_list(keys)
 {
+    // add pick list selector at top
+    let ops = Object.keys(lists)
+    ops.unshift('None')
+    document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
+    
     // iterate through team objs
     keys.forEach(function (key, index)
     {
         // replace placeholders in template and add to screen
         document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
     })
+}
+
+/**
+ * function:    select_list
+ * parameters:  keys
+ * returns:     none
+ * description: Updates teams based on selected pick list.
+ */
+function select_list()
+{
+    // get selected pick list
+    let e = document.getElementById('select_list')
+    let list = e.options[e.selectedIndex].text
+
+    if (Object.keys(lists).includes(list))
+    {
+        // select teams from pick list
+        teams = lists[list]
+    }
+    else
+    {
+        // select all teams if "None" is selected
+        teams = all_teams
+    }
+
+    build_table()
 }
 
 /**
@@ -118,10 +159,10 @@ function build_table()
     table += '</tr>'
     teams.forEach(function (team)
     {
-        let team_results = get_team_results(results, team.team_number)
+        let team_results = get_team_results(results, team)
         if (Object.keys(team_results).length > 0)
         {
-            table += `<th>${team.team_number}</th>`
+            table += `<th>${team}</th>`
             selected.forEach(function (key)
             {
                 let color = ''
@@ -213,7 +254,6 @@ function collect_results()
  */
 function export_table()
 {
-    let team_nums = teams.map(team => team.team_number)
     let keys = get_selected_keys()
 
     // build csv
@@ -225,7 +265,7 @@ function export_table()
     })
     
     let lines = [ 'Team,' + keys.map(key => get_name(key)).join(','), line]
-    team_nums.forEach(function (team, index)
+    teams.forEach(function (team, index)
     {
         let team_results = get_team_results(results, team)
         if (Object.keys(team_results).length > 0)
