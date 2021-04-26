@@ -392,12 +392,12 @@ function init_page(contents_card, buttons_container, reload=true)
     buttons_container.innerHTML = '<br>' +
         build_page_frame('Controls', [
             build_column_frame('', [
+                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
+                build_button('add_game_piece', 'Add Game Piece', 'add_game_piece()'),
                 build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
                 build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
                 build_button('update_teams', 'Update Teams', 'update_teams()'),
-                build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()'),
-                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
-                build_button('add_game_piece', 'Add Game Piece', 'add_game_piece()')
+                build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
             ])
         ]) +
         build_page_frame('Team Avatars', [
