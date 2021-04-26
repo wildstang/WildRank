@@ -27,7 +27,8 @@ var results = {}
 function init_page(contents_card, buttons_container)
 {
     contents_card.innerHTML = '<table id="results_tab"></table>'
-    buttons_container.innerHTML = build_select('type_form', '', SORT_OPTIONS, 'Mean', 'build_table()')
+    buttons_container.innerHTML = build_select('type_form', '', SORT_OPTIONS, 'Mean', 'build_table()') +
+                                    build_button('export_table', 'Export Table', 'export_table()')
         
     load_config(type, year)
 
@@ -82,6 +83,17 @@ function open_option(key)
 }
 
 /**
+ * function:    get_selected_keys
+ * parameters:  none
+ * returns:     array of selected keys
+ * description: Builds an array of the currently selected keys.
+ */
+function get_selected_keys()
+{
+    return Array.prototype.map.call(document.getElementsByClassName('pit_option selected'), item => item.id.replace('option_', ''))
+}
+
+/**
  * function:    build_table
  * parameters:  none
  * returns:     none
@@ -89,7 +101,7 @@ function open_option(key)
  */
 function build_table()
 {
-    let selected = Array.prototype.map.call(document.getElementsByClassName('pit_option selected'), item => item.id.replace('option_', ''))
+    let selected = get_selected_keys()
 
     let table = '<tr><th>Team</th>'
     selected.forEach(function (key)
@@ -191,4 +203,54 @@ function collect_results()
     })
 
     return num_results
+}
+
+/**
+ * function:    export_table
+ * parameters:  none
+ * returns:     none
+ * description: Exports the current table as a CSV file.
+ */
+function export_table()
+{
+    let team_nums = teams.map(team => team.team_number)
+    let keys = get_selected_keys()
+
+    // build csv
+    let line = 'Totals'
+    keys.forEach(function (key)
+    {
+        let val = avg_results(results, key, get_selected_option('type_form'))
+        line += ',' + get_value(key, val)
+    })
+    
+    let lines = [ 'Team,' + keys.map(key => get_name(key)).join(','), line]
+    team_nums.forEach(function (team, index)
+    {
+        let team_results = get_team_results(results, team)
+        if (Object.keys(team_results).length > 0)
+        {
+            line = team
+            keys.forEach(function (key)
+            {
+                let val = avg_results(team_results, key, get_selected_option('type_form'))
+                let valStr = get_value(key, val)
+                line += ',' + valStr
+            })
+            lines.push(line)
+        }
+    })
+    let csv = lines.join('\n').replace(/,NaN/g, ',')
+
+    // download CSV
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
+    element.setAttribute('download', `${event_id}-pivot-export.csv`)
+
+    element.style.display = 'none'
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
 }

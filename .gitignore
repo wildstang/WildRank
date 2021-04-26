@@ -1,3 +1,4 @@
 scripts/keys.js
 *.csv
 *.xlsx
+config

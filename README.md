@@ -1,5 +1,7 @@
 # LiamRank
 
+Yet another FRC scouting app.
+
 ## Intro
 LiamRank is a FIRST Robotics Competition scouting web app and a spiritual successor to the [WildRank Android](https://github.com/wildstang/wildrank-android) platform I helped develop while a part of FRC team 111 in high school. Despite being a web app, the goal of LiamRank is not to host a webpage on a remote server while scouting on clients, but rather to run generic lightweight servers on each of the clients themselves so that the majority of the app is platform agnostic.
 
@@ -60,6 +62,7 @@ The index (or homepage) of the app is more of a control panel, not intended for 
 - Prepare for matches on a whiteboard
 - View results
 - View summaries of teams, matches, or users
+- Build pivot tables of data
 - Generate new configurations
 - Edit app settings
 
