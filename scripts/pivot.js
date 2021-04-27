@@ -140,23 +140,40 @@ function get_selected_keys()
  * returns:     none
  * description: Completes right info pane with the selected options.
  */
-function build_table()
+function build_table(sort_by='')
 {
     let selected = get_selected_keys()
+    let method = get_selected_option('type_form')
 
-    let table = '<tr><th>Team</th>'
+    if (selected.includes(sort_by))
+    {
+        console.log('sorting by', sort_by, 'for', method)
+        teams = teams.filter(team => Object.keys(get_team_results(results, team)).length > 0)
+                        .sort((a, b) => avg_results(get_team_results(results, a), sort_by, method) - avg_results(get_team_results(results, b), sort_by, method))
+    }
+    else
+    {
+        teams.sort()
+    }
+
+    // header row
+    let table = `<tr><th onclick="build_table()" ${sort_by != '' ? 'style="font-weight: normal"' : ''}>Team</th>`
     selected.forEach(function (key)
     {
-        table += `<th>${get_name(key)}</th>`
+        table += `<th onclick="build_table('${key}')" ${sort_by != key ? 'style="font-weight: normal"' : ''}>${get_name(key)}</th>`
     })
     table += '</tr>'
+
+    // totals row
     table += '<tr><th>Totals</th>'
     selected.forEach(function (key)
     {
-        let val = avg_results(results, key, get_selected_option('type_form'))
+        let val = avg_results(results, key, )
         table += `<td>${get_value(key, val)}</td>`
     })
     table += '</tr>'
+
+    // data rows
     teams.forEach(function (team)
     {
         let team_results = get_team_results(results, team)
@@ -166,9 +183,9 @@ function build_table()
             selected.forEach(function (key)
             {
                 let color = ''
-                let val = avg_results(team_results, key, get_selected_option('type_form'))
+                let val = avg_results(team_results, key, method)
                 let valStr = get_value(key, val)
-                let base = avg_results(results, key, get_selected_option('type_form'))
+                let base = avg_results(results, key, method)
                 let min = avg_results(results, key, 3)
                 let max = avg_results(results, key, 4)
                 if (typeof base === 'number' && !key.startsWith('meta'))
