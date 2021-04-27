@@ -42,12 +42,17 @@
                 "y": 625,
                 "color": "#0074D9"
             },
+            "game_pieces": [
+                {
+                    "name": "Power Cell",
+                    "image": "power_cell.png"
+                }
+            ],
             "draw_color": "#FFFFFF",
             "field_width": 1500,
             "field_height": 800,
             "magnet_size": 100,
-            "line_width": 5,
-            "game_piece_image": "power_cell.png"
+            "line_width": 5
         },
         {
             "year": "2019",
@@ -81,6 +86,16 @@
                 "y": 600,
                 "color": "#0074D9"
             },
+            "game_pieces": [
+                {
+                    "name": "Cargo",
+                    "image": "cargo.png"
+                },
+                {
+                    "name": "Hatch Panel",
+                    "image": "hatch_panel.png"
+                }
+            ],
             "draw_color": "#FFFFFF",
             "field_width": 1500,
             "field_height": 800,

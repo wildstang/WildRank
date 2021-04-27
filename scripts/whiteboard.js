@@ -41,7 +41,7 @@ var blue1 = new Image()
 var blue2 = new Image()
 var blue3 = new Image()
 
-var game_piece = new Image()
+var game_pieces = {}
 
 /**
  * function:    open_match
@@ -228,10 +228,10 @@ function create_magnet(x, y, image, color)
  * returns:     none
  * description: Adds a game piece to the field.
  */
-function add_game_piece()
+function add_game_piece(name)
 {
     var obj = {}
-    obj.img = game_piece
+    obj.img = game_pieces[name]
     obj.x = field_width / 2 - magnet_size / 2
     obj.y = field_height / 2 - magnet_size / 2
     obj.width = magnet_size
@@ -276,7 +276,16 @@ function init() {
     create_magnet(wb.blue_3.x / scale_factor, wb.blue_3.y / scale_factor, blue3, wb.blue_3.color)
 
     // determine game piece by game
-    game_piece.src = `/config/${wb.game_piece_image}`
+    wb.game_pieces.forEach(function (piece)
+    {
+        let image = new Image()
+        image.src = `/config/${piece.image}`
+        game_pieces[piece.name] = image
+    })
+
+    let names = Object.keys(game_pieces)
+    let button = build_multi_button('add_game_piece', 'Add Game Piece', names, names.map(name => `add_game_piece('${name}')`))
+    document.getElementById('add_element_container').innerHTML = button
 
     window.requestAnimationFrame(draw);
 }
@@ -393,7 +402,7 @@ function init_page(contents_card, buttons_container, reload=true)
         build_page_frame('Controls', [
             build_column_frame('', [
                 build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
-                build_button('add_game_piece', 'Add Game Piece', 'add_game_piece()'),
+                '<span id="add_element_container"></span>',
                 build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
                 build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
                 build_button('update_teams', 'Update Teams', 'update_teams()'),
