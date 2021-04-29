@@ -76,6 +76,13 @@ function open_match(match_num)
                 document.getElementById('blue1').value = blue_teams[0].substr(3)
                 document.getElementById('blue2').value = blue_teams[1].substr(3)
                 document.getElementById('blue3').value = blue_teams[2].substr(3)
+                
+                /*fetch_zebra(match.key, 0)
+                fetch_zebra(match.key, 1)
+                fetch_zebra(match.key, 2)
+                fetch_zebra(match.key, 3)
+                fetch_zebra(match.key, 4)
+                fetch_zebra(match.key, 5)*/
 
                 update_teams()
 
@@ -360,9 +367,65 @@ function mouse_move(evt) {
         lines[lines.length-1].color = magnets[magnetHeld].color
     }
 }
-    
+
+/**
+ * function:    fetch_zebra
+ * parameters:  match_key, team position
+ * returns:     none
+ * description: Fetch zebra data for a given match from TBA, then plot.
+ */
+function fetch_zebra(match_key, team)
+{
+    // fetch simple event matches
+    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({[TBA_KEY]: 'g4Wgdb1euHxs8W83KQyxRC8mKws8uqwDkjTci5PLM5WX63vKbhFyRgjlVBq7VMQr'})}`)
+        .then(response => {
+            if (response.status == 401) {
+                alert('Invalid API Key Suspected')
+            }
+            return response.json()
+        })
+        .then(data => {
+            let wb = get_wb_config(year)
+            let points = data.alliances.blue[0]
+            let color = wb.draw_color
+            if (team < 3)
+            {
+                points = data.alliances.red[team]
+                color = wb[`red_${team+1}`].color
+            }
+            else
+            {
+                points = data.alliances.blue[team-3]
+                color = wb[`blue_${team-2}`].color
+            }
+
+            lines.push([scale_coord(points.xs[1], points.ys[1])])
+            for (let i = 1; i < data.times.length-1; i++)
+            {
+                lines[lines.length-1].push(scale_coord(points.xs[i], points.ys[i]))
+            }
+            lines[lines.length-1].color = color
+        })
+}
+
+/**
+ * function:    scale_coord
+ * parameters:  zebra x, y
+ * returns:     Object containing scaled x and y coordinates
+ * description: Scale zebra coords to properly draw on screen.
+ */
+function scale_coord(x, y)
+{
+    let scale = 0.85
+    let offset = (1 - scale) / 4
+    let max_x = 50
+    let max_y = 25
+    return {x: 3 * offset * field_width + scale * (-x + max_x) * field_width / max_x, y: offset * field_height + scale * y * field_height / max_y}
+}
+
 // track mouse clicks on canvas
-function mouse_down(evt) {
+function mouse_down(evt)
+{
     // get mouse position relative to canvas
     var rect = canvas.getBoundingClientRect()
     mouseX = evt.clientX - rect.left
@@ -379,7 +442,8 @@ function mouse_down(evt) {
     }
 }
 
-function mouse_up(evt) {
+function mouse_up(evt)
+{
     // stop drawing
     mouseDown = false
     hasChanged = true
