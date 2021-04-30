@@ -19,13 +19,16 @@ var draw_color
 
 var magnets = []
 var lines = []
+var markers = []
 var magnetHeld = -1
 var draw_on_drag = false
+var match_plots = []
 
 var mouseDown = false
 var hasChanged = true
 
 var matches
+var match_key
 
 // read parameters from URL
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
@@ -51,6 +54,7 @@ var game_pieces = {}
  */
 function open_match(match_num)
 {
+    init()
     let use_elims = document.getElementById('elims').checked
 
     // iterate through each match obj
@@ -58,6 +62,7 @@ function open_match(match_num)
         let level = match.comp_level
         if ((level == 'qm' && !use_elims) || (level != 'qm' && use_elims))
         {
+            match_key = match.key
             let number = match.match_number
             let red_teams = match.alliances.red.team_keys
             let blue_teams = match.alliances.blue.team_keys
@@ -76,15 +81,10 @@ function open_match(match_num)
                 document.getElementById('blue1').value = blue_teams[0].substr(3)
                 document.getElementById('blue2').value = blue_teams[1].substr(3)
                 document.getElementById('blue3').value = blue_teams[2].substr(3)
-                
-                /*fetch_zebra(match.key, 0)
-                fetch_zebra(match.key, 1)
-                fetch_zebra(match.key, 2)
-                fetch_zebra(match.key, 3)
-                fetch_zebra(match.key, 4)
-                fetch_zebra(match.key, 5)*/
 
                 update_teams()
+
+                fetch_zebra(match_key)
 
                 // select option
                 match_div.classList.add('selected')
@@ -190,6 +190,7 @@ function load_event()
 function clear_whiteboard()
 {
     lines = []
+    markers = []
 }
 
 /**
@@ -319,6 +320,17 @@ function draw() {
         }
     })
 
+    markers.forEach(function (point, idx)
+    {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI, false);
+        ctx.fillStyle = point.color;
+        ctx.fill();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#000000';
+        ctx.stroke();
+    })
+
     // draw each line
     lines.forEach(function (line, idx)
     {
@@ -328,8 +340,12 @@ function draw() {
             if (index == 0)
             {
                 ctx.beginPath(p.x, p.y)
+
             }
-            ctx.lineTo(p.x, p.y)
+            else
+            {
+                ctx.lineTo(p.x, p.y)
+            }
         })
         ctx.lineWidth = line_width
         ctx.strokeStyle = line.color
@@ -370,12 +386,14 @@ function mouse_move(evt) {
 
 /**
  * function:    fetch_zebra
- * parameters:  match_key, team position
+ * parameters:  match_key
  * returns:     none
- * description: Fetch zebra data for a given match from TBA, then plot.
+ * description: Fetch zebra data for a given match from TBA.
  */
-function fetch_zebra(match_key, team)
+function fetch_zebra(match_key)
 {
+    match_plots = []
+
     // fetch simple event matches
     fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({[TBA_KEY]: 'g4Wgdb1euHxs8W83KQyxRC8mKws8uqwDkjTci5PLM5WX63vKbhFyRgjlVBq7VMQr'})}`)
         .then(response => {
@@ -385,27 +403,82 @@ function fetch_zebra(match_key, team)
             return response.json()
         })
         .then(data => {
-            let wb = get_wb_config(year)
-            let points = data.alliances.blue[0]
-            let color = wb.draw_color
-            if (team < 3)
+            match_plots = data
+
+            for (let i = 0; i < 6; i++)
             {
-                points = data.alliances.red[team]
-                color = wb[`red_${team+1}`].color
-            }
-            else
-            {
-                points = data.alliances.blue[team-3]
-                color = wb[`blue_${team-2}`].color
+                // get points for team
+                let points = match_plots.alliances.red[0]
+                if (i < 3)
+                {
+                    points = match_plots.alliances.red[i]
+                }
+                else
+                {
+                    points = match_plots.alliances.blue[i-3]
+                }
+
+                // move magnet to started position
+                if (points.xs[1] != null && points.ys[1] != null)
+                {
+                    let point = scale_coord(points.xs[1], points.ys[1])
+                    magnets[i].x = point.x - magnet_size / 2
+                    magnets[i].y = point.y - magnet_size / 2
+                }
             }
 
+        })
+        .catch(err => {
+            console.log('Error loading zebra data!', err)
+        })
+}
+
+/**
+ * function:    plot_zebra
+ * parameters:  team position
+ * returns:     none
+ * description: Add lines and markers for selected team position.
+ */
+function plot_zebra(team)
+{
+    if (match_plots != null)
+    {
+        let wb = get_wb_config(year)
+    
+        // get points and color for position
+        let points = match_plots.alliances.blue[0]
+        let color = wb.draw_color
+        if (team < 3)
+        {
+            points = match_plots.alliances.red[team]
+            color = wb[`red_${team+1}`].color
+        }
+        else
+        {
+            points = match_plots.alliances.blue[team-3]
+            color = wb[`blue_${team-2}`].color
+        }
+    
+        if (points.xs[1] != null && points.ys[1] != null)
+        {
+            // add start and end markers
+            let point = scale_coord(points.xs[1], points.ys[1])
+            point.color = 'green'
+            markers.push(point)
+        
+            point = scale_coord(points.xs[match_plots.times.length-2], points.ys[match_plots.times.length-2])
+            point.color = 'red'
+            markers.push(point)
+        
+            // add line points
             lines.push([scale_coord(points.xs[1], points.ys[1])])
-            for (let i = 1; i < data.times.length-1; i++)
+            for (let i = 1; i < match_plots.times.length-1; i++)
             {
                 lines[lines.length-1].push(scale_coord(points.xs[i], points.ys[i]))
             }
             lines[lines.length-1].color = color
-        })
+        }
+    }
 }
 
 /**
@@ -439,6 +512,24 @@ function mouse_down(evt)
     if (over >= 0)
     {
         magnetHeld = over
+    }
+}
+
+function mouse_right(evt)
+{
+    evt.preventDefault()
+    clear_whiteboard()
+
+    // get mouse position relative to canvas
+    var rect = canvas.getBoundingClientRect()
+    mouseX = evt.clientX - rect.left
+    mouseY = evt.clientY - rect.top
+
+    // pick up the clicked magnet
+    let over = intersects_image(mouseX, mouseY)
+    if (over >= 0 && over < 6)
+    {
+        plot_zebra(over)
     }
 }
 
@@ -535,6 +626,7 @@ function init_page(contents_card, buttons_container, reload=true)
     canvas.addEventListener('mousedown', mouse_down, false)
     canvas.addEventListener('touchend', mouse_up, false)
     canvas.addEventListener('mouseup', mouse_up, false)
+    canvas.addEventListener('contextmenu', mouse_right, false)
 
     // add magnets and start drawing
     init()
