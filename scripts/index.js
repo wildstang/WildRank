@@ -36,10 +36,11 @@ const PAGE_FRAME = build_page_frame('', [
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
-        build_button('upload_all', 'Upload Results', `check_press('upload_all', upload_all)`),
-        build_button('import_all', 'Import Results', `check_press('import_all', import_all)`),
-        build_button('download_csv', 'Export Results', `check_press('download_csv', download_csv)`),
-        build_button('export_zip', 'Export Raw', `check_press('export_zip', export_zip)`),
+        build_button('upload_all', 'Upload Results to Server', `check_press('upload_all', upload_all)`),
+        build_button('import_all', 'Import Server Results', `check_press('import_all', import_all)`),
+        build_button('export_zip', 'Export Raw Data', `check_press('export_zip', export_zip)`),
+        build_button('import_zip', 'Import Raw Data', `check_press('import_zip', prompt_zip)`),
+        build_button('download_csv', 'Export CSV Data', `check_press('download_csv', download_csv)`),
     ]),
     build_column_frame('Configuration', [
         build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
@@ -69,6 +70,7 @@ const BUTTONS = {
     'import_all': { limits: ['admin'], configs: [] },
     'download_csv': { limits: ['event', 'admin', 'any'], configs: [] },
     'export_zip': { limits: ['event', 'admin', 'any'], configs: [] },
+    'import_zip': { limits: ['admin'], configs: [] },
     'reset': { limits: ['admin'], configs: [] }
 }
 
@@ -620,6 +622,58 @@ function export_zip()
 }
 
 /**
+ * function:    import_zip
+ * paramters:   none
+ * returns:     none
+ * description: Creates a file prompt to upload a zip of JSON results.
+ */
+function prompt_zip()
+{
+    var input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/zip'
+    input.onchange = import_zip
+    input.click()
+}
+
+/**
+ * function:    import_zip
+ * paramters:   none
+ * returns:     none
+ * description: Extracts a zip archive containing all JSON results.
+ */
+function import_zip(event)
+{
+    let file = event.target.files[0]
+    
+    // process each files details
+    JSZip.loadAsync(file).then(function (zip) {
+        Object.keys(zip.files).forEach(function (name) {
+            let parts = name.split('.')
+            let n = parts[0]
+            let type = n.split('-')[0]
+
+            // only import JSON files for the current event
+            if (parts[1] == 'json' && n.includes(get_event()))
+            {
+                // get blob of files text
+                zip.file(name).async('blob').then(function (content) {
+                    content.text().then(function (text) {
+                        // save to localStorage if result or event data is missing
+                        if ((type == MATCH_MODE || type == PIT_MODE || type == NOTE_MODE || type == 'picklists') ||
+                            (!has_event() && (type == 'rankings' || type == 'matches' || type == 'teams')))
+                        {
+                            localStorage.setItem(n, text)
+                        }
+                        hide_buttons()
+                    })
+                })
+            }
+        })
+    })
+}
+
+/**
  * function:    reset
  * parameters:  none
  * returns:     none
@@ -894,6 +948,18 @@ function switch_theme()
 }
 
 /**
+ * function:    has_event
+ * parameters:  none
+ * returns:     If the current event is loaded
+ * description: Determines if the current event is loaded.
+ */
+function has_event()
+{
+    let event = get_event()
+    return file_exists(get_event_matches_name(event)) && file_exists(get_event_teams_name(event)) && file_exists(get_event_rankings_name(event))
+}
+
+/**
  * function:    is_blocked
  * parameters:  button container id
  * returns:     reason why button is blocked
@@ -908,8 +974,7 @@ function is_blocked(id)
     let configs = BUTTONS[id].configs
 
     // check each provided limiting parameter
-    if (limits.includes('event') && (!file_exists(get_event_matches_name(event)) || 
-        !file_exists(get_event_teams_name(event)) || !file_exists(get_event_rankings_name(event))))
+    if (limits.includes('event') && !has_event())
     {
         return `Missing event data.`
     }
