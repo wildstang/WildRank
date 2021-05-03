@@ -34,7 +34,7 @@ function init_page(contents_card, buttons_container)
     buttons_container.innerHTML = `<br>
         ${build_page_frame('', [
             build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
-            build_column_frame('', [ '<h4 class="input_label">Bars</h4>', build_checkbox('scale_max', 'Scale to Maximums', false, 'select()') ])
+            build_column_frame('', [ build_select('scale_max', 'Scale Bars to', ['Local Max', 'Overall Max'], 'Local Max', 'select()') ])
         ], false)}<br>
         <div class="wr_card"><table id="compare_tab"></table></div>`
 
@@ -243,7 +243,7 @@ function open_teams(team_numA, team_numB)
                 bWidth *= 0.1
             }
 
-            if (document.getElementById('scale_max').checked)
+            if (get_selected_option('scale_max') == 1)
             {
                 // override scaling if there is a known maximum
                 let options = get_options(key)
