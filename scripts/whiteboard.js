@@ -273,7 +273,7 @@ function get_wb_config(year)
  * description: Place magnets on the field and start drawing.
  */
 function init() {
-    lines = []
+    clear_whiteboard()
     magnets = []
     let wb = get_wb_config(year)
     create_magnet(wb.red_1.x / scale_factor, wb.red_1.y / scale_factor, red1, wb.red_1.color)
