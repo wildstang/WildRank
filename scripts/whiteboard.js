@@ -22,6 +22,7 @@ var lines = []
 var markers = []
 var magnetHeld = -1
 var draw_on_drag = false
+var trail_length = 0
 var match_plots = []
 
 var mouseDown = false
@@ -161,6 +162,18 @@ function build_match_list()
 function draw_drag()
 {
     draw_on_drag = document.getElementById('draw_drag').checked
+}
+
+
+/**
+ * function:    update_trail
+ * parameters:  none
+ * returns:     none
+ * description: Adjusts the length of playback trails with the slider.
+ */
+function update_trail()
+{
+    trail_length = document.getElementById('trail_length').value
 }
 
 /**
@@ -340,7 +353,6 @@ function draw() {
             if (index == 0)
             {
                 ctx.beginPath(p.x, p.y)
-
             }
             else
             {
@@ -351,6 +363,46 @@ function draw() {
         ctx.strokeStyle = line.color
         ctx.stroke()
     })
+
+    // draw trails during match playback
+    if (trail_length > 0 && match_plots != null && match_plots.alliances != null)
+    {
+        // get current match time
+        let now = document.getElementById('match_time').value
+        for (let i = 0; i < 6; i++)
+        {
+            // get teams points
+            let points = match_plots.alliances.blue[0]
+            if (i < 3)
+            {
+                points = match_plots.alliances.red[i]
+            }
+            else
+            {
+                points = match_plots.alliances.blue[i-3]
+            }
+            // draw last x seconds base on sliders
+            if (points.xs != null && points.xs != null)
+            {
+                ctx.beginPath()
+                for (let t = 0; t < match_plots.times.length-1; t++)
+                {
+                    let point = scale_coord(points.xs[t], points.ys[t])
+                    if (t > 1 && t <= now && t >= now - trail_length)
+                    {
+                        ctx.lineTo(point.x, point.y)
+                    }
+                    else if (t == 1)
+                    {
+                        ctx.beginPath(point.x, point.y)
+                    }
+                }
+                ctx.lineWidth = line_width
+                ctx.strokeStyle = magnets[i].color
+                ctx.stroke()
+            }
+        }
+    }
 
     window.requestAnimationFrame(draw)
 }
@@ -427,6 +479,12 @@ function fetch_zebra(match_key)
                 }
             }
 
+            // update sliders
+            if (match_plots) {
+                set_slider_max('trail_length', match_plots.times.length-1)
+                set_slider_max('match_time', match_plots.times.length-1)
+                set_slider('match_time', 1)
+            }
         })
         .catch(err => {
             console.log('Error loading zebra data!', err)
@@ -478,6 +536,55 @@ function plot_zebra(team)
             }
             lines[lines.length-1].color = color
         }
+    }
+}
+
+/**
+ * function:    update_time
+ * parameters:  none
+ * returns:     none
+ * description: Moves the magnets according to the selected time
+ */
+function update_time()
+{
+    let time = document.getElementById('match_time').value
+
+    for (let i = 0; i < 6; i++)
+    {
+        // get points for team
+        let points = match_plots.alliances.red[0]
+        if (i < 3)
+        {
+            points = match_plots.alliances.red[i]
+        }
+        else
+        {
+            points = match_plots.alliances.blue[i-3]
+        }
+
+        // move magnet to started position
+        if (points.xs[time] != null && points.ys[time] != null)
+        {
+            let point = scale_coord(points.xs[time], points.ys[time])
+            magnets[i].x = point.x - magnet_size / 2
+            magnets[i].y = point.y - magnet_size / 2
+        }
+    }
+}
+
+/**
+ * function:    play_match
+ * parameters:  speed to play at (1x = 0.1s per point)
+ * returns:     none
+ * description: Moves the magnets over time
+ */
+async function play_match(speed)
+{
+    for (let i = 1; i < match_plots.times.length - 1; i++)
+    {
+        set_slider('match_time', i)
+        update_time()
+        await new Promise(r => setTimeout(r, 100.0 / speed));
     }
 }
 
@@ -556,12 +663,18 @@ function init_page(contents_card, buttons_container, reload=true)
     buttons_container.innerHTML = '<br>' +
         build_page_frame('Controls', [
             build_column_frame('', [
-                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
                 '<span id="add_element_container"></span>',
+                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
                 build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
                 build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
-                build_button('update_teams', 'Update Teams', 'update_teams()'),
                 build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
+            ])
+        ]) +
+        build_page_frame('Playback', [
+            build_column_frame('', [
+                build_multi_button('play_match', 'Play at', ['1x', '10x', '50x'], ['play_match(1)', 'play_match(10)', 'play_match(50)']),
+                build_slider('match_time', 'Match Time', 1, 1, 1, 1, 'update_time()'),
+                build_slider('trail_length', 'Trail Length', 0, 1, 10, 0, 'update_trail()')
             ])
         ]) +
         build_page_frame('Team Avatars', [
@@ -570,7 +683,8 @@ function init_page(contents_card, buttons_container, reload=true)
                                             build_num_entry('red3', 'Red 3', '', bounds=[0, 10000])]),
             build_column_frame('Blue Teams', [build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000]),
                                             build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000]),
-                                            build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000])])
+                                            build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000]),
+                                            build_button('update_teams', 'Update Teams', 'update_teams()')])
         ])
 
     // load in match data
