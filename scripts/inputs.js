@@ -212,6 +212,18 @@ function build_text_entry(id, name, value='')
 }
 
 /**
+ * function:    build_slider
+ * parameters:  element id, name, min value, max value, increment, starting value
+ * returns:     wr_slider as a string
+ * description: Builds the HTML string of a slider object.
+ */
+function build_slider(id, name, min, max, incr, start, oninput='')
+{
+    let label = name.length > 0 ? `<h4 class="input_label">${name} - <span id="${id}_value">${start}</span></h4>` : ''
+    return `${label}<div id="${id}_container" class="wr_slider"><input type="range" min="${min}" max="${max}" step="${incr}" value="${start}" id="${id}" class="wr_slider_range" oninput="update_slider_text('${id}'); ${oninput}"></div>`
+}
+
+/**
  * function:    build_card
  * parameters:  element id, contents
  * returns:     wr_card as a string
@@ -371,4 +383,38 @@ function setColor(id)
     {
         document.getElementById(`${id}_color`).style.backgroundColor = color
     }
+}
+
+/**
+ * function:    set_slider
+ * parameters:  slider id, value
+ * returns:     none
+ * description: Set the text and position of a slider.
+ */
+function set_slider(id, value)
+{
+    document.getElementById(id).value = value
+    update_slider_text(id)
+}
+
+/**
+ * function:    update_slider_text
+ * parameters:  slider id
+ * returns:     none
+ * description: Update the text for a slider.
+ */
+function update_slider_text(id)
+{
+    document.getElementById(`${id}_value`).innerHTML = document.getElementById(id).value
+}
+
+/**
+ * function:    set_slider_max
+ * parameters:  slider id, max
+ * returns:     none
+ * description: Set the maximum value of a slider.
+ */
+function set_slider_max(id, max)
+{
+    document.getElementById(id).max = max
 }
