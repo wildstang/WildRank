@@ -693,6 +693,20 @@ function init_page(contents_card, buttons_container, reload=true)
         load_event()
     }
 
+    init_canvas()
+
+    // add magnets and start drawing
+    init()
+}
+
+/**
+ * function:    init_canvas
+ * parameters:  none
+ * returns:     none
+ * description: Setup whiteboard canvas.
+ */
+function init_canvas()
+{
     // determine available space as preview width - padding - card padding - extra
     let preview_width = preview.offsetWidth - 16 - 32 - 4
     let preview_height = preview.offsetHeight - 16 - 32 - 4
@@ -741,7 +755,4 @@ function init_page(contents_card, buttons_container, reload=true)
     canvas.addEventListener('touchend', mouse_up, false)
     canvas.addEventListener('mouseup', mouse_up, false)
     canvas.addEventListener('contextmenu', mouse_right, false)
-
-    // add magnets and start drawing
-    init()
 }

@@ -93,7 +93,7 @@ function toggle_menu()
     // rescale whiteboard
     if (document.getElementById('whiteboard'))
     {
-        init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'), false)
+        init_canvas()
     }
 }
 
