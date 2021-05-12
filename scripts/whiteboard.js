@@ -35,16 +35,7 @@ var match_key
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
-// red alliance team images
-var red1 = new Image()
-var red2 = new Image()
-var red3 = new Image()
-
-// blue alliance team images
-var blue1 = new Image()
-var blue2 = new Image()
-var blue3 = new Image()
-
+var bot_images = {}
 var game_pieces = {}
 
 /**
@@ -56,7 +47,7 @@ var game_pieces = {}
 function open_match(match_num)
 {
     init()
-    let use_elims = document.getElementById('elims').checked
+    let use_elims = get_selected_option('elims') == 1
 
     // iterate through each match obj
     matches.forEach(function (match, index) {
@@ -75,13 +66,19 @@ function open_match(match_num)
             if (match_id == match_num)
             {
                 // update avatars
-                document.getElementById('red1').value = red_teams[0].substr(3)
-                document.getElementById('red2').value = red_teams[1].substr(3)
-                document.getElementById('red3').value = red_teams[2].substr(3)
-                
-                document.getElementById('blue1').value = blue_teams[0].substr(3)
-                document.getElementById('blue2').value = blue_teams[1].substr(3)
-                document.getElementById('blue3').value = blue_teams[2].substr(3)
+                bot_images = {}
+                red_teams.forEach(function (team, i)
+                {
+                    let pos = `red_${i+1}`
+                    bot_images[pos] = new Image()
+                    document.getElementById(pos).value = team.substr(3)
+                })
+                blue_teams.forEach(function (team, i)
+                {
+                    let pos = `blue_${i+1}`
+                    bot_images[pos] = new Image()
+                    document.getElementById(pos).value = team.substr(3)
+                })
 
                 update_teams()
 
@@ -106,13 +103,10 @@ function open_match(match_num)
  */
 function update_teams()
 {
-    red1.src = get_avatar(document.getElementById('red1').value, year)
-    red2.src = get_avatar(document.getElementById('red2').value, year)
-    red3.src = get_avatar(document.getElementById('red3').value, year)
-    
-    blue1.src = get_avatar(document.getElementById('blue1').value, year)
-    blue2.src = get_avatar(document.getElementById('blue2').value, year)
-    blue3.src = get_avatar(document.getElementById('blue3').value, year)
+    Object.keys(bot_images).forEach(function (pos)
+    {
+        bot_images[pos].src = get_avatar(document.getElementById(pos).value, year)
+    })
 }
 
 /**
@@ -124,7 +118,7 @@ function update_teams()
 function build_match_list()
 {
     let first = ''
-    let use_elims = document.getElementById('elims').checked
+    let use_elims = get_selected_option('elims') == 1
     document.getElementById('option_list').innerHTML = ''
 
     // iterate through each match obj
@@ -190,7 +184,6 @@ function load_event()
     if (localStorage.getItem(file_name) != null)
     {
         matches = JSON.parse(localStorage.getItem(file_name))
-        build_match_list()
     }
 }
 
@@ -289,12 +282,10 @@ function init() {
     clear_whiteboard()
     magnets = []
     let wb = get_wb_config(year)
-    create_magnet(wb.red_1.x / scale_factor, wb.red_1.y / scale_factor, red1, wb.red_1.color)
-    create_magnet(wb.red_2.x / scale_factor, wb.red_2.y / scale_factor, red2, wb.red_2.color)
-    create_magnet(wb.red_3.x / scale_factor, wb.red_3.y / scale_factor, red3, wb.red_3.color)
-    create_magnet(wb.blue_1.x / scale_factor, wb.blue_1.y / scale_factor, blue1, wb.blue_1.color)
-    create_magnet(wb.blue_2.x / scale_factor, wb.blue_2.y / scale_factor, blue2, wb.blue_2.color)
-    create_magnet(wb.blue_3.x / scale_factor, wb.blue_3.y / scale_factor, blue3, wb.blue_3.color)
+    Object.keys(bot_images).forEach(function (pos)
+    {
+        create_magnet(wb[pos].x / scale_factor, wb[pos].y / scale_factor, bot_images[pos], wb[pos].color)
+    })
 
     // determine game piece by game
     wb.game_pieces.forEach(function (piece)
@@ -369,39 +360,37 @@ function draw() {
     {
         // get current match time
         let now = document.getElementById('match_time').value
-        for (let i = 0; i < 6; i++)
+        Object.keys(bot_images).forEach(function (pos, i)
         {
+            let parts = pos.split('_')
+            
             // get teams points
-            let points = match_plots.alliances.blue[0]
-            if (i < 3)
+            let points = match_plots.alliances[parts[0]][parts[1]]
+            
+            if (points)
             {
-                points = match_plots.alliances.red[i]
-            }
-            else
-            {
-                points = match_plots.alliances.blue[i-3]
-            }
-            // draw last x seconds base on sliders
-            if (points.xs != null && points.xs != null)
-            {
-                ctx.beginPath()
-                for (let t = 0; t < match_plots.times.length-1; t++)
+                // draw last x seconds base on sliders
+                if (points.xs != null && points.xs != null)
                 {
-                    let point = scale_coord(points.xs[t], points.ys[t])
-                    if (t > 1 && t <= now && t >= now - trail_length)
+                    ctx.beginPath()
+                    for (let t = 0; t < match_plots.times.length-1; t++)
                     {
-                        ctx.lineTo(point.x, point.y)
+                        let point = scale_coord(points.xs[t], points.ys[t])
+                        if (t > 1 && t <= now && t >= now - trail_length)
+                        {
+                            ctx.lineTo(point.x, point.y)
+                        }
+                        else if (t == 1)
+                        {
+                            ctx.beginPath(point.x, point.y)
+                        }
                     }
-                    else if (t == 1)
-                    {
-                        ctx.beginPath(point.x, point.y)
-                    }
+                    ctx.lineWidth = line_width
+                    ctx.strokeStyle = magnets[i].color
+                    ctx.stroke()
                 }
-                ctx.lineWidth = line_width
-                ctx.strokeStyle = magnets[i].color
-                ctx.stroke()
             }
-        }
+        })
     }
 
     window.requestAnimationFrame(draw)
@@ -457,27 +446,41 @@ function fetch_zebra(match_key)
         .then(data => {
             match_plots = data
 
-            for (let i = 0; i < 6; i++)
+            Object.keys(bot_images).forEach(function (pos, i)
             {
-                // get points for team
-                let points = match_plots.alliances.red[0]
-                if (i < 3)
-                {
-                    points = match_plots.alliances.red[i]
-                }
-                else
-                {
-                    points = match_plots.alliances.blue[i-3]
-                }
+                let parts = pos.split('_')
+                
+                // get teams points
+                let points = match_plots.alliances[parts[0]][parts[1]]
 
-                // move magnet to started position
-                if (points.xs[1] != null && points.ys[1] != null)
+                if (points)
                 {
-                    let point = scale_coord(points.xs[1], points.ys[1])
-                    magnets[i].x = point.x - magnet_size / 2
-                    magnets[i].y = point.y - magnet_size / 2
+                    let speeds = []
+                    let accels = []
+                    match_plots.times.forEach(function (t, i)
+                    {
+                        if (i > 0 && i < match_plots.times.length - 6)
+                        {
+                            speeds.push(Math.abs(distance(points.xs[i], points.ys[i], points.xs[i+5], points.ys[i+5]) * 2))
+                            let last = speeds.length - 1
+                            if (i > 1)
+                            {
+                                accels.push(Math.abs(speeds[last] - speeds[last-1]))
+                            }
+                        }
+                    })
+                    console.log('Max Speed:', Math.max(...speeds), 'FPPS')
+                    console.log('Max Accel:', Math.max(...accels), 'FPPSPS')
+
+                    // move magnet to started position
+                    if (points.xs[1] != null && points.ys[1] != null)
+                    {
+                        let point = scale_coord(points.xs[1], points.ys[1])
+                        magnets[i].x = point.x - magnet_size / 2
+                        magnets[i].y = point.y - magnet_size / 2
+                    }
                 }
-            }
+            })
 
             // update sliders
             if (match_plots) {
@@ -489,6 +492,69 @@ function fetch_zebra(match_key)
         .catch(err => {
             console.log('Error loading zebra data!', err)
         })
+}
+
+function zebra_stats(keys, results)
+{
+    if (keys.length > 0)
+    {
+        // fetch simple event matches
+        fetch(`https://www.thebluealliance.com/api/v3/match/${keys.pop()}/zebra_motionworks${build_query({[TBA_KEY]: 'g4Wgdb1euHxs8W83KQyxRC8mKws8uqwDkjTci5PLM5WX63vKbhFyRgjlVBq7VMQr'})}`)
+            .then(response => {
+                if (response.status == 401) {
+                    alert('Invalid API Key Suspected')
+                }
+                return response.json()
+            })
+            .then(data => {
+                let max_x = results.max_x;
+                let min_x = results.min_x;
+                let max_y = results.max_y;
+                let min_y = results.min_y;
+
+                Object.keys(bot_images).forEach(function (pos, i)
+                {
+                    
+                    if (data && data.alliances)
+                    {
+                        // get points for team
+                        let parts = pos.split('_')
+                        let points = match_plots.alliances[parts[0]][parts[1]]
+
+                        if (points.xs[0])
+                        {
+                            if (Math.max(...points.xs) > max_x)
+                            {
+                                max_x = Math.max(...points.xs)
+                            }
+                            else if (Math.min(...points.xs) < min_x)
+                            {
+                                min_x = Math.min(...points.xs)
+                            }
+                            if (Math.max(...points.ys) > max_y)
+                            {
+                                max_y = Math.max(...points.ys)
+                            }
+                            else if (Math.min(...points.ys) < min_y)
+                            {
+                                min_y = Math.min(...points.ys)
+                            }
+                        }
+                    }
+                })
+
+                results = {
+                    max_x: max_x,
+                    min_x: min_x,
+                    max_y: max_y,
+                    min_y: min_y
+                }
+                zebra_stats(keys, results)
+            })
+            .catch(err => {
+                console.log('Error loading zebra data!', err)
+            })
+    }
 }
 
 /**
@@ -504,18 +570,10 @@ function plot_zebra(team)
         let wb = get_wb_config(year)
     
         // get points and color for position
-        let points = match_plots.alliances.blue[0]
-        let color = wb.draw_color
-        if (team < 3)
-        {
-            points = match_plots.alliances.red[team]
-            color = wb[`red_${team+1}`].color
-        }
-        else
-        {
-            points = match_plots.alliances.blue[team-3]
-            color = wb[`blue_${team-2}`].color
-        }
+        let pos = Object.keys(bot_images)[team]
+        let parts = pos.split('_')
+        let points = match_plots.alliances[parts[0]][parts[1]]
+        let color = wb[pos].color
     
         if (points.xs[1] != null && points.ys[1] != null)
         {
@@ -549,27 +607,24 @@ function update_time()
 {
     let time = document.getElementById('match_time').value
 
-    for (let i = 0; i < 6; i++)
+    Object.keys(bot_images).forEach(function (pos, i)
     {
-        // get points for team
-        let points = match_plots.alliances.red[0]
-        if (i < 3)
-        {
-            points = match_plots.alliances.red[i]
-        }
-        else
-        {
-            points = match_plots.alliances.blue[i-3]
-        }
+        let parts = pos.split('_')
+        
+        // get teams points
+        let points = match_plots.alliances[parts[0]][parts[1]]
 
-        // move magnet to started position
-        if (points.xs[time] != null && points.ys[time] != null)
+        if (points)
         {
-            let point = scale_coord(points.xs[time], points.ys[time])
-            magnets[i].x = point.x - magnet_size / 2
-            magnets[i].y = point.y - magnet_size / 2
+            // move magnet to started position
+            if (points.xs[time] != null && points.ys[time] != null)
+            {
+                let point = scale_coord(points.xs[time], points.ys[time])
+                magnets[i].x = point.x - magnet_size / 2
+                magnets[i].y = point.y - magnet_size / 2
+            }
         }
-    }
+    })
 }
 
 /**
@@ -634,7 +689,7 @@ function mouse_right(evt)
 
     // pick up the clicked magnet
     let over = intersects_image(mouseX, mouseY)
-    if (over >= 0 && over < 6)
+    if (over >= 0 && over < bot_images.length)
     {
         plot_zebra(over)
     }
@@ -658,8 +713,24 @@ function mouse_up(evt)
 function init_page(contents_card, buttons_container, reload=true)
 {
     // fill in page template
-    let preview = document.getElementById('preview')
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
+
+    // load in match data
+    if (reload)
+    {
+        load_event()
+    }
+
+    let red_buttons = matches[0].alliances.red.team_keys.map(function (team, i)
+    {
+        return build_num_entry(`red_${i+1}`, `Red ${i+1}`, '', bounds=[0, 10000])
+    })
+    let blue_buttons = matches[0].alliances.blue.team_keys.map(function (team, i)
+    {
+        return build_num_entry(`blue_${i+1}`, `Blue ${i+1}`, '', bounds=[0, 10000])
+    })
+    blue_buttons.push(build_button('update_teams', 'Update Teams', 'update_teams()'))
+
     buttons_container.innerHTML = '<br>' +
         build_page_frame('Controls', [
             build_column_frame('', [
@@ -667,7 +738,7 @@ function init_page(contents_card, buttons_container, reload=true)
                 build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
                 build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
                 build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
-                build_checkbox('elims', 'Elimination Matches', false, 'build_match_list()')
+                build_select('elims', 'Match Type', ['Qual', 'Elim'], 'Qual', 'build_match_list()')
             ])
         ]) +
         build_page_frame('Playback', [
@@ -678,20 +749,11 @@ function init_page(contents_card, buttons_container, reload=true)
             ])
         ]) +
         build_page_frame('Team Avatars', [
-            build_column_frame('Red Teams', [build_num_entry('red1', 'Red 1', '', bounds=[0, 10000]),
-                                            build_num_entry('red2', 'Red 2', '', bounds=[0, 10000]),
-                                            build_num_entry('red3', 'Red 3', '', bounds=[0, 10000])]),
-            build_column_frame('Blue Teams', [build_num_entry('blue1', 'Blue 1', '', bounds=[0, 10000]),
-                                            build_num_entry('blue2', 'Blue 2', '', bounds=[0, 10000]),
-                                            build_num_entry('blue3', 'Blue 3', '', bounds=[0, 10000]),
-                                            build_button('update_teams', 'Update Teams', 'update_teams()')])
+            build_column_frame('Red Teams', red_buttons),
+            build_column_frame('Blue Teams', blue_buttons)
         ])
 
-    // load in match data
-    if (reload)
-    {
-        load_event()
-    }
+    build_match_list()
 
     init_canvas()
 

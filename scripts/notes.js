@@ -16,14 +16,15 @@ const start = Date.now()
 function build_page()
 {
     reds = []
+    red_teams.forEach(function (team, i)
+    {
+        build_note_box(team, `red${i+1}`, reds)
+    })
     blues = []
-
-    build_note_box(red1, 'red1', reds)
-    build_note_box(red2, 'red2', reds)
-    build_note_box(red3, 'red3', reds)
-    build_note_box(blue1, 'blue1', blues)
-    build_note_box(blue2, 'blue2', blues)
-    build_note_box(blue3, 'blue3', blues)
+    blue_teams.forEach(function (team, i)
+    {
+        build_note_box(team, `blue${i+1}`, blues)
+    })
 
     let scouting = 0
     const descriptions = ['No One', 'Red Alliance', 'Blue Alliance', 'Both Alliances']
@@ -85,12 +86,14 @@ function get_results_from_page()
     results['meta_match'] = parseInt(match_num)
 
     // save each individual team
-    save_team_result(results, red1, 'red1')
-    save_team_result(results, red2, 'red2')
-    save_team_result(results, red3, 'red3')
-    save_team_result(results, blue1, 'blue1')
-    save_team_result(results, blue2, 'blue2')
-    save_team_result(results, blue3, 'blue3')
+    red_teams.forEach(function (team, i)
+    {
+        save_team_result(results, team, `red${i+1}`)
+    })
+    blue_teams.forEach(function (team, i)
+    {
+        save_team_result(results, team, `blue${i+1}`)
+    })
 
     window.location.href = build_url('selection', {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id})
 }
@@ -124,14 +127,19 @@ var urlParams = new URLSearchParams(window.location.search)
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
-const red1 = urlParams.get('red1')
-const red2 = urlParams.get('red2')
-const red3 = urlParams.get('red3')
-const blue1 = urlParams.get('blue1')
-const blue2 = urlParams.get('blue2')
-const blue3 = urlParams.get('blue3')
 var edit = urlParams.get('edit') == 'true'
 var results = {}
+
+var red_teams = []
+for (let i = 1; urlParams.has(`red${i}`); i++)
+{
+    red_teams.push(urlParams.get(`red${i}`))
+}
+var blue_teams = []
+for (let i = 1; urlParams.has(`blue${i}`); i++)
+{
+    blue_teams.push(urlParams.get(`blue${i}`))
+}
 
 window.addEventListener('load', function()
 {
