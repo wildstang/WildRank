@@ -256,6 +256,17 @@ function mode(values)
 }
 
 /**
+ * function:    distance
+ * parameters:  2 pairs of x, y coordinates
+ * returns:     distance between 2 coordinates
+ * description: Calculates the distance between 2 x, y coordinates.
+ */
+function distance(x1, y1, x2, y2)
+{
+    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2))
+}
+
+/**
  * function:    scroll_to
  * parameters:  scrollable element, goal item
  * returns:     none
@@ -459,6 +470,17 @@ function get_event_teams_name(event_id)
 function get_event_rankings_name(event_id)
 {
     return `rankings-${event_id}`
+}
+
+/**
+ * function:    get_event_zebra_name
+ * parameters:  event id
+ * returns:     event zebra data filename
+ * description: Fetches the filename for an event's zebra from localStorage.
+ */
+function get_event_zebra_name(event_id)
+{
+    return `zebra-${event_id}`
 }
 
 /**
