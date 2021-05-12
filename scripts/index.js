@@ -956,7 +956,7 @@ function switch_theme()
 function has_event()
 {
     let event = get_event()
-    return file_exists(get_event_matches_name(event)) && file_exists(get_event_teams_name(event)) && file_exists(get_event_rankings_name(event))
+    return file_exists(get_event_matches_name(event)) && file_exists(get_event_teams_name(event))// && file_exists(get_event_rankings_name(event))
 }
 
 /**
