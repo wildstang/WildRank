@@ -40,7 +40,7 @@ function init_page(contents_card, buttons_container)
  * returns:     none
  * description: Completes left select match pane with matches from event data.
  */
-function build_options_list(matches,)
+function build_options_list(matches)
 {
     let first = ''
     // iterate through each match obj
