@@ -779,6 +779,7 @@ function init_canvas()
     // determine scaling factor based on most limited dimension
     let scale_factor_w = wb.field_width / preview_width
     let scale_factor_h = wb.field_height / preview_height
+    let old_scale_factor = scale_factor
     if (scale_factor_w > scale_factor_h)
     {
         scale_factor = scale_factor_w
@@ -817,4 +818,14 @@ function init_canvas()
     canvas.addEventListener('touchend', mouse_up, false)
     canvas.addEventListener('mouseup', mouse_up, false)
     canvas.addEventListener('contextmenu', mouse_right, false)
+    
+    // adjust magnets to fit new scale
+    magnets.forEach(function (mag)
+    {
+        let mag_scale_factor = old_scale_factor / scale_factor
+        mag.x *= mag_scale_factor
+        mag.y *= mag_scale_factor
+        mag.width *= mag_scale_factor
+        mag.height *= mag_scale_factor
+    })
 }
