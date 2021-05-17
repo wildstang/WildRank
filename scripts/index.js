@@ -148,11 +148,11 @@ function hide_buttons()
  */
 function scout()
 {
-    let type     = get_selected_type()
-    let event    = get_event()
+    let type    = get_selected_type()
+    let event   = get_event()
     let position = get_position()
-    let user     = get_user()
-    let query    = ''
+    let user    = get_user()
+    let query   = ''
     if (type === PIT_MODE)
     {
         query = {'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user}
@@ -327,7 +327,7 @@ function preload_event()
                     // sort match objs by match number
                     let matches = data.sort(function (a, b)
                     {
-                        return b.match_number < a.match_number ?  1
+                        return b.match_number < a.match_number ? 1
                                 : b.match_number > a.match_number ? -1
                                 : 0
                     })
@@ -335,6 +335,11 @@ function preload_event()
                     // store matches as JSON string in matches-[event-id]
                     localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
                     status(`${data.length} matches received`)
+
+                    // attempt to fetch zebra data for each match
+                    localStorage.setItem(get_event_zebra_name(get_event()), JSON.stringify([]))
+                    matches.forEach(m => fetch_zebra(m.key))
+
                     hide_buttons()
                 }
                 else
@@ -358,8 +363,8 @@ function preload_event()
                     // sort team objs by team number
                     let teams = data.sort(function (a, b)
                     {
-                        return b.team_number < a.team_number ?  1
-                                : b.team_number > a.team_number ? -1
+                        return b.team_number < a.team_number ? 1
+                            : b.team_number > a.team_number ? -1
                                 : 0;
                     })
                     // store teams as JSON string in teams-[event_id]
@@ -372,7 +377,7 @@ function preload_event()
                     var success = 0
                     teams.forEach(function (team, index)
                     {
-                        let year = get_event().substr(0,4)
+                        let year = get_event().substr(0, 4)
                         fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_KEY]: API_KEY})}`)
                             .then(response => {
                                 return response.json()
@@ -387,7 +392,7 @@ function preload_event()
                                 }
                             })
                             .catch(err =>
-                            {
+                                {
                                 console.log(`Error loading avatar: ${err}!`)
                                 ++avatars
                                 if (avatars == teams.length)
@@ -420,7 +425,7 @@ function preload_event()
                     // sort rankings objs by team number
                     let rankings = data.sort(function (a, b)
                     {
-                        return b.rank < a.rank ?  1
+                        return b.rank < a.rank ? 1
                                 : b.rank > a.rank ? -1
                                 : 0;
                     })
@@ -439,6 +444,95 @@ function preload_event()
                 console.log(err)
             })
     }
+}
+
+/**
+ * function:    fetch_zebra
+ * parameters:  match_key
+ * returns:     none
+ * description: Fetch zebra data for a given match from TBA.
+ */
+function fetch_zebra(match_key)
+{
+    // fetch simple event matches
+    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({ [TBA_KEY]: API_KEY })}`)
+        .then(response => {
+            if (response.status == 401)
+            {
+                alert('Invalid API Key Suspected')
+            }
+            return response.json()
+        })
+        .then(data => {
+            if (data && data.alliances)
+            {
+                // build list of teams
+                let teams = data.alliances.red.map((t, i) => `red_${i}`)
+                if (!teams)
+                {
+                    teams = []
+                }
+                teams = teams.concat(data.alliances.blue.map((t, i) => `blue_${i}`))
+    
+                // process zebra data for each team
+                let zebra_objs = []
+                teams.forEach(function (pos)
+                {
+                    // get teams points
+                    let parts = pos.split('_')
+                    let points = data.alliances[parts[0]][parts[1]]
+    
+                    if (points && points.xs[1] && points.ys[1])
+                    {
+                        // calculate speed and acceleration
+                        let speeds = []
+                        let accels = []
+                        let heatmap = new Array(18).fill([])
+                        heatmap.forEach((_,i) => heatmap[i] = new Array(9).fill(0))
+                        data.times.forEach(function (t, i)
+                        {
+                            if (i > 0 && i < data.times.length - 6)
+                            {
+                                speeds.push(Math.abs(distance(points.xs[i], points.ys[i], points.xs[i+5], points.ys[i+5]) * 2))
+                                let last = speeds.length - 1
+                                if (i > 1)
+                                {
+                                    accels.push(Math.abs(speeds[last] - speeds[last-1]))
+                                }
+                            }
+
+                            // build heatmap
+                            if (i > 0 && i < data.times.length - 1) {
+                                let x = Math.floor(points.xs[i] / 3)
+                                let y = Math.floor(points.ys[i] / 3)
+                                heatmap[x][y]++
+                            }
+                        })
+
+                        // add to object
+                        zebra_objs.push({ 'match': match_key, 'team': points.team_key.substr(3), 'pos': pos,
+                            'x_start': points.xs[1], 'y_start': points.ys[1],
+                            'max_speed': Math.max(...speeds), 'max_accel': Math.max(...accels),
+                            'heatmap': heatmap
+                        })
+                    }
+                })
+
+                // save object to localStorage
+                if (zebra_objs)
+                {
+                    let file = get_event_zebra_name(get_event())
+                    if (!file_exists(file))
+                    {
+                        localStorage.setItem(file, JSON.stringify([]))
+                    }
+                    localStorage.setItem(file, JSON.stringify(JSON.parse(localStorage.getItem(file)).concat(zebra_objs)))
+                }
+            }
+        })
+        .catch(err => {
+            console.log('Error loading zebra data!', err)
+        })
 }
 
 /**
@@ -495,7 +589,7 @@ function import_all()
                 request = 'getNoteNames'
                 break
         }
-    
+
         // request list of available results
         status('Requesting local result data...')
         fetch(request)
@@ -510,7 +604,7 @@ function import_all()
                 })
                 console.log(results)
                 status(`${results.length} ${get_selected_type()} results found`)
-                
+
                 // request each desired result
                 results.forEach(function (file, index)
                 {
@@ -579,7 +673,7 @@ function export_zip()
     })
 
     // add each file to the zip
-    files.forEach(function(file) 
+    files.forEach(function(file)
     {
         let name = file
         let base64 = false
@@ -596,7 +690,7 @@ function export_zip()
             name += '.b64'
             base64 = false
         }
-        else
+        else 
         {
             name += '.json'
         }
@@ -611,12 +705,12 @@ function export_zip()
             let element = document.createElement('a')
             element.setAttribute('href', `data:application/zip;base64,${base64}`)
             element.setAttribute('download', `${get_user()}-${event}-export.zip`)
-        
+
             element.style.display = 'none'
             document.body.appendChild(element)
-        
+
             element.click()
-        
+
             document.body.removeChild(element)
         })
 }
@@ -645,7 +739,7 @@ function prompt_zip()
 function import_zip(event)
 {
     let file = event.target.files[0]
-    
+
     // process each files details
     JSZip.loadAsync(file).then(function (zip) {
         Object.keys(zip.files).forEach(function (name) {

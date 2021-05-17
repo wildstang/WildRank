@@ -13,33 +13,33 @@
         {
             "year": "2020",
             "red_1": {
-                "x": 250,
-                "y": 125,
+                "x": 125,
+                "y": 63,
                 "color": "#FF4136"
             },
             "red_2": {
-                "x": 250,
-                "y": 375,
+                "x": 125,
+                "y": 188,
                 "color": "#FF4136"
             },
             "red_3": {
-                "x": 250,
-                "y": 625,
+                "x": 125,
+                "y": 313,
                 "color": "#FF4136"
             },
             "blue_1": {
-                "x": 1150,
-                "y": 125,
+                "x": 575,
+                "y": 63,
                 "color": "#0074D9"
             },
             "blue_2": {
-                "x": 1150,
-                "y": 375,
+                "x": 575,
+                "y": 188,
                 "color": "#0074D9"
             },
             "blue_3": {
-                "x": 1150,
-                "y": 625,
+                "x": 575,
+                "y": 313,
                 "color": "#0074D9"
             },
             "game_pieces": [
@@ -49,41 +49,41 @@
                 }
             ],
             "draw_color": "#FFFFFF",
-            "field_width": 1500,
-            "field_height": 800,
-            "magnet_size": 100,
-            "line_width": 5
+            "field_width": 750,
+            "field_height": 400,
+            "magnet_size": 50,
+            "line_width": 3
         },
         {
             "year": "2019",
             "red_1": {
-                "x": 100,
-                "y": 100,
+                "x": 50,
+                "y": 50,
                 "color": "#FF4136"
             },
             "red_2": {
-                "x": 100,
-                "y": 350,
+                "x": 50,
+                "y": 175,
                 "color": "#FF4136"
             },
             "red_3": {
-                "x": 100,
-                "y": 600,
+                "x": 50,
+                "y": 300,
                 "color": "#FF4136"
             },
             "blue_1": {
-                "x": 1300,
-                "y": 100,
+                "x": 650,
+                "y": 50,
                 "color": "#0074D9"
             },
             "blue_2": {
-                "x": 1300,
-                "y": 350,
+                "x": 650,
+                "y": 175,
                 "color": "#0074D9"
             },
             "blue_3": {
-                "x": 1300,
-                "y": 600,
+                "x": 650,
+                "y": 300,
                 "color": "#0074D9"
             },
             "game_pieces": [
@@ -97,10 +97,10 @@
                 }
             ],
             "draw_color": "#FFFFFF",
-            "field_width": 1500,
-            "field_height": 800,
-            "magnet_size": 100,
-            "line_width": 5
+            "field_width": 750,
+            "field_height": 400,
+            "magnet_size": 50,
+            "line_width": 3
         }
     ],
     "admins": [715138],
