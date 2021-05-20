@@ -64,20 +64,12 @@ function build_options_list(matches)
         let number = match.match_number
         let red_teams = match.alliances.red.team_keys
         let blue_teams = match.alliances.blue.team_keys
+        let teams = red_teams.concat(blue_teams)
         // only display qualifying matches
         if (match.comp_level == 'qm')
         {
             // determine which team user is positioned to scout
-            let team = ''
-            if (scout_pos >= 3)
-            {
-                // adjust indicies for blue alliance
-                team = blue_teams[scout_pos - 3]
-            }
-            else
-            {
-                team = red_teams[scout_pos]
-            }
+            let team = teams[scout_pos]
             if (scout_mode == MATCH_MODE)
             {
                 team = team.substr(3)
@@ -130,7 +122,7 @@ function open_match(match_num)
 
     let match = get_match(match_num, event_id)
     let red_teams = match.alliances.red.team_keys
-    let blue_teams = match.alliances.blue.team_keys
+    let teams = red_teams.concat(match.alliances.blue.team_keys)
 
     let number_span = document.getElementById('team_scouting')
     let name_span = document.getElementById('team_name')
@@ -147,17 +139,17 @@ function open_match(match_num)
     {
         color = get_theme()['foreground-text-color']
     }
-    else if (selected > 2)
-    {
-        // shift blue alliance indicies up
-        selected -= 3
-        team = blue_teams[selected]
-        color = get_theme()['blue-alliance-color']
-    }
     else
     {
-        team = red_teams[selected]
-        color = get_theme()['red-alliance-color']
+        team = teams[selected]
+        if (selected >= red_teams.length)
+        {
+            color = get_theme()['blue-alliance-color']
+        }
+        else
+        {
+            color = get_theme()['red-alliance-color']
+        }
     }
     number_span.style.color = color
     name_span.style.color = color

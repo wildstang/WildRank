@@ -89,17 +89,6 @@ function build_page_from_config()
     // replace placeholders in template and add to screen
     document.body.innerHTML += build_button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
 
-    let teams = team_num.split(',')
-    if (teams.length > 1)
-    {
-        document.body.innerHTML = document.body.innerHTML.replace(/Red 1/g, `${teams[0]} ${get_team_name(teams[0], event_id)}`)
-                                                         .replace(/Red 2/g, `${teams[1]} ${get_team_name(teams[1], event_id)}`)
-                                                         .replace(/Red 3/g, `${teams[2]} ${get_team_name(teams[2], event_id)}`)
-                                                         .replace(/Blue 1/g, `${teams[3]} ${get_team_name(teams[3], event_id)}`)
-                                                         .replace(/Blue 2/g, `${teams[4]} ${get_team_name(teams[4], event_id)}`)
-                                                         .replace(/Blue 3/g, `${teams[5]} ${get_team_name(teams[5], event_id)}`)
-    }
-
     // mark each selected box as such
     select_ids.forEach(function (id, index)
     {
