@@ -108,14 +108,6 @@ function open_match(match_num)
 
     // reorganize teams into single object
     let match_teams = get_match_teams(match_num, event_id)
-    let teams = {
-        [match_teams['red1']]: 'red',
-        [match_teams['red2']]: 'red',
-        [match_teams['red3']]: 'red',
-        [match_teams['blue1']]: 'blue',
-        [match_teams['blue2']]: 'blue',
-        [match_teams['blue3']]: 'blue',
-    }
 
     // make row for match notes
     let note_button = build_link_button('note_button', 'Take Match Notes', `notes('${match_num}', ${notes_taken(match_num, event_id)})`)
@@ -123,9 +115,10 @@ function open_match(match_num)
     let blues = []
 
     // make a row for each team
-    Object.keys(teams).forEach(function (team_num, index)
+    Object.keys(match_teams).forEach(function (key)
     {
-        let alliance = teams[team_num]
+        let team_num = match_teams[key]
+        let alliance = key.slice(0, -1)
         let rank = ''
         let rankings = get_team_rankings(team_num, event_id)
         if (rankings)
@@ -195,6 +188,6 @@ function scout(mode, team, alliance, match, edit=false)
 function notes(match, edit=false)
 {
     let teams = get_match_teams(match, event_id)
-    return build_url('index', {'page': NOTE_MODE, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'edit': edit,
-        'red1': teams['red1'], 'red2': teams['red2'], 'red3': teams['red3'], 'blue1': teams['blue1'], 'blue2': teams['blue2'], 'blue3': teams['blue3']})
+    let url_params = {'page': NOTE_MODE, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'edit': edit}
+    return build_url('index', Object.assign({}, teams, url_params))
 }
