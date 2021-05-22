@@ -38,6 +38,8 @@ var matches
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
+var wb = get_wb_config(year)
+
 var bot_images = {}
 var game_pieces = {}
 
@@ -544,8 +546,6 @@ function plot_zebra(team)
 {
     if (match_plots != null)
     {
-        let wb = get_wb_config(year)
-
         // get points and color for position
         let pos = Object.keys(bot_images)[team]
         let parts = pos.split('_')
@@ -647,9 +647,9 @@ async function play_match(speed)
 function scale_coord(x, y, add_margin=true, invert_x=true)
 {
     // TODO add to config
-    let xm = add_margin ? 36 : 0
-    let ym = add_margin ? 24 : 0
-    let ft2px = 347 / 27
+    let xm = add_margin ? wb.horizontal_margin : 0
+    let ym = add_margin ? wb.vertical_margin : 0
+    let ft2px = field_height_px / field_height_ft
     let scaled = { x: (xm + x * ft2px) / scale_factor, y: (ym + y * ft2px) / scale_factor }
     if (invert_x) {
         scaled.x = field_width - scaled.x
@@ -772,9 +772,6 @@ function init_canvas()
     // determine available space as preview width - padding - card padding - extra
     let preview_width = preview.offsetWidth - 16 - 32 - 4
     let preview_height = preview.offsetHeight - 16 - 32 - 4
-
-    // get canvas config
-    let wb = get_wb_config(year)
 
     // determine scaling factor based on most limited dimension
     let scale_factor_w = wb.field_width / preview_width

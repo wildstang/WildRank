@@ -52,7 +52,11 @@
             "field_width": 750,
             "field_height": 400,
             "magnet_size": 50,
-            "line_width": 3
+            "line_width": 3,
+            "horizontal_margin": 36,
+            "vertical_margin": 24,
+            "field_height_ft": 27,
+            "field_height_px": 347
         },
         {
             "year": "2019",
@@ -100,7 +104,11 @@
             "field_width": 750,
             "field_height": 400,
             "magnet_size": 50,
-            "line_width": 3
+            "line_width": 3,
+            "horizontal_margin": 36,
+            "vertical_margin": 24,
+            "field_height_ft": 27,
+            "field_height_px": 347
         }
     ],
     "admins": [715138],
