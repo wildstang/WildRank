@@ -26,6 +26,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_sides', 'Side-by-Side', `check_press('open_sides', open_sides)`),
         build_link_button('open_picks', 'Pick Lists', `check_press('open_picks', open_picks)`),
         build_link_button('open_whiteboard', 'Whiteboard', `check_press('open_whiteboard', open_whiteboard)`),
+        build_link_button('open_advanced', 'Advanced Stats', `check_press('open_advanced', open_advanced)`),
     ]),
     build_column_frame('Data', [
         build_link_button('open_results', 'Results', `check_press('open_results', open_results)`),
@@ -58,6 +59,7 @@ const BUTTONS = {
     'open_sides': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_picks': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_whiteboard': { limits: ['event', 'admin'], configs: ['whiteboard', 'settings'] },
+    'open_advanced': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_results': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
     'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
@@ -209,6 +211,17 @@ function open_whiteboard()
 }
 
 /**
+ * function:    open_advanced
+ * parameters:  none
+ * returns:     none
+ * description: Open the advanced stats page.
+ */
+function open_advanced()
+{
+    return build_url('selection', {'page': 'advanced', [EVENT_COOKIE]: get_event()})
+}
+
+/**
  * DATA BUTTON RESPONSES
  */
 
@@ -336,10 +349,6 @@ function preload_event()
                     localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
                     status(`${data.length} matches received`)
 
-                    // attempt to fetch zebra data for each match
-                    localStorage.setItem(get_event_zebra_name(get_event()), JSON.stringify([]))
-                    matches.forEach(m => fetch_zebra(m.key))
-
                     hide_buttons()
                 }
                 else
@@ -444,95 +453,6 @@ function preload_event()
                 console.log(err)
             })
     }
-}
-
-/**
- * function:    fetch_zebra
- * parameters:  match_key
- * returns:     none
- * description: Fetch zebra data for a given match from TBA.
- */
-function fetch_zebra(match_key)
-{
-    // fetch simple event matches
-    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({ [TBA_KEY]: API_KEY })}`)
-        .then(response => {
-            if (response.status == 401)
-            {
-                alert('Invalid API Key Suspected')
-            }
-            return response.json()
-        })
-        .then(data => {
-            if (data && data.alliances)
-            {
-                // build list of teams
-                let teams = data.alliances.red.map((t, i) => `red_${i}`)
-                if (!teams)
-                {
-                    teams = []
-                }
-                teams = teams.concat(data.alliances.blue.map((t, i) => `blue_${i}`))
-    
-                // process zebra data for each team
-                let zebra_objs = []
-                teams.forEach(function (pos)
-                {
-                    // get teams points
-                    let parts = pos.split('_')
-                    let points = data.alliances[parts[0]][parts[1]]
-    
-                    if (points && points.xs[1] && points.ys[1])
-                    {
-                        // calculate speed and acceleration
-                        let speeds = []
-                        let accels = []
-                        let heatmap = new Array(18).fill([])
-                        heatmap.forEach((_,i) => heatmap[i] = new Array(9).fill(0))
-                        data.times.forEach(function (t, i)
-                        {
-                            if (i > 0 && i < data.times.length - 6)
-                            {
-                                speeds.push(Math.abs(distance(points.xs[i], points.ys[i], points.xs[i+5], points.ys[i+5]) * 2))
-                                let last = speeds.length - 1
-                                if (i > 1)
-                                {
-                                    accels.push(Math.abs(speeds[last] - speeds[last-1]))
-                                }
-                            }
-
-                            // build heatmap
-                            if (i > 0 && i < data.times.length - 1) {
-                                let x = Math.floor(points.xs[i] / 3)
-                                let y = Math.floor(points.ys[i] / 3)
-                                heatmap[x][y]++
-                            }
-                        })
-
-                        // add to object
-                        zebra_objs.push({ 'match': match_key, 'team': points.team_key.substr(3), 'pos': pos,
-                            'x_start': points.xs[1], 'y_start': points.ys[1],
-                            'max_speed': Math.max(...speeds), 'max_accel': Math.max(...accels),
-                            'heatmap': heatmap
-                        })
-                    }
-                })
-
-                // save object to localStorage
-                if (zebra_objs)
-                {
-                    let file = get_event_zebra_name(get_event())
-                    if (!file_exists(file))
-                    {
-                        localStorage.setItem(file, JSON.stringify([]))
-                    }
-                    localStorage.setItem(file, JSON.stringify(JSON.parse(localStorage.getItem(file)).concat(zebra_objs)))
-                }
-            }
-        })
-        .catch(err => {
-            console.log('Error loading zebra data!', err)
-        })
 }
 
 /**

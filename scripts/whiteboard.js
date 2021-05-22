@@ -287,24 +287,6 @@ function add_game_piece(name)
 }
 
 /**
- * function:    get_wb_config
- * parameters:  year
- * returns:     whiteboard config
- * description: Fetches the desired year's config for the whiteboard.
- */
-function get_wb_config(year)
-{
-    let wbs = get_config('whiteboard')
-    for (var i = 0; i < wbs.length; ++i)
-    {
-        if (wbs[i].year == year)
-        {
-            return wbs[i]
-        }
-    }
-}
-
-/**
  * function:    init
  * parameters:  none
  * returns:     none
@@ -313,7 +295,6 @@ function get_wb_config(year)
 function init() {
     clear_whiteboard()
     magnets = []
-    let wb = get_wb_config(year)
     Object.keys(bot_images).forEach(function (pos)
     {
         create_magnet(wb[pos].x / scale_factor, wb[pos].y / scale_factor, bot_images[pos], wb[pos].color)
@@ -575,7 +556,7 @@ function plot_zebra(team)
         if (draw_heatmap)
         {
             heatmap = heatmaps[num]
-            hm_color = get_wb_config(year)[pos].color
+            hm_color = wb[pos].color
         }
 
         let points = match_plots.alliances[parts[0]].filter(t => t.team_key == `frc${num}`)[0]
@@ -656,7 +637,6 @@ async function play_match(speed)
  */
 function scale_coord(x, y, add_margin=true, invert_x=true)
 {
-    // TODO add to config
     let xm = add_margin ? wb.horizontal_margin : 0
     let ym = add_margin ? wb.vertical_margin : 0
     let ft2px = wb.field_height_px / wb.field_height_ft

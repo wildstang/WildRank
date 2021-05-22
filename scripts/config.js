@@ -102,6 +102,24 @@ function config_exists(mode, year)
 }
 
 /**
+ * function:    get_wb_config
+ * parameters:  year
+ * returns:     whiteboard config
+ * description: Fetches the desired year's config for the whiteboard.
+ */
+function get_wb_config(year)
+{
+    let wbs = get_config('whiteboard')
+    for (var i = 0; i < wbs.length; ++i)
+    {
+        if (wbs[i].year == year)
+        {
+            return wbs[i]
+        }
+    }
+}
+
+/**
  * function:    get_type
  * parameters:  name of result
  * returns:     type of input
