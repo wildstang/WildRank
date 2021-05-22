@@ -5,43 +5,48 @@
  * date:        2020-03-10
  */
 
-var magnet_size
+// canvas
+var canvas
 var field_width
 var field_height
-var line_width
-
 var scale_factor = 1
 
-var mouseX = 0
-var mouseY = 0
-var canvas
-var draw_color
-
+// magnets
+var bot_images = {}
+var game_pieces = {}
 var magnets = []
+var magnet_size
+var magnet_held = -1
+var draw_on_drag = false
+
+// drawing
 var lines = []
 var markers = []
-var magnetHeld = -1
-var draw_on_drag = false
-var trail_length = 0
+var draw_color
+var line_width
+
+// playback
 var match_plots = []
+var trail_length = 0
+var draw_trace = false
+
+// heatmap
+var heatmaps = {}
 var heatmap = []
 var hm_color = '#000000'
 var draw_heatmap = true
-var draw_trace = false
 
+// click tracking
 var mouseDown = false
 var hasChanged = true
-
-var matches
 
 // read parameters from URL
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
+var matches
 var wb = get_wb_config(year)
 
-var bot_images = {}
-var game_pieces = {}
 
 /**
  * function:    open_match
@@ -452,9 +457,9 @@ function draw() {
 // track mouse movement on canvas
 function mouse_move(evt) {
     // get mouse position relative to canvas
-    var rect = canvas.getBoundingClientRect()
-    mouseX = evt.clientX - rect.left
-    mouseY = evt.clientY - rect.top
+    let rect = canvas.getBoundingClientRect()
+    let mouseX = evt.clientX - rect.left
+    let mouseY = evt.clientY - rect.top
 
     // add to current line
     if (hasChanged && mouseDown)
@@ -463,18 +468,18 @@ function mouse_move(evt) {
         lines.push([{x: mouseX, y: mouseY}])
         hasChanged = false
     }
-    else if (mouseDown && (draw_on_drag || magnetHeld < 0))
+    else if (mouseDown && (draw_on_drag || magnet_held < 0))
     {
         lines[lines.length-1].push({x: mouseX, y: mouseY})
         lines[lines.length-1].color = draw_color
     }
 
     // move the selected magnet
-    if (magnetHeld >= 0)
+    if (magnet_held >= 0)
     {
-        magnets[magnetHeld].x = mouseX - (magnets[magnetHeld].width / 2)
-        magnets[magnetHeld].y = mouseY - (magnets[magnetHeld].height / 2)
-        lines[lines.length-1].color = magnets[magnetHeld].color
+        magnets[magnet_held].x = mouseX - (magnets[magnet_held].width / 2)
+        magnets[magnet_held].y = mouseY - (magnets[magnet_held].height / 2)
+        lines[lines.length-1].color = magnets[magnet_held].color
     }
 }
 
@@ -503,6 +508,7 @@ function fetch_zebra(match_key)
         })
         .then(data => {
             match_plots = data
+            heatmaps = {}
 
             Object.keys(bot_images).forEach(function (pos, i)
             {
@@ -521,6 +527,19 @@ function fetch_zebra(match_key)
                         magnets[i].x = point.x - magnet_size / 2
                         magnets[i].y = point.y - magnet_size / 2
                     }
+
+                    let heatmap = new Array(18).fill([])
+                    heatmap.forEach((_,i) => heatmap[i] = new Array(9).fill(0))
+                    data.times.forEach(function (t, i)
+                    {
+                        // build heatmap
+                        if (i > 0 && i < data.times.length - 1 && points.xs[i] != null && points.ys[i] != null) {
+                            let x = Math.floor(points.xs[i] / 3)
+                            let y = Math.floor(points.ys[i] / 3)
+                            heatmap[x][y]++
+                        }
+                    })
+                    heatmaps[points.team_key.substr(3)] = heatmap
                 }
             })
 
@@ -555,17 +574,8 @@ function plot_zebra(team)
         // find heatmap for team
         if (draw_heatmap)
         {
-            let match_key = document.getElementsByClassName('match_option selected')[0].id.replace('match_', '')
-            hmQuery = JSON.parse(localStorage.getItem(`zebra-${event_id}`)).filter(z => z.match == match_key && z.team == num)
-            if (hmQuery.length > 0)
-            {
-                heatmap = hmQuery[0].heatmap
-                hm_color = get_wb_config(year)[pos].color
-            }
-            else
-            {
-                heatmap = []
-            }
+            heatmap = heatmaps[num]
+            hm_color = get_wb_config(year)[pos].color
         }
 
         let points = match_plots.alliances[parts[0]].filter(t => t.team_key == `frc${num}`)[0]
@@ -649,7 +659,7 @@ function scale_coord(x, y, add_margin=true, invert_x=true)
     // TODO add to config
     let xm = add_margin ? wb.horizontal_margin : 0
     let ym = add_margin ? wb.vertical_margin : 0
-    let ft2px = field_height_px / field_height_ft
+    let ft2px = wb.field_height_px / wb.field_height_ft
     let scaled = { x: (xm + x * ft2px) / scale_factor, y: (ym + y * ft2px) / scale_factor }
     if (invert_x) {
         scaled.x = field_width - scaled.x
@@ -661,9 +671,9 @@ function scale_coord(x, y, add_margin=true, invert_x=true)
 function mouse_down(evt)
 {
     // get mouse position relative to canvas
-    var rect = canvas.getBoundingClientRect()
-    mouseX = evt.clientX - rect.left
-    mouseY = evt.clientY - rect.top
+    let rect = canvas.getBoundingClientRect()
+    let mouseX = evt.clientX - rect.left
+    let mouseY = evt.clientY - rect.top
 
     // start drawing
     mouseDown = true
@@ -672,7 +682,7 @@ function mouse_down(evt)
     let over = intersects_image(mouseX, mouseY)
     if (over >= 0)
     {
-        magnetHeld = over
+        magnet_held = over
     }
 }
 
@@ -682,9 +692,9 @@ function mouse_right(evt)
     clear_whiteboard()
 
     // get mouse position relative to canvas
-    var rect = canvas.getBoundingClientRect()
-    mouseX = evt.clientX - rect.left
-    mouseY = evt.clientY - rect.top
+    let rect = canvas.getBoundingClientRect()
+    let mouseX = evt.clientX - rect.left
+    let mouseY = evt.clientY - rect.top
 
     // pick up the clicked magnet
     let over = intersects_image(mouseX, mouseY)
@@ -700,7 +710,7 @@ function mouse_up(evt)
     mouseDown = false
     hasChanged = true
     // release any held magnets
-    magnetHeld = -1
+    magnet_held = -1
 }
 
 /**
