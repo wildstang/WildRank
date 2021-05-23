@@ -64,36 +64,39 @@ function open_match(match_num)
         if ((level == 'qm' && !use_elims) || (level != 'qm' && use_elims))
         {
             let match_div = document.getElementById(`match_${match.key}`)
-            if (match_num == match.key)
+            if (match_div != null)
             {
-                let red_teams = match.alliances.red.team_keys
-                let blue_teams = match.alliances.blue.team_keys
-
-                // update avatars
-                bot_images = {}
-                red_teams.forEach(function (team, i)
+                if (match_num == match.key)
                 {
-                    let pos = `red_${i+1}`
-                    bot_images[pos] = new Image()
-                    document.getElementById(pos).value = team.substr(3)
-                })
-                blue_teams.forEach(function (team, i)
+                    let red_teams = match.alliances.red.team_keys
+                    let blue_teams = match.alliances.blue.team_keys
+    
+                    // update avatars
+                    bot_images = {}
+                    red_teams.forEach(function (team, i)
+                    {
+                        let pos = `red_${i+1}`
+                        bot_images[pos] = new Image()
+                        document.getElementById(pos).value = team.substr(3)
+                    })
+                    blue_teams.forEach(function (team, i)
+                    {
+                        let pos = `blue_${i+1}`
+                        bot_images[pos] = new Image()
+                        document.getElementById(pos).value = team.substr(3)
+                    })
+    
+                    update_teams()
+    
+                    fetch_zebra(match.key)
+    
+                    // select option
+                    match_div.classList.add('selected')
+                }
+                else if (match_div.classList.contains('selected'))
                 {
-                    let pos = `blue_${i+1}`
-                    bot_images[pos] = new Image()
-                    document.getElementById(pos).value = team.substr(3)
-                })
-
-                update_teams()
-
-                fetch_zebra(match.key)
-
-                // select option
-                match_div.classList.add('selected')
-            }
-            else if (match_div.classList.contains('selected'))
-            {
-                match_div.classList.remove('selected')
+                    match_div.classList.remove('selected')
+                }
             }
         }
     })
@@ -116,19 +119,39 @@ function update_teams()
 }
 
 /**
+ * function:    filter_team
+ * parameters:  none
+ * returns:     none
+ * description: Responds to team filter dropdown change and rebuilds match list
+ */
+function filter_team()
+{
+    let s = document.getElementById('team_filter')
+    build_match_list(s.options[s.selectedIndex].text)
+}
+
+/**
  * function:    build_match_list
  * parameters:  none
  * returns:     none
  * description: Completes left select match pane with matches from event data.
  */
-function build_match_list()
+function build_match_list(team_filter='All')
 {
     let first = ''
     let use_elims = get_selected_option('elims') == 1
-    document.getElementById('option_list').innerHTML = ''
+
+    let dropdown = ''
+    let teams = JSON.parse(localStorage.getItem(get_event_teams_name(event_id)))
+    if (teams != null)
+    {
+        teams = teams.map(t => t.team_number)
+        dropdown = build_dropdown('team_filter', '', ['All'].concat(teams), team_filter, 'filter_team()', 'slim')
+    }
+    document.getElementById('option_list').innerHTML = dropdown
 
     // iterate through each match obj
-    matches.forEach(function (match, index) {
+    matches.forEach(function (match) {
         let level = match.comp_level
 
         // filter out quals matches
@@ -139,13 +162,16 @@ function build_match_list()
             let blue_teams = match.alliances.blue.team_keys
             let match_name = `${level.substr(0, 1).toUpperCase()}${number}`
 
-            if (first == '')
+            if (team_filter == 'All' || red_teams.includes(`frc${team_filter}`) || blue_teams.includes(`frc${team_filter}`))
             {
-                first = match.key
+                if (first == '')
+                {
+                    first = match.key
+                }
+    
+                // replace placeholders in template and add to screen
+                document.getElementById('option_list').innerHTML += build_match_option(match.key, red_teams, blue_teams, '', match_name)
             }
-
-            // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_match_option(match.key, red_teams, blue_teams, '', match_name)
         }
     })
     open_match(first)
