@@ -19,14 +19,14 @@ function select_list(name='')
         name = document.getElementById('list_names') == null ? Object.keys(lists)[0] : document.getElementById('list_names').value
     }
     // create new dropdown with current selection as default
-    let list_text = `<tr><td>${build_dropdown('list_names', '', Object.keys(lists), default_op=name, onchange='select_list()')}</td>`
+    let list_text = `<tr><td>${build_dropdown('list_names', '', Object.keys(lists), default_op=name, onchange='select_list()', 'slim')}</td>`
     if (Object.keys(lists).includes(name))
     {
-        list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`, 'pick_item')}</td>`
+        list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`, 'pick_item slim')}</td>`
         lists[name].forEach(function (team, index)
         {
             // add team button
-            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`, 'pick_item')}</td>`
+            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`, 'pick_item slim')}</td>`
         })
     }
     document.getElementById('teams').innerHTML = `${list_text}</tr>`
