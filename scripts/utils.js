@@ -721,3 +721,53 @@ function unix_to_match_time(unix_time)
     }
     return `${day} ${hours}:${mins} ${part}`
 }
+
+/**
+ * function:    get_teams_format
+ * parameters:  event id
+ * returns:     object containing number of teams
+ * description: Counts the number of teams for each alliance at an event.
+ */
+function get_teams_format(event_id)
+{
+    let format = {}
+    let matches_file = localStorage.getItem(get_event_matches_name(event_id))
+    if (matches_file != null)
+    {
+        let matches = JSON.parse(matches_file)
+        if (matches && matches.length > 0)
+        {
+            let m = matches[0]
+            format = {
+                red:    m.alliances.red.team_keys.length,
+                blue:   m.alliances.red.team_keys.length
+            }
+            format.total = format.red + format.blue
+        }
+    }
+    return format
+}
+
+/**
+ * function:    get_team_keys
+ * parameters:  event id
+ * returns:     list of team position keys
+ * description: Builds a list of team position keys for an event.
+ */
+function get_team_keys(event_id)
+{
+    let keys = []
+    let teams = get_teams_format(event_id)
+    if (teams.red && teams.blue)
+    {
+        for (let i = 1; i <= teams.red; i++)
+        {
+            keys.push(`Red ${i}`)
+        }
+        for (let i = 1; i <= teams.blue; i++)
+        {
+            keys.push(`Blue ${i}`)
+        }
+    }
+    return keys
+}

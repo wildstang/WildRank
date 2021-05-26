@@ -158,22 +158,10 @@ function hide_buttons()
  */
 function count_teams()
 {
-    // populate position dropdown
-    let matches_file = localStorage.getItem(get_event_matches_name(get_event()))
-    if (matches_file)
-    {
-        let teams = JSON.parse(matches_file)[0].alliances
-        let options = ''
-        for (let i = 1; i <= teams.red.team_keys.length; i++)
-        {
-            options += build_dropdown_op(`Red ${i}`, '')
-        }
-        for (let i = 1; i <= teams.blue.team_keys.length; i++)
-        {
-            options += build_dropdown_op(`Blue ${i}`, '')
-        }
-        document.getElementById('position').innerHTML = options
-    }
+    let options = ''
+    let teams = get_team_keys(get_event())
+    teams.forEach(t => options += build_dropdown_op(t, ''))
+    document.getElementById('position').innerHTML = options
 }
 
 /**
