@@ -21,7 +21,7 @@ document.head.appendChild(s)
 const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
         build_str_entry('event_id', 'Event ID:', '', 'text', 'hide_buttons()'),
-        build_dropdown('position', 'Position:', ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3']),
+        build_dropdown('position', 'Position:', []),
         build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match', 'hide_buttons()'),
         build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'),
         build_num_entry('user_id', 'School ID:', '', [100000, 999999], 'hide_buttons()'),
@@ -129,6 +129,7 @@ function on_config()
  */
 function hide_buttons()
 {
+    count_teams()
     Object.keys(BUTTONS).forEach(function (id, index)
     {
         let button = document.getElementById(`${id}-container`)
@@ -148,6 +149,32 @@ function hide_buttons()
 /**
  * HELPER FUNCTIONS
  */
+
+/**
+ * function:    count_teams
+ * parameters:  none
+ * returns:     none
+ * description: Counts teams in competition format.
+ */
+function count_teams()
+{
+    // populate position dropdown
+    let matches_file = localStorage.getItem(get_event_matches_name(get_event()))
+    if (matches_file)
+    {
+        let teams = JSON.parse(matches_file)[0].alliances
+        let options = ''
+        for (let i = 1; i <= teams.red.team_keys.length; i++)
+        {
+            options += build_dropdown_op(`Red ${i}`, '')
+        }
+        for (let i = 1; i <= teams.blue.team_keys.length; i++)
+        {
+            options += build_dropdown_op(`Blue ${i}`, '')
+        }
+        document.getElementById('position').innerHTML = options
+    }
+}
 
 /**
  * function:    process_files
