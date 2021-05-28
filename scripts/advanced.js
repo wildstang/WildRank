@@ -392,11 +392,11 @@ function fetch_zebra(match_key, zebra_data, stats)
                                 // count cycles
                                 y = pos.startsWith('blue') ? 26.9375 - points.ys[i] : points.ys[i]
                                 x = pos.startsWith('blue') ? 52.4375 - points.xs[i] : points.xs[i]
-                                if (x < 10)
+                                if (x < 12)
                                 {
                                     cycle_started = true
                                 }
-                                else if (((x > 26 && y < 56) || x > 34) && cycle_started)
+                                else if (((x > 26 && y < 8) || x > 34) && cycle_started)
                                 {
                                     cycle_started = false
                                     cycles++

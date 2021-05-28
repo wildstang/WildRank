@@ -317,7 +317,7 @@ function contained(vertices, x, y)
     }
 
     // point is inside if there are an odd number of lines on each side of it
-    return above != 0 && below != 0 && above % 2 == 1 && below % 2 == 1
+    return above % 2 == 1 && below % 2 == 1
 }
 
 /**
