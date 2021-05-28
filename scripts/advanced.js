@@ -403,7 +403,7 @@ function fetch_zebra(match_key, zebra_data, stats)
                                 }
 
                                 // count climb time
-                                if (x > 21 && x < 34 && y > 7 && y < 14)
+                                if (contained([{x: 22.8, y: 6}, {x: 20.9, y: 10.7}, {x: 32.2, y: 15.4}, {x: 34.3, y: 10.7}], x, y))
                                 {
                                     if (under_since == 0)
                                     {
@@ -477,9 +477,32 @@ function init_canvas()
     canvas.style.backgroundImage = `url('/config/field-${year}.png')`
     canvas.width = field_width
     canvas.height = field_height
+    canvas.addEventListener('mousedown', mouse_down, false)
 
     // fix markers
     calculate_team_stats()
+}
+
+/**
+ * function:    mouse_down
+ * parameters:  mouse event
+ * returns:     nothing
+ * description: Gets the point on the floor of the mouse click
+ */
+function mouse_down(evt)
+{
+    // get scaled mouse position relative to canvas
+    let rect = canvas.getBoundingClientRect()
+    let mouseX = (rect.right - evt.clientX) * scale_factor
+    let mouseY = (evt.clientY - rect.top) * scale_factor
+
+    // remove margin and convert to feet
+    let xm = wb.horizontal_margin
+    let ym = wb.vertical_margin
+    let pxperft = wb.field_height_px / wb.field_height_ft
+    let scaled = { x: (mouseX - xm) / pxperft, y: (mouseY - ym) / pxperft }
+
+    alert(`${scaled.x.toFixed(1)}', ${scaled.y.toFixed(1)}'`)
 }
 
 /**

@@ -267,6 +267,60 @@ function distance(x1, y1, x2, y2)
 }
 
 /**
+ * function:    contained
+ * parameters:  list of vertices of shape, x, y coordinate of point
+ * returns:     if the shape is container
+ * description: Determines if a given point is contained in a shape.
+ */
+function contained(vertices, x, y)
+{
+    let above = 0
+    let below = 0
+    // check which side of each line point is on
+    for (let i = 0; i < vertices.length; i++)
+    {
+        // get last vertices to make line
+        let j = i - 1
+        if (j < 0)
+        {
+            j = vertices.length - 1
+        }
+
+        let vx = vertices[i].x
+        let vy = vertices[i].y
+        let lvx = vertices[j].x
+        let lvy = vertices[j].y
+        
+        // determine if lines will intersect at all
+        if ((vx - x) * (lvx - x) < 0)
+        {
+            // build line formula and calculate intersecting y of line
+            let m = (vy - lvy) / (vx - lvx)
+            let b = -m * vx + vy
+            let ly = m * x + b
+    
+            // determine if point is above of below
+            if (y < ly)
+            {
+                above++
+            }
+            else if (y > ly)
+            {
+                below++
+            }
+            // if point is on line, it is inside
+            else
+            {
+                return true
+            }
+        }
+    }
+
+    // point is inside if there are an odd number of lines on each side of it
+    return above != 0 && below != 0 && above % 2 == 1 && below % 2 == 1
+}
+
+/**
  * function:    scroll_to
  * parameters:  scrollable element, goal item
  * returns:     none
