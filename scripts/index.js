@@ -78,7 +78,7 @@ const BUTTONS = {
     'upload_all': { limits: ['results'], configs: [] },
     'import_all': { limits: ['admin'], configs: [] },
     'download_csv': { limits: ['event', 'admin', 'any'], configs: [] },
-    'export_zip': { limits: ['event', 'admin', 'any'], configs: [] },
+    'export_zip': { limits: ['event', 'admin'], configs: [] },
     'import_zip': { limits: ['admin'], configs: [] },
     'reset': { limits: ['admin'], configs: [] }
 }
