@@ -4,12 +4,12 @@ FROM python:3
 WORKDIR /usr/src/app
 COPY docker/download-latest-tar.py .
 RUN pip install requests
-RUN python download-latest-tar.py mail929 liamrank
-RUN ln -s /usr/src/app/liamrank/config /config
-RUN ln -s /usr/src/app/liamrank/uploads /uploads
+RUN python download-latest-tar.py mail929 wildrank
+RUN ln -s /usr/src/app/wildrank/config /config
+RUN ln -s /usr/src/app/wildrank/uploads /uploads
 
 # prepare container for app
-WORKDIR liamrank
+WORKDIR wildrank
 EXPOSE 80
 VOLUME /config /uploads
 

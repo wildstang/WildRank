@@ -1,6 +1,6 @@
 # csv2xls.py
 # Liam Fruzyna 2020-05-21
-# Convert a LiamRank CSV file export to an Excel Spreadsheet with Sheets
+# Convert a WildRank CSV file export to an Excel Spreadsheet with Sheets
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
