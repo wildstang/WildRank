@@ -4,7 +4,7 @@ FROM python:3
 WORKDIR /usr/src/app
 COPY docker/download-latest-tar.py .
 RUN pip install requests
-RUN python download-latest-tar.py mail929 wildrank
+RUN python download-latest-tar.py wildstang wildrank
 RUN ln -s /usr/src/app/wildrank/config /config
 RUN ln -s /usr/src/app/wildrank/uploads /uploads
 
