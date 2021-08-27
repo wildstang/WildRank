@@ -2,7 +2,7 @@ FROM python:3
 
 # install app and prereqs in /usr/src/app
 WORKDIR /usr/src/app
-COPY docker/download-latest-tar.py .
+COPY download-latest-tar.py .
 RUN pip install requests
 RUN python download-latest-tar.py wildstang wildrank
 RUN ln -s /usr/src/app/wildrank/config /config
