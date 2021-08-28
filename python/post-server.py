@@ -1,6 +1,6 @@
 import socketserver, http.server, logging, base64
 from os import listdir, environ
-from os.path import isfile, join
+from os.path import isfile, join, exists
 from shutil import copyfile
 
 PORT = 80
@@ -39,7 +39,19 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2021 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a></body></html>'))
+
+            # add git commit and link if this is a repo
+            git = ''
+            if exists('.git/FETCH_HEAD'):
+                with open('.git/FETCH_HEAD', 'r') as f:
+                    commit = f.read()
+                    words = commit.split()
+                    url = '{0}/commit/{1}'.format(words[-1].replace(':', '/'), words[0])
+                    if not url.startswith('http'):
+                        url = 'https://{}'.format(url)
+                    git = '<br><br>Git: <a href="{0}">{1}</a>'.format(url, commit)
+            
+            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2021 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}</body></html>'.format(git)))
             return
 
         elif self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
