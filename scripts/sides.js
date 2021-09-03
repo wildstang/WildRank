@@ -191,6 +191,9 @@ function open_teams(team_numA, team_numB)
     selectedA = team_numA
     team_numA = selectedA.substr(1)
     selectedB = team_numB
+    if (!selectedB) {
+        alert('Not enough teams available')
+    }
     team_numB = selectedB.substr(1)
 
     // populate ranking

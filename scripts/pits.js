@@ -39,6 +39,9 @@ function init_page(contents_card, buttons_container)
             buttons_container.innerHTML += camera_view
             init_camera()
         }
+        else {
+            console.log('Unable to init camera')
+        }
         
         build_options_list(JSON.parse(localStorage.getItem(file_name)))
     }
@@ -150,7 +153,8 @@ function capture()
         photo.setAttribute('src', full_res)
 
         // save image to file
-        localStorage.setItem(get_team_image_name(team, event_id), low_res)
+        // this takes too much space so disabled
+        //localStorage.setItem(get_team_image_name(team, event_id), low_res)
         
         // post file to server
         fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${get_team_image_name(team, event_id, true)}|||${full_res}`})

@@ -327,7 +327,8 @@ function fetch_zebra(match_key, zebra_data, stats)
         .then(response => {
             if (response.status == 401)
             {
-                alert('Invalid API Key Suspected')
+                // log to prevent user spam
+                console.log('Invalid API Key Suspected')
             }
             return response.json()
         })

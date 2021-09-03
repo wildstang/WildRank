@@ -71,7 +71,7 @@ const BUTTONS = {
     'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
-    'open_pivot': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
+    'open_pivot': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_config': { limits: ['admin'], configs: [] },
     'open_settings': { limits: ['admin'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },
