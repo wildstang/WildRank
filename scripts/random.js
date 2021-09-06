@@ -59,7 +59,7 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                         results[id] = random_int()
                         break
                     case 'select':
-                        results[id] = options[random_int(0, options.length - 1)]
+                        results[id] = random_int(0, options.length - 1)
                         break
                     case 'dropdown':
                         results[id] = random_int(0, options.length - 1)
