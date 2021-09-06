@@ -180,11 +180,12 @@ function upload_all()
                 let content = localStorage.getItem(file)
                 // append file name to data, separated by '|||'
                 upload = `${file}|||${content}`
-                status(`Posting ${file}`)
+                status(` ${file}`, newLine = false)
                 // post string to server
                 fetch(get_upload_addr(), {method: 'POST', body: upload})
             }
         })
+        status('') // add newline at end
     }
 }
 

@@ -140,12 +140,12 @@ function open_match(match_num)
         if (alliance == 'red')
         {
             reds.push(button)
-            reds.push(build_card('', team_info))
+            reds.push(build_card('', team_info, limitWidth=true))
         }
         else
         {
             blues.push(button)
-            blues.push(build_card('', team_info))
+            blues.push(build_card('', team_info, limitWidth=true))
         }
     })
 

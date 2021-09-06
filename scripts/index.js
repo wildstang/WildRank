@@ -56,7 +56,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('about', 'About', `'/index.html?page=about'`),
         build_button('reset', 'Reset', `check_press('reset', reset)`),
     ]),
-    build_column_frame('Status', [build_card('status')])
+    build_column_frame('Status', [build_card('status', '', limitWidth=true)])
 ])
 
 // requirements for each button
@@ -248,13 +248,13 @@ function save_options()
 
 /**
  * function:    status
- * parameters:  string status
+ * parameters:  string status, whether to follow with a new line
  * returns:     none
  * description: Log a string to both the status window and console.
  */
-function status(status)
+function status(status, newLine=true)
 {
-    document.getElementById('status').innerHTML += `${status}<br>`
+    document.getElementById('status').innerHTML += `${status}${newLine ? '<br>' : ''}`
     console.log(status.replace(/<br>/g, '\n'))
 }
 
