@@ -26,6 +26,9 @@ switch (page)
     case 'about':
         script.src = `/scripts/about.js`
         break
+    case 'random':
+        script.src = `/scripts/random.js`
+        break
     case 'index':
     default:
         script.src = `/scripts/index.js`

@@ -256,6 +256,28 @@ function mode(values)
 }
 
 /**
+ * function:    random_bool
+ * parameters:  odds of producing a 0
+ * returns:     random boolean
+ * description: Generates a random boolean.
+ */
+function random_bool(low_odds=0.5)
+{
+    return Math.random() >= low_odds
+}
+
+/**
+ * function:    random_int
+ * parameters:  minimum and maximum result
+ * returns:     random integer from min to max
+ * description: Generates a random integer between two given bounds.
+ */
+function random_int(min=0, max=10)
+{
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+/**
  * function:    distance
  * parameters:  2 pairs of x, y coordinates
  * returns:     distance between 2 coordinates

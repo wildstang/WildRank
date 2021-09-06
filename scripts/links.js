@@ -160,3 +160,14 @@ function open_settings()
 {
     return build_url('index', {'page': 'settings', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
+
+/**
+ * function:    open_random
+ * parameters:  none
+ * returns:     none
+ * description: Open the generate random results page.
+ */
+function open_random()
+{
+    window_open(build_url('index', {'page': 'random', [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user(), [TYPE_COOKIE]: get_selected_type()}), '_self')
+}
