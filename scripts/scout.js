@@ -58,6 +58,9 @@ function build_page_from_config()
                     case 'counter':
                         item = build_counter(id, name, default_val)
                         break
+                    case 'multicounter':
+                        item = build_multi_counter(id, name, input['options'], default_val)
+                        break
                     case 'select':
                         item = build_select(id, name, input['options'], default_val)
                         break
@@ -141,10 +144,16 @@ function get_results_from_page()
                     case 'counter':
                         results[id] = parseInt(document.getElementById(id).innerHTML)
                         break
+                    case 'multicounter':
+                        input.options.forEach(function (op) {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
+                        })
+                        break
                     case 'select':
                         results[id] = -1
                         let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                        var i = 0;
+                        var i = 0
                         for (let option of children)
                         {
                             if (option.classList.contains('selected'))
@@ -272,6 +281,12 @@ function generate_results()
                         break
                     case 'counter':
                         document.getElementById(id).innerHTML = random_int()
+                        break
+                    case 'multicounter':
+                        options.forEach(function (op) {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            document.getElementById(`${name}-value`).innerHTML = random_int()
+                        })
                         break
                     case 'select':
                         select_option(id, random_int(0, options.length - 1))
