@@ -470,7 +470,7 @@ function get_avatar(team_num, year)
     let b64img = localStorage.getItem(get_team_avatar_name(team_num, year))
     if (b64img == null || b64img == 'undefined')
     {
-        return '/config/dozer.png'
+        return 'config/dozer.png'
     }
     return `data:image/png;base64,${b64img}`
 }

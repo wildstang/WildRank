@@ -330,7 +330,7 @@ function init() {
     wb.game_pieces.forEach(function (piece)
     {
         let image = new Image()
-        image.src = `/config/${piece.image}`
+        image.src = `config/${piece.image}`
         game_pieces[piece.name] = image
     })
 
@@ -811,7 +811,7 @@ function init_canvas()
 
     // resize canvas
     canvas = document.getElementById('whiteboard')
-    canvas.style.backgroundImage = `url('/config/field-${year}.png')`
+    canvas.style.backgroundImage = `url('config/field-${year}.png')`
     canvas.width = field_width
     canvas.height = field_height
 

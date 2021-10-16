@@ -11,10 +11,10 @@
  */
 
 let s = document.createElement('script')
-s.src = `/scripts/transfer.js`
+s.src = `scripts/transfer.js`
 document.head.appendChild(s)
 s = document.createElement('script')
-s.src = `/scripts/links.js`
+s.src = `scripts/links.js`
 document.head.appendChild(s)
 
 // generate page
