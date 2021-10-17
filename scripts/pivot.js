@@ -68,10 +68,9 @@ function build_list(keys)
     ops.unshift('None')
     document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
     
-    // iterate through team objs
+    // iterate through result keys
     keys.forEach(function (key, index)
     {
-        // replace placeholders in template and add to screen
         document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
     })
 }
@@ -212,7 +211,7 @@ function build_table(sort_by='')
             
                     // add std dev if proper number
                     let type = get_type(key)
-                    if (get_selected_option('type_form') == 0 && type != 'select' && type != 'dropdown')
+                    if (method == 0 && type != 'select' && type != 'dropdown')
                     {
                         valStr += ` (${get_value(key, avg_results(team_results, key, 5))})`
                     }
