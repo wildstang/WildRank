@@ -138,6 +138,10 @@ function get_type(key)
                 {
                     type = input.type
                 }
+                else if (key.startsWith(input.id))
+                {
+                    type = input.type
+                }
             })
         })
     })
@@ -234,9 +238,7 @@ function get_name(key, check_duplicates=true)
                 {
                     let input_words = input.id.split('_')
                     let option_words = key.split('_')
-                    console.log(input.id, key)
                     option_words.splice(0, input_words.length)
-                    console.log(option_words)
                     option_words.forEach(function (word, index)
                     {
                         option_words[index] = word.substr(0, 1).toUpperCase() + word.substr(1)

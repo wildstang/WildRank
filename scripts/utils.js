@@ -685,6 +685,7 @@ function avg_results(results, key, sort_type)
             return '---'
         // compute average for numbers
         case 'counter':
+        case 'multicounter':
         case 'number':
         default:
             switch (sort_type)
