@@ -98,19 +98,24 @@ function build_counter(id, name, value)
 
 /**
  * function:    build_multi_counter
- * parameters:  element id, name, option strings, default value
+ * parameters:  element id, name, option strings, default values
  * returns:     wr_multi_counter as a string
  * description: Builds the HTML string of a multi counter object and its options.
  */
-function build_multi_counter(id, name, option_names, value)
+function build_multi_counter(id, name, option_names, values)
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
-    option_names.forEach(function (op_name)
+    option_names.forEach(function (op_name, i)
     {
+        let dval = values
+        if (Array.isArray(values))
+        {
+            dval = values[i]
+        }
         let name = `${id}_${op_name.toLowerCase().split().join('_')}`
         options += `<span class="wr_select_option" id="${name}" onclick="increment('${name}-value', false)" oncontextmenu="return false" onauxclick="increment('${name}-value', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${name}-value\\', true)')\">
-                <label class="wr_counter_count" id="${name}-value">${value}</label> ${op_name}
+                <label class="wr_counter_count" id="${name}-value">${dval}</label> ${op_name}
             </span>`
     })
     return `${label}<div class="wr_select" id="${id}">${options}</div>`

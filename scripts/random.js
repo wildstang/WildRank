@@ -58,6 +58,13 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                     case 'counter':
                         results[id] = random_int()
                         break
+                    case 'multicounter':
+                        options.forEach(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            results[name] = random_int()
+                        })
+                        break
                     case 'select':
                         results[id] = random_int(0, options.length - 1)
                         break

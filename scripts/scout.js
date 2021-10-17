@@ -42,6 +42,14 @@ function build_page_from_config()
                     {
                         default_val = input['options'][default_val]
                     }
+                    else if (type == 'multicounter')
+                    {
+                        default_val = input.options.map(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            return results[name]
+                        })
+                    }
                 }
 
                 var item = ''
