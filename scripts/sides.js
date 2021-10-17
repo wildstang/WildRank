@@ -34,7 +34,7 @@ function init_page(contents_card, buttons_container)
     buttons_container.innerHTML = `<br>
         ${build_page_frame('', [
             build_column_frame('', [ build_select('type_form', 'Sort numeric values', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
-            build_column_frame('', [ build_select('scale_max', 'Scale Bars to', ['Local Max', 'Overall Max'], 'Local Max', 'select()') ])
+            build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair', 'select()') ])
         ], false)}<br>
         <div class="wr_card"><table id="compare_tab"></table></div>`
 
