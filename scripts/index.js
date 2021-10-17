@@ -41,6 +41,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
         build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
         build_link_button('open_pivot', 'Pivot Table', `check_press('open_pivot', open_pivot)`),
+        build_link_button('open_distro', 'Distributions', `check_press('open_distro', open_distro)`),
     ]),
     build_column_frame('Transfer', [
         build_button('preload_event', 'Preload Event', `check_press('preload_event', preload_event)`),
@@ -72,6 +73,7 @@ const BUTTONS = {
     'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
     'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
     'open_pivot': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_distro': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_config': { limits: ['admin'], configs: [] },
     'open_settings': { limits: ['admin'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },

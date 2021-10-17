@@ -140,6 +140,17 @@ function open_pivot()
 }
 
 /**
+ * function:    open_distro
+ * parameters:  none
+ * returns:     none
+ * description: Open the distribution plot page.
+ */
+function open_distro()
+{
+    return build_url('selection', {'page': 'distro', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
  * function:    open_config
  * parameters:  none
  * returns:     none
