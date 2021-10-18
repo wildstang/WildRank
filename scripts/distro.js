@@ -233,7 +233,7 @@ function build_plot()
             bin_names.push(get_value(key, i))
         }
         // for discrete number results
-        else if (unique.length < max_bins)
+        else if (unique.length <= max_bins)
         {
             bin_names.push(unique[i])
         }
