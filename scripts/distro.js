@@ -265,8 +265,8 @@ function build_plot()
             let raw_val = avg_results(get_team_results(results, highlight), key, method)
             let team_val = get_value(key, raw_val)
             let x = 25 + (team_val - min) / delta * (pwidth - 25)
-            // handle non-numeric teams
-            if (type == 'checkbox' || type == 'select' || type == 'dropdown' || type == 'checkbox')
+            // handle non-numeric and low bin values
+            if (unique.length <= max_bins || type == 'checkbox' || type == 'select' || type == 'dropdown' || type == 'checkbox')
             {
                 x = 25 + (unique.indexOf(raw_val) + 0.5) * width
             }
