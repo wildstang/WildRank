@@ -34,7 +34,8 @@ function init_page(contents_card, buttons_container)
 {
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'build_plot()') ]) +
-                                    build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ])
+                                    build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ]) +
+                                    build_column_frame('', [ build_str_entry('team_select', 'Highlight Teams', '', 'text', 'build_plot()') ])
     
     canvas = document.getElementById('whiteboard')
 
@@ -248,9 +249,36 @@ function build_plot()
     var ctx = document.getElementById('whiteboard').getContext('2d')
     ctx.globalCompositeOperation = 'destination-over'
     ctx.clearRect(0, 0, pwidth, pheight)
-
-    // draw each bin
+    
     let width = (pwidth - 25) / bins;
+    let font_size = 16
+    
+    // draw line to highlight teams
+    document.getElementById('team_select').value.split(',').forEach(function (highlight)
+    {
+        // avoid invalid team numbers
+        if (!isNaN(parseInt(highlight)))
+        {
+            ctx.beginPath()
+            ctx.fillStyle = 'red'
+            ctx.font = `${font_size}px mono, courier`
+            let raw_val = avg_results(get_team_results(results, highlight), key, method)
+            let team_val = get_value(key, raw_val)
+            let x = 25 + (team_val - min) / delta * (pwidth - 25)
+            // handle non-numeric teams
+            if (type == 'checkbox' || type == 'select' || type == 'dropdown' || type == 'checkbox')
+            {
+                x = 25 + (unique.indexOf(raw_val) + 0.5) * width
+            }
+            ctx.fillRect(x, 0, 1, pheight-20)
+            ctx.fillText(highlight, x + 5, font_size)
+            ctx.fillText(team_val, x + 5, font_size * 2)
+            ctx.stroke()
+        }
+    })
+
+    // TODO invert if negative
+    // draw each bin
     let maxBin = Math.max(...counts)
     let j = 0
     for (let i = 0; i < bins; ++i)
@@ -258,14 +286,16 @@ function build_plot()
         let height = (counts[i] / maxBin) * (pheight - 25)
         ctx.beginPath()
         ctx.fillStyle = 'gray'
+        ctx.font = `${font_size}px mono, courier`
         ctx.fillRect(25 + i * width, (pheight - 25) - height, width - 1, height)
         // draw labels
         if (counts[i] > 0 || unique.length >= counts.length)
         {
-            ctx.fillText(bin_names[j], 25 + i * width, (pheight - 25 + 10))
+            let text_width = ctx.measureText(bin_names[j]).width
+            ctx.fillText(bin_names[j], 25 + (i + 0.5) * width - text_width / 2, (pheight - 25 + font_size))
             ++j
         }
-        ctx.fillText(counts[i], 0, (pheight - 25 + 10) - height)
+        ctx.fillText(counts[i], 0, (pheight - 25 + font_size) - height)
         ctx.stroke()
     }
 }
