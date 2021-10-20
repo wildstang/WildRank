@@ -141,8 +141,9 @@ function get_results_from_page()
         {
             column['inputs'].forEach(function (input, index)
             {
-                var id = input.id
-                var type = input.type
+                let id = input.id
+                let type = input.type
+                let options = input.options
 
                 switch (type)
                 {
@@ -153,7 +154,7 @@ function get_results_from_page()
                         results[id] = parseInt(document.getElementById(id).innerHTML)
                         break
                     case 'multicounter':
-                        input.options.forEach(function (op) {
+                        options.forEach(function (op) {
                             let name = `${id}_${op.toLowerCase().split().join('_')}`
                             results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
                         })
@@ -161,7 +162,7 @@ function get_results_from_page()
                     case 'select':
                         results[id] = -1
                         let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                        var i = 0
+                        let i = 0
                         for (let option of children)
                         {
                             if (option.classList.contains('selected'))
@@ -180,6 +181,19 @@ function get_results_from_page()
                     case 'string':
                     case 'text':
                         results[id] = document.getElementById(id).value
+                        break
+                    // "smart" values use other valus not inputs
+                    // must be listed after dependencies in scout-config
+                    case 'sum':
+                        let total = 0
+                        options.forEach(k => total += results[k])
+                        results[id] = total
+                        break
+                    case 'total':
+                        results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
+                        break
+                    case 'ratio':
+                        results[id] = results[options[0]] / results[options[1]]
                         break
                 }
             })

@@ -45,9 +45,9 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
         {
             column['inputs'].forEach(function (input, index)
             {
-                var id = input.id
-                var type = input.type
-                var options = input.options
+                let id = input.id
+                let type = input.type
+                let options = input.options
 
                 // randomly generate results appropriate for each input
                 switch (type)
@@ -89,6 +89,19 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                         results[id] = 'Random Result'
                     case 'text':
                         results[id] = 'This result was randomly generated'
+                        break
+                    // "smart" values use other valus not inputs
+                    // must be listed after dependencies in scout-config
+                    case 'sum':
+                        let total = 0
+                        options.forEach(k => total += results[k])
+                        results[id] = total
+                        break
+                    case 'total':
+                        results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
+                        break
+                    case 'ratio':
+                        results[id] = results[options[0]] / results[options[1]]
                         break
                 }
             })
