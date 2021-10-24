@@ -38,11 +38,14 @@ function init_page(contents_card, buttons_container)
         ], false)}<br>
         <div class="wr_card"><table id="compare_tab"></table></div>`
 
+    enable_secondary_list()
     if (collect_results() > 0)
     {
         contents_card.innerHTML = '<h2 id="value"></h2>'
-        selectedA = Object.keys(teams)[0]
-        selectedB = Object.keys(teams)[1]
+        let nums = Object.keys(teams)
+        nums.sort(function (a, b) { return parseInt(a.substr(1)) - parseInt(b.substr(1)) })
+        selectedA = nums[0]
+        selectedB = nums[1]
         select()
     }
     else
@@ -110,11 +113,12 @@ function collect_results()
 function build_team_list()
 {
     let team_nums = Object.keys(teams)
-    document.getElementById('option_list').innerHTML = build_select('selecting', '', ['Left', 'Right'], 'Left', 'switch_selecting()')
+    document.getElementById('option_list').innerHTML = ''
     team_nums.sort(function (a, b) { return parseInt(a.substr(1)) - parseInt(b.substr(1)) })
     team_nums.forEach(function (team, index)
     {
         document.getElementById('option_list').innerHTML += build_option(team, '', team.substr(1))
+        document.getElementById('secondary_option_list').innerHTML += build_option(team, '', team.substr(1), '', false)
     })
 }
 
@@ -145,19 +149,23 @@ function select()
  * function:    open_option
  * parameters:  team number
  * returns:     none
- * description: Updates a selected team.
+ * description: Updates the selected team for the left.
  */
 function open_option(team_num)
 {
-    if (selecting == 'a')
-    {
-        selectedA = team_num
-    }
-    else
-    {
-        selectedB = team_num
-    }
-    
+    selectedA = team_num
+    open_teams(selectedA, selectedB)
+}
+
+/**
+ * function:    open_secondary_option
+ * parameters:  team number
+ * returns:     none
+ * description: Updates the selected team for the right.
+ */
+function open_secondary_option(team_num)
+{
+    selectedB = team_num
     open_teams(selectedA, selectedB)
 }
 
@@ -314,7 +322,11 @@ function open_teams(team_numA, team_numB)
         {
             document.getElementById(`option_${team}`).classList.remove('selected')
         }
+        if (document.getElementById(`soption_${team}`).classList.contains('selected'))
+        {
+            document.getElementById(`soption_${team}`).classList.remove('selected')
+        }
     })
     document.getElementById(`option_${selectedA}`).classList.add('selected')
-    document.getElementById(`option_${selectedB}`).classList.add('selected')
+    document.getElementById(`soption_${selectedB}`).classList.add('selected')
 }

@@ -158,7 +158,7 @@ function open_option(key)
  */
 function open_secondary_option(key)
 {
-    let class_list = document.getElementById(`option_${key}`).classList
+    let class_list = document.getElementById(`soption_${key}`).classList
     // select team button
     if (class_list.contains('selected'))
     {
@@ -286,7 +286,7 @@ function build_plot()
     let selected = 0
     for (let i = 0; i < options.length; ++i)
     {
-        let highlight = options[i].id.replace('option_', '')
+        let highlight = options[i].id.replace('soption_', '')
         // check if selected and avoid invalid team numbers
         if (options[i].classList.contains('selected') && !isNaN(parseInt(highlight)))
         {

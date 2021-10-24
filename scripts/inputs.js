@@ -294,12 +294,15 @@ function build_option(option_id, selected='', option_name='', style='', primary_
     {
         option_name = option_id
     }
+    // use modified id and function if secondary list
+    let id = `option_${option_id}`
     let on_click = `open_option('${option_id}')`
     if (!primary_list)
     {
+        id = `soption_${option_id}`
         on_click = `open_secondary_option('${option_id}')`
     }
-    return `<div id="option_${option_id}" class="pit_option ${selected}" onclick="${on_click}" style="${style}">
+    return `<div id="${id}" class="pit_option ${selected}" onclick="${on_click}" style="${style}">
                 <span class="long_option_number">${option_name}</span>
             </div>`
 }
