@@ -59,13 +59,18 @@ document.onkeydown = function(e)
 
 /**
  * function:    deselect_all
- * parameters:  none
+ * parameters:  use primary option list
  * returns:     none
  * description: Deselects all options in option_list.
  */
-function deselect_all()
+function deselect_all(primary_list=true)
 {
-    let options = document.getElementById('option_list').children
+    let id = 'option_list'
+    if (!primary_list)
+    {
+        id = 'secondary_option_list'
+    }
+    let options = document.getElementById(id).children
     for (let i = 0; i < options.length; ++i)
     {
         options[i].classList.remove('selected')
@@ -74,13 +79,18 @@ function deselect_all()
 
 /**
  * function:    toggle_menu
- * parameters:  none
+ * parameters:  use primary option list
  * returns:     none
  * description: Toggles options menu on image click.
  */
-function toggle_menu()
+function toggle_menu(primary_list=true)
 {
-    let list = document.getElementById('option_list')
+    let id = 'option_list'
+    if (!primary_list)
+    {
+        id = 'secondary_option_list'
+    }
+    let list = document.getElementById(id)
     if (getComputedStyle(list).display == 'block')
     {
         list.style.display = 'none'
@@ -95,6 +105,18 @@ function toggle_menu()
     {
         init_canvas()
     }
+}
+
+/**
+ * function:    enable_secondary_list
+ * parameters:  none
+ * returns:     none
+ * description: Enables the secondary option list for the page.
+ */
+function enable_secondary_list()
+{
+    document.getElementById('secondary_option_list').style.display = 'block'
+    document.getElementById('secondary_menu_toggle').style.display = 'block'
 }
 
 window.addEventListener('load', function()

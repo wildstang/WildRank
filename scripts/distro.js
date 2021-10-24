@@ -34,8 +34,7 @@ function init_page(contents_card, buttons_container)
 {
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'build_plot()') ]) +
-                                    build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ]) +
-                                    build_column_frame('', [ build_str_entry('team_select', 'Highlight Teams', '', 'text', 'build_plot()') ])
+                                    build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ])
     
     canvas = document.getElementById('whiteboard')
 
@@ -62,6 +61,7 @@ function init_page(contents_card, buttons_container)
         let type = get_type(key)
         return type != 'text' && type != 'string' && !key.startsWith('meta_')
     })
+    enable_secondary_list()
     build_list(keys)
 
     // select an option and build the plot
@@ -98,9 +98,15 @@ function build_list(keys)
     document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
     
     // iterate through result keys
-    keys.forEach(function (key, index)
+    keys.forEach(function (key)
     {
         document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
+    })
+
+    // add second option list of teams
+    teams.forEach(function (key)
+    {
+        document.getElementById('secondary_option_list').innerHTML += build_option(key, '', key, '', false)
     })
 }
 
@@ -138,8 +144,30 @@ function select_list()
  */
 function open_option(key)
 {
-    deselect_all()
+    deselect_all(true)
     document.getElementById(`option_${key}`).classList.add('selected')
+
+    build_plot()
+}
+
+/**
+ * function:    open_secondary_option
+ * parameters:  Selected key
+ * returns:     none
+ * description: Selects and opens a secondary option.
+ */
+function open_secondary_option(key)
+{
+    let class_list = document.getElementById(`option_${key}`).classList
+    // select team button
+    if (class_list.contains('selected'))
+    {
+        class_list.remove('selected')
+    }
+    else
+    {
+        class_list.add('selected')
+    }
 
     build_plot()
 }
@@ -170,7 +198,7 @@ function build_plot()
 
     // build distribution
     let values = []
-    let teamVals = {}
+    let team_vals = {}
     teams.forEach(function (team)
     {
         let team_results = get_team_results(results, team)
@@ -178,7 +206,7 @@ function build_plot()
         {
             let val = avg_results(team_results, key, method)
             values.push(val)
-            teamVals[team] = val
+            team_vals[team] = val
         }
     })
 
@@ -254,15 +282,18 @@ function build_plot()
     let font_size = 16
     
     // draw line to highlight teams
-    document.getElementById('team_select').value.split(',').forEach(function (highlight)
+    let options = document.getElementById('secondary_option_list').children
+    let selected = 0
+    for (let i = 0; i < options.length; ++i)
     {
-        // avoid invalid team numbers
-        if (!isNaN(parseInt(highlight)))
+        let highlight = options[i].id.replace('option_', '')
+        // check if selected and avoid invalid team numbers
+        if (options[i].classList.contains('selected') && !isNaN(parseInt(highlight)))
         {
             ctx.beginPath()
             ctx.fillStyle = 'red'
             ctx.font = `${font_size}px mono, courier`
-            let raw_val = avg_results(get_team_results(results, highlight), key, method)
+            let raw_val = team_vals[highlight]
             let team_val = get_value(key, raw_val)
             let x = 25 + (team_val - min) / delta * (pwidth - 25)
             // handle non-numeric and low bin values
@@ -271,31 +302,37 @@ function build_plot()
                 x = 25 + (unique.indexOf(raw_val) + 0.5) * width
             }
             ctx.fillRect(x, 0, 1, pheight-20)
-            ctx.fillText(highlight, x + 5, font_size)
-            ctx.fillText(team_val, x + 5, font_size * 2)
+            ctx.fillText(highlight, x + 5, font_size * (selected * 2 + 1))
+            ctx.fillText(team_val, x + 5, font_size * (selected * 2 + 2))
             ctx.stroke()
+            selected++
         }
-    })
+    }
 
-    // TODO invert if negative
     // draw each bin
     let maxBin = Math.max(...counts)
     let j = 0
+    let neg = is_negative(key)
     for (let i = 0; i < bins; ++i)
     {
+        let l = i
+        if (neg)
+        {
+            l = bins - (i + 1)
+        }
         let height = (counts[i] / maxBin) * (pheight - 25)
         ctx.beginPath()
         ctx.fillStyle = 'gray'
         ctx.font = `${font_size}px mono, courier`
-        ctx.fillRect(25 + i * width, (pheight - 25) - height, width - 1, height)
+        ctx.fillRect(25 + l * width, (pheight - 25) - height, width - 1, height)
         // draw labels
-        if (counts[i] > 0 || unique.length >= counts.length)
+        if (counts[l] > 0 || unique.length >= counts.length)
         {
             let text_width = ctx.measureText(bin_names[j]).width
-            ctx.fillText(bin_names[j], 25 + (i + 0.5) * width - text_width / 2, (pheight - 25 + font_size))
+            ctx.fillText(bin_names[j], 25 + (l + 0.5) * width - text_width / 2, (pheight - 25 + font_size))
             ++j
         }
-        ctx.fillText(counts[i], 0, (pheight - 25 + font_size) - height)
+        ctx.fillText(counts[l], 0, (pheight - 25 + font_size) - height)
         ctx.stroke()
     }
 }
