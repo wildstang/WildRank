@@ -238,13 +238,13 @@ function populate_dropdowns(changed='mode')
             switch (level)
             {
                 // item
-                case 0:
+                case 2:
                     page = 0
                 // page
-                case 1:
+                case 0:
                     column = 0
                 // column
-                case 2:
+                case 1:
                     break
             }
             break
@@ -526,6 +526,7 @@ function load_config()
 {
     config = [get_config(`${year}-pit`), get_config(`${year}-match`)]
     build_page()
+    update_add_panel()
 }
 
 /** 
