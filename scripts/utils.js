@@ -183,7 +183,6 @@ function get_scouter_results(results, user)
     let user_results = {}
     files.forEach(function (file, index)
     {
-        let parts = file.split('-')
         let id = results[file]['meta_scouter_id']
         // determine files which start with the desired type
         if (file.startsWith(prefix) && id == user)
@@ -669,7 +668,10 @@ function avg_results(results, key, sort_type)
     let values = []
     Object.keys(results).forEach(function (name, index)
     {
-        values.push(results[name][key])
+        if (!isNaN(results[name][key]))
+        {
+            values.push(results[name][key])
+        }
     })
     switch (get_type(key))
     {
