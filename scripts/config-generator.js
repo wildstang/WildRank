@@ -428,38 +428,14 @@ function create_element()
                     break
                 case 9:
                     item.type = 'sum'
-                    if (defalt.length > 0)
-                    {
-                        item.default = parseInt(defalt)
-                    }
-                    else
-                    {
-                        item.default = 0
-                    }
                     item.options = options
                     break
                 case 10:
                     item.type = 'total'
-                    if (defalt.length > 0)
-                    {
-                        item.default = parseInt(defalt)
-                    }
-                    else
-                    {
-                        item.default = 0
-                    }
                     item.options = options
                     break
                 case 11:
                     item.type = 'ratio'
-                    if (defalt.length > 0)
-                    {
-                        item.default = parseInt(defalt)
-                    }
-                    else
-                    {
-                        item.default = 0
-                    }
                     item.options = options
                     break
             }
@@ -592,18 +568,19 @@ function update_add_panel()
                     set_elements_display(['new-element-min', 'new-element-max'], 'block')
                     break
 
-                // multicounter
-                case 3:
-                // select
-                case 4:
-                // dropdown
-                case 5:
                 // sum
                 case 9:
                 // total
                 case 10:
                 // ratio
                 case 11:
+                    set_elements_display(['new-element-default'], 'none')
+                // multicounter
+                case 3:
+                // select
+                case 4:
+                // dropdown
+                case 5:
                     set_elements_display(['new-element-options'], 'block')
                     set_elements_display(['new-element-min', 'new-element-max'], 'none')
                     break
