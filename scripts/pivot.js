@@ -20,6 +20,8 @@ var results = {}
 var lists = {}
 var all_teams = []
 
+var name = 'Pivot Export'
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -29,8 +31,9 @@ var all_teams = []
 function init_page(contents_card, buttons_container)
 {
     contents_card.innerHTML = '<table id="results_tab"></table>'
-    buttons_container.innerHTML = build_select('type_form', '', SORT_OPTIONS, 'Mean', 'build_table()') +
-                                    build_button('export_table', 'Export Table', 'export_table()')
+    buttons_container.innerHTML = build_column_frame('', [build_select('type_form', '', SORT_OPTIONS, 'Mean', 'build_table()')]) +
+                                    build_column_frame('', [build_link_button('save_list', 'Save to Pick List', 'save_pick_list()')]) +
+                                    build_column_frame('', [build_button('export_table', 'Export Table', 'export_table()')])
         
     load_config(type, year)
     
@@ -109,7 +112,8 @@ function select_list()
  */
 function open_option(key)
 {
-    // select team button
+    name = "Team Number"
+    // select team button 
     if (document.getElementById(`option_${key}`).classList.contains('selected'))
     {
         document.getElementById(`option_${key}`).classList.remove('selected')
@@ -144,20 +148,28 @@ function build_table(sort_by='', reverse=false)
     let selected = get_selected_keys()
     let method = get_selected_option('type_form')
 
+
     if (selected.includes(sort_by))
     {
+        name = `${SORT_OPTIONS[method]} ${get_name(sort_by)}`
         console.log('sorting by', sort_by, 'for', method, 'reverse:', reverse)
         teams = teams.filter(team => Object.keys(get_team_results(results, team)).length > 0)
-        teams.sort((a, b) => avg_results(get_team_results(results, a), sort_by, method) - avg_results(get_team_results(results, b), sort_by, method))
+        teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), sort_by, method))
+        // invert negative key sort
+        if (is_negative(sort_by))
+        {
+            teams.reverse()
+        }
     }
     else
     {
         teams.sort()
     }
-    // reverse to descending
+    // reverse teams to ascending
     if (reverse)
     {
         teams.reverse()
+        name += ' reversed'
     }
 
     // header row
@@ -315,4 +327,29 @@ function export_table()
     element.click()
 
     document.body.removeChild(element)
+}
+
+/**
+ * function:    save_pick_list
+ * parameters:  none
+ * returns:     none
+ * description: Saves the current table sort into a pick list, named by the sorting order.
+ */
+function save_pick_list()
+{
+    let lists = JSON.parse(localStorage.getItem(get_event_pick_lists_name(event_id)))
+
+    if (lists == null)
+    {
+        lists = {}
+    }
+    lists[name] = []
+    teams.forEach(function (team)
+    {
+        lists[name].push(team)
+    })
+
+    // save to localStorage and open
+    localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
+    return build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: event_id})
 }
