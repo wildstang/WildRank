@@ -559,10 +559,10 @@ function draw() {
             markers.forEach(function (point)
             {
                 ctx.beginPath()
-                ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI, false)
+                ctx.arc(point.x, point.y, 5 / scale_factor, 0, 2 * Math.PI, false)
                 ctx.fillStyle = point.color
                 ctx.fill()
-                ctx.lineWidth = 5
+                ctx.lineWidth = 3 / scale_factor
                 ctx.strokeStyle = '#000000'
                 ctx.stroke()
             })
