@@ -52,7 +52,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('download_csv', 'Export CSV Data', `check_press('download_csv', download_csv)`),
     ]),
     build_column_frame('Configuration', [
-        build_link_button('open_config', 'Config Generator', `check_press('open_config', open_config)`),
+        build_link_button('open_config', 'Config Builder', `check_press('open_config', open_config)`),
         build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
         build_link_button('about', 'About', `'/index.html?page=about'`),
         build_button('reset', 'Reset', `check_press('reset', reset)`),

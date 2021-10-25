@@ -139,27 +139,33 @@ function get_selected_keys()
  * returns:     none
  * description: Completes right info pane with the selected options.
  */
-function build_table(sort_by='')
+function build_table(sort_by='', reverse=false)
 {
     let selected = get_selected_keys()
     let method = get_selected_option('type_form')
 
     if (selected.includes(sort_by))
     {
-        console.log('sorting by', sort_by, 'for', method)
+        console.log('sorting by', sort_by, 'for', method, 'reverse:', reverse)
         teams = teams.filter(team => Object.keys(get_team_results(results, team)).length > 0)
-                        .sort((a, b) => avg_results(get_team_results(results, a), sort_by, method) - avg_results(get_team_results(results, b), sort_by, method))
+        teams.sort((a, b) => avg_results(get_team_results(results, a), sort_by, method) - avg_results(get_team_results(results, b), sort_by, method))
     }
     else
     {
         teams.sort()
+    }
+    // reverse to descending
+    if (reverse)
+    {
+        teams.reverse()
     }
 
     // header row
     let table = `<tr><th onclick="build_table()" ${sort_by != '' ? 'style="font-weight: normal"' : ''}>Team</th>`
     selected.forEach(function (key)
     {
-        table += `<th onclick="build_table('${key}')" ${sort_by != key ? 'style="font-weight: normal"' : ''}>${get_name(key)}</th>`
+        let rev = sort_by == key ? !reverse : false
+        table += `<th onclick="build_table('${key}', ${rev})" ${sort_by != key ? 'style="font-weight: normal"' : ''}>${get_name(key)}</th>`
     })
     table += '</tr>'
 
