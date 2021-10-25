@@ -182,15 +182,26 @@ function get_options(key)
 function is_negative(key)
 {
     var negative = false
-    config.pages.forEach(function (page, index)
+    config.pages.forEach(function (page)
     {
-        page['columns'].forEach(function (column, index)
+        page['columns'].forEach(function (column)
         {
-            column['inputs'].forEach(function (input, index)
+            column['inputs'].forEach(function (input)
             {
-                if (key == input.id && input.negative == true)
+                if (key == input.id && input.negative)
                 {
                     negative = true
+                }
+                else if (input.type == 'multicounter' && key.startsWith(input.id) && 'negative' in input)
+                {
+                    let option = key.replace(input.id, '').substr(1)
+                    input.options.forEach(function (o, i)
+                    {
+                        if (o.toLowerCase() == option && input.negative[i])
+                        {
+                            negative = true
+                        }
+                    })
                 }
             })
         })
