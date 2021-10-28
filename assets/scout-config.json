@@ -55,6 +55,16 @@
 										"Auto"
 									],
 									"default":"None"
+								},
+								{
+									"name":"Cycle Time",
+									"id":"pit_body_cycle",
+									"type":"number",
+									"options":[
+										0,
+										120
+									],
+									"default":10
 								}
 							]
 						},
@@ -101,12 +111,6 @@
 								{
 									"name":"Ground",
 									"id":"pit_accum_ground",
-									"type":"checkbox",
-									"default":false
-								},
-								{
-									"name":"Lower LS",
-									"id":"pit_accum_lower",
 									"type":"checkbox",
 									"default":false
 								},
@@ -166,8 +170,8 @@
 								},
 								{
 									"name":"Rating (1-5)",
-									"id":"pit_notes_rating",
-									"type":"number",
+									"id":"patchit_notes_rating",
+									"type":"slider",
 									"options":[
 										1,
 										5
@@ -224,35 +228,24 @@
 							"id":"match_auto_shooting",
 							"inputs":[
 								{
-									"name":"Outer Miss",
-									"id":"match_auto_shooting_outer_miss",
-									"type":"counter",
-									"negative":true,
-									"default":0
-								},
-								{
-									"name":"Outer Goal",
-									"id":"match_auto_shooting_outer_goal",
-									"type":"counter",
-									"default":0
-								},
-								{
-									"name":"Inner Goal",
-									"id":"match_auto_shooting_inner_miss",
-									"type":"counter",
-									"default":0
-								},
-								{
-									"name":"Lower Miss",
-									"id":"match_auto_shooting_lower_miss",
-									"type":"counter",
-									"negative":true,
+									"name":"Upper Goal",
+									"id":"match_auto_shooting_upper",
+									"type":"multicounter",
+									"options":[
+										"Outer",
+										"Inner",
+										"Miss"
+									],
 									"default":0
 								},
 								{
 									"name":"Lower Goal",
-									"id":"match_auto_shooting_lower_goal",
-									"type":"counter",
+									"id":"match_auto_shooting_lower",
+									"type":"multicounter",
+									"options":[
+										"Score",
+										"Miss"
+									],
 									"default":0
 								}
 							]
@@ -269,60 +262,65 @@
 							"id":"match_teleop_shooting",
 							"inputs":[
 								{
-									"name":"Outer Miss",
-									"id":"match_teleop_shooting_outer_miss",
-									"type":"counter",
-									"negative":true,
+									"name":"Accumulated From",
+									"id":"match_teleop_accum",
+									"type":"multicounter",
+									"options":[
+										"Upper LS",
+										"Ground"
+									],
 									"default":0
 								},
 								{
-									"name":"Outer Goal",
-									"id":"match_teleop_shooting_outer_goal",
-									"type":"counter",
-									"default":0
-								},
-								{
-									"name":"Inner Goal",
-									"id":"match_teleop_shooting_inner_miss",
-									"type":"counter",
-									"default":0
-								},
-								{
-									"name":"Lower Miss",
-									"id":"match_teleop_shooting_lower_miss",
-									"type":"counter",
-									"negative":true,
+									"name":"Upper Goal",
+									"id":"match_teleop_shooting_upper",
+									"type":"multicounter",
+									"options":[
+										"Score",
+										"Miss"
+									],
 									"default":0
 								},
 								{
 									"name":"Lower Goal",
-									"id":"match_teleop_shooting_lower_goal",
-									"type":"counter",
-									"default":0
-								}
-							]
-						},
-						{
-							"name":"Accumulation",
-							"id":"match_teleop_accum",
-							"inputs":[
-								{
-									"name":"Ground",
-									"id":"match_teleop_accum_ground",
-									"type":"counter",
+									"id":"match_teleop_shooting_lower",
+									"type":"multicounter",
+									"options":[
+										"Score",
+										"Miss"
+									],
+									"negative":[
+										false,
+										true
+									],
 									"default":0
 								},
 								{
-									"name":"Lower LS",
-									"id":"match_teleop_accum_lower",
-									"type":"counter",
-									"default":0
+									"name": "Upper Goal Score",
+									"id": "match_teleop_shooting_upper_total",
+									"type": "sum",
+									"options": [
+										"match_teleop_shooting_upper_outer",
+										"match_teleop_shooting_upper_inner"
+									]
 								},
 								{
-									"name":"Upper LS",
-									"id":"match_teleop_accum_upper",
-									"type":"counter",
-									"default":0
+									"name": "Upper Goal Accuracy",
+									"id": "match_teleop_shooting_upper_accuracy",
+									"type": "total",
+									"options": [
+										"match_teleop_shooting_upper_total",
+										"match_teleop_shooting_upper_miss"
+									]
+								},
+								{
+									"name": "Inner vs Outer Goal",
+									"id": "match_teleop_shooting_inner_to_outer",
+									"type": "ratio",
+									"options": [
+										"match_teleop_shooting_upper_outer",
+										"match_teleop_shooting_upper_inner"
+									]
 								}
 							]
 						},
@@ -404,7 +402,7 @@
 								{
 									"name":"Rating (1-5)",
 									"id":"match_notes_rating",
-									"type":"number",
+									"type":"slider",
 									"options":[
 										1,
 										5

@@ -27,31 +27,32 @@ var config = [
 function build_preview_from_config()
 {
     document.getElementById('config-preview').innerHTML = ''
-    var select_ids = []
+    let select_ids = []
     // iterate through each mode
     config.forEach(function (config, index)
     {
         // iterate through each page in the mode
         config.pages.forEach(function (page, index)
         {
-            var page_name = page.name
-            var pid = page.id
+            let page_name = page.name
+            let pid = page.id
             columns = [build_multi_button(`${pid}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${pid}', 0)`, `shift('${pid}', 1)`, `shift('${pid}', 2)`], 'slim')]
             // iterate through each column in the page
             page['columns'].forEach(function (column, index)
             {
                 var col_name = column.name
-                var cid = column.id
+                let cid = column.id
                 items = [build_multi_button(`${cid}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${cid}', 0)`, `shift('${cid}', 1)`, `shift('${cid}', 2)`], 'slim')]
                 // iterate through input in the column
                 column['inputs'].forEach(function (input, index)
                 {
-                    var name = input.name
-                    var id = input.id
-                    var type = input.type
-                    var default_val = input.default
+                    let name = input.name
+                    let id = input.id
+                    let type = input.type
+                    let default_val = input.default
+                    let options = input['options']
 
-                    var item = ''
+                    let item = ''
                     // build each input from its template
                     switch (type)
                     {
@@ -66,24 +67,29 @@ function build_preview_from_config()
                             item = build_counter(id, name, default_val)
                             break
                         case 'multicounter':
-                            item = build_multi_counter(id, name, input['options'], default_val)
+                            item = build_multi_counter(id, name, options, default_val)
                             break
                         case 'select':
-                            item = build_select(id, name, input['options'], default_val)
+                            item = build_select(id, name, options, default_val)
                             break
                         case 'dropdown':
-                            item = build_dropdown(id, name, input['options'], default_val)
+                            item = build_dropdown(id, name, options, default_val)
                             break
                         case 'string':
                             item = build_str_entry(id, name, default_val)
                             break
                         case 'number':
-                            let options = []
-                            if (Object.keys(input).includes('options'))
-                            {
-                                options = input['options']
-                            }
                             item = build_num_entry(id, name, default_val, options)
+                            break
+                        case 'slider':
+                            let min = options[0]
+                            let max = options[1]
+                            let incr = 1
+                            if (options.length > 2)
+                            {
+                                incr = options[2]
+                            }
+                            item = build_slider(id, name, min, max, incr, default_val)
                             break
                         case 'text':
                             item = build_text_entry(id, name, default_val)
@@ -187,7 +193,7 @@ function shift(id, func)
 function build_page()
 {
     let modes = ['Pit', 'Match']
-    let inputs = ['Button', 'Checkbox', 'Counter', 'Multi-Counter', 'Select', 'Dropdown', 'String', 'Number', 'Text', 'Sum', 'Total', 'Ratio']
+    let inputs = ['Button', 'Checkbox', 'Counter', 'Multi-Counter', 'Select', 'Dropdown', 'String', 'Number', 'Slider', 'Text', 'Sum', 'Total', 'Ratio']
 
     document.getElementById('add-item').innerHTML = build_page_frame('Add Item', [
             build_column_frame('', [build_dropdown('new-element-mode', 'Mode:', modes, default_op='', onchange='populate_dropdowns(`mode`)'),
@@ -201,6 +207,7 @@ function build_page()
             build_column_frame('', [build_str_entry('new-element-options', 'Options:'),
                                     build_num_entry('new-element-min', 'Min:'),
                                     build_num_entry('new-element-max', 'Max:'),
+                                    build_num_entry('new-element-step', 'Step:'),
                                     build_str_entry('new-element-default', 'Default:')]),
             build_column_frame('', [build_button('new-element-submit', 'Add', 'create_element()')])
         ]) + build_page_frame('Config', [
@@ -323,6 +330,7 @@ function create_element()
     let options = document.getElementById('new-element-options').value.split(',').map(option => option.trim())
     let min = document.getElementById('new-element-min').value
     let max = document.getElementById('new-element-max').value
+    let step = document.getElementById('new-element-step').value
     switch (document.getElementById('new-element-level').selectedIndex)
     {
         // page
@@ -423,18 +431,34 @@ function create_element()
                     }
                     break
                 case 8:
+                    item.type = 'slider'
+                    if (defalt.length > 0)
+                    {
+                        item.default = parseInt(defalt)
+                    }
+                    else
+                    {
+                        item.default = 0
+                    }
+                    item.options = [min, max]
+                    if (step)
+                    {
+                        item.options.push(step)
+                    }
+                    break
+                case 9:
                     item.type = 'text'
                     item.default = defalt
                     break
-                case 9:
+                case 10:
                     item.type = 'sum'
                     item.options = options
                     break
-                case 10:
+                case 11:
                     item.type = 'total'
                     item.options = options
                     break
-                case 11:
+                case 12:
                     item.type = 'ratio'
                     item.options = options
                     break
@@ -534,18 +558,18 @@ function update_add_panel()
         case 0:
             set_elements_display(['new-element-short'], 'block')
             set_elements_display(['new-element-page', 'new-element-column', 'new-element-type', 'new-element-default',
-                                  'new-element-options', 'new-element-min', 'new-element-max'], 'none')
+                                  'new-element-options', 'new-element-min', 'new-element-max', 'new-element-step'], 'none')
             break
         // column
         case 1:
             set_elements_display(['new-element-page'], 'block')
             set_elements_display(['new-element-column', 'new-element-type', 'new-element-default', 
-                'new-element-short', 'new-element-options', 'new-element-min', 'new-element-max'], 'none')
+                'new-element-short', 'new-element-options', 'new-element-min', 'new-element-max', 'new-element-step'], 'none')
             break
         // item
         case 2:
             set_elements_display(['new-element-page', 'new-element-column', 'new-element-type', 'new-element-default'], 'block')
-            set_elements_display(['new-element-short'], 'none')
+            set_elements_display(['new-element-short', 'new-element-step'], 'none')
 
             switch (document.getElementById('new-element-type').selectedIndex)
             {
@@ -556,10 +580,13 @@ function update_add_panel()
                 // string
                 case 6:
                 // text
-                case 8:
+                case 9:
                     set_elements_display(['new-element-options', 'new-element-min', 'new-element-max'], 'none')
                     break
-
+                
+                // slider
+                case 8:
+                    set_elements_display(['new-element-step'], 'block')
                 // counter
                 case 2:
                 // number
@@ -569,11 +596,11 @@ function update_add_panel()
                     break
 
                 // sum
-                case 9:
-                // total
                 case 10:
-                // ratio
+                // total
                 case 11:
+                // ratio
+                case 12:
                     set_elements_display(['new-element-default'], 'none')
                 // multicounter
                 case 3:
@@ -588,7 +615,7 @@ function update_add_panel()
             break
     }
 
-    let texts = ['new-element-name', 'new-element-id', 'new-element-default', 'new-element-short', 'new-element-options', 'new-element-min', 'new-element-max']
+    let texts = ['new-element-name', 'new-element-id', 'new-element-default', 'new-element-short', 'new-element-options', 'new-element-min', 'new-element-max', 'new-element-step']
     texts.forEach(function (e) { document.getElementById(e).value = '' })
 }
 

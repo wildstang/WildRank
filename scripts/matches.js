@@ -96,6 +96,10 @@ function build_options_list(matches)
             document.getElementById('option_list').innerHTML += build_match_option(number, red_teams, blue_teams, scouted)
         }
     })
+    if (first == '')
+    {
+        first = matches[0].match_number
+    }
 
     open_match(first)
     scroll_to('option_list', `match_${first}`)

@@ -48,6 +48,8 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                 let id = input.id
                 let type = input.type
                 let options = input.options
+                let min = 0
+                let max = 10
 
                 // randomly generate results appropriate for each input
                 switch (type)
@@ -72,8 +74,6 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                         results[id] = random_int(0, options.length - 1)
                         break
                     case 'number':
-                        let min = 0
-                        let max = 10
                         if (options.length == 2)
                         {
                             min = options[0]
@@ -82,6 +82,14 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                         else if (options.length == 1)
                         {
                             max = options[0]
+                        }
+                        results[id] = random_int(min, max)
+                        break
+                    case 'slider':
+                        if (options.length >= 2)
+                        {
+                            min = options[0]
+                            max = options[1]
                         }
                         results[id] = random_int(min, max)
                         break

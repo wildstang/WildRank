@@ -21,7 +21,6 @@ function build_page_from_config()
     config.pages.forEach(function (page, index)
     {
         var page_name = page.name
-        var page_id = page.id
         columns = []
         // iterate through each column in the page
         page['columns'].forEach(function (column, index)
@@ -35,6 +34,7 @@ function build_page_from_config()
                 var id = input.id
                 var type = input.type
                 var default_val = input.default
+                let options = input['options']
                 if (edit)
                 {
                     default_val = results[id]
@@ -67,24 +67,27 @@ function build_page_from_config()
                         item = build_counter(id, name, default_val)
                         break
                     case 'multicounter':
-                        item = build_multi_counter(id, name, input['options'], default_val)
+                        item = build_multi_counter(id, name, options, default_val)
                         break
                     case 'select':
-                        item = build_select(id, name, input['options'], default_val)
+                        item = build_select(id, name, options, default_val)
                         break
                     case 'dropdown':
-                        item = build_dropdown(id, name, input['options'], default_val)
+                        item = build_dropdown(id, name, options, default_val)
                         break
                     case 'string':
                         item = build_str_entry(id, name, default_val)
                         break
                     case 'number':
-                        let options = []
-                        if (Object.keys(input).includes('options'))
-                        {
-                            options = input['options']
-                        }
                         item = build_num_entry(id, name, default_val, options)
+                        break
+                    case 'slider':
+                        let step = 1
+                        if (options.length >= 3)
+                        {
+                            step = options[3]
+                        }
+                        item = build_slider(id, name, options[0], options[1], step, default_val)
                         break
                     case 'text':
                         item = build_text_entry(id, name, default_val)
@@ -177,6 +180,9 @@ function get_results_from_page()
                         break
                     case 'number':
                         results[id] = parseInt(document.getElementById(id).value)
+                        break
+                    case 'slider':
+                        results[id] = document.getElementById(id).value
                         break
                     case 'string':
                     case 'text':
@@ -317,6 +323,7 @@ function generate_results()
                         document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
                         break
                     case 'number':
+                    case 'silder':
                         let min = 0
                         let max = 10
                         if (options.length == 2)

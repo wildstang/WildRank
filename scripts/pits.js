@@ -78,6 +78,11 @@ function build_options_list(teams)
         // replace placeholders in template and add to screen
         document.getElementById('option_list').innerHTML += build_option(number, scouted)
     })
+    if (first == '')
+    {
+        first = teams[0].team_number
+    }
+
     open_option(first)
     scroll_to('option_list', `option_${first}`)
 }
