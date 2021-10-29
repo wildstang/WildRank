@@ -45,8 +45,11 @@
 }
 
 .wr_card {
-    display: inline-block;
     min-width: calc(var(--input-width) - 2*var(--input-padding));
+}
+
+#contents_card.wr_card {
+    display: inline-block;
 }
 
 .wr_checkbox, .wr_counter, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option {

@@ -6,6 +6,8 @@
  * date:        2021-09-03
  */
 
+const FUNCTIONS = ['mean', 'median', 'mode', 'min', 'max']
+
 // read parameters from URL
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
@@ -146,7 +148,7 @@ function open_match(match_num)
         let notes = '<table>'
         vals.forEach(function (v)
         {
-            let stat = avg_results(get_team_results(results, team_num), v.key, functions.indexOf(v.function))
+            let stat = avg_results(get_team_results(results, team_num), v.key, FUNCTIONS.indexOf(v.function))
             notes += `<tr><td>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</td><td>${get_value(v.key, stat)}</td></tr>`
         })
         notes += '</table>'
@@ -174,12 +176,12 @@ function open_match(match_num)
         let team_info = `<center>${team_num}<br>${get_team_name(team_num, event_id)}<br>${rank}</center>`
         if (alliance == 'red')
         {
-            reds.push(build_card('', team_info, limit_width=true))
+            reds.push(build_card('', team_info))
             reds.push(build_card('', notes))
         }
         else
         {
-            blues.push(build_card('', team_info, limit_width=true))
+            blues.push(build_card('', team_info))
             blues.push(build_card('', notes))
         }
     })

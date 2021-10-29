@@ -61,7 +61,7 @@ function init_page(contents_card, buttons_container)
 {
     // base layer of page with loading text
     contents_card.innerHTML = '<h2>Zebra data is loading...</h2><progress id="progress" value="0" max="100"></progress>'
-    buttons_container.innerHTML = '<div id="data"></div><canvas id="whiteboard"></canvas>'
+    buttons_container.innerHTML = '<div id="data" class="column"></div><canvas id="whiteboard"></canvas>'
 
     // load in teams
     let file_name = get_event_teams_name(event_id)
