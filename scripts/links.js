@@ -162,6 +162,17 @@ function open_config()
 }
 
 /**
+ * function:    open_coach
+ * parameters:  none
+ * returns:     none
+ * description: Open the drive coach view page.
+ */
+function open_coach()
+{
+    return build_url('selection', {'page': 'coach', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
  * function:    open_settings
  * parameters:  none
  * returns:     none

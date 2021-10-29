@@ -232,8 +232,7 @@
 									"id":"match_auto_shooting_upper",
 									"type":"multicounter",
 									"options":[
-										"Outer",
-										"Inner",
+										"Score",
 										"Miss"
 									],
 									"default":0

@@ -9,6 +9,32 @@
         "upload_url": "http://localhost",
         "user_id": 715138
     },
+    "coach_vals": [
+        {
+            "function": "mean",
+            "key": "match_teleop_shooting_upper_score"
+        },
+        {
+            "function": "median",
+            "key": "match_teleop_shooting_upper_score"
+        },
+        {
+            "function": "mode",
+            "key": "match_teleop_shooting_upper_score"
+        },
+        {
+            "function": "min",
+            "key": "match_teleop_shooting_upper_score"
+        },
+        {
+            "function": "max",
+            "key": "match_teleop_shooting_upper_score"
+        },
+        {
+            "function": "min",
+            "key": "match_teleop_shooting_upper_score"
+        }
+    ],
     "whiteboard": [
         {
             "year": "2020",

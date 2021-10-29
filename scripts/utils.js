@@ -459,6 +459,17 @@ function get_team_rankings(team_num, event)
 }
 
 /**
+ * function:    is_match_scouted
+ * parameters:  current event, match number
+ * returns:     true if there are any results for the given match
+ * description: Determines if a given event-match has any results available.
+ */
+function is_match_scouted(event, match)
+{
+    return Object.keys(localStorage).filter(f => f.startsWith(get_match_result(match, '', event))).length > 0
+}
+
+/**
  * function:    get_avatar
  * parameters:  team number, year to choose
  * returns:     source of team avatar
