@@ -180,7 +180,18 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.map.call(document.getElementsByClassName('pit_option selected'), item => item.id.replace('option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+}
+
+/**
+ * function:    get_secondary_selected_keys
+ * parameters:  none
+ * returns:     array of selected keys
+ * description: Builds an array of the currently selected keys.
+ */
+function get_secondary_selected_keys()
+{
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('s')).map(item => item.id.replace('soption_', ''))
 }
 
 /**
@@ -282,13 +293,11 @@ function build_plot()
     let font_size = 16
     
     // draw line to highlight teams
-    let options = document.getElementById('secondary_option_list').children
     let selected = 0
-    for (let i = 0; i < options.length; ++i)
+    get_secondary_selected_keys().forEach(function (highlight)
     {
-        let highlight = options[i].id.replace('soption_', '')
         // check if selected and avoid invalid team numbers
-        if (options[i].classList.contains('selected') && !isNaN(parseInt(highlight)))
+        if (!isNaN(parseInt(highlight)))
         {
             ctx.beginPath()
             ctx.fillStyle = 'red'
@@ -307,7 +316,7 @@ function build_plot()
             ctx.stroke()
             selected++
         }
-    }
+    })
 
     // draw each bin
     let maxBin = Math.max(...counts)

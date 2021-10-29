@@ -55,6 +55,7 @@ function init_page(contents_card, buttons_container)
     // load keys from localStorage and build list
     collect_results()
     keys = Object.keys(results[Object.keys(results)[0]]).filter(key => !key.startsWith('meta_'))
+    enable_secondary_list()
     build_list(keys)
 }
 
@@ -69,39 +70,19 @@ function build_list(keys)
     // add pick list selector at top
     let ops = Object.keys(lists)
     ops.unshift('None')
-    document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
+    document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'build_table()')
     
     // iterate through result keys
     keys.forEach(function (key, index)
     {
         document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
     })
-}
 
-/**
- * function:    select_list
- * parameters:  keys
- * returns:     none
- * description: Updates teams based on selected pick list.
- */
-function select_list()
-{
-    // get selected pick list
-    let e = document.getElementById('select_list')
-    let list = e.options[e.selectedIndex].text
-
-    if (Object.keys(lists).includes(list))
+    // add second option list of teams
+    all_teams.forEach(function (key)
     {
-        // select teams from pick list
-        teams = lists[list]
-    }
-    else
-    {
-        // select all teams if "None" is selected
-        teams = all_teams
-    }
-
-    build_table()
+        document.getElementById('secondary_option_list').innerHTML += build_option(key, '', key, '', false)
+    })
 }
 
 /**
@@ -127,6 +108,28 @@ function open_option(key)
 }
 
 /**
+ * function:    open_secondary_option
+ * parameters:  Selected key
+ * returns:     none
+ * description: Selects and opens a secondary option.
+ */
+function open_secondary_option(key)
+{
+    let class_list = document.getElementById(`soption_${key}`).classList
+    // select team button
+    if (class_list.contains('selected'))
+    {
+        class_list.remove('selected')
+    }
+    else
+    {
+        class_list.add('selected')
+    }
+
+    build_table()
+}
+
+/**
  * function:    get_selected_keys
  * parameters:  none
  * returns:     array of selected keys
@@ -134,7 +137,18 @@ function open_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.map.call(document.getElementsByClassName('pit_option selected'), item => item.id.replace('option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+}
+
+/**
+ * function:    get_secondary_selected_keys
+ * parameters:  none
+ * returns:     array of selected keys
+ * description: Builds an array of the currently selected keys.
+ */
+function get_secondary_selected_keys()
+{
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('s')).map(item => item.id.replace('soption_', ''))
 }
 
 /**
@@ -148,6 +162,26 @@ function build_table(sort_by='', reverse=false)
     let selected = get_selected_keys()
     let method = get_selected_option('type_form')
 
+    // get selected pick list
+    let e = document.getElementById('select_list')
+    let list = e.options[e.selectedIndex].text
+
+    if (Object.keys(lists).includes(list))
+    {
+        // select teams from pick list
+        teams = lists[list]
+    }
+    else
+    {
+        // select all teams if "None" is selected
+        teams = all_teams
+    }
+
+    let filter_teams = get_secondary_selected_keys()
+    if (filter_teams.length > 0)
+    {
+        teams = all_teams.filter(team => filter_teams.includes(team.toString()))
+    }
 
     if (selected.includes(sort_by))
     {

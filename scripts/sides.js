@@ -36,7 +36,7 @@ function init_page(contents_card, buttons_container)
             build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
             build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair', 'select()') ])
         ], false)}<br>
-        <div class="wr_card"><table id="compare_tab"></table></div>`
+        <div class="column"><center><div class="wr_card"><table id="compare_tab"></table></div></center></div>`
 
     enable_secondary_list()
     if (collect_results() > 0)
