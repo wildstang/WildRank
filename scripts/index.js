@@ -289,9 +289,15 @@ function count_results(event_id, type)
  */
 function parse_server_addr(addr)
 {
-    if (addr.indexOf('/', 8) > -1)
+    let slash = addr.indexOf('/', 8)
+    let dot = addr.lastIndexOf('.')
+    if (slash > -1 && dot > 0 && slash < dot)
     {
-        return addr.substr(0, addr.lastIndexOf('/'))
+        addr = addr.substr(0, addr.lastIndexOf('/'))
+    }
+    if (addr.endsWith('/'))
+    {
+        addr = addr.substr(0, addr.length - 1)
     }
     return addr
 }
