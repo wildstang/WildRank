@@ -1,5 +1,5 @@
 /**
- * file:        notes.js
+ * file:        note.js
  * description: Contains functions for the note taking page of the web app.
  * author:      Liam Fruzyna
  * date:        2020-06-18
