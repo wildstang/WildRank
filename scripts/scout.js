@@ -8,6 +8,8 @@
 
 const start = Date.now()
 
+var cycles = {}
+
 /** 
  * function:    build_page_from_config
  * parameters:  none
@@ -26,6 +28,8 @@ function build_page_from_config()
         page['columns'].forEach(function (column, index)
         {
             var col_name = column.name
+            let cycle = column.cycle
+            let cycle_ops = {}
             items = []
             // iterate through input in the column
             column['inputs'].forEach(function (input, index)
@@ -52,6 +56,34 @@ function build_page_from_config()
                     }
                 }
 
+                // add the current input layer to the cycles
+                if (cycle && (type == 'select' || type == 'dropdown' || type == 'multicounter'))
+                {
+                    let new_cops = {}
+                    for (let op of options)
+                    {
+                        if (Object.keys(cycle_ops).length == 0)
+                        {
+                            new_cops[`${column.id}_${op.toLowerCase().split().join('_')}`] =
+                            {
+                                name: `${column.name} ${op}`,
+                                total: 0,
+                                values: []
+                            }
+                        }
+                        for (let cop of Object.keys(cycle_ops))
+                        {
+                            new_cops[`${cop}_${op.toLowerCase().split().join('_')}`] =
+                            {
+                                name: `${cycle_ops[cop].name} ${op}`,
+                                total: 0,
+                                values: []
+                            }
+                        }
+                    }
+                    cycle_ops = new_cops
+                }
+
                 var item = ''
                 // build each input from its template
                 switch (type)
@@ -64,7 +96,13 @@ function build_page_from_config()
                         item = build_checkbox(id, name, default_val)
                         break
                     case 'counter':
-                        item = build_counter(id, name, default_val)
+                        let onincrement = ''
+                        if (cycle)
+                        {
+                            // TODO parameter for increment/decrement
+                            onincrement = `update_cycle('${column.id}')`
+                        }
+                        item = build_counter(id, name, default_val, onincrement)
                         break
                     case 'multicounter':
                         item = build_multi_counter(id, name, options, default_val)
@@ -95,7 +133,26 @@ function build_page_from_config()
                 }
                 items.push(item)
             })
-            columns.push(build_column_frame(col_name, items))
+            columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
+            if (cycle)
+            {
+                cycle_ops[`${column.id}_cycles`] =
+                {
+                    name: `${column.name} Cycles`,
+                    total: 0
+                }
+                cycles[column.id] = cycle_ops
+
+                if (edit)
+                {
+                    for (let key of Object.keys(cycles[column.id]))
+                    {
+                        cycles[column.id][key].total = results[id]
+                        cycles[column.id][key].values = results[`${key}_temporal`]
+                        // TODO populate items
+                    }
+                }
+            }
         })
         document.body.innerHTML += build_page_frame(page_name, columns)
         
@@ -107,6 +164,84 @@ function build_page_from_config()
     select_ids.forEach(function (id, index)
     {
         document.getElementById(id).classList.add('selected')
+    })
+}
+
+/** 
+ * function:    update_cycle
+ * parameters:  cycle name
+ * returns:     none
+ * description: Saves the current cycles and moves on to the next.
+ */
+function update_cycle(cycle)
+{
+    config.pages.forEach(function (page)
+    {
+        // iterate through each column in the page
+        page['columns'].forEach(function (column)
+        {
+            if (column.id == cycle)
+            {
+                let cycle_id = column.id
+                column['inputs'].forEach(function (input)
+                {
+                    let type = input.type
+                    if (type == 'multicounter' || type == 'select' || type == 'dropdown')
+                    {
+                        let id = input.id
+                        let ops = input.options
+
+                        let op = ''
+                        switch (type)
+                        {
+                            case 'select':
+                                let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+                                let i = 0
+                                for (let option of children)
+                                {
+                                    if (option.classList.contains('selected'))
+                                    {
+                                        op = ops[i]
+                                        break
+                                    }
+                                    i++
+                                }
+                                break
+                            case 'dropdown':
+                                op = ops[document.getElementById(id).selectedIndex]
+                                break
+                            // assumes multicounter is after all selects and dropdowns
+                            case 'multicounter':
+                                ops.forEach(function (op) {
+                                    let op_id = `${id}_${op.toLowerCase().split().join('_')}`
+                                    let result_id = `${cycle_id}_${op.toLowerCase().split().join('_')}`
+                                    let val = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
+                                    // TODO handle going backwards
+                                    cycles[cycle][result_id].values.push(val)
+                                    cycles[cycle][result_id].total += val
+                                    document.getElementById(`${op_id}-value`).innerHTML = input.default
+                                })
+                                break
+                            // assumes cycles counter is the last item
+                            case 'counter':
+                                let val = parseInt(document.getElementById(id).innerHTML)
+                                let last = cycles[cycle][`${column.id}_cycles`].total
+                                if (val > last)
+                                {
+                                    cycles[cycle][`${column.id}_cycles`].total = val
+                                }
+                                else
+                                {
+                                    // TODO repopulate items
+                                }
+                                break
+                        }
+                        // adds current select/dropdown selection to cycle id and name
+                        cycle_id += `_${op.toLowerCase()}`
+                    }
+                })
+            }
+        })
     })
 }
 
@@ -142,67 +277,80 @@ function get_results_from_page()
     {
         page['columns'].forEach(function (column, index)
         {
-            column['inputs'].forEach(function (input, index)
+            // check if its a cycle column
+            if (column.cycle)
             {
-                let id = input.id
-                let type = input.type
-                let options = input.options
-
-                switch (type)
+                let cycle = cycles[column.id]
+                for (let key of Object.keys(cycle))
                 {
-                    case 'checkbox':
-                        results[id] = document.getElementById(id).checked
-                        break
-                    case 'counter':
-                        results[id] = parseInt(document.getElementById(id).innerHTML)
-                        break
-                    case 'multicounter':
-                        options.forEach(function (op) {
-                            let name = `${id}_${op.toLowerCase().split().join('_')}`
-                            results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
-                        })
-                        break
-                    case 'select':
-                        results[id] = -1
-                        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                        let i = 0
-                        for (let option of children)
-                        {
-                            if (option.classList.contains('selected'))
-                            {
-                                results[id] = i
-                            }
-                            i++
-                        }
-                        break
-                    case 'dropdown':
-                        results[id] = document.getElementById(id).selectedIndex
-                        break
-                    case 'number':
-                        results[id] = parseInt(document.getElementById(id).value)
-                        break
-                    case 'slider':
-                        results[id] = document.getElementById(id).value
-                        break
-                    case 'string':
-                    case 'text':
-                        results[id] = document.getElementById(id).value
-                        break
-                    // "smart" values use other valus not inputs
-                    // must be listed after dependencies in scout-config
-                    case 'sum':
-                        let total = 0
-                        options.forEach(k => total += results[k])
-                        results[id] = total
-                        break
-                    case 'total':
-                        results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
-                        break
-                    case 'ratio':
-                        results[id] = results[options[0]] / results[options[1]]
-                        break
+                    results[key] = cycle[key].total
+                    results[`${key}_temporal`] = cycle[key].values
                 }
-            })
+            }
+            else
+            {
+                column['inputs'].forEach(function (input, index)
+                {
+                    let id = input.id
+                    let type = input.type
+                    let options = input.options
+
+                    switch (type)
+                    {
+                        case 'checkbox':
+                            results[id] = document.getElementById(id).checked
+                            break
+                        case 'counter':
+                            results[id] = parseInt(document.getElementById(id).innerHTML)
+                            break
+                        case 'multicounter':
+                            options.forEach(function (op) {
+                                let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
+                            })
+                            break
+                        case 'select':
+                            results[id] = -1
+                            let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+                            let i = 0
+                            for (let option of children)
+                            {
+                                if (option.classList.contains('selected'))
+                                {
+                                    results[id] = i
+                                }
+                                i++
+                            }
+                            break
+                        case 'dropdown':
+                            results[id] = document.getElementById(id).selectedIndex
+                            break
+                        case 'number':
+                            results[id] = parseInt(document.getElementById(id).value)
+                            break
+                        case 'slider':
+                            results[id] = document.getElementById(id).value
+                            break
+                        case 'string':
+                        case 'text':
+                            results[id] = document.getElementById(id).value
+                            break
+                        // "smart" values use other values not inputs
+                        // must be listed after dependencies in scout-config
+                        case 'sum':
+                            let total = 0
+                            options.forEach(k => total += results[k])
+                            results[id] = total
+                            break
+                        case 'total':
+                            results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
+                            break
+                        case 'ratio':
+                            results[id] = results[options[0]] / results[options[1]]
+                            break
+                    }
+                })
+            }
         })
     })
 
@@ -302,6 +450,7 @@ function generate_results()
                 var type = input.type
                 var options = input.options
 
+                // TODO handle cycles
                 switch (type)
                 {
                     case 'checkbox':

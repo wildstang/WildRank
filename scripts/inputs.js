@@ -22,13 +22,13 @@ function build_page_frame(page_name, columns, top_margin=true)
 
 /**
  * function:    build_column_frame
- * parameters:  column name, array of items as strings
+ * parameters:  column name, array of items as strings, additional header css classes
  * returns:     column object as a string
  * description: Builds the HTML string of a column object given its name and items.
  */
-function build_column_frame(column_name, items)
+function build_column_frame(column_name, items, additional_classes='')
 {
-    let header = column_name.length > 0 ? `<h2 class="column_header">${column_name}</h2>` : ''
+    let header = column_name.length > 0 ? `<h2 class="column_header ${additional_classes}">${column_name}</h2>` : ''
     return `<div class="column">
             ${header}
             ${items.join('')}
@@ -84,13 +84,14 @@ function build_checkbox(id, name, checked=false, onclick='')
 
 /**
  * function:    build_counter
- * parameters:  element id, name, default value
+ * parameters:  element id, name, default value, js to call on increment
  * returns:     wr_counter as a string
  * description: Builds the HTML string of a counter object.
  */
-function build_counter(id, name, value)
+function build_counter(id, name, value, onincrement='')
 {
-    return `<div class="wr_counter" onclick="increment('${id}', false)" oncontextmenu="return false" onauxclick="increment('${id}', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true)')\">
+    onincrement = onincrement.replace(/'/g, '\\\'')
+    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true)')\">
             <label class="wr_counter_count" id="${id}">${value}</label>
             <label>${name}</label>
         </div>`
@@ -356,13 +357,17 @@ function touch_button(secondary)
  * returns:     none
  * description: Increases the value of the counter on click, descreases on right.
  */
-function increment(id, right)
+function increment(id, right, onincrement='')
 {
     let current = document.getElementById(id).innerHTML
     let modifier = right ? -1 : 1
     if (current > 0 || modifier > 0)
     {
         document.getElementById(id).innerHTML = parseInt(current) + modifier
+    }
+    if (onincrement)
+    {
+        eval(onincrement)
     }
 }
 

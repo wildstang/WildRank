@@ -199,3 +199,8 @@
     text-decoration: line-through;
     color: red;
 }
+
+.cycle {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
