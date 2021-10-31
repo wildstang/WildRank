@@ -194,3 +194,8 @@
     background-color: var(--disabled-color);
     box-shadow: unset;
 }
+
+.crossed_out {
+    text-decoration: line-through;
+    color: red;
+}

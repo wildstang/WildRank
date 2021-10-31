@@ -23,10 +23,15 @@ function select_list(name='')
     if (Object.keys(lists).includes(name))
     {
         list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`, 'pick_item slim')}</td>`
-        lists[name].forEach(function (team, index)
+        lists[name].forEach(function (team)
         {
+            let classes = 'pick_item slim'
+            if (lists['picked'] && lists['picked'].includes(team))
+            {
+                classes += ' crossed_out'
+            }
             // add team button
-            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`, 'pick_item slim')}</td>`
+            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`, classes)}</td>`
         })
     }
     document.getElementById('teams').innerHTML = `${list_text}</tr>`

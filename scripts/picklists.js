@@ -121,10 +121,15 @@ function build_pick_lists(list_name='')
     if (Object.keys(lists).length > 0)
     {
         column_items.push(build_button('', 'Add to Top', `add_to('${list_name}', '')`, `remove_team('${list_name}', '')`))
-        lists[list_name].forEach(function (team, index)
+        lists[list_name].forEach(function (team)
         {
+            let classes = ''
+            if (lists['picked'] && lists['picked'].includes(team))
+            {
+                classes = 'crossed_out'
+            }
             // add team button
-            column_items.push(build_button('', team, `add_to('${list_name}', '${team}')`, `remove_team('${list_name}', '${team}')`))
+            column_items.push(build_multi_button(team, '', [team, '✗'], [`add_to('${list_name}', '${team}')`, `cross_out('${list_name}', '${team}')`], classes, [`remove_team('${list_name}', '${team}')`]))
         })
     }
 

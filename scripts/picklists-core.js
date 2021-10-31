@@ -49,6 +49,31 @@ function add_to(name, after_team)
 }
 
 /**
+ * function:    cross_out
+ * parameters:  team number
+ * returns:     none
+ * description: Toggles the selected team's crossed out status across all picklists.
+ */
+function cross_out(name, team)
+{
+    if (!Object.keys(lists).includes('picked'))
+    {
+        lists['picked'] = []
+    }
+    
+    if (lists['picked'].includes(team))
+    {
+        lists['picked'].splice(lists['picked'].indexOf(team), 1);
+    }
+    else
+    {
+        lists['picked'].push(team)
+    }
+
+    build_pick_lists(name)
+}
+
+/**
  * function:    create_list
  * parameters:  none
  * returns:     none

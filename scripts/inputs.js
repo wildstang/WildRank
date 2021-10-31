@@ -127,13 +127,13 @@ function build_multi_counter(id, name, option_names, values)
  * returns:     wr_select as a string
  * description: Builds the HTML string of a multi button object and its options.
  */
-function build_multi_button(id, name, option_names, onclicks, additional_classes='')
+function build_multi_button(id, name, option_names, onclicks, additional_classes='', onsecondarys=[])
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
     option_names.forEach(function (op_name, index)
     {
-        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" ontouchstart="touch_button(false)" ontouchend="touch_button('')">
+        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" oncontextmenu="return false" onauxclick="${onsecondarys[index]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondarys[index]}')">
                 <label>${op_name}</label>
             </span>`
     })
