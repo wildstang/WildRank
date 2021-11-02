@@ -488,56 +488,90 @@ function generate_results()
     {
         page['columns'].forEach(function (column, index)
         {
-            column['inputs'].forEach(function (input, index)
+            // check if its a cycle column
+            if (column.cycle)
             {
-                var id = input.id
-                var type = input.type
-                var options = input.options
-
-                // TODO handle cycles
-                switch (type)
+                let cycle = []
+                let num_cycles = random_int()
+                for (let i = 0; i < num_cycles; ++i)
                 {
-                    case 'checkbox':
-                        document.getElementById(id).checked = random_bool()
-                        break
-                    case 'counter':
-                        document.getElementById(id).innerHTML = random_int()
-                        break
-                    case 'multicounter':
-                        options.forEach(function (op) {
-                            let name = `${id}_${op.toLowerCase().split().join('_')}`
-                            document.getElementById(`${name}-value`).innerHTML = random_int()
-                        })
-                        break
-                    case 'select':
-                        select_option(id, random_int(0, options.length - 1))
-                        break
-                    case 'dropdown':
-                        document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
-                        break
-                    case 'number':
-                    case 'silder':
-                        let min = 0
-                        let max = 10
-                        if (options.length == 2)
+                    let c = {}
+                    for (let input of column.inputs)
+                    {
+                        let id = input.id
+                        let type = input.type
+                        let ops = input.options
+
+                        if (type == 'multicounter')
                         {
-                            min = options[0]
-                            max = options[1]
+                            for (let op of ops)
+                            {
+                                c[`${id}_${op.toLowerCase().split().join('_')}`] = random_int()
+                            }
                         }
-                        else if (options.length == 1)
+                        else
                         {
-                            max = options[0]
+                            c[id] = random_int(0, ops.length-1)
                         }
-                        document.getElementById(id).value = random_int(min, max)
-                        break
-                    case 'string':
-                        document.getElementById(id).value = "Random result"
-                        break
-                    case 'text':
-                        document.getElementById(id).value = "This result was randomly generated"
-                        break
+                    }
+                    cycle.push(c)
                 }
-            })
+                cycles[column.id] = cycle
+                update_cycle(column.id, true)
+            }
+            else
+            {
+                column['inputs'].forEach(function (input, index)
+                {
+                    var id = input.id
+                    var type = input.type
+                    var options = input.options
+    
+                    // TODO handle cycles
+                    switch (type)
+                    {
+                        case 'checkbox':
+                            document.getElementById(id).checked = random_bool()
+                            break
+                        case 'counter':
+                            document.getElementById(id).innerHTML = random_int()
+                            break
+                        case 'multicounter':
+                            options.forEach(function (op) {
+                                let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                document.getElementById(`${name}-value`).innerHTML = random_int()
+                            })
+                            break
+                        case 'select':
+                            select_option(id, random_int(0, options.length - 1))
+                            break
+                        case 'dropdown':
+                            document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
+                            break
+                        case 'number':
+                        case 'silder':
+                            let min = 0
+                            let max = 10
+                            if (options.length == 2)
+                            {
+                                min = options[0]
+                                max = options[1]
+                            }
+                            else if (options.length == 1)
+                            {
+                                max = options[0]
+                            }
+                            document.getElementById(id).value = random_int(min, max)
+                            break
+                        case 'string':
+                            document.getElementById(id).value = "Random result"
+                            break
+                        case 'text':
+                            document.getElementById(id).value = "This result was randomly generated"
+                            break
+                    }
+                })
+            }
         })
     })
 }

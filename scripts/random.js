@@ -43,76 +43,134 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
     {
         page['columns'].forEach(function (column, index)
         {
-            column['inputs'].forEach(function (input, index)
+            // check if its a cycle column
+            if (column.cycle)
             {
-                let id = input.id
-                let type = input.type
-                let options = input.options
-                let min = 0
-                let max = 10
-
-                // randomly generate results appropriate for each input
-                switch (type)
+                let cycle = []
+                let num_cycles = random_int()
+                for (let i = 0; i < num_cycles; ++i)
                 {
-                    case 'checkbox':
-                        results[id] = random_bool()
-                        break
-                    case 'counter':
-                        results[id] = random_int()
-                        break
-                    case 'multicounter':
-                        options.forEach(function (op)
+                    let c = {}
+                    for (let input of column.inputs)
+                    {
+                        let id = input.id
+                        let type = input.type
+                        let ops = input.options
+
+                        if (type == 'multicounter')
                         {
-                            let name = `${id}_${op.toLowerCase().split().join('_')}`
-                            results[name] = random_int()
-                        })
-                        break
-                    case 'select':
-                        results[id] = random_int(0, options.length - 1)
-                        break
-                    case 'dropdown':
-                        results[id] = random_int(0, options.length - 1)
-                        break
-                    case 'number':
-                        if (options.length == 2)
-                        {
-                            min = options[0]
-                            max = options[1]
+                            for (let op of ops)
+                            {
+                                c[`${id}_${op.toLowerCase().split().join('_')}`] = random_int()
+                            }
                         }
-                        else if (options.length == 1)
+                        else
                         {
-                            max = options[0]
+                            c[id] = random_int(0, ops.length-1)
                         }
-                        results[id] = random_int(min, max)
-                        break
-                    case 'slider':
-                        if (options.length >= 2)
-                        {
-                            min = options[0]
-                            max = options[1]
-                        }
-                        results[id] = random_int(min, max)
-                        break
-                    case 'string':
-                        results[id] = 'Random Result'
-                    case 'text':
-                        results[id] = 'This result was randomly generated'
-                        break
-                    // "smart" values use other valus not inputs
-                    // must be listed after dependencies in scout-config
-                    case 'sum':
-                        let total = 0
-                        options.forEach(k => total += results[k])
-                        results[id] = total
-                        break
-                    case 'total':
-                        results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
-                        break
-                    case 'ratio':
-                        results[id] = results[options[0]] / results[options[1]]
-                        break
+                    }
+                    cycle.push(c)
                 }
-            })
+                results[column.id] = cycle
+                results[`${column.id}_cycles`] = num_cycles
+                
+                // build automatic input results
+                column['inputs'].forEach(function (input)
+                {
+                    input.options.forEach(function (op, i) {
+                        let id = `${input.id}_${op.toLowerCase().split().join('_')}`
+                        let type = input.type
+
+                        if (type == 'multicounter')
+                        {
+                            let count = 0
+                            if (cycle.length > 0)
+                            {
+                                count = cycle.map(c => c[id]).reduce((a, b) => a + b)
+                            }
+                            results[id] = count
+                        }
+                        else
+                        {
+                            // NOTE: right now just # of cycles
+                            results[id] = cycle.filter(c => c[input.id] == i).length
+                        }
+                    })
+                })
+            }
+            else
+            {
+                column['inputs'].forEach(function (input, index)
+                {
+                    let id = input.id
+                    let type = input.type
+                    let options = input.options
+                    let min = 0
+                    let max = 10
+
+                    // randomly generate results appropriate for each input
+                    switch (type)
+                    {
+                        case 'checkbox':
+                            results[id] = random_bool()
+                            break
+                        case 'counter':
+                            results[id] = random_int()
+                            break
+                        case 'multicounter':
+                            options.forEach(function (op)
+                            {
+                                let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                results[name] = random_int()
+                            })
+                            break
+                        case 'select':
+                            results[id] = random_int(0, options.length - 1)
+                            break
+                        case 'dropdown':
+                            results[id] = random_int(0, options.length - 1)
+                            break
+                        case 'number':
+                            if (options.length == 2)
+                            {
+                                min = options[0]
+                                max = options[1]
+                            }
+                            else if (options.length == 1)
+                            {
+                                max = options[0]
+                            }
+                            results[id] = random_int(min, max)
+                            break
+                        case 'slider':
+                            if (options.length >= 2)
+                            {
+                                min = options[0]
+                                max = options[1]
+                            }
+                            results[id] = random_int(min, max)
+                            break
+                        case 'string':
+                            results[id] = 'Random Result'
+                        case 'text':
+                            results[id] = 'This result was randomly generated'
+                            break
+                        // "smart" values use other valus not inputs
+                        // must be listed after dependencies in scout-config
+                        case 'sum':
+                            let total = 0
+                            options.forEach(k => total += results[k])
+                            results[id] = total
+                            break
+                        case 'total':
+                            results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
+                            break
+                        case 'ratio':
+                            results[id] = results[options[0]] / results[options[1]]
+                            break
+                    }
+                })
+            }
         })
     })
 

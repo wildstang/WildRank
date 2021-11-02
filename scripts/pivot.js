@@ -54,7 +54,11 @@ function init_page(contents_card, buttons_container)
 
     // load keys from localStorage and build list
     collect_results()
-    keys = Object.keys(results[Object.keys(results)[0]]).filter(key => !key.startsWith('meta_'))
+    keys = Object.keys(results[Object.keys(results)[0]]).filter(function (key)
+    {
+        let type = get_type(key)
+        return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text'
+    })
     enable_secondary_list()
     build_list(keys)
 }
