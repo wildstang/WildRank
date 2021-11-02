@@ -88,10 +88,11 @@ function build_checkbox(id, name, checked=false, onclick='')
  * returns:     wr_counter as a string
  * description: Builds the HTML string of a counter object.
  */
-function build_counter(id, name, value, onincrement='')
+function build_counter(id, name, value, onincrement='', ondecrement='')
 {
     onincrement = onincrement.replace(/'/g, '\\\'')
-    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true)')\">
+    ondecrement = ondecrement.replace(/'/g, '\\\'')
+    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true, '${ondecrement}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true, '${ondecrement}')')\">
             <label class="wr_counter_count" id="${id}">${value}</label>
             <label>${name}</label>
         </div>`

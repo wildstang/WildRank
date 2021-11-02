@@ -96,13 +96,7 @@ function build_page_from_config()
                         item = build_checkbox(id, name, default_val)
                         break
                     case 'counter':
-                        let onincrement = ''
-                        if (cycle)
-                        {
-                            // TODO parameter for increment/decrement
-                            onincrement = `update_cycle('${column.id}')`
-                        }
-                        item = build_counter(id, name, default_val, onincrement)
+                        item = build_counter(id, name, default_val)
                         break
                     case 'multicounter':
                         item = build_multi_counter(id, name, options, default_val)
@@ -133,26 +127,29 @@ function build_page_from_config()
                 }
                 items.push(item)
             })
-            columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
             if (cycle)
             {
-                cycle_ops[`${column.id}_cycles`] =
+                // create cycle counter, call update_cycle() on change
+                let onincrement = ''
+                let ondecrement = ''
+                if (cycle)
                 {
-                    name: `${column.name} Cycles`,
-                    total: 0
+                    onincrement = `update_cycle('${column.id}', false)`
+                    ondecrement = `update_cycle('${column.id}', true)`
                 }
-                cycles[column.id] = cycle_ops
+                items.push(build_counter(`${column.id}_cycles`, 'Cycles', 0, onincrement, ondecrement))
 
+                // create and populate (if editing) cycle arrays
                 if (edit)
                 {
-                    for (let key of Object.keys(cycles[column.id]))
-                    {
-                        cycles[column.id][key].total = results[id]
-                        cycles[column.id][key].values = results[`${key}_temporal`]
-                        // TODO populate items
-                    }
+                    cycles[column.id] = results[column.id]
+                }
+                else
+                {
+                    cycles[column.id] = []
                 }
             }
+            columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
         })
         document.body.innerHTML += build_page_frame(page_name, columns)
         
@@ -165,16 +162,33 @@ function build_page_from_config()
     {
         document.getElementById(id).classList.add('selected')
     })
+
+    // populate first cycles into inputs
+    if (edit)
+    {
+        for (let cycle of Object.keys(cycles))
+        {
+            update_cycle(cycle, true)
+        }
+    }
 }
 
 /** 
  * function:    update_cycle
- * parameters:  cycle name
+ * parameters:  cycle name, if cycle was decremented
  * returns:     none
  * description: Saves the current cycles and moves on to the next.
  */
-function update_cycle(cycle)
+function update_cycle(cycle, decrement)
 {
+    // get selected and total number of cycles
+    let cycles_id = `${cycle}_cycles`
+    let val = parseInt(document.getElementById(cycles_id).innerHTML)
+    let last = cycles[cycle].length
+
+    let cycle_result = {}
+
+    // iterate through each column in the page
     config.pages.forEach(function (page)
     {
         // iterate through each column in the page
@@ -182,16 +196,16 @@ function update_cycle(cycle)
         {
             if (column.id == cycle)
             {
-                let cycle_id = column.id
+                // populate/save each input in the cycle
                 column['inputs'].forEach(function (input)
                 {
+                    // only multicounter, select, and dropdown are supported in cycles
                     let type = input.type
                     if (type == 'multicounter' || type == 'select' || type == 'dropdown')
                     {
                         let id = input.id
                         let ops = input.options
 
-                        let op = ''
                         switch (type)
                         {
                             case 'select':
@@ -199,50 +213,61 @@ function update_cycle(cycle)
                                 let i = 0
                                 for (let option of children)
                                 {
-                                    if (option.classList.contains('selected'))
+                                    if (!decrement)
                                     {
-                                        op = ops[i]
-                                        break
+                                        if (option.classList.contains('selected'))
+                                        {
+                                            cycle_result[id] = i
+                                        }
                                     }
                                     i++
                                 }
+                                if (val < last)
+                                {
+                                    select_option(id, cycles[cycle][val][id])
+                                }
                                 break
                             case 'dropdown':
-                                op = ops[document.getElementById(id).selectedIndex]
+                                if (!decrement)
+                                {
+                                    cycle_result[id] = document.getElementById(id).selectedIndex
+                                }
+                                if (val < last)
+                                {
+                                    // TODO do dropdown equivalent
+                                    //select_option(id, cycles[cycle][val][id])
+                                }
                                 break
-                            // assumes multicounter is after all selects and dropdowns
                             case 'multicounter':
                                 ops.forEach(function (op) {
                                     let op_id = `${id}_${op.toLowerCase().split().join('_')}`
-                                    let result_id = `${cycle_id}_${op.toLowerCase().split().join('_')}`
-                                    let val = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
-                                    // TODO handle going backwards
-                                    cycles[cycle][result_id].values.push(val)
-                                    cycles[cycle][result_id].total += val
-                                    document.getElementById(`${op_id}-value`).innerHTML = input.default
+                                    if (!decrement)
+                                    {
+                                        cycle_result[op_id] = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
+                                        document.getElementById(`${op_id}-value`).innerHTML = input.default
+                                    }
+                                    if (val < last)
+                                    {
+                                        document.getElementById(`${op_id}-value`).innerHTML = cycles[cycle][val][op_id]
+                                    }
                                 })
                                 break
-                            // assumes cycles counter is the last item
-                            case 'counter':
-                                let val = parseInt(document.getElementById(id).innerHTML)
-                                let last = cycles[cycle][`${column.id}_cycles`].total
-                                if (val > last)
-                                {
-                                    cycles[cycle][`${column.id}_cycles`].total = val
-                                }
-                                else
-                                {
-                                    // TODO repopulate items
-                                }
-                                break
                         }
-                        // adds current select/dropdown selection to cycle id and name
-                        cycle_id += `_${op.toLowerCase()}`
                     }
                 })
             }
         })
     })
+
+    // store cycle in appropriate position
+    if (val > last)
+    {
+        cycles[cycle].push(cycle_result)
+    }
+    else if (!decrement)
+    {
+        cycles[cycle][val-1] = cycle_result
+    }
 }
 
 /**
@@ -280,12 +305,7 @@ function get_results_from_page()
             // check if its a cycle column
             if (column.cycle)
             {
-                let cycle = cycles[column.id]
-                for (let key of Object.keys(cycle))
-                {
-                    results[key] = cycle[key].total
-                    results[`${key}_temporal`] = cycle[key].values
-                }
+                results[column.id] = cycles[column.id]
             }
             else
             {
