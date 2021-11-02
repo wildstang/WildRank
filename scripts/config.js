@@ -132,6 +132,10 @@ function get_type(key)
     {
         page['columns'].forEach(function (column, index)
         {
+            if (key == column.id)
+            {
+                type = 'cycle'
+            }
             column['inputs'].forEach(function (input, index)
             {
                 if (input.id == key)
@@ -141,6 +145,10 @@ function get_type(key)
                 else if (key.startsWith(input.id))
                 {
                     type = input.type
+                    if (column.cycle && (type == 'select' || type == 'dropdown'))
+                    {
+                        type = 'counter'
+                    }
                 }
             })
         })
@@ -237,6 +245,16 @@ function get_name(key, check_duplicates=true)
     {
         page['columns'].forEach(function (column, index)
         {
+            if (key == column.id)
+            {
+                name = column.name
+                type = page.short
+            }
+            else if (key == `${column.id}_cycles`)
+            {
+                name = `${column.name} Cycles`
+                type = page.short
+            }
             column['inputs'].forEach(function (input, index)
             {
                 if (input.id == key)
@@ -244,7 +262,7 @@ function get_name(key, check_duplicates=true)
                     name = input.name
                     type = page.short
                 }
-                // handle multicounter
+                // handle multicounter and cycles
                 else if (key.startsWith(input.id))
                 {
                     let input_words = input.id.split('_')
@@ -270,12 +288,8 @@ function get_name(key, check_duplicates=true)
             {
                 column['inputs'].forEach(function (input, index)
                 {
-                    if (input.id != key && input.name == name)
-                    {
-                        name = `(${type}) ${name}`
-                    }
-                    // handle multicounter
-                    else if (name.startsWith(input.name) && input.name != name)
+                    if ((input.id != key && input.name == name) ||
+                        (name.startsWith(input.name) && page.short != type))
                     {
                         name = `(${type}) ${name}`
                     }
@@ -307,6 +321,8 @@ function get_value(key, value)
 {
     switch (get_type(key))
     {
+        case 'cycle':
+            return JSON.stringify(value)
         case 'select':
         case 'dropdown':
             let option = ''

@@ -201,6 +201,10 @@ function get_scouter_results(results, user)
  */
 function mean(values)
 {
+    if (values.length == 0)
+    {
+        return 0
+    }
     return values.reduce((a, b) => a + b, 0) / values.length
 }
 
@@ -212,6 +216,10 @@ function mean(values)
  */
 function std_dev(values)
 {
+    if (values.length == 0)
+    {
+        return 0
+    }
     return Math.sqrt(values.map(x => Math.pow(x - mean(values), 2)).reduce((a, b) => a + b) / values.length)
 }
 
@@ -695,6 +703,7 @@ function avg_results(results, key, sort_type)
         // don't attempt to use strings
         case 'string':
         case 'text':
+        case 'cycle':
             return '---'
         // compute average for numbers
         case 'counter':

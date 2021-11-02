@@ -306,6 +306,30 @@ function get_results_from_page()
             if (column.cycle)
             {
                 results[column.id] = cycles[column.id]
+                results[`${column.id}_cycles`] = cycles[column.id].length
+                
+                column['inputs'].forEach(function (input)
+                {
+                    input.options.forEach(function (op, i) {
+                        let id = `${input.id}_${op.toLowerCase().split().join('_')}`
+                        let type = input.type
+
+                        if (type == 'multicounter')
+                        {
+                            let count = 0
+                            if (cycles[column.id].length > 0)
+                            {
+                                count = cycles[column.id].map(c => c[id]).reduce((a, b) => a + b)
+                            }
+                            results[id] = count
+                        }
+                        else
+                        {
+                            // NOTE: right now just # of cycles
+                            results[id] = cycles[column.id].filter(c => c[input.id] == i).length
+                        }
+                    })
+                })
             }
             else
             {
