@@ -527,7 +527,6 @@ function generate_results()
                     var type = input.type
                     var options = input.options
     
-                    // TODO handle cycles
                     switch (type)
                     {
                         case 'checkbox':

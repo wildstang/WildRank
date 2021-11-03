@@ -319,6 +319,12 @@ function get_name(key, check_duplicates=true)
  */
 function get_value(key, value)
 {
+    // if an object is passed assume its a set of counts
+    if (typeof value === 'object' && !Array.isArray(value) && value !== null)
+    {
+        let total = Object.values(value).reduce((a, b) => a + b)
+        return Object.keys(value).map(v => `${get_value(key, v)}: ${(100*value[v]/total).toFixed(2)}%`).join('<br>')
+    }
     switch (get_type(key))
     {
         case 'cycle':
@@ -343,7 +349,7 @@ function get_value(key, value)
         case 'checkbox':
             if (typeof value === 'string')
             {
-                value = value == 'true'
+                value = value == 'true' || value == 1
             }
             return value ? 'Yes' : 'No'
         case 'string':

@@ -74,7 +74,7 @@ function build_list(keys)
     // add pick list selector at top
     let ops = Object.keys(lists)
     ops.unshift('None')
-    document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'build_table()')
+    document.getElementById('secondary_option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'build_table()')
     
     // iterate through result keys
     keys.forEach(function (key, index)
@@ -223,7 +223,7 @@ function build_table(sort_by='', reverse=false)
     table += '<tr><th>Totals</th>'
     selected.forEach(function (key)
     {
-        let val = avg_results(results, key, )
+        let val = avg_results(results, key, method)
         table += `<td>${get_value(key, val)}</td>`
     })
     table += '</tr>'
@@ -238,8 +238,23 @@ function build_table(sort_by='', reverse=false)
             selected.forEach(function (key)
             {
                 let color = ''
+                let type = get_type(key)
                 let val = avg_results(team_results, key, method)
                 let valStr = get_value(key, val)
+                // build a value string of percents for discrete inputs
+                if (type == 'checkbox' || type == 'select' || type == 'dropdown')
+                {
+                    let ops = get_options(key)
+                    if (type == 'checkbox')
+                    {
+                        ops = [true, false]
+                    }
+                    else
+                    {
+                        ops = ops.map((_, i) => i)
+                    }
+                    valStr = get_value(key, avg_results(team_results, key, method, ops))
+                }
                 let base = avg_results(results, key, method)
                 let min = avg_results(results, key, 3)
                 let max = avg_results(results, key, 4)
@@ -266,7 +281,6 @@ function build_table(sort_by='', reverse=false)
                     }
             
                     // add std dev if proper number
-                    let type = get_type(key)
                     if (method == 0 && type != 'select' && type != 'dropdown')
                     {
                         valStr += ` (${get_value(key, avg_results(team_results, key, 5))})`

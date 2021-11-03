@@ -678,11 +678,11 @@ function ws(team_num)
 
 /**
  * function:    avg_results
- * parameters:  results container, column to sum, type of ordering
+ * parameters:  results container, column to sum, type of ordering, options for input
  * returns:     average of all results
  * description: Average all the results for a given column.
  */
-function avg_results(results, key, sort_type)
+function avg_results(results, key, sort_type, options=[])
 {
     let values = []
     Object.keys(results).forEach(function (name, index)
@@ -699,6 +699,15 @@ function avg_results(results, key, sort_type)
         case 'select':
         case 'dropdown':
         case 'unknown':
+            if (options.length > 0)
+            {
+                let counts = {}
+                for (let i in options)
+                {
+                    counts[options[i]] = values.filter(val => val == i).length
+                }
+                return counts
+            }
             return mode(values)
         // don't attempt to use strings
         case 'string':

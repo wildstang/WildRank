@@ -96,7 +96,7 @@ function build_list(keys)
     // add pick list selector at top
     let ops = Object.keys(lists)
     ops.unshift('None')
-    document.getElementById('option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
+    document.getElementById('secondary_option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
     
     // iterate through result keys
     keys.forEach(function (key)
@@ -204,6 +204,7 @@ function get_secondary_selected_keys()
 function build_plot()
 {
     let key = get_selected_keys()[0]
+    let type = get_type(key)
     let method = get_selected_option('type_form')
 
     teams = teams.filter(team => Object.keys(get_team_results(results, team)).length > 0)
@@ -211,14 +212,49 @@ function build_plot()
     // build distribution
     let values = []
     let team_vals = {}
+    let team_modes = {}
     teams.forEach(function (team)
     {
         let team_results = get_team_results(results, team)
-        if (Object.keys(team_results).length > 0)
+        // build a value string of percents for discrete inputs
+        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            let val = avg_results(team_results, key, method)
-            values.push(val)
-            team_vals[team] = val
+            let ops = get_options(key)
+            if (type == 'checkbox')
+            {
+                ops = [true, false]
+            }
+            else
+            {
+                ops = ops.map((_, i) => i)
+            }
+            // add each count to a list to plot
+            let counts = avg_results(team_results, key, method, ops)
+            Object.values(counts).forEach(function (c, i)
+            {
+                for (let j = 0; j < c; ++j)
+                {
+                    values.push(i)
+                }
+            })
+            // get mode for placing highlight
+            let mode = avg_results(team_results, key, method)
+            // convert mode to numeric values
+            if (type == 'checkbox')
+            {
+                mode = mode ? 1 : 0
+            }
+            team_vals[team] = counts
+            team_modes[team] = mode
+        }
+        else
+        {
+            if (Object.keys(team_results).length > 0)
+            {
+                let val = avg_results(team_results, key, method)
+                values.push(val)
+                team_vals[team] = val
+            }
         }
     })
 
@@ -256,7 +292,6 @@ function build_plot()
     // calculate each bin
     let counts = []
     let bin_names = []
-    let type = get_type(key)
     for (let i = 0; i < bins; ++i)
     {
         // define bin
@@ -269,7 +304,7 @@ function build_plot()
         
         // build list of names
         // for discrete string results
-        if (type == 'checkbox' || type == 'select' || type == 'dropdown' || type == 'checkbox')
+        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
             bin_names.push(get_value(key, i))
         }
@@ -301,21 +336,40 @@ function build_plot()
         if (!isNaN(parseInt(highlight)))
         {
             ctx.beginPath()
-            ctx.fillStyle = 'red'
+            ctx.fillStyle = 'firebrick'
             ctx.font = `${font_size}px mono, courier`
             let raw_val = team_vals[highlight]
             let team_val = get_value(key, raw_val)
             let x = 25 + (team_val - min) / delta * (pwidth - 25)
+            // fix values for line position
+            if (team_modes.hasOwnProperty(highlight))
+            {
+                raw_val = team_modes[highlight]
+                team_val = team_val.split('<br>')
+            }
             // handle non-numeric and low bin values
-            if (unique.length <= max_bins || type == 'checkbox' || type == 'select' || type == 'dropdown' || type == 'checkbox')
+            if (unique.length <= max_bins || type == 'checkbox' || type == 'select' || type == 'dropdown')
             {
                 x = 25 + (unique.indexOf(raw_val) + 0.5) * width
             }
             ctx.fillRect(x, 0, 1, pheight-20)
-            ctx.fillText(highlight, x + 5, font_size * (selected * 2 + 1))
-            ctx.fillText(team_val, x + 5, font_size * (selected * 2 + 2))
-            ctx.stroke()
+            ctx.fillText(highlight, x + 5, font_size * (selected + 1))
             selected++
+            if (typeof team_val !== 'string' && Array.isArray(team_val))
+            {
+                for (let t of team_val)
+                {
+                    ctx.fillText(t, x + 5, font_size * (selected + 1))
+                    selected++
+                }
+            }
+            else
+            {
+                ctx.fillText(team_val, x + 5, font_size * (selected + 1))
+                selected++
+            }
+            selected++
+            ctx.stroke()
         }
     })
 
