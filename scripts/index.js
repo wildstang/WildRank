@@ -53,6 +53,8 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('download_csv', 'Export CSV Data', `check_press('download_csv', download_csv)`),
     ]),
     build_column_frame('Configuration', [
+        build_status_tile('server_type', 'POST Server'),
+        build_status_tile('config_valid', 'Scout Config'),
         build_link_button('open_config', 'Config Builder', `check_press('open_config', open_config)`),
         build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
         build_link_button('about', 'About', `'/index.html?page=about'`),
@@ -123,6 +125,11 @@ function on_config()
     select_option('theme_switch', theme == 'light' ? 0 : 1)
     apply_theme()
     hide_buttons()
+
+    // update statuses
+    set_status('server_type', check_server(get_upload_addr()))
+    let year = get_event().substr(0, 4)
+    set_status('config_valid', validate_config(get_config(`${year}-match`)) && validate_config(get_config(`${year}-pit`)))
 }
 
 /**

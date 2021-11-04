@@ -30,7 +30,7 @@
     vertical-align:top;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header, .wr_color, .wr_slider {
+.wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header, .wr_color, .wr_slider, .wr_status {
     display: block;
     font-size: 16px;
     border-style: solid;
@@ -52,7 +52,7 @@
     display: inline-block;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option {
+.wr_checkbox, .wr_counter, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
@@ -126,7 +126,7 @@
     color: var(--hover-text-color);
 }
 
-.wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > *, .wr_slider > * {
+.wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > *, .wr_slider > *, .wr_status > * {
     line-height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
@@ -152,7 +152,7 @@
     line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
 }
 
-.wr_color {
+.wr_color, .wr_status {
     width: calc(var(--input-width) - 2*var(--input-padding));
     height: calc(var(--input-height) - 2*var(--input-padding));
 }
@@ -169,6 +169,17 @@
     font-size: 16px;
 }
 
+.status_text {
+    display: block;
+    width: calc(var(--input-width) - var(--input-height) - 2*var(--input-padding));
+    height: calc(var(--input-height) - 2*(var(--input-padding)));
+    float: left;
+    padding: 0;
+    margin: 0;
+    border: none;
+    font-size: 16px;
+}
+
 .color_box {
     display: inline-block;
     padding: 0;
@@ -176,7 +187,7 @@
     margin-left: 30px;
     width: calc(var(--input-height) - 2*(var(--input-padding)));
     height: calc(var(--input-height) - 2*(var(--input-padding)));
-    border: 0px solid black; /* TODO fix issues compensating for border */
+    border: 0px solid black;
 }
 
 .selected {

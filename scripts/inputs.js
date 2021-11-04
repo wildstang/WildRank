@@ -210,7 +210,18 @@ function build_str_entry(id, name, value='', type='text', on_text_change='')
 function build_color_entry(id, name, color='')
 {
     let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
-    return `${label}<div class="wr_color"><input class="color_text" type="text" id="${id}" value="${color}" onKeyUp="setColor('${id}')"><span class="color_box" id="${id}_color" style="background-color: ${color}"></span></div>`
+    return `${label}<div class="wr_color"><input class="color_text" type="text" id="${id}" value="${color}" onKeyUp="update_color('${id}')"><span class="color_box" id="${id}_color" style="background-color: ${color}"></span></div>`
+}
+
+/**
+ * function:    build_status_tile
+ * parameters:  element id, name, default color
+ * returns:     wr_color as a string
+ * description: Builds the HTML string of a color object.
+ */
+function build_status_tile(id, name, color='')
+{
+    return `<div class="wr_status"><label class="status_text">${name}</label><span class="color_box" id="${id}" style="background-color: ${color}"></span></div>`
 }
 
 /**
@@ -410,18 +421,29 @@ function select_option(id, index)
 }
 
 /**
- * function:    set_color
+ * function:    update_color
  * parameters:  element id
  * returns:     none
  * description: Updates the color box base on color text.
  */
-function setColor(id)
+function update_color(id)
 {
     let color = document.getElementById(id).value
     if (color.startsWith('#') && color.length == 7)
     {
         document.getElementById(`${id}_color`).style.backgroundColor = color
     }
+}
+
+/**
+ * function:    set_status
+ * parameters:  element id, boolean status
+ * returns:     none
+ * description: Updates the color box with the provided color.
+ */
+function set_status(id, status)
+{
+    document.getElementById(id).style.backgroundColor = status ? 'green' : 'red'
 }
 
 /**
