@@ -41,7 +41,7 @@ function init_page(contents_card, buttons_container)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>`
-        buttons_container.innerHTML = '<div id="teams"></div>'
+        buttons_container.innerHTML = build_checkbox('show_notes', 'Show Notes', false, `toggle_notes()`) + '<div id="teams"></div>'
 
         build_options_list(JSON.parse(localStorage.getItem(file_name)))
     }
@@ -92,6 +92,20 @@ function build_options_list(matches)
 
     open_match(first)
     scroll_to('option_list', `match_${first}`)
+}
+
+/**
+ * function:    toggle_notes
+ * parameters:  none
+ * returns:     none
+ * description: Shows/hides the note blocks based on checkbox.
+ */
+function toggle_notes()
+{
+    for (let n of Array.from(document.getElementsByClassName('notes')))
+    {
+        n.style.display = document.getElementById('show_notes').checked ? 'block' : 'none'
+    }
 }
 
 /**
@@ -151,8 +165,9 @@ function open_match(match_num)
             let stat = avg_results(get_team_results(results, team_num), v.key, FUNCTIONS.indexOf(v.function))
             notes += `<tr><td>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</td><td>${get_value(v.key, stat)}</td></tr>`
         })
-        notes += '</table>'
-        // add notes from notes mode, not sure if we want this
+        notes += '</table><div class="notes">'
+
+        // add notes from notes mode, if box is checked
         Object.keys(localStorage).forEach(function (file)
         {
             if (file.startsWith(`${NOTE_MODE}-`))
@@ -171,6 +186,7 @@ function open_match(match_num)
                 }
             }
         })
+        notes += '</div>'
 
         // add button and description to appropriate column
         let team_info = `<center>${team_num}<br>${get_team_name(team_num, event_id)}<br>${rank}</center>`
@@ -191,4 +207,6 @@ function open_match(match_num)
         build_column_frame('', reds),
         build_column_frame('', blues)
     ])
+
+    toggle_notes()
 }
