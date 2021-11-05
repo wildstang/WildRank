@@ -39,9 +39,9 @@ const PAGE_FRAME = build_page_frame('', [
     ]),
     build_column_frame('Data', [
         build_link_button('open_results', 'Results', `check_press('open_results', open_results)`),
-        build_link_button('open_teams', 'Team Overview', `check_press('open_teams', open_teams)`),
-        build_link_button('open_matches', 'Match Overview', `check_press('open_matches', open_matches)`),
-        build_link_button('open_users', 'User Overview', `check_press('open_users', open_users)`),
+        build_link_button('open_teams', 'Team Profiles', `check_press('open_teams', open_teams)`),
+        build_link_button('open_matches', 'Match Summaries', `check_press('open_matches', open_matches)`),
+        build_link_button('open_users', 'User Profiles', `check_press('open_users', open_users)`),
         build_link_button('open_coach', 'Coach View', `check_press('open_coach', open_coach)`),
     ]),
     build_column_frame('Transfer', [

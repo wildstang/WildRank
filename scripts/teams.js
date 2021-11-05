@@ -90,7 +90,27 @@ function open_option(team_num)
         document.getElementById('ranking').innerHTML = `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
     }
 
+    // populate card with pit results, if they exist
     let notes = ''
+    let pit_file = get_pit_result(team_num, event_id)
+    let pit_button = build_link_button(pit_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
+    if (file_exists(pit_file))
+    {
+        let pit = JSON.parse(localStorage.getItem(pit_file))
+        notes = '<table style="text-align: left">'
+        load_config('pit', event_id.substr(0, 4))
+        for (k of Object.keys(pit))
+        {
+            if (!k.startsWith('meta_'))
+            {
+                notes += `<tr><th>${get_name(k)}</th><td>${get_value(k, pit[k])}</td>`
+            }
+        }
+        notes += '</table>'
+
+        pit_button = build_link_button(pit_file, 'View Pit Results', `open_result('${pit_file}')`)
+    }
+
     Object.keys(localStorage).forEach(function (file, index)
     {
         if (file.startsWith(`${NOTE_MODE}-`))
@@ -112,13 +132,6 @@ function open_option(team_num)
     // find robot photo
     use_cached_image(team_num, 'photo', '')
 
-    // add pit row
-    let result_file = get_pit_result(team_num, event_id)
-    let pit_button = build_link_button(result_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
-    if (localStorage.getItem(result_file) != null)
-    {
-        pit_button = build_link_button(result_file, 'View Pit Results', `open_result('${result_file}')`)
-    }
     let cards = []
 
     // add row for each match
