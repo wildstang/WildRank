@@ -100,27 +100,24 @@ function build_options_list(matches)
         let red_teams = match.alliances.red.team_keys
         let blue_teams = match.alliances.blue.team_keys
         
-        if (true || match.comp_level == 'qm')
+        // grey out previously scouted matches/teams
+        let scouted = 'not_scouted'
+        let level = match.comp_level.replace('qm', '').toUpperCase()
+        if ((match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == ''))
         {
-            // grey out previously scouted matches/teams
-            let scouted = 'not_scouted'
-            let level = match.comp_level.replace('qm', '').toUpperCase()
-            if ((match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == ''))
-            {
-                scouted = 'scouted'
-                first = ''
-            }
-            else if (first == '')
-            {
-                first = number
-            }
-            if (level && level != 'F')
-            {
-                level += match.set_number
-            }
-
-            document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
+            scouted = 'scouted'
+            first = ''
         }
+        else if (first == '')
+        {
+            first = number
+        }
+        if (level && level != 'F')
+        {
+            level += match.set_number
+        }
+
+        document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
     })
     // default to first match if no first was selected
     if (first == '')

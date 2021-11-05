@@ -551,14 +551,24 @@ function fetch_zebra(match_key)
             })
 
             // update sliders
-            if (match_plots) {
+            if (match_plots)
+            {
                 set_slider_max('trail_length', match_plots.times.length-1)
                 set_slider_max('match_time', match_plots.times.length-1)
                 set_slider('match_time', 1)
+                document.getElementById('playback').style.display = 'inline-block'
+            }
+            // hide playback controls
+            else
+            {
+                document.getElementById('playback').style.display = 'none'
             }
         })
         .catch(err => {
             console.log('Error loading zebra data!', err)
+
+            // hide playback controls
+            document.getElementById('playback').style.display = 'none'
         })
 }
 
@@ -763,7 +773,7 @@ function init_page(contents_card, buttons_container, reload=true)
                 build_slider('match_time', 'Match Time', 1, 1, 1, 1, 'update_time()'),
                 build_slider('trail_length', 'Trail Length', 0, 1, 10, 0, 'update_trail()')
             ])
-        ]) +
+        ], true, 'playback') +
         build_page_frame('Team Avatars', [
             build_column_frame('Red Teams', red_buttons),
             build_column_frame('Blue Teams', blue_buttons)

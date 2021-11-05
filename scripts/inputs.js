@@ -11,10 +11,14 @@
  * returns:     page object as a string
  * description: Builds the HTML string of a page object given its name and columns.
  */
-function build_page_frame(page_name, columns, top_margin=true)
+function build_page_frame(page_name, columns, top_margin=true, id='')
 {
+    if (id)
+    {
+        id = `id="${id}"`
+    }
     let header = page_name.length > 0 ? `<h2 class="page_header">${page_name}</h2>` : ''
-    return `<div class="page ${top_margin ? '' : 'no_top_margin'}">
+    return `<div ${id} class="page ${top_margin ? '' : 'no_top_margin'}">
             ${header}
             ${columns.join('')}
         </div>`

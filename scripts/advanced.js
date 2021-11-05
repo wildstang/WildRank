@@ -185,28 +185,43 @@ function open_option(team_num)
     let team = team_stats[team_num]
 
     // build stats table
-    let data = `<table>
-    <tr><th>Max Speed</th><td>${team.max_speed} ft/s</td><td>${format_rank(team.max_speed_rank)}</td></tr>
-    <tr><th>Max Acceleration</th><td>${team.max_accel} ft/s2</td><td>${format_rank(team.max_accel_rank)}</td></tr>
-    <tr><th>Max Cycles</th><td>${team.max_cycles}</td><td>${format_rank(team.max_cycles_rank)}</td></tr>
-    <tr><th>Avg Cycles</th><td>${team.avg_cycles}</td><td>${format_rank(team.avg_cycles_rank)}</td></tr>
-    <tr><th>Attempts Climb</th><td>${team.climb_pct}%</td><td>${format_rank(team.climb_pct_rank)}</td></tr>
-    <tr><th>Min Climb</th><td>${team.min_climb} secs</td><td>${format_rank(team.min_climb_rank)}</td></tr>
-    <tr><th>Avg Climb</th><td>${team.avg_climb} secs</td><td>${format_rank(team.avg_climb_rank)}</td></tr>
-    </table>`
+    let data = '<table>' +
+        build_row('Max Speed', team.max_speed, 'ft/s', team.max_speed_rank) +
+        build_row('Max Acceleration', team.max_accel, 'ft/s2', team.max_accel_rank) +
+        build_row('Max Cycles', team.max_cycles, '', team.max_cycles_rank) +
+        build_row('Avg Cycles', team.avg_cycles, '', team.avg_cycles_rank) +
+        build_row('Attempts Climb', team.climb_pct, '%', team.climb_pct_rank) +
+        build_row('Min Climb', team.min_climb, 'secs', team.min_climb_rank) +
+        build_row('Avg Climb', team.avg_climb, 'secs', team.avg_climb_rank) +
+    '</table>'
     document.getElementById('data').innerHTML = build_card('data_card', data)
+
+    // hide / display the whiteboard
+    if (team_stats[team_num].markers.length > 0)
+    {
+        document.getElementById('whiteboard').style.display = 'inline-block'
+    }
+    else
+    {
+        document.getElementById('whiteboard').style.display = 'none'
+    }
 
     ws(team_num)
 }
 
 /**
- * function:    format_rank
- * parameters:  rank
- * returns:     none
- * description: Formats rank to be more readable.
+ * function:    build_row
+ * parameters:  stat name, value, unit, rank
+ * returns:     table row formatted stat
+ * description: Formats stat for table, returns nothing if no stat.
  */
-function format_rank(rank)
+function build_row(name, value, unit, rank)
 {
+    if (typeof value === 'undefined')
+    {
+        return ''
+    }
+
     rank = '' + rank
     if (rank.endsWith('1'))
     {
@@ -224,7 +239,8 @@ function format_rank(rank)
     {
         rank += 'th'
     }
-    return `(${rank})`
+
+    return `<tr><th>${name}</th><td>${value} ${unit}</td><td>${rank}</td></tr>`
 }
 
 /**
@@ -241,21 +257,22 @@ function calculate_team_stats()
         let team_num = t.team_number
         let team = { 'team': team_num }
         let team_matches = match_stats.filter(s => parseInt(s.team) == team_num)
-        let speeds = team_matches.map(s => s.max_speed)
-        team.max_speed = Math.max(...speeds).toFixed(2)
-        let accels = team_matches.map(s => s.max_accel)
-        team.max_accel = Math.max(...accels).toFixed(2)
-        let cycles = team_matches.map(s => s.cycles)
-        team.max_cycles = Math.max(...cycles)
-        team.avg_cycles = mean(cycles).toFixed(2)
-        let climbs = team_matches.filter(s => s.climbed).map(s => s.climb)
-        team.min_climb = Math.min(...climbs)
-        team.avg_climb = mean(climbs).toFixed(2)
-        team.climb_pct = (100 * climbs.length / team_matches.length).toFixed(2)
         
         // build heatmap of all matches
         if (team_matches.length > 0)
         {
+            let speeds = team_matches.map(s => s.max_speed)
+            team.max_speed = Math.max(...speeds).toFixed(2)
+            let accels = team_matches.map(s => s.max_accel)
+            team.max_accel = Math.max(...accels).toFixed(2)
+            let cycles = team_matches.map(s => s.cycles)
+            team.max_cycles = Math.max(...cycles)
+            team.avg_cycles = mean(cycles).toFixed(2)
+            let climbs = team_matches.filter(s => s.climbed).map(s => s.climb)
+            team.min_climb = Math.min(...climbs)
+            team.avg_climb = mean(climbs).toFixed(2)
+            team.climb_pct = (100 * climbs.length / team_matches.length).toFixed(2)
+
             let heatmap = team_matches[0].heatmap
             heatmap.forEach(function (col, c)
             {
@@ -307,13 +324,16 @@ function calculate_team_stats()
     let climb_pcts = team_stats.map(t => t.climb_pct).sort((a, b) => b - a)
     team_stats.forEach(function (team)
     {
-        team.max_speed_rank = max_speeds.indexOf(team.max_speed) + 1
-        team.max_accel_rank = max_accels.indexOf(team.max_accel) + 1
-        team.max_cycles_rank = max_cycles.indexOf(team.max_cycles) + 1
-        team.avg_cycles_rank = avg_cycles.indexOf(team.avg_cycles) + 1
-        team.min_climb_rank = min_climbs.indexOf(team.min_climb) + 1
-        team.avg_climb_rank = avg_climbs.indexOf(team.avg_climb) + 1
-        team.climb_pct_rank = climb_pcts.indexOf(team.climb_pct) + 1
+        if (team.markers.length > 0)
+        {
+            team.max_speed_rank = max_speeds.indexOf(team.max_speed) + 1
+            team.max_accel_rank = max_accels.indexOf(team.max_accel) + 1
+            team.max_cycles_rank = max_cycles.indexOf(team.max_cycles) + 1
+            team.avg_cycles_rank = avg_cycles.indexOf(team.avg_cycles) + 1
+            team.min_climb_rank = min_climbs.indexOf(team.min_climb) + 1
+            team.avg_climb_rank = avg_climbs.indexOf(team.avg_climb) + 1
+            team.climb_pct_rank = climb_pcts.indexOf(team.climb_pct) + 1
+        }
     })
 }
 
