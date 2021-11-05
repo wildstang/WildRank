@@ -93,7 +93,7 @@ function build_options_list(matches)
             }
 
             // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_match_option(number, red_teams, blue_teams, scouted)
+            document.getElementById('option_list').innerHTML += build_match_option(number, red_teams, blue_teams, scouted, number)
         }
     })
     if (first == '')
@@ -164,7 +164,7 @@ function open_match(match_num)
     // populate team text
     if (scout_mode == NOTE_MODE)
     {
-        number_span.innerHTML = Object.values(get_match_teams(match_num, event_id)).join(', ')
+        number_span.innerHTML = Object.values(extract_match_teams(match)).join(', ')
         
         // create edit button
         if (notes_taken(match_num, event_id))

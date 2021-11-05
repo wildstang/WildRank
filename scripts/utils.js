@@ -376,22 +376,50 @@ function scroll_to(container, goal)
 
 /**
  * function:    get_match
- * parameters:  match number, current event
+ * parameters:  match number, current event, competition leve, set number
  * returns:     match object
  * description: Gets the match object from event data.
  */
-function get_match(match_num, event, comp_level='qm')
+function get_match(match_num, event, comp_level='qm', set_num=1)
 {
     let matches = JSON.parse(localStorage.getItem(get_event_matches_name(event)))
     if (matches && matches.length > 0)
     {
-        let results = matches.filter(match => match.match_number == match_num && match.comp_level == comp_level)
+        let results = matches.filter(match => match.match_number == match_num && match.comp_level == comp_level && match.set_number == set_num)
         if (results && results.length > 0)
         {
             return results[0]
         }
     }
     return null
+}
+
+/**
+ * function:    get_match
+ * parameters:  match number, current event, competition leve, set number
+ * returns:     match object
+ * description: Gets the match object from event data.
+ */
+function parse_match(match_name, event)
+{
+    let match_num = match_name
+    let level = 'qm'
+    let set_num = 1
+    if (isNaN(match_num))
+    {
+        if (match_num[0] == 'F')
+        {
+            level = 'f'
+            match_num = match_num.substr(1)
+        }
+        else
+        {
+            level = match_num.substr(0, 2).toLowerCase()
+            set_num = match_num[2]
+            match_num = match_num[3]
+        }
+    }
+    return get_match(match_num, event, level, set_num)
 }
 
 /**
@@ -499,18 +527,31 @@ function get_avatar(team_num, year)
  * returns:     all teams in match
  * description: Returns all teams in the match with their alliances.
  */
-function get_match_teams(match_num, event_id)
+function get_match_teams(match_num, event_id, comp_level='qm', set_num=1)
 {
-    let match = get_match(match_num, event_id)
+    let match = get_match(match_num, event_id, comp_level, set_num)
+    return extract_match_teams(match)
+}
+
+/**
+ * function:    extract_match_teams
+ * parameters:  match
+ * returns:     all teams in match
+ * description: Returns all teams in the match with their alliances.
+ */
+function extract_match_teams(match)
+{
     let teams = {}
     let red_teams = match.alliances.red.team_keys
     let blue_teams = match.alliances.blue.team_keys
-    teams['red1'] = red_teams[0].substr(3)
-    teams['red2'] = red_teams[1].substr(3)
-    teams['red3'] = red_teams[2].substr(3)
-    teams['blue1'] = blue_teams[0].substr(3)
-    teams['blue2'] = blue_teams[1].substr(3)
-    teams['blue3'] = blue_teams[2].substr(3)
+    for (let t in red_teams)
+    {
+        teams[`red${parseInt(t)+1}`] = red_teams[t].substr(3)
+    }
+    for (let t in blue_teams)
+    {
+        teams[`blue${parseInt(t)+1}`] = blue_teams[t].substr(3)
+    }
     return teams
 }
 
@@ -520,9 +561,9 @@ function get_match_teams(match_num, event_id)
  * returns:     if notes have been taken
  * description: Determines if any notes have been take for a given match.
  */
-function notes_taken(match_num, event_id)
+function notes_taken(match_num, event_id, comp_level='qm', set_num=1)
 {
-    let teams = Object.values(get_match_teams(match_num, event_id))
+    let teams = Object.values(get_match_teams(match_num, event_id, comp_level, set_num))
     for (let i = 0; i < teams.length; ++i)
     {
         if (file_exists(get_note(teams[i], match_num, event_id)))

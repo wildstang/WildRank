@@ -25,6 +25,7 @@ var results = {}
  */
 function init_page(contents_card, buttons_container)
 {
+    // load in config and results
     load_config(type, year)
     vals = get_config('coach_vals')
     Object.keys(localStorage).forEach(function (file)
@@ -36,12 +37,43 @@ function init_page(contents_card, buttons_container)
         }
     })
 
+    // build page
     let file_name = get_event_matches_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>`
-        buttons_container.innerHTML = build_checkbox('show_notes', 'Show Notes', false, `toggle_notes()`) + '<div id="teams"></div>'
+
+        // reorganize teams into single object
+        let match_teams = get_match_teams(1, event_id)
+
+        // make row for match notes
+        let reds = []
+        let blues = []
+
+        // make a row for each team
+        Object.keys(match_teams).forEach(function (key, i)
+        {
+            // add button and description to appropriate column
+            if (key.slice(0, -1) == 'red')
+            {
+                reds.push(build_num_entry(`team_${i}`, '', '', [0, 10000], 'open_teams()'))
+                reds.push(build_card(`team_${i}_details`, ''))
+            }
+            else
+            {
+                blues.push(build_num_entry(`team_${i}`, '', '', [0, 10000], 'open_teams()'))
+                blues.push(build_card(`team_${i}_details`, ''))
+            }
+        })
+
+        // build template
+        buttons_container.innerHTML = build_checkbox('show_notes', 'Show Notes', false, `toggle_notes()`) +
+            '<div id="teams">' +
+            build_page_frame('', [
+                build_column_frame('', reds),
+                build_column_frame('', blues)
+            ]) +'</div>'
 
         build_options_list(JSON.parse(localStorage.getItem(file_name)))
     }
@@ -60,6 +92,7 @@ function init_page(contents_card, buttons_container)
 function build_options_list(matches)
 {
     let first = ''
+    matches.sort((a, b) => a.time - b.time)
     // iterate through each match obj
     matches.forEach(function (match, index)
     {
@@ -67,12 +100,12 @@ function build_options_list(matches)
         let red_teams = match.alliances.red.team_keys
         let blue_teams = match.alliances.blue.team_keys
         
-        // only display qualifying matches
-        if (match.comp_level == 'qm')
+        if (true || match.comp_level == 'qm')
         {
             // grey out previously scouted matches/teams
             let scouted = 'not_scouted'
-            if ((match.alliances.red.score && match.alliances.red.score >= 0) || is_match_scouted(event_id, number))
+            let level = match.comp_level.replace('qm', '').toUpperCase()
+            if ((match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == ''))
             {
                 scouted = 'scouted'
                 first = ''
@@ -81,10 +114,15 @@ function build_options_list(matches)
             {
                 first = number
             }
+            if (level && level != 'F')
+            {
+                level += match.set_number
+            }
 
-            document.getElementById('option_list').innerHTML += build_match_option(number, red_teams, blue_teams, scouted)
+            document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
         }
     })
+    // default to first match if no first was selected
     if (first == '')
     {
         first = matches[0].match_number
@@ -92,20 +130,6 @@ function build_options_list(matches)
 
     open_match(first)
     scroll_to('option_list', `match_${first}`)
-}
-
-/**
- * function:    toggle_notes
- * parameters:  none
- * returns:     none
- * description: Shows/hides the note blocks based on checkbox.
- */
-function toggle_notes()
-{
-    for (let n of Array.from(document.getElementsByClassName('notes')))
-    {
-        n.style.display = document.getElementById('show_notes').checked ? 'block' : 'none'
-    }
 }
 
 /**
@@ -125,7 +149,7 @@ function open_match(match_num)
     document.getElementById('match_num').innerHTML = match_num
 
     // place match time
-    let match = get_match(match_num, event_id)
+    let match = parse_match(match_num, event_id)
     let actual = match.actual_time
     let predicted = match.predicted_time
     let time = document.getElementById('time')
@@ -139,18 +163,35 @@ function open_match(match_num)
     }
 
     // reorganize teams into single object
-    let match_teams = get_match_teams(match_num, event_id)
-
-    // make row for match notes
-    let reds = []
-    let blues = []
+    let match_teams = extract_match_teams(match)
 
     // make a row for each team
-    Object.keys(match_teams).forEach(function (key)
+    Object.keys(match_teams).forEach(function (key, index)
     {
+        document.getElementById(`team_${parseInt(index)}`).value = match_teams[key]
+    })
+
+    open_teams()
+}
+
+/**
+ * function:    open_teams
+ * parameters:  none
+ * returns:     none
+ * description: Completes right info pane for the current teams in the number entries.
+ */
+function open_teams()
+{
+    // reorganize teams into single object
+    let match_teams = get_match_teams(1, event_id)
+
+    // make a row for each team
+    for (let index in Object.keys(match_teams))
+    {
+        let id = `team_${parseInt(index)}`
+
         // add team name and ranking data
-        let team_num = match_teams[key]
-        let alliance = key.slice(0, -1)
+        let team_num = document.getElementById(id).value
         let rank = ''
         let rankings = get_team_rankings(team_num, event_id)
         if (rankings)
@@ -159,11 +200,11 @@ function open_match(match_num)
         }
 
         // make a table of "coach_vals"
-        let notes = '<table>'
+        let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><table>`
         vals.forEach(function (v)
         {
             let stat = avg_results(get_team_results(results, team_num), v.key, FUNCTIONS.indexOf(v.function))
-            notes += `<tr><td>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</td><td>${get_value(v.key, stat)}</td></tr>`
+            notes += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</th><td>${get_value(v.key, stat)}</td></tr>`
         })
         notes += '</table><div class="notes">'
 
@@ -188,25 +229,22 @@ function open_match(match_num)
         })
         notes += '</div>'
 
-        // add button and description to appropriate column
-        let team_info = `<center>${team_num}<br>${get_team_name(team_num, event_id)}<br>${rank}</center>`
-        if (alliance == 'red')
-        {
-            reds.push(build_card('', team_info))
-            reds.push(build_card('', notes))
-        }
-        else
-        {
-            blues.push(build_card('', team_info))
-            blues.push(build_card('', notes))
-        }
-    })
-
-    // create columns and page
-    document.getElementById('teams').innerHTML = build_page_frame('', [
-        build_column_frame('', reds),
-        build_column_frame('', blues)
-    ])
+        document.getElementById(`${id}_details`).innerHTML = notes
+    }
 
     toggle_notes()
+}
+
+/**
+ * function:    toggle_notes
+ * parameters:  none
+ * returns:     none
+ * description: Shows/hides the note blocks based on checkbox.
+ */
+function toggle_notes()
+{
+    for (let n of Array.from(document.getElementsByClassName('notes')))
+    {
+        n.style.display = document.getElementById('show_notes').checked ? 'block' : 'none'
+    }
 }
