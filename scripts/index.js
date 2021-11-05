@@ -16,6 +16,9 @@ document.head.appendChild(s)
 s = document.createElement('script')
 s.src = `scripts/links.js`
 document.head.appendChild(s)
+s = document.createElement('script')
+s.src = `scripts/validation.js`
+document.head.appendChild(s)
 
 // generate page
 const PAGE_FRAME = build_page_frame('', [
@@ -53,14 +56,17 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('download_csv', 'Export CSV Data', `check_press('download_csv', download_csv)`),
     ]),
     build_column_frame('Configuration', [
-        build_status_tile('server_type', 'POST Server'),
-        build_status_tile('config_valid', 'Scout Config'),
         build_link_button('open_config', 'Config Builder', `check_press('open_config', open_config)`),
         build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
         build_link_button('about', 'About', `'/index.html?page=about'`),
         build_button('reset', 'Reset', `check_press('reset', reset)`),
     ]),
-    build_column_frame('Status', [build_card('status', '', limitWidth=true)])
+    build_column_frame('Status', [
+        build_status_tile('server_type', 'POST Server'),
+        build_status_tile('config_valid', 'Config'),
+        build_status_tile('scout_config_valid', 'Scout Config'),
+        build_card('status', '', limitWidth=true)
+    ])
 ])
 
 // requirements for each button
@@ -127,9 +133,17 @@ function on_config()
     hide_buttons()
 
     // update statuses
-    set_status('server_type', check_server(get_upload_addr()))
+    set_status('server_type', check_server(get_upload_addr(), false))
     let year = get_event().substr(0, 4)
-    set_status('config_valid', validate_config(get_config(`${year}-match`)) && validate_config(get_config(`${year}-pit`)))
+    set_status('scout_config_valid', validate_scout_config(get_config(`${year}-match`)) && validate_scout_config(get_config(`${year}-pit`)))
+    set_status('config_valid', validate_settings_config(get_config('settings')) &&
+        validate_settings_config(get_config('settings')) &&
+        validate_defaults_config(get_config('defaults')) &&
+        validate_coach_config(get_config('coach_vals')) &&
+        validate_wb_config(get_config('whiteboard')) &&
+        validate_admin_config(get_config('admins')) &&
+        validate_theme_config(get_config('theme')) &&
+        validate_theme_config(get_config('dark-theme')))
 }
 
 /**
