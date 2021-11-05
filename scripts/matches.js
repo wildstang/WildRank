@@ -162,12 +162,13 @@ function open_match(match_num)
     result_buttons.innerHTML = ''
 
     // populate team text
+    let team_num = team.substr(3)
     if (scout_mode == NOTE_MODE)
     {
         number_span.innerHTML = Object.values(extract_match_teams(match)).join(', ')
         
         // create edit button
-        if (notes_taken(match_num, event_id))
+        if (notes_taken(match_num, event_id) && can_edit(get_note(team_num, match_num, event_id)))
         {
             result_buttons.innerHTML = build_link_button('scout_match', 'Edit Notes', 'start_scouting(true)')
         }
@@ -175,7 +176,6 @@ function open_match(match_num)
     else
     {
         // populate team info
-        let team_num = team.substr(3)
         document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
         number_span.innerHTML = team_num
         name_span.innerHTML = get_team_name(team_num, event_id)
@@ -185,12 +185,23 @@ function open_match(match_num)
         
         // create result buttons
         let file = get_match_result(match_num, team.substr(3), event_id)
-        if (file_exists(file))
+        if (file_exists(file) && can_edit(file))
         {
             result_buttons.innerHTML = build_link_button('open_result', 'View Results', `open_result('${file}')`) + 
                 build_link_button('edit_result', 'Edit Results', `start_scouting(true)`)
         }
     }
+}
+
+/**
+ * function:    can_edit
+ * parameters:  file to open
+ * returns:     true if the user has permission to edit the file
+ * description: Determines if the user has permissions to edit the file.
+ */
+function can_edit(file)
+{
+    return JSON.parse(localStorage.getItem(file)).meta_scouter_id == user_id || is_admin(user_id)
 }
 
 /**
