@@ -373,7 +373,7 @@ function get_results_from_page()
                             results[id] = parseInt(document.getElementById(id).value)
                             break
                         case 'slider':
-                            results[id] = document.getElementById(id).value
+                            results[id] = parseInt(document.getElementById(id).value)
                             break
                         case 'string':
                         case 'text':
