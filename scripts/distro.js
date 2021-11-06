@@ -32,15 +32,7 @@ function init_page(contents_card, buttons_container)
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
-        let files = Object.keys(localStorage)
-        for (let file of files)
-        {
-            // determine files which start with the desired type
-            if (file.startsWith(prefix))
-            {
-                results[file] = JSON.parse(localStorage.getItem(file))
-            }
-        }
+        results = get_results(prefix)
         
         teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
                     .filter(team => Object.keys(get_team_results(results, team)).length > 0)

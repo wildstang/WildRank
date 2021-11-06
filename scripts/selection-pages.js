@@ -86,7 +86,7 @@ function populate_matches(finals=true, complete=true)
 function populate_teams(minipicklist=true, complete=false, secondary=false)
 {
     document.getElementById('option_list').innerHTML = ''
-    document.getElementById('secondary_list').innerHTML = ''
+    document.getElementById('secondary_option_list').innerHTML = ''
 
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)

@@ -33,21 +33,13 @@ function init_page(contents_card, buttons_container)
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
-        let files = Object.keys(localStorage)
-        for (let file of files)
-        {
-            // determine files which start with the desired type
-            if (file.startsWith(prefix))
-            {
-                results[file] = JSON.parse(localStorage.getItem(file))
-            }
-        }
+        results = get_results(prefix)
         
         all_teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
                     .filter(team => Object.keys(get_team_results(results, team)).length > 0)
         
         // load keys from localStorage and build list
-        let first = populate_keys(results, all_teams)
+        populate_keys(results, all_teams)
     }
 }
 
@@ -170,8 +162,15 @@ function build_table(sort_by='', reverse=false)
     table += '<tr><th>Totals</th>'
     selected.forEach(function (key)
     {
-        let val = avg_results(results, key, method)
-        table += `<td>${get_value(key, val)}</td>`
+        let ops = []
+        let type = get_type(key)
+        // build a value string of percents for discrete inputs
+        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
+        {
+            ops = get_options_index(key, type)
+        }
+        let valStr = get_value(key, avg_results(results, key, method, ops))
+        table += `<td>${valStr}</td>`
     })
     table += '</tr>'
 
@@ -185,24 +184,16 @@ function build_table(sort_by='', reverse=false)
             selected.forEach(function (key)
             {
                 let color = ''
+                let ops = []
                 let type = get_type(key)
-                let val = avg_results(team_results, key, method)
-                let valStr = get_value(key, val)
                 // build a value string of percents for discrete inputs
                 if (type == 'checkbox' || type == 'select' || type == 'dropdown')
                 {
-                    let ops = get_options(key)
-                    if (type == 'checkbox')
-                    {
-                        ops = [true, false]
-                    }
-                    else
-                    {
-                        ops = ops.map((_, i) => i)
-                    }
-                    valStr = get_value(key, avg_results(team_results, key, method, ops))
+                    ops = get_options_index(key, type)
                 }
-                let base = avg_results(results, key, method)
+                let val = avg_results(team_results, key, method, ops)
+                let valStr = get_value(key, val)
+                let base = avg_results(results, key, method, ops)
                 let min = avg_results(results, key, 3)
                 let max = avg_results(results, key, 4)
                 if (typeof base === 'number' && !key.startsWith('meta'))

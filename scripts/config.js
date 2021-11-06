@@ -183,6 +183,26 @@ function get_options(key)
 }
 
 /**
+ * function:    get_options_index
+ * parameters:  name of input, input type
+ * returns:     options for input
+ * description: Determines the options (indexes) for a given input.
+ */
+function get_options_index(key, type)
+{
+    let ops = get_options(key)
+    if (type == 'checkbox')
+    {
+        ops = [true, false]
+    }
+    else
+    {
+        ops = ops.map((_, i) => i)
+    }
+    return ops
+}
+
+/**
  * function:    is_negative
  * parameters:  name of input
  * returns:     if the input is negative
@@ -324,12 +344,31 @@ function get_value(key, value)
     if (typeof value === 'object' && !Array.isArray(value) && value !== null)
     {
         let total = Object.values(value).reduce((a, b) => a + b)
-        return Object.keys(value).map(v => `${get_value(key, v)}: ${(100*value[v]/total).toFixed(2)}%`).join('<br>')
+        return '<table>' + Object.keys(value).map(v => `<tr><th>${get_value(key, v)}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
     }
     switch (get_type(key))
     {
         case 'cycle':
-            return JSON.stringify(value)
+            if (value == '---')
+            {
+                return '---'
+            }
+            if (value.length == 0)
+            {
+                return ''
+            }
+            let text = '<table>'
+            for (let key of Object.keys(value[0]))
+            {
+                text += `<tr><th>${get_name(key)}</th>`
+                for (let cycle of value)
+                {
+                    text += `<td>${get_value(key, cycle[key])}</td>` 
+                }
+                text += '</tr>'
+            }
+            text += '</table>'
+            return text
         case 'select':
         case 'dropdown':
             let option = ''

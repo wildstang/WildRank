@@ -375,6 +375,27 @@ function scroll_to(container, goal)
 }
 
 /**
+ * function:    get_results
+ * parameters:  file prefix
+ * returns:     object of results
+ * description: Gets all results which start with the given prefix.
+ */
+function get_results(prefix)
+{
+    let results = {}
+    let files = Object.keys(localStorage)
+    for (let file of files)
+    {
+        // determine files which start with the desired type
+        if (file.startsWith(prefix))
+        {
+            results[file] = JSON.parse(localStorage.getItem(file))
+        }
+    }
+    return results
+}
+
+/**
  * function:    get_match
  * parameters:  match number, current event, competition leve, set number
  * returns:     match object

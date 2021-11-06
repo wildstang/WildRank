@@ -133,6 +133,7 @@ body {
 .result_cell {
     max-width: 250px;
     table-layout: fixed;
+    overflow-x: auto;
 }
 
 #result_title {

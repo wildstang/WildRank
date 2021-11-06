@@ -94,10 +94,10 @@ function open_option(name)
             table += '<th>Match</th><th>Notes</th>'
             break
         case MATCH_MODE:
-            table += '<th>Entry</th><th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th><th>Scouter Average</th>'
+            table += '<th>Entry</th><th>Match Value</th><th>Team Average</th><th>Match Average</th><th>Event Average</th>'//<th>Scouter Average</th>'
             break
         case PIT_MODE:
-            table += '<th>Entry</th><th>Pit Value</th><th>Event Average</th><th>Scouter Average</th>'
+            table += '<th>Entry</th><th>Pit Value</th><th>Event Average</th>'//<th>Scouter Average</th>'
             break
     }
     table += '</tr><tr><th>Total Results</th><td>1</td>'
@@ -114,7 +114,7 @@ function open_option(name)
             table += `<td>${Object.keys(team_results).length}</td><td>${Object.keys(match_results).length}</td>`
         case PIT_MODE:
             scouter_results = get_scouter_results(results, results[name]['meta_scouter_id'])
-            table += `<td>${Object.keys(results).length}</td><td>${Object.keys(scouter_results).length}</td>`
+            table += `<td>${Object.keys(results).length}</td>`//<td>${Object.keys(scouter_results).length}</td>`
         case NOTE_MODE:
             table += '</tr>'
     }
@@ -123,25 +123,28 @@ function open_option(name)
     let entries = Object.keys(result)
     entries.forEach(function (entry, index)
     {
-        let val = result[entry]
-        table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${get_name(entry)}</th><td class="result_cell">${get_value(entry, val)}</td>`
-        if (typeof team_results !== 'undefined')
+        if (!entry.startsWith('meta_'))
         {
-            table += make_cell(team_results, entry, val)
+            let val = result[entry]
+            table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${get_name(entry)}</th><td class="result_cell">${get_value(entry, val)}</td>`
+            if (typeof team_results !== 'undefined')
+            {
+                table += make_cell(team_results, entry, val)
+            }
+            if (typeof match_results !== 'undefined')
+            {
+                table += make_cell(match_results, entry, val)
+            }
+            if (type != NOTE_MODE)
+            {
+                table += make_cell(results, entry, val)
+            }
+            if (typeof scouter_results !== 'undefined')
+            {
+                //table += make_cell(scouter_results, entry, val)
+            }
+            table += '</tr>'
         }
-        if (typeof match_results !== 'undefined')
-        {
-            table += make_cell(match_results, entry, val)
-        }
-        if (type != NOTE_MODE)
-        {
-            table += make_cell(results, entry, val)
-        }
-        if (typeof scouter_results !== 'undefined')
-        {
-            table += make_cell(scouter_results, entry, val)
-        }
-        table += '</tr>'
     })
     document.getElementById('results_tab').innerHTML = table
     ws(team)
@@ -156,7 +159,13 @@ function open_option(name)
 function make_cell(results, entry, base)
 {
     let color = ''
-    let val = avg_results(results, entry, 0)
+    let options = []
+    let type = get_type(entry)
+    if (type == 'select' || type == 'dropdown' || type == 'checkbox')
+    {
+        options = get_options_index(entry, type)
+    }
+    let val = avg_results(results, entry, 0, options)
     let valStr = get_value(entry, val)
     if (typeof base === 'number' && !entry.startsWith('meta'))
     {
@@ -184,7 +193,6 @@ function make_cell(results, entry, base)
         }
 
         // add std dev if proper number
-        let type = get_type(entry)
         if (type != 'select' && type != 'dropdown')
         {
             valStr += ` (${get_value(entry, avg_results(results, entry, 5))})`
@@ -204,7 +212,7 @@ function build_result_list()
 {
     let labels = {}
     let filter = document.getElementById('team_filter')
-    let team = filter.options[filter.selectedIndex].text
+    let team = type == MATCH_MODE ? filter.options[filter.selectedIndex].text : 'All'
     for (let file of Object.keys(results))
     {
         let parts = file.split('-')
@@ -228,24 +236,8 @@ function build_result_list()
  */
 function collect_results()
 {
-    let unsorted = {}
-    let files = Object.keys(localStorage)
-    files.forEach(function (file, index)
-    {
-        // determine files which start with the desired type
-        if (file.startsWith(prefix))
-        {
-            unsorted[file] = JSON.parse(localStorage.getItem(file))
-            if (unsorted[file].meta_scout_mode != PIT_MODE)
-            {
-                let team = unsorted[file].meta_team
-                if (!avail_teams.includes(team))
-                {
-                    avail_teams.push(team)
-                }
-            }
-        }
-    })
+    let unsorted = get_results(prefix)
+    avail_teams = [...new Set(Object.values(unsorted).map(r => r.meta_team))]
 
     let num_results = Object.keys(unsorted).length
     if (num_results == 0)
