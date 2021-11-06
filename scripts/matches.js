@@ -9,7 +9,6 @@
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var generate = ''
@@ -22,8 +21,8 @@ var generate = ''
  */
 function init_page(contents_card, buttons_container)
 {
-    let file_name = get_event_matches_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_matches(false)
+    if (first)
     {
         let avatar = ''
         let image = ''
@@ -42,67 +41,12 @@ function init_page(contents_card, buttons_container)
         buttons_container.innerHTML = build_link_button('scout_match', button_txt, 'start_scouting(false)') +
                                         '<div id="view_result"></div>'
 
-        build_options_list(JSON.parse(localStorage.getItem(file_name)))
+        open_match(first)
     }
     else
     {
         contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
     }
-}
-
-/**
- * function:    build_options_list
- * parameters:  matches
- * returns:     none
- * description: Completes left select match pane with matches from event data.
- */
-function build_options_list(matches)
-{
-    let first = ''
-    // iterate through each match obj
-    matches.forEach(function (match, index) {
-        let number = match.match_number
-        let red_teams = match.alliances.red.team_keys
-        let blue_teams = match.alliances.blue.team_keys
-        let teams = red_teams.concat(blue_teams)
-        // only display qualifying matches
-        if (match.comp_level == 'qm')
-        {
-            // determine which team user is positioned to scout
-            let team = teams[scout_pos]
-            if (scout_mode == MATCH_MODE)
-            {
-                team = team.substr(3)
-            }
-
-            // grey out previously scouted matches/teams
-            scouted = 'not_scouted'
-            if (scout_mode == MATCH_MODE && file_exists(get_match_result(number, team, event_id)))
-            {
-                first = ''
-                scouted = 'scouted'
-            }
-            else if (scout_mode == NOTE_MODE && notes_taken(number, event_id))
-            {
-                first = ''
-                scouted = 'scouted'
-            }
-            else if (first == '')
-            {
-                first = number
-            }
-
-            // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_match_option(number, red_teams, blue_teams, scouted, number)
-        }
-    })
-    if (first == '')
-    {
-        first = matches[0].match_number
-    }
-
-    open_match(first)
-    scroll_to('option_list', `match_${first}`)
 }
 
 /**

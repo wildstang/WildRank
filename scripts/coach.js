@@ -8,12 +8,6 @@
 
 const FUNCTIONS = ['mean', 'median', 'mode', 'min', 'max']
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const prefix = `${type}-${event_id}-`
-const year = event_id.substr(0,4)
-
 var vals = [] 
 var results = {}
 
@@ -38,8 +32,8 @@ function init_page(contents_card, buttons_container)
     })
 
     // build page
-    let file_name = get_event_matches_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_matches()
+    if (first)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>`
@@ -75,58 +69,12 @@ function init_page(contents_card, buttons_container)
                 build_column_frame('', blues)
             ]) +'</div>'
 
-        build_options_list(JSON.parse(localStorage.getItem(file_name)))
+        open_match(first)
     }
     else
     {
         contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
     }
-}
-
-/**
- * function:    build_options_list
- * parameters:  matches
- * returns:     none
- * description: Completes left select match pane with matches from event data.
- */
-function build_options_list(matches)
-{
-    let first = ''
-    matches.sort((a, b) => a.time - b.time)
-    // iterate through each match obj
-    matches.forEach(function (match, index)
-    {
-        let number = match.match_number
-        let red_teams = match.alliances.red.team_keys
-        let blue_teams = match.alliances.blue.team_keys
-        
-        // grey out previously scouted matches/teams
-        let scouted = 'not_scouted'
-        let level = match.comp_level.replace('qm', '').toUpperCase()
-        if ((match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == ''))
-        {
-            scouted = 'scouted'
-            first = ''
-        }
-        else if (first == '')
-        {
-            first = number
-        }
-        if (level && level != 'F')
-        {
-            level += match.set_number
-        }
-
-        document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
-    })
-    // default to first match if no first was selected
-    if (first == '')
-    {
-        first = matches[0].match_number
-    }
-
-    open_match(first)
-    scroll_to('option_list', `match_${first}`)
 }
 
 /**

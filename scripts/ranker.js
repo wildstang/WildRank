@@ -14,12 +14,6 @@ var stddevs = {}
 var totals = []
 var selected = ''
 
-// read parameters from URL
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-const prefix = `${type}-${event_id}-`
-
 /**
  * function:    init_page
  * parameters:  contents card, buttons container

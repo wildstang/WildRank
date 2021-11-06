@@ -6,9 +6,6 @@
  * date:        2020-03-19
  */
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -17,15 +14,11 @@ const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
  */
 function init_page(contents_card, buttons_container)
 {
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_teams(false)
+    if (first)
     {
         contents_card.innerHTML = '<img id="avatar"><h2>Add team <label id="team_num"></label>, <label id="team_name"></label>, to...</h2>'
         buttons_container.innerHTML = ''
-        
-        // load teams from localStorage and build team lists
-        teams = JSON.parse(localStorage.getItem(file_name))
-        build_team_list(teams)
 
         // load lists in from localStorage, and build lists
         let name = get_event_pick_lists_name(event_id)
@@ -41,7 +34,9 @@ function init_page(contents_card, buttons_container)
                 }
             })
         }
+        
         build_pick_lists()
+        open_option(first)
     }
     else
     {

@@ -8,10 +8,6 @@
 var urlParams = new URLSearchParams(window.location.search)
 const page = urlParams.get('page')
 
-let script = document.createElement('script')
-script.src = `scripts/picklists-core.js`
-document.head.appendChild(script)
-
 if (page != 'picklists')
 {
     script = document.createElement('script')

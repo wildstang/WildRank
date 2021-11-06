@@ -7,7 +7,6 @@
  */
 
 // read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var users = {}
@@ -42,35 +41,16 @@ function init_page(contents_card, buttons_container)
             }
         })
         
-        build_options_list()
+        let first = populate_other(Object.keys(users))
+        if (first)
+        {
+            open_option(first)
+        }
     }
     else
     {
         contents_card.innerHTML = '<h2>No Results Found</h2>'
     }
-}
-
-/**
- * function:    build_options_list
- * parameters:  none
- * returns:     none
- * description: Completes left select user pane with users from event data.
- */
-function build_options_list()
-{
-    let first = ''
-    // iterate through each match obj
-    Object.keys(users).forEach(function (user, index) {
-        if (first == '')
-        {
-            first = user
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(user)
-    })
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
 }
 
 /**

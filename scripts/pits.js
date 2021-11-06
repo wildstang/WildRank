@@ -7,7 +7,6 @@
  */
 
 // read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var team = ''
@@ -25,8 +24,8 @@ var low_canvas
  */
 function init_page(contents_card, buttons_container)
 {
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_teams(false, true)
+    if (first)
     {
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <img id="photo" alt="No image available">`
@@ -35,56 +34,22 @@ function init_page(contents_card, buttons_container)
         camera_view = `<video id="prevue" height="0">Video stream not available</video>
                         ${build_button('capture', 'Capture Robot', 'capture()')}`
         
-        if (navigator.mediaDevices) {
+        if (navigator.mediaDevices)
+        {
             buttons_container.innerHTML += camera_view
             init_camera()
         }
-        else {
+        else
+        {
             console.log('Unable to init camera')
         }
         
-        build_options_list(JSON.parse(localStorage.getItem(file_name)))
+        open_option(first)
     }
     else
     {
         contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
     }
-}
-
-/**
- * function:    build_options_list
- * parameters:  teams
- * returns:     none
- * description: Completes left select team pane with matches from teams data.
- */
-function build_options_list(teams)
-{
-    let first = ''
-    // iterate through team objs
-    teams.forEach(function (team, index) {
-        let number = team.team_number
-        // determine if the team has already been scouted
-        let scouted = 'not_scouted'
-        if (file_exists(get_pit_result(number, event_id)))
-        {
-            first = ''
-            scouted = 'scouted'
-        }
-        else if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number, scouted)
-    })
-    if (first == '')
-    {
-        first = teams[0].team_number
-    }
-
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
 }
 
 /**

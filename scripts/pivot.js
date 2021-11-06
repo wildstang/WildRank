@@ -8,17 +8,9 @@
 
 const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
-// read parameters from URL
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-const prefix = `${type}-${event_id}-`
-
-var keys = []
 var teams = []
-var results = {}
-var lists = {}
 var all_teams = []
+var results = {}
 
 var name = 'Pivot Export'
 
@@ -36,57 +28,27 @@ function init_page(contents_card, buttons_container)
                                     build_column_frame('', [build_button('export_table', 'Export Table', 'export_table()')])
         
     load_config(type, year)
-    
-    // load in pick lists
-    let name = get_event_pick_lists_name(event_id)
-    if (file_exists(name))
-    {
-        lists = JSON.parse(localStorage.getItem(name))
-    }
 
     // load all event teams from localStorage
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
+        let files = Object.keys(localStorage)
+        for (let file of files)
+        {
+            // determine files which start with the desired type
+            if (file.startsWith(prefix))
+            {
+                results[file] = JSON.parse(localStorage.getItem(file))
+            }
+        }
+        
         all_teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
-        teams = all_teams
+                    .filter(team => Object.keys(get_team_results(results, team)).length > 0)
+        
+        // load keys from localStorage and build list
+        let first = populate_keys(results, all_teams)
     }
-
-    // load keys from localStorage and build list
-    collect_results()
-    keys = Object.keys(results[Object.keys(results)[0]]).filter(function (key)
-    {
-        let type = get_type(key)
-        return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text'
-    })
-    enable_secondary_list()
-    build_list(keys)
-}
-
-/**
- * function:    build_list
- * parameters:  keys
- * returns:     none
- * description: Completes left select key pane with keys from result data.
- */
-function build_list(keys)
-{
-    // add pick list selector at top
-    let ops = Object.keys(lists)
-    ops.unshift('None')
-    document.getElementById('secondary_option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'build_table()')
-    
-    // iterate through result keys
-    keys.forEach(function (key, index)
-    {
-        document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
-    })
-
-    // add second option list of teams
-    all_teams.forEach(function (key)
-    {
-        document.getElementById('secondary_option_list').innerHTML += build_option(key, '', key, '', false)
-    })
 }
 
 /**
@@ -166,32 +128,17 @@ function build_table(sort_by='', reverse=false)
     let selected = get_selected_keys()
     let method = get_selected_option('type_form')
 
-    // get selected pick list
-    let e = document.getElementById('select_list')
-    let list = e.options[e.selectedIndex].text
-
-    if (Object.keys(lists).includes(list))
-    {
-        // select teams from pick list
-        teams = lists[list]
-    }
-    else
-    {
-        // select all teams if "None" is selected
-        teams = all_teams
-    }
-
     let filter_teams = get_secondary_selected_keys()
+    teams = all_teams
     if (filter_teams.length > 0)
     {
-        teams = all_teams.filter(team => filter_teams.includes(team.toString()))
+        teams = teams.filter(team => filter_teams.includes(team.toString()))
     }
 
     if (selected.includes(sort_by))
     {
         name = `${SORT_OPTIONS[method]} ${get_name(sort_by)}`
         console.log('sorting by', sort_by, 'for', method, 'reverse:', reverse)
-        teams = teams.filter(team => Object.keys(get_team_results(results, team)).length > 0)
         teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), sort_by, method))
         // invert negative key sort
         if (is_negative(sort_by))
@@ -201,7 +148,7 @@ function build_table(sort_by='', reverse=false)
     }
     else
     {
-        teams.sort()
+        teams.sort((a, b) => parseInt(a) - parseInt(b))
     }
     // reverse teams to ascending
     if (reverse)
@@ -292,44 +239,6 @@ function build_table(sort_by='', reverse=false)
         }
     })
     document.getElementById('results_tab').innerHTML = table
-}
-
-/**
- * function:    collect_results
- * parameters:  none
- * returns:     none
- * description: Collects all desired results from file, then add to screen.
- */
-function collect_results()
-{
-    let unsorted = {}
-    let files = Object.keys(localStorage)
-    files.forEach(function (file, index)
-    {
-        // determine files which start with the desired type
-        if (file.startsWith(prefix))
-        {
-            unsorted[file] = JSON.parse(localStorage.getItem(file))
-        }
-    })
-
-    let num_results = Object.keys(unsorted).length
-    if (num_results == 0)
-    {
-        return 0
-    }
-
-    // sort results
-    Object.keys(unsorted).sort(function (a, b)
-    { 
-        return parseInt(a.split('-')[2]) - parseInt(b.split('-')[2])
-    })
-    .forEach(function (key)
-    {
-        results[key] = unsorted[key]
-    })
-
-    return num_results
 }
 
 /**

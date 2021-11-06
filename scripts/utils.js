@@ -396,7 +396,7 @@ function get_match(match_num, event, comp_level='qm', set_num=1)
 
 /**
  * function:    get_match
- * parameters:  match number, current event, competition leve, set number
+ * parameters:  match name, current event
  * returns:     match object
  * description: Gets the match object from event data.
  */

@@ -7,7 +7,6 @@
  */
 
 // read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 /**
@@ -18,60 +17,20 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
  */
 function init_page(contents_card, buttons_container)
 {
-    let file_name = get_event_matches_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_matches(true, false)
+    if (first)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <h3 id="result"></h3>`
         buttons_container.innerHTML = '<div id="teams"></div>'
 
-        build_options_list(JSON.parse(localStorage.getItem(file_name)))
+        open_match(first)
     }
     else
     {
         contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
     }
-}
-
-/**
- * function:    build_options_list
- * parameters:  matches
- * returns:     none
- * description: Completes left select match pane with matches from event data.
- */
-function build_options_list(matches)
-{
-    let first = ''
-    matches.sort((a, b) => a.time - b.time)
-    // iterate through each match obj
-    matches.forEach(function (match, index)
-    {
-        let number = match.match_number
-        let red_teams = match.alliances.red.team_keys
-        let blue_teams = match.alliances.blue.team_keys
-        
-        if (true || match.comp_level == 'qm')
-        {
-            // grey out previously scouted matches/teams
-            let scouted = 'not_scouted'
-            let level = match.comp_level.replace('qm', '').toUpperCase()
-            // grey out previously scouted matches/teams
-            scouted = 'not_scouted'
-            if (first == '')
-            {
-                first = number
-            }
-            if (level && level != 'F')
-            {
-                level += match.set_number
-            }
-
-            document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
-        }
-    })
-    open_match(first)
-    scroll_to('option_list', `match_${first}`)
 }
 
 /**

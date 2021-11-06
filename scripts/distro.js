@@ -8,19 +8,9 @@
 
 const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
-// read parameters from URL
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-const prefix = `${type}-${event_id}-`
-
-var keys = []
 var teams = []
 var results = {}
-var lists = {}
-var all_teams = []
 
-var canvas
 var pwidth
 var pheight
 
@@ -35,39 +25,34 @@ function init_page(contents_card, buttons_container)
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'build_plot()') ]) +
                                     build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ])
-    
-    canvas = document.getElementById('whiteboard')
 
     load_config(type, year)
-    
-    // load in pick lists
-    let name = get_event_pick_lists_name(event_id)
-    if (file_exists(name))
-    {
-        lists = JSON.parse(localStorage.getItem(name))
-    }
 
     // load all event teams from localStorage
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
-        all_teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
-        teams = all_teams
+        let files = Object.keys(localStorage)
+        for (let file of files)
+        {
+            // determine files which start with the desired type
+            if (file.startsWith(prefix))
+            {
+                results[file] = JSON.parse(localStorage.getItem(file))
+            }
+        }
+        
+        teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
+                    .filter(team => Object.keys(get_team_results(results, team)).length > 0)
+        
+        // load keys from localStorage and build list
+        let first = populate_keys(results, teams)
+        if (first)
+        {
+            open_option(first)
+            init_canvas()
+        }
     }
-
-    // load keys from localStorage and build list
-    collect_results()
-    keys = Object.keys(results[Object.keys(results)[0]]).filter(function (key)
-    {
-        let type = get_type(key)
-        return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text'
-    })
-    enable_secondary_list()
-    build_list(keys)
-
-    // select an option and build the plot
-    open_option(keys[0])
-    init_canvas()
 }
 
 /**
@@ -80,60 +65,9 @@ function init_canvas()
 {
     pwidth = preview.offsetWidth - 64
     pheight = window.innerHeight/2 - 64
+    let canvas = document.getElementById('whiteboard')
     canvas.width = pwidth
     canvas.height = pheight
-    build_plot()
-}
-
-/**
- * function:    build_list
- * parameters:  list of keys to add
- * returns:     none
- * description: Completes left select key pane with keys from result data.
- */
-function build_list(keys)
-{
-    // add pick list selector at top
-    let ops = Object.keys(lists)
-    ops.unshift('None')
-    document.getElementById('secondary_option_list').innerHTML = build_dropdown('select_list', '', ops, 'None', 'select_list()')
-    
-    // iterate through result keys
-    keys.forEach(function (key)
-    {
-        document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
-    })
-
-    // add second option list of teams
-    teams.forEach(function (key)
-    {
-        document.getElementById('secondary_option_list').innerHTML += build_option(key, '', key, '', false)
-    })
-}
-
-/**
- * function:    select_list
- * parameters:  none
- * returns:     none
- * description: Updates teams based on selected pick list.
- */
-function select_list()
-{
-    // get selected pick list
-    let e = document.getElementById('select_list')
-    let list = e.options[e.selectedIndex].text
-
-    if (Object.keys(lists).includes(list))
-    {
-        // select teams from pick list
-        teams = lists[list]
-    }
-    else
-    {
-        // select all teams if "None" is selected
-        teams = all_teams
-    }
-
     build_plot()
 }
 
@@ -206,8 +140,6 @@ function build_plot()
     let key = get_selected_keys()[0]
     let type = get_type(key)
     let method = get_selected_option('type_form')
-
-    teams = teams.filter(team => Object.keys(get_team_results(results, team)).length > 0)
 
     // build distribution
     let values = []
@@ -399,42 +331,4 @@ function build_plot()
         ctx.fillText(counts[l], 0, (pheight - 25 + font_size) - height)
         ctx.stroke()
     }
-}
-
-/**
- * function:    collect_results
- * parameters:  none
- * returns:     Number of results found
- * description: Collects all desired results from file, then add to screen.
- */
-function collect_results()
-{
-    let unsorted = {}
-    let files = Object.keys(localStorage)
-    files.forEach(function (file, index)
-    {
-        // determine files which start with the desired type
-        if (file.startsWith(prefix))
-        {
-            unsorted[file] = JSON.parse(localStorage.getItem(file))
-        }
-    })
-
-    let num_results = Object.keys(unsorted).length
-    if (num_results == 0)
-    {
-        return 0
-    }
-
-    // sort results
-    Object.keys(unsorted).sort(function (a, b)
-    { 
-        return parseInt(a.split('-')[2]) - parseInt(b.split('-')[2])
-    })
-    .forEach(function (key)
-    {
-        results[key] = unsorted[key]
-    })
-
-    return num_results
 }

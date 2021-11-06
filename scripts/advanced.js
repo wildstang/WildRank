@@ -6,14 +6,9 @@
  */
 
 // read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var teams = []
-var matches = []
-var zebra_data = {}
-var match_stats = []
+var num_matches = 0
 var team_stats = []
 
 var field_width
@@ -22,9 +17,8 @@ var scale_factor = 1
 
 var count = 0
 var start = 0
-var first
 
-var wb = get_wb_config(year)
+var wb = {}
 
 /**
  * function:    wait
@@ -34,7 +28,7 @@ var wb = get_wb_config(year)
  */
 function wait(resolve, reject)
 {
-    if (count == matches.length)
+    if (count == num_matches)
     {
         resolve(count)
     }
@@ -44,9 +38,9 @@ function wait(resolve, reject)
     }
     else
     {
-        document.getElementById('progress').innerHTML = `${count}/${matches.length}`
+        document.getElementById('progress').innerHTML = `${count}/${num_matches}`
         document.getElementById('progress').value = count
-        document.getElementById('progress').max = matches.length
+        document.getElementById('progress').max = num_matches
         setTimeout(wait.bind(this, resolve, reject), 50)
     }
 }
@@ -59,41 +53,45 @@ function wait(resolve, reject)
  */
 function init_page(contents_card, buttons_container)
 {
+    wb = get_wb_config(year)
+    
     // base layer of page with loading text
     contents_card.innerHTML = '<h2>Zebra data is loading...</h2><progress id="progress" value="0" max="100"></progress>'
     buttons_container.innerHTML = '<div id="data" class="column"></div><canvas id="whiteboard"></canvas>'
 
     // load in teams
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_teams()
+    if (first)
     {
-        teams = JSON.parse(localStorage.getItem(file_name))
-        build_options_list(teams)
+        let teams = JSON.parse(localStorage.getItem(get_event_teams_name(event_id)))
 
         // load in matches
-        file_name = get_event_matches_name(event_id)
+        let file_name = get_event_matches_name(event_id)
         if (localStorage.getItem(file_name) != null)
         {
             // get zebra data for each match
             matches = JSON.parse(localStorage.getItem(file_name))
-            matches.forEach(m => fetch_zebra(m.key, zebra_data, match_stats))
+            let match_stats = []
+            matches.forEach(m => fetch_zebra(m.key, match_stats))
+            num_matches = matches.length
 
             // wait for fetches to complete to render page
             start = Date.now()
             new Promise(wait).then(function (val)
             {
-                if (val != matches.length)
+                if (val != num_matches)
                 {
-                    alert(`${matches.length - val} matches failed to load`)
+                    alert(`${num_matches - val} matches failed to load`)
                 }
-                fill_page(contents_card)
+                fill_page(contents_card, teams, match_stats, first)
             })
             .catch(function (e)
             {
                 console.log(e)
                 alert('Zebra data loading timed out')
-                fill_page(contents_card)
+                fill_page(contents_card, teams, match_stats, first)
             })
+
         }
         else
         {
@@ -108,11 +106,11 @@ function init_page(contents_card, buttons_container)
 
 /**
  * function:    fill_page
- * parameters:  contents card, buttons container
+ * parameters:  contents card, teams, match stats, first team to open
  * returns:     none
  * description: Render page on data is fetched.
  */
-function fill_page(contents_card)
+function fill_page(contents_card, teams, match_stats, first)
 {
     // replace loading with team info
     contents_card.innerHTML = `<img id="avatar">
@@ -122,37 +120,12 @@ function fill_page(contents_card)
 
     
     // open the first team and start drawing
-    open_option(first)
     setup_picklists()
-    init_canvas()
+    init_canvas(teams, match_stats)
+    calculate_team_stats(teams, match_stats)
+    open_option(first)
 
-    window.requestAnimationFrame(draw);
-}
-
-/**
- * function:    build_options_list
- * parameters:  teams
- * returns:     none
- * description: Completes left select team pane with teams from event data.
- */
-function build_options_list(teams)
-{
-    first = ''
-    // iterate through team objs
-    teams.forEach(function (team)
-    {
-        let number = team.team_number
-        // determine if the team has already been scouted
-        let scouted = 'not_scouted'
-        if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number, scouted)
-    })
-    scroll_to('option_list', `option_${first}`)
+    window.requestAnimationFrame(draw)
 }
 
 /**
@@ -181,11 +154,11 @@ function open_option(team_num)
     }
 
     // get team stats
-    calculate_team_stats()
     let team = team_stats[team_num]
 
     // build stats table
     let data = '<table>' +
+        build_row('No Zebra Data', team.zebra, '', '') +
         build_row('Max Speed', team.max_speed, 'ft/s', team.max_speed_rank) +
         build_row('Max Acceleration', team.max_accel, 'ft/s2', team.max_accel_rank) +
         build_row('Max Cycles', team.max_cycles, '', team.max_cycles_rank) +
@@ -235,7 +208,7 @@ function build_row(name, value, unit, rank)
     {
         rank += 'rd'
     }
-    else
+    else if (rank.length > 0)
     {
         rank += 'th'
     }
@@ -245,11 +218,11 @@ function build_row(name, value, unit, rank)
 
 /**
  * function:    calculate_team_stats
- * parameters:  none
+ * parameters:  teams, match stats
  * returns:     none
  * description: Calculate stats and rankings for each team based of all matches.
  */
-function calculate_team_stats()
+function calculate_team_stats(teams, match_stats)
 {
     teams.forEach(function (t)
     {
@@ -296,6 +269,11 @@ function calculate_team_stats()
             })
             team.heatmap = heatmap
         }
+        else
+        {
+            // super smart hack to note no zebra data in the stats table
+            team.zebra = `for ${team_num}`
+        }
 
         // save start and end markers
         let markers = []
@@ -339,11 +317,11 @@ function calculate_team_stats()
 
 /**
  * function:    fetch_zebra
- * parameters:  match_key, zebra data container, match stats container
+ * parameters:  match_key, match stats container
  * returns:     none
  * description: Fetch zebra data for a given match from TBA.
  */
-function fetch_zebra(match_key, zebra_data, stats)
+function fetch_zebra(match_key, stats)
 {
     // fetch simple event matches
     fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({ [TBA_KEY]: API_KEY })}`)
@@ -356,8 +334,6 @@ function fetch_zebra(match_key, zebra_data, stats)
             return response.json()
         })
         .then(data => {
-            zebra_data[match_key] = data
-
             if (data && data.alliances)
             {
                 // build list of teams
@@ -477,7 +453,7 @@ function init_canvas()
 {
     // determine available space as preview width - padding - card padding - extra
     let preview_width = preview.offsetWidth - 16 - 32 - 4
-    let preview_height = preview.offsetHeight - 16 - 32 - 4
+    let preview_height = window.innerHeight / 2 - 16 - 32 - 4
 
     // determine scaling factor based on most limited dimension
     let scale_factor_w = wb.field_width / preview_width
@@ -503,8 +479,19 @@ function init_canvas()
     canvas.height = field_height
     canvas.addEventListener('mousedown', mouse_down, false)
 
-    // fix markers
-    calculate_team_stats()
+    // re-scale markers
+    for (let stats of Object.values(team_stats))
+    {
+        let markers = stats.markers
+        if (markers)
+        {
+            for (let point of markers)
+            {
+                point.x *= old_scale_factor / scale_factor
+                point.y *= old_scale_factor / scale_factor
+            }
+        }
+    }
 }
 
 /**
@@ -579,7 +566,7 @@ function draw() {
             markers.forEach(function (point)
             {
                 ctx.beginPath()
-                ctx.arc(point.x, point.y, 5 / scale_factor, 0, 2 * Math.PI, false)
+                ctx.arc(point.x / 1, point.y / 1, 5 / scale_factor, 0, 2 * Math.PI, false)
                 ctx.fillStyle = point.color
                 ctx.fill()
                 ctx.lineWidth = 3 / scale_factor

@@ -40,12 +40,7 @@ var draw_heatmap = true
 var mouseDown = false
 var hasChanged = true
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-
-var matches
-var wb = get_wb_config(year)
+var wb = {}
 
 
 /**
@@ -56,50 +51,37 @@ var wb = get_wb_config(year)
  */
 function open_match(match_num)
 {
-    let use_elims = get_selected_option('elims') == 1
+    deselect_all()
+    
+    let match = parse_match(match_num, event_id)
+    let match_div = document.getElementById(`match_${match_num}`)
+    if (match_div != null)
+    {
+        let red_teams = match.alliances.red.team_keys
+        let blue_teams = match.alliances.blue.team_keys
 
-    // iterate through each match obj
-    matches.forEach(function (match, index) {
-        let level = match.comp_level
-        if ((level == 'qm' && !use_elims) || (level != 'qm' && use_elims))
+        // update avatars
+        bot_images = {}
+        red_teams.forEach(function (team, i)
         {
-            let match_div = document.getElementById(`match_${match.key}`)
-            if (match_div != null)
-            {
-                if (match_num == match.key)
-                {
-                    let red_teams = match.alliances.red.team_keys
-                    let blue_teams = match.alliances.blue.team_keys
-    
-                    // update avatars
-                    bot_images = {}
-                    red_teams.forEach(function (team, i)
-                    {
-                        let pos = `red_${i+1}`
-                        bot_images[pos] = new Image()
-                        document.getElementById(pos).value = team.substr(3)
-                    })
-                    blue_teams.forEach(function (team, i)
-                    {
-                        let pos = `blue_${i+1}`
-                        bot_images[pos] = new Image()
-                        document.getElementById(pos).value = team.substr(3)
-                    })
-    
-                    update_teams()
-    
-                    fetch_zebra(match.key)
-    
-                    // select option
-                    match_div.classList.add('selected')
-                }
-                else if (match_div.classList.contains('selected'))
-                {
-                    match_div.classList.remove('selected')
-                }
-            }
-        }
-    })
+            let pos = `red_${i+1}`
+            bot_images[pos] = new Image()
+            document.getElementById(pos).value = team.substr(3)
+        })
+        blue_teams.forEach(function (team, i)
+        {
+            let pos = `blue_${i+1}`
+            bot_images[pos] = new Image()
+            document.getElementById(pos).value = team.substr(3)
+        })
+
+        update_teams()
+
+        fetch_zebra(match.key)
+
+        // select option
+        match_div.classList.add('selected')
+    }
 
     init()
 }
@@ -128,53 +110,6 @@ function filter_team()
 {
     let s = document.getElementById('team_filter')
     build_match_list(s.options[s.selectedIndex].text)
-}
-
-/**
- * function:    build_match_list
- * parameters:  none
- * returns:     none
- * description: Completes left select match pane with matches from event data.
- */
-function build_match_list(team_filter='All')
-{
-    let first = ''
-    let use_elims = get_selected_option('elims') == 1
-
-    let dropdown = ''
-    let teams = JSON.parse(localStorage.getItem(get_event_teams_name(event_id)))
-    if (teams != null)
-    {
-        teams = teams.map(t => t.team_number)
-        dropdown = build_dropdown('team_filter', '', ['All'].concat(teams), team_filter, 'filter_team()', 'slim')
-    }
-    document.getElementById('option_list').innerHTML = dropdown
-
-    // iterate through each match obj
-    matches.forEach(function (match) {
-        let level = match.comp_level
-
-        // filter out quals matches
-        if ((level == 'qm' && !use_elims) || (level != 'qm' && use_elims))
-        {
-            let number = match.match_number
-            let red_teams = match.alliances.red.team_keys
-            let blue_teams = match.alliances.blue.team_keys
-            let match_name = `${level.substr(0, 1).toUpperCase()}${number}`
-
-            if (team_filter == 'All' || red_teams.includes(`frc${team_filter}`) || blue_teams.includes(`frc${team_filter}`))
-            {
-                if (first == '')
-                {
-                    first = match.key
-                }
-    
-                // replace placeholders in template and add to screen
-                document.getElementById('option_list').innerHTML += build_match_option(match.key, red_teams, blue_teams, '', match_name)
-            }
-        }
-    })
-    open_match(first)
 }
 
 /**
@@ -225,23 +160,6 @@ function set_path_type()
 function update_trail()
 {
     trail_length = document.getElementById('trail_length').value
-}
-
-/**
- * function:    load_event
- * parameters:  none
- * returns:     none
- * description: Fetch simple event matches and from localStorage.
- *              Build match list on load completion.
- */
-function load_event()
-{
-    let file_name = `matches-${event_id}`
-
-    if (localStorage.getItem(file_name) != null)
-    {
-        matches = JSON.parse(localStorage.getItem(file_name))
-    }
 }
 
 /**
@@ -735,56 +653,57 @@ function mouse_up(evt)
  * returns:     matches
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container, reload=true)
+function init_page(contents_card, buttons_container)
 {
     // fill in page template
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
 
-    // load in match data
-    if (reload)
+    wb = get_wb_config(year)
+
+    let first = populate_matches()
+    if (first)
     {
-        load_event()
+        // load in match data
+        let matches = JSON.parse(localStorage.getItem(`matches-${event_id}`))
+        let red_buttons = matches[0].alliances.red.team_keys.map(function (team, i)
+        {
+            return build_num_entry(`red_${i+1}`, `Red ${i+1}`, '', bounds=[0, 10000])
+        })
+        let blue_buttons = matches[0].alliances.blue.team_keys.map(function (team, i)
+        {
+            return build_num_entry(`blue_${i+1}`, `Blue ${i+1}`, '', bounds=[0, 10000])
+        })
+        blue_buttons.push(build_button('update_teams', 'Update Teams', 'update_teams()'))
+        
+        buttons_container.innerHTML = '<br>' +
+            build_page_frame('Controls', [
+                build_column_frame('', [
+                    '<span id="add_element_container"></span>',
+                    build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
+                    build_select('path_type', 'Path Type ', ['Heatmap', 'Trace', 'Both'], 'Heatmap', 'set_path_type()'),
+                    build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
+                    build_button('reset_whiteboard', 'Reset Whiteboard', 'init()')
+                ])
+            ]) +
+            build_page_frame('Playback', [
+                build_column_frame('', [
+                    build_multi_button('play_match', 'Play at', ['1x', '10x', '50x'], ['play_match(1)', 'play_match(10)', 'play_match(50)']),
+                    build_slider('match_time', 'Match Time', 1, 1, 1, 1, 'update_time()'),
+                    build_slider('trail_length', 'Trail Length', 0, 1, 10, 0, 'update_trail()')
+                ])
+            ], true, 'playback') +
+            build_page_frame('Team Avatars', [
+                build_column_frame('Red Teams', red_buttons),
+                build_column_frame('Blue Teams', blue_buttons)
+            ])
+        
+        open_match(first)
+
+        init_canvas()
+    
+        // add magnets and start drawing
+        init()
     }
-
-    let red_buttons = matches[0].alliances.red.team_keys.map(function (team, i)
-    {
-        return build_num_entry(`red_${i+1}`, `Red ${i+1}`, '', bounds=[0, 10000])
-    })
-    let blue_buttons = matches[0].alliances.blue.team_keys.map(function (team, i)
-    {
-        return build_num_entry(`blue_${i+1}`, `Blue ${i+1}`, '', bounds=[0, 10000])
-    })
-    blue_buttons.push(build_button('update_teams', 'Update Teams', 'update_teams()'))
-
-    buttons_container.innerHTML = '<br>' +
-        build_page_frame('Controls', [
-            build_column_frame('', [
-                '<span id="add_element_container"></span>',
-                build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
-                build_select('path_type', 'Path Type ', ['Heatmap', 'Trace', 'Both'], 'Heatmap', 'set_path_type()'),
-                build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
-                build_button('reset_whiteboard', 'Reset Whiteboard', 'init()'),
-                build_select('elims', 'Match Type', ['Qual', 'Elim'], 'Qual', 'build_match_list()')
-            ])
-        ]) +
-        build_page_frame('Playback', [
-            build_column_frame('', [
-                build_multi_button('play_match', 'Play at', ['1x', '10x', '50x'], ['play_match(1)', 'play_match(10)', 'play_match(50)']),
-                build_slider('match_time', 'Match Time', 1, 1, 1, 1, 'update_time()'),
-                build_slider('trail_length', 'Trail Length', 0, 1, 10, 0, 'update_trail()')
-            ])
-        ], true, 'playback') +
-        build_page_frame('Team Avatars', [
-            build_column_frame('Red Teams', red_buttons),
-            build_column_frame('Blue Teams', blue_buttons)
-        ])
-
-    build_match_list()
-
-    init_canvas()
-
-    // add magnets and start drawing
-    init()
 }
 
 /**
@@ -796,8 +715,8 @@ function init_page(contents_card, buttons_container, reload=true)
 function init_canvas()
 {
     // determine available space as preview width - padding - card padding - extra
-    let preview_width = preview.offsetWidth - 16 - 32 - 4
-    let preview_height = preview.offsetHeight - 16 - 32 - 4
+    let preview_width = preview.offsetWidth - 16 - 32 - 8
+    let preview_height = preview.offsetHeight - 16 - 32 - 8
 
     // determine scaling factor based on most limited dimension
     let scale_factor_w = wb.field_width / preview_width

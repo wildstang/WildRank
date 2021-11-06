@@ -7,7 +7,6 @@
  */
 
 // read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 /**
@@ -18,8 +17,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
  */
 function init_page(contents_card, buttons_container)
 {
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let first = populate_teams()
+    if (first)
     {
         contents_card.innerHTML = `<img id="avatar">
                                     <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
@@ -29,40 +28,13 @@ function init_page(contents_card, buttons_container)
                                     <div id="notes"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
         
-        build_options_list(JSON.parse(localStorage.getItem(file_name)))
         setup_picklists()
+        open_option(first)
     }
     else
     {
         contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
     }
-}
-
-/**
- * function:    build_options_list
- * parameters:  teams
- * returns:     none
- * description: Completes left select team pane with teams from event data.
- */
-function build_options_list(teams)
-{
-    let first = ''
-    // iterate through team objs
-    teams.forEach(function (team, index)
-    {
-        let number = team.team_number
-        // determine if the team has already been scouted
-        let scouted = 'not_scouted'
-        if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number, scouted)
-    })
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
 }
 
 /**
