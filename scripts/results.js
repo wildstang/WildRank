@@ -202,30 +202,21 @@ function make_cell(results, entry, base)
  */
 function build_result_list()
 {
-    let first = ''
-    document.getElementById('option_list').innerHTML = ''
-    Object.keys(results).forEach(function (file, index)
+    let labels = {}
+    let filter = document.getElementById('team_filter')
+    let team = filter.options[filter.selectedIndex].text
+    for (let file of Object.keys(results))
     {
-        let label = file.substr(prefix.length).replace('-', ': ')
-        let parts = label.split(': ')
-        if (type == PIT_MODE || (document.getElementById('team_filter').value == 'All' || 
-            parts[parts.length-1] == document.getElementById('team_filter').value))
+        let parts = file.split('-')
+        if (team == 'All' || team == parts[parts.length-1])
         {
-            if (first == '')
-            {
-                first = file
-            }
-            document.getElementById('option_list').innerHTML += build_option(file, '', label)
+            labels[file] = file.substr(prefix.length).replace('-', ': ')
         }
-    })
-    if (selected !== null && selected != '')
-    {
-        first = selected
     }
+    let first = populate_other(labels)
     if (first != '')
     {
         open_option(first)
-        scroll_to('option_list', `option_${first}`)
     }
 }
 

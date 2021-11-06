@@ -21,6 +21,7 @@ const year = event_id.substr(0,4)
 function populate_matches(finals=true, complete=true)
 {
     document.getElementById('option_list').innerHTML = ''
+    
     let file_name = get_event_matches_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
@@ -76,20 +77,23 @@ function populate_matches(finals=true, complete=true)
 
 /**
  * function:    populate_teams
- * parameters:  if minipicklists is needed, if teams should be marked as complete
+ * parameters:  if minipicklists is needed, if teams should be marked as complete, if secondary panel should be added
  * returns:     default selection
  * description: Populates the left options list with teams and activates the mini-picklist.
  * 
- * Pages: Pit Scout, Pick Lists, Advanced Stats, Team Profiles
+ * Pages: Pit Scout, Pick Lists, Advanced Stats, Team Profiles, Side-by-Side
  */
-function populate_teams(minipicklist=true, complete=false)
+function populate_teams(minipicklist=true, complete=false, secondary=false)
 {
     document.getElementById('option_list').innerHTML = ''
+    document.getElementById('secondary_list').innerHTML = ''
+
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
         let teams = JSON.parse(localStorage.getItem(file_name))
         let first = ''
+        let second = ''
 
         // iterate through team objs
         for (let team of teams)
@@ -106,16 +110,32 @@ function populate_teams(minipicklist=true, complete=false)
             {
                 first = number
             }
+            else if (second == '')
+            {
+                second = number
+            }
             
             // replace placeholders in template and add to screen
             document.getElementById('option_list').innerHTML += build_option(number, scouted)
+            if (secondary)
+            {
+                document.getElementById('secondary_option_list').innerHTML += build_option(number, scouted, '', '', false)
+            }
         }
 
         if (minipicklist)
         {
             setup_picklists()
         }
+
         scroll_to('option_list', `option_${first}`)
+        if (secondary)
+        {
+            enable_secondary_list()
+            scroll_to('secondary_option_list', `soption_${first}`)
+            return [first, second]
+        }
+
         return first
     }
     else
@@ -135,6 +155,9 @@ function populate_teams(minipicklist=true, complete=false)
  */
 function populate_keys(results, teams)
 {
+    document.getElementById('option_list').innerHTML = ''
+    document.getElementById('secondary_option_list').innerHTML = ''
+
     if (Object.keys(results).length > 0)
     {
         let keys = Object.keys(results[Object.keys(results)[0]]).filter(function (key)
@@ -146,7 +169,6 @@ function populate_keys(results, teams)
         // add pick list selector at top
         let ops = Object.keys(lists)
         ops.unshift('None')
-        document.getElementById('secondary_option_list').innerHTML = ''
         
         // iterate through result keys
         for (let key of keys)
@@ -157,7 +179,7 @@ function populate_keys(results, teams)
         // add second option list of teams
         for (let team of teams)
         {
-            document.getElementById('secondary_option_list').innerHTML += build_option(team, '', team, '', false)
+            document.getElementById('secondary_option_list').innerHTML += build_option(team, '', '', '', false)
         }
 
         enable_secondary_list()
@@ -176,10 +198,19 @@ function populate_keys(results, teams)
  * returns:     default selection
  * description: Populates the left options list with a given list of options.
  * 
- * Pages: User Profiles
+ * Pages: User Profiles, Results, Team Rankings
  */
 function populate_other(options)
 {
+    document.getElementById('option_list').innerHTML = ''
+
+    // determine if passed list or array
+    let names = []
+    if (typeof options === 'object' && !Array.isArray(options) && options !== null)
+    {
+        names = options
+        options = Object.keys(options)
+    }
     if (options)
     {
         let first = ''
@@ -192,7 +223,8 @@ function populate_other(options)
             }
     
             // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_option(op)
+            let name = names ? names[op] : op
+            document.getElementById('option_list').innerHTML += build_option(op, '', name)
         }
         
         scroll_to('option_list', `option_${first}`)
@@ -200,7 +232,3 @@ function populate_other(options)
     }
     return false
 }
-
-/**
- * Other: Results, Side-by-Side, Team Rankings
- */

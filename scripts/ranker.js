@@ -94,8 +94,8 @@ function collect_results()
             let team = parts[parts.length - 1]
             if (!Object.keys(teams).includes(team))
             {
-                teams[`#${team}`] = {}
-                stddevs[`#${team}`] = {}
+                teams[team] = {}
+                stddevs[team] = {}
             }
             unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
@@ -115,7 +115,7 @@ function collect_results()
     })
     Object.keys(teams).forEach(function (team, index)
     {
-        let team_results = get_team_results(unsorted, team.substr(1))
+        let team_results = get_team_results(unsorted, team)
         keys.forEach(function (key, index)
         {
             teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
@@ -163,33 +163,12 @@ function save_pick_list()
     lists[name] = []
     Object.keys(teams).forEach(function (team, index)
     {
-        lists[name].push(team.substr(1))
+        lists[name].push(team)
     })
 
     // save to localStorage and open
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
     return build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: event_id})
-}
-
-/**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select result pane with results.
- */
-function build_team_list()
-{
-    let team_nums = Object.keys(teams)
-    document.getElementById('option_list').innerHTML = ''
-    team_nums.forEach(function (team, index)
-    {
-        let select = document.getElementById('key_selector')
-        let against = document.getElementById('key_selector_against')
-        let val = get_value(keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
-                                                                  teams[team][keys[against.selectedIndex]],
-                                                                  document.getElementById('key_selector_method').selectedIndex))
-        document.getElementById('option_list').innerHTML += build_option(team, '', `${index+1}: ${team.substr(1)} - ${val}`)
-    })
 }
 
 /**
@@ -239,7 +218,17 @@ function select()
     sort_teams(document.getElementById('key_selector').selectedIndex,
                document.getElementById('key_selector_method').selectedIndex,
                document.getElementById('key_selector_against').selectedIndex)
-    build_team_list()
+    
+    let team_vals = {}
+    for (let team of Object.keys(teams))
+    {
+        let select = document.getElementById('key_selector')
+        let against = document.getElementById('key_selector_against')
+        team_vals[team] = `${team}: ` +get_value(keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
+                                                                    teams[team][keys[against.selectedIndex]],
+                                                                    document.getElementById('key_selector_method').selectedIndex))
+    }
+    populate_other(team_vals)
     open_option(selected)
     
     // force mode selected if non-numeric
@@ -283,7 +272,6 @@ function calc_prop(val, against_val, method)
 function open_option(team_num)
 {
     selected = team_num
-    team_num = selected.substr(1)
     let select = document.getElementById('key_selector')
     let against = document.getElementById('key_selector_against')
     let method = document.getElementById('key_selector_method').selectedIndex

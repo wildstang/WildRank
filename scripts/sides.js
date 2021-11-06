@@ -27,20 +27,25 @@ function init_page(contents_card, buttons_container)
     load_config(type, year)
     buttons_container.innerHTML = `<br>
         ${build_page_frame('', [
-            build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'collect_results(); select()') ]),
-            build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair', 'select()') ])
+            build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'collect_results(); open_teams()') ]),
+            build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams', 'No Bar'], 'Pair', 'open_teams()') ])
         ], false)}<br>
         <div class="column"><center><div class="wr_card"><table id="compare_tab"></table></div></center></div>`
-
-    enable_secondary_list()
-    if (collect_results() > 0)
+    
+    let [first, second] = populate_teams(false, false, true)
+    if (first)
     {
-        contents_card.innerHTML = '<h2 id="value"></h2>'
-        let nums = Object.keys(teams)
-        nums.sort(function (a, b) { return parseInt(a.substr(1)) - parseInt(b.substr(1)) })
-        selectedA = nums[0]
-        selectedB = nums[1]
-        select()
+        if (collect_results() > 0)
+        {
+            contents_card.innerHTML = '<h2 id="value"></h2>'
+            selectedA = first
+            selectedB = second
+            open_teams()
+        }
+        else
+        {
+            contents_card.innerHTML = '<h2>No Results Found</h2>'
+        }
     }
     else
     {
@@ -66,8 +71,8 @@ function collect_results()
             let team = parts[parts.length - 1]
             if (!Object.keys(teams).includes(team))
             {
-                teams[`#${team}`] = {}
-                stddevs[`#${team}`] = {}
+                teams[team] = {}
+                stddevs[team] = {}
             }
             unsorted[file] = JSON.parse(localStorage.getItem(file))
         }
@@ -87,7 +92,7 @@ function collect_results()
     })
     Object.keys(teams).forEach(function (team, index)
     {
-        let team_results = get_team_results(unsorted, team.substr(1))
+        let team_results = get_team_results(unsorted, team)
         keys.forEach(function (key, index)
         {
             teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
@@ -96,24 +101,6 @@ function collect_results()
     })
 
     return num_results
-}
-
-/**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select result pane with results.
- */
-function build_team_list()
-{
-    let team_nums = Object.keys(teams)
-    document.getElementById('option_list').innerHTML = ''
-    team_nums.sort(function (a, b) { return parseInt(a.substr(1)) - parseInt(b.substr(1)) })
-    team_nums.forEach(function (team, index)
-    {
-        document.getElementById('option_list').innerHTML += build_option(team, '', team.substr(1))
-        document.getElementById('secondary_option_list').innerHTML += build_option(team, '', team.substr(1), '', false)
-    })
 }
 
 /**
@@ -128,18 +115,6 @@ function switch_selecting()
 }
 
 /**
- * function:    select
- * parameters:  none
- * returns:     none
- * description: Responds to new key being selected by updating team order.
- */
-function select()
-{
-    build_team_list()
-    open_teams(selectedA, selectedB)
-}
-
-/**
  * function:    open_option
  * parameters:  team number
  * returns:     none
@@ -148,7 +123,7 @@ function select()
 function open_option(team_num)
 {
     selectedA = team_num
-    open_teams(selectedA, selectedB)
+    open_teams()
 }
 
 /**
@@ -160,7 +135,7 @@ function open_option(team_num)
 function open_secondary_option(team_num)
 {
     selectedB = team_num
-    open_teams(selectedA, selectedB)
+    open_teams()
 }
 
 /**
@@ -188,32 +163,29 @@ function num2color(num)
  * returns:     none
  * description: Updates the selected teams.
  */
-function open_teams(team_numA, team_numB)
+function open_teams()
 {
-    selectedA = team_numA
-    team_numA = selectedA.substr(1)
-    selectedB = team_numB
-    if (!selectedB) {
+    if (!selectedB)
+    {
         alert('Not enough teams available')
     }
-    team_numB = selectedB.substr(1)
 
     // populate ranking
-    let rankingA = get_team_rankings(team_numA, event_id)
-    let rankingB = get_team_rankings(team_numB, event_id)
+    let rankingA = get_team_rankings(selectedA, event_id)
+    let rankingB = get_team_rankings(selectedB, event_id)
     let rankA = rankingA ? `Rank: ${rankingA.rank} (${rankingA.record.wins}-${rankingA.record.losses}-${rankingA.record.ties})<br>` : ''
     let rankB = rankingB ? `Rank: ${rankingB.rank} (${rankingB.record.wins}-${rankingB.record.losses}-${rankingB.record.ties})<br>` : ''
 
     // team details
-    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_numA, event_id.substr(0,4))}"> <h2 class="result_name">${team_numA} ${get_team_name(team_numA, event_id)}</h2><br>${rankA}</div> vs
-        <div id="result_title"><img id="avatar" src="${get_avatar(team_numB, event_id.substr(0,4))}"> <h2 class="result_name">${team_numB} ${get_team_name(team_numB, event_id)}</h2><br>${rankB}</div>`
+    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(selectedA, event_id.substr(0,4))}"> <h2 class="result_name">${selectedA} ${get_team_name(selectedA, event_id)}</h2><br>${rankA}</div> vs
+        <div id="result_title"><img id="avatar" src="${get_avatar(selectedB, event_id.substr(0,4))}"> <h2 class="result_name">${selectedB} ${get_team_name(selectedB, event_id)}</h2><br>${rankB}</div>`
     details += '<img id="photoA" alt="No image available"></img><img id="photoB" alt="No image available"></img>'
 
     document.getElementById('value').innerHTML = details
-    use_cached_image(team_numA, 'photoA', 'full_res')
-    use_cached_image(team_numB, 'photoB', 'full_res')
+    use_cached_image(selectedA, 'photoA', 'full_res')
+    use_cached_image(selectedB, 'photoB', 'full_res')
 
-    let compare = `<tr><th>${team_numA}</th><th></th><th>${team_numB}</th></tr>`
+    let compare = `<tr><th>${selectedA}</th><th></th><th>${selectedB}</th></tr>`
     keys.forEach(function (key, index)
     {
         let aVal = get_value(key, teams[selectedA][key])
@@ -223,6 +195,7 @@ function open_teams(team_numA, team_numB)
         let aWidth = 250
         let bWidth = 250
         let type = get_type(key)
+        let scale_max = get_selected_option('scale_max')
 
         if (typeof teams[selectedA][key] == 'number' && type != 'select' && type != 'dropdown')
         {
@@ -248,7 +221,7 @@ function open_teams(team_numA, team_numB)
                 bWidth *= 0.1
             }
 
-            if (get_selected_option('scale_max') == 1)
+            if (scale_max == 1)
             {
                 // override scaling if there is a known maximum
                 let options = get_options(key)
@@ -293,6 +266,14 @@ function open_teams(team_numA, team_numB)
             bWidth = 0
         }
 
+        // bars disabled
+        if (scale_max == 2)
+        {
+            scale_to = 0
+            aWidth = 0
+            bWidth = 0
+        }
+
         // invert colors if attribute is negativve
         if (is_negative(key))
         {
@@ -310,17 +291,8 @@ function open_teams(team_numA, team_numB)
     document.getElementById('compare_tab').innerHTML = compare
 
     // select team on left
-    Object.keys(teams).forEach(function (team, index)
-    {
-        if (document.getElementById(`option_${team}`).classList.contains('selected'))
-        {
-            document.getElementById(`option_${team}`).classList.remove('selected')
-        }
-        if (document.getElementById(`soption_${team}`).classList.contains('selected'))
-        {
-            document.getElementById(`soption_${team}`).classList.remove('selected')
-        }
-    })
+    deselect_all()
+    deselect_all(false)
     document.getElementById(`option_${selectedA}`).classList.add('selected')
     document.getElementById(`soption_${selectedB}`).classList.add('selected')
 }
