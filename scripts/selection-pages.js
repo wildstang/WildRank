@@ -128,6 +128,15 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
             setup_picklists()
         }
 
+        if (first == '')
+        {
+            first = teams[0].team_number
+        }
+        if (second == '')
+        {
+            second = teams[1].team_number
+        }
+
         scroll_to('option_list', `option_${first}`)
         if (secondary)
         {
