@@ -5,7 +5,8 @@
  * date:        2020-12-11
  */
 
-var config_names = ['config-settings', 'config-defaults', 'config-theme', 'config-dark-theme', 'config-whiteboard', 'config-admins']
+const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
+const config_names = ['config-settings', 'config-defaults', 'config-theme', 'config-dark-theme', 'config-whiteboard', 'config-admins', 'config-coach-vals']
 
 /** 
  * function:    build_column
@@ -16,7 +17,7 @@ var config_names = ['config-settings', 'config-defaults', 'config-theme', 'confi
 function build_column(file, config)
 {
     let inputs = []
-    Object.keys(config).forEach(function (key)
+    Object.keys(config).forEach(function (key, index)
     {
         let name = `${key.replace(/_/g, ' ').replace(/-/g, ' ')}:`
         let val = config[key]
@@ -44,6 +45,13 @@ function build_column(file, config)
                 inputs.push(build_str_entry(id, name, val))
             }
         }
+        else if (typeof val == 'object' && val.hasOwnProperty('function'))
+        {
+            let func = val.function
+            func = func.substr(0, 1).toUpperCase() + func.substr(1)
+            inputs.push(build_select(`${id}_fn_${index}`, 'Function', FUNCTIONS, func))
+            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', get_keys(), val.key))
+        }
     })
     return build_column_frame(file.replace('config-', '').replace(/-/g, ' '), inputs)
 }
@@ -56,6 +64,7 @@ function build_column(file, config)
  */
 function build_page()
 {
+    load_config(MATCH_MODE, year)
     let columns = []
     config_names.forEach(function (file, index)
     {
@@ -66,6 +75,10 @@ function build_page()
             {
                 config = config.filter(c => c.year == year)[0]
                 delete config.year
+                columns.push(build_column(file, config))
+            }
+            else if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('function'))
+            {
                 columns.push(build_column(file, config))
             }
             else if (config.length > 0 && typeof config[0] != 'object')
@@ -133,7 +146,7 @@ function apply_config()
  */
 function update_config(file, config)
 {
-    Object.keys(config).forEach(function (key)
+    Object.keys(config).forEach(function (key, index)
     {
         let id = `${file}-${key}`
         if (document.getElementById(id))
@@ -157,6 +170,14 @@ function update_config(file, config)
                 new_val = document.getElementById(id).value
             }
             config[key] = new_val
+        }
+        else if (document.getElementById(`${id}_fn_${index}`))
+        {
+            config[index] =
+            {
+                function: FUNCTIONS[get_selected_option(`${id}_fn_${index}`)].toLowerCase(),
+                id: get_keys()[document.getElementById(`${id}_key_${index}`).selectedIndex]
+            }
         }
     })
     return config
@@ -186,6 +207,10 @@ function build_config_obj()
                     }
                 })
                 configs[file.replace('config-', '')] = config
+            }
+            else if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('function'))
+            {
+                configs[file.replace('config-', '')] = update_config(file, config)
             }
             else if (config.length > 0 && typeof config[0] != 'object')
             {

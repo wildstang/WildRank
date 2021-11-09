@@ -21,7 +21,7 @@ function init_page(contents_card, buttons_container)
 {
     // load in config and results
     load_config(type, year)
-    vals = get_config('coach_vals')
+    vals = get_config('coach-vals')
     Object.keys(localStorage).forEach(function (file)
     {
         // determine files which start with the desired type
@@ -144,7 +144,7 @@ function open_teams()
             rank = `#${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
         }
 
-        // make a table of "coach_vals"
+        // make a table of "coach-vals"
         let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><table>`
         vals.forEach(function (v)
         {

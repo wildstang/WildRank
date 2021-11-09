@@ -158,6 +158,54 @@ function get_type(key)
 }
 
 /**
+ * function:    get_keys
+ * parameters:  none
+ * returns:     list of all keys in scouting mode
+ * description: Generates a list of all keys in the current scouting mode.
+ */
+function get_keys()
+{
+    let keys = []
+    for (let page of config.pages)
+    {
+        for (let column of page.columns)
+        {
+            // check if its a cycle column
+            if (column.cycle)
+            {
+                keys.push(`${column.id}_cycles`)
+                
+                for (let input of column.inputs)
+                {
+                    input.options.forEach(function (op, i) {
+                        let id = `${input.id}_${op.toLowerCase().split().join('_')}`
+                        keys.push(id)
+                    })
+                }
+            }
+            else
+            {
+                for (let input of column.inputs)
+                {
+                    if (input.type == 'multicounter')
+                    {
+                        for (let option of input.options)
+                        {
+                            keys.push(`${input.id}_${option.toLowerCase()}`)
+                        }
+                    }
+                    else
+                    {
+                        keys.push(input.id)
+                    }
+                }
+            }
+        }
+    }
+    return keys
+}
+
+/**
  * function:    get_options
  * parameters:  name of input
  * returns:     options for input
