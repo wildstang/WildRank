@@ -6,7 +6,13 @@
  */
 
 const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
-const config_names = ['config-settings', 'config-defaults', 'config-theme', 'config-dark-theme', 'config-whiteboard', 'config-admins', 'config-coach-vals']
+const config_names = ['config-settings', 'config-defaults', 'config-admins', /*'config-theme', 'config-dark-theme',*/ 'config-coach-vals', 'config-whiteboard']
+
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
+
+var keys = []
 
 /** 
  * function:    build_column
@@ -50,7 +56,7 @@ function build_column(file, config)
             let func = val.function
             func = func.substr(0, 1).toUpperCase() + func.substr(1)
             inputs.push(build_select(`${id}_fn_${index}`, 'Function', FUNCTIONS, func))
-            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', get_keys(), val.key))
+            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', keys, val.key))
         }
     })
     return build_column_frame(file.replace('config-', '').replace(/-/g, ' '), inputs)
@@ -64,32 +70,34 @@ function build_column(file, config)
  */
 function build_page()
 {
-    load_config(MATCH_MODE, year)
     let columns = []
     config_names.forEach(function (file, index)
     {
-        let config = JSON.parse(localStorage.getItem(file))
-        if (Array.isArray(config))
+        if (file_exists(file))
         {
-            if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('year'))
+            let config = JSON.parse(localStorage.getItem(file))
+            if (Array.isArray(config))
             {
-                config = config.filter(c => c.year == year)[0]
-                delete config.year
+                if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('year'))
+                {
+                    config = config.filter(c => c.year == year)[0]
+                    delete config.year
+                    columns.push(build_column(file, config))
+                }
+                else if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('function'))
+                {
+                    columns.push(build_column(file, config))
+                }
+                else if (config.length > 0 && typeof config[0] != 'object')
+                {
+                    columns.push(build_column_frame(file.replace('config-', '').replace(/-/g, ' '),
+                        [build_text_entry(file, '', config.join(','))]))
+                }
+            }
+            else
+            {
                 columns.push(build_column(file, config))
             }
-            else if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('function'))
-            {
-                columns.push(build_column(file, config))
-            }
-            else if (config.length > 0 && typeof config[0] != 'object')
-            {
-                columns.push(build_column_frame(file.replace('config-', '').replace(/-/g, ' '),
-                    [build_text_entry(file, '', config.join(','))]))
-            }
-        }
-        else
-        {
-            columns.push(build_column(file, config))
         }
     })
     document.getElementById('body').innerHTML = build_page_frame('', columns) + build_page_frame('Save', [
@@ -176,7 +184,7 @@ function update_config(file, config)
             config[index] =
             {
                 function: FUNCTIONS[get_selected_option(`${id}_fn_${index}`)].toLowerCase(),
-                id: get_keys()[document.getElementById(`${id}_key_${index}`).selectedIndex]
+                id: keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
             }
         }
     })
@@ -230,14 +238,11 @@ function build_config_obj()
     return configs
 }
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 window.addEventListener('load', function()
 {
     document.getElementById('header_info').innerHTML = `Settings`
     document.body.innerHTML += '<div id="body"></div>'
+    load_config(MATCH_MODE, year)
+    keys = get_keys()
     build_page()
 })

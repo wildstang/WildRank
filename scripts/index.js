@@ -83,7 +83,7 @@ const BUTTONS = {
     'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
     'open_pivot': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_distro': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_coach': { limits: ['event', 'admin', 'results'], configs: ['settings', 'coach_vals', 'type'] },
+    'open_coach': { limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
     'open_config': { limits: ['admin'], configs: [] },
     'open_settings': { limits: ['admin'], configs: ['settings'] },
     'preload_event': { limits: [], configs: [] },
@@ -139,7 +139,7 @@ function on_config()
     set_status('config_valid', validate_settings_config(get_config('settings')) &&
         validate_settings_config(get_config('settings')) &&
         validate_defaults_config(get_config('defaults')) &&
-        validate_coach_config(get_config('coach_vals')) &&
+        validate_coach_config(get_config('coach-vals')) &&
         validate_wb_config(get_config('whiteboard')) &&
         validate_admin_config(get_config('admins')) &&
         validate_theme_config(get_config('theme')) &&
