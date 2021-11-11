@@ -40,6 +40,8 @@ function init_page(contents_card, buttons_container)
         
         // load keys from localStorage and build list
         populate_keys(results, all_teams)
+        select_all(false)
+        build_table()
     }
 }
 

@@ -74,6 +74,29 @@ function deselect_all(primary_list=true)
 }
 
 /**
+ * function:    select_all
+ * parameters:  use primary option list
+ * returns:     none
+ * description: Selects all options in option_list.
+ */
+function select_all(primary_list=true)
+{
+    let id = 'option_list'
+    if (!primary_list)
+    {
+        id = 'secondary_option_list'
+    }
+    let options = document.getElementById(id).children
+    for (let i = 0; i < options.length; ++i)
+    {
+        if (!options[i].classList.contains('selected'))
+        {
+            options[i].classList.add('selected')
+        }
+    }
+}
+
+/**
  * function:    toggle_menu
  * parameters:  use primary option list
  * returns:     none
