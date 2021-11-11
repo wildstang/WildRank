@@ -10,6 +10,7 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
 var teams = []
 var all_teams = []
+var lists = {}
 var results = {}
 
 var name = 'Pivot Export'
@@ -38,11 +39,53 @@ function init_page(contents_card, buttons_container)
         all_teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
                     .filter(team => Object.keys(get_team_results(results, team)).length > 0)
         
-        // load keys from localStorage and build list
-        populate_keys(results, all_teams)
-        select_all(false)
-        build_table()
+        file_name = get_event_pick_lists_name(event_id)
+        if (file_exists(file_name))
+        {
+            lists = JSON.parse(localStorage.getItem(file_name))
+
+            // add select button above secondary list
+            document.getElementById('secondary_filter').innerHTML = build_button('select_toggle', '(De)Select All', 'toggle_select(false); select_none()') +
+                build_dropdown('picklist_filter', '', ['None'].concat(Object.keys(lists)), '', 'filter_teams()')
+                document.getElementById('select_toggle-container').style.margin = '4px auto'
+                document.getElementById('select_toggle-container').style.width = `${300-32}px`
+                document.getElementById('picklist_filter').style.margin = '4px auto'
+                document.getElementById('picklist_filter').style.width = `${300}px`
+    
+            // load keys from localStorage and build list
+            populate_keys(results, all_teams)
+            select_all(false)
+            build_table()
+        }
     }
+}
+
+/**
+ * function:    open_option
+ * parameters:  none
+ * returns:     none
+ * description: Selects teams based off the selected picklist.
+ */
+function filter_teams()
+{
+    let list = document.getElementById('picklist_filter').value
+    if (Object.keys(lists).includes(list))
+    {
+        filter_by(lists[list], false)
+    }
+
+    build_table()
+}
+
+/**
+ * function:    select_none
+ * parameters:  none
+ * returns:     none
+ * description: Selects the first option in the picklist dropdown "None".
+ */
+function select_none()
+{
+    document.getElementById('picklist_filter').selectedIndex = 0
 }
 
 /**
@@ -64,6 +107,7 @@ function open_option(key)
         document.getElementById(`option_${key}`).classList.add('selected')
     }
 
+    select_none()
     build_table()
 }
 
@@ -86,6 +130,7 @@ function open_secondary_option(key)
         class_list.add('selected')
     }
 
+    select_none()
     build_table()
 }
 
@@ -123,11 +168,7 @@ function build_table(sort_by='', reverse=false)
     let method = get_selected_option('type_form')
 
     let filter_teams = get_secondary_selected_keys()
-    teams = all_teams
-    if (filter_teams.length > 0)
-    {
-        teams = teams.filter(team => filter_teams.includes(team.toString()))
-    }
+    teams = all_teams.filter(team => filter_teams.includes(team.toString()))
 
     if (selected.includes(sort_by))
     {
