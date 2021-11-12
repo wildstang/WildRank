@@ -41,10 +41,12 @@ function init_page(contents_card, buttons_container)
         {
             avail_teams = avail_teams.sort(function (a, b) { return parseInt(a) - parseInt(b) })
             avail_teams.unshift('All')
-            document.getElementById('preview').innerHTML = `\
-                ${build_page_frame('', [
-                    build_column_frame('', [ build_dropdown('team_filter', 'Team:', avail_teams, 'All', 'build_result_list()') ])
-                ], false)}<br>${document.getElementById('preview').innerHTML}`
+            document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML
+
+            // add select button above secondary list
+            document.getElementById('filter').innerHTML = build_dropdown('team_filter', '', avail_teams, 'all', 'build_result_list()')
+            document.getElementById('team_filter').style.margin = '4px auto'
+            document.getElementById('team_filter').style.width = `${300}px`
         }
         build_result_list()
         setup_picklists()
