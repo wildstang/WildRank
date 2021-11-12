@@ -42,6 +42,13 @@ var hasChanged = true
 
 var wb = {}
 
+// playback status
+const STOPPED  = 0
+const RUNNING  = 1
+const PAUSED   = 2
+const STOPPING = 3
+
+var status = STOPPED
 
 /**
  * function:    open_match
@@ -568,19 +575,74 @@ function update_time()
 }
 
 /**
+ * function:    pause_match
+ * parameters:  none
+ * returns:     none
+ * description: Pauses playback if running, resumes if paused.
+ */
+function pause_match()
+{
+    if (status == RUNNING)
+    {
+        document.getElementById('play_match').innerHTML = 'Play'
+        status = PAUSED
+    }
+    else if (status == PAUSED)
+    {
+        document.getElementById('play_match').innerHTML = 'Pause'
+        status = RUNNING
+    }
+    else
+    {
+        set_slider('match_time', 1)
+        play_match()
+    }
+}
+
+/**
  * function:    play_match
- * parameters:  speed to play at (1x = 0.1s per point)
+ * parameters:  none
  * returns:     none
  * description: Moves the magnets over time
  */
-async function play_match(speed)
+async function play_match()
 {
-    for (let i = 1; i < match_plots.times.length - 1; i++)
+    if (status != STOPPED)
     {
-        set_slider('match_time', i)
-        update_time()
-        await new Promise(r => setTimeout(r, 100.0 / speed));
+        status = STOPPING
+        while (status != STOPPED)
+        {
+            await new Promise(r => setTimeout(r, 10))
+        }
     }
+    let i = 1;
+    status = RUNNING
+    document.getElementById('play_match').innerHTML = 'Pause'
+    while (i < match_plots.times.length - 1)
+    {
+        if (status == STOPPING)
+        {
+            break
+        }
+        if (status == RUNNING)
+        {
+            let slider = document.getElementById('match_time').value
+            if (slider != i - 1)
+            {
+                i = slider
+            }
+            else
+            {
+                set_slider('match_time', i)
+            }
+            update_time()
+            ++i;
+        }
+        let speed = document.getElementById('playback_speed').value
+        await new Promise(r => setTimeout(r, 100.0 / speed))
+    }
+    status = STOPPED
+    document.getElementById('play_match').innerHTML = 'Play'
 }
 
 /**
@@ -687,7 +749,8 @@ function init_page(contents_card, buttons_container)
             ]) +
             build_page_frame('Playback', [
                 build_column_frame('', [
-                    build_multi_button('play_match', 'Play at', ['1x', '10x', '50x'], ['play_match(1)', 'play_match(10)', 'play_match(50)']),
+                    build_button('play_match', 'Play', 'pause_match()'),
+                    build_slider('playback_speed', 'Play at', 1, 50, 1, 10),
                     build_slider('match_time', 'Match Time', 1, 1, 1, 1, 'update_time()'),
                     build_slider('trail_length', 'Trail Length', 0, 1, 10, 0, 'update_trail()')
                 ])
