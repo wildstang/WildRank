@@ -10,6 +10,7 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
 var teams = []
 var results = {}
+var lists = {}
 
 var pwidth
 var pheight
@@ -30,19 +31,30 @@ function init_page(contents_card, buttons_container)
 
     // load all event teams from localStorage
     let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    if (file_exists(file_name))
     {
         results = get_results(prefix)
         
         teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
                     .filter(team => Object.keys(get_team_results(results, team)).length > 0)
         
-        // load keys from localStorage and build list
-        let first = populate_keys(results, teams)
-        if (first)
+        file_name = get_event_pick_lists_name(event_id)
+        if (file_exists(file_name))
         {
-            open_option(first)
-            init_canvas()
+            lists = JSON.parse(localStorage.getItem(file_name))
+
+            // add select button above secondary list
+            document.getElementById('secondary_filter').innerHTML = build_dropdown('picklist_filter', '', ['None'].concat(Object.keys(lists)), '', 'filter_teams()')
+                document.getElementById('picklist_filter').style.margin = '4px auto'
+                document.getElementById('picklist_filter').style.width = `${300}px`
+    
+            // load keys from localStorage and build list
+            let first = populate_keys(results, teams)
+            if (first)
+            {
+                open_option(first)
+                init_canvas()
+            }
         }
     }
 }
@@ -61,6 +73,23 @@ function init_canvas()
     canvas.width = pwidth
     canvas.height = pheight
     build_plot()
+}
+
+/**
+ * function:    open_option
+ * parameters:  none
+ * returns:     none
+ * description: Selects teams based off the selected picklist.
+ */
+function filter_teams()
+{
+    let list = document.getElementById('picklist_filter').value
+    if (Object.keys(lists).includes(list))
+    {
+        filter_by(lists[list], false)
+    }
+
+    init_canvas()
 }
 
 /**
