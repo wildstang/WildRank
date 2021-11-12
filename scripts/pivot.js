@@ -13,6 +13,8 @@ var all_teams = []
 var lists = {}
 var results = {}
 
+var sort = ''
+var ascending = false
 var name = 'Pivot Export'
 
 /**
@@ -92,7 +94,6 @@ function open_option(key)
         document.getElementById(`option_${key}`).classList.add('selected')
     }
 
-    select_none()
     build_table()
 }
 
@@ -155,8 +156,17 @@ function build_table(sort_by='', reverse=false)
     let filter_teams = get_secondary_selected_keys()
     teams = all_teams.filter(team => filter_teams.includes(team.toString()))
 
+    // restore sort
+    if (!sort_by && sort && selected.includes(sort))
+    {
+        sort_by = sort
+        reverse = ascending
+    }
+
     if (selected.includes(sort_by))
     {
+        sort = sort_by
+        ascending = false
         name = `${SORT_OPTIONS[method]} ${get_name(sort_by)}`
         console.log('sorting by', sort_by, 'for', method, 'reverse:', reverse)
         teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), sort_by, method))
@@ -173,6 +183,7 @@ function build_table(sort_by='', reverse=false)
     // reverse teams to ascending
     if (reverse)
     {
+        ascending = true
         teams.reverse()
         name += ' reversed'
     }
