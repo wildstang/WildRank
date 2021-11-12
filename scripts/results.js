@@ -44,9 +44,7 @@ function init_page(contents_card, buttons_container)
             document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML
 
             // add select button above secondary list
-            document.getElementById('filter').innerHTML = build_dropdown('team_filter', '', avail_teams, 'all', 'build_result_list()')
-            document.getElementById('team_filter').style.margin = '4px auto'
-            document.getElementById('team_filter').style.width = `${300}px`
+            add_dropdown_filter('team_filter', avail_teams, 'build_result_list()')
         }
         build_result_list()
         setup_picklists()

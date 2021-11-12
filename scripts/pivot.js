@@ -45,12 +45,8 @@ function init_page(contents_card, buttons_container)
             lists = JSON.parse(localStorage.getItem(file_name))
 
             // add select button above secondary list
-            document.getElementById('secondary_filter').innerHTML = build_button('select_toggle', '(De)Select All', 'toggle_select(false); select_none()') +
-                build_dropdown('picklist_filter', '', ['None'].concat(Object.keys(lists)), '', 'filter_teams()')
-                document.getElementById('select_toggle-container').style.margin = '4px auto'
-                document.getElementById('select_toggle-container').style.width = `${300-32}px`
-                document.getElementById('picklist_filter').style.margin = '4px auto'
-                document.getElementById('picklist_filter').style.width = `${300}px`
+            add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
+            add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
     
             // load keys from localStorage and build list
             populate_keys(results, all_teams)
@@ -75,17 +71,6 @@ function filter_teams()
     }
 
     build_table()
-}
-
-/**
- * function:    select_none
- * parameters:  none
- * returns:     none
- * description: Selects the first option in the picklist dropdown "None".
- */
-function select_none()
-{
-    document.getElementById('picklist_filter').selectedIndex = 0
 }
 
 /**

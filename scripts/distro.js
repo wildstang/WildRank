@@ -44,9 +44,7 @@ function init_page(contents_card, buttons_container)
             lists = JSON.parse(localStorage.getItem(file_name))
 
             // add select button above secondary list
-            document.getElementById('secondary_filter').innerHTML = build_dropdown('picklist_filter', '', ['None'].concat(Object.keys(lists)), '', 'filter_teams()')
-                document.getElementById('picklist_filter').style.margin = '4px auto'
-                document.getElementById('picklist_filter').style.width = `${300}px`
+            add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
     
             // load keys from localStorage and build list
             let first = populate_keys(results, teams)
@@ -125,6 +123,7 @@ function open_secondary_option(key)
         class_list.add('selected')
     }
 
+    select_none()
     build_plot()
 }
 

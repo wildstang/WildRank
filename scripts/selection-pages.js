@@ -241,3 +241,50 @@ function populate_other(options)
     }
     return false
 }
+
+/**
+ * function:    select_none
+ * parameters:  none
+ * returns:     none
+ * description: Selects the first option in the picklist dropdown "None".
+ */
+function select_none()
+{
+    document.getElementById('picklist_filter').selectedIndex = 0
+}
+
+/**
+ * function:    add_dropdown_filter
+ * parameters:  id of filter, filter options, on change filter, filter to be placed in
+ * returns:     none
+ * description: Builds a dropdown in a given filter box.
+ */
+function add_dropdown_filter(filter_id, options, func, primary_list=true)
+{
+    let id = 'filter'
+    if (!primary_list)
+    {
+        id = 'secondary_filter'
+    }
+    document.getElementById(id).innerHTML = build_dropdown(filter_id, '', options, options[0], func)
+    document.getElementById(filter_id).style.margin = '4px auto'
+    document.getElementById(filter_id).style.width = `${300}px`
+}
+
+/**
+ * function:    add_button_filter
+ * parameters:  id of filter, text, on change filter, filter to be placed in
+ * returns:     none
+ * description: Builds a button in a given filter box.
+ */
+function add_button_filter(filter_id, text, func, primary_list=true)
+{
+    let id = 'filter'
+    if (!primary_list)
+    {
+        id = 'secondary_filter'
+    }
+    document.getElementById(id).innerHTML += build_button(filter_id, text, func)
+    document.getElementById(`${filter_id}-container`).style.margin = '4px auto'
+    document.getElementById(`${filter_id}-container`).style.width = `${300}px`
+}
