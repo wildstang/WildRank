@@ -291,13 +291,12 @@ function build_plot()
             ctx.fillStyle = 'firebrick'
             ctx.font = `${font_size}px mono, courier`
             let raw_val = team_vals[highlight]
-            let team_val = get_value(key, raw_val)
+            let team_val = get_value(key, raw_val, false)
             let x = 25 + (team_val - min) / delta * (pwidth - 25)
             // fix values for line position
             if (team_modes.hasOwnProperty(highlight))
             {
                 raw_val = team_modes[highlight]
-                team_val = team_val.split('<br>')
             }
             // handle non-numeric and low bin values
             if (unique.length <= max_bins || type == 'checkbox' || type == 'select' || type == 'dropdown')

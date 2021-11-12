@@ -382,17 +382,24 @@ function get_name(key, check_duplicates=true)
 
 /**
  * function:    get_value
- * parameters:  name of result, raw value stored
+ * parameters:  name of result, raw value stored, format with html
  * returns:     human readable result value
  * description: Translates less human readable results to more.
  */
-function get_value(key, value)
+function get_value(key, value, html=true)
 {
     // if an object is passed assume its a set of counts
     if (typeof value === 'object' && !Array.isArray(value) && value !== null)
     {
         let total = Object.values(value).reduce((a, b) => a + b)
-        return '<table>' + Object.keys(value).map(v => `<tr><th>${get_value(key, v)}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
+        if (html)
+        {
+            return '<table>' + Object.keys(value).map(v => `<tr><th>${get_value(key, v)}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
+        }
+        else
+        {
+            return Object.keys(value).map(v => `${get_value(key, v)}: ${(100*value[v]/total).toFixed(2)}%`)
+        }
     }
     switch (get_type(key))
     {
