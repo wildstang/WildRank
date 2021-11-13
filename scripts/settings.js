@@ -184,7 +184,7 @@ function update_config(file, config)
             config[index] =
             {
                 function: FUNCTIONS[get_selected_option(`${id}_fn_${index}`)].toLowerCase(),
-                id: keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
+                key: keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
             }
         }
     })
