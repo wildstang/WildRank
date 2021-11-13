@@ -1,5 +1,5 @@
 import socketserver, http.server, logging, base64
-from os import listdir, environ
+from os import listdir, environ, mkdir
 from os.path import isfile, join, exists
 from shutil import copyfile
 
@@ -114,6 +114,10 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
 
             with open(UPLOAD_PATH + file, 'w') as f:
                 f.write(content)
+
+# make config if not exists
+if not exists('config'):
+    mkdir('config')
 
 # setup config if not
 for f in listdir('assets'):
