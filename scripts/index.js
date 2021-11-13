@@ -71,28 +71,28 @@ const PAGE_FRAME = build_page_frame('', [
 
 // requirements for each button
 const BUTTONS = {
-    'scout': { limits: ['event'], configs: ['type', 'settings'] },
-    'open_ranker': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_sides': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_picks': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_whiteboard': { limits: ['event', 'admin'], configs: ['whiteboard', 'settings'] },
-    'open_advanced': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_results': { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
-    'open_teams': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_matches': { limits: ['event', 'admin'], configs: ['settings'] },
-    'open_users': { limits: ['event', 'admin', 'any'], configs: [] },
-    'open_pivot': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_distro': { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_coach': { limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
-    'open_config': { limits: ['admin'], configs: [] },
-    'open_settings': { limits: ['admin'], configs: ['settings'] },
-    'preload_event': { limits: [], configs: [] },
-    'upload_all': { limits: ['results'], configs: [] },
-    'import_all': { limits: ['admin'], configs: [] },
-    'download_csv': { limits: ['event', 'admin', 'any'], configs: [] },
-    'export_zip': { limits: ['event', 'admin'], configs: [] },
-    'import_zip': { limits: ['admin'], configs: [] },
-    'reset': { limits: ['admin'], configs: [] }
+    'scout':            { limits: ['event-pit'], configs: ['type', 'settings'] },
+    'open_ranker':      { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_sides':       { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_picks':       { limits: ['teams', 'admin'], configs: ['settings'] },
+    'open_whiteboard':  { limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
+    'open_advanced':    { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_results':     { limits: ['event-pit', 'admin', 'results'], configs: ['type', 'settings'] },
+    'open_teams':       { limits: ['teams', 'admin'], configs: ['settings'] },
+    'open_matches':     { limits: ['event', 'admin'], configs: ['settings'] },
+    'open_users':       { limits: ['event-pit', 'admin', 'any'], configs: [] },
+    'open_pivot':       { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_distro':      { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_coach':       { limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
+    'open_config':      { limits: ['admin'], configs: [] },
+    'open_settings':    { limits: ['admin'], configs: ['settings'] },
+    'preload_event':    { limits: [], configs: [] },
+    'upload_all':       { limits: ['results'], configs: [] },
+    'import_all':       { limits: ['admin'], configs: [] },
+    'download_csv':     { limits: ['event', 'admin', 'any'], configs: [] },
+    'export_zip':       { limits: ['event', 'admin'], configs: [] },
+    'import_zip':       { limits: ['admin'], configs: [] },
+    'reset':            { limits: ['admin'], configs: [] }
 }
 
 // when the page is finished loading
@@ -347,10 +347,35 @@ function switch_theme()
  */
 function has_event()
 {
-    let event = get_event()
-    return file_exists(get_event_matches_name(event)) && file_exists(get_event_teams_name(event))// && file_exists(get_event_rankings_name(event))
+    return has_matches() && has_teams()
 }
 
+
+/**
+ * function:    has_teams
+ * parameters:  none
+ * returns:     If the current event teams are loaded
+ * description: Determines if the current event teams are loaded.
+ */
+ function has_teams()
+ {
+     let event = get_event()
+     return file_exists(get_event_teams_name(event))
+ }
+
+
+ /**
+  * function:    has_matches
+  * parameters:  none
+  * returns:     If the current event matches are loaded
+  * description: Determines if the current event matches are loaded.
+  */
+  function has_matches()
+  {
+      let event = get_event()
+      return file_exists(get_event_matches_name(event))
+  }
+ 
 /**
  * function:    is_blocked
  * parameters:  button container id
@@ -366,40 +391,57 @@ function is_blocked(id)
     let configs = BUTTONS[id].configs
 
     // check each provided limiting parameter
+    if (limits.includes('event-pit') && !has_event())
+    {
+        if (get_selected_type() != PIT_MODE || !has_teams())
+        {
+            return `Missing event data.`
+        }
+    }
     if (limits.includes('event') && !has_event())
     {
         return `Missing event data.`
     }
-    else if (limits.includes('admin') && !is_admin(get_user()))
+    if (limits.includes('teams') && !has_teams())
+    {
+        return `Missing team data.`
+    }
+    if (limits.includes('matches') && !has_matches())
+    {
+        return `Missing match data.`
+    }
+    if (limits.includes('team') && !has_teams())
+    {
+        return `Missing teams data.`
+    }
+    if (limits.includes('admin') && !is_admin(get_user()))
     {
         return `Admin access required.`
     }
-    else if (limits.includes('no-notes') && type == NOTE_MODE)
+    if (limits.includes('no-notes') && type == NOTE_MODE)
     {
         return `Cannot rank notes.`
     }
-    else if (limits.includes('results') && !count_results(event, type))
+    if (limits.includes('results') && !count_results(event, type))
     {
         return `No ${type} results found.`
     }
-    else if (limits.includes('any') && !count_results(event, PIT_MODE) && !count_results(event, MATCH_MODE) && !count_results(event, NOTE_MODE))
+    if (limits.includes('any') && !count_results(event, PIT_MODE) && !count_results(event, MATCH_MODE) && !count_results(event, NOTE_MODE))
     {
         return `No results found.`
     }
-    else
+
+    // check that all necessary configs are present
+    for (let i = 0; i < configs.length; ++i)
     {
-        // check that all necessary configs are present
-        for (let i = 0; i < configs.length; ++i)
+        let config = configs[i]
+        if (config == 'type')
         {
-            let config = configs[i]
-            if (config == 'type')
-            {
-                config = type
-            }
-            if (config != NOTE_MODE && !config_exists(config, year))
-            {
-                return `Missing ${config} configuration.`
-            }
+            config = type
+        }
+        if (config != NOTE_MODE && !config_exists(config, year))
+        {
+            return `Missing ${config} configuration.`
         }
     }
     return false

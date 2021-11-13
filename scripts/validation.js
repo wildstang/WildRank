@@ -15,7 +15,7 @@ function has_keys(obj, keys)
 {
     for (let key of keys)
     {
-        if (!obj.hasOwnProperty(key))
+        if (!obj || !obj.hasOwnProperty(key))
         {
             console.log('missing', key)
             return false
