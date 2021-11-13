@@ -174,7 +174,7 @@ function build_plot()
             let ops = get_options(key)
             if (type == 'checkbox')
             {
-                ops = [true, false]
+                ops = [false, true]
             }
             else
             {
@@ -190,7 +190,7 @@ function build_plot()
                 }
             })
             // get mode for placing highlight
-            let mode = avg_results(team_results, key, method)
+            let mode = avg_results(team_results, key, 2)
             // convert mode to numeric values
             if (type == 'checkbox')
             {
@@ -296,10 +296,13 @@ function build_plot()
             // fix values for line position
             if (team_modes.hasOwnProperty(highlight))
             {
+                let vals = Object.values(raw_val)
+                x = 25 + vals.map((v, i) => v * i).reduce((a, b) => a + b) / ((vals.length - 1) *vals.reduce((a, b) => a + b)) * (pwidth - 25)
+                team_val = Object.keys(team_val).map(k => `${k}: ${team_val[k]}%`)
                 raw_val = team_modes[highlight]
             }
             // handle non-numeric and low bin values
-            if (unique.length <= max_bins || type == 'checkbox' || type == 'select' || type == 'dropdown')
+            else if (unique.length <= max_bins)
             {
                 x = 25 + (unique.indexOf(raw_val) + 0.5) * width
             }

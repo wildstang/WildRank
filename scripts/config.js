@@ -241,7 +241,7 @@ function get_options_index(key, type)
     let ops = get_options(key)
     if (type == 'checkbox')
     {
-        ops = [true, false]
+        ops = [false, true]
     }
     else
     {
@@ -398,7 +398,9 @@ function get_value(key, value, html=true)
         }
         else
         {
-            return Object.keys(value).map(v => `${get_value(key, v)}: ${(100*value[v]/total).toFixed(2)}%`)
+            let vals = {}
+            Object.keys(value).forEach(v => vals[get_value(key, v)] = (100*value[v]/total).toFixed(0))
+            return vals
         }
     }
     switch (get_type(key))
@@ -444,7 +446,7 @@ function get_value(key, value, html=true)
         case 'checkbox':
             if (typeof value === 'string')
             {
-                value = value == 'true' || value == 1
+                value = value.toLowerCase() == 'true' || value == 1
             }
             return value ? 'Yes' : 'No'
         case 'string':

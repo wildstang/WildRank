@@ -143,6 +143,25 @@ function get_secondary_selected_keys()
 }
 
 /**
+ * function:    get_weight
+ * parameters:  results, team, key, sort method
+ * returns:     calculated weight
+ * description: Calculates a weight for sorting a discrete result average.
+ */
+function get_weight(results, team, key, method)
+{
+    let ops = get_options_index(key, get_type(key))
+    let avg = avg_results(get_team_results(results, team), key, method, ops)
+    let total = Object.values(avg).reduce((a, b) => a + b)
+    let weight = 0
+    for (let a of ops)
+    {
+        weight += avg[a] / total * (a + 1)
+    }
+    return weight
+}
+
+/**
  * function:    build_table
  * parameters:  none
  * returns:     none
@@ -168,8 +187,16 @@ function build_table(sort_by='', reverse=false)
         sort = sort_by
         ascending = false
         name = `${SORT_OPTIONS[method]} ${get_name(sort_by)}`
-        console.log('sorting by', sort_by, 'for', method, 'reverse:', reverse)
-        teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), sort_by, method))
+        
+        let type = get_type(sort_by)
+        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
+        {
+            teams.sort((a, b) => get_weight(results, b, sort_by, method) - get_weight(results, a, sort_by, method))
+        }
+        else
+        {
+            teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), sort_by, method))
+        }
         // invert negative key sort
         if (is_negative(sort_by))
         {
