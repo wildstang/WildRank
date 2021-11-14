@@ -84,7 +84,7 @@ function validate_coach_config(config)
 {
     if (!Array.isArray(config))
     {
-        console.log('invalid format')
+        console.log('invalid coach format')
         return false
     }
     for (let obj of config)
@@ -114,7 +114,7 @@ function validate_wb_config(config)
 {
     if (!Array.isArray(config))
     {
-        console.log('invalid format')
+        console.log('invalid wb format')
         return false
     }
     for (let obj of config)
@@ -136,7 +136,7 @@ function validate_wb_config(config)
         }
         if (!Array.isArray(obj.game_pieces))
         {
-            console.log('invalid format')
+            console.log('invalid game piece format')
             return false
         }
         for (let gp of obj.game_pieces)
@@ -161,7 +161,7 @@ function validate_admin_config(config)
 {
     if (!Array.isArray(config))
     {
-        console.log('invalid format')
+        console.log('invalid admin format')
         return false
     }
     return true
@@ -230,12 +230,12 @@ function validate_scout_config(mode)
                     console.log('invalid cycle item')
                     return false
                 }
-                if (!is_in(input.type, ['checkbox', 'dropdown', 'select', 'number', 'string', 'slider', 'text', 'counter', 'multicounter', 'sum', 'total', 'ratio']))
+                if (!is_in(input.type, ['checkbox', 'dropdown', 'select', 'number', 'string', 'slider', 'text', 'counter', 'multicounter', 'sum', 'total', 'ratio', 'count', 'where']))
                 {
                     console.log('invalid input type')
                     return false
                 }
-                if (is_in(input.type, ['dropdown', 'select', 'slider', 'multicounter', 'sum', 'total', 'ratio']) && !input.hasOwnProperty('options'))
+                if (is_in(input.type, ['dropdown', 'select', 'slider', 'multicounter', 'sum', 'total', 'ratio', 'count', 'where']) && !input.hasOwnProperty('options'))
                 {
                     console.log('missing input options')
                     return false

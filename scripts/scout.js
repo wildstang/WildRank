@@ -392,6 +392,46 @@ function get_results_from_page()
                         case 'ratio':
                             results[id] = results[options[0]] / results[options[1]]
                             break
+                        case 'count':
+                            let count = 0
+                            for (let cycle of results[options[0]])
+                            {
+                                let passed = true
+                                for (let i = 1; i < options.length; i += 2)
+                                {
+                                    let key = options[i]
+                                    if (cycle[key] != get_options(key).indexOf(options[i+1]))
+                                    {
+                                        passed = false
+                                    }
+                                }
+                                if (passed)
+                                {
+                                    count++
+                                }
+                            }
+                            results[id] = count
+                            break
+                        case 'where':
+                            let value = 0
+                            for (let cycle of results[options[0]])
+                            {
+                                let passed = true
+                                for (let i = 2; i < options.length; i += 2)
+                                {
+                                    let key = options[i]
+                                    if (cycle[key] != get_options(key).indexOf(options[i+1]))
+                                    {
+                                        passed = false
+                                    }
+                                }
+                                if (passed)
+                                {
+                                    value += cycle[options[1]]
+                                }
+                            }
+                            results[id] = value
+                            break
                     }
                 })
             }
