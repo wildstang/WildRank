@@ -11,28 +11,24 @@
     },
     "coach_vals": [
         {
-            "function": "mean",
-            "key": "match_teleop_shooting_upper_score"
+            "function":"mean",
+            "key":"match_teleop_cycle_shots_score"
         },
         {
-            "function": "median",
-            "key": "match_teleop_shooting_upper_score"
+            "function":"mean",
+            "key":"match_teleop_cycle_shots_miss"
         },
         {
-            "function": "mode",
-            "key": "match_teleop_shooting_upper_score"
+            "function":"max",
+            "key":"match_teleop_cycle_shots_score"
         },
         {
-            "function": "min",
-            "key": "match_teleop_shooting_upper_score"
+            "function":"median",
+            "key":"match_teleop_cycle_cycles"
         },
         {
-            "function": "max",
-            "key": "match_teleop_shooting_upper_score"
-        },
-        {
-            "function": "min",
-            "key": "match_teleop_shooting_upper_score"
+            "function":"mode",
+            "key":"match_teleop_cp_spin"
         }
     ],
     "whiteboard": [

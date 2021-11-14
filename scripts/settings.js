@@ -51,7 +51,7 @@ function build_column(file, config)
                 inputs.push(build_str_entry(id, name, val))
             }
         }
-        else if (typeof val == 'object' && val.hasOwnProperty('function'))
+        else if (file == 'config-coach-vals')
         {
             let func = val.function
             func = func.substr(0, 1).toUpperCase() + func.substr(1)
@@ -59,6 +59,10 @@ function build_column(file, config)
             inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', keys, val.key))
         }
     })
+    if (file == 'config-coach-vals')
+    {
+        inputs.push(build_button('add_coach', 'New Value', 'add_coach()'))
+    }
     return build_column_frame(file.replace('config-', '').replace(/-/g, ' '), inputs)
 }
 
@@ -105,6 +109,23 @@ function build_page()
         build_column_frame('', [build_button('save-config', 'Save', 'save_config()')]),
         build_column_frame('', [build_button('apply-config', 'Apply', 'apply_config()')])
     ])
+}
+
+/** 
+ * function:    add_coach
+ * parameters:  none
+ * returns:     none
+ * description: Adds a new slot for a coach value.
+ */
+function add_coach()
+{
+    let coach = get_config('coach-vals')
+    coach.push({
+        function: 'Mean',
+        key: ''
+    })
+    localStorage.setItem('config-coach-vals', JSON.stringify(coach))
+    build_page()
 }
 
 /** 
