@@ -103,7 +103,7 @@ function open_results()
  */
 function open_teams()
 {
-    return build_url('selection', {'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'teams', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**

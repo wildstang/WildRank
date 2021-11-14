@@ -9,6 +9,8 @@
 // read parameters from URL
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
+var results = []
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -27,6 +29,16 @@ function init_page(contents_card, buttons_container)
                                     <img id="photo" alt="No image available">
                                     <div id="notes"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
+
+        let files = Object.keys(localStorage)
+        files.forEach(function (file)
+        {
+            // determine files which start with the desired type
+            if (file.startsWith(prefix))
+            {
+                results[file] = JSON.parse(localStorage.getItem(file))
+            }
+        })
         
         setup_picklists()
         open_option(first)
@@ -62,25 +74,69 @@ function open_option(team_num)
         document.getElementById('ranking').innerHTML = `Rank: ${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
     }
 
-    // populate card with pit results, if they exist
-    let notes = ''
+    // calculate match averages
+    let team_res = get_team_results(results, team_num)
+    let match_stats = {}
+    let res = Object.values(team_res)
+    load_config(MATCH_MODE, event_id.substr(0, 4))
+    if (res.length > 0)
+    {
+        for (let key of Object.keys(res[0]))
+        {
+            let val = get_value(key, avg_results(team_res, key, 0))
+            if (!key.startsWith('meta') && val != '---')
+            {
+                match_stats[get_name(key)] = val
+            }
+        }
+    }
+
+    // pull pit results
     let pit_file = get_pit_result(team_num, event_id)
     let pit_button = build_link_button(pit_file, 'Scout Pit', `scout('${PIT_MODE}', '${team_num}', 'white')`)
+    let pit_stats = {}
     if (file_exists(pit_file))
     {
         let pit = JSON.parse(localStorage.getItem(pit_file))
-        notes = '<table style="text-align: left">'
-        load_config('pit', event_id.substr(0, 4))
+        load_config(PIT_MODE, event_id.substr(0, 4))
         for (k of Object.keys(pit))
         {
             if (!k.startsWith('meta_'))
             {
-                notes += `<tr><th>${get_name(k)}</th><td>${get_value(k, pit[k])}</td>`
+                pit_stats[get_name(k)] = get_value(k, pit[k])
             }
         }
-        notes += '</table>'
 
         pit_button = build_link_button(pit_file, 'View Pit Results', `open_result('${pit_file}')`)
+    }
+
+    // build stats table
+    let notes = '<table style="text-align: left">'
+    let num_match = Object.keys(match_stats).length
+    let num_pit = Object.keys(pit_stats).length
+    let max_len = num_match > num_pit ? num_match : num_pit
+    for (let i = 0; i < max_len; ++i)
+    {
+        notes += '<tr>'
+        if (i < num_pit)
+        {
+            let key = Object.keys(pit_stats)[i]
+            notes += `<th>${key}</th><td>${pit_stats[key]}</td>`
+        }
+        else
+        {
+            notes += '<th></th><td></td>'
+        }
+        if (i < num_match)
+        {
+            let key = Object.keys(match_stats)[i]
+            notes += `<th>${key}</th><td>${match_stats[key]}</td>`
+        }
+        else
+        {
+            notes += '<th></th><td></td>'
+        }
+        notes += '</tr>'
     }
 
     Object.keys(localStorage).forEach(function (file, index)
