@@ -36,7 +36,8 @@ function init_page(contents_card, buttons_container)
     if (first)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
-                                    <h3 id="time"></h3>`
+                                    <h3 id="time"></h3>
+                                    <table id="alliance_stats"></table>`
 
         // reorganize teams into single object
         let match_teams = get_match_teams(1, event_id)
@@ -109,9 +110,36 @@ function open_match(match_num)
 
     // reorganize teams into single object
     let match_teams = extract_match_teams(match)
+    let teams = Object.keys(match_teams)
+
+    // get matches for each alliance
+    let red_res = {}
+    let blue_res = {}
+    for (let team of teams)
+    {
+        let res = get_team_results(results, match_teams[team])
+        if (team.startsWith('red'))
+        {
+            Object.assign(red_res, res)
+        }
+        else if (team.startsWith('blue'))
+        {
+            Object.assign(blue_res, res)
+        }
+    }
+
+    // make a table of alliance "coach-vals"
+    let stats = '<tr><th></th><th>Red</th><th>Blue</th></tr>'
+    vals.forEach(function (v)
+    {
+        let red_stat = avg_results(red_res, v.key, FUNCTIONS.indexOf(v.function))
+        let blue_stat = avg_results(blue_res, v.key, FUNCTIONS.indexOf(v.function))
+        stats += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</th><td>${get_value(v.key, red_stat)}</td><td>${get_value(v.key, blue_stat)}</td></tr>`
+    })
+    document.getElementById('alliance_stats').innerHTML = stats
 
     // make a row for each team
-    Object.keys(match_teams).forEach(function (key, index)
+    teams.forEach(function (key, index)
     {
         document.getElementById(`team_${parseInt(index)}`).value = match_teams[key]
     })
