@@ -46,15 +46,16 @@ function init_page(contents_card, buttons_container)
         {
             lists = JSON.parse(localStorage.getItem(file_name))
 
-            // add select button above secondary list
-            add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
             add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
-    
-            // load keys from localStorage and build list
-            populate_keys(results, all_teams)
-            select_all(false)
-            build_table()
         }
+
+        // add select button above secondary list
+        add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
+
+        // load keys from localStorage and build list
+        populate_keys(results, all_teams)
+        select_all(false)
+        build_table()
     }
 }
 

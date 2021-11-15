@@ -45,14 +45,14 @@ function init_page(contents_card, buttons_container)
 
             // add select button above secondary list
             add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
+        }
     
-            // load keys from localStorage and build list
-            let first = populate_keys(results, teams)
-            if (first)
-            {
-                open_option(first)
-                init_canvas()
-            }
+        // load keys from localStorage and build list
+        let first = populate_keys(results, teams)
+        if (first)
+        {
+            open_option(first)
+            init_canvas()
         }
     }
 }
