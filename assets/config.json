@@ -9,7 +9,7 @@
         "upload_url": "http://localhost",
         "user_id": 715138
     },
-    "coach_vals": [
+    "coach-vals": [
         {
             "function":"mean",
             "key":"match_teleop_cycle_shots_score"

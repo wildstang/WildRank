@@ -269,20 +269,39 @@
 										"Ground"
 									],
 									"default":0
-								},
+								}
+							]
+						},
+						{
+							"name":"Cycle Test",
+							"id":"match_teleop_cycle",
+							"cycle":true,
+							"inputs":[
 								{
-									"name":"Upper Goal",
-									"id":"match_teleop_shooting_upper",
-									"type":"multicounter",
+									"name":"Shooting Location",
+									"id":"match_teleop_cycle_loc",
+									"type":"select",
 									"options":[
-										"Score",
-										"Miss"
+										"Trench",
+										"Wall",
+										"Center",
+										"Other"
 									],
-									"default":0
+									"default":"Other"
 								},
 								{
-									"name":"Lower Goal",
-									"id":"match_teleop_shooting_lower",
+									"name":"Target",
+									"id":"match_teleop_cycle_goal",
+									"type":"select",
+									"options":[
+										"Upper",
+										"Lower"
+									],
+									"default":"Upper"
+								},
+								{
+									"name":"Shots",
+									"id":"match_teleop_cycle_shots",
 									"type":"multicounter",
 									"options":[
 										"Score",
@@ -293,33 +312,6 @@
 										true
 									],
 									"default":0
-								},
-								{
-									"name": "Upper Goal Score",
-									"id": "match_teleop_shooting_upper_total",
-									"type": "sum",
-									"options": [
-										"match_teleop_shooting_upper_outer",
-										"match_teleop_shooting_upper_inner"
-									]
-								},
-								{
-									"name": "Upper Goal Accuracy",
-									"id": "match_teleop_shooting_upper_accuracy",
-									"type": "total",
-									"options": [
-										"match_teleop_shooting_upper_total",
-										"match_teleop_shooting_upper_miss"
-									]
-								},
-								{
-									"name": "Inner vs Outer Goal",
-									"id": "match_teleop_shooting_inner_to_outer",
-									"type": "ratio",
-									"options": [
-										"match_teleop_shooting_upper_outer",
-										"match_teleop_shooting_upper_inner"
-									]
 								}
 							]
 						},
@@ -413,6 +405,31 @@
 									"id":"match_notes_notes",
 									"type":"text",
 									"default":""
+								},
+								{
+									"name":"Trench Scored",
+									"id":"match_teleop_trench_scored",
+									"type":"where",
+									"options":[
+										"match_teleop_cycle",
+										"match_teleop_cycle_shots_score",
+										"match_teleop_cycle_loc",
+										"Trench",
+										"match_teleop_cycle_goal",
+										"Upper"
+									],
+									"default":0
+								},
+								{
+									"name":"Upper Cycles",
+									"id":"match_teleop_cycles_upper",
+									"type":"count",
+									"options":[
+										"match_teleop_cycle",
+										"match_teleop_cycle_goal",
+										"Upper"
+									],
+									"default":0
 								}
 							]
 						}
