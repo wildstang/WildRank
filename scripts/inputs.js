@@ -96,7 +96,7 @@ function build_counter(id, name, value, onincrement='', ondecrement='')
 {
     onincrement = onincrement.replace(/'/g, '\\\'')
     ondecrement = ondecrement.replace(/'/g, '\\\'')
-    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true, '${ondecrement}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true, '${ondecrement}')')\">
+    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true, '${ondecrement}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true, \\'${ondecrement}\\')')\">
             <label class="wr_counter_count" id="${id}">${value}</label>
             <label>${name}</label>
         </div>`
@@ -139,7 +139,12 @@ function build_multi_button(id, name, option_names, onclicks, additional_classes
     let options = ''
     option_names.forEach(function (op_name, index)
     {
-        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" oncontextmenu="return false" onauxclick="${onsecondarys[index]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondarys[index]}')">
+        onsecondary = ''
+        if (onsecondarys[index])
+        {
+            onsecondary = onsecondarys[index].replace(/'/g, '\\\'')
+        }
+        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" oncontextmenu="return false" onauxclick="${onsecondarys[index]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondary}')">
                 <label>${op_name}</label>
             </span>`
     })
