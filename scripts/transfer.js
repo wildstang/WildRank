@@ -164,14 +164,15 @@ function preload_event()
  * returns:     none
  * description: Uploads all files of the currently selected type via POST to the listed server.
  */
-function upload_all()
+async function upload_all()
 {
-    if (check_server(get_upload_addr()))
+    let addr = get_upload_addr()
+    if (check_server(addr))
     {
         let type = get_selected_type()
         status(`Uploading ${type} results...`)
         // get all files in localStorage
-        Object.keys(localStorage).forEach(function (file, index)
+        for (let file of Object.keys(localStorage))
         {
             // determine files which start with the desired type
             if (file.startsWith(`${type}-`) || (type == 'pit' && file.startsWith(`image-${get_event()}-`)))
@@ -182,9 +183,12 @@ function upload_all()
                 upload = `${file}|||${content}`
                 status(` ${file}`, newLine = false)
                 // post string to server
-                fetch(get_upload_addr(), {method: 'POST', body: upload})
+                fetch(addr, {method: 'POST', body: upload})
+
+                // give the server some breathing room
+                await new Promise(r => setTimeout(r, 5));
             }
-        })
+        }
         status('') // add newline at end
     }
 }
