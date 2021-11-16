@@ -243,7 +243,7 @@ function build_num_entry(id, name, value='', bounds=[], on_text_change='')
 {
     let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
-    return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" ${bounds_str}>`
+    return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" onChange="${on_text_change}" ${bounds_str}>`
 }
 
 /**
