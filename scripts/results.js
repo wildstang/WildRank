@@ -44,7 +44,7 @@ function init_page(contents_card, buttons_container)
             document.getElementById('preview').innerHTML = document.getElementById('preview').innerHTML
 
             // add select button above secondary list
-            add_dropdown_filter('team_filter', avail_teams, 'build_result_list()')
+            add_dropdown_filter('team_filter', avail_teams, 'build_result_list(true)')
         }
         build_result_list()
         setup_picklists()
@@ -204,12 +204,16 @@ function make_cell(results, entry, base)
 
 /**
  * function:    build_team_list
- * parameters:  none
+ * parameters:  if was new team select
  * returns:     none
  * description: Completes left select result pane with results.
  */
-function build_result_list()
+function build_result_list(new_team=false)
 {
+    if (new_team)
+    {
+        sort_results()
+    }
     let labels = {}
     let filter = document.getElementById('team_filter')
     let team = type == MATCH_MODE ? filter.options[filter.selectedIndex].text : 'All'
@@ -236,24 +240,17 @@ function build_result_list()
  */
 function collect_results()
 {
-    let unsorted = get_results(prefix)
-    avail_teams = [...new Set(Object.values(unsorted).map(r => r.meta_team))]
+    results = get_results(prefix)
+    avail_teams = [...new Set(Object.values(results).map(r => r.meta_team))]
 
-    let num_results = Object.keys(unsorted).length
+    let num_results = Object.keys(results).length
     if (num_results == 0)
     {
         return 0
     }
 
     // sort results
-    Object.keys(unsorted).sort(function (a, b)
-    { 
-        return parseInt(a.split('-')[2]) - parseInt(b.split('-')[2])
-    })
-    .forEach(function (key)
-    {
-        results[key] = unsorted[key]
-    })
+    sort_results()
 
     return num_results
 }
@@ -264,24 +261,40 @@ function collect_results()
  * returns:     none
  * description: Sorts the results by a given key.
  */
-function sort_results(sort_by)
+function sort_results(sort_by='')
 {
     let unsorted = results
     results = {}
     
     // sort by given key
-    Object.keys(unsorted).sort(function (a, b) {
-        let left = unsorted[b][sort_by]
-        let right = unsorted[a][sort_by]
-        if (is_negative(sort_by))
+    let keys = Object.keys(unsorted)
+    if (sort_by)
+    {
+        keys.sort(function (a, b)
         {
-            right = unsorted[b][sort_by]
-            left = unsorted[a][sort_by]
-        }
-        return left < right ? -1
-                : left > right ? 1
-                : 0
-    }).forEach(function (key) {
-        results[key] = unsorted[key]
-    })
+            let left = unsorted[b][sort_by]
+            let right = unsorted[a][sort_by]
+            if (is_negative(sort_by))
+            {
+                right = unsorted[b][sort_by]
+                left = unsorted[a][sort_by]
+            }
+            return left < right ? -1
+                    : left > right ? 1
+                    : 0
+        })
+    }
+    else
+    {
+        keys.sort(function (a, b)
+        { 
+            return parseInt(a.split('-')[2]) - parseInt(b.split('-')[2])
+        })
+    }
+
+    // sort results
+    for (let k of keys)
+    {
+        results[k] = unsorted[k]
+    }
 }
