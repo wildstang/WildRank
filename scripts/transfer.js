@@ -455,13 +455,38 @@ function export_spreadsheet(event_id)
                 let resultJSON = JSON.parse(localStorage.getItem(name))
                 Object.keys(resultJSON).forEach(function (key, index)
                 {
-                    if (!keys.includes(key))
+                    let val = resultJSON[key]
+                    // look for cycles (arrays of objects)
+                    if (typeof val === 'object' && Array.isArray(val))
                     {
-                        keys.push(key)
+                        for (let i in val)
+                        {
+                            let v = val[i]
+                            if (typeof v === 'object')
+                            {
+                                for (let j in v)
+                                {
+                                    // add each cycle-value as its own column
+                                    let k = `${key}-${j}-${i}`
+                                    if (!keys.includes(k))
+                                    {
+                                        keys.push(k)
+                                    }
+                                    result[k] = v[j]
+                                }
+                            }
+                        }
                     }
-                    result[key] = resultJSON[key]
+                    else
+                    {
+                        if (!keys.includes(key))
+                        {
+                            keys.push(key)
+                        }
+                        result[key] = val
+                    }
                 })
-
+                console.log(result)
                 combined[name] = result
             }
         }
