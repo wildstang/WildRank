@@ -8,6 +8,7 @@
 
 const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 
+var meta = {}
 var keys = {}
 var teams = {}
 var maxs = []
@@ -24,7 +25,7 @@ var selecting = 'a'
  */
 function init_page(contents_card, buttons_container)
 {
-    load_config(type, year)
+    meta = get_result_meta(type, year)
     buttons_container.innerHTML = `<br>
         ${build_page_frame('', [
             build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'collect_results(); open_teams()') ]),
@@ -84,19 +85,20 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !['string', 'text', 'unknown'].includes(get_type(key)))
+    keys = Object.keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
     // calculate max for each value
     keys.forEach(function (key, index)
     {
-        maxs[key] = avg_results(unsorted, key, 4)
+        maxs[key] = avg_results(unsorted, key, meta[key].type, 4)
     })
     Object.keys(teams).forEach(function (team, index)
     {
         let team_results = get_team_results(unsorted, team)
         keys.forEach(function (key, index)
         {
-            teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
-            stddevs[team][key] = avg_results(team_results, key, 5)
+            let type = meta[key].type
+            teams[team][key] = avg_results(team_results, key, type, get_selected_option('type_form'))
+            stddevs[team][key] = avg_results(team_results, key, type, 5)
         })
     })
 
@@ -188,13 +190,13 @@ function open_teams()
     let compare = `<tr><th>${selectedA}</th><th></th><th>${selectedB}</th></tr>`
     keys.forEach(function (key, index)
     {
-        let aVal = get_value(key, teams[selectedA][key])
-        let bVal = get_value(key, teams[selectedB][key])
+        let aVal = get_value(meta, key, teams[selectedA][key])
+        let bVal = get_value(meta, key, teams[selectedB][key])
         let aColor = 0
         let bColor = 0
         let aWidth = 250
         let bWidth = 250
-        let type = get_type(key)
+        let type = meta[key].type
         let scale_max = get_selected_option('scale_max')
 
         if (typeof teams[selectedA][key] == 'number' && type != 'select' && type != 'dropdown')
@@ -224,7 +226,7 @@ function open_teams()
             if (scale_max == 1)
             {
                 // override scaling if there is a known maximum
-                let options = get_options(key)
+                let options = meta[key].options
                 if (typeof options !== 'undefined' && options.length == 2)
                 {
                     scale_to = parseFloat(options[1])
@@ -249,8 +251,8 @@ function open_teams()
             // only show std dev for means
             if (get_selected_option('type_form') == 0)
             {
-                aVal += ` <font size="-1">(${get_value(key, stddevs[selectedA][key])})</font>`
-                bVal = `<font size="-1">(${get_value(key, stddevs[selectedB][key])})</font> ` + bVal
+                aVal += ` <font size="-1">(${get_value(meta, key, stddevs[selectedA][key])})</font>`
+                bVal = `<font size="-1">(${get_value(meta, key, stddevs[selectedB][key])})</font> ` + bVal
             }
         }
         else if (typeof teams[selectedA][key] == 'boolean')
@@ -275,7 +277,7 @@ function open_teams()
         }
 
         // invert colors if attribute is negativve
-        if (is_negative(key))
+        if (meta[key].negative)
         {
             aColor *= -1
             bColor *= -1
@@ -283,7 +285,7 @@ function open_teams()
         
         compare += `<tr><td><span style="float:left; padding-right: 16px">${aVal}</span>
             <span style="float:right; width:${aWidth}px; height:20px; background-color:${num2color(aColor)}"></span></td>
-            <th>${get_name(key)}</th>
+            <th>${meta[key].name}</th>
             <td><span style="float:right; padding-left: 16px">${bVal}</span>
             <span style="float:left; width:${bWidth}px; height:20px; background-color:${num2color(bColor)}"></span></td></tr>`
     })

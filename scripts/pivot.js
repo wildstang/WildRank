@@ -12,6 +12,7 @@ var teams = []
 var all_teams = []
 var lists = {}
 var results = {}
+var meta = {}
 
 var sort = ''
 var ascending = false
@@ -30,7 +31,7 @@ function init_page(contents_card, buttons_container)
                                     build_column_frame('', [build_link_button('save_list', 'Save to Pick List', 'save_pick_list()')]) +
                                     build_column_frame('', [build_button('export_table', 'Export Table', 'export_table()')])
         
-    load_config(type, year)
+    meta = get_result_meta(type, year)
 
     // load all event teams from localStorage
     let file_name = get_event_teams_name(event_id)
@@ -53,7 +54,7 @@ function init_page(contents_card, buttons_container)
         add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
 
         // load keys from localStorage and build list
-        populate_keys(results, all_teams)
+        populate_keys(meta, results, all_teams)
         select_all(false)
         build_table()
     }
@@ -151,8 +152,8 @@ function get_secondary_selected_keys()
  */
 function get_weight(results, team, key, method)
 {
-    let ops = get_options_index(key, get_type(key))
-    let avg = avg_results(get_team_results(results, team), key, method, ops)
+    let ops = meta[key].options_index
+    let avg = avg_results(get_team_results(results, team), key, meta[key].type, method, ops)
     let total = Object.values(avg).reduce((a, b) => a + b)
     let weight = 0
     for (let a of ops)
@@ -187,19 +188,19 @@ function build_table(sort_by='', reverse=false)
     {
         sort = sort_by
         ascending = false
-        name = `${SORT_OPTIONS[method]} ${get_name(sort_by)}`
+        name = `${SORT_OPTIONS[method]} ${meta[sort_by].name}`
         
-        let type = get_type(sort_by)
+        let type = meta[sort_by].type
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
             teams.sort((a, b) => get_weight(results, b, sort_by, method) - get_weight(results, a, sort_by, method))
         }
         else
         {
-            teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), sort_by, method))
+            teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), meta[sort_by].type, meta, method))
         }
         // invert negative key sort
-        if (is_negative(sort_by))
+        if (meta[sort_by].negative)
         {
             teams.reverse()
         }
@@ -221,7 +222,7 @@ function build_table(sort_by='', reverse=false)
     selected.forEach(function (key)
     {
         let rev = sort_by == key ? !reverse : false
-        table += `<th onclick="build_table('${key}', ${rev})" ${sort_by != key ? 'style="font-weight: normal"' : ''}>${get_name(key)}</th>`
+        table += `<th onclick="build_table('${key}', ${rev})" ${sort_by != key ? 'style="font-weight: normal"' : ''}>${meta[key].name}</th>`
     })
     table += '</tr>'
 
@@ -230,13 +231,13 @@ function build_table(sort_by='', reverse=false)
     selected.forEach(function (key)
     {
         let ops = []
-        let type = get_type(key)
+        let type = meta[key].type
         // build a value string of percents for discrete inputs
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            ops = get_options_index(key, type)
+            ops = meta[key].options_index
         }
-        let valStr = get_value(key, avg_results(results, key, method, ops))
+        let valStr = get_value(meta, key, avg_results(results, key, meta[key].type, method, ops))
         table += `<td>${valStr}</td>`
     })
     table += '</tr>'
@@ -252,17 +253,17 @@ function build_table(sort_by='', reverse=false)
             {
                 let color = ''
                 let ops = []
-                let type = get_type(key)
+                let type = meta[key].type
                 // build a value string of percents for discrete inputs
                 if (type == 'checkbox' || type == 'select' || type == 'dropdown')
                 {
-                    ops = get_options_index(key, type)
+                    ops = meta[key].options_index
                 }
-                let val = avg_results(team_results, key, method, ops)
-                let valStr = get_value(key, val)
-                let base = avg_results(results, key, method, ops)
-                let min = avg_results(results, key, 3)
-                let max = avg_results(results, key, 4)
+                let val = avg_results(team_results, key, type, method, ops)
+                let valStr = get_value(meta, key, val)
+                let base = avg_results(results, key, type, method, ops)
+                let min = avg_results(results, key, type, 3)
+                let max = avg_results(results, key, type, 4)
                 if (typeof base === 'number' && !key.startsWith('meta'))
                 {
                     if (val != base)
@@ -278,7 +279,7 @@ function build_table(sort_by='', reverse=false)
                             colors = [256, 0, 0, (base - val) / (base - min) / 2]
                         }
 
-                        if (is_negative(key))
+                        if (meta[key].negative)
                         {
                             colors = [colors[1], colors[0], colors[2], colors[3]]
                         }
@@ -288,7 +289,7 @@ function build_table(sort_by='', reverse=false)
                     // add std dev if proper number
                     if (method == 0 && type != 'select' && type != 'dropdown')
                     {
-                        valStr += ` (${get_value(key, avg_results(team_results, key, 5))})`
+                        valStr += ` (${get_value(meta, key, avg_results(team_results, key, type, 5))})`
                     }
                 }
                 table += `<td class="result_cell" ${color})">${valStr}</td>`
@@ -313,11 +314,11 @@ function export_table()
     let line = 'Totals'
     keys.forEach(function (key)
     {
-        let val = avg_results(results, key, get_selected_option('type_form'))
-        line += ',' + get_value(key, val)
+        let val = avg_results(results, key, meta[key].type, get_selected_option('type_form'))
+        line += ',' + get_value(meta, key, val)
     })
     
-    let lines = [ 'Team,' + keys.map(key => get_name(key)).join(','), line]
+    let lines = [ 'Team,' + keys.map(key => meta[key].name).join(','), line]
     teams.forEach(function (team, index)
     {
         let team_results = get_team_results(results, team)
@@ -326,8 +327,8 @@ function export_table()
             line = team
             keys.forEach(function (key)
             {
-                let val = avg_results(team_results, key, get_selected_option('type_form'))
-                let valStr = get_value(key, val)
+                let val = avg_results(team_results, key, meta[key].type, get_selected_option('type_form'))
+                let valStr = get_value(meta, key, val)
                 line += ',' + valStr
             })
             lines.push(line)

@@ -263,7 +263,6 @@ window.addEventListener('load', function()
 {
     document.getElementById('header_info').innerHTML = `Settings`
     document.body.innerHTML += '<div id="body"></div>'
-    load_config(MATCH_MODE, year)
-    keys = get_keys()
+    keys = Object.keys(get_result_meta(MATCH_MODE, year))
     build_page()
 })

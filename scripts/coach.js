@@ -10,6 +10,7 @@ const FUNCTIONS = ['mean', 'median', 'mode', 'min', 'max']
 
 var vals = [] 
 var results = {}
+var meta = {}
 
 /**
  * function:    init_page
@@ -20,7 +21,7 @@ var results = {}
 function init_page(contents_card, buttons_container)
 {
     // load in config and results
-    load_config(type, year)
+    meta = get_result_meta(type, year)
     vals = get_config('coach-vals')
     Object.keys(localStorage).forEach(function (file)
     {
@@ -132,9 +133,10 @@ function open_match(match_num)
     let stats = '<tr><th></th><th>Red</th><th>Blue</th></tr>'
     vals.forEach(function (v)
     {
-        let red_stat = avg_results(red_res, v.key, FUNCTIONS.indexOf(v.function))
-        let blue_stat = avg_results(blue_res, v.key, FUNCTIONS.indexOf(v.function))
-        stats += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</th><td>${get_value(v.key, red_stat)}</td><td>${get_value(v.key, blue_stat)}</td></tr>`
+        let type = meta[v.key].type
+        let red_stat = avg_results(red_res, v.key, type, FUNCTIONS.indexOf(v.function))
+        let blue_stat = avg_results(blue_res, v.key, type, FUNCTIONS.indexOf(v.function))
+        stats += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, red_stat)}</td><td>${get_value(meta, v.key, blue_stat)}</td></tr>`
     })
     document.getElementById('alliance_stats').innerHTML = stats
 
@@ -176,8 +178,8 @@ function open_teams()
         let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><img id="photo_${index}"><table>`
         vals.forEach(function (v)
         {
-            let stat = avg_results(get_team_results(results, team_num), v.key, FUNCTIONS.indexOf(v.function))
-            notes += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${get_name(v.key)}</th><td>${get_value(v.key, stat)}</td></tr>`
+            let stat = avg_results(get_team_results(results, team_num), v.key, meta[v.key].type, FUNCTIONS.indexOf(v.function))
+            notes += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, stat)}</td></tr>`
         })
         notes += '</table><div class="notes">'
 

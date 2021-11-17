@@ -11,6 +11,7 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 var teams = []
 var results = {}
 var lists = {}
+var meta = {}
 
 var pwidth
 var pheight
@@ -27,7 +28,7 @@ function init_page(contents_card, buttons_container)
     buttons_container.innerHTML = build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'build_plot()') ]) +
                                     build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ])
 
-    load_config(type, year)
+    meta = get_result_meta(type, year)
 
     // load all event teams from localStorage
     let file_name = get_event_teams_name(event_id)
@@ -48,7 +49,7 @@ function init_page(contents_card, buttons_container)
         }
     
         // load keys from localStorage and build list
-        let first = populate_keys(results, teams)
+        let first = populate_keys(meta, results, teams)
         if (first)
         {
             open_option(first)
@@ -158,7 +159,7 @@ function get_secondary_selected_keys()
 function build_plot()
 {
     let key = get_selected_keys()[0]
-    let type = get_type(key)
+    let type = meta[key].type
     let method = get_selected_option('type_form')
 
     // build distribution
@@ -171,7 +172,7 @@ function build_plot()
         // build a value string of percents for discrete inputs
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            let ops = get_options(key)
+            let ops = meta[key].options
             if (type == 'checkbox')
             {
                 ops = [false, true]
@@ -181,7 +182,7 @@ function build_plot()
                 ops = ops.map((_, i) => i)
             }
             // add each count to a list to plot
-            let counts = avg_results(team_results, key, method, ops)
+            let counts = avg_results(team_results, key, type, method, ops)
             Object.values(counts).forEach(function (c, i)
             {
                 for (let j = 0; j < c; ++j)
@@ -190,7 +191,7 @@ function build_plot()
                 }
             })
             // get mode for placing highlight
-            let mode = avg_results(team_results, key, 2)
+            let mode = avg_results(team_results, key, type, 2)
             // convert mode to numeric values
             if (type == 'checkbox')
             {
@@ -203,7 +204,7 @@ function build_plot()
         {
             if (Object.keys(team_results).length > 0)
             {
-                let val = avg_results(team_results, key, method)
+                let val = avg_results(team_results, key, type, method)
                 values.push(val)
                 team_vals[team] = val
             }
@@ -258,7 +259,7 @@ function build_plot()
         // for discrete string results
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            bin_names.push(get_value(key, i))
+            bin_names.push(get_value(meta, key, i))
         }
         // for discrete number results
         else if (unique.length <= max_bins)
@@ -291,7 +292,7 @@ function build_plot()
             ctx.fillStyle = 'firebrick'
             ctx.font = `${font_size}px mono, courier`
             let raw_val = team_vals[highlight]
-            let team_val = get_value(key, raw_val, false)
+            let team_val = get_value(meta, key, raw_val, false)
             let x = 25 + (team_val - min) / delta * (pwidth - 25)
             // fix values for line position
             if (team_modes.hasOwnProperty(highlight))
@@ -330,7 +331,7 @@ function build_plot()
     // draw each bin
     let maxBin = Math.max(...counts)
     let j = 0
-    let neg = is_negative(key)
+    let neg = meta[key].negative
     for (let i = 0; i < bins; ++i)
     {
         let l = i

@@ -9,6 +9,7 @@
 const start = Date.now()
 
 var cycles = {}
+var config = {}
 
 /** 
  * function:    build_page_from_config
@@ -306,30 +307,6 @@ function get_results_from_page()
             if (column.cycle)
             {
                 results[column.id] = cycles[column.id]
-                results[`${column.id}_cycles`] = cycles[column.id].length
-                
-                column['inputs'].forEach(function (input)
-                {
-                    input.options.forEach(function (op, i) {
-                        let id = `${input.id}_${op.toLowerCase().split().join('_')}`
-                        let type = input.type
-
-                        if (type == 'multicounter')
-                        {
-                            let count = 0
-                            if (cycles[column.id].length > 0)
-                            {
-                                count = cycles[column.id].map(c => c[id]).reduce((a, b) => a + b)
-                            }
-                            results[id] = count
-                        }
-                        else
-                        {
-                            // NOTE: right now just # of cycles
-                            results[id] = cycles[column.id].filter(c => c[input.id] == i).length
-                        }
-                    })
-                })
             }
             else
             {
@@ -379,59 +356,6 @@ function get_results_from_page()
                         case 'text':
                             results[id] = document.getElementById(id).value
                             break
-                        // "smart" values use other values not inputs
-                        // must be listed after dependencies in scout-config
-                        case 'sum':
-                            let total = 0
-                            options.forEach(k => total += results[k])
-                            results[id] = total
-                            break
-                        case 'total':
-                            results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
-                            break
-                        case 'ratio':
-                            results[id] = results[options[0]] / results[options[1]]
-                            break
-                        case 'count':
-                            let count = 0
-                            for (let cycle of results[options[0]])
-                            {
-                                let passed = true
-                                for (let i = 1; i < options.length; i += 2)
-                                {
-                                    let key = options[i]
-                                    if (cycle[key] != get_options(key).indexOf(options[i+1]))
-                                    {
-                                        passed = false
-                                    }
-                                }
-                                if (passed)
-                                {
-                                    count++
-                                }
-                            }
-                            results[id] = count
-                            break
-                        case 'where':
-                            let value = 0
-                            for (let cycle of results[options[0]])
-                            {
-                                let passed = true
-                                for (let i = 2; i < options.length; i += 2)
-                                {
-                                    let key = options[i]
-                                    if (cycle[key] != get_options(key).indexOf(options[i+1]))
-                                    {
-                                        passed = false
-                                    }
-                                }
-                                if (passed)
-                                {
-                                    value += cycle[options[1]]
-                                }
-                            }
-                            results[id] = value
-                            break
                     }
                 })
             }
@@ -471,10 +395,13 @@ const alliance_color = urlParams.get('alliance')
 const generate = urlParams.get('generate')
 var edit = urlParams.get('edit') == 'true'
 var results = {}
+var meta = {}
 
-load_config(scout_mode, year)
 window.addEventListener('load', function()
 {
+    config = get_scout_config(scout_mode, year)
+    meta = get_result_meta(scout_mode, year)
+
     if (edit)
     {
         let file = ''

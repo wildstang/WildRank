@@ -10,6 +10,7 @@ const start = Date.now()
 var teams = []
 var matches = []
 var positions = []
+var meta = {}
 
 /**
  * function:    create_random_result
@@ -39,7 +40,7 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    config.pages.forEach(function (page, index)
+    get_scout_config(scout_mode, year).pages.forEach(function (page, index)
     {
         page['columns'].forEach(function (column, index)
         {
@@ -72,31 +73,6 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                     cycle.push(c)
                 }
                 results[column.id] = cycle
-                results[`${column.id}_cycles`] = num_cycles
-                
-                // build automatic input results
-                column['inputs'].forEach(function (input)
-                {
-                    input.options.forEach(function (op, i) {
-                        let id = `${input.id}_${op.toLowerCase().split().join('_')}`
-                        let type = input.type
-
-                        if (type == 'multicounter')
-                        {
-                            let count = 0
-                            if (cycle.length > 0)
-                            {
-                                count = cycle.map(c => c[id]).reduce((a, b) => a + b)
-                            }
-                            results[id] = count
-                        }
-                        else
-                        {
-                            // NOTE: right now just # of cycles
-                            results[id] = cycle.filter(c => c[input.id] == i).length
-                        }
-                    })
-                })
             }
             else
             {
@@ -154,59 +130,6 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                             results[id] = 'Random Result'
                         case 'text':
                             results[id] = 'This result was randomly generated'
-                            break
-                        // "smart" values use other valus not inputs
-                        // must be listed after dependencies in scout-config
-                        case 'sum':
-                            let total = 0
-                            options.forEach(k => total += results[k])
-                            results[id] = total
-                            break
-                        case 'total':
-                            results[id] = results[options[0]] / (results[options[0]] + results[options[1]])
-                            break
-                        case 'ratio':
-                            results[id] = results[options[0]] / results[options[1]]
-                            break
-                        case 'count':
-                            let count = 0
-                            for (let cycle of results[options[0]])
-                            {
-                                let passed = true
-                                for (let i = 1; i < options.length; i += 2)
-                                {
-                                    let key = options[i]
-                                    if (cycle[key] != get_options(key).indexOf(options[i+1]))
-                                    {
-                                        passed = false
-                                    }
-                                }
-                                if (passed)
-                                {
-                                    count++
-                                }
-                            }
-                            results[id] = count
-                            break
-                        case 'where':
-                            let value = 0
-                            for (let cycle of results[options[0]])
-                            {
-                                let passed = true
-                                for (let i = 2; i < options.length; i += 2)
-                                {
-                                    let key = options[i]
-                                    if (cycle[key] != get_options(key).indexOf(options[i+1]))
-                                    {
-                                        passed = false
-                                    }
-                                }
-                                if (passed)
-                                {
-                                    value += cycle[options[1]]
-                                }
-                            }
-                            results[id] = value
                             break
                     }
                 })
@@ -273,7 +196,7 @@ function create_results() {
     // load in appropriate config
     let mode = [PIT_MODE, MATCH_MODE, NOTE_MODE][get_selected_option('type_form')]
     let pos = document.getElementById('position').selectedIndex
-    load_config(mode, year)
+    meta = get_result_meta(mode, year)
 
     if (mode == PIT_MODE) {
         let min = parseInt(document.getElementById('min_team').value)

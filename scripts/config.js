@@ -5,8 +5,6 @@
  * date:        2020-03-15
  */
 
-var config
-
 /**
  * function:    fetch_config
  * parameters:  function to call on config load, force reload
@@ -69,14 +67,14 @@ function fetch_config(onConfig, force=false)
 }
 
 /**
- * function:    load_config
+ * function:    get_scout_config
  * parameters:  scouting mode, year
- * returns:     none
- * description: Set the config to the desired mode.
+ * returns:     requested scout config
+ * description: Get the scout config for a given mode and year.
  */
-function load_config(mode, year)
+function get_scout_config(mode, year)
 {
-    config = get_config(`${year}-${mode}`)
+    return get_config(`${year}-${mode}`)
 }
 
 /**
@@ -119,171 +117,87 @@ function get_wb_config(year)
     }
 }
 
-
 /**
- * function:    get_type
- * parameters:  name of result
- * returns:     type of input
- * description: Determines the type of input that created the given result.
+ * function:    get_result_meta
+ * parameters:  year, scouting mode
+ * returns:     key, metadata pairs
+ * description: Builds an object of scouting result keys and their metadata.
  */
-function get_type(key)
+function get_result_meta(year, mode)
 {
-    var type = 'unknown'
-    config.pages.forEach(function (page, index)
-    {
-        page['columns'].forEach(function (column, index)
-        {
-            if (key == column.id)
-            {
-                type = 'cycle'
-            }
-            column['inputs'].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    type = input.type
-                }
-                else if (key.startsWith(input.id))
-                {
-                    type = input.type
-                    if (column.cycle && (type == 'select' || type == 'dropdown'))
-                    {
-                        type = 'counter'
-                    }
-                }
-            })
-        })
-    })
-    return type
-}
-
-/**
- * function:    get_keys
- * parameters:  none
- * returns:     list of all keys in scouting mode
- * description: Generates a list of all keys in the current scouting mode.
- */
-function get_keys()
-{
-    let keys = []
+    let results = {}
+    let config = get_scout_config(year, mode)
     for (let page of config.pages)
     {
         for (let column of page.columns)
         {
-            // check if its a cycle column
-            if (column.cycle)
+            let cycle = column.cycle
+            if (cycle)
             {
-                keys.push(`${column.id}_cycles`)
-                
-                for (let input of column.inputs)
-                {
-                    input.options.forEach(function (op, i) {
-                        let id = `${input.id}_${op.toLowerCase().split().join('_')}`
-                        keys.push(id)
-                    })
+                results[column.id] = {
+                    name: column.name,
+                    type: 'cycle',
+                    negative: false,
+                    options: []
                 }
             }
-            else
+            for (let input of column.inputs)
             {
-                for (let input of column.inputs)
+                let id = input.id
+                let name = input.name
+                let type = input.type
+                let ops = input.options
+                let neg = input.negative
+
+                if (typeof neg === 'undefined')
                 {
-                    if (input.type == 'multicounter')
+                    if (type == 'select' || type == 'dropdown' || type == 'multicounter')
                     {
-                        for (let option of input.options)
-                        {
-                            keys.push(`${input.id}_${option.toLowerCase()}`)
-                        }
+                        neg = new Array(ops.length).fill(false)
                     }
                     else
                     {
-                        keys.push(input.id)
+                        neg = false
+                    }
+                }
+                if (type == 'checkbox')
+                {
+                    ops = [false, true]
+                }
+                if (typeof ops === 'undefined')
+                {
+                    ops = []
+                }
+
+                if (type == 'multicounter')
+                {
+                    for (let i in ops)
+                    {
+                        results[`${id}_${ops[i].toLowerCase()}`] = {
+                            name: `${name} ${ops[i]}`,
+                            type: 'counter',
+                            negative: neg[i],
+                            options: [],
+                            options_index: [],
+                            cycle: cycle
+                        }
+                    }
+                }
+                else
+                {
+                    results[id] = {
+                        name: name,
+                        type: type,
+                        negative: neg,
+                        options: ops,
+                        options_index: Object.keys(ops),
+                        cycle: cycle
                     }
                 }
             }
         }
     }
-    return keys
-}
-
-/**
- * function:    get_options
- * parameters:  name of input
- * returns:     options for input
- * description: Determines the options for a given input.
- */
-function get_options(key)
-{
-    var options = []
-    config.pages.forEach(function (page, index)
-    {
-        page['columns'].forEach(function (column, index)
-        {
-            column['inputs'].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    options = input.options
-                }
-            })
-        })
-    })
-    return options
-}
-
-/**
- * function:    get_options_index
- * parameters:  name of input, input type
- * returns:     options for input
- * description: Determines the options (indexes) for a given input.
- */
-function get_options_index(key, type)
-{
-    let ops = get_options(key)
-    if (type == 'checkbox')
-    {
-        ops = [false, true]
-    }
-    else
-    {
-        ops = ops.map((_, i) => i)
-    }
-    return ops
-}
-
-/**
- * function:    is_negative
- * parameters:  name of input
- * returns:     if the input is negative
- * description: Determines if the input should be regarded as a negative trait.
- */
-function is_negative(key)
-{
-    var negative = false
-    config.pages.forEach(function (page)
-    {
-        page['columns'].forEach(function (column)
-        {
-            column['inputs'].forEach(function (input)
-            {
-                if (key == input.id && input.negative)
-                {
-                    negative = true
-                }
-                else if (input.type == 'multicounter' && key.startsWith(input.id) && 'negative' in input)
-                {
-                    let option = key.replace(input.id, '').substr(1)
-                    input.options.forEach(function (o, i)
-                    {
-                        if (o.toLowerCase() == option && input.negative[i])
-                        {
-                            negative = true
-                        }
-                    })
-                }
-            })
-        })
-    })
-    return negative
+    return results
 }
 
 /**
@@ -299,94 +213,12 @@ function is_admin(user_id)
 }
 
 /**
- * function:    get_name
- * parameters:  name of result, if to check for duplicate name
- * returns:     name of input
- * description: Determines the name of input that created the given result.
- */
-function get_name(key, check_duplicates=true)
-{
-    let name = key
-    let type = ''
-
-    // find name from key
-    config.pages.forEach(function (page, index)
-    {
-        page['columns'].forEach(function (column, index)
-        {
-            if (key == column.id)
-            {
-                name = column.name
-                type = page.short
-            }
-            else if (key == `${column.id}_cycles`)
-            {
-                name = `${column.name} Cycles`
-                type = page.short
-            }
-            column['inputs'].forEach(function (input, index)
-            {
-                if (input.id == key)
-                {
-                    name = input.name
-                    type = page.short
-                }
-                // handle multicounter and cycles
-                else if (key.startsWith(input.id))
-                {
-                    let input_words = input.id.split('_')
-                    let option_words = key.split('_')
-                    option_words.splice(0, input_words.length)
-                    option_words.forEach(function (word, index)
-                    {
-                        option_words[index] = word.substr(0, 1).toUpperCase() + word.substr(1)
-                    })
-                    name = `${input.name} ${option_words.join(' ')}`
-                    type = page.short
-                }
-            })
-        })
-    })
-
-    // check for duplicates and append page short to name
-    if (check_duplicates)
-    {
-        config.pages.forEach(function (page, index)
-        {
-            page['columns'].forEach(function (column, index)
-            {
-                column['inputs'].forEach(function (input, index)
-                {
-                    if ((input.id != key && input.name == name) ||
-                        (name.startsWith(input.name) && page.short != type))
-                    {
-                        name = `(${type}) ${name}`
-                    }
-                })
-            })
-        })
-    }
-
-    // format key name if no name was found
-    if (name == key)
-    {
-        let words = key.split('_')
-        words.forEach(function (word, index)
-        {
-            words[index] = word.substr(0, 1).toUpperCase() + word.substr(1)
-        })
-        name = words.join(' ')
-    }
-    return name
-}
-
-/**
  * function:    get_value
- * parameters:  name of result, raw value stored, format with html
+ * parameters:  result meta data, name of result, raw value stored, format with html
  * returns:     human readable result value
  * description: Translates less human readable results to more.
  */
-function get_value(key, value, html=true)
+function get_value(meta, key, value, html=true)
 {
     // if an object is passed assume its a set of counts
     if (typeof value === 'object' && !Array.isArray(value) && value !== null)
@@ -394,16 +226,16 @@ function get_value(key, value, html=true)
         let total = Object.values(value).reduce((a, b) => a + b)
         if (html)
         {
-            return '<table>' + Object.keys(value).map(v => `<tr><th>${get_value(key, v)}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
+            return '<table>' + Object.keys(value).map(v => `<tr><th>${get_value(meta, key, v)}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
         }
         else
         {
             let vals = {}
-            Object.keys(value).forEach(v => vals[get_value(key, v)] = (100*value[v]/total).toFixed(0))
+            Object.keys(value).forEach(v => vals[get_value(meta, key, v)] = (100*value[v]/total).toFixed(0))
             return vals
         }
     }
-    switch (get_type(key))
+    switch (meta[key].type)
     {
         case 'cycle':
             if (value == '---')
@@ -417,10 +249,10 @@ function get_value(key, value, html=true)
             let text = '<table>'
             for (let key of Object.keys(value[0]))
             {
-                text += `<tr><th>${get_name(key)}</th>`
+                text += `<tr><th>${meta[key].name}</th>`
                 for (let cycle of value)
                 {
-                    text += `<td>${get_value(key, cycle[key])}</td>` 
+                    text += `<td>${get_value(meta, key, cycle[key])}</td>` 
                 }
                 text += '</tr>'
             }
@@ -428,21 +260,7 @@ function get_value(key, value, html=true)
             return text
         case 'select':
         case 'dropdown':
-            let option = ''
-            config.pages.forEach(function (page, index)
-            {
-                page['columns'].forEach(function (column, index)
-                {
-                    column['inputs'].forEach(function (input, index)
-                    {
-                        if (input.id == key)
-                        {
-                            option = input.options[value]
-                        }
-                    })
-                })
-            })
-            return option
+            return meta[key].options[value]
         case 'checkbox':
             if (typeof value === 'string')
             {

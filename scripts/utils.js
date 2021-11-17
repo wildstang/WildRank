@@ -740,11 +740,11 @@ function ws(team_num)
 
 /**
  * function:    avg_results
- * parameters:  results container, column to sum, type of ordering, options for input
+ * parameters:  results container, column to sum, type of input, type of ordering, options for input
  * returns:     average of all results
  * description: Average all the results for a given column.
  */
-function avg_results(results, key, sort_type, options=[])
+function avg_results(results, key, type, sort_type, options=[])
 {
     let values = []
     Object.keys(results).forEach(function (name, index)
@@ -754,7 +754,7 @@ function avg_results(results, key, sort_type, options=[])
             values.push(results[name][key])
         }
     })
-    switch (get_type(key))
+    switch (type)
     {
         // compute mode for non-numerics
         case 'checkbox':

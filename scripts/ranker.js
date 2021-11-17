@@ -13,6 +13,7 @@ var teams = {}
 var stddevs = {}
 var totals = []
 var selected = ''
+var meta = {}
 
 /**
  * function:    init_page
@@ -22,7 +23,7 @@ var selected = ''
  */
 function init_page(contents_card, buttons_container)
 {
-    load_config(type, year)
+    meta = get_result_meta(type, year)
     buttons_container.innerHTML = `<h4 class="center_text">Sort by key</h4>
         ${build_dropdown('key_selector', '', [], '', 'select()')}
         ${build_dropdown('key_selector_method', '', ['only', 'vs', 'out of'], '', 'select()')}
@@ -55,7 +56,7 @@ function init_page(contents_card, buttons_container)
 function count_options(results, key)
 {
     let counts = {}
-    switch (get_type(key))
+    switch (meta[key].type)
     {
         // compute mode for non-numerics
         case 'select':
@@ -107,10 +108,10 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(unsorted[Object.keys(unsorted)[0]]).filter(key => !['string', 'text', 'unknown'].includes(get_type(key)))
+    keys = Object.keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
     keys.forEach(function (key, index)
     {
-        totals[key] = avg_results(unsorted, key, get_selected_option('type_form'))
+        totals[key] = avg_results(unsorted, key, meta[key].type, get_selected_option('type_form'))
         totals[`${key}_options`] = count_options(unsorted, key)
     })
     Object.keys(teams).forEach(function (team, index)
@@ -118,8 +119,9 @@ function collect_results()
         let team_results = get_team_results(unsorted, team)
         keys.forEach(function (key, index)
         {
-            teams[team][key] = avg_results(team_results, key, get_selected_option('type_form'))
-            stddevs[team][key] = avg_results(team_results, key, 5)
+            let type = meta[key].type
+            teams[team][key] = avg_results(team_results, key, type, get_selected_option('type_form'))
+            stddevs[team][key] = avg_results(team_results, key, type, 5)
         })
     })
 
@@ -193,7 +195,7 @@ function sort_teams(index, method_index, against_index)
         a_val = calc_prop(a_val, a_against_val, method_index)
         b_val = calc_prop(b_val, b_against_val, method_index)
         let reverse = document.getElementById('reverse').checked
-        if (is_negative(sort_by) ? !reverse : reverse) // Exclusive OR
+        if (meta[sort_by].negative ? !reverse : reverse) // Exclusive OR
         {
             let old = a_val
             a_val = b_val
@@ -224,7 +226,7 @@ function select()
     {
         let select = document.getElementById('key_selector')
         let against = document.getElementById('key_selector_against')
-        team_vals[team] = `${team}: ` +get_value(keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
+        team_vals[team] = `${team}: ` +get_value(meta, keys[select.selectedIndex], calc_prop(teams[team][keys[select.selectedIndex]],
                                                                     teams[team][keys[against.selectedIndex]],
                                                                     document.getElementById('key_selector_method').selectedIndex))
     }
@@ -233,7 +235,7 @@ function select()
     
     // force mode selected if non-numeric
     let select = document.getElementById('key_selector')
-    switch (get_type(keys[select.selectedIndex]))
+    switch (meta[keys[select.selectedIndex]].type)
     {
         // compute mode for non-numerics
         case 'checkbox':
@@ -286,16 +288,15 @@ function open_option(team_num)
 
     let stddev = ''
     let against_stddev = ''
-    let type = get_type(key)
+    let type = meta[key].type
     if (get_selected_option('type_form') == 0 && typeof teams[selected][key] == 'number' && type != 'select' && type != 'dropdown')
     {
-        stddev = ` <font size="-1">(${get_value(key, stddevs[selected][keys[select.selectedIndex]])})</font>`
-        against_stddev = ` <font size="-1">(${get_value(key, stddevs[selected][keys[against.selectedIndex]])})</font>`
+        stddev = ` <font size="-1">(${get_value(meta, key, stddevs[selected][keys[select.selectedIndex]])})</font>`
+        against_stddev = ` <font size="-1">(${get_value(meta, key, stddevs[selected][keys[against.selectedIndex]])})</font>`
     }
 
     // team details
     let details = `<div id="result_title"><img id="avatar" src="${get_avatar(team_num, event_id.substr(0,4))}"> <h2 class="result_name"><span id="team_num">${team_num}</span> ${get_team_name(team_num, event_id)}</h2></div>`
-    details += '<img id="photo" alt="No image available"><br>'
 
     details += '<table style="margin:auto; text-align:left">'
 
@@ -305,15 +306,15 @@ function open_option(team_num)
     {
         details += `<tr><td>Rank:</td><td>${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})</td></tr>`
     }
-    details += `<tr><td>${get_name(key)}:</td><td>${get_value(key, val)}${stddev}</td></tr>`
+    details += `<tr><td>${meta[key].name}:</td><td>${get_value(meta, key, val)}${stddev}</td></tr>`
 
     // overall stats
-    details += `<tr><td>Overall:</td><td>${get_value(key, overall)}</td></tr>`
+    details += `<tr><td>Overall:</td><td>${get_value(meta, key, overall)}</td></tr>`
     if (options !== {})
     {
         Object.keys(options).forEach(function (option, index)
         {
-            details += `<tr><td>${get_value(key, option)}:</td><td>${options[option]}</td></tr>`
+            details += `<tr><td>${get_value(meta, key, option)}:</td><td>${options[option]}</td></tr>`
         })
     }
 
@@ -321,7 +322,7 @@ function open_option(team_num)
     if (method != 0)
     {
         document.getElementById('key_selector_against').style.display = 'inline-block'
-        details += `<tr><td>${get_name(against_key)}:</td><td>${get_value(against_key, against_val)}${against_stddev}</td></tr>`
+        details += `<tr><td>${meta[against_key].name}:</td><td>${get_value(meta, against_key, against_val)}${against_stddev}</td></tr>`
     }
     else
     {
@@ -331,20 +332,19 @@ function open_option(team_num)
     // against overall stats
     if (method != 0)
     {
-        details += `<tr><td>Overall:</td><td>${get_value(against_key, against_overall)}</td></tr>`
+        details += `<tr><td>Overall:</td><td>${get_value(meta, against_key, against_overall)}</td></tr>`
         if (against_options !== {})
         {
             Object.keys(against_options).forEach(function (option, index)
             {
-                details += `<tr><td>${get_value(key, option)}:</td><td>${against_options[option]}</td></tr>`
+                details += `<tr><td>${get_value(meta, key, option)}:</td><td>${against_options[option]}</td></tr>`
             })
         }
-        details += `<tr><td>Proportion:</td><td>${get_value(key, calc_prop(val, against_val, method))}</td></tr>`
+        details += `<tr><td>Proportion:</td><td>${get_value(meta, key, calc_prop(val, against_val, method))}</td></tr>`
     }
     details += '</table>'
 
     document.getElementById('value').innerHTML = details
-    use_cached_image(team_num, 'photo', '')
 
     // select team on left
     Object.keys(teams).forEach(function (team, index)
@@ -369,7 +369,7 @@ function fill_dropdown()
     let options = ''
     keys.forEach(function (key, index)
     {
-        let name = get_name(key)
+        let name = meta[key].name
         options += `<option class="wr_dropdown_op" value="${name}">${name}</option>`
     })
     document.getElementById('key_selector').innerHTML = options

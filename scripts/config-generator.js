@@ -94,11 +94,6 @@ function build_preview_from_config()
                         case 'text':
                             item = build_text_entry(id, name, default_val)
                             break
-                        case 'sum':
-                        case 'total':
-                        case 'ratio':
-                            item = build_card(id, `${type}<br>${input['options'].join('<br>')}`)
-                            break
                     }
                     items.push(item)
                     items.push(build_multi_button(`${id}_edit`, '', ['&#9650;', 'X', '&#9660;'], [`shift('${id}', 0)`, `shift('${id}', 1)`, `shift('${id}', 2)`], 'slim'))
@@ -193,7 +188,7 @@ function shift(id, func)
 function build_page()
 {
     let modes = ['Pit', 'Match']
-    let inputs = ['Button', 'Checkbox', 'Counter', 'Multi-Counter', 'Select', 'Dropdown', 'String', 'Number', 'Slider', 'Text', 'Sum', 'Total', 'Ratio']
+    let inputs = ['Button', 'Checkbox', 'Counter', 'Multi-Counter', 'Select', 'Dropdown', 'String', 'Number', 'Slider', 'Text']
 
     document.getElementById('add-item').innerHTML = build_page_frame('Add Item', [
             build_column_frame('', [build_dropdown('new-element-mode', 'Mode:', modes, default_op='', onchange='populate_dropdowns(`mode`)'),
@@ -450,18 +445,6 @@ function create_element()
                     item.type = 'text'
                     item.default = defalt
                     break
-                case 10:
-                    item.type = 'sum'
-                    item.options = options
-                    break
-                case 11:
-                    item.type = 'total'
-                    item.options = options
-                    break
-                case 12:
-                    item.type = 'ratio'
-                    item.options = options
-                    break
             }
             config[mode].pages[page].columns[column].inputs.push(item)
             break
@@ -594,14 +577,7 @@ function update_add_panel()
                     set_elements_display(['new-element-options'], 'none')
                     set_elements_display(['new-element-min', 'new-element-max'], 'block')
                     break
-
-                // sum
-                case 10:
-                // total
-                case 11:
-                // ratio
-                case 12:
-                    set_elements_display(['new-element-default'], 'none')
+                
                 // multicounter
                 case 3:
                 // select

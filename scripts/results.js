@@ -8,8 +8,8 @@
 
 var teams = {}
 var results = {}
-
 var avail_teams = []
+var meta = {}
 
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
@@ -25,16 +25,15 @@ function init_page(contents_card, buttons_container)
 {
     if (type == NOTE_MODE)
     {
-        load_config(MATCH_MODE, year)
+        meta = get_result_meta(MATCH_MODE, year)
     }
     else
     {
-        load_config(type, year)
+        meta = get_result_meta(type, year)
     }
     if (collect_results() > 0)
     {
         contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
-                                   <img id="photo">
                                    <table id="results_tab"></table>`
         buttons_container.innerHTML = ''
         if (type != PIT_MODE)
@@ -102,8 +101,6 @@ function open_option(name)
     }
     table += '</tr><tr><th>Total Results</th><td>1</td>'
 
-    use_cached_image(team, 'photo', '')
-
     switch (type)
     {
         case MATCH_MODE:
@@ -126,7 +123,7 @@ function open_option(name)
         if (!entry.startsWith('meta_'))
         {
             let val = result[entry]
-            table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${get_name(entry)}</th><td class="result_cell">${get_value(entry, val)}</td>`
+            table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${meta[entry].name}</th><td class="result_cell">${get_value(meta, entry, val)}</td>`
             if (typeof team_results !== 'undefined')
             {
                 table += make_cell(team_results, entry, val)
@@ -160,17 +157,17 @@ function make_cell(results, entry, base)
 {
     let color = ''
     let options = []
-    let type = get_type(entry)
+    let type = meta[entry].type
     if (type == 'select' || type == 'dropdown' || type == 'checkbox')
     {
-        options = get_options_index(entry, type)
+        options = meta[entry].options_index
     }
-    let val = avg_results(results, entry, 0, options)
-    let valStr = get_value(entry, val)
+    let val = avg_results(results, entry, type, 0, options)
+    let valStr = get_value(meta, entry, val)
     if (typeof base === 'number' && !entry.startsWith('meta'))
     {
         let delta = base - val
-        if (is_negative(entry))
+        if (meta[entry].negative)
         {
             delta *= -1
         }
@@ -195,7 +192,7 @@ function make_cell(results, entry, base)
         // add std dev if proper number
         if (type != 'select' && type != 'dropdown')
         {
-            valStr += ` (${get_value(entry, avg_results(results, entry, 5))})`
+            valStr += ` (${get_value(meta, entry, avg_results(results, entry, type, 5))})`
         }
     }
     
@@ -274,7 +271,7 @@ function sort_results(sort_by='')
         {
             let left = unsorted[b][sort_by]
             let right = unsorted[a][sort_by]
-            if (is_negative(sort_by))
+            if (meta[sort_by].negative)
             {
                 right = unsorted[b][sort_by]
                 left = unsorted[a][sort_by]

@@ -230,12 +230,12 @@ function validate_scout_config(mode)
                     console.log('invalid cycle item')
                     return false
                 }
-                if (!is_in(input.type, ['checkbox', 'dropdown', 'select', 'number', 'string', 'slider', 'text', 'counter', 'multicounter', 'sum', 'total', 'ratio', 'count', 'where']))
+                if (!is_in(input.type, ['checkbox', 'dropdown', 'select', 'number', 'string', 'slider', 'text', 'counter', 'multicounter']))
                 {
                     console.log('invalid input type')
                     return false
                 }
-                if (is_in(input.type, ['dropdown', 'select', 'slider', 'multicounter', 'sum', 'total', 'ratio', 'count', 'where']) && !input.hasOwnProperty('options'))
+                if (is_in(input.type, ['dropdown', 'select', 'slider', 'multicounter']) && !input.hasOwnProperty('options'))
                 {
                     console.log('missing input options')
                     return false

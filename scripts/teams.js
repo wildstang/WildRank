@@ -10,6 +10,8 @@
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var results = []
+var meta = {}
+var pit_meta = {}
 
 /**
  * function:    init_page
@@ -39,6 +41,10 @@ function init_page(contents_card, buttons_container)
                 results[file] = JSON.parse(localStorage.getItem(file))
             }
         })
+        
+        let year = event_id.substr(0, 4)
+        meta = get_result_meta(MATCH_MODE, year)
+        pit_meta = get_result_meta(MATCH_MODE, year)
         
         setup_picklists()
         open_option(first)
@@ -78,15 +84,15 @@ function open_option(team_num)
     let team_res = get_team_results(results, team_num)
     let match_stats = {}
     let res = Object.values(team_res)
-    load_config(MATCH_MODE, event_id.substr(0, 4))
+    
     if (res.length > 0)
     {
-        for (let key of Object.keys(res[0]))
+        for (let key of Object.keys(meta))
         {
-            let val = get_value(key, avg_results(team_res, key, 0))
+            let val = get_value(meta, key, avg_results(team_res, key, meta[key].type, 0))
             if (!key.startsWith('meta') && val != '---')
             {
-                match_stats[get_name(key)] = val
+                match_stats[meta[key].name] = val
             }
         }
     }
@@ -98,12 +104,11 @@ function open_option(team_num)
     if (file_exists(pit_file))
     {
         let pit = JSON.parse(localStorage.getItem(pit_file))
-        load_config(PIT_MODE, event_id.substr(0, 4))
         for (k of Object.keys(pit))
         {
             if (!k.startsWith('meta_'))
             {
-                pit_stats[get_name(k)] = get_value(k, pit[k])
+                pit_stats[pit_meta[k].name] = get_value(pit_meta, k, pit[k])
             }
         }
 

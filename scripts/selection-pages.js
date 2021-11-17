@@ -162,16 +162,16 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
  * 
  * Pages: Pivot Table, Distributions
  */
-function populate_keys(results, teams)
+function populate_keys(meta, results, teams)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
     if (Object.keys(results).length > 0)
     {
-        let keys = Object.keys(results[Object.keys(results)[0]]).filter(function (key)
+        let keys = Object.keys(meta).filter(function (key)
         {
-            let type = get_type(key)
+            let type = meta[key].type
             return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text'
         })
         
@@ -182,7 +182,7 @@ function populate_keys(results, teams)
         // iterate through result keys
         for (let key of keys)
         {
-            document.getElementById('option_list').innerHTML += build_option(key, '', get_name(key), 'font-size:10px')
+            document.getElementById('option_list').innerHTML += build_option(key, '', meta[key].name, 'font-size:10px')
         }
         
         // add second option list of teams
