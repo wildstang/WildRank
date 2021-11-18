@@ -119,15 +119,15 @@ function get_wb_config(year)
 
 /**
  * function:    get_result_meta
- * parameters:  year, scouting mode
+ * parameters:  scouting mode, year
  * returns:     key, metadata pairs
  * description: Builds an object of scouting result keys and their metadata.
  */
-function get_result_meta(year, mode)
+function get_result_meta(mode, year)
 {
     let results = {}
     // go over each input in config
-    let config = get_scout_config(year, mode)
+    let config = get_scout_config(mode, year)
     for (let page of config.pages)
     {
         for (let column of page.columns)
@@ -203,6 +203,30 @@ function get_result_meta(year, mode)
             }
         }
     }
+    
+    // add on smart stats
+    if (mode == MATCH_MODE)
+    {
+        let stats = get_config('smart-stats')
+        for (let stat of stats)
+        {
+            let neg = stat.neg
+            if (typeof neg === 'undefined')
+            {
+                neg = false
+            }
+    
+            results[stat.id] = {
+                name: stat.name,
+                type: 'number',
+                negative: neg,
+                options: [],
+                options_index: [],
+                cycle: stat.type == 'count'
+            }
+        }
+    }
+    
     return results
 }
 

@@ -197,7 +197,7 @@ function build_table(sort_by='', reverse=false)
         }
         else
         {
-            teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, method) - avg_results(get_team_results(results, a), meta[sort_by].type, meta, method))
+            teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, type, method) - avg_results(get_team_results(results, a), sort_by, type, method))
         }
         // invert negative key sort
         if (meta[sort_by].negative)

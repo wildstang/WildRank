@@ -389,7 +389,12 @@ function get_results(prefix)
         // determine files which start with the desired type
         if (file.startsWith(prefix))
         {
-            results[file] = JSON.parse(localStorage.getItem(file))
+            let res = JSON.parse(localStorage.getItem(file))
+            if (prefix.startsWith(MATCH_MODE))
+            {
+                res = add_smart_stats(res)
+            }
+            results[file] = res
         }
     }
     return results
@@ -736,6 +741,76 @@ function ws(team_num)
         document.getElementById('header').style['background-size'] = ''
         document.getElementById('header').style.animation = ''
     }
+}
+
+/**
+ * function:    add_smart_stats
+ * parameters:  match result
+ * returns:     the result with smart stats added
+ * description: Add the smart stats to a given match result.
+ */
+function add_smart_stats(result)
+{
+    let stats = get_config('smart-stats')
+    let md = get_result_meta(MATCH_MODE, result['meta_event_id'].substr(0,4))
+    
+    for (let stat of stats)
+    {
+        let id = stat.id
+        switch (stat.type)
+        {
+            case 'sum':
+                let total = 0
+                for (let k of stat.keys)
+                {
+                    total += result[k]
+                }
+                result[id] = total
+                break
+            case 'percent_of_total':
+                result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
+                break
+            case 'ratio':
+                if (result[stat.denominator] != 0)
+                {
+                    result[id] = result[stat.numerator] / result[stat.denominator]
+                }
+                else
+                {
+                    result[id] = result[stat.numerator]
+                }
+                break
+            // exclusively for cycle
+            case 'where':
+                let count = typeof stat.sum === 'undefined' || !stat.sum
+                let value = 0
+                for (let cycle of result[stat.cycle])
+                {
+                    let passed = true
+                    for (let key of Object.keys(stat.conditions))
+                    {
+                        if (cycle[key] != md[key].options.indexOf(stat.conditions[key]))
+                        {
+                            passed = false
+                        }
+                    }
+                    if (passed)
+                    {
+                        if (count)
+                        {
+                            value++
+                        }
+                        else
+                        {
+                            value += cycle[stat.sum]
+                        }
+                    }
+                }
+                result[id] = value
+                break
+        }
+    }
+    return result
 }
 
 /**

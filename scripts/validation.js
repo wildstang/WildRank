@@ -105,6 +105,45 @@ function validate_coach_config(config)
 }
 
 /**
+ * function:    validate_smart_config
+ * parameters:  smart stats config
+ * returns:     true if valid
+ * description: Determines if a given smart stats config is valid.
+ */
+function validate_smart_config(config)
+{
+    if (!Array.isArray(config))
+    {
+        console.log('invalid smart stats format')
+        return false
+    }
+    for (let obj of config)
+    {
+        if (!has_keys(obj, ['id', 'type', 'name']))
+        {
+            console.log('missing key')
+            return false
+        }
+        if (obj.type == 'sum' && !has_keys(obj, ['keys']))
+        {
+            console.log('missing key')
+            return false
+        }
+        if (is_in(obj.type, ['percent_of_total', 'ratio']) && !has_keys(obj, ['numerator', 'denominator']))
+        {
+            console.log('missing key')
+            return false
+        }
+        if (obj.type == 'where' && !has_keys(obj, ['cycle', 'conditions']))
+        {
+            console.log('missing key')
+            return false
+        }
+    }
+    return true
+}
+
+/**
  * function:    validate_wb_config
  * parameters:  wb config
  * returns:     true if valid

@@ -140,6 +140,7 @@ function on_config()
         validate_settings_config(get_config('settings')) &&
         validate_defaults_config(get_config('defaults')) &&
         validate_coach_config(get_config('coach-vals')) &&
+        validate_smart_config(get_config('smart-stats')) &&
         validate_wb_config(get_config('whiteboard')) &&
         validate_admin_config(get_config('admins')) &&
         validate_theme_config(get_config('theme')) &&

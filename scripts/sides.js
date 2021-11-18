@@ -75,7 +75,7 @@ function collect_results()
                 teams[team] = {}
                 stddevs[team] = {}
             }
-            unsorted[file] = JSON.parse(localStorage.getItem(file))
+            unsorted[file] = add_smart_stats(JSON.parse(localStorage.getItem(file)))
         }
     })
 

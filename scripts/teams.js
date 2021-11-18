@@ -32,19 +32,11 @@ function init_page(contents_card, buttons_container)
                                     <div id="notes"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
 
-        let files = Object.keys(localStorage)
-        files.forEach(function (file)
-        {
-            // determine files which start with the desired type
-            if (file.startsWith(prefix))
-            {
-                results[file] = JSON.parse(localStorage.getItem(file))
-            }
-        })
+        results = get_results(prefix)
         
         let year = event_id.substr(0, 4)
         meta = get_result_meta(MATCH_MODE, year)
-        pit_meta = get_result_meta(MATCH_MODE, year)
+        pit_meta = get_result_meta(PIT_MODE, year)
         
         setup_picklists()
         open_option(first)
@@ -104,12 +96,9 @@ function open_option(team_num)
     if (file_exists(pit_file))
     {
         let pit = JSON.parse(localStorage.getItem(pit_file))
-        for (k of Object.keys(pit))
+        for (k of get_keys(pit_meta))
         {
-            if (!k.startsWith('meta_'))
-            {
-                pit_stats[pit_meta[k].name] = get_value(pit_meta, k, pit[k])
-            }
+            pit_stats[pit_meta[k].name] = get_value(pit_meta, k, pit[k])
         }
 
         pit_button = build_link_button(pit_file, 'View Pit Results', `open_result('${pit_file}')`)

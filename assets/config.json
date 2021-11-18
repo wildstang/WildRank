@@ -12,23 +12,65 @@
     "coach-vals": [
         {
             "function":"mean",
-            "key":"match_teleop_cycle_shots_score"
+            "key":"smart_teleop_cycle_upper"
         },
         {
-            "function":"mean",
-            "key":"match_teleop_cycle_shots_miss"
+            "function":"min",
+            "key":"smart_teleop_cycle_trench"
         },
         {
             "function":"max",
-            "key":"match_teleop_cycle_shots_score"
+            "key":"smart_teleop_accum_ratio"
         },
         {
             "function":"median",
-            "key":"match_teleop_cycle_cycles"
+            "key":"smart_auto_accuracy"
         },
         {
             "function":"mode",
             "key":"match_teleop_cp_spin"
+        }
+    ],
+    "smart-stats": [
+        {
+            "id": "smart_teleop_accum_total",
+            "name": "Total Accumulated",
+            "type": "sum",
+            "keys": ["match_teleop_accum_upperls", "match_teleop_accum_ground"]
+        },
+        {
+            "id": "smart_auto_accuracy",
+            "name": "Auto Shooting Accuracy",
+            "type": "percent_of_total",
+            "numerator": "match_auto_shooting_upper_score",
+            "denominator": "match_auto_shooting_upper_miss"
+        },
+        {
+            "id": "smart_teleop_accum_ratio",
+            "name": "Ground vs Upper LS",
+            "type": "ratio",
+            "numerator": "match_teleop_accum_ground",
+            "denominator": "match_teleop_accum_upperls"
+        },
+        {
+            "id": "smart_teleop_cycle_upper",
+            "name": "Upper Goal Cycles",
+            "type": "where",
+            "cycle": "match_teleop_cycle",
+            "conditions": {
+                "match_teleop_cycle_goal": "Upper"
+            }
+        },
+        {
+            "id": "smart_teleop_cycle_trench",
+            "name": "Trench Upper Goals",
+            "type": "where",
+            "cycle": "match_teleop_cycle",
+            "sum": "match_teleop_cycle_shots_score",
+            "conditions": {
+                "match_teleop_cycle_goal": "Upper",
+                "match_teleop_cycle_loc": "Trench"
+            }
         }
     ],
     "whiteboard": [

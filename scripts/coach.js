@@ -23,14 +23,7 @@ function init_page(contents_card, buttons_container)
     // load in config and results
     meta = get_result_meta(type, year)
     vals = get_config('coach-vals')
-    Object.keys(localStorage).forEach(function (file)
-    {
-        // determine files which start with the desired type
-        if (file.startsWith(prefix))
-        {
-            results[file] = JSON.parse(localStorage.getItem(file))
-        }
-    })
+    results = get_results(prefix)
 
     // build page
     let first = populate_matches()
