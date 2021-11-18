@@ -87,7 +87,7 @@ function open_option(team_num)
     
     if (res.length > 0)
     {
-        for (let key of Object.keys(meta))
+        for (let key of get_keys(meta))
         {
             let val = get_value(meta, key, avg_results(team_res, key, meta[key].type, 0))
             if (!key.startsWith('meta') && val != '---')

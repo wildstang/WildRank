@@ -169,7 +169,7 @@ function populate_keys(meta, results, teams)
 
     if (Object.keys(results).length > 0)
     {
-        let keys = Object.keys(meta).filter(function (key)
+        let keys = get_keys(meta).filter(function (key)
         {
             let type = meta[key].type
             return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text'

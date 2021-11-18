@@ -85,7 +85,7 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
+    keys = get_keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
     // calculate max for each value
     keys.forEach(function (key, index)
     {

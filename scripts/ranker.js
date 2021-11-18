@@ -108,7 +108,7 @@ function collect_results()
         return 0
     }
 
-    keys = Object.keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
+    keys = get_keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
     keys.forEach(function (key, index)
     {
         totals[key] = avg_results(unsorted, key, meta[key].type, get_selected_option('type_form'))

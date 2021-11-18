@@ -126,11 +126,13 @@ function get_wb_config(year)
 function get_result_meta(year, mode)
 {
     let results = {}
+    // go over each input in config
     let config = get_scout_config(year, mode)
     for (let page of config.pages)
     {
         for (let column of page.columns)
         {
+            // add the cycle column as an input
             let cycle = column.cycle
             if (cycle)
             {
@@ -138,7 +140,9 @@ function get_result_meta(year, mode)
                     name: column.name,
                     type: 'cycle',
                     negative: false,
-                    options: []
+                    options: [],
+                    options_index: [],
+                    cycle: cycle
                 }
             }
             for (let input of column.inputs)
@@ -149,6 +153,7 @@ function get_result_meta(year, mode)
                 let ops = input.options
                 let neg = input.negative
 
+                // make sure no values are missing / empty
                 if (typeof neg === 'undefined')
                 {
                     if (type == 'select' || type == 'dropdown' || type == 'multicounter')
@@ -169,6 +174,7 @@ function get_result_meta(year, mode)
                     ops = []
                 }
 
+                // add each counter in a multicounter
                 if (type == 'multicounter')
                 {
                     for (let i in ops)
@@ -198,6 +204,17 @@ function get_result_meta(year, mode)
         }
     }
     return results
+}
+
+/**
+ * function:    get_result_meta
+ * parameters:  year, scouting mode
+ * returns:     key, metadata pairs
+ * description: Builds an object of scouting result keys and their metadata.
+ */
+function get_keys(meta)
+{
+    return Object.keys(meta).filter(k => !meta[k].cycle)
 }
 
 /**
