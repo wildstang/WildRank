@@ -240,6 +240,17 @@ function validate_scout_config(mode)
                     console.log('missing input options')
                     return false
                 }
+                if (input.options)
+                {
+                    for (let option of input.options)
+                    {
+                        if (typeof option === 'string' && option.includes(' '))
+                        {
+                            console.log('space in option')
+                            return false
+                        }
+                    }
+                }
             }
         }
     }

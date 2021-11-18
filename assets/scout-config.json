@@ -265,7 +265,7 @@
 									"id":"match_teleop_accum",
 									"type":"multicounter",
 									"options":[
-										"Upper LS",
+										"UpperLS",
 										"Ground"
 									],
 									"default":0
@@ -405,31 +405,6 @@
 									"id":"match_notes_notes",
 									"type":"text",
 									"default":""
-								},
-								{
-									"name":"Trench Scored",
-									"id":"match_teleop_trench_scored",
-									"type":"where",
-									"options":[
-										"match_teleop_cycle",
-										"match_teleop_cycle_shots_score",
-										"match_teleop_cycle_loc",
-										"Trench",
-										"match_teleop_cycle_goal",
-										"Upper"
-									],
-									"default":0
-								},
-								{
-									"name":"Upper Cycles",
-									"id":"match_teleop_cycles_upper",
-									"type":"count",
-									"options":[
-										"match_teleop_cycle",
-										"match_teleop_cycle_goal",
-										"Upper"
-									],
-									"default":0
 								}
 							]
 						}
