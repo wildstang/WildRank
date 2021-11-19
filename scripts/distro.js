@@ -12,6 +12,9 @@ var teams = []
 var results = {}
 var lists = {}
 var meta = {}
+var bars = []
+var bin_raws = []
+var team_modes = {}
 
 var pwidth
 var pheight
@@ -59,6 +62,58 @@ function init_page(contents_card, buttons_container)
 }
 
 /**
+ * function:    find_bin
+ * parameters:  mouse event
+ * returns:     none
+ * description: Handles onclick on canvas to select teams of a selected bin.
+ */
+function find_bin(e)
+{
+    let x = e.layerX
+    for (let i in bars)
+    {
+        i = parseInt(i)
+        let bar = bars[i]
+        let left = bar[0] + 25 // not sure why we need additional margin
+        let right = left + bar[2]
+        // determine if in bar (only horizontally)
+        if (x >= left && x <= right)
+        {
+            deselect_all(false)
+            let raw = bin_raws[i]
+            // check each team
+            for (let team in team_modes)
+            {
+                let mode = team_modes[team]
+                let pos = bin_raws.indexOf(mode)
+                // if it falls exactly on a bin
+                if (pos == i)
+                {
+                    // select team
+                    document.getElementById(`soption_${team}`).classList.add('selected')
+                }
+                else if (pos < 0)
+                {
+                    // if it doesn't find the closest
+                    // (if it did fall on a bin its not the one we clicked)
+                    let delta_c = Math.abs(raw - mode)
+                    let delta_l = i > 0 ? Math.abs(bin_raws[i-1] - mode) : raw
+                    let delta_r = i < bin_raws.length - 1 ? Math.abs(bin_raws[i+1] - mode) : raw
+                    console.log(delta_l, delta_c, delta_r, bin_raws[i-1], raw, bin_raws[i+1], mode)
+                    if (delta_c < delta_l && delta_c < delta_r)
+                    {
+                        // select team
+                        document.getElementById(`soption_${team}`).classList.add('selected')
+                    }
+                }
+            }
+            build_plot()
+            break
+        }
+    }
+}
+
+/**
  * function:    init_canvas
  * parameters:  none
  * returns:     none
@@ -71,6 +126,8 @@ function init_canvas()
     let canvas = document.getElementById('whiteboard')
     canvas.width = pwidth
     canvas.height = pheight
+    canvas.onclick = find_bin
+    canvas.ontouchend = find_bin
     build_plot()
 }
 
@@ -165,12 +222,13 @@ function build_plot()
     // build distribution
     let values = []
     let team_vals = {}
-    let team_modes = {}
+    team_modes = {}
+    let use_modes = type == 'checkbox' || type == 'select' || type == 'dropdown'
     teams.forEach(function (team)
     {
         let team_results = get_team_results(results, team)
         // build a value string of percents for discrete inputs
-        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
+        if (use_modes)
         {
             let ops = meta[key].options
             if (type == 'checkbox')
@@ -207,6 +265,7 @@ function build_plot()
                 let val = avg_results(team_results, key, type, method)
                 values.push(val)
                 team_vals[team] = val
+                team_modes[team] = val
             }
         }
     })
@@ -245,6 +304,7 @@ function build_plot()
     // calculate each bin
     let counts = []
     let bin_names = []
+    bin_raws = []
     for (let i = 0; i < bins; ++i)
     {
         // define bin
@@ -260,16 +320,20 @@ function build_plot()
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
             bin_names.push(get_value(meta, key, i))
+            bin_raws.push(i)
         }
         // for discrete number results
         else if (unique.length <= max_bins)
         {
             bin_names.push(unique[i])
+            bin_raws.push(unique[i])
         }
         // for continuous number results
         else
         {
-            bin_names.push(((binStart + binEnd) / 2).toFixed(2))
+            let val = (binStart + binEnd) / 2
+            bin_names.push(val.toFixed(2))
+            bin_raws.push(val)
         }
     }
 
@@ -295,7 +359,7 @@ function build_plot()
             let team_val = get_value(meta, key, raw_val, false)
             let x = 25 + (team_val - min) / delta * (pwidth - 25)
             // fix values for line position
-            if (team_modes.hasOwnProperty(highlight))
+            if (use_modes)
             {
                 let vals = Object.values(raw_val)
                 x = 25 + vals.map((v, i) => v * i).reduce((a, b) => a + b) / ((vals.length - 1) *vals.reduce((a, b) => a + b)) * (pwidth - 25)
@@ -332,6 +396,7 @@ function build_plot()
     let maxBin = Math.max(...counts)
     let j = 0
     let neg = meta[key].negative
+    bars = []
     for (let i = 0; i < bins; ++i)
     {
         let l = i
@@ -344,6 +409,7 @@ function build_plot()
         ctx.fillStyle = 'gray'
         ctx.font = `${font_size}px mono, courier`
         ctx.fillRect(25 + l * width, (pheight - 25) - height, width - 1, height)
+        bars.push([25 + l * width, (pheight - 25) - height, width - 1, height, bin_names[j]])
         // draw labels
         if (counts[l] > 0 || unique.length >= counts.length)
         {
