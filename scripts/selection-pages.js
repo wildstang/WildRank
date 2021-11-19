@@ -250,7 +250,11 @@ function populate_other(options)
  */
 function select_none()
 {
-    document.getElementById('picklist_filter').selectedIndex = 0
+    let filter = document.getElementById('picklist_filter')
+    if (filter)
+    {
+        filter.selectedIndex = 0
+    }
 }
 
 /**
