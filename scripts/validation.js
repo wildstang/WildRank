@@ -129,7 +129,7 @@ function validate_smart_config(config)
             console.log('missing key')
             return false
         }
-        if (is_in(obj.type, ['percent_of_total', 'ratio']) && !has_keys(obj, ['numerator', 'denominator']))
+        if (is_in(obj.type, ['percent', 'ratio']) && !has_keys(obj, ['numerator', 'denominator']))
         {
             console.log('missing key')
             return false

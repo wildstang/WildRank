@@ -144,6 +144,7 @@ function get_result_meta(mode, year)
                     options_index: [],
                     cycle: cycle
                 }
+                cycle = column.id
             }
             for (let input of column.inputs)
             {

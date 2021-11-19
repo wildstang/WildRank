@@ -767,7 +767,7 @@ function add_smart_stats(result)
                 }
                 result[id] = total
                 break
-            case 'percent_of_total':
+            case 'percent':
                 result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
                 break
             case 'ratio':

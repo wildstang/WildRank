@@ -41,7 +41,7 @@
         {
             "id": "smart_auto_accuracy",
             "name": "Auto Shooting Accuracy",
-            "type": "percent_of_total",
+            "type": "percent",
             "numerator": "match_auto_shooting_upper_score",
             "denominator": "match_auto_shooting_upper_miss"
         },
