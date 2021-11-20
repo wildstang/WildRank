@@ -55,6 +55,17 @@ function init_page(contents_card, buttons_container)
 }
 
 /**
+ * function:    filter_numeric
+ * parameters:  key
+ * returns:     none
+ * description: Determines if a key results a result which is a number.
+ */
+function filter_numeric(key)
+{
+    return meta[key].type == 'number' || meta[key].type == 'counter' || meta[key].type == 'slider'
+}
+
+/**
  * function:    update_params
  * parameters:  none
  * returns:     none
@@ -69,17 +80,14 @@ function update_params()
     switch (type)
     {
         case 'Sum':
-            for (let c of Object.keys(meta))
+            for (let c of Object.keys(meta).filter(filter_numeric))
             {
-                if (meta[c].options.length == 0)
-                {
-                    html += build_checkbox(c, meta[c].name, false, 'calculate()')
-                }
+                html += build_checkbox(c, meta[c].name, false, 'calculate()')
             }
             break
         case 'Percent':
         case 'Ratio':
-            let keys = Object.keys(meta).filter(k => meta[k].options.length == 0)
+            let keys = Object.keys(meta).filter(filter_numeric)
             html += build_dropdown('numerator', 'Numerator', keys, '', 'calculate()')
             html += build_dropdown('denominator', 'Denominator', keys, '', 'calculate()')
             break
@@ -130,9 +138,9 @@ function build_stat()
     {
         case 'Sum':
             let keys = []
-            for (let c of Object.keys(meta))
+            for (let c of Object.keys(meta).filter(filter_numeric))
             {
-                if (meta[c].options.length == 0 && document.getElementById(c).checked)
+                if (document.getElementById(c).checked)
                 {
                     keys.push(c)
                 }
@@ -149,7 +157,7 @@ function build_stat()
         case 'Where':
             let cycle = document.getElementById('cycle').value
             let count = document.getElementById('count').value
-            let inputs = Object.keys(meta).filter(k => meta[k].cycle == cycle)
+            let inputs = Object.keys(meta).filter(filter_numeric)
             let counters = inputs.filter(k => meta[k].type == 'counter')
             let selects = inputs.filter(k => meta[k].type != 'counter')
             let vals = {}
