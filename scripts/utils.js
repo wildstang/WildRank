@@ -357,6 +357,12 @@ function contained(vertices, x, y)
  */
 function scroll_to(container, goal)
 {
+    // non-blanking spaces make it crash
+    // avoid these in selection options
+    if (goal.includes('&nbsp;'))
+    {
+        return
+    }
     let option_top = document.getElementById(goal).getBoundingClientRect().top
     let container_top = document.getElementById(container).getBoundingClientRect().top
     let option_bottom = document.getElementById(goal).getBoundingClientRect().bottom
@@ -752,6 +758,11 @@ function ws(team_num)
 function add_smart_stats(result)
 {
     let stats = get_config('smart-stats')
+    return add_given_smart_stats(result, stats)
+}
+
+function add_given_smart_stats(result, stats)
+{
     let md = get_result_meta(MATCH_MODE, result['meta_event_id'].substr(0,4))
     
     for (let stat of stats)
