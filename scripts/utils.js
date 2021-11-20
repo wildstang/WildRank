@@ -1027,3 +1027,47 @@ function get_team_keys(event_id)
     }
     return keys
 }
+
+/**
+ * function:    count_results
+ * parameters:  event id, scouting type
+ * returns:     number of results
+ * description: Determines how many results of a given type and event exist.
+ */
+function count_results(event_id, type)
+{
+    let count = 0
+    Object.keys(localStorage).forEach(function (file, index)
+    {
+        if (file.startsWith(`${type}-${event_id}-`))
+        {
+            ++count
+        }
+    })
+    return count
+}
+
+/**
+ * function:    parse_server_addr
+ * parameters:  URL
+ * returns:     The web server's address
+ * description: Removes the path from the end of a URL.
+ */
+function parse_server_addr(addr)
+{
+    let slash = addr.indexOf('/', 8)
+    let dot = addr.lastIndexOf('.')
+    if (slash > -1 && dot > 0 && slash < dot)
+    {
+        addr = addr.substr(0, addr.lastIndexOf('/'))
+    }
+    if (addr.endsWith('/'))
+    {
+        addr = addr.substr(0, addr.length - 1)
+    }
+    if (addr.includes('?'))
+    {
+        addr = addr.substr(0, addr.indexOf('?'))
+    }
+    return addr
+}
