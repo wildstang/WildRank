@@ -58,6 +58,7 @@ const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Configuration', [
         build_link_button('open_config', 'Config Builder', `check_press('open_config', open_config)`),
         build_link_button('open_settings', 'Settings Editor', `check_press('open_settings', open_settings)`),
+        build_link_button('open_random', 'Random Result Generator', `check_press('open_random', open_random)`),
         build_link_button('about', 'About', `'index.html?page=about'`),
         build_button('reset', 'Reset', `check_press('reset', reset)`),
     ]),
@@ -86,6 +87,7 @@ const BUTTONS = {
     'open_coach':       { limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
     'open_config':      { limits: ['admin'], configs: [] },
     'open_settings':    { limits: ['admin'], configs: ['settings'] },
+    'open_random':      { limits: ['event-pit', 'admin'], configs: ['type', 'settings']},
     'preload_event':    { limits: [], configs: [] },
     'upload_all':       { limits: ['results'], configs: [] },
     'import_all':       { limits: ['admin'], configs: [] },
