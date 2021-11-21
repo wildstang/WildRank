@@ -724,7 +724,8 @@ function get_event_pick_lists_name(event_id)
  */
 function file_exists(filename)
 {
-    return localStorage.getItem(filename) != null
+    let val = localStorage.getItem(filename)
+    return val != null && val != false
 }
 
 /**
