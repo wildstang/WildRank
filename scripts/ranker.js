@@ -62,7 +62,20 @@ function init_page(contents_card, buttons_container)
  */
 function filter_numeric(key)
 {
-    return meta[key].type == 'number' || meta[key].type == 'counter' || meta[key].type == 'slider'
+    let type = meta[key].type
+    return type == 'number' || type == 'counter' || type == 'slider'
+}
+
+/**
+ * function:    filter_cycle
+ * parameters:  key
+ * returns:     none
+ * description: Determines if a key belongs to a cycle.
+ */
+function filter_cycle(key)
+{
+    let type = meta[key].type
+    return (type == 'counter' || type == 'dropdown' || type == 'select') && meta[key].cycle
 }
 
 /**
@@ -98,7 +111,7 @@ function update_params()
             {
                 cycle = document.getElementById('cycle').value
             }
-            let inputs = Object.keys(meta).filter(k => meta[k].cycle == cycle)
+            let inputs = Object.keys(meta).filter(filter_cycle)
             let counters = inputs.filter(k => meta[k].type == 'counter')
             let selects = inputs.filter(k => meta[k].type != 'counter')
             html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()')
@@ -157,7 +170,7 @@ function build_stat()
         case 'Where':
             let cycle = document.getElementById('cycle').value
             let count = document.getElementById('count').value
-            let inputs = Object.keys(meta).filter(filter_numeric)
+            let inputs = Object.keys(meta).filter(filter_cycle)
             let counters = inputs.filter(k => meta[k].type == 'counter')
             let selects = inputs.filter(k => meta[k].type != 'counter')
             let vals = {}
@@ -184,7 +197,7 @@ function build_stat()
  * function:    calculate
  * parameters:  none
  * returns:     none
- * description: Calculates each's teams stat based on the current inputs.
+ * description: Calculates each team's stat based on the current inputs.
  */
 function calculate()
 {
@@ -202,6 +215,7 @@ function calculate()
             picklist = false
         }    
     }
+
     // get team smart stat results
     let team_res = {}
     for (let res of Object.values(results))
