@@ -264,7 +264,7 @@ function validate_scout_config(mode)
                     console.log('missing input key')
                     return false
                 }
-                if (column.cycle && !is_in(input.type, ['select', 'dropdown', 'multicounter']))
+                if (column.cycle && !is_in(input.type, ['select', 'dropdown', 'multicounter', 'counter']))
                 {
                     console.log('invalid cycle item')
                     return false

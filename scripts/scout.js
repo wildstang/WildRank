@@ -30,7 +30,6 @@ function build_page_from_config()
         {
             var col_name = column.name
             let cycle = column.cycle
-            let cycle_ops = {}
             items = []
             // iterate through input in the column
             column['inputs'].forEach(function (input, index)
@@ -40,6 +39,8 @@ function build_page_from_config()
                 var type = input.type
                 var default_val = input.default
                 let options = input['options']
+
+                // map results to defaults in edit mode
                 if (edit)
                 {
                     default_val = results[id]
@@ -55,34 +56,6 @@ function build_page_from_config()
                             return results[name]
                         })
                     }
-                }
-
-                // add the current input layer to the cycles
-                if (cycle && (type == 'select' || type == 'dropdown' || type == 'multicounter'))
-                {
-                    let new_cops = {}
-                    for (let op of options)
-                    {
-                        if (Object.keys(cycle_ops).length == 0)
-                        {
-                            new_cops[`${column.id}_${op.toLowerCase().split().join('_')}`] =
-                            {
-                                name: `${column.name} ${op}`,
-                                total: 0,
-                                values: []
-                            }
-                        }
-                        for (let cop of Object.keys(cycle_ops))
-                        {
-                            new_cops[`${cop}_${op.toLowerCase().split().join('_')}`] =
-                            {
-                                name: `${cycle_ops[cop].name} ${op}`,
-                                total: 0,
-                                values: []
-                            }
-                        }
-                    }
-                    cycle_ops = new_cops
                 }
 
                 var item = ''
@@ -169,7 +142,7 @@ function build_page_from_config()
     {
         for (let cycle of Object.keys(cycles))
         {
-            update_cycle(cycle, true)
+            update_cycle(cycle, cycles[cycle].length > 0)
         }
     }
 }
@@ -202,58 +175,62 @@ function update_cycle(cycle, decrement)
                 {
                     // only multicounter, select, and dropdown are supported in cycles
                     let type = input.type
-                    if (type == 'multicounter' || type == 'select' || type == 'dropdown')
-                    {
-                        let id = input.id
-                        let ops = input.options
+                    let id = input.id
+                    let ops = input.options
+                    let def = input.default
 
-                        switch (type)
-                        {
-                            case 'select':
-                                let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                                let i = 0
-                                for (let option of children)
-                                {
-                                    if (!decrement)
-                                    {
-                                        if (option.classList.contains('selected'))
-                                        {
-                                            cycle_result[id] = i
-                                        }
-                                    }
-                                    i++
-                                }
-                                if (val < last)
-                                {
-                                    select_option(id, cycles[cycle][val][id])
-                                }
-                                break
-                            case 'dropdown':
+                    switch (type)
+                    {
+                        case 'select':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = get_selected_option(id)
+                                select_option(id, ops.indexOf(def))
+                            }
+                            if (val < last)
+                            {
+                                select_option(id, cycles[cycle][val][id])
+                            }
+                            break
+                        case 'dropdown':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = document.getElementById(id).selectedIndex
+                                document.getElementById(id).selectedIndex = ops.indexOf(def)
+                            }
+                            if (val < last)
+                            {
+                                document.getElementById(id).selectedIndex = cycles[cycle][val][id]
+                            }
+                            break
+                        case 'multicounter':
+                            ops.forEach(function (op) {
+                                let op_id = `${id}_${op.toLowerCase().split().join('_')}`
                                 if (!decrement)
                                 {
-                                    cycle_result[id] = document.getElementById(id).selectedIndex
+                                    cycle_result[op_id] = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
+                                    document.getElementById(`${op_id}-value`).innerHTML = def
                                 }
                                 if (val < last)
                                 {
-                                    // TODO do dropdown equivalent
-                                    //select_option(id, cycles[cycle][val][id])
+                                    document.getElementById(`${op_id}-value`).innerHTML = cycles[cycle][val][op_id]
                                 }
-                                break
-                            case 'multicounter':
-                                ops.forEach(function (op) {
-                                    let op_id = `${id}_${op.toLowerCase().split().join('_')}`
-                                    if (!decrement)
-                                    {
-                                        cycle_result[op_id] = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
-                                        document.getElementById(`${op_id}-value`).innerHTML = input.default
-                                    }
-                                    if (val < last)
-                                    {
-                                        document.getElementById(`${op_id}-value`).innerHTML = cycles[cycle][val][op_id]
-                                    }
-                                })
-                                break
-                        }
+                            })
+                            break
+                        case 'counter':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = parseInt(document.getElementById(`${id}`).innerHTML)
+                                document.getElementById(`${id}`).innerHTML = def
+                            }
+                            if (val < last)
+                            {
+                                document.getElementById(`${id}`).innerHTML = cycles[cycle][val][id]
+                            }
+                            break
+                        default:
+                            // do nothing, no other inputs allowed
+                            break
                     }
                 })
             }

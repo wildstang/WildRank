@@ -65,6 +65,10 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                                 c[`${id}_${op.toLowerCase().split().join('_')}`] = random_int()
                             }
                         }
+                        else if (type == 'counter')
+                        {
+                            c[id] = random_int()
+                        }
                         else
                         {
                             c[id] = random_int(0, ops.length-1)
