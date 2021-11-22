@@ -77,7 +77,7 @@ function get_parameter(key, dvalue)
 {
     let urlParams = new URLSearchParams(window.location.search)
     let value = urlParams.get(key)
-    if (typeof value !== 'undefined')
+    if (typeof value !== 'undefined' && value)
     {
         return value
     }
