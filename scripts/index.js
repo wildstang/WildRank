@@ -97,8 +97,13 @@ const BUTTONS = {
     'reset':            { limits: ['admin'], configs: [] }
 }
 
-// when the page is finished loading
-window.addEventListener('load', function()
+/**
+ * function:    init_page
+ * parameters:  none
+ * returns:     none
+ * description: Runs onload to fill out the page.
+ */
+function init_page()
 {
     document.body.innerHTML += PAGE_FRAME
     let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
@@ -111,7 +116,7 @@ window.addEventListener('load', function()
         fetch_config(on_config)
     }
     process_files()
-})
+}
 
 /**
  * function:    on_config
@@ -158,7 +163,7 @@ function on_config()
 function hide_buttons()
 {
     count_teams()
-    Object.keys(BUTTONS).forEach(function (id, index)
+    for (let id of Object.keys(BUTTONS))
     {
         let button = document.getElementById(`${id}-container`)
         if (is_blocked(id))
@@ -171,7 +176,7 @@ function hide_buttons()
             // umdim otherwise
             button.classList.remove('disabled')
         }
-    })
+    }
 }
 
 /**
@@ -188,7 +193,10 @@ function count_teams()
 {
     let options = ''
     let teams = get_team_keys(get_event())
-    teams.forEach(t => options += build_dropdown_op(t, ''))
+    for (let t of teams)
+    {
+        options += build_dropdown_op(t, '')
+    }
     document.getElementById('position').innerHTML = options
 }
 
@@ -210,7 +218,7 @@ function process_files()
     let events = []
     let teams = []
     let rankings = []
-    files.forEach(function (file, index)
+    for (let file of files)
     {
         let parts = file.split('-')
         // determine files which start with the desired type
@@ -246,7 +254,7 @@ function process_files()
         {
             ++avatars
         }
-    })
+    }
     status(`<table><tr><th>Results...</th></tr>
             <tr><td>Match<td></td><td>${matches}</td></tr>
             <tr><td>Pit<td></td><td>${pits}</td></tr>
@@ -373,10 +381,6 @@ function is_blocked(id)
     {
         return `Missing match data.`
     }
-    if (limits.includes('team') && !has_teams())
-    {
-        return `Missing teams data.`
-    }
     if (limits.includes('admin') && !is_admin(get_user()))
     {
         return `Admin access required.`
@@ -444,7 +448,16 @@ function check_press(id, on_press)
  */
 function get_selected_type()
 {
-    return get_selected_option('type_form') == 1 ? MATCH_MODE : get_selected_option('type_form') == 0 ? PIT_MODE : NOTE_MODE
+    switch(get_selected_option('type_form'))
+    {
+        case 0:
+            return PIT_MODE
+        case 2:
+            return NOTE_MODE
+        case 1:
+        default:
+            return MATCH_MODE
+    }
 }
 
 /**

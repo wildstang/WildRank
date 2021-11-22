@@ -6,13 +6,27 @@
  */
 
 const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
-const config_names = ['config-settings', 'config-defaults', 'config-admins', /*'config-theme', 'config-dark-theme',*/ 'config-coach-vals', 'config-whiteboard']
+const CONFIG_NAMES = ['config-settings', 'config-defaults', 'config-admins', /*'config-theme', 'config-dark-theme',*/ 'config-coach-vals', 'config-whiteboard']
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
 var keys = []
+
+/**
+ * function:    init_page
+ * parameters:  none
+ * returns:     none
+ * description: Runs onload to fill out the page.
+ */
+function init_page()
+{
+    document.getElementById('header_info').innerHTML = `Settings`
+    document.body.innerHTML += '<div id="body"></div>'
+    keys = Object.keys(get_result_meta(MATCH_MODE, year))
+    build_page()
+}
 
 /** 
  * function:    build_column
@@ -23,8 +37,10 @@ var keys = []
 function build_column(file, config)
 {
     let inputs = []
-    Object.keys(config).forEach(function (key, index)
+    let keys = Object.keys(config)
+    for (let index in keys)
     {
+        let key = keys[index]
         let name = `${key.replace(/_/g, ' ').replace(/-/g, ' ')}:`
         let val = config[key]
         let id = `${file}-${key}`
@@ -58,7 +74,7 @@ function build_column(file, config)
             inputs.push(build_select(`${id}_fn_${index}`, 'Function', FUNCTIONS, func))
             inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', keys, val.key))
         }
-    })
+    }
     if (file == 'config-coach-vals')
     {
         inputs.push(build_button('add_coach', 'New Value', 'add_coach()'))
@@ -75,7 +91,7 @@ function build_column(file, config)
 function build_page()
 {
     let columns = []
-    config_names.forEach(function (file, index)
+    for (let file of CONFIG_NAMES)
     {
         if (file_exists(file))
         {
@@ -103,7 +119,7 @@ function build_page()
                 columns.push(build_column(file, config))
             }
         }
-    })
+    }
     document.getElementById('body').innerHTML = build_page_frame('', columns) + build_page_frame('Save', [
         build_column_frame('', [build_button('reset-config', 'Reset Changes', 'build_page()')]),
         build_column_frame('', [build_button('save-config', 'Save', 'save_config()')]),
@@ -160,10 +176,10 @@ function save_config()
 function apply_config()
 {
     let configs = build_config_obj()
-    Object.keys(configs).forEach(function (key, index)
+    for (let key of Object.keys(configs))
     {
         localStorage.setItem(`config-${key}`, JSON.stringify(configs[key]))
-    })
+    }
     location.reload()
 }
 
@@ -175,8 +191,10 @@ function apply_config()
  */
 function update_config(file, config)
 {
-    Object.keys(config).forEach(function (key, index)
+    let keys = Object.keys(config)
+    for (let index in keys)
     {
+        let key = keys[index]
         let id = `${file}-${key}`
         if (document.getElementById(id))
         {
@@ -202,13 +220,12 @@ function update_config(file, config)
         }
         else if (document.getElementById(`${id}_fn_${index}`))
         {
-            config[index] =
-            {
+            config[index] = {
                 function: FUNCTIONS[get_selected_option(`${id}_fn_${index}`)].toLowerCase(),
                 key: keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
             }
         }
-    })
+    }
     return config
 }
 
@@ -221,20 +238,20 @@ function update_config(file, config)
 function build_config_obj()
 {
     let configs = {}
-    config_names.forEach(function (file, index)
+    for (let file of CONFIG_NAMES)
     {
         let config = JSON.parse(localStorage.getItem(file))
         if (Array.isArray(config))
         {
             if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('year'))
             {
-                configs[file.replace('config-', '')] = config.forEach(function (c)
+                for (let c of config)
                 {
                     if (c.year == year)
                     {
                         c = update_config(file, c)
                     }
-                })
+                }
                 configs[file.replace('config-', '')] = config
             }
             else if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('function'))
@@ -255,14 +272,6 @@ function build_config_obj()
         {
             configs[file.replace('config-', '')] = update_config(file, config)
         }
-    })
+    }
     return configs
 }
-
-window.addEventListener('load', function()
-{
-    document.getElementById('header_info').innerHTML = `Settings`
-    document.body.innerHTML += '<div id="body"></div>'
-    keys = Object.keys(get_result_meta(MATCH_MODE, year))
-    build_page()
-})

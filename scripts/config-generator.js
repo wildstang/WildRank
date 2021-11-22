@@ -18,6 +18,24 @@ var config = [
     }
 ]
 
+// read parameters from URL
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
+
+/**
+ * function:    init_page
+ * parameters:  none
+ * returns:     none
+ * description: Runs onload to fill out the page.
+ */
+function init_page()
+{
+    document.getElementById('header_info').innerHTML = `Config Generator`
+    document.body.innerHTML += '<div id="config-preview"></div><div id="add-item"></div>'
+    build_page()
+}
+
 /** 
  * function:    build_preview_from_config
  * parameters:  none
@@ -29,22 +47,22 @@ function build_preview_from_config()
     document.getElementById('config-preview').innerHTML = ''
     let select_ids = []
     // iterate through each mode
-    config.forEach(function (config, index)
+    for (let c of config)
     {
         // iterate through each page in the mode
-        config.pages.forEach(function (page, index)
+        for (let page of c.pages)
         {
             let page_name = page.name
             let pid = page.id
             columns = [build_multi_button(`${pid}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${pid}', 0)`, `shift('${pid}', 1)`, `shift('${pid}', 2)`], 'slim')]
             // iterate through each column in the page
-            page['columns'].forEach(function (column, index)
+            for (let column of page.columns)
             {
                 var col_name = column.name
                 let cid = column.id
                 items = [build_multi_button(`${cid}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${cid}', 0)`, `shift('${cid}', 1)`, `shift('${cid}', 2)`], 'slim')]
                 // iterate through input in the column
-                column['inputs'].forEach(function (input, index)
+                for (let input of column.inputs)
                 {
                     let name = input.name
                     let id = input.id
@@ -97,19 +115,19 @@ function build_preview_from_config()
                     }
                     items.push(item)
                     items.push(build_multi_button(`${id}_edit`, '', ['&#9650;', 'X', '&#9660;'], [`shift('${id}', 0)`, `shift('${id}', 1)`, `shift('${id}', 2)`], 'slim'))
-                })
+                }
                 columns.push(build_column_frame(col_name, items))
-            })
+            }
             document.getElementById('config-preview').innerHTML += build_page_frame(page_name, columns)
             
-        })
-    })
+        }
+    }
 
     // mark each selected box as such
-    select_ids.forEach(function (id, index)
+    for (let id of select_ids)
     {
         document.getElementById(id).classList.add('selected')
-    })
+    }
 }
 
 /** 
@@ -496,7 +514,10 @@ function save_config()
  */
 function apply_config()
 {
-    config.forEach(cfg => localStorage.setItem(`config-${year}-${cfg.id}`, JSON.stringify(cfg)))
+    for (let cfg of config)
+    {
+        localStorage.setItem(`config-${year}-${cfg.id}`, JSON.stringify(cfg))
+    }
 }
 
 /** 
@@ -520,11 +541,11 @@ function load_config()
  */
 function set_elements_display(elements, display)
 {
-    elements.forEach(function (e)
+    for (let e of elements)
     {
         document.getElementById(e).style.display = display
         document.getElementById(`${e}_label`).style.display = display
-    })
+    }
 }
 
 /** 
@@ -592,17 +613,8 @@ function update_add_panel()
     }
 
     let texts = ['new-element-name', 'new-element-id', 'new-element-default', 'new-element-short', 'new-element-options', 'new-element-min', 'new-element-max', 'new-element-step']
-    texts.forEach(function (e) { document.getElementById(e).value = '' })
+    for (let e of texts)
+    {
+        document.getElementById(e).value = ''
+    }
 }
-
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-window.addEventListener('load', function()
-{
-    document.getElementById('header_info').innerHTML = `Config Generator`
-    document.body.innerHTML += '<div id="config-preview"></div><div id="add-item"></div>'
-    build_page()
-})

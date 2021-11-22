@@ -1,6 +1,6 @@
 /**
  * file:        about.js
- * description: About page.
+ * description: About page, displays several relevant links and server/app info.
  * author:      Liam Fruzyna
  * date:        2020-12-18
  */
@@ -20,8 +20,17 @@ const PAGE_FRAME = build_page_frame('', [
     ]),
 ])
 
-window.addEventListener('load', function()
+/**
+ * function:    init_page
+ * parameters:  none
+ * returns:     none
+ * description: Runs onload to fill out the page.
+ */
+function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'About'
+
     document.body.innerHTML += PAGE_FRAME
 
     try
@@ -52,5 +61,8 @@ window.addEventListener('load', function()
             document.getElementById('version').innerHTML = `${git.slice(0, git.indexOf('>') + 17)}</a>`
         }
     }
-    catch (e) { console.log('Error') }
-})
+    catch (e)
+    {
+        console.log('Error')
+    }
+}

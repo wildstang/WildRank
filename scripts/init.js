@@ -15,3 +15,8 @@ if (!page)
     script.src = `scripts/index.js`
 }
 document.head.appendChild(script)
+
+window.addEventListener('load', function()
+{
+    init_page()
+})

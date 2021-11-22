@@ -1,7 +1,6 @@
 /**
  * file:        scout.js
- * description: Contains functions for the scouting page of the web app.
- *              Primarily for building the interface from event and config data.
+ * description: Page for collecting scouting data during matches.
  * author:      Liam Fruzyna
  * date:        2020-02-15
  */
@@ -10,6 +9,74 @@ const start = Date.now()
 
 var cycles = {}
 var config = {}
+
+// read parameters from URL
+const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const year = event_id.substr(0,4)
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
+const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+
+var urlParams = new URLSearchParams(window.location.search)
+const match_num = urlParams.get('match')
+const team_num = urlParams.get('team')
+const alliance_color = urlParams.get('alliance')
+const generate = urlParams.get('generate')
+var edit = urlParams.get('edit') == 'true'
+var results = {}
+var meta = {}
+
+/**
+ * function:    init_page
+ * parameters:  none
+ * returns:     none
+ * description: Runs onload to fill out the page.
+ */
+function init_page()
+{
+    config = get_scout_config(scout_mode, year)
+    meta = get_result_meta(scout_mode, year)
+
+    if (edit)
+    {
+        let file = ''
+        switch (scout_mode)
+        {
+            case MATCH_MODE:
+                file = get_match_result(match_num, team_num, event_id)
+                break
+            case PIT_MODE:
+                file = get_pit_result(team_num, event_id)
+                break
+        }
+        edit = file_exists(file)
+        if (edit)
+        {
+            results = JSON.parse(localStorage.getItem(file))
+        }
+        else
+        {
+            console.log(`Existing result, ${file}, could not be found`)
+        }
+    }
+
+    // build the page from config for the desired mode
+    switch (scout_mode)
+    {
+        case PIT_MODE:
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
+            break
+        case MATCH_MODE:
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num}</span>`
+            break
+    }
+    ws(team_num)
+    build_page_from_config(scout_mode)
+    if (generate == 'random')
+    {
+        generate_results()
+    }
+}
 
 /** 
  * function:    build_page_from_config
@@ -21,18 +88,18 @@ function build_page_from_config()
 {
     var select_ids = []
     // iterate through each page in the mode
-    config.pages.forEach(function (page, index)
+    for (let page of config.pages)
     {
         var page_name = page.name
         columns = []
         // iterate through each column in the page
-        page['columns'].forEach(function (column, index)
+        for (let column of page.columns)
         {
             var col_name = column.name
             let cycle = column.cycle
             items = []
             // iterate through input in the column
-            column['inputs'].forEach(function (input, index)
+            for (let input of column.inputs)
             {
                 var name = input.name
                 var id = input.id
@@ -100,7 +167,7 @@ function build_page_from_config()
                         break
                 }
                 items.push(item)
-            })
+            }
             if (cycle)
             {
                 // create cycle counter, call update_cycle() on change
@@ -124,18 +191,18 @@ function build_page_from_config()
                 }
             }
             columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
-        })
+        }
         document.body.innerHTML += build_page_frame(page_name, columns)
         
-    })
+    }
     // replace placeholders in template and add to screen
     document.body.innerHTML += build_button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
 
     // mark each selected box as such
-    select_ids.forEach(function (id, index)
+    for (let id of select_ids)
     {
         document.getElementById(id).classList.add('selected')
-    })
+    }
 
     // populate first cycles into inputs
     if (edit)
@@ -163,15 +230,15 @@ function update_cycle(cycle, decrement)
     let cycle_result = {}
 
     // iterate through each column in the page
-    config.pages.forEach(function (page)
+    for (let page of config.pages)
     {
         // iterate through each column in the page
-        page['columns'].forEach(function (column)
+        for (let column of page.columns)
         {
             if (column.id == cycle)
             {
                 // populate/save each input in the cycle
-                column['inputs'].forEach(function (input)
+                for (let input of column.inputs)
                 {
                     // only multicounter, select, and dropdown are supported in cycles
                     let type = input.type
@@ -204,7 +271,8 @@ function update_cycle(cycle, decrement)
                             }
                             break
                         case 'multicounter':
-                            ops.forEach(function (op) {
+                            for (let op of ops)
+                            {
                                 let op_id = `${id}_${op.toLowerCase().split().join('_')}`
                                 if (!decrement)
                                 {
@@ -215,7 +283,7 @@ function update_cycle(cycle, decrement)
                                 {
                                     document.getElementById(`${op_id}-value`).innerHTML = cycles[cycle][val][op_id]
                                 }
-                            })
+                            }
                             break
                         case 'counter':
                             if (!decrement)
@@ -232,10 +300,10 @@ function update_cycle(cycle, decrement)
                             // do nothing, no other inputs allowed
                             break
                     }
-                })
+                }
             }
-        })
-    })
+        }
+    }
 
     // store cycle in appropriate position
     if (val > last)
@@ -276,9 +344,9 @@ function get_results_from_page()
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    config.pages.forEach(function (page, index)
+    for (let page of config.pages)
     {
-        page['columns'].forEach(function (column, index)
+        for (let column of page.columns)
         {
             // check if its a cycle column
             if (column.cycle)
@@ -287,7 +355,7 @@ function get_results_from_page()
             }
             else
             {
-                column['inputs'].forEach(function (input, index)
+                for (let input of column.inputs)
                 {
                     let id = input.id
                     let type = input.type
@@ -302,10 +370,11 @@ function get_results_from_page()
                             results[id] = parseInt(document.getElementById(id).innerHTML)
                             break
                         case 'multicounter':
-                            options.forEach(function (op) {
+                            for (let op of options)
+                            {
                                 let name = `${id}_${op.toLowerCase().split().join('_')}`
                                 results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
-                            })
+                            }
                             break
                         case 'select':
                             results[id] = -1
@@ -334,10 +403,10 @@ function get_results_from_page()
                             results[id] = document.getElementById(id).value
                             break
                     }
-                })
+                }
             }
-        })
-    })
+        }
+    }
 
     // get result name
     let file = get_pit_result(team_num, event_id)
@@ -358,68 +427,6 @@ function get_results_from_page()
     window.location.href = build_url('selection', query)
 }
 
-// read parameters from URL
-const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-
-var urlParams = new URLSearchParams(window.location.search)
-const match_num = urlParams.get('match')
-const team_num = urlParams.get('team')
-const alliance_color = urlParams.get('alliance')
-const generate = urlParams.get('generate')
-var edit = urlParams.get('edit') == 'true'
-var results = {}
-var meta = {}
-
-window.addEventListener('load', function()
-{
-    config = get_scout_config(scout_mode, year)
-    meta = get_result_meta(scout_mode, year)
-
-    if (edit)
-    {
-        let file = ''
-        switch (scout_mode)
-        {
-            case MATCH_MODE:
-                file = get_match_result(match_num, team_num, event_id)
-                break
-            case PIT_MODE:
-                file = get_pit_result(team_num, event_id)
-                break
-        }
-        edit = file_exists(file)
-        if (edit)
-        {
-            results = JSON.parse(localStorage.getItem(file))
-        }
-        else
-        {
-            console.log(`Existing result, ${file}, could not be found`)
-        }
-    }
-
-    // build the page from config for the desired mode
-    switch (scout_mode)
-    {
-        case PIT_MODE:
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
-            break
-        case MATCH_MODE:
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num}</span>`
-            break
-    }
-    ws(team_num)
-    build_page_from_config(scout_mode)
-    if (generate == 'random')
-    {
-        generate_results()
-    }
-})
-
 /**
  * function:    generate_results
  * parameters:  none
@@ -428,9 +435,9 @@ window.addEventListener('load', function()
  */
 function generate_results()
 {
-    config.pages.forEach(function (page, index)
+    for (let page of config.pages)
     {
-        page['columns'].forEach(function (column, index)
+        for (let column of page.columns)
         {
             // check if its a cycle column
             if (column.cycle)
@@ -453,6 +460,10 @@ function generate_results()
                                 c[`${id}_${op.toLowerCase().split().join('_')}`] = random_int()
                             }
                         }
+                        else if (type == 'counter')
+                        {
+                            c[id] = random_int()
+                        }
                         else
                         {
                             c[id] = random_int(0, ops.length-1)
@@ -465,7 +476,7 @@ function generate_results()
             }
             else
             {
-                column['inputs'].forEach(function (input, index)
+                for (let input of column.inputs)
                 {
                     var id = input.id
                     var type = input.type
@@ -480,10 +491,11 @@ function generate_results()
                             document.getElementById(id).innerHTML = random_int()
                             break
                         case 'multicounter':
-                            options.forEach(function (op) {
+                            for (let op of options)
+                            {
                                 let name = `${id}_${op.toLowerCase().split().join('_')}`
                                 document.getElementById(`${name}-value`).innerHTML = random_int()
-                            })
+                            }
                             break
                         case 'select':
                             select_option(id, random_int(0, options.length - 1))
@@ -513,8 +525,8 @@ function generate_results()
                             document.getElementById(id).value = "This result was randomly generated"
                             break
                     }
-                })
+                }
             }
-        })
-    })
+        }
+    }
 }
