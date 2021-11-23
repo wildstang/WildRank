@@ -228,7 +228,7 @@ function import_all()
                 // get requested results for current event
                 console.log(data)
                 let results = data.split(',').filter(function (r) {
-                    return r.includes(get_event()) && localStorage.getItem(r.replace('.json', '')) === null
+                    return r.includes(get_event()) && !file_exists(r.replace('.json', ''))
                 })
                 console.log(results)
                 status(`${results.length} ${get_selected_type()} results found`)
@@ -340,7 +340,7 @@ function import_zip(event)
             let type = n.split('-')[0]
 
             // only import JSON files for the current event
-            if (parts[1] == 'json' && n.includes(get_event()))
+            if (parts[1] == 'json' && n.includes(get_event()) && !file_exists(n))
             {
                 // get blob of files text
                 zip.file(name).async('blob').then(function (content) {
