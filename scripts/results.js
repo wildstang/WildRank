@@ -99,7 +99,11 @@ function open_option(name)
             table += '<th>Entry</th><th>Pit Value</th><th>Event Average</th>'//<th>Scouter Average</th>'
             break
     }
-    table += '</tr><tr><th>Total Results</th><td>1</td>'
+    table += '</tr>'
+    if (type != NOTE_MODE)
+    {
+        table +='<tr><th>Total Results</th><td>1</td>'
+    }
 
     switch (type)
     {
@@ -111,9 +115,7 @@ function open_option(name)
             table += `<td>${Object.keys(team_results).length}</td><td>${Object.keys(match_results).length}</td>`
         case PIT_MODE:
             scouter_results = get_scouter_results(results, results[name]['meta_scouter_id'])
-            table += `<td>${Object.keys(results).length}</td>`//<td>${Object.keys(scouter_results).length}</td>`
-        case NOTE_MODE:
-            table += '</tr>'
+            table += `<td>${Object.keys(results).length}</td></tr>`//<td>${Object.keys(scouter_results).length}</td>`
     }
 
     let result = results[name]
@@ -123,7 +125,18 @@ function open_option(name)
         if (!entry.startsWith('meta_'))
         {
             let val = result[entry]
-            table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${meta[entry].name}</th><td class="result_cell">${get_value(meta, entry, val)}</td>`
+            let name = ''
+            let value = val
+            if (type == NOTE_MODE && entry == 'notes')
+            {
+                name = 'Note'
+            }
+            else
+            {
+                name = meta[entry].name
+                value = get_value(meta, entry, val)
+            }
+            table += `<tr><th id="${entry}" onclick="sort_results('${entry}'); build_result_list()">${name}</th><td class="result_cell">${value}</td>`
             if (typeof team_results !== 'undefined')
             {
                 table += make_cell(team_results, entry, val)
