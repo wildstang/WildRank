@@ -226,13 +226,29 @@ function build_result_list(new_team=false)
     }
     let labels = {}
     let filter = document.getElementById('team_filter')
-    let team = type == MATCH_MODE ? filter.options[filter.selectedIndex].text : 'All'
+    let team = type != PIT_MODE ? filter.options[filter.selectedIndex].text : 'All'
     for (let file of Object.keys(results))
     {
         let parts = file.split('-')
         if (team == 'All' || team == parts[parts.length-1])
         {
-            labels[file] = file.substr(prefix.length).replace('-', ': ')
+            parts = file.substr(prefix.length).split('-')
+            let team = parts[parts.length-1]
+            let op = team
+            if (parts.length == 2)
+            {
+                // make all team numbers evenly spaced after match number
+                if (team < 100)
+                {
+                    team = `&nbsp;&nbsp;${team}`
+                }
+                else if (team < 1000)
+                {
+                    team = `&nbsp;${team}`
+                }
+                op = `${parts[0]}: ${team}`
+            }
+            labels[file] = op
         }
     }
     let first = populate_other(labels)
