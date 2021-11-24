@@ -257,8 +257,9 @@
 					"id":"match_teleop",
 					"columns":[
 						{
-							"name":"Shooting",
-							"id":"match_teleop_shooting",
+							"name":"Cycle Test",
+							"id":"match_teleop_cycle",
+							"cycle":true,
 							"inputs":[
 								{
 									"name":"Accumulated From",
@@ -269,18 +270,11 @@
 										"Ground"
 									],
 									"default":0
-								}
-							]
-						},
-						{
-							"name":"Cycle Test",
-							"id":"match_teleop_cycle",
-							"cycle":true,
-							"inputs":[
+								},
 								{
 									"name":"Shooting Location",
 									"id":"match_teleop_cycle_loc",
-									"type":"select",
+									"type":"dropdown",
 									"options":[
 										"Trench",
 										"Wall",

@@ -15,9 +15,28 @@ function has_keys(obj, keys)
 {
     for (let key of keys)
     {
-        if (!obj || !obj.hasOwnProperty(key))
+        if (!obj || !obj.hasOwnProperty(key) || obj[key] === '')
         {
             console.log('missing', key)
+            return false
+        }
+    }
+    return true
+}
+
+/**
+ * function:    not_empty
+ * parameters:  object, required keys
+ * returns:     true if key is not empty
+ * description: Determines if a given object's are not empty.
+ */
+function not_empty(obj, keys)
+{
+    for (let key of keys)
+    {
+        if (obj[key] === '')
+        {
+            console.log(key, 'empty')
             return false
         }
     }
@@ -89,7 +108,7 @@ function validate_coach_config(config)
     }
     for (let obj of config)
     {
-        if (!has_keys(obj, ['function', 'key']))
+        if (!has_keys(obj, ['function', 'key']), !not_empty(obj, ['function', 'key']))
         {
             console.log('missing key')
             return false
@@ -119,7 +138,7 @@ function validate_smart_config(config)
     }
     for (let obj of config)
     {
-        if (!has_keys(obj, ['id', 'type', 'name']))
+        if (!has_keys(obj, ['id', 'type', 'name']), !not_empty(obj, ['name', 'id', 'type']))
         {
             console.log('missing key')
             return false
@@ -129,12 +148,12 @@ function validate_smart_config(config)
             console.log('missing key')
             return false
         }
-        if (is_in(obj.type, ['percent', 'ratio']) && !has_keys(obj, ['numerator', 'denominator']))
+        if (is_in(obj.type, ['percent', 'ratio']) && !has_keys(obj, ['numerator', 'denominator']), !not_empty(obj, ['numerator', 'denominator']))
         {
             console.log('missing key')
             return false
         }
-        if (obj.type == 'where' && !has_keys(obj, ['cycle', 'conditions']))
+        if (obj.type == 'where' && !has_keys(obj, ['cycle', 'conditions']), !not_empty(obj, ['cycle']))
         {
             console.log('missing key')
             return false
@@ -233,7 +252,7 @@ function validate_theme_config(config)
  */
 function validate_scout_config(mode)
 {
-    if (!has_keys(mode, ['name', 'id', 'pages']))
+    if (!has_keys(mode, ['name', 'id', 'pages']), !not_empty(mode, ['name', 'id']))
     {
         console.log('missing mode key')
         return false
@@ -245,21 +264,21 @@ function validate_scout_config(mode)
     }
     for (let page of mode.pages)
     {
-        if (!has_keys(page, ['name', 'short', 'id', 'columns']))
+        if (!has_keys(page, ['name', 'short', 'id', 'columns']), !not_empty(page, ['name', 'short', 'id']))
         {
             console.log('missing page key')
             return false
         }
         for (let column of page.columns)
         {
-            if (!has_keys(column, ['name', 'id', 'inputs']))
+            if (!has_keys(column, ['name', 'id', 'inputs']), !not_empty(column, ['name', 'id']))
             {
                 console.log('missing column key')
                 return false
             }
             for (let input of column.inputs)
             {
-                if (!has_keys(input, ['name', 'id', 'type', 'default']))
+                if (!has_keys(input, ['name', 'id', 'type', 'default']), !not_empty(input, ['name', 'id', 'type']))
                 {
                     console.log('missing input key')
                     return false
