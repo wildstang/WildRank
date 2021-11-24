@@ -64,10 +64,11 @@ function build_page()
                                     build_str_entry('new-element-id', 'ID:')]),
             build_column_frame('', ['<div id="options"></div>'])
         ]) +
+        build_page_frame('', [], false, 'preview') +
         build_page_frame('', [
             build_column_frame('', [build_button('new-element-apply', 'Apply Config', 'save_config()')]),
             build_column_frame('', [build_button('new-element-download', 'Download Config', 'download_config()')]),
-            build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG')])
+            build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG; populate_dropdowns()')])
         ])
 
     populate_dropdowns()
@@ -114,6 +115,7 @@ function populate_dropdowns(changed='mode')
     }
 
     populate_options()
+    build_page_from_config(config[mode])
 }
 
 /** 
@@ -254,10 +256,35 @@ function create_element(changed='mode')
             config[mode].pages[page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
         }
     }
+
+    // preserve change for after populate_dropdowns
+    let add_page = ''
+    let add_col = ''
+    if (page.value == 'New' && name !== '')
+    {
+        add_page = name
+    }
+    else if (column.value == 'New' && name !== '')
+    {
+        add_col = name
+    }
     
     // restore old config if invalid
     if (validate_scout_config(config[0]) && validate_scout_config(config[1]))
     {
+        // populate to add to dropdown
+        populate_dropdowns()
+
+        if (add_page !== '')
+        {
+            page.value = add_page
+        }
+        else if (add_col !== '')
+        {
+            column.value = add_col
+        }
+
+        // populate again to update preview and options
         populate_dropdowns()
     }
     else
@@ -311,4 +338,101 @@ function download_config()
     element.click()
 
     document.body.removeChild(element)
+}
+
+/** 
+ * function:    build_page_from_config
+ * parameters:  none
+ * returns:     none
+ * description: Builds the page from the config file and the given mode.
+ */
+function build_page_from_config(config)
+{
+    document.getElementById('preview').innerHTML = ''
+    let select_ids = []
+    // iterate through each page in the mode
+    for (let page of config.pages)
+    {
+        let selected_page = document.getElementById('new-element-page').value
+        let page_name = page.name
+        if (selected_page == page_name || selected_page == 'New' || selected_page == '')
+        {
+            columns = []
+            // iterate through each column in the page
+            for (let column of page.columns)
+            {
+                let selected_col = document.getElementById('new-element-column').value
+                let col_name = column.name
+                if (selected_col == col_name || selected_col == 'New' || selected_col == '')
+                {
+                    let cycle = column.cycle
+                    items = []
+                    // iterate through input in the column
+                    for (let input of column.inputs)
+                    {
+                        let name = input.name
+                        let id = input.id
+                        let type = input.type
+                        let default_val = input.default
+                        let options = input['options']
+        
+                        let item = ''
+                        // build each input from its template
+                        switch (type)
+                        {
+                            case 'checkbox':
+                                if (default_val)
+                                {
+                                    select_ids.push(`${id}-container`)
+                                }
+                                item = build_checkbox(id, name, default_val)
+                                break
+                            case 'counter':
+                                item = build_counter(id, name, default_val)
+                                break
+                            case 'multicounter':
+                                item = build_multi_counter(id, name, options, default_val)
+                                break
+                            case 'select':
+                                item = build_select(id, name, options, default_val)
+                                break
+                            case 'dropdown':
+                                item = build_dropdown(id, name, options, default_val)
+                                break
+                            case 'string':
+                                item = build_str_entry(id, name, default_val)
+                                break
+                            case 'number':
+                                item = build_num_entry(id, name, default_val, options)
+                                break
+                            case 'slider':
+                                let step = 1
+                                if (options.length >= 3)
+                                {
+                                    step = options[3]
+                                }
+                                item = build_slider(id, name, options[0], options[1], step, default_val)
+                                break
+                            case 'text':
+                                item = build_text_entry(id, name, default_val)
+                                break
+                        }
+                        items.push(item)
+                    }
+                    if (cycle)
+                    {
+                        items.push(build_counter(`${column.id}_cycles`, 'Cycles', 0))
+                    }
+                    columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
+                }
+            }
+            document.getElementById('preview').innerHTML += build_page_frame(page_name, columns) 
+        }
+    }
+
+    // mark each selected box as such
+    for (let id of select_ids)
+    {
+        document.getElementById(id).classList.add('selected')
+    }
 }
