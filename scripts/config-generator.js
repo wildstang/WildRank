@@ -92,7 +92,7 @@ function populate_dropdowns(changed='mode')
     document.getElementById('new-element-name').value = ''
     document.getElementById('new-element-id').value = ''
     
-    page.innerHTML = config[mode].pages.map(p => build_dropdown_op(p.name, page.value)).join() + build_dropdown_op('New', page.value)
+    page.innerHTML = config[mode].pages.map(p => build_dropdown_op(p.name, page.value)).join('') + build_dropdown_op('New', page.value)
 
     // set other dropdown value appropriately
     if (page.value == 'New')
@@ -102,7 +102,7 @@ function populate_dropdowns(changed='mode')
     }
     else
     {
-        column.innerHTML = config[mode].pages[page.selectedIndex].columns.map(c => build_dropdown_op(c.name, column.value)).join() + build_dropdown_op('New', column.value)
+        column.innerHTML = config[mode].pages[page.selectedIndex].columns.map(c => build_dropdown_op(c.name, column.value)).join('') + build_dropdown_op('New', column.value)
 
         if (column.value == 'New')
         {
@@ -110,12 +110,12 @@ function populate_dropdowns(changed='mode')
         }
         else
         {
-            type.innerHTML = INPUTS.map(i => build_dropdown_op(i, type)).join()
+            type.innerHTML = INPUTS.map(i => build_dropdown_op(i, type)).join('')
         }
     }
 
     populate_options()
-    build_page_from_config(config[mode])
+    build_page_from_config()
 }
 
 /** 
@@ -346,18 +346,24 @@ function download_config()
  * returns:     none
  * description: Builds the page from the config file and the given mode.
  */
-function build_page_from_config(config)
+function build_page_from_config()
 {
-    document.getElementById('preview').innerHTML = ''
+    let mode = document.getElementById('new-element-mode').selectedIndex
+
     let select_ids = []
+    let pages = []
     // iterate through each page in the mode
-    for (let page of config.pages)
+    for (let page of config[mode].pages)
     {
         let selected_page = document.getElementById('new-element-page').value
         let page_name = page.name
         if (selected_page == page_name || selected_page == 'New' || selected_page == '')
         {
-            columns = []
+            let columns = []
+            if (selected_page != page_name)
+            {
+                columns.push(build_multi_button(`${page.id}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${page.id}', 'up')`, `shift('${page.id}', 'rm')`, `shift('${page.id}', 'down')`], 'slim page_header'))
+            }
             // iterate through each column in the page
             for (let column of page.columns)
             {
@@ -366,7 +372,11 @@ function build_page_from_config(config)
                 if (selected_col == col_name || selected_col == 'New' || selected_col == '')
                 {
                     let cycle = column.cycle
-                    items = []
+                    let items = []
+                    if (selected_col != col_name)
+                    {
+                        items.push(build_multi_button(`${column.id}_edit`, '', ['&#9664;', 'X', '&#9654;'], [`shift('${column.id}', 'up')`, `shift('${column.id}', 'rm')`, `shift('${column.id}', 'down')`], 'slim column_header'))
+                    }
                     // iterate through input in the column
                     for (let input of column.inputs)
                     {
@@ -418,6 +428,7 @@ function build_page_from_config(config)
                                 break
                         }
                         items.push(item)
+                        items.push(build_multi_button(`${id}_edit`, '', ['&#9650;', 'X', '&#9660;'], [`shift('${id}', 'up')`, `shift('${id}', 'rm')`, `shift('${id}', 'down')`], 'slim'))
                     }
                     if (cycle)
                     {
@@ -426,13 +437,86 @@ function build_page_from_config(config)
                     columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
                 }
             }
-            document.getElementById('preview').innerHTML += build_page_frame(page_name, columns) 
+            pages.push(build_page_frame(page_name, columns))
         }
     }
+    document.getElementById('preview').innerHTML = pages.join('')
 
     // mark each selected box as such
     for (let id of select_ids)
     {
         document.getElementById(id).classList.add('selected')
     }
+}
+
+/**
+ * function:    shift
+ * parameters:  input id, direction to shift
+ * returns:     none
+ * description: Responds to edit panel clicks by either shifting or removing the corresponding element.
+ */
+function shift(id, direction)
+{
+    // find list and position of id
+    let list = []
+    let i = -1
+    for (let c of config)
+    {
+        for (let p in c.pages)
+        {
+            let page = c.pages[p]
+            if (page.id == id)
+            {
+                list = c.pages
+                i = p
+                break
+            }
+            for (let col in page.columns)
+            {
+                let column = page.columns[col]
+                if (column.id == id)
+                {
+                    list = page.columns
+                    i = col
+                    break
+                }
+                for (let inp in column.inputs)
+                {
+                    let input = column.inputs[inp]
+                    if (input.id == id)
+                    {
+                        list = column.inputs
+                        i = inp
+                        break
+                    }
+                }
+            }
+        }
+    }
+    i = parseInt(i)
+
+    // swap or remove
+    switch (direction)
+    {
+        case 'up':
+        case 'left':
+            if (i > 0)
+            {
+                [list[i-1], list[i]] = [list[i], list[i-1]]
+            }
+            break
+        case 'down':
+        case 'right':
+            if (i < list.length - 1)
+            {
+                [list[i], list[i+1]] = [list[i+1], list[i]]
+            }
+            break
+        case 'rm':
+            list.splice(i, 1)
+            break
+    }
+
+    // rebuild preview
+    build_page_from_config()
 }
