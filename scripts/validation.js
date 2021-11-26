@@ -99,13 +99,14 @@ function validate_defaults_config(config)
  * returns:     true if valid
  * description: Determines if a given coach config is valid.
  */
-function validate_coach_config(config)
+function validate_coach_config(config, year)
 {
     if (!Array.isArray(config))
     {
         console.log('invalid coach format')
         return false
     }
+    let keys = Object.keys(get_result_meta(MATCH_MODE, year))
     for (let obj of config)
     {
         if (!has_keys(obj, ['function', 'key']), !not_empty(obj, ['function', 'key']))
@@ -118,7 +119,11 @@ function validate_coach_config(config)
             console.log('invalid function')
             return false
         }
-        // TODO check that key is valid from match scouting config
+        if (!is_in(obj.key, keys))
+        {
+            console.log('invalid key')
+            return false
+        }
     }
     return true
 }

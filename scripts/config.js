@@ -232,10 +232,10 @@ function get_result_meta(mode, year)
 }
 
 /**
- * function:    get_result_meta
- * parameters:  year, scouting mode
- * returns:     key, metadata pairs
- * description: Builds an object of scouting result keys and their metadata.
+ * function:    get_keys
+ * parameters:  result metadata object
+ * returns:     list of non-cycle key names
+ * description: Returns a list of keys belonging to the given meta object which are not in a cycle.
  */
 function get_keys(meta)
 {
