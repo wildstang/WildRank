@@ -1,227 +1,207 @@
 {
-    "settings": {
-        "title": "WildRank",
-        "time_format": 24,
-        "use_images": true
-    },
-    "defaults": {
-        "event_id": "2020ilch",
-        "upload_url": "http://localhost",
-        "user_id": 715138
-    },
-    "coach-vals": [
-        {
-            "function":"mean",
-            "key":"smart_teleop_cycle_upper"
-        },
-        {
-            "function":"min",
-            "key":"smart_teleop_cycle_trench"
-        },
-        {
-            "function":"max",
-            "key":"smart_teleop_accum_ratio"
-        },
-        {
-            "function":"median",
-            "key":"smart_auto_accuracy"
-        },
-        {
-            "function":"mode",
-            "key":"match_teleop_cp_spin"
-        }
-    ],
-    "smart-stats": [
-        {
-            "id": "smart_teleop_accum_total",
-            "name": "Total Accumulated",
-            "type": "sum",
-            "keys": ["match_teleop_accum_upperls", "match_teleop_accum_ground"]
-        },
-        {
-            "id": "smart_auto_accuracy",
-            "name": "Auto Shooting Accuracy",
-            "type": "percent",
-            "numerator": "match_auto_shooting_upper_score",
-            "denominator": "match_auto_shooting_upper_miss"
-        },
-        {
-            "id": "smart_teleop_accum_ratio",
-            "name": "Ground vs Upper LS",
-            "type": "ratio",
-            "numerator": "match_teleop_accum_ground",
-            "denominator": "match_teleop_accum_upperls"
-        },
-        {
-            "id": "smart_teleop_cycle_upper",
-            "name": "Upper Goal Cycles",
-            "type": "where",
-            "cycle": "match_teleop_cycle",
-            "conditions": {
-                "match_teleop_cycle_goal": "Upper"
-            }
-        },
-        {
-            "id": "smart_teleop_cycle_trench",
-            "name": "Trench Upper Goals",
-            "type": "where",
-            "cycle": "match_teleop_cycle",
-            "sum": "match_teleop_cycle_shots_score",
-            "conditions": {
-                "match_teleop_cycle_goal": "Upper",
-                "match_teleop_cycle_loc": "Trench"
-            }
-        }
-    ],
-    "whiteboard": [
-        {
-            "year": "2020",
-            "red_1": {
-                "x": 125,
-                "y": 63,
-                "color": "#FF4136"
-            },
-            "red_2": {
-                "x": 125,
-                "y": 188,
-                "color": "#FF4136"
-            },
-            "red_3": {
-                "x": 125,
-                "y": 313,
-                "color": "#FF4136"
-            },
-            "blue_1": {
-                "x": 575,
-                "y": 63,
-                "color": "#0074D9"
-            },
-            "blue_2": {
-                "x": 575,
-                "y": 188,
-                "color": "#0074D9"
-            },
-            "blue_3": {
-                "x": 575,
-                "y": 313,
-                "color": "#0074D9"
-            },
-            "game_pieces": [
-                {
-                    "name": "Power Cell",
-                    "image": "power_cell.png"
-                }
-            ],
-            "draw_color": "#FFFFFF",
-            "field_width": 750,
-            "field_height": 400,
-            "magnet_size": 50,
-            "line_width": 3,
-            "horizontal_margin": 36,
-            "vertical_margin": 24,
-            "field_height_ft": 27,
-            "field_height_px": 347
-        },
-        {
-            "year": "2019",
-            "red_1": {
-                "x": 50,
-                "y": 50,
-                "color": "#FF4136"
-            },
-            "red_2": {
-                "x": 50,
-                "y": 175,
-                "color": "#FF4136"
-            },
-            "red_3": {
-                "x": 50,
-                "y": 300,
-                "color": "#FF4136"
-            },
-            "blue_1": {
-                "x": 650,
-                "y": 50,
-                "color": "#0074D9"
-            },
-            "blue_2": {
-                "x": 650,
-                "y": 175,
-                "color": "#0074D9"
-            },
-            "blue_3": {
-                "x": 650,
-                "y": 300,
-                "color": "#0074D9"
-            },
-            "game_pieces": [
-                {
-                    "name": "Cargo",
-                    "image": "cargo.png"
-                },
-                {
-                    "name": "Hatch Panel",
-                    "image": "hatch_panel.png"
-                }
-            ],
-            "draw_color": "#FFFFFF",
-            "field_width": 750,
-            "field_height": 400,
-            "magnet_size": 50,
-            "line_width": 3,
-            "horizontal_margin": 36,
-            "vertical_margin": 24,
-            "field_height_ft": 27,
-            "field_height_px": 347
-        }
-    ],
-    "admins": [715138],
-    "theme": {
-        "primary-color": "#000080",
-        "primary-text-color": "#FFFFFF",
-        "secondary-color": "#FFB30F",
-        "secondary-text-color": "#000000",
-        "background-color": "#F0F0F0",
-        "background-text-color": "#000000",
-        "foreground-color": "#FFFFFF",
-        "foreground-text-color": "#000000",
-        "active-color": "#1E90FF",
-        "active-text-color": "#FFFFFF",
-        "disabled-color": "#F0F0F0",
-        "disabled-text-color": "#000000",
-        "hover-color": "#ADD8E6",
-        "hover-text-color": "#000000",
-        "border-color": "#000000",
-        "inactive-color": "#C0C0C0",
-        "inactive-text-color": "#FFFFFF",
-        "red-alliance-color": "#FF4136",
-        "blue-alliance-color": "#0074D9",
-        "green-alliance-color": "#2ECC40",
-        "alt-table-color": "#F2F2F2",
-        "font": "mono, courier"
-    },
-    "dark-theme": {
-        "primary-color": "#000080",
-        "primary-text-color": "#F0F0F0",
-        "secondary-color": "#FFB30F",
-        "secondary-text-color": "#000000",
-        "background-color": "#121212",
-        "background-text-color": "#F0F0F0",
-        "foreground-color": "#1F1A24",
-        "foreground-text-color": "#F0F0F0",
-        "disabled-color": "#121212",
-        "disabled-text-color": "#F0F0F0",
-        "active-color": "#BB86FC",
-        "active-text-color": "#F0F0F0",
-        "hover-color": "#332940",
-        "hover-text-color": "#F0F0F0",
-        "border-color": "#000000",
-        "inactive-color": "#332940",
-        "inactive-text-color": "#F0F0F0",
-        "red-alliance-color": "#FF4136",
-        "blue-alliance-color": "#0074D9",
-        "green-alliance-color": "#2ECC40",
-        "alt-table-color": "#332940",
-        "font": "mono, courier"
-    }
+	"settings": {
+		"title": "WildRank",
+		"time_format": 24,
+		"use_images": true
+	},
+	"defaults": {
+		"event_id": "2020ilch",
+		"upload_url": "http://localhost",
+		"user_id": 715138
+	},
+	"coach-vals": [{
+		"function": "mean",
+		"key": "smart_teleop_cycle_upper"
+	}, {
+		"function": "min",
+		"key": "smart_teleop_cycle_trench"
+	}, {
+		"function": "max",
+		"key": "smart_teleop_accum_ratio"
+	}, {
+		"function": "median",
+		"key": "smart_auto_accuracy"
+	}, {
+		"function": "mode",
+		"key": "match_teleop_cp_spin"
+	}],
+	"smart-stats": [{
+		"id": "smart_teleop_accum_total",
+		"name": "Total Accumulated",
+		"type": "sum",
+		"keys": ["match_teleop_accum_upperls", "match_teleop_accum_ground"]
+	}, {
+		"id": "smart_auto_accuracy",
+		"name": "Auto Shooting Accuracy",
+		"type": "percent",
+		"numerator": "match_auto_shooting_upper_score",
+		"denominator": "match_auto_shooting_upper_miss"
+	}, {
+		"id": "smart_teleop_accum_ratio",
+		"name": "Ground vs Upper LS",
+		"type": "ratio",
+		"numerator": "match_teleop_accum_ground",
+		"denominator": "match_teleop_accum_upperls"
+	}, {
+		"id": "smart_teleop_cycle_upper",
+		"name": "Upper Goal Cycles",
+		"type": "where",
+		"cycle": "match_teleop_cycle",
+		"conditions": {
+			"match_teleop_cycle_goal": "Upper"
+		}
+	}, {
+		"id": "smart_teleop_cycle_trench",
+		"name": "Trench Upper Goals",
+		"type": "where",
+		"cycle": "match_teleop_cycle",
+		"sum": "match_teleop_cycle_shots_score",
+		"conditions": {
+			"match_teleop_cycle_goal": "Upper",
+			"match_teleop_cycle_loc": "Trench"
+		}
+	}],
+	"whiteboard": [{
+		"year": "2020",
+		"red_1": {
+			"x": 125,
+			"y": 63,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 125,
+			"y": 188,
+			"color": "#FF4136"
+		},
+		"red_3": {
+			"x": 125,
+			"y": 313,
+			"color": "#FF4136"
+		},
+		"blue_1": {
+			"x": 575,
+			"y": 63,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 575,
+			"y": 188,
+			"color": "#0074D9"
+		},
+		"blue_3": {
+			"x": 575,
+			"y": 313,
+			"color": "#0074D9"
+		},
+		"game_pieces": [{
+			"name": "Power Cell",
+			"image": "power_cell.png"
+		}],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 36,
+		"vertical_margin": 24,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}, {
+		"year": "2019",
+		"red_1": {
+			"x": 50,
+			"y": 50,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 50,
+			"y": 175,
+			"color": "#FF4136"
+		},
+		"red_3": {
+			"x": 50,
+			"y": 300,
+			"color": "#FF4136"
+		},
+		"blue_1": {
+			"x": 650,
+			"y": 50,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 650,
+			"y": 175,
+			"color": "#0074D9"
+		},
+		"blue_3": {
+			"x": 650,
+			"y": 300,
+			"color": "#0074D9"
+		},
+		"game_pieces": [{
+			"name": "Cargo",
+			"image": "cargo.png"
+		}, {
+			"name": "Hatch Panel",
+			"image": "hatch_panel.png"
+		}],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 36,
+		"vertical_margin": 24,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}],
+	"admins": [715138],
+	"theme": {
+		"primary-color": "#000080",
+		"primary-text-color": "#FFFFFF",
+		"secondary-color": "#FFB30F",
+		"secondary-text-color": "#000000",
+		"background-color": "#F0F0F0",
+		"background-text-color": "#000000",
+		"foreground-color": "#FFFFFF",
+		"foreground-text-color": "#000000",
+		"active-color": "#1E90FF",
+		"active-text-color": "#FFFFFF",
+		"disabled-color": "#F0F0F0",
+		"disabled-text-color": "#000000",
+		"hover-color": "#ADD8E6",
+		"hover-text-color": "#000000",
+		"border-color": "#000000",
+		"inactive-color": "#C0C0C0",
+		"inactive-text-color": "#FFFFFF",
+		"red-alliance-color": "#FF4136",
+		"blue-alliance-color": "#0074D9",
+		"green-alliance-color": "#2ECC40",
+		"alt-table-color": "#F2F2F2",
+		"font": "mono, courier"
+	},
+	"dark-theme": {
+		"primary-color": "#000080",
+		"primary-text-color": "#F0F0F0",
+		"secondary-color": "#FFB30F",
+		"secondary-text-color": "#000000",
+		"background-color": "#121212",
+		"background-text-color": "#F0F0F0",
+		"foreground-color": "#1F1A24",
+		"foreground-text-color": "#F0F0F0",
+		"disabled-color": "#121212",
+		"disabled-text-color": "#F0F0F0",
+		"active-color": "#BB86FC",
+		"active-text-color": "#F0F0F0",
+		"hover-color": "#332940",
+		"hover-text-color": "#F0F0F0",
+		"border-color": "#000000",
+		"inactive-color": "#332940",
+		"inactive-text-color": "#F0F0F0",
+		"red-alliance-color": "#FF4136",
+		"blue-alliance-color": "#0074D9",
+		"green-alliance-color": "#2ECC40",
+		"alt-table-color": "#332940",
+		"font": "mono, courier"
+	}
 }
