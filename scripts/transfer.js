@@ -175,9 +175,8 @@ async function upload_all()
         for (let file of Object.keys(localStorage))
         {
             // determine files which start with the desired type
-            if (file.startsWith(`${type}-`) || (type == 'pit' && file.startsWith(`image-${get_event()}-`)))
+            if (file.startsWith(`${type}-`))
             {
-                // TODO don't overwrite higher resolution images
                 let content = localStorage.getItem(file)
                 // append file name to data, separated by '|||'
                 upload = `${file}|||${content}`
@@ -512,46 +511,4 @@ function export_spreadsheet(event_id)
         lines.push(values.join())
     })
     return lines.join('\n').replace(/,NaN/g, ',')
-}
-
-/**
- * function:    check_server
- * parameters:  Server address, whether to notify on error
- * returns:     If the server is the custom Python web server.
- * description: Determines if the server is the custom Python web server, if it is not alerts the user.
- */
-function check_server(server, notify=true)
-{
-    try
-    {
-        // send request to /about
-        let check_addr = `${parse_server_addr(server)}/about`
-        var req = new XMLHttpRequest()
-        req.open('GET', check_addr, false)
-        req.send(null)
-
-        // confirm Python server
-        if (req.responseText.includes('POST server'))
-        {
-            return true
-        }
-        else
-        {
-            console.log('Feature is only supported on Python server.')
-            if (notify)
-            {
-                alert('This server does not support this feature!')
-            }
-            return false
-        }
-    }
-    catch (e)
-    {
-        console.log('Unable to communicate with this server.')
-        if (notify)
-        {
-            alert('Unable to find a compatible server!')
-        }
-        return false
-    }
 }

@@ -6,13 +6,14 @@
  */
 
 const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
-const CONFIG_NAMES = ['config-settings', 'config-defaults', 'config-admins', /*'config-theme', 'config-dark-theme',*/ 'config-coach-vals', 'config-whiteboard']
+const CONFIG_NAMES = ['config-settings', 'config-defaults', 'config-admins', 'config-coach-vals', 'config-whiteboard']
+const MISSING_CONFIGS = ['config-theme', 'config-dark-theme', 'config-smart-stats']
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
-var keys = []
+var meta = {}
 
 /**
  * function:    init_page
@@ -24,7 +25,7 @@ function init_page()
 {
     document.getElementById('header_info').innerHTML = `Settings`
     document.body.innerHTML += '<div id="body"></div>'
-    keys = Object.keys(get_result_meta(MATCH_MODE, year))
+    meta = get_result_meta(MATCH_MODE, year)
     build_page()
 }
 
@@ -38,6 +39,7 @@ function build_column(file, config)
 {
     let inputs = []
     let keys = Object.keys(config)
+    let input_keys = Object.keys(meta).map(k => meta[k].name)
     for (let index in keys)
     {
         let key = keys[index]
@@ -72,7 +74,7 @@ function build_column(file, config)
             let func = val.function
             func = func.substr(0, 1).toUpperCase() + func.substr(1)
             inputs.push(build_select(`${id}_fn_${index}`, 'Function', FUNCTIONS, func))
-            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', keys, val.key))
+            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', input_keys, meta[val.key].name))
         }
     }
     if (file == 'config-coach-vals')
@@ -122,8 +124,8 @@ function build_page()
     }
     document.getElementById('body').innerHTML = build_page_frame('', columns) + build_page_frame('Save', [
         build_column_frame('', [build_button('reset-config', 'Reset Changes', 'build_page()')]),
-        build_column_frame('', [build_button('save-config', 'Save', 'save_config()')]),
-        build_column_frame('', [build_button('apply-config', 'Apply', 'apply_config()')])
+        build_column_frame('', [build_button('save-config', 'Download Config', 'save_config()')]),
+        build_column_frame('', [build_button('apply-config', 'Apply Config', 'apply_config()')])
     ])
 }
 
@@ -153,11 +155,11 @@ function add_coach()
 function save_config()
 {
     let name = 'config.json'
-    let str = JSON.stringify(build_config_obj())
+    let str = JSON.stringify(build_config_obj(true))
 
     let element = document.createElement('a')
     element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
-    element.setAttribute('download', `config-${name}.json`)
+    element.setAttribute('download', name)
 
     element.style.display = 'none'
     document.body.appendChild(element)
@@ -180,6 +182,16 @@ function apply_config()
     {
         localStorage.setItem(`config-${key}`, JSON.stringify(configs[key]))
     }
+
+    // post string to server
+    configs = build_config_obj(true)
+    let addr = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
+    if (check_server(addr))
+    {
+        let upload = `config.json|||${JSON.stringify(configs)}`
+        fetch(addr, {method: 'POST', body: upload})
+    }
+    
     location.reload()
 }
 
@@ -192,6 +204,7 @@ function apply_config()
 function update_config(file, config)
 {
     let keys = Object.keys(config)
+    let input_keys = Object.keys(meta)
     for (let index in keys)
     {
         let key = keys[index]
@@ -218,11 +231,11 @@ function update_config(file, config)
             }
             config[key] = new_val
         }
-        else if (document.getElementById(`${id}_fn_${index}`))
+        else if (file == 'config-coach-vals')
         {
             config[index] = {
                 function: FUNCTIONS[get_selected_option(`${id}_fn_${index}`)].toLowerCase(),
-                key: keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
+                key: input_keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
             }
         }
     }
@@ -231,14 +244,15 @@ function update_config(file, config)
 
 /** 
  * function:    build_config_obj
- * parameters:  none
+ * parameters:  include missing
  * returns:     config object
  * description: Builds a single object to hold all configs.
  */
-function build_config_obj()
+function build_config_obj(missing=false)
 {
     let configs = {}
-    for (let file of CONFIG_NAMES)
+    let names = CONFIG_NAMES
+    for (let file of names)
     {
         let config = JSON.parse(localStorage.getItem(file))
         if (Array.isArray(config))
@@ -271,6 +285,13 @@ function build_config_obj()
         else
         {
             configs[file.replace('config-', '')] = update_config(file, config)
+        }
+    }
+    if (missing)
+    {
+        for (let file of MISSING_CONFIGS)
+        {
+            configs[file.replace('config-', '')] = JSON.parse(localStorage.getItem(file))
         }
     }
     return configs

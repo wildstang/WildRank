@@ -66,9 +66,9 @@ function build_page()
         ]) +
         build_page_frame('', [], false, 'preview') +
         build_page_frame('', [
-            build_column_frame('', [build_button('new-element-apply', 'Apply Config', 'save_config()')]),
+            build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG; populate_dropdowns()')]),
             build_column_frame('', [build_button('new-element-download', 'Download Config', 'download_config()')]),
-            build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG; populate_dropdowns()')])
+            build_column_frame('', [build_button('new-element-apply', 'Apply Config', 'save_config()')])
         ])
 
     populate_dropdowns()
@@ -310,12 +310,20 @@ function load_config()
  * function:    save_config
  * parameters:  none
  * returns:     none
- * description: Saves the current config to local storage.
+ * description: Saves the current config to local storage and uploads.
  */
 function save_config()
 {
     localStorage.setItem(`config-${year}-pit`, JSON.stringify(config[0]))
     localStorage.setItem(`config-${year}-match`, JSON.stringify(config[1]))
+
+    // post string to server
+    let addr = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
+    if (check_server(addr))
+    {
+        let upload = `scout-config.json|||${JSON.stringify(config)}`
+        fetch(addr, {method: 'POST', body: upload})
+    }
 }
 
 /** 

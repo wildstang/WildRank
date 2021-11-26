@@ -1,5 +1,5 @@
 import socketserver, http.server, logging, base64
-from os import listdir, environ, mkdir
+from os import listdir, environ, mkdir, rename
 from os.path import isfile, join, exists
 from shutil import copyfile
 
@@ -102,17 +102,23 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         if len(upload) > 1:
             file = upload[0]
             content = upload[1]
+            path = UPLOAD_PATH
 
             if 'data:image/png;base64,' in content:
                 file += '.png'
                 content = content.replace('data:image/png;base64,', '')
-                with open(UPLOAD_PATH + file, 'wb') as f:
+                with open(path + file, 'wb') as f:
                     f.write(base64.b64decode(content))
                 return
             elif '.' not in file:
                 file += '.json'
 
-            with open(UPLOAD_PATH + file, 'w') as f:
+            # handle incoming configs by backing up
+            if file.endswith('config.json'):
+                path = 'config/'
+                rename(path + file, path + file + '.bkp')
+
+            with open(path + file, 'w') as f:
                 f.write(content)
 
 # make config if not exists

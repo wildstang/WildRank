@@ -127,7 +127,11 @@ function capture()
         //localStorage.setItem(get_team_image_name(team, event_id), low_res)
         
         // post file to server
-        fetch(get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT), {method: 'POST', body: `${get_team_image_name(team, event_id, true)}|||${full_res}`})
+        let addr = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
+        if (check_server(addr))
+        {
+            fetch(addr, {method: 'POST', body: `${get_team_image_name(team, event_id, true)}|||${full_res}`})
+        }
     }
     else
     {
