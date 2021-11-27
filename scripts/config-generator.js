@@ -42,7 +42,7 @@ document.head.appendChild(s)
 function init_page()
 {
     document.getElementById('header_info').innerHTML = `Config Generator`
-    document.body.innerHTML += '<div id="config-preview"></div><div id="add-item"></div>'
+    document.body.innerHTML += '<div id="add-item"></div>'
     load_config()
     build_page()
 }
@@ -64,7 +64,7 @@ function build_page()
                                     build_str_entry('new-element-id', 'ID:')]),
             build_column_frame('', ['<div id="options"></div>'])
         ]) +
-        build_page_frame('', [], false, 'preview') +
+        '<span id="preview"></span>' +
         build_page_frame('', [
             build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG; populate_dropdowns()')]),
             build_column_frame('', [build_button('new-element-download', 'Download Config', 'download_config()')]),
