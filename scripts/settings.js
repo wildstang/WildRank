@@ -192,6 +192,8 @@ function apply_config()
         fetch(addr, {method: 'POST', body: upload})
     }
     
+    alert('Settings updated')
+    
     location.reload()
 }
 

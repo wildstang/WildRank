@@ -324,6 +324,7 @@ function save_config()
         let upload = `scout-config.json|||${JSON.stringify(config)}`
         fetch(addr, {method: 'POST', body: upload})
     }
+    alert('Scouting config updated')
 }
 
 /** 
