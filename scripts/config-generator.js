@@ -321,7 +321,9 @@ function save_config()
     let addr = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
     if (check_server(addr))
     {
-        let upload = `scout-config.json|||${JSON.stringify(config)}`
+        let contents = {}
+        contents[year] = config
+        let upload = `scout-config.json|||${JSON.stringify(contents)}`
         fetch(addr, {method: 'POST', body: upload})
     }
     alert('Scouting config updated')
@@ -335,7 +337,9 @@ function save_config()
  */
 function download_config()
 {
-    let str = JSON.stringify(config)
+    let contents = {}
+    contents[year] = config
+    let str = JSON.stringify(contents)
 
     let element = document.createElement('a')
     element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
