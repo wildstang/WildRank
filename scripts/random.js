@@ -7,7 +7,6 @@
  */
 
 // read parameters from URL
-const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)

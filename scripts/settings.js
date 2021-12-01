@@ -9,7 +9,6 @@ const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 const CONFIG_NAMES = ['config-settings', 'config-defaults', 'config-admins', 'config-coach-vals', 'config-whiteboard']
 const MISSING_CONFIGS = ['config-theme', 'config-dark-theme', 'config-smart-stats']
 
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
