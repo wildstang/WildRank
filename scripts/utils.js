@@ -736,7 +736,7 @@ function file_exists(filename)
  */
 function ws(team_num)
 {
-    if (team_num == '111')
+    if (team_num == '111' || team_num == '112')
     {
         document.getElementById('header').style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840)'
         document.getElementById('header').style['background-size'] = '3600% 3600%'
