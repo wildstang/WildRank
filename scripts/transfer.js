@@ -124,7 +124,7 @@ function preload_event()
                 console.log(err)
             })
 
-        // fetch simple event teams
+        // fetch event rankings
         fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_KEY]: API_KEY})}`)
             .then(response => {
                 return response.json()
@@ -200,7 +200,8 @@ async function upload_all()
  */
 function import_all()
 {
-    if (check_server(document.location.href))
+    let addr = get_upload_addr()
+    if (check_server(addr))
     {
         // determine appropriate request for selected mode
         let request = ''
@@ -219,7 +220,7 @@ function import_all()
 
         // request list of available results
         status('Requesting local result data...')
-        fetch(request)
+        fetch(`${addr}/${request}`)
             .then(response => {
                 return response.text()
             })
@@ -235,7 +236,7 @@ function import_all()
                 // request each desired result
                 results.forEach(function (file, index)
                 {
-                    fetch(`${get_upload_addr()}/uploads/${file}`)
+                    fetch(`${addr}/uploads/${file}`)
                         .then(response => {
                             return response.json()
                         })
