@@ -100,7 +100,7 @@ function update_params()
             break
         case 'Percent':
         case 'Ratio':
-            let keys = Object.keys(meta).filter(filter_numeric)
+            let keys = Object.keys(meta).filter(filter_numeric).map(k => meta[k].name)
             html += build_dropdown('numerator', 'Numerator', keys, '', 'calculate()')
             html += build_dropdown('denominator', 'Denominator', keys, '', 'calculate()')
             break
@@ -112,7 +112,7 @@ function update_params()
                 cycle = document.getElementById('cycle').value
             }
             let inputs = Object.keys(meta).filter(filter_cycle)
-            let counters = inputs.filter(k => meta[k].type == 'counter')
+            let counters = inputs.filter(k => meta[k].type == 'counter').map(k => meta[k].name)
             let selects = inputs.filter(k => meta[k].type != 'counter')
             html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()')
             for (let s of selects)
@@ -162,14 +162,15 @@ function build_stat()
             break
         case 'Percent':
         case 'Ratio':
-            let numerator = document.getElementById('numerator').value
-            let denominator = document.getElementById('denominator').value
+            let ids = Object.keys(meta).filter(filter_numeric)
+            let numerator = ids[document.getElementById('numerator').selectedIndex]
+            let denominator = ids[document.getElementById('denominator').selectedIndex]
             stat.numerator = numerator
             stat.denominator = denominator
             break
         case 'Where':
             let cycle = document.getElementById('cycle').value
-            let count = document.getElementById('count').value
+            let count = document.getElementById('count').selectedIndex
             let inputs = Object.keys(meta).filter(filter_cycle)
             let counters = inputs.filter(k => meta[k].type == 'counter')
             let selects = inputs.filter(k => meta[k].type != 'counter')
@@ -184,9 +185,9 @@ function build_stat()
             }
             stat.conditions = vals
             stat.cycle = cycle
-            if (count != 'Count')
+            if (count != 0)
             {
-                stat.sum = count
+                stat.sum = counters[count-1]
             }
             break
     }
