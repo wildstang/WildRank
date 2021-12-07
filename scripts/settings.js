@@ -39,6 +39,7 @@ function build_column(file, config)
     let inputs = []
     let keys = Object.keys(config)
     let input_keys = Object.keys(meta).map(k => meta[k].name)
+    input_keys.unshift('')
     for (let index in keys)
     {
         let key = keys[index]
@@ -73,7 +74,12 @@ function build_column(file, config)
             let func = val.function
             func = func.substr(0, 1).toUpperCase() + func.substr(1)
             inputs.push(build_select(`${id}_fn_${index}`, 'Function', FUNCTIONS, func))
-            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', input_keys, meta[val.key].name))
+            let name = ''
+            if (val.key != '')
+            {
+                name = meta[val.key].name
+            }
+            inputs.push(build_dropdown(`${id}_key_${index}`, 'Key', input_keys, name))
         }
     }
     if (file == 'config-coach-vals')
@@ -154,7 +160,24 @@ function add_coach()
 function save_config()
 {
     let name = 'config.json'
-    let str = JSON.stringify(build_config_obj(true))
+    let configs = build_config_obj(true)
+    // find empty items in coach vals
+    let remove = []
+    for (let i in configs['coach-vals'])
+    {
+        let val = configs['coach-vals'][i]
+        if (!val.hasOwnProperty('key') || val.key == '')
+        {
+            remove.push(i)
+        }
+    }
+    // remove empty items from coach vals
+    for (let i = remove.length - 1; i >= 0; --i)
+    {
+        configs['coach-vals'].splice(remove[i], 1)
+    }
+    // save each config to localStorage
+    let str = JSON.stringify(configs)
 
     let element = document.createElement('a')
     element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
@@ -177,6 +200,22 @@ function save_config()
 function apply_config()
 {
     let configs = build_config_obj()
+    // find empty items in coach vals
+    let remove = []
+    for (let i in configs['coach-vals'])
+    {
+        let val = configs['coach-vals'][i]
+        if (!val.hasOwnProperty('key') || val.key == '')
+        {
+            remove.push(i)
+        }
+    }
+    // remove empty items from coach vals
+    for (let i = remove.length - 1; i >= 0; --i)
+    {
+        configs['coach-vals'].splice(remove[i], 1)
+    }
+    // save each config to localStorage
     for (let key of Object.keys(configs))
     {
         localStorage.setItem(`config-${key}`, JSON.stringify(configs[key]))
@@ -206,6 +245,7 @@ function update_config(file, config)
 {
     let keys = Object.keys(config)
     let input_keys = Object.keys(meta)
+    input_keys.unshift('')
     for (let index in keys)
     {
         let key = keys[index]
