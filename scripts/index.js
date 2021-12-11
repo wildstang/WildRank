@@ -39,6 +39,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('open_advanced', 'Advanced Stats', `check_press('open_advanced', open_advanced)`),
         build_link_button('open_pivot', 'Pivot Table', `check_press('open_pivot', open_pivot)`),
         build_link_button('open_distro', 'Distributions', `check_press('open_distro', open_distro)`),
+        build_link_button('open_plot', 'Plots', `check_press('open_plot', open_plot)`),
     ]),
     build_column_frame('Data', [
         build_link_button('open_results', 'Results', `check_press('open_results', open_results)`),
@@ -84,6 +85,7 @@ const BUTTONS = {
     'open_users':       { limits: ['event-pit', 'admin', 'any'], configs: [] },
     'open_pivot':       { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_distro':      { limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_plot':        { limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
     'open_coach':       { limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
     'open_config':      { limits: ['admin'], configs: [] },
     'open_settings':    { limits: ['admin'], configs: ['settings'] },

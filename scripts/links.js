@@ -151,6 +151,17 @@ function open_distro()
 }
 
 /**
+ * function:    open_plot
+ * parameters:  none
+ * returns:     none
+ * description: Open the plot page.
+ */
+function open_plot()
+{
+    return build_url('selection', {'page': 'plot', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
  * function:    open_config
  * parameters:  none
  * returns:     none

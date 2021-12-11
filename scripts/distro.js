@@ -342,7 +342,7 @@ function build_plot()
     ctx.globalCompositeOperation = 'destination-over'
     ctx.clearRect(0, 0, pwidth, pheight)
     
-    let width = (pwidth - 25) / bins;
+    let width = (pwidth - 25) / bins
     let font_size = 16
     
     // draw line to highlight teams
