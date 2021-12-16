@@ -29,9 +29,9 @@ function init_page(contents_card, buttons_container)
     buttons_container.innerHTML = `<br>
         ${build_page_frame('', [
             build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'collect_results(); open_teams()') ]),
-            build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams', 'No Bar'], 'Pair', 'open_teams()') ])
+            build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair', 'open_teams()') ])
         ], false)}<br>
-        <div class="column"><center><div class="wr_card"><table id="compare_tab"></table></div></center></div>`
+        <div class="column"><center><div class="wr_card"><table id="compare_tab" style="text-align:center"></table></div></center></div>`
     
     let [first, second] = populate_teams(false, false, true)
     if (first)
@@ -97,23 +97,13 @@ function collect_results()
         keys.forEach(function (key, index)
         {
             let type = meta[key].type
-            teams[team][key] = avg_results(team_results, key, type, get_selected_option('type_form'))
+
+            teams[team][key] = avg_results(team_results, key, type, get_selected_option('type_form'), meta[key].options)
             stddevs[team][key] = avg_results(team_results, key, type, 5)
         })
     })
 
     return num_results
-}
-
-/**
- * function:    switch_selecting
- * parameters:  none
- * returns:     none
- * description: Changes the team to be selecting.
- */
-function switch_selecting()
-{
-    selecting = get_selected_option('selecting') == 0 ? 'a' : 'b'
 }
 
 /**
@@ -138,25 +128,6 @@ function open_secondary_option(team_num)
 {
     selectedB = team_num
     open_teams()
-}
-
-/**
- * function:    num2color
- * parameters:  color number
- * returns:     The color associated with the number
- * description: Converts 1/0/-1 to Green/Blue/Red.
- */
-function num2color(num)
-{
-    switch (num)
-    {
-        case 1:
-            return 'var(--green-alliance-color)'
-        case 0:
-            return 'var(--blue-alliance-color)'
-        case -1:
-            return 'var(--red-alliance-color)'
-    }
 }
 
 /**
@@ -187,107 +158,23 @@ function open_teams()
     use_cached_image(selectedA, 'photoA', 'full_res')
     use_cached_image(selectedB, 'photoB', 'full_res')
 
-    let compare = `<tr><th>${selectedA}</th><th></th><th>${selectedB}</th></tr>`
+    let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th></tr>`
     keys.forEach(function (key, index)
     {
-        let aVal = get_value(meta, key, teams[selectedA][key])
-        let bVal = get_value(meta, key, teams[selectedB][key])
-        let aColor = 0
-        let bColor = 0
-        let aWidth = 250
-        let bWidth = 250
-        let type = meta[key].type
-        let scale_max = get_selected_option('scale_max')
+        let aVal = teams[selectedA][key]
+        let bVal = teams[selectedB][key]
 
-        if (typeof teams[selectedA][key] == 'number' && type != 'select' && type != 'dropdown')
+        if (typeof teams[selectedA][key] == 'object')
         {
-            let aFloat = parseFloat(aVal)
-            let bFloat = parseFloat(bVal)
-            // color and scale bars according to proportion
-            if (aFloat > bFloat)
+            for (let op of meta[key].options)
             {
-                aColor = 1
-                bColor = -1
-                bWidth *= bFloat / aFloat
-            }
-            else if (aFloat < bFloat)
-            {
-                aColor = -1
-                bColor = 1
-                aWidth *= aFloat / bFloat
-            }
-            else if (aFloat == 0)
-            {
-                // if both values are 0, make bars short
-                aWidth *= 0.1
-                bWidth *= 0.1
-            }
-
-            if (scale_max == 1)
-            {
-                // override scaling if there is a known maximum
-                let options = meta[key].options
-                if (typeof options !== 'undefined' && options.length == 2)
-                {
-                    scale_to = parseFloat(options[1])
-                }
-                else
-                {
-                    scale_to = parseFloat(maxs[key])
-                }
-                aWidth = 250 * (aFloat / scale_to)
-                bWidth = 250 * (bFloat / scale_to)
-            }
-
-            if (aVal.indexOf('.') < 2)
-            {
-                aVal = '&nbsp;' + aVal
-            }
-            if (bVal.indexOf('.') < 2)
-            {
-                bVal = '&nbsp;' + bVal
-            }
-            
-            // only show std dev for means
-            if (get_selected_option('type_form') == 0)
-            {
-                aVal += ` <font size="-1">(${get_value(meta, key, stddevs[selectedA][key])})</font>`
-                bVal = `<font size="-1">(${get_value(meta, key, stddevs[selectedB][key])})</font> ` + bVal
+                compare += build_row(key, aVal[op], bVal[op], op)
             }
         }
-        else if (typeof teams[selectedA][key] == 'boolean')
-        {
-            // colors Yes green and No red
-            aColor = aVal == 'Yes' ? 1 : -1
-            bColor = bVal == 'Yes' ? 1 : -1
-        }
-        // no bars for dropdowns
         else
         {
-            aWidth = 0
-            bWidth = 0
+            compare += build_row(key, get_value(meta, key, aVal), get_value(meta, key, bVal))
         }
-
-        // bars disabled
-        if (scale_max == 2)
-        {
-            scale_to = 0
-            aWidth = 0
-            bWidth = 0
-        }
-
-        // invert colors if attribute is negativve
-        if (meta[key].negative)
-        {
-            aColor *= -1
-            bColor *= -1
-        }
-        
-        compare += `<tr><td><span style="float:left; padding-right: 16px">${aVal}</span>
-            <span style="float:right; width:${aWidth}px; height:20px; background-color:${num2color(aColor)}"></span></td>
-            <th>${meta[key].name}</th>
-            <td><span style="float:right; padding-left: 16px">${bVal}</span>
-            <span style="float:left; width:${bWidth}px; height:20px; background-color:${num2color(bColor)}"></span></td></tr>`
     })
 
     document.getElementById('compare_tab').innerHTML = compare
@@ -297,4 +184,36 @@ function open_teams()
     deselect_all(false)
     document.getElementById(`option_${selectedA}`).classList.add('selected')
     document.getElementById(`soption_${selectedB}`).classList.add('selected')
+}
+
+/**
+ * function:    build_row
+ * parameters:  row key, first team value, second team value, additional row label
+ * returns:     HTML table row as string
+ * description: Builds a single row of the comparison table.
+ */
+function build_row(key, aVal, bVal, label='')
+{
+    let aColor = 'black'
+    let bColor = 'black'
+    if (aVal > bVal)
+    {
+        aColor = 'var(--green-alliance-color)'
+        bColor = 'var(--red-alliance-color)'
+    }
+    else if (aVal < bVal)
+    {
+        aColor = 'var(--red-alliance-color)'
+        bColor = 'var(--green-alliance-color)'
+    }
+    // flip colors if negative (TODO handle discrete inputs better)
+    if (meta[key].negative && !Array.isArray(meta[key].negative))
+    {
+        colorA = aColor
+        aColor = bColor
+        bColor = colorA
+    }
+    
+    // TODO implement max
+    return `<tr><th>${meta[key].name} ${label}</th><td style="color:${aColor}">${aVal}</td><td style="color:${bColor}">${bVal}</td></tr>`
 }
