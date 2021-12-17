@@ -31,7 +31,7 @@ function init_page(contents_card, buttons_container)
             build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'collect_results(); open_teams()') ]),
             build_column_frame('', [ build_select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair', 'open_teams()') ])
         ], false)}<br>
-        <div class="column"><center><div class="wr_card"><table id="compare_tab" style="text-align:center"></table></div></center></div>`
+        <div class="column"><center><div class="wr_card"><table id="results_tab" style="text-align:center"></table></div></center></div>`
     
     let [first, second] = populate_teams(false, false, true)
     if (first)
@@ -158,7 +158,7 @@ function open_teams()
     use_cached_image(selectedA, 'photoA', 'full_res')
     use_cached_image(selectedB, 'photoB', 'full_res')
 
-    let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th></tr>`
+    let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th><th>Max</th></tr>`
     keys.forEach(function (key, index)
     {
         let aVal = teams[selectedA][key]
@@ -177,7 +177,7 @@ function open_teams()
         }
     })
 
-    document.getElementById('compare_tab').innerHTML = compare
+    document.getElementById('results_tab').innerHTML = compare
 
     // select team on left
     deselect_all()
@@ -213,7 +213,27 @@ function build_row(key, aVal, bVal, label='')
         aColor = bColor
         bColor = colorA
     }
-    
-    // TODO implement max
-    return `<tr><th>${meta[key].name} ${label}</th><td style="color:${aColor}">${aVal}</td><td style="color:${bColor}">${bVal}</td></tr>`
+
+    // prep numbers
+    if (typeof aVal !== 'number')
+    {
+        aVal = parseFloat(aVal)
+    }
+    if (typeof bVal !== 'number')
+    {
+        bVal = parseFloat(bVal)
+    }
+
+    // get max
+    let max = Math.max(aVal, bVal)
+    if (get_selected_option('scale_max') === 1)
+    {
+        max = Math.max(...Object.keys(teams).map(t => parseFloat(teams[t][key])))
+        if (label !== '')
+        {
+            max = Math.max(...Object.keys(teams).map(t => parseFloat(teams[t][key][label.toString()])))
+        }
+    }
+
+    return `<tr><th>${meta[key].name} ${label}</th><td style="color:${aColor}">${aVal.toFixed(1)}</td><td style="color:${bColor}">${bVal.toFixed(1)}</td><td>${max.toFixed(1)}</td></tr>`
 }
