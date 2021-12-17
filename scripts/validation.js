@@ -15,7 +15,7 @@ function has_keys(obj, keys)
 {
     for (let key of keys)
     {
-        if (!obj || !obj.hasOwnProperty(key) || obj[key] === '')
+        if ((!obj && obj !== false) || !obj.hasOwnProperty(key) || obj[key] === '')
         {
             console.log('missing', key)
             return false
@@ -109,7 +109,7 @@ function validate_coach_config(config, year)
     let keys = Object.keys(get_result_meta(MATCH_MODE, year))
     for (let obj of config)
     {
-        if (!has_keys(obj, ['function', 'key']), !not_empty(obj, ['function', 'key']))
+        if (!has_keys(obj, ['function', 'key']) || !not_empty(obj, ['function', 'key']))
         {
             console.log('missing key')
             return false
@@ -143,7 +143,7 @@ function validate_smart_config(config)
     }
     for (let obj of config)
     {
-        if (!has_keys(obj, ['id', 'type', 'name']), !not_empty(obj, ['name', 'id', 'type']))
+        if (!has_keys(obj, ['id', 'type', 'name']) || !not_empty(obj, ['name', 'id', 'type']))
         {
             console.log('missing key')
             return false
@@ -153,7 +153,7 @@ function validate_smart_config(config)
             console.log('missing key')
             return false
         }
-        if (is_in(obj.type, ['percent', 'ratio']) && !has_keys(obj, ['numerator', 'denominator']), !not_empty(obj, ['numerator', 'denominator']))
+        if (is_in(obj.type, ['percent', 'ratio']) && (!has_keys(obj, ['numerator', 'denominator']) || !not_empty(obj, ['numerator', 'denominator'])))
         {
             console.log('missing key')
             return false
@@ -257,7 +257,7 @@ function validate_theme_config(config)
  */
 function validate_scout_config(mode)
 {
-    if (!has_keys(mode, ['name', 'id', 'pages']), !not_empty(mode, ['name', 'id']))
+    if (!has_keys(mode, ['name', 'id', 'pages']) || !not_empty(mode, ['name', 'id']))
     {
         console.log('missing mode key')
         return false
@@ -269,21 +269,21 @@ function validate_scout_config(mode)
     }
     for (let page of mode.pages)
     {
-        if (!has_keys(page, ['name', 'short', 'id', 'columns']), !not_empty(page, ['name', 'short', 'id']))
+        if (!has_keys(page, ['name', 'short', 'id', 'columns']) || !not_empty(page, ['name', 'short', 'id']))
         {
             console.log('missing page key')
             return false
         }
         for (let column of page.columns)
         {
-            if (!has_keys(column, ['name', 'id', 'inputs']), !not_empty(column, ['name', 'id']))
+            if (!has_keys(column, ['name', 'id', 'inputs']) || !not_empty(column, ['name', 'id']))
             {
                 console.log('missing column key')
                 return false
             }
             for (let input of column.inputs)
             {
-                if (!has_keys(input, ['name', 'id', 'type', 'default']), !not_empty(input, ['name', 'id', 'type']))
+                if (!has_keys(input, ['name', 'id', 'type', 'default']) || !not_empty(input, ['name', 'id', 'type']))
                 {
                     console.log('missing input key')
                     return false
@@ -312,6 +312,11 @@ function validate_scout_config(mode)
                             console.log('space in option')
                             return false
                         }
+                    }
+                    if (typeof input.negative !== 'undefined' && input.negative.length >= 0 && input.options.length != input.negative.length)
+                    {
+                        console.log('invalid number of negatives')
+                        return false
                     }
                 }
             }

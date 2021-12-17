@@ -158,7 +158,7 @@
 								"name": "Robot Name",
 								"id": "pit_notes_name",
 								"type": "string",
-								"default": ""
+								"default": " "
 							},
 							{
 								"name": "Rating (1-5)",
@@ -174,7 +174,7 @@
 								"name": "Notes",
 								"id": "pit_notes_notes",
 								"type": "text",
-								"default": ""
+								"default": " "
 							}
 						]
 					}
@@ -222,6 +222,10 @@
 										"Score",
 										"Miss"
 									],
+									"negative": [
+										false,
+										true
+									],
 									"default": 0
 								},
 								{
@@ -231,6 +235,10 @@
 									"options": [
 										"Score",
 										"Miss"
+									],
+									"negative": [
+										false,
+										true
 									],
 									"default": 0
 								}
@@ -243,12 +251,12 @@
 					"short": "Tele",
 					"id": "match_teleop",
 					"columns": [{
-							"name": "Cycle Test",
+							"name": "Cycle",
 							"id": "match_teleop_cycle",
 							"cycle": true,
 							"inputs": [{
 									"name": "Accumulated From",
-									"id": "match_teleop_accum",
+									"id": "match_teleop_cycle_accum",
 									"type": "multicounter",
 									"options": [
 										"UpperLS",
@@ -306,6 +314,11 @@
 										"Failed",
 										"Spun"
 									],
+									"negative": [
+										false,
+										true,
+										false
+									],
 									"default": "NA"
 								},
 								{
@@ -317,6 +330,11 @@
 										"Failed",
 										"Matched"
 									],
+									"negative": [
+										false,
+										true,
+										false
+									],
 									"default": "NA"
 								}
 							]
@@ -325,16 +343,10 @@
 							"name": "Climb",
 							"id": "match_teleop_climb",
 							"inputs": [{
-									"name": "Climb Attempt",
+									"name": "Attempted Climb",
 									"id": "match_teleop_climb_attempt",
-									"type": "select",
-									"options": [
-										"NA",
-										"Low",
-										"Level",
-										"High"
-									],
-									"default": "NA"
+									"type": "checkbox",
+									"default": false
 								},
 								{
 									"name": "Climb Result",
@@ -343,8 +355,12 @@
 									"options": [
 										"NA",
 										"Failed",
-										"Unlevel",
-										"Level"
+										"Climbed"
+									],
+									"negative": [
+										false,
+										true,
+										false
 									],
 									"default": "NA"
 								},
@@ -379,7 +395,7 @@
 								"name": "Notes",
 								"id": "match_notes_notes",
 								"type": "text",
-								"default": ""
+								"default": " "
 							}
 						]
 					}]

@@ -16,9 +16,6 @@
 		"function": "min",
 		"key": "smart_teleop_cycle_trench"
 	}, {
-		"function": "max",
-		"key": "smart_teleop_accum_ratio"
-	}, {
 		"function": "median",
 		"key": "smart_auto_accuracy"
 	}, {
@@ -26,10 +23,10 @@
 		"key": "match_teleop_cp_spin"
 	}],
 	"smart-stats": [{
-		"id": "smart_teleop_accum_total",
-		"name": "Total Accumulated",
+		"id": "smart_auto_upper_shots",
+		"name": "Total Auto Upper Shots",
 		"type": "sum",
-		"keys": ["match_teleop_accum_upperls", "match_teleop_accum_ground"]
+		"keys": ["match_auto_shooting_upper_score", "match_auto_shooting_upper_miss"]
 	}, {
 		"id": "smart_auto_accuracy",
 		"name": "Auto Shooting Accuracy",
@@ -37,11 +34,11 @@
 		"numerator": "match_auto_shooting_upper_score",
 		"denominator": "match_auto_shooting_upper_miss"
 	}, {
-		"id": "smart_teleop_accum_ratio",
-		"name": "Ground vs Upper LS",
+		"id": "smart_auto_goal_ratio",
+		"name": "Upper vs Lower Auto Goals",
 		"type": "ratio",
-		"numerator": "match_teleop_accum_ground",
-		"denominator": "match_teleop_accum_upperls"
+		"numerator": "match_auto_shooting_upper_score",
+		"denominator": "match_auto_shooting_upper_miss"
 	}, {
 		"id": "smart_teleop_cycle_upper",
 		"name": "Upper Goal Cycles",
