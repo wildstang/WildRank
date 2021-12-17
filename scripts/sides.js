@@ -166,9 +166,13 @@ function open_teams()
 
         if (typeof teams[selectedA][key] == 'object')
         {
+            let aSum = Object.values(aVal).reduce((a, b) => a + b, 0)
+            let bSum = Object.values(bVal).reduce((a, b) => a + b, 0)
             for (let op of meta[key].options)
             {
-                compare += build_row(key, aVal[op], bVal[op], op)
+                let aPct = 100 * aVal[op] / aSum
+                let bPct = 100 * bVal[op] / bSum
+                compare += build_row(key, aPct, bPct, op)
             }
         }
         else
@@ -194,26 +198,6 @@ function open_teams()
  */
 function build_row(key, aVal, bVal, label='')
 {
-    let aColor = 'black'
-    let bColor = 'black'
-    if (aVal > bVal)
-    {
-        aColor = 'var(--green-alliance-color)'
-        bColor = 'var(--red-alliance-color)'
-    }
-    else if (aVal < bVal)
-    {
-        aColor = 'var(--red-alliance-color)'
-        bColor = 'var(--green-alliance-color)'
-    }
-    // flip colors if negative (TODO handle discrete inputs better)
-    if (meta[key].negative && !Array.isArray(meta[key].negative))
-    {
-        colorA = aColor
-        aColor = bColor
-        bColor = colorA
-    }
-
     // prep numbers
     if (typeof aVal !== 'number')
     {
@@ -231,9 +215,57 @@ function build_row(key, aVal, bVal, label='')
         max = Math.max(...Object.keys(teams).map(t => parseFloat(teams[t][key])))
         if (label !== '')
         {
-            max = Math.max(...Object.keys(teams).map(t => parseFloat(teams[t][key][label.toString()])))
+            let pcts = Object.keys(teams).map(function (t)
+            {
+                return 100 * teams[t][key][label.toString()] / Object.values(teams[t][key]).reduce((a, b) => a + b, 0)
+            })
+            max = Math.max(...pcts)
         }
     }
 
-    return `<tr><th>${meta[key].name} ${label}</th><td style="color:${aColor}">${aVal.toFixed(1)}</td><td style="color:${bColor}">${bVal.toFixed(1)}</td><td>${max.toFixed(1)}</td></tr>`
+    // determine colors
+    let aColor = 'black'
+    let bColor = 'black'
+    if (aVal > bVal)
+    {
+        aColor = 'var(--green-alliance-color)'
+        bColor = 'var(--red-alliance-color)'
+    }
+    else if (aVal < bVal)
+    {
+        aColor = 'var(--red-alliance-color)'
+        bColor = 'var(--green-alliance-color)'
+    }
+    // flip colors if negative (TODO handle discrete inputs better)
+    if ((Array.isArray(meta[key].negative) && meta[key].negative[meta[key].options.indexOf(label)]) || 
+        (meta[key].type == 'checkbox' && meta[key].negative ? label === true : label === false) ||
+        (meta[key].negative && !Array.isArray(meta[key].negative)))
+    {
+        colorA = aColor
+        aColor = bColor
+        bColor = colorA
+    }
+
+    // make numbers pretty
+    aVal = aVal.toFixed(1)
+    bVal = bVal.toFixed(1)
+    max  = max.toFixed(1)
+    if (label !== '')
+    {
+        aVal += '%'
+        bVal += '%'
+        max  += '%'
+    }
+
+    // replace boolean labels
+    if (label === false)
+    {
+        label = 'Not'
+    }
+    else if (label === true)
+    {
+        label = ''
+    }
+
+    return `<tr><th>${meta[key].name} ${label}</th><td style="color:${aColor}">${aVal}</td><td style="color:${bColor}">${bVal}</td><td>${max}</td></tr>`
 }
