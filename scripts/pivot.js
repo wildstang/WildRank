@@ -130,7 +130,24 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+    let keys = Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+    let selected = []
+    for(let key of keys)
+    {
+        let type = meta[key].type
+        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
+        {
+            for (let op of meta[key].options)
+            {
+                selected.push(`${key}-${op}`)
+            }
+        }
+        else
+        {
+            selected.push(key)
+        }
+    }
+    return selected
 }
 
 /**
@@ -146,21 +163,14 @@ function get_secondary_selected_keys()
 
 /**
  * function:    get_weight
- * parameters:  results, team, key, sort method
+ * parameters:  results, team, key, label, sort method
  * returns:     calculated weight
  * description: Calculates a weight for sorting a discrete result average.
  */
-function get_weight(results, team, key, method)
+function get_weight(results, team, key, label, method)
 {
-    let ops = meta[key].options_index
-    let avg = avg_results(get_team_results(results, team), key, meta[key].type, method, ops)
-    let total = Object.values(avg).reduce((a, b) => a + b)
-    let weight = 0
-    for (let a of ops)
-    {
-        weight += avg[a] / total * (a + 1)
-    }
-    return weight
+    let res = avg_results(get_team_results(results, team), key, meta[key].type, method, meta[key].options)
+    return (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
 }
 
 /**
@@ -184,16 +194,24 @@ function build_table(sort_by='', reverse=false)
         reverse = ascending
     }
 
+    let raw_sort = sort_by
     if (selected.includes(sort_by))
     {
         sort = sort_by
+        let label = ''
+        if (sort_by.includes('-'))
+        {
+            let parts = sort_by.split('-')
+            sort_by = parts[0]
+            label = parts[1]
+        }
         ascending = false
         name = `${SORT_OPTIONS[method]} ${meta[sort_by].name}`
         
         let type = meta[sort_by].type
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            teams.sort((a, b) => get_weight(results, b, sort_by, method) - get_weight(results, a, sort_by, method))
+            teams.sort((a, b) => get_weight(results, b, sort_by, label, method) - get_weight(results, a, sort_by, label, method))
         }
         else
         {
@@ -221,8 +239,28 @@ function build_table(sort_by='', reverse=false)
     let table = `<tr><th onclick="build_table()" ${sort_by != '' ? 'style="font-weight: normal"' : ''}>Team</th>`
     selected.forEach(function (key)
     {
-        let rev = sort_by == key ? !reverse : false
-        table += `<th onclick="build_table('${key}', ${rev})" ${sort_by != key ? 'style="font-weight: normal"' : ''}>${meta[key].name}</th>`
+        let name = ''
+        if (key.includes('-'))
+        {
+            let parts = key.split('-')
+            let label = parts[1]
+            // handle boolean labels
+            if (label === 'false')
+            {
+                label = 'Not'
+            }
+            else if (label === 'true')
+            {
+                label = ''
+            }
+            name = `${meta[parts[0]].name} ${label}`
+        }
+        else
+        {
+            name = meta[key].name
+        }
+        let rev = raw_sort == key ? !reverse : false
+        table += `<th onclick="build_table('${key}', ${rev})" ${raw_sort != key ? 'style="font-weight: normal"' : ''}>${name}</th>`
     })
     table += '</tr>'
 
@@ -230,14 +268,25 @@ function build_table(sort_by='', reverse=false)
     table += '<tr><th>Totals</th>'
     selected.forEach(function (key)
     {
-        let ops = []
+        let label = ''
+        if (key.includes('-'))
+        {
+            let parts = key.split('-')
+            key = parts[0]
+            label = parts[1]
+        }
+        let valStr = ''
         let type = meta[key].type
         // build a value string of percents for discrete inputs
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            ops = meta[key].options_index
+            let res = avg_results(results, key, meta[key].type, method, meta[key].options)
+            valStr = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0)).toFixed(1) + '%'
         }
-        let valStr = get_value(meta, key, avg_results(results, key, meta[key].type, method, ops))
+        else
+        {
+            valStr = get_value(meta, key, avg_results(results, key, meta[key].type, method))
+        }
         table += `<td>${valStr}</td>`
     })
     table += '</tr>'
@@ -251,19 +300,36 @@ function build_table(sort_by='', reverse=false)
             table += `<th>${team}</th>`
             selected.forEach(function (key)
             {
+                let label = ''
+                if (key.includes('-'))
+                {
+                    let parts = key.split('-')
+                    key = parts[0]
+                    label = parts[1]
+                }
                 let color = ''
-                let ops = []
                 let type = meta[key].type
+
+                let val = avg_results(team_results, key, type, method)
+                let valStr = get_value(meta, key, val)
+                let base = avg_results(results, key, type, method)
+                let min = avg_results(results, key, type, 3)
+                let max = avg_results(results, key, type, 4)
                 // build a value string of percents for discrete inputs
                 if (type == 'checkbox' || type == 'select' || type == 'dropdown')
                 {
-                    ops = meta[key].options_index
+                    let res = avg_results(team_results, key, type, method, meta[key].options)
+                    val = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
+                    valStr = val.toFixed(1) + '%'
+
+                    res = avg_results(results, key, type, method, meta[key].options)
+                    base = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
+
+                    // TODO use real min and max?
+                    min = 0
+                    max = 100
                 }
-                let val = avg_results(team_results, key, type, method, ops)
-                let valStr = get_value(meta, key, val)
-                let base = avg_results(results, key, type, method, ops)
-                let min = avg_results(results, key, type, 3)
-                let max = avg_results(results, key, type, 4)
+
                 if (typeof base === 'number' && !key.startsWith('meta'))
                 {
                     if (val != base)
@@ -279,7 +345,7 @@ function build_table(sort_by='', reverse=false)
                             colors = [256, 0, 0, (base - val) / (base - min) / 2]
                         }
 
-                        if (meta[key].negative)
+                        if (meta[key].negative ? label !== 'false' : label === 'false')
                         {
                             colors = [colors[1], colors[0], colors[2], colors[3]]
                         }
@@ -287,7 +353,7 @@ function build_table(sort_by='', reverse=false)
                     }
             
                     // add std dev if proper number
-                    if (method == 0 && type != 'select' && type != 'dropdown')
+                    if (method == 0 && type != 'select' && type != 'dropdown' && type != 'checkbox')
                     {
                         valStr += ` (${get_value(meta, key, avg_results(team_results, key, type, 5))})`
                     }
