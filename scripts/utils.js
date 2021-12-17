@@ -781,6 +781,10 @@ function add_given_smart_stats(result, stats)
                 break
             case 'percent':
                 result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
+                if (isNaN(result[id]))
+                {
+                    result[id] = 0
+                }
                 break
             case 'ratio':
                 if (result[stat.denominator] != 0)
