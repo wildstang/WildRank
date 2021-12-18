@@ -5,7 +5,7 @@
  * date:        2021-12-10
  */
 
-const COLORS = ['black', 'blue', 'red', 'yellow', 'purple', 'orange', 'green']
+const COLORS = ['black', 'blue', 'red', 'purple', 'orange', 'green']
 
 var meta = {}
 var results = []
@@ -203,19 +203,28 @@ function build_plot()
     ctx.globalCompositeOperation = 'destination-over'
     ctx.clearRect(0, 0, pwidth, pheight)
 
+    // reset colors of all options
+    for (let team of teams)
+    {
+        document.getElementById(`soption_${team}`).style.backgroundColor = 'white'
+    }
+
     // plot points and lines
     let font_size = 16
+    let left_margin = 60
+    let bottom_margin = 30
     for (let i = 0; i < matches; i++)
     {
-        let x = 30 + i * ((pwidth + 25) / matches)
+        let x = left_margin + i * pwidth / matches
         for (let j in selected_teams)
         {
             let team = selected_teams[j]
             ctx.beginPath()
-            ctx.fillStyle = COLORS[j % COLORS.length]
+            let color = COLORS[j % COLORS.length]
+            ctx.fillStyle = color
             
             // points
-            let y = (pheight - 30) - plots[team][i] * ((pheight - 50) / max)
+            let y = pheight - bottom_margin - plots[team][i] * (pheight - 50) / max
             ctx.arc(x, y, 5, 0, 2 * Math.PI, false)
             ctx.fill()
 
@@ -223,11 +232,17 @@ function build_plot()
             if (i > 0)
             {
                 ctx.beginPath()
-                ctx.strokeStyle = COLORS[j % COLORS.length]
+                ctx.strokeStyle = color
                 ctx.lineWidth = 3
-                ctx.moveTo(30 + (i-1) * ((pwidth + 25) / matches), (pheight - 30) - plots[team][i-1] * ((pheight - 50) / max))
+                ctx.moveTo(x - pwidth / matches, pheight - bottom_margin - plots[team][i-1] * (pheight - 50) / max)
                 ctx.lineTo(x, y)
                 ctx.stroke()
+            }
+
+            // change selected option text color
+            if (team != 'avg')
+            {
+                document.getElementById(`soption_${team}`).style.backgroundColor = color
             }
         }
 
@@ -236,7 +251,8 @@ function build_plot()
         ctx.fillStyle = 'black'
         ctx.font = `${font_size}px mono, courier`
         let height = pheight - 25 + font_size
-        ctx.fillText(i + 1, x - 5, height)
+        ctx.fillText(i + 1, x - 5 * (i + 1).toString().length, height)
+        ctx.fillRect(x - 1, 0, 1, pheight - bottom_margin)
         ctx.fill()
     }
 
@@ -247,8 +263,16 @@ function build_plot()
     for (let i = 0; i <= 10; i++)
     {
         let val = i * max / 10
-        let y = (pheight - 25) - val * ((pheight - 50) / max)
-        ctx.fillText(val, 0, y)
+        let y = pheight - bottom_margin - val * (pheight - 50) / max
+        ctx.fillText(val, 5, y + font_size)
+        ctx.fillRect(0, y, pwidth, 1)
     }
+    ctx.fill()
+
+    // fill margins
+    ctx.beginPath()
+    ctx.fillStyle = 'gray'
+    ctx.fillRect(0, 0, left_margin, pheight)
+    ctx.fillRect(0, pheight - bottom_margin, pwidth, bottom_margin)
     ctx.fill()
 }
