@@ -22,6 +22,8 @@ const UPLOAD_DEFAULT = 'http://localhost:80'
 const TBA_KEY = 'X-TBA-Auth-Key'
 const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'light'
+const ROLE_COOKIE = 'role'
+const ROLE_DEFAULT = 'scouter'
 
 /**
  * function:    window_open

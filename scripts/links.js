@@ -9,23 +9,35 @@
  * function:    scout
  * parameters:  none
  * returns:     none
- * description: Start the selected scouting mode.
+ * description: Start match scouting mode.
  */
 function scout()
 {
-    let type    = get_selected_type()
-    let event   = get_event()
-    let position = get_position()
-    let user    = get_user()
-    let query   = ''
-    if (type === PIT_MODE)
-    {
-        query = {'page': 'pits', [EVENT_COOKIE]: event, [USER_COOKIE]: user}
-    }
-    else
-    {
-        query = {'page': 'matches', [TYPE_COOKIE]: type, [EVENT_COOKIE]: event, [POSITION_COOKIE]: position, [USER_COOKIE]: user}
-    }
+    let query = {'page': 'matches', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
+    return build_url('selection', query)
+}
+
+/**
+ * function:    pit_scout
+ * parameters:  none
+ * returns:     none
+ * description: Start pit scouting mode.
+ */
+function pit_scout()
+{
+    let query = {'page': 'matches', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
+    return build_url('selection', query)
+}
+
+/**
+ * function:    note_scout
+ * parameters:  none
+ * returns:     none
+ * description: Start note scouting mode.
+ */
+function note_scout()
+{
+    let query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
     return build_url('selection', query)
 }
 

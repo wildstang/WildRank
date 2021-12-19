@@ -323,12 +323,12 @@ function export_zip()
 }
 
 /**
- * function:    import_zip
- * paramters:   none
+ * function:    import_zip_from_event
+ * paramters:   response containing zip file
  * returns:     none
  * description: Extracts a zip archive containing all JSON results.
  */
-function import_zip(event)
+function import_zip_from_event(event)
 {
     let file = event.target.files[0]
 
@@ -405,12 +405,12 @@ function reset()
  * returns:     none
  * description: Creates a file prompt to upload a zip of JSON results.
  */
-function prompt_zip()
+function import_zip()
 {
     var input = document.createElement('input')
     input.type = 'file'
     input.accept = 'application/zip'
-    input.onchange = import_zip
+    input.onchange = import_zip_from_event
     input.click()
 }
 
