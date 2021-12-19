@@ -214,5 +214,16 @@ function open_settings()
  */
 function open_random()
 {
-    window_open(build_url('index', {'page': 'random', [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user(), [TYPE_COOKIE]: get_selected_type()}), '_self')
+    return build_url('index', {'page': 'random', [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user(), [TYPE_COOKIE]: get_selected_type()})
+}
+
+/**
+ * function:    sign_out
+ * parameters:  none
+ * returns:     none
+ * description: Return to the role selection (index) page.
+ */
+function sign_out()
+{
+    return 'index.html'
 }
