@@ -19,10 +19,10 @@ document.head.appendChild(s)
 // generate page
 const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
-        build_str_entry('event_id', 'Event ID:', '', 'text', 'hide_buttons()'),
+        build_str_entry('event_id', 'Event ID:', '', 'text', 'process_files()'),
         build_dropdown('position', 'Position:', []),
-        build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match', 'hide_buttons()'),
-        build_num_entry('user_id', 'School ID:', '', [100000, 999999], 'hide_buttons()'),
+        build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
+        build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
     build_column_frame('Role', [
@@ -37,7 +37,11 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('import_zip', 'Import Raw Data', `import_zip()`),
         build_status_tile('server_type', 'POST Server'),
         build_status_tile('config_valid', 'Config'),
-        build_status_tile('scout_config_valid', 'Scout Config')
+        build_status_tile('scout_config_valid', 'Scout Config'),
+        build_counter('teams', 'Event Teams', 0, 'increment("teams", false)', 'increment("teams", true)'),
+        build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
+        build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
+        build_counter('match_results', 'Match Results', 0, 'increment("match_results", false)', 'increment("match_results", true)')
     ])
 ])
 
@@ -80,6 +84,7 @@ function on_config()
     select_option('theme_switch', theme == 'light' ? 0 : 1)
     apply_theme()
     count_teams()
+    process_files()
 
     // update statuses
     set_status('server_type', check_server(get_upload_addr(), false))
@@ -99,6 +104,52 @@ function on_config()
 /**
  * HELPER FUNCTIONS
  */
+
+/**
+ * function:    process_files
+ * parameters:  none
+ * returns:     none
+ * description: Counts files and displays numbers on screen
+ */
+function process_files()
+{
+    // get all files in localStorage
+    let files = Object.keys(localStorage)
+    let teams = 0
+    let matches = 0
+    let pit_results = 0
+    let match_results = 0
+    let event = get_event()
+
+    if (file_exists(`matches-${event}`))
+    {
+        matches = JSON.parse(localStorage.getItem(`matches-${event}`)).length
+    }
+    if (file_exists(`teams-${event}`))
+    {
+        teams = JSON.parse(localStorage.getItem(`teams-${event}`)).length
+    }
+    for (let file of files)
+    {
+        let parts = file.split('-')
+        if (parts[1] == event)
+        {
+            if (parts[0] == MATCH_MODE)
+            {
+                match_results++
+            }
+            else if (parts[0] == PIT_MODE)
+            {
+                pit_results++
+            }
+        }
+    }
+
+    document.getElementById('teams').innerHTML = teams
+    document.getElementById('matches').innerHTML = matches
+    document.getElementById('pit_results').innerHTML = pit_results
+    document.getElementById('match_results').innerHTML = match_results
+}
 
 /**
  * function:    count_teams
@@ -129,17 +180,6 @@ function save_options()
     set_cookie(USER_COOKIE, get_user())
     set_cookie(POSITION_COOKIE, get_position())
     set_cookie(TYPE_COOKIE, get_selected_type())
-}
-
-/**
- * function:    status
- * parameters:  string status
- * returns:     none
- * description: Log a string to console.
- */
-function status(status)
-{
-    console.log(status.replace(/<br>/g, '\n'))
 }
 
 /**

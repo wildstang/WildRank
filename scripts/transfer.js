@@ -20,12 +20,10 @@ function preload_event()
 {
     // get event id from the text box
     let event_id = get_event()
-    status('Requesting event data...')
 
     if (!API_KEY)
     {
         alert('No API key found for TBA!')
-        status('No API key found for TBA!')
     }
     else
     {
@@ -50,17 +48,15 @@ function preload_event()
 
                     // store matches as JSON string in matches-[event-id]
                     localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
-                    status(`${data.length} matches received`)
-
-                    hide_buttons()
+                    process_files()
                 }
                 else
                 {
-                    status('No matches received!')
+                    alert('No matches received!')
                 }
             })
             .catch(err => {
-                status('Error loading matches!')
+                alert('Error loading matches!')
                 console.log(err)
             })
 
@@ -81,8 +77,7 @@ function preload_event()
                     })
                     // store teams as JSON string in teams-[event_id]
                     localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
-                    status(`${data.length} teams received`)
-                    hide_buttons()
+                    process_files()
 
                     // fetch team's avatar for whiteboard
                     var avatars = 0
@@ -98,29 +93,21 @@ function preload_event()
                                 localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
                                 ++avatars
                                 ++success
-                                if (avatars == teams.length)
-                                {
-                                    status(`${success} avatars received`)
-                                }
                             })
                             .catch(err =>
                                 {
                                 console.log(`Error loading avatar: ${err}!`)
                                 ++avatars
-                                if (avatars == teams.length)
-                                {
-                                    status(`${success} avatars received`)
-                                }
                             })
                     })
                 }
                 else
                 {
-                    status('No teams received!')
+                    alert('No teams received!')
                 }
             })
             .catch(err => {
-                status('Error loading teams!')
+                alert('Error loading teams!')
                 console.log(err)
             })
 
@@ -130,7 +117,7 @@ function preload_event()
                 return response.json()
             })
             .then(data => {
-                if (data.hasOwnProperty('rankings'))
+                if (data.hasOwnProperty('rankings') && data.rankings.length > 0)
                 {
                     data = data.rankings
 
@@ -143,16 +130,14 @@ function preload_event()
                     })
                     // store rankings as JSON string in rankings-[event_id]
                     localStorage.setItem(get_event_rankings_name(event_id), JSON.stringify(rankings))
-                    status(`${data.length} rankings received`)
-                    hide_buttons()
                 }
                 else
                 {
-                    status('No rankings received!')
+                    alert('No rankings received!')
                 }
             })
             .catch(err => {
-                status('Error loading rankings!')
+                alert('Error loading rankings!')
                 console.log(err)
             })
     }
@@ -170,7 +155,6 @@ async function upload_all()
     if (check_server(addr))
     {
         let type = get_selected_type()
-        status(`Uploading ${type} results...`)
         // get all files in localStorage
         for (let file of Object.keys(localStorage))
         {
@@ -180,7 +164,7 @@ async function upload_all()
                 let content = localStorage.getItem(file)
                 // append file name to data, separated by '|||'
                 upload = `${file}|||${content}`
-                status(` ${file}`, newLine = false)
+                console.log('Uploading', file)
                 // post string to server
                 fetch(addr, {method: 'POST', body: upload})
 
@@ -188,7 +172,6 @@ async function upload_all()
                 await new Promise(r => setTimeout(r, 5));
             }
         }
-        status('') // add newline at end
     }
 }
 
@@ -219,7 +202,6 @@ function import_all()
         }
 
         // request list of available results
-        status('Requesting local result data...')
         fetch(`${addr}/${request}`)
             .then(response => {
                 return response.text()
@@ -231,7 +213,7 @@ function import_all()
                     return r.includes(get_event()) && !file_exists(r.replace('.json', ''))
                 })
                 console.log(results)
-                status(`${results.length} ${get_selected_type()} results found`)
+                alert(`${results.length} ${get_selected_type()} results found`)
 
                 // request each desired result
                 results.forEach(function (file, index)
@@ -243,17 +225,16 @@ function import_all()
                         .then(data => {
                             // save file
                             localStorage.setItem(file.replace('.json', ''), JSON.stringify(data))
-                            status(`Got ${file}`)
                             hide_buttons()
                         })
                         .catch(err => {
-                            status('Error requesting result')
+                            alert('Error requesting result')
                             console.log(err)
                         })
                 })
             })
             .catch(err => {
-                status('Error requesting results')
+                alert('Error requesting results')
                 console.log(err)
             })
     }

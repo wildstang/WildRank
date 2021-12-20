@@ -171,73 +171,6 @@ function hide_buttons()
  */
 
 /**
- * function:    process_files
- * parameters:  none
- * returns:     none
- * description: Counts files and displays numbers on screen
- */
-function process_files()
-{
-    // get all files in localStorage
-    let files = Object.keys(localStorage)
-    let matches = 0
-    let pits = 0
-    let notes = 0
-    let avatars = 0
-    let images = 0
-    let events = []
-    let teams = []
-    let rankings = []
-    for (let file of files)
-    {
-        let parts = file.split('-')
-        // determine files which start with the desired type
-        if (parts[0] == 'matches')
-        {
-            events.push(parts[1])
-        }
-        else if (parts[0] == 'teams')
-        {
-            teams.push(parts[1])
-        }
-        else if (parts[0] == 'rankings')
-        {
-            rankings.push(parts[1])
-        }
-        else if (parts[0] == MATCH_MODE)
-        {
-            ++matches
-        }
-        else if (parts[0] == PIT_MODE)
-        {
-            ++pits
-        }
-        else if (parts[0] == NOTE_MODE)
-        {
-            ++notes
-        }
-        else if (parts[0] == 'image')
-        {
-            ++images
-        }
-        else if (parts[0] == 'avatar')
-        {
-            ++avatars
-        }
-    }
-    status(`<table><tr><th>Results...</th></tr>
-            <tr><td>Match<td></td><td>${matches}</td></tr>
-            <tr><td>Pit<td></td><td>${pits}</td></tr>
-            <tr><td>Image<td></td><td>${images}</td></tr>
-            <tr><td>Note<td></td><td>${notes}</td></tr>
-            <tr><th>Events...</th></tr>
-            <tr><td>Match<td></td><td>${events.join(', ')}</td></tr>
-            <tr><td>Team<td></td><td>${teams.join(', ')}</td></tr>
-            <tr><td>Ranking<td></td><td>${rankings.join(', ')}</td></tr>
-            <tr><td>Avatar<td></td><td>${avatars}</td></tr></table>`)
-}
-
-/**
  * function:    save_options
  * parameters:  none
  * returns:     none
@@ -250,18 +183,6 @@ function save_options()
     set_cookie(POSITION_COOKIE, get_position())
     set_cookie(UPLOAD_COOKIE, get_upload_addr())
     set_cookie(TYPE_COOKIE, get_selected_type())
-}
-
-/**
- * function:    status
- * parameters:  string status, whether to follow with a new line
- * returns:     none
- * description: Log a string to both the status window and console.
- */
-function status(status, newLine=true)
-{
-    //document.getElementById('status').innerHTML += `${status}${newLine ? '<br>' : ''}`
-    console.log(status.replace(/<br>/g, '\n'))
 }
 
 /**
