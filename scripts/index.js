@@ -55,7 +55,7 @@ function init_page()
 {
     document.body.innerHTML += PAGE_FRAME
     let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
-    if (configs >= 8)
+    if (configs >= 10)
     {
         on_config()
     }

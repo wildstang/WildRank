@@ -107,7 +107,7 @@ function init_page()
     document.body.innerHTML += build_page_frame('', page_contents)
         + build_page_frame('', [build_column_frame('', [build_link_button('sign_out', 'Sign Out', 'sign_out()')])])
     let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
-    if (configs >= 8)
+    if (configs >= 10)
     {
         on_config()
     }
