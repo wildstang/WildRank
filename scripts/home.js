@@ -34,7 +34,8 @@ const CONFIGS = {
         'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
     },
     'analysis': {
-        'Interactive': ['open_ranker', 'open_sides', 'open_picks', 'open_whiteboard', 'open_advanced', 'open_pivot', 'open_distro', 'open_plot'],
+        'Teams': ['type_form', 'open_ranker', 'open_sides', 'open_picks', 'open_whiteboard', 'open_advanced'],
+        'Keys': ['open_pivot', 'open_distro', 'open_plot'],
         'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_coach'],
         'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
     },
@@ -93,6 +94,10 @@ function init_page()
             {
                 col_contents.push(build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'))
             }
+            else if (key == 'type_form')
+            {
+                col_contents.push(build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'))
+            }
             else if (col == 'Transfer')
             {
                 col_contents.push(build_button(key, BUTTONS[key].name, `check_press('${key}', ${key})`))
@@ -115,7 +120,6 @@ function init_page()
     {
         fetch_config(on_config)
     }
-    process_files()
 }
 
 /**
@@ -130,6 +134,11 @@ function on_config()
     {
         let defaults = get_config('defaults')
         document.getElementById('upload_addr').value = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
+    }
+    else if (document.getElementById('type_form'))
+    {
+        let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
+        select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
     }
 
     hide_buttons()
@@ -148,7 +157,7 @@ function hide_buttons()
     {
         for (let id of columns[col])
         {
-            if (id != 'upload_url')
+            if (id != 'upload_url' && id != 'type_form')
             {
                 let button = document.getElementById(`${id}-container`)
                 if (is_blocked(id))
@@ -178,26 +187,13 @@ function hide_buttons()
  */
 function save_options()
 {
-    set_cookie(EVENT_COOKIE, get_event())
-    set_cookie(USER_COOKIE, get_user())
-    set_cookie(POSITION_COOKIE, get_position())
-    set_cookie(UPLOAD_COOKIE, get_upload_addr())
-    set_cookie(TYPE_COOKIE, get_selected_type())
-}
-
-/**
- * function:    switch_theme
- * parameters:  none
- * returns:     none
- * description: Checks for a theme switch and updates.
- */
-function switch_theme()
-{
-    let theme = get_selected_option('theme_switch') == 0 ? 'light' : 'dark'
-    if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
+    if (document.getElementById('upload_addr'))
     {
-        set_cookie(THEME_COOKIE, theme)
-        apply_theme()
+        set_cookie(UPLOAD_COOKIE, get_upload_addr())
+    }
+    if (document.getElementById('type_form'))
+    {
+        set_cookie(TYPE_COOKIE, get_selected_type())
     }
 }
 
@@ -339,8 +335,24 @@ function check_press(id, on_press)
  */
 function get_selected_type()
 {
-    let defaults = get_config('defaults')
-    return get_cookie(TYPE_COOKIE, defaults.TYPE_COOKIE)
+    if (document.getElementById('type_form'))
+    {
+        switch(get_selected_option('type_form'))
+        {
+            case 0:
+                return PIT_MODE
+            case 2:
+                return NOTE_MODE
+            case 1:
+            default:
+                return MATCH_MODE
+        }
+    }
+    else
+    {
+        let defaults = get_config('defaults')
+        return get_cookie(TYPE_COOKIE, defaults.TYPE_COOKIE)
+    }
 }
 
 /**

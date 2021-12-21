@@ -21,7 +21,6 @@ const PAGE_FRAME = build_page_frame('', [
     build_column_frame('Options', [
         build_str_entry('event_id', 'Event ID:', '', 'text', 'process_files()'),
         build_dropdown('position', 'Position:', []),
-        build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'),
         build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
         build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
     ]),
@@ -37,7 +36,9 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('import_zip', 'Import Raw Data', `import_zip()`),
         build_status_tile('server_type', 'POST Server'),
         build_status_tile('config_valid', 'Config'),
-        build_status_tile('scout_config_valid', 'Scout Config'),
+        build_status_tile('scout_config_valid', 'Scout Config')
+    ]),
+    build_column_frame('Data', [
         build_counter('teams', 'Event Teams', 0, 'increment("teams", false)', 'increment("teams", true)'),
         build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
         build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
@@ -77,8 +78,6 @@ function on_config()
     document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, defaults.event_id)
     document.getElementById('user_id').value = get_cookie(USER_COOKIE, defaults.user_id)
     document.getElementById('position').selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-    let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
-    select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
 
     let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     select_option('theme_switch', theme == 'light' ? 0 : 1)
@@ -179,7 +178,6 @@ function save_options()
     set_cookie(EVENT_COOKIE, get_event())
     set_cookie(USER_COOKIE, get_user())
     set_cookie(POSITION_COOKIE, get_position())
-    set_cookie(TYPE_COOKIE, get_selected_type())
 }
 
 /**
@@ -249,33 +247,13 @@ function check_press(id)
     else
     {
         set_cookie(ROLE_COOKIE, id)
-        return build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [TYPE_COOKIE]: get_selected_type(), [USER_COOKIE]: get_user()})
+        return build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
     }
 }
 
 /**
  * INPUT VALUE FUNCTIONS
  */
-
-/**
- * function:    get_selected_type
- * parameters:  none
- * returns:     Currently selected scouting type.
- * description: Determines whether to use 'match' or 'pit' scouting based on the 'match' radio button.
- */
-function get_selected_type()
-{
-    switch(get_selected_option('type_form'))
-    {
-        case 0:
-            return PIT_MODE
-        case 2:
-            return NOTE_MODE
-        case 1:
-        default:
-            return MATCH_MODE
-    }
-}
 
 /**
  * function:    get_event
