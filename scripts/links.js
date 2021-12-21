@@ -25,7 +25,7 @@ function scout()
  */
 function pit_scout()
 {
-    let query = {'page': 'matches', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
+    let query = {'page': 'pits', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
     return build_url('selection', query)
 }
 
