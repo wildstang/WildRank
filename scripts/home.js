@@ -47,9 +47,9 @@ const CONFIGS = {
 
 // requirements for each button
 const BUTTONS = {
-    'scout':            { name: 'Scout',           limits: ['event-pit'], configs: ['type', 'settings'] },
+    'scout':            { name: 'Scout',           limits: ['event'], configs: ['type', 'settings'] },
     'pit_scout':        { name: 'Pit Scout',       limits: ['event-pit'], configs: ['type', 'settings'] },
-    'note_scout':       { name: 'Note Scout',      limits: ['event-pit'], configs: ['type', 'settings'] },
+    'note_scout':       { name: 'Note Scout',      limits: ['event'], configs: ['type', 'settings'] },
     'open_ranker':      { name: 'Team Rankings',   limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_sides':       { name: 'Side-by-Side',    limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
     'open_picks':       { name: 'Pick Lists',      limits: ['teams', 'admin'], configs: ['settings'] },
@@ -350,8 +350,7 @@ function get_selected_type()
     }
     else
     {
-        let defaults = get_config('defaults')
-        return get_cookie(TYPE_COOKIE, defaults.TYPE_COOKIE)
+        return MATCH_MODE
     }
 }
 
