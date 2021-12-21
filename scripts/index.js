@@ -42,7 +42,8 @@ const PAGE_FRAME = build_page_frame('', [
         build_counter('teams', 'Event Teams', 0, 'increment("teams", false)', 'increment("teams", true)'),
         build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
         build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
-        build_counter('match_results', 'Match Results', 0, 'increment("match_results", false)', 'increment("match_results", true)')
+        build_counter('match_results', 'Match Results', 0, 'increment("match_results", false)', 'increment("match_results", true)'),
+        build_link_button('about', 'About WildRank', `open_about()`)
     ])
 ])
 
@@ -196,7 +197,6 @@ function switch_theme()
     }
 }
 
-
 /**
  * function:    has_teams
  * parameters:  none
@@ -249,6 +249,18 @@ function check_press(id)
         set_cookie(ROLE_COOKIE, id)
         return build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
     }
+}
+
+/**
+ * function:    open_about
+ * parameters:  none
+ * returns:     none
+ * description: Open the about page.
+ */
+function open_about()
+{
+    console.log('about')
+    return build_url('index', {'page': 'about'})
 }
 
 /**
