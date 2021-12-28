@@ -219,11 +219,11 @@ function is_blocked(id)
 {
     if (id != 'scout' && !is_admin(get_user()))
     {
-        return true
+        return 'Missing admin privileges'
     }
     if (id != 'admin' && !has_teams())
     {
-        return true
+        return 'Missing event data'
     }
     return false
 }
