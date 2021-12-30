@@ -23,7 +23,7 @@ const TBA_KEY = 'X-TBA-Auth-Key'
 const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'light'
 const ROLE_COOKIE = 'role'
-const ROLE_DEFAULT = 'scouter'
+const ROLE_DEFAULT = 'scout'
 
 /**
  * function:    window_open
@@ -97,7 +97,7 @@ function set_cookie(cname, cvalue)
     var d = new Date();
     d.setTime(d.getTime() + (7*24*60*60*1000))
     var expires = `expires=${d.toUTCString()}`
-    document.cookie = `${cname}=${cvalue};${expires};path=/`
+    document.cookie = `${cname}=${cvalue};${expires};path=/;SameSite=Strict`
 }
 
 /**
