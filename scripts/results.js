@@ -64,14 +64,14 @@ function open_option(name)
 {
     document.getElementById(`option_${name}`).classList.add('selected')
     let files = Object.keys(results)
-    files.forEach(function (file, index)
+    for (let file of files)
     {
         // determine files which start with the desired type
         if (document.getElementById(`option_${file}`) && file.startsWith(prefix) && file != name && document.getElementById(`option_${file}`).classList.contains('selected'))
         {
             document.getElementById(`option_${file}`).classList.remove('selected')
         }
-    })
+    }
 
     let parts = name.split('-')
     let team = parseInt(parts[parts.length - 1])
@@ -120,7 +120,7 @@ function open_option(name)
 
     let result = results[name]
     let entries = Object.keys(result)
-    entries.forEach(function (entry, index)
+    for (let entry of entries)
     {
         if (!entry.startsWith('meta_'))
         {
@@ -155,7 +155,7 @@ function open_option(name)
             }
             table += '</tr>'
         }
-    })
+    }
     document.getElementById('results_tab').innerHTML = table
     ws(team)
 }

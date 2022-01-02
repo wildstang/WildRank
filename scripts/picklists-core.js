@@ -108,13 +108,14 @@ function setup_picklists()
     {
         lists = JSON.parse(localStorage.getItem(name))
         // remove empty lists on page load
-        Object.keys(lists).forEach(function (list, index)
+        let names = Object.keys(lists)
+        for (let list of names)
         {
             if (lists[list].length == 0)
             {
                 delete lists[list]
             }
-        })
+        }
     }
     build_pick_lists()
 }

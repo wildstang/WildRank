@@ -41,8 +41,10 @@ function init_page(contents_card, buttons_container)
         let blues = []
 
         // make a row for each team
-        Object.keys(match_teams).forEach(function (key, i)
+        let teams = Object.keys(match_teams)
+        for (let i in teams)
         {
+            let key = teams[i]
             // add button and description to appropriate column
             if (key.slice(0, -1) == 'red')
             {
@@ -54,7 +56,7 @@ function init_page(contents_card, buttons_container)
                 blues.push(build_num_entry(`team_${i}`, '', '', [0, 10000], 'open_teams()'))
                 blues.push(build_card(`team_${i}_details`, ''))
             }
-        })
+        }
 
         // build template
         buttons_container.innerHTML = build_checkbox('show_notes', 'Show Notes', false, `toggle_notes()`) +
@@ -124,20 +126,20 @@ function open_match(match_num)
 
     // make a table of alliance "coach-vals"
     let stats = '<tr><th></th><th>Red</th><th>Blue</th></tr>'
-    vals.forEach(function (v)
+    for (let v of vals)
     {
         let type = meta[v.key].type
         let red_stat = avg_results(red_res, v.key, type, FUNCTIONS.indexOf(v.function))
         let blue_stat = avg_results(blue_res, v.key, type, FUNCTIONS.indexOf(v.function))
         stats += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, red_stat)}</td><td>${get_value(meta, v.key, blue_stat)}</td></tr>`
-    })
+    }
     document.getElementById('alliance_stats').innerHTML = stats
 
     // make a row for each team
-    teams.forEach(function (key, index)
+    for (let index in teams)
     {
-        document.getElementById(`team_${parseInt(index)}`).value = match_teams[key]
-    })
+        document.getElementById(`team_${parseInt(index)}`).value = match_teams[teams[index]]
+    }
 
     open_teams()
 }
@@ -169,15 +171,16 @@ function open_teams()
 
         // make a table of "coach-vals"
         let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><img id="photo_${index}"><table>`
-        vals.forEach(function (v)
+        for (let v of vals)
         {
             let stat = avg_results(get_team_results(results, team_num), v.key, meta[v.key].type, FUNCTIONS.indexOf(v.function))
             notes += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, stat)}</td></tr>`
-        })
+        }
         notes += '</table><div class="notes">'
 
         // add notes from notes mode, if box is checked
-        Object.keys(localStorage).forEach(function (file)
+        let files = Object.keys(localStorage)
+        for (let file of files)
         {
             if (file.startsWith(`${NOTE_MODE}-`))
             {
@@ -194,7 +197,7 @@ function open_teams()
                     notes += result.notes
                 }
             }
-        })
+        }
         notes += '</div>'
 
         document.getElementById(`${id}_details`).innerHTML = notes

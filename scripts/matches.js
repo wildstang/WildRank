@@ -176,7 +176,11 @@ function start_scouting(edit)
         query = {'page': NOTE_MODE, 'match': match_num, 
             [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id, 'edit': edit}
 
-        Object.keys(teams).forEach(team => query[team] = teams[team])
+        let keys = Object.keys(teams)
+        for (let team of keys)
+        {
+            query[team] = teams[team]
+        }
     }
     else
     {

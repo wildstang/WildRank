@@ -36,10 +36,11 @@ function fetch_config(onConfig, force=false)
             let years = Object.keys(data)
             for (let i = 0; i < years.length; ++i)
             {
-                Object.values(data)[i].forEach(function (mode, index)
+                let modes = Object.values(data)[i]
+                for (let mode of modes)
                 {
                     localStorage.setItem(`config-${years[i]}-${mode.id}`, JSON.stringify(mode))
-                })
+                }
             }
         })
         .catch(err => {
@@ -52,10 +53,11 @@ function fetch_config(onConfig, force=false)
             return response.json()
         })
         .then(data => {
-            Object.keys(data).forEach(function (section, index)
+            let keys = Object.keys(data)
+            for (let section of keys)
             {
                 localStorage.setItem(`config-${section}`, JSON.stringify(data[section]))
-            })
+            }
             if (typeof onConfig === 'function')
             {
                 onConfig()
@@ -273,7 +275,11 @@ function get_value(meta, key, value, html=true)
         else
         {
             let vals = {}
-            Object.keys(value).forEach(v => vals[get_value(meta, key, v)] = (100*value[v]/total).toFixed(0))
+            let keys = Object.keys(value)
+            for (let v of keys)
+            {
+                vals[get_value(meta, key, v)] = (100*value[v]/total).toFixed(0)
+            }
             return vals
         }
     }
@@ -356,10 +362,11 @@ function apply_theme()
     let theme = get_theme()
     if (typeof theme !== 'undefined')
     {
-        Object.keys(theme).forEach(function (key, index)
+        let keys = Object.keys(theme)
+        for (let key of keys)
         {
             document.documentElement.style.setProperty(`--${key}`, theme[key])
-        })
+        }
     }
 }
 

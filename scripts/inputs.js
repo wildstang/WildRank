@@ -112,8 +112,9 @@ function build_multi_counter(id, name, option_names, values)
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
-    option_names.forEach(function (op_name, i)
+    for (let i in option_names)
     {
+        let op_name = option_names[i]
         let dval = values
         if (Array.isArray(values))
         {
@@ -123,7 +124,7 @@ function build_multi_counter(id, name, option_names, values)
         options += `<span class="wr_select_option" id="${name}" onclick="increment('${name}-value', false)" oncontextmenu="return false" onauxclick="increment('${name}-value', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${name}-value\\', true)')\">
                 <label class="wr_counter_count" id="${name}-value">${dval}</label> ${op_name}
             </span>`
-    })
+    }
     return `${label}<div class="wr_select" id="${id}">${options}</div>`
 }
 
@@ -137,8 +138,9 @@ function build_multi_button(id, name, option_names, onclicks, additional_classes
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
-    option_names.forEach(function (op_name, index)
+    for (let index in option_names)
     {
+        let op_name = option_names[index]
         onsecondary = ''
         if (onsecondarys[index])
         {
@@ -147,7 +149,7 @@ function build_multi_button(id, name, option_names, onclicks, additional_classes
         options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" oncontextmenu="return false" onauxclick="${onsecondarys[index]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondary}')">
                 <label>${op_name}</label>
             </span>`
-    })
+    }
     return `${label}<div class="wr_select ${additional_classes}" id="${id}">${options}</div>`
 }
 
@@ -161,12 +163,13 @@ function build_select(id, name, option_names, default_op, onclick='')
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
-    option_names.forEach(function (op_name, index)
+    for (let index in option_names)
     {
+        let op_name = option_names[index]
         options += `<span class="wr_select_option ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
                 <label>${op_name}</label>
             </span>`
-    })
+    }
     return `${label}<div class="wr_select" id="${id}">${options}</div>`
 }
 
@@ -180,10 +183,10 @@ function build_dropdown(id, name, option_names, default_op='', onchange='', clas
 {
     let label = name.length != 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let options = ''
-    option_names.forEach(function (op_name, index)
+    for (let op_name of option_names)
     {
         options += build_dropdown_op(op_name, default_op)
-    })
+    }
     return `${label}<select class="wr_dropdown ${classes}" id="${id}" onchange="${onchange}">${options}</select>`
 }
 

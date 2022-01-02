@@ -133,7 +133,8 @@ function open_option(team_num)
         notes += '</tr>'
     }
 
-    Object.keys(localStorage).forEach(function (file, index)
+    let files = Object.keys(localStorage)
+    for (let file of files)
     {
         if (file.startsWith(`${NOTE_MODE}-`))
         {
@@ -148,7 +149,7 @@ function open_option(team_num)
                 notes += result.notes
             }
         }
-    })
+    }
     document.getElementById('notes').innerHTML = notes
 
     // find robot photo
@@ -161,7 +162,7 @@ function open_option(team_num)
     if (localStorage.getItem(file_name) != null)
     {
         matches = JSON.parse(localStorage.getItem(file_name))
-        matches.forEach(function (match, index)
+        for (let match of matches)
         {
             if (match.comp_level == 'qm')
             {
@@ -217,7 +218,7 @@ function open_option(team_num)
                     cards.push(build_card('', `<center>${time}</center>`))
                 }
             }
-        })
+        }
 
         document.getElementById('matches').innerHTML = build_page_frame('', [
             pit_button,

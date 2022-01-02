@@ -237,7 +237,7 @@ function build_table(sort_by='', reverse=false)
 
     // header row
     let table = `<tr><th onclick="build_table()" ${sort_by != '' ? 'style="font-weight: normal"' : ''}>Team</th>`
-    selected.forEach(function (key)
+    for (let key of selected)
     {
         let name = ''
         if (key.includes('-'))
@@ -261,12 +261,12 @@ function build_table(sort_by='', reverse=false)
         }
         let rev = raw_sort == key ? !reverse : false
         table += `<th onclick="build_table('${key}', ${rev})" ${raw_sort != key ? 'style="font-weight: normal"' : ''}>${name}</th>`
-    })
+    }
     table += '</tr>'
 
     // totals row
     table += '<tr><th>Totals</th>'
-    selected.forEach(function (key)
+    for (let key of selected)
     {
         let label = ''
         if (key.includes('-'))
@@ -288,17 +288,17 @@ function build_table(sort_by='', reverse=false)
             valStr = get_value(meta, key, avg_results(results, key, meta[key].type, method))
         }
         table += `<td>${valStr}</td>`
-    })
+    }
     table += '</tr>'
 
     // data rows
-    teams.forEach(function (team)
+    for (let team of teams)
     {
         let team_results = get_team_results(results, team)
         if (Object.keys(team_results).length > 0)
         {
             table += `<th>${team}</th>`
-            selected.forEach(function (key)
+            for (let key of selected)
             {
                 let label = ''
                 if (key.includes('-'))
@@ -359,10 +359,10 @@ function build_table(sort_by='', reverse=false)
                     }
                 }
                 table += `<td class="result_cell" ${color})">${valStr}</td>`
-            })
+            }
             table += '</tr>'
         }
-    })
+    }
     document.getElementById('results_tab').innerHTML = table
 }
 
@@ -378,28 +378,28 @@ function export_table()
 
     // build csv
     let line = 'Totals'
-    keys.forEach(function (key)
+    for (let key of keys)
     {
         let val = avg_results(results, key, meta[key].type, get_selected_option('type_form'))
         line += ',' + get_value(meta, key, val)
-    })
+    }
     
     let lines = [ 'Team,' + keys.map(key => meta[key].name).join(','), line]
-    teams.forEach(function (team, index)
+    for (let team of teams)
     {
         let team_results = get_team_results(results, team)
         if (Object.keys(team_results).length > 0)
         {
             line = team
-            keys.forEach(function (key)
+            for (let key of keys)
             {
                 let val = avg_results(team_results, key, meta[key].type, get_selected_option('type_form'))
                 let valStr = get_value(meta, key, val)
                 line += ',' + valStr
-            })
+            }
             lines.push(line)
         }
-    })
+    }
     let csv = lines.join('\n').replace(/,NaN/g, ',')
 
     // download CSV
@@ -430,10 +430,10 @@ function save_pick_list()
         lists = {}
     }
     lists[name] = []
-    teams.forEach(function (team)
+    for (let team of teams)
     {
         lists[name].push(team)
-    })
+    }
 
     // save to localStorage and open
     localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))

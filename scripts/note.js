@@ -16,15 +16,15 @@ const start = Date.now()
 function build_page()
 {
     reds = []
-    red_teams.forEach(function (team, i)
+    for (let i in red_teams)
     {
-        build_note_box(team, `red${i+1}`, reds)
-    })
+        build_note_box(red_teams[i], `red${parseInt(i)+1}`, reds)
+    }
     blues = []
-    blue_teams.forEach(function (team, i)
+    for (let i in blue_teams)
     {
-        build_note_box(team, `blue${i+1}`, blues)
-    })
+        build_note_box(blue_teams[i], `blue${parseInt(i)+1}`, blues)
+    }
 
     let scouting = 0
     const descriptions = ['No One', 'Red Alliance', 'Blue Alliance', 'Both Alliances']
@@ -86,14 +86,14 @@ function get_results_from_page()
     results['meta_match'] = parseInt(match_num)
 
     // save each individual team
-    red_teams.forEach(function (team, i)
+    for (let i in red_teams)
     {
-        save_team_result(results, team, `red${i+1}`)
-    })
-    blue_teams.forEach(function (team, i)
+        save_team_result(results, red_teams[i], `red${parseInt(i)+1}`)
+    }
+    for (let i in blue_teams)
     {
-        save_team_result(results, team, `blue${i+1}`)
-    })
+        save_team_result(results, blue_teams[i], `blue${parseInt(i)+1}`)
+    }
 
     window.location.href = build_url('selection', {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id})
 }

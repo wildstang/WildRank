@@ -224,7 +224,7 @@ function build_plot()
     let team_vals = {}
     team_modes = {}
     let use_modes = type == 'checkbox' || type == 'select' || type == 'dropdown'
-    teams.forEach(function (team)
+    for (let team of teams)
     {
         let team_results = get_team_results(results, team)
         // build a value string of percents for discrete inputs
@@ -241,13 +241,15 @@ function build_plot()
             }
             // add each count to a list to plot
             let counts = avg_results(team_results, key, type, method, ops)
-            Object.values(counts).forEach(function (c, i)
+            let cvals = Object.values(counts)
+            for (let i in cvals)
             {
+                let c = cvals[i]
                 for (let j = 0; j < c; ++j)
                 {
                     values.push(i)
                 }
-            })
+            }
             // get mode for placing highlight
             let mode = avg_results(team_results, key, type, 2)
             // convert mode to numeric values
@@ -268,7 +270,7 @@ function build_plot()
                 team_modes[team] = val
             }
         }
-    })
+    }
 
     // bin math
     let max_bins = document.getElementById('max_bins').value
@@ -282,8 +284,9 @@ function build_plot()
     let unique = [... new Set(values)]
     unique.sort((a, b) => a - b)
     let min_delta = delta
-    unique.forEach(function(u, i)
+    for (let i in unique)
     {
+        let u = unique[i]
         if (i+1 < unique.length)
         {
             let udelta = unique[i+1] - u
@@ -292,7 +295,7 @@ function build_plot()
                 min_delta = udelta
             }
         }
-    })
+    }
 
     // reduce bin size if possible
     if (delta / min_delta <= bins)
@@ -347,7 +350,8 @@ function build_plot()
     
     // draw line to highlight teams
     let selected = 0
-    get_secondary_selected_keys().forEach(function (highlight)
+    let keys = get_secondary_selected_keys()
+    for (let highlight of keys)
     {
         // check if selected and avoid invalid team numbers
         if (!isNaN(parseInt(highlight)))
@@ -390,7 +394,7 @@ function build_plot()
             selected++
             ctx.stroke()
         }
-    })
+    }
 
     // draw each bin
     let maxBin = Math.max(...counts)

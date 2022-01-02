@@ -82,7 +82,7 @@ function preload_event()
                     // fetch team's avatar for whiteboard
                     var avatars = 0
                     var success = 0
-                    teams.forEach(function (team, index)
+                    for (let team of teams)
                     {
                         let year = get_event().substr(0, 4)
                         fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_KEY]: API_KEY})}`)
@@ -99,7 +99,7 @@ function preload_event()
                                 console.log(`Error loading avatar: ${err}!`)
                                 ++avatars
                             })
-                    })
+                    }
                 }
                 else
                 {
@@ -216,7 +216,7 @@ function import_all()
                 alert(`${results.length} ${get_selected_type()} results found`)
 
                 // request each desired result
-                results.forEach(function (file, index)
+                for (let file of results)
                 {
                     fetch(`${addr}/uploads/${file}`)
                         .then(response => {
@@ -231,7 +231,7 @@ function import_all()
                             alert('Error requesting result')
                             console.log(err)
                         })
-                })
+                }
             })
             .catch(err => {
                 alert('Error requesting results')
@@ -261,7 +261,7 @@ function export_zip()
     })
 
     // add each file to the zip
-    files.forEach(function(file)
+    for (let file of files)
     {
         let name = file
         let base64 = false
@@ -283,7 +283,7 @@ function export_zip()
             name += '.json'
         }
         zip.file(name, data, { base64: base64 })
-    })
+    }
 
     // download zip
     zip.generateAsync({ type: 'base64' })
@@ -314,8 +314,11 @@ function import_zip_from_event(event)
     let file = event.target.files[0]
 
     // process each files details
-    JSZip.loadAsync(file).then(function (zip) {
-        Object.keys(zip.files).forEach(function (name) {
+    JSZip.loadAsync(file).then(function (zip)
+    {
+        let files = Object.keys(zip.files)
+        for (let name of files)
+        {
             let parts = name.split('.')
             let n = parts[0]
             let type = n.split('-')[0]
@@ -324,7 +327,8 @@ function import_zip_from_event(event)
             if (parts[1] == 'json' && n.includes(get_event()) && !file_exists(n))
             {
                 // get blob of files text
-                zip.file(name).async('blob').then(function (content) {
+                zip.file(name).async('blob').then(function (content)
+                {
                     content.text().then(function (text) {
                         // save to localStorage if result or event data is missing
                         if ((type == MATCH_MODE || type == PIT_MODE || type == NOTE_MODE || type == 'picklists') ||
@@ -336,7 +340,7 @@ function import_zip_from_event(event)
                     })
                 })
             }
-        })
+        }
     })
 }
 
@@ -405,7 +409,8 @@ function export_spreadsheet(event_id)
 {
     let combined = {}
     let keys = ['name', 'event', 'kind', 'match', 'team']
-    Object.keys(localStorage).forEach(function (name, index)
+    let files = Object.keys(localStorage)
+    for (let name of files)
     {
         let parts = name.split('-')
         let kind = parts[0]
@@ -434,7 +439,8 @@ function export_spreadsheet(event_id)
             {
                 // add object to combined
                 let resultJSON = JSON.parse(localStorage.getItem(name))
-                Object.keys(resultJSON).forEach(function (key, index)
+                let results = Object.keys(resultJSON)
+                for (let key of results)
                 {
                     let val = resultJSON[key]
                     // look for cycles (arrays of objects)
@@ -466,20 +472,21 @@ function export_spreadsheet(event_id)
                         }
                         result[key] = val
                     }
-                })
+                }
                 console.log(result)
                 combined[name] = result
             }
         }
-    })
+    }
 
     // build csv
-    var lines = [keys.join()]
-    Object.keys(combined).forEach(function (name, index)
+    let lines = [keys.join()]
+    let results = Object.keys(combined)
+    for (let name of results)
     {
         let obj_keys = Object.keys(combined[name])
         let values = []
-        keys.forEach(function (key, index)
+        for (let key of keys)
         {
             if (obj_keys.includes(key))
             {
@@ -489,8 +496,8 @@ function export_spreadsheet(event_id)
             {
                 values.push(NaN)
             }
-        })
+        }
         lines.push(values.join())
-    })
+    }
     return lines.join('\n').replace(/,NaN/g, ',')
 }

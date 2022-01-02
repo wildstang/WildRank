@@ -69,18 +69,18 @@ function open_match(match_num)
 
         // update avatars
         bot_images = {}
-        red_teams.forEach(function (team, i)
+        for (let i in red_teams)
         {
-            let pos = `red_${i+1}`
+            let pos = `red_${parseInt(i)+1}`
             bot_images[pos] = new Image()
-            document.getElementById(pos).value = team.substr(3)
-        })
-        blue_teams.forEach(function (team, i)
+            document.getElementById(pos).value = red_teams[i].substr(3)
+        }
+        for (let i in blue_teams)
         {
-            let pos = `blue_${i+1}`
+            let pos = `blue_${parseInt(i)+1}`
             bot_images[pos] = new Image()
-            document.getElementById(pos).value = team.substr(3)
-        })
+            document.getElementById(pos).value = blue_teams[i].substr(3)
+        }
 
         update_teams()
 
@@ -101,10 +101,11 @@ function open_match(match_num)
  */
 function update_teams()
 {
-    Object.keys(bot_images).forEach(function (pos)
+    let names = Object.keys(bot_images)
+    for (let pos of names)
     {
         bot_images[pos].src = get_avatar(document.getElementById(pos).value, year)
-    })
+    }
 }
 
 /**
@@ -191,13 +192,14 @@ function clear_whiteboard()
 function intersects_image(x, y)
 {
     let i = -1
-    magnets.forEach(function (image, index)
+    for (let index in magnets)
     {
+        let image = magnets[index]
         if (x > image.x && y > image.y && x < image.x + image.width - 1 && y < image.y + image.height)
         {
             i = index
         }
-    })
+    }
     return i
 }
 
@@ -246,18 +248,19 @@ function add_game_piece(name)
 function init() {
     clear_whiteboard()
     magnets = []
-    Object.keys(bot_images).forEach(function (pos)
+    let bi_names = Object.keys(bot_images)
+    for (let pos of bi_names)
     {
         create_magnet(wb[pos].x / scale_factor, wb[pos].y / scale_factor, bot_images[pos], wb[pos].color)
-    })
+    }
 
     // determine game piece by game
-    wb.game_pieces.forEach(function (piece)
+    for (let piece of wb.game_pieces)
     {
         let image = new Image()
         image.src = `config/${piece.image}`
         game_pieces[piece.name] = image
-    })
+    }
 
     let names = Object.keys(game_pieces)
     let button = build_multi_button('add_game_piece', 'Add Game Piece', names, names.map(name => `add_game_piece('${name}')`))
@@ -280,7 +283,7 @@ function draw() {
     ctx.clearRect(0, 0, field_width, field_height)
 
     // draw each magnet
-    magnets.forEach(function (image)
+    for (let image of magnets)
     {
         if (image.img.complete)
         {
@@ -288,9 +291,9 @@ function draw() {
             ctx.drawImage(image.img, image.x, image.y, image.width, image.height)
             ctx.stroke()
         }
-    })
+    }
 
-    markers.forEach(function (point)
+    for (let point of markers)
     {
         ctx.beginPath()
         ctx.arc(point.x, point.y, 10, 0, 2 * Math.PI, false)
@@ -299,14 +302,15 @@ function draw() {
         ctx.lineWidth = 5
         ctx.strokeStyle = '#000000'
         ctx.stroke()
-    })
+    }
 
     // draw each line
-    lines.forEach(function (line, idx)
+    for (let line of lines)
     {
         ctx.beginPath()
-        line.forEach(function (p, index)
+        for (let index in line)
         {
+            let p = line[index]
             if (index == 0)
             {
                 ctx.beginPath(p.x, p.y)
@@ -315,19 +319,21 @@ function draw() {
             {
                 ctx.lineTo(p.x, p.y)
             }
-        })
+        }
         ctx.lineWidth = line_width
         ctx.strokeStyle = line.color
         ctx.stroke()
-    })
+    }
 
     // draw trails during match playback
     if (trail_length > 0 && match_plots != null && match_plots.alliances != null)
     {
         // get current match time
         let now = document.getElementById('match_time').value
-        Object.keys(bot_images).forEach(function (pos, i)
+        let names = Object.keys(bot_images)
+        for (let i in names)
         {
+            let pos = names[i]
             let parts = pos.split('_')
 
             // get teams points
@@ -357,16 +363,19 @@ function draw() {
                     ctx.stroke()
                 }
             }
-        })
+        }
     }
 
     // draw heatmap
     let margin = scale_coord(3, 3, false, false)
     let max = Math.sqrt(Math.max(...heatmap.flat()))
-    heatmap.forEach(function (r, x)
+    for (let x in heatmap)
     {
-        r.forEach(function (c, y)
+        x = parseInt(x)
+        for (let y in heatmap[x])
         {
+            y = parseInt(y)
+            let c = heatmap[x][y]
             if (c > 1)
             {
                 ctx.beginPath()
@@ -377,8 +386,8 @@ function draw() {
                 ctx.fillRect(coord.x, coord.y, -margin.x, margin.y)
                 ctx.stroke()
             }
-        })
-    })
+        }
+    }
 
     // reset alpha
     ctx.globalAlpha = 1.0
@@ -442,8 +451,10 @@ function fetch_zebra(match_key)
             match_plots = data
             heatmaps = {}
 
-            Object.keys(bot_images).forEach(function (pos, i)
+            let names = Object.keys(bot_images)
+            for (let i in names)
             {
+                let pos = names[i]
                 let parts = pos.split('_')
 
                 // get teams points
@@ -461,8 +472,11 @@ function fetch_zebra(match_key)
                     }
 
                     let heatmap = new Array(18).fill([])
-                    heatmap.forEach((_,i) => heatmap[i] = new Array(9).fill(0))
-                    data.times.forEach(function (t, i)
+                    for (let i in heatmap)
+                    {
+                        heatmap[i] = new Array(9).fill(0)
+                    }
+                    for (let i in data.times)
                     {
                         // build heatmap
                         if (i > 0 && i < data.times.length - 1 && points.xs[i] != null && points.ys[i] != null) {
@@ -470,10 +484,10 @@ function fetch_zebra(match_key)
                             let y = Math.floor(points.ys[i] / 3)
                             heatmap[x][y]++
                         }
-                    })
+                    }
                     heatmaps[points.team_key.substr(3)] = heatmap
                 }
-            })
+            }
 
             // update sliders
             if (match_plots)
@@ -553,8 +567,10 @@ function update_time()
 {
     let time = document.getElementById('match_time').value
 
-    Object.keys(bot_images).forEach(function (pos, i)
+    let names = Object.keys(bot_images)
+    for (let i in names)
     {
+        let pos = names[i]
         let parts = pos.split('_')
 
         // get teams points
@@ -571,7 +587,7 @@ function update_time()
                 magnets[i].y = point.y - magnet_size / 2
             }
         }
-    })
+    }
 }
 
 /**
@@ -827,12 +843,12 @@ function init_canvas()
     canvas.addEventListener('contextmenu', mouse_right, false)
 
     // adjust magnets to fit new scale
-    magnets.forEach(function (mag)
+    for (let mag of magnets)
     {
         let mag_scale_factor = old_scale_factor / scale_factor
         mag.x *= mag_scale_factor
         mag.y *= mag_scale_factor
         mag.width *= mag_scale_factor
         mag.height *= mag_scale_factor
-    })
+    }
 }

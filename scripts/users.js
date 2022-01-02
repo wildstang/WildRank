@@ -25,7 +25,8 @@ function init_page(contents_card, buttons_container)
         buttons_container.innerHTML = '<div id="contents"></div>'
         
         // build list of users and results
-        Object.keys(localStorage).forEach(function (file, index)
+        let files = Object.keys(localStorage)
+        for (let file of files)
         {
             if (file.startsWith(`${MATCH_MODE}-${event_id}-`) || file.startsWith(`${PIT_MODE}-${event_id}-`) || file.startsWith(`${NOTE_MODE}-${event_id}-`))
             {
@@ -39,7 +40,7 @@ function init_page(contents_card, buttons_container)
                     users[user] = [file]
                 }
             }
-        })
+        }
         
         let first = populate_other(Object.keys(users))
         if (first)
@@ -62,10 +63,11 @@ function init_page(contents_card, buttons_container)
 function open_option(user_id)
 {
     // remove selected options
-    Object.keys(users).forEach(function (user, index)
+    let names = Object.keys(users)
+    for (let user of names)
     {
         document.getElementById(`option_${user}`).classList.remove('selected')
-    })
+    }
 
     // iterate through each result
     let total_pit = 0
@@ -76,7 +78,7 @@ function open_option(user_id)
     let pits = []
     let matches = []
     let notes = []
-    users[user_id].forEach(function (file, index)
+    for (let file of users[user_id])
     {
         let parts = file.split('-')
 
@@ -107,7 +109,7 @@ function open_option(user_id)
             total_notes += duration
             total_notes_delta += delta
         }
-    })
+    }
 
     let user_class = is_admin(user_id) ? '(admin)' : ''
 

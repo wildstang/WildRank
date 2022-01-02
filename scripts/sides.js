@@ -63,7 +63,8 @@ function init_page(contents_card, buttons_container)
 function collect_results()
 {
     let unsorted = {}
-    Object.keys(localStorage).forEach(function (file, index)
+    let files = Object.keys(localStorage)
+    for (let file of files)
     {
         // determine files which start with the desired type
         if (file.startsWith(prefix))
@@ -77,7 +78,7 @@ function collect_results()
             }
             unsorted[file] = add_smart_stats(JSON.parse(localStorage.getItem(file)))
         }
-    })
+    }
 
     let num_results = Object.keys(unsorted).length
     if (num_results == 0)
@@ -87,21 +88,22 @@ function collect_results()
 
     keys = get_keys(meta).filter(key => !['string', 'text', 'unknown'].includes(meta[key].type))
     // calculate max for each value
-    keys.forEach(function (key, index)
+    for (let key of keys)
     {
         maxs[key] = avg_results(unsorted, key, meta[key].type, 4)
-    })
-    Object.keys(teams).forEach(function (team, index)
+    }
+    let tkeys = Object.keys(teams)
+    for (let team of tkeys)
     {
         let team_results = get_team_results(unsorted, team)
-        keys.forEach(function (key, index)
+        for (let key of keys)
         {
             let type = meta[key].type
 
             teams[team][key] = avg_results(team_results, key, type, get_selected_option('type_form'), meta[key].options)
             stddevs[team][key] = avg_results(team_results, key, type, 5)
-        })
-    })
+        }
+    }
 
     return num_results
 }
@@ -159,7 +161,7 @@ function open_teams()
     use_cached_image(selectedB, 'photoB', 'full_res')
 
     let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th><th>Max</th></tr>`
-    keys.forEach(function (key, index)
+    for (let key of keys)
     {
         let aVal = teams[selectedA][key]
         let bVal = teams[selectedB][key]
@@ -179,7 +181,7 @@ function open_teams()
         {
             compare += build_row(key, get_value(meta, key, aVal), get_value(meta, key, bVal))
         }
-    })
+    }
 
     document.getElementById('results_tab').innerHTML = compare
 

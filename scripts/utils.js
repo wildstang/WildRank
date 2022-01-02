@@ -137,7 +137,7 @@ function get_team_results(results, team)
 {
     let files = Object.keys(results)
     let team_results = {}
-    files.forEach(function (file, index)
+    for (let file of files)
     {
         let parts = file.split('-')
         let number = parseInt(parts[parts.length - 1])
@@ -146,7 +146,7 @@ function get_team_results(results, team)
         {
             team_results[file] = results[file]
         }
-    })
+    }
     return team_results
 }
 
@@ -160,7 +160,7 @@ function get_match_results(results, match)
 {
     let files = Object.keys(results)
     let match_results = {}
-    files.forEach(function (file, index)
+    for (let file of files)
     {
         let parts = file.split('-')
         let number = parseInt(parts[parts.length - 2])
@@ -169,7 +169,7 @@ function get_match_results(results, match)
         {
             match_results[file] = results[file]
         }
-    })
+    }
     return match_results
 }
 
@@ -183,7 +183,7 @@ function get_scouter_results(results, user)
 {
     let files = Object.keys(results)
     let user_results = {}
-    files.forEach(function (file, index)
+    for (let file of files)
     {
         let id = results[file]['meta_scouter_id']
         // determine files which start with the desired type
@@ -191,7 +191,7 @@ function get_scouter_results(results, user)
         {
             user_results[file] = results[file]
         }
-    })
+    }
     return user_results
 }
 
@@ -247,7 +247,7 @@ function mode(values)
 {
     let counts = {}
     let maxVal = values[0]
-    values.forEach(function (val, index)
+    for (let val of values)
     {
         if (val == null)
         {
@@ -260,7 +260,7 @@ function mode(values)
 
         // if this was a most frequent increase the max count
         if (counts[val] > counts[maxVal]) maxVal = val
-    })
+    }
     return maxVal
 }
 
@@ -840,13 +840,14 @@ function add_given_smart_stats(result, stats)
 function avg_results(results, key, type, sort_type, options=[])
 {
     let values = []
-    Object.keys(results).forEach(function (name, index)
+    let keys = Object.keys(results)
+    for (let name of keys)
     {
         if (!isNaN(results[name][key]))
         {
             values.push(results[name][key])
         }
-    })
+    }
     switch (type)
     {
         // compute mode for non-numerics
@@ -1044,13 +1045,14 @@ function get_team_keys(event_id)
 function count_results(event_id, type)
 {
     let count = 0
-    Object.keys(localStorage).forEach(function (file, index)
+    let files = Object.keys(localStorage)
+    for (let file of files)
     {
         if (file.startsWith(`${type}-${event_id}-`))
         {
             ++count
         }
-    })
+    }
     return count
 }
 

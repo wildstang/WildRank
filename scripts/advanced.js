@@ -10,6 +10,7 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var num_matches = 0
 var team_stats = []
+var matches = []
 
 var field_width
 var field_height
@@ -72,7 +73,10 @@ function init_page(contents_card, buttons_container)
             // get zebra data for each match
             matches = JSON.parse(localStorage.getItem(file_name))
             let match_stats = []
-            matches.forEach(m => fetch_zebra(m.key, match_stats))
+            for (let m of matches)
+            {
+                fetch_zebra(m.key, match_stats)
+            }
             num_matches = matches.length
 
             // wait for fetches to complete to render page
@@ -224,7 +228,7 @@ function build_row(name, value, unit, rank)
  */
 function calculate_team_stats(teams, match_stats)
 {
-    teams.forEach(function (t)
+    for (let t of teams)
     {
         // calculate base stats
         let team_num = t.team_number
@@ -247,26 +251,29 @@ function calculate_team_stats(teams, match_stats)
             team.climb_pct = (100 * climbs.length / team_matches.length).toFixed(2)
 
             let heatmap = team_matches[0].heatmap
-            heatmap.forEach(function (col, c)
+            for (let c in heatmap)
             {
-                col.forEach(function (_, r)
+                c = parseInt(c)
+                for (let r in heatmap[c])
                 {
-                    team_matches.forEach(function (t, i)
+                    r = parseInt(r)
+                    for (let i in team_matches)
                     {
+                        let tm = team_matches[i]
                         if (i > 0)
                         {
                             let x = c
                             let y = r
-                            if (t.pos.startsWith('blue'))
+                            if (tm.pos.startsWith('blue'))
                             {
                                 x = 17 - c
                                 y = 8 - r
                             }
-                            heatmap[x][y] += t.heatmap[c][r]
+                            heatmap[x][y] += tm.heatmap[c][r]
                         }
-                    })
-                })
-            })
+                    }
+                }
+            }
             team.heatmap = heatmap
         }
         else
@@ -277,20 +284,20 @@ function calculate_team_stats(teams, match_stats)
 
         // save start and end markers
         let markers = []
-        team_matches.forEach(function (t)
+        for (let tm of team_matches)
         {
-            let blue = t.pos.startsWith('blue')
-            let point = scale_coord(t.x_start, t.y_start, true, !blue, blue)
+            let blue = tm.pos.startsWith('blue')
+            let point = scale_coord(tm.x_start, tm.y_start, true, !blue, blue)
             point.color = 'green'
             markers.push(point)
-            point = scale_coord(t.x_end, t.y_end, true, !t.pos.startsWith('blue'), t.pos.startsWith('blue'))
+            point = scale_coord(tm.x_end, tm.y_end, true, !tm.pos.startsWith('blue'), tm.pos.startsWith('blue'))
             point.color = 'red'
             markers.push(point)
-        })
+        }
         team.markers = markers
 
         team_stats[team_num] = team
-    })
+    }
 
     // compute rankings
     let max_speeds = team_stats.map(t => t.max_speed).sort((a, b) => b - a)
@@ -300,7 +307,8 @@ function calculate_team_stats(teams, match_stats)
     let min_climbs = team_stats.map(t => t.min_climb).sort()
     let avg_climbs = team_stats.map(t => t.avg_climb).sort()
     let climb_pcts = team_stats.map(t => t.climb_pct).sort((a, b) => b - a)
-    team_stats.forEach(function (team)
+    let vals = Object.values(team_stats)
+    for (let team of vals)
     {
         if (team.markers.length > 0)
         {
@@ -312,7 +320,7 @@ function calculate_team_stats(teams, match_stats)
             team.avg_climb_rank = avg_climbs.indexOf(team.avg_climb) + 1
             team.climb_pct_rank = climb_pcts.indexOf(team.climb_pct) + 1
         }
-    })
+    }
 }
 
 /**
@@ -323,6 +331,23 @@ function calculate_team_stats(teams, match_stats)
  */
 function fetch_zebra(match_key, stats)
 {
+    // get match data
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({ [TBA_KEY]: API_KEY })}`)
+        .then(response => {
+            if (response.status == 401)
+            {
+                // log to prevent user spam
+                console.log('Invalid API Key Suspected')
+            }
+            return response.json()
+        })
+        .then(data => {
+            if (data && data.length > 0)
+            {
+                matches = data
+            }
+        })
+
     // fetch simple event matches
     fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({ [TBA_KEY]: API_KEY })}`)
         .then(response => {
@@ -345,7 +370,7 @@ function fetch_zebra(match_key, stats)
                 teams = teams.concat(data.alliances.blue.map((t, i) => `blue_${i}`))
     
                 // process zebra data for each team
-                teams.forEach(function (pos)
+                for (let pos of teams)
                 {
                     // get teams points
                     let parts = pos.split('_')
@@ -359,9 +384,13 @@ function fetch_zebra(match_key, stats)
                         let speeds = []
                         let accels = []
                         let heatmap = new Array(18).fill([])
-                        heatmap.forEach((_,i) => heatmap[i] = new Array(9).fill(0))
-                        data.times.forEach(function (t, i)
+                        for (let i in heatmap)
                         {
+                            heatmap[i] = new Array(9).fill(0)
+                        }
+                        for (let i in data.times)
+                        {
+                            i = parseInt(i)
                             // calculate speed and acceleration
                             if (i > 0 && i < data.times.length - 6)
                             {
@@ -373,7 +402,7 @@ function fetch_zebra(match_key, stats)
                                 }
                                 if (speeds[speeds.length-1] > 20)
                                 {
-                                    console.log('Removing', points.team_key, speeds[speeds.length-1], i, points.xs[i], points.ys[i])
+                                    //console.log('Removing', points.team_key, speeds[speeds.length-1], i, points.xs[i], points.ys[i])
                                     speeds.pop()
                                 }
                                 if (accels[accels.length-1] > 15)
@@ -415,7 +444,7 @@ function fetch_zebra(match_key, stats)
                                     under_since = 0
                                 }
                             }
-                        })
+                        }
 
                         // filter out failed or unattempted climbs
                         let climbed = under_since > 0
@@ -433,7 +462,7 @@ function fetch_zebra(match_key, stats)
                             'heatmap': heatmap, 'cycles': cycles, 'climb': (1500 - under_since) / 10, 'climbed': climbed
                         })
                     }
-                })
+                }
             }
             count++
         })
@@ -563,7 +592,7 @@ function draw() {
         let markers = stats.markers
         if (markers)
         {
-            markers.forEach(function (point)
+            for (let point of markers)
             {
                 ctx.beginPath()
                 ctx.arc(point.x / 1, point.y / 1, 5 / scale_factor, 0, 2 * Math.PI, false)
@@ -572,7 +601,7 @@ function draw() {
                 ctx.lineWidth = 3 / scale_factor
                 ctx.strokeStyle = '#000000'
                 ctx.stroke()
-            })
+            }
         }
 
         // draw heatmap
@@ -581,10 +610,13 @@ function draw() {
         {
             let margin = scale_coord(3, 3, false, false)
             let max = Math.sqrt(Math.max(...heatmap.flat()))
-            heatmap.forEach(function (r, x)
+            for (let x in heatmap)
             {
-                r.forEach(function (c, y)
+                x = parseInt(x)
+                for (let y in heatmap[x])
                 {
+                    y = parseInt(y)
+                    let c = heatmap[x][y]
                     if (c > 1)
                     {
                         ctx.beginPath()
@@ -595,8 +627,8 @@ function draw() {
                         ctx.fillRect(coord.x, coord.y, -margin.x, margin.y)
                         ctx.stroke()
                     }
-                })
-            })
+                }
+            }
         }
     }
 

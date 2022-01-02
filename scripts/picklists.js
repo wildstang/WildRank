@@ -26,13 +26,14 @@ function init_page(contents_card, buttons_container)
         {
             lists = JSON.parse(localStorage.getItem(name))
             // remove empty lists on page load
-            Object.keys(lists).forEach(function (list, index)
+            let names = Object.keys(lists)
+            for (let list of names)
             {
                 if (lists[list].length == 0)
                 {
                     delete lists[list]
                 }
-            })
+            }
         }
         
         build_pick_lists()
@@ -54,7 +55,8 @@ function build_team_list(teams)
 {
     let first = ''
     // iterate through team objs
-    teams.forEach(function (team, index) {
+    for (let team of teams)
+    {
         let number = team.team_number
         if (first == '')
         {
@@ -63,7 +65,7 @@ function build_team_list(teams)
 
         // replace placeholders in template and add to screen
         document.getElementById('option_list').innerHTML += build_option(number)
-    })
+    }
     open_option(first)
     scroll_to('option_list', `option_${first}`)
 }
@@ -116,7 +118,7 @@ function build_pick_lists(list_name='')
     if (Object.keys(lists).length > 0)
     {
         column_items.push(build_button('', 'Add to Top', `add_to('${list_name}', '')`, `remove_team('${list_name}', '')`))
-        lists[list_name].forEach(function (team)
+        for (let team of lists[list_name])
         {
             let classes = ''
             if (lists['picked'] && lists['picked'].includes(team))
@@ -125,7 +127,7 @@ function build_pick_lists(list_name='')
             }
             // add team button
             column_items.push(build_multi_button(team, '', [team, '✗'], [`add_to('${list_name}', '${team}')`, `cross_out('${list_name}', '${team}')`], classes, [`remove_team('${list_name}', '${team}')`]))
-        })
+        }
     }
 
     // build page

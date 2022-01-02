@@ -79,13 +79,14 @@ function open_match(match_num)
     let reds = []
     let blues = []
 
+    let teams = Object.keys(match_teams)
     if (match.comp_level == 'qm')
     {
         // make row for match notes
         note_button = build_link_button('note_button', 'Take Match Notes', `notes('${match_num}', ${notes_taken(match_num, event_id)})`)
     
         // make a row for each team
-        Object.keys(match_teams).forEach(function (key)
+        for (let key of teams)
         {
             let team_num = match_teams[key]
             let alliance = key.slice(0, -1)
@@ -117,11 +118,11 @@ function open_match(match_num)
                 blues.push(button)
                 blues.push(build_card('', team_info, limitWidth=true))
             }
-        })
+        }
     }
 
     // no scouting for finals
-    Object.keys(match_teams).forEach(function (key)
+    for (let key of teams)
     {
         let team_num = match_teams[key]
         let alliance = key.slice(0, -1)
@@ -142,7 +143,7 @@ function open_match(match_num)
         {
             blues.push(build_card('', team_info, limitWidth=true))
         }
-    })
+    }
 
     // create columns and page
     document.getElementById('teams').innerHTML = build_page_frame('', [
