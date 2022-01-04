@@ -206,7 +206,7 @@ function build_plot()
     // reset colors of all options
     for (let team of teams)
     {
-        document.getElementById(`soption_${team}`).style.backgroundColor = 'white'
+        document.getElementById(`soption_${team}`).style.backgroundColor = 'var(--foreground-color)'
     }
 
     // plot points and lines
