@@ -80,7 +80,7 @@ function build_page()
  * returns:     none
  * description: Populates the dropdowns accordingly to other selections.
  */
-function populate_dropdowns(changed='mode')
+function populate_dropdowns()
 {
     // read dropdowns
     let mode = document.getElementById('new-element-mode').selectedIndex
@@ -302,7 +302,25 @@ function create_element(changed='mode')
  */
 function load_config()
 {
-    config = [get_config(`${year}-pit`), get_config(`${year}-match`)]
+    let pit = get_config(`${year}-pit`)
+    let match = get_config(`${year}-match`)
+    if (!file_exists(`${year}-pit`))
+    {
+        pit = {
+            name: 'Pit Scouting',
+            id: 'pit',
+            pages: []
+        }
+    }
+    if (!file_exists(`${year}-match`))
+    {
+        match = {
+            name: 'Match Scouting',
+            id: 'match',
+            pages: []
+        }
+    }
+    config = [pit, match]
     build_page()
 }
 
