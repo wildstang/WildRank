@@ -377,7 +377,89 @@ function import_config(event)
     let reader = new FileReader()
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
-        config = JSON.parse(readerEvent.target.result)[year]
+        let newConfig = JSON.parse(readerEvent.target.result)[year]
+        let merge = confirm('Press ok to merge configs, cancel to overwrite')
+        if (merge)
+        {
+            // TODO this merge code is horrific but it seems to work and Billy wants it fast
+            for (let i in newConfig)
+            {
+                for (let mpage of newConfig[i].pages)
+                {
+                    // merge in new page
+                    let found = false
+                    for (let cpage of config[i].pages)
+                    {
+                        if (mpage.id == cpage.id)
+                        {
+                            found = true
+                            break
+                        }
+                    }
+                    if (!found)
+                    {
+                        config[i].pages.push(mpage)
+                    }
+                    else
+                    {
+                        for (let mcol of mpage.columns)
+                        {
+                            for (let j in config[i].pages)
+                            {
+                                if (config[i].pages[j].id == mpage.id)
+                                {
+                                    // merge in new column
+                                    let found = false
+                                    for (let ccol of config[i].pages[j].columns)
+                                    {
+                                        if (mcol.id == ccol.id)
+                                        {
+                                            found = true
+                                            break
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        config[i].pages[j].columns.push(mcol)
+                                    }
+                                    else
+                                    {
+                                        for (let minput of mcol.inputs)
+                                        {
+                                            for (let l in config[i].pages[j].columns)
+                                            {
+                                                if (config[i].pages[j].columns[l].id == mcol.id)
+                                                {
+                                                    // merge in new input
+                                                    found = false
+                                                    for (let cinput of config[i].pages[j].columns[l].inputs)
+                                                    {
+                                                        if (minput.id == cinput.id)
+                                                        {
+                                                            found = true
+                                                            break
+                                                        }
+                                                    }
+                                                    if (!found)
+                                                    {
+                                                        config[i].pages[j].columns[l].inputs.push(minput)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            console.log(config)
+        }
+        else
+        {
+            config = newConfig
+        }
         populate_dropdowns()
     }
 }
