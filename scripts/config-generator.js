@@ -68,6 +68,7 @@ function build_page()
         build_page_frame('', [
             build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG; populate_dropdowns()')]),
             build_column_frame('', [build_button('new-element-download', 'Download Config', 'download_config()')]),
+            build_column_frame('', [build_button('new-element-upload', 'Upload Config', 'upload_config()')]),
             build_column_frame('', [build_button('new-element-apply', 'Apply Config', 'save_config()')])
         ])
 
@@ -345,6 +346,38 @@ function save_config()
         fetch(addr, {method: 'POST', body: upload})
     }
     alert('Scouting config updated')
+}
+
+/**
+ * function:    upload_config
+ * paramters:   none
+ * returns:     none
+ * description: Creates a file prompt to upload a JSON file.
+ */
+function upload_config()
+{
+    var input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json'
+    input.onchange = import_config
+    input.click()
+}
+
+/**
+ * function:    import_config
+ * paramters:   response containing JSON file
+ * returns:     none
+ * description: Loads in a config file to the editor.
+ */
+function import_config(event)
+{
+    let file = event.target.files[0]
+    let reader = new FileReader()
+    reader.readAsText(file, 'UTF-8')
+    reader.onload = readerEvent => {
+        config = JSON.parse(readerEvent.target.result)[year]
+        populate_dropdowns()
+    }
 }
 
 /** 
