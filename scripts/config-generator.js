@@ -254,7 +254,11 @@ function create_element(changed='mode')
             }
             if (type == 'Multicounter')
             {
-                input.default = parseInt(ops.default)
+                if (input.default == '')
+                {
+                    input.default = '0'
+                }
+                input.default = parseInt(input.default)
             }
             config[mode].pages[page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
         }
@@ -454,7 +458,6 @@ function import_config(event)
                     }
                 }
             }
-            console.log(config)
         }
         else
         {
