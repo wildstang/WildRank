@@ -96,7 +96,7 @@ function build_counter(id, name, value, onincrement='', ondecrement='')
 {
     onincrement = onincrement.replace(/'/g, '\\\'')
     ondecrement = ondecrement.replace(/'/g, '\\\'')
-    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true, '${ondecrement}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true, \\'${ondecrement.replace(/'/g, '\\\\\'')}\\')')\">
+    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true, '${ondecrement}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true, \\'${ondecrement.replace(/'/g, '\\\\\'')}\\')')">
             <label class="wr_counter_count" id="${id}">${value}</label>
             <label>${name}</label>
         </div>`
@@ -383,6 +383,10 @@ function touch_button(secondary)
  */
 function increment(id, right, onincrement='')
 {
+    if (Date.now() - last_touch > 500 && !right)
+    {
+        return
+    }
     let current = document.getElementById(id).innerHTML
     let modifier = right ? -1 : 1
     if (current > 0 || modifier > 0)
