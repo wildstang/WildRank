@@ -60,8 +60,7 @@ function build_page()
                                     build_dropdown('new-element-page', 'Page:', [], default_op='', onchange='populate_dropdowns()'),
                                     build_dropdown('new-element-column', 'Column:', [], default_op='', onchange='populate_dropdowns()'),
                                     build_dropdown('new-element-type', 'Type:', [], default_op='', onchange='populate_options()')]),
-            build_column_frame('', [build_str_entry('new-element-name', 'Name:'),
-                                    build_str_entry('new-element-id', 'ID:')]),
+            build_column_frame('', [build_str_entry('new-element-name', 'Name:')]),
             build_column_frame('', ['<div id="options"></div>'])
         ]) +
         '<span id="preview"></span>' +
@@ -91,7 +90,6 @@ function populate_dropdowns()
 
     // reset name and id
     document.getElementById('new-element-name').value = ''
-    document.getElementById('new-element-id').value = ''
     
     page.innerHTML = config[mode].pages.map(p => build_dropdown_op(p.name, page.value)).join('') + build_dropdown_op('New', page.value)
 
@@ -197,10 +195,8 @@ function create_element(changed='mode')
 
     // populate name and id
     let name = document.getElementById('new-element-name').value
-    let id = document.getElementById('new-element-id').value
     let input = {
-        name: name,
-        id: id
+        name: name
     }
 
     // make an identical copy of the config for backup
@@ -209,6 +205,8 @@ function create_element(changed='mode')
     // populate rest of input object
     if (page.value == 'New')
     {
+        let parent = config[mode].id
+        input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_')}`
         input.short = document.getElementById('new-element-short').value
         input.columns = []
         config[mode].pages.push(input)
@@ -217,12 +215,16 @@ function create_element(changed='mode')
     {
         if (column.value == 'New')
         {
+            let parent = config[mode].pages[page.selectedIndex].id
+            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_')}`
             input.cycle = document.getElementById('new-element-cycle').checked
             input.inputs = []
             config[mode].pages[page.selectedIndex].columns.push(input)
         }
         else
         {
+            let parent = config[mode].pages[page.selectedIndex].columns[column.selectedIndex].id
+            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_')}`
             input.type = type.toLowerCase()
             let ops = []
             switch (type)
