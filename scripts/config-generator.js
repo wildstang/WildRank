@@ -311,7 +311,7 @@ function load_config()
 {
     let pit = get_config(`${year}-pit`)
     let match = get_config(`${year}-match`)
-    if (!file_exists(`${year}-pit`))
+    if (!file_exists(`config-${year}-pit`))
     {
         pit = {
             name: 'Pit Scouting',
@@ -319,7 +319,7 @@ function load_config()
             pages: []
         }
     }
-    if (!file_exists(`${year}-match`))
+    if (!file_exists(`config-${year}-match`))
     {
         match = {
             name: 'Match Scouting',
