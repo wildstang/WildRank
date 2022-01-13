@@ -65,7 +65,7 @@ function build_page()
         ]) +
         '<span id="preview"></span>' +
         build_page_frame('', [
-            build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'config = BASE_CONFIG; populate_dropdowns()')]),
+            build_column_frame('', [build_button('new-element-reset', 'Reset Config', 'reset_config()')]),
             build_column_frame('', [build_button('new-element-download', 'Download Config', 'download_config()')]),
             build_column_frame('', [build_button('new-element-upload', 'Upload Config', 'upload_config()')]),
             build_column_frame('', [build_button('new-element-apply', 'Apply Config', 'save_config()')])
@@ -674,4 +674,16 @@ function shift(id, direction)
 
     // rebuild preview
     build_page_from_config()
+}
+
+/**
+ * function:    reset_config
+ * parameters:  none
+ * returns:     none
+ * description: Resets the config to the base config, then repopulates the page.
+ */
+function reset_config()
+{
+    config = JSON.parse(JSON.stringify(BASE_CONFIG))
+    populate_dropdowns()
 }
