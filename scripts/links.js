@@ -218,6 +218,17 @@ function open_random()
 }
 
 /**
+ * function:    open_event_gen
+ * parameters:  none
+ * returns:     none
+ * description: Open the generate random results page.
+ */
+function open_event_gen()
+{
+    return build_url('index', {'page': 'event-generator', [EVENT_COOKIE]: get_event()})
+}
+
+/**
  * function:    sign_out
  * parameters:  none
  * returns:     none

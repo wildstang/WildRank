@@ -123,7 +123,7 @@ function populate_dropdowns()
  * returns:     none
  * description: Populates the options accordingly to the dropdown selections.
  */
-function populate_options(changed='mode')
+function populate_options()
 {
     // read dropdowns
     let page = document.getElementById('new-element-page').value
@@ -185,7 +185,7 @@ function populate_options(changed='mode')
  * returns:     none
  * description: Adds an element to the config based on dropdowns and options.
  */
-function create_element(changed='mode')
+function create_element()
 {
     // read dropdowns
     let mode = document.getElementById('new-element-mode').selectedIndex
@@ -259,6 +259,10 @@ function create_element(changed='mode')
                     input.default = '0'
                 }
                 input.default = parseInt(input.default)
+            }
+            if ((type == 'String' || type == 'Text') && input.default === '')
+            {
+                input.default = ' '
             }
             config[mode].pages[page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
         }
