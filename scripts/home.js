@@ -40,7 +40,7 @@ const CONFIGS = {
         'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
     },
     'admin': {
-        'Admin': ['open_config', 'open_settings', 'open_random'],
+        'Admin': ['open_config', 'open_settings', 'open_event_gen', 'open_random'],
         'Transfer': ['reset']
     }
 }
@@ -69,7 +69,8 @@ const BUTTONS = {
     'export_zip':       { name: 'Export Raw Data', limits: ['event', 'admin'], configs: [] },
     'import_zip':       { name: 'Import Raw Data', limits: ['admin'], configs: [] },
     'reset':            { name: 'Reset App',       limits: ['admin'], configs: [] },
-    'open_random':      { name: 'Random Result Generator',  limits: ['event-pit', 'admin'], configs: ['type', 'settings']},
+    'open_event_gen':   { name: 'Event Generator',  limits: ['admin'], configs: [] },
+    'open_random':      { name: 'Random Result Generator',  limits: ['event-pit', 'admin'], configs: ['type', 'settings'] },
     'upload_all':       { name: 'Upload Results to Server', limits: ['results'], configs: [] },
     'import_all':       { name: 'Import Server Results',    limits: ['admin'], configs: [] },
     'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] }
