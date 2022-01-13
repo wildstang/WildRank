@@ -246,7 +246,7 @@ function create_element()
                     input.negative = document.getElementById('new-element-negative').value.split(',').map(n => n.toLowerCase() === 'true')
                 case 'Select':
                 case 'Dropdown':
-                    input.options = document.getElementById('new-element-options').value.split(',')
+                    input.options = document.getElementById('new-element-options').value.replaceAll(' ', '').split(',')
                 case 'String':
                 case 'Text':
                     input.default = document.getElementById('new-element-default').value
