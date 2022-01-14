@@ -336,6 +336,7 @@ function import_zip_from_event(event)
                         {
                             localStorage.setItem(n, text)
                         }
+                        process_files()
                         hide_buttons()
                     })
                 })

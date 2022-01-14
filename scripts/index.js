@@ -83,7 +83,6 @@ function on_config()
     let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     select_option('theme_switch', theme == 'light' ? 0 : 1)
     apply_theme()
-    count_teams()
     process_files()
 
     // update statuses
@@ -113,6 +112,8 @@ function on_config()
  */
 function process_files()
 {
+    count_teams()
+
     // get all files in localStorage
     let files = Object.keys(localStorage)
     let teams = 0
