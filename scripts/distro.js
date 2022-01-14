@@ -37,7 +37,7 @@ function init_page(contents_card, buttons_container)
     let file_name = get_event_teams_name(event_id)
     if (file_exists(file_name))
     {
-        results = get_results(prefix)
+        results = get_results(prefix, year)
         
         teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
                     .filter(team => Object.keys(get_team_results(results, team)).length > 0)

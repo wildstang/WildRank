@@ -32,7 +32,7 @@ function init_page(contents_card, buttons_container)
                                     <div id="notes"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
 
-        results = get_results(prefix)
+        results = get_results(prefix, year)
         
         let year = event_id.substr(0, 4)
         meta = get_result_meta(MATCH_MODE, year)

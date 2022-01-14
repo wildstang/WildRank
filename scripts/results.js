@@ -266,7 +266,7 @@ function build_result_list(new_team=false)
  */
 function collect_results()
 {
-    results = get_results(prefix)
+    results = get_results(prefix, year)
     avail_teams = [...new Set(Object.values(results).map(r => r.meta_team))]
 
     let num_results = Object.keys(results).length

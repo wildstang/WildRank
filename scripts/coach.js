@@ -22,8 +22,8 @@ function init_page(contents_card, buttons_container)
 {
     // load in config and results
     meta = get_result_meta(type, year)
-    vals = get_config('coach-vals')
-    results = get_results(prefix)
+    vals = get_config('coach-vals')[year]
+    results = get_results(prefix, year)
 
     // build page
     let first = populate_matches()

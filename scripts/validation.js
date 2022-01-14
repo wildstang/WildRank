@@ -109,35 +109,39 @@ function validate_defaults_config(config)
  * returns:     true if valid
  * description: Determines if a given coach config is valid.
  */
-function validate_coach_config(config, year)
+function validate_coach_config(config)
 {
     if (config == null)
     {
         console.log('config does not exist')
         return false
     }
-    if (!Array.isArray(config))
+    for (let year of Object.keys(config))
     {
-        console.log('invalid coach format')
-        return false
-    }
-    let keys = Object.keys(get_result_meta(MATCH_MODE, year))
-    for (let obj of config)
-    {
-        if (!has_keys(obj, ['function', 'key']) || !not_empty(obj, ['function', 'key']))
+        let year_config = config[year]
+        if (!Array.isArray(year_config))
         {
-            console.log('missing key')
+            console.log('invalid coach format')
             return false
         }
-        if (!is_in(obj.function, ['mean', 'median', 'mode', 'min', 'max']))
+        let keys = Object.keys(get_result_meta(MATCH_MODE, year))
+        for (let obj of year_config)
         {
-            console.log('invalid function')
-            return false
-        }
-        if (!is_in(obj.key, keys))
-        {
-            console.log('invalid key')
-            return false
+            if (!has_keys(obj, ['function', 'key']) || !not_empty(obj, ['function', 'key']))
+            {
+                console.log('missing key')
+                return false
+            }
+            if (!is_in(obj.function, ['mean', 'median', 'mode', 'min', 'max']))
+            {
+                console.log('invalid function')
+                return false
+            }
+            if (!is_in(obj.key, keys))
+            {
+                console.log('invalid key')
+                return false
+            }
         }
     }
     return true
@@ -156,32 +160,35 @@ function validate_smart_config(config)
         console.log('config does not exist')
         return false
     }
-    if (!Array.isArray(config))
+    for (let year_config of Object.values(config))
     {
-        console.log('invalid smart stats format')
-        return false
-    }
-    for (let obj of config)
-    {
-        if (!has_keys(obj, ['id', 'type', 'name']) || !not_empty(obj, ['name', 'id', 'type']))
+        if (!Array.isArray(year_config))
         {
-            console.log('missing key')
+            console.log('invalid smart stats format')
             return false
         }
-        if (obj.type == 'sum' && !has_keys(obj, ['keys']))
+        for (let obj of year_config)
         {
-            console.log('missing key')
-            return false
-        }
-        if (is_in(obj.type, ['percent', 'ratio']) && (!has_keys(obj, ['numerator', 'denominator']) || !not_empty(obj, ['numerator', 'denominator'])))
-        {
-            console.log('missing key')
-            return false
-        }
-        if (obj.type == 'where' && !has_keys(obj, ['cycle', 'conditions']), !not_empty(obj, ['cycle']))
-        {
-            console.log('missing key')
-            return false
+            if (!has_keys(obj, ['id', 'type', 'name']) || !not_empty(obj, ['name', 'id', 'type']))
+            {
+                console.log('missing key')
+                return false
+            }
+            if (obj.type == 'sum' && !has_keys(obj, ['keys']))
+            {
+                console.log('missing key')
+                return false
+            }
+            if (is_in(obj.type, ['percent', 'ratio']) && (!has_keys(obj, ['numerator', 'denominator']) || !not_empty(obj, ['numerator', 'denominator'])))
+            {
+                console.log('missing key')
+                return false
+            }
+            if (obj.type == 'where' && !has_keys(obj, ['cycle', 'conditions']), !not_empty(obj, ['cycle']))
+            {
+                console.log('missing key')
+                return false
+            }
         }
     }
     return true

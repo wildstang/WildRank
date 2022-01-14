@@ -384,11 +384,11 @@ function scroll_to(container, goal)
 
 /**
  * function:    get_results
- * parameters:  file prefix
+ * parameters:  file prefix, event year
  * returns:     object of results
  * description: Gets all results which start with the given prefix.
  */
-function get_results(prefix)
+function get_results(prefix, year)
 {
     let results = {}
     let files = Object.keys(localStorage)
@@ -400,7 +400,7 @@ function get_results(prefix)
             let res = JSON.parse(localStorage.getItem(file))
             if (prefix.startsWith(MATCH_MODE))
             {
-                res = add_smart_stats(res)
+                res = add_smart_stats(res, year)
             }
             results[file] = res
         }
@@ -754,13 +754,13 @@ function ws(team_num)
 
 /**
  * function:    add_smart_stats
- * parameters:  match result
+ * parameters:  match result, event year
  * returns:     the result with smart stats added
  * description: Add the smart stats to a given match result.
  */
-function add_smart_stats(result)
+function add_smart_stats(result, year)
 {
-    let stats = get_config('smart-stats')
+    let stats = get_config('smart-stats')[year]
     return add_given_smart_stats(result, stats)
 }
 

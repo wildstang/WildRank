@@ -34,7 +34,7 @@ function init_page(contents_card, buttons_container)
     }
 
     // gets results
-    results = get_results(prefix)
+    results = get_results(prefix, year)
     meta = get_result_meta(type, year)
     cycles = Object.keys(meta).filter(k => meta[k].type == 'cycle')
 
@@ -276,8 +276,7 @@ function save_stat()
 {
     let stat = build_stat()
     let config = get_config('smart-stats')
-    config.push(stat)
-    console.log(config)
+    config[year].push(stat)
     localStorage.setItem('config-smart-stats', JSON.stringify(config))
 }
 

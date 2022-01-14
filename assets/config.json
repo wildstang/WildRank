@@ -9,55 +9,61 @@
 		"upload_url": "http://localhost",
 		"user_id": 715138
 	},
-	"coach-vals": [{
-		"function": "mean",
-		"key": "smart_teleop_cycle_upper"
-	}, {
-		"function": "min",
-		"key": "smart_teleop_cycle_trench"
-	}, {
-		"function": "median",
-		"key": "smart_auto_accuracy"
-	}, {
-		"function": "mode",
-		"key": "match_teleop_cp_spin"
-	}],
-	"smart-stats": [{
-		"id": "smart_auto_upper_shots",
-		"name": "Total Auto Upper Shots",
-		"type": "sum",
-		"keys": ["match_auto_shooting_upper_score", "match_auto_shooting_upper_miss"]
-	}, {
-		"id": "smart_auto_accuracy",
-		"name": "Auto Shooting Accuracy",
-		"type": "percent",
-		"numerator": "match_auto_shooting_upper_score",
-		"denominator": "match_auto_shooting_upper_miss"
-	}, {
-		"id": "smart_auto_goal_ratio",
-		"name": "Upper vs Lower Auto Goals",
-		"type": "ratio",
-		"numerator": "match_auto_shooting_upper_score",
-		"denominator": "match_auto_shooting_upper_miss"
-	}, {
-		"id": "smart_teleop_cycle_upper",
-		"name": "Upper Goal Cycles",
-		"type": "where",
-		"cycle": "match_teleop_cycle",
-		"conditions": {
-			"match_teleop_cycle_goal": "Upper"
-		}
-	}, {
-		"id": "smart_teleop_cycle_trench",
-		"name": "Trench Upper Goals",
-		"type": "where",
-		"cycle": "match_teleop_cycle",
-		"sum": "match_teleop_cycle_shots_score",
-		"conditions": {
-			"match_teleop_cycle_goal": "Upper",
-			"match_teleop_cycle_loc": "Trench"
-		}
-	}],
+	"coach-vals": {
+		"2022": [],
+		"2020": [{
+				"function": "mean",
+				"key": "smart_teleop_cycle_upper"
+			}, {
+				"function": "min",
+				"key": "smart_teleop_cycle_trench"
+			}, {
+				"function": "median",
+				"key": "smart_auto_accuracy"
+			}, {
+				"function": "mode",
+				"key": "match_teleop_cp_spin"
+		}]
+	},
+	"smart-stats": {
+		"2022": [],
+		"2020": [{
+			"id": "smart_auto_upper_shots",
+			"name": "Total Auto Upper Shots",
+			"type": "sum",
+			"keys": ["match_auto_shooting_upper_score", "match_auto_shooting_upper_miss"]
+		}, {
+			"id": "smart_auto_accuracy",
+			"name": "Auto Shooting Accuracy",
+			"type": "percent",
+			"numerator": "match_auto_shooting_upper_score",
+			"denominator": "match_auto_shooting_upper_miss"
+		}, {
+			"id": "smart_auto_goal_ratio",
+			"name": "Upper vs Lower Auto Goals",
+			"type": "ratio",
+			"numerator": "match_auto_shooting_upper_score",
+			"denominator": "match_auto_shooting_upper_miss"
+		}, {
+			"id": "smart_teleop_cycle_upper",
+			"name": "Upper Goal Cycles",
+			"type": "where",
+			"cycle": "match_teleop_cycle",
+			"conditions": {
+				"match_teleop_cycle_goal": "Upper"
+			}
+		}, {
+			"id": "smart_teleop_cycle_trench",
+			"name": "Trench Upper Goals",
+			"type": "where",
+			"cycle": "match_teleop_cycle",
+			"sum": "match_teleop_cycle_shots_score",
+			"conditions": {
+				"match_teleop_cycle_goal": "Upper",
+				"match_teleop_cycle_loc": "Trench"
+			}
+		}]
+	},
 	"whiteboard": [{
 		"year": "2020",
 		"red_1": {

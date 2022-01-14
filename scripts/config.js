@@ -212,7 +212,7 @@ function get_result_meta(mode, year)
         // add on smart stats
         if (mode == MATCH_MODE)
         {
-            let stats = get_config('smart-stats')
+            let stats = get_config('smart-stats')[year]
             for (let stat of stats)
             {
                 let neg = stat.neg
