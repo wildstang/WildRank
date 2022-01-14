@@ -144,4 +144,5 @@ function add_match()
         time: 1294765871
     })
     localStorage.setItem(file_name, JSON.stringify(matches))
+    alert(`Create match ${event_id} qm${match_number}`)
 }
