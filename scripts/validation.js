@@ -69,6 +69,11 @@ function is_in(val, options)
  */
 function validate_settings_config(config)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!has_keys(config, ['title', 'time_format', 'use_images']))
     {
         console.log('missing key')
@@ -85,6 +90,11 @@ function validate_settings_config(config)
  */
 function validate_defaults_config(config)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!has_keys(config, ['event_id', 'upload_url', 'user_id']))
     {
         console.log('missing key')
@@ -101,6 +111,11 @@ function validate_defaults_config(config)
  */
 function validate_coach_config(config, year)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!Array.isArray(config))
     {
         console.log('invalid coach format')
@@ -136,6 +151,11 @@ function validate_coach_config(config, year)
  */
 function validate_smart_config(config)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!Array.isArray(config))
     {
         console.log('invalid smart stats format')
@@ -175,6 +195,11 @@ function validate_smart_config(config)
  */
 function validate_wb_config(config)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!Array.isArray(config))
     {
         console.log('invalid wb format')
@@ -222,6 +247,11 @@ function validate_wb_config(config)
  */
 function validate_admin_config(config)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!Array.isArray(config))
     {
         console.log('invalid admin format')
@@ -238,6 +268,11 @@ function validate_admin_config(config)
  */
 function validate_theme_config(config)
 {
+    if (config == null)
+    {
+        console.log('config does not exist')
+        return false
+    }
     if (!has_keys(config, ['primary-color', 'primary-text-color', 'secondary-color', 'secondary-text-color', 'background-color',
         'background-text-color', 'foreground-color', 'foreground-text-color', 'disabled-color', 'disabled-text-color',
         'active-color', 'active-text-color', 'hover-color', 'hover-text-color', 'border-color', 'inactive-color',
@@ -257,6 +292,11 @@ function validate_theme_config(config)
  */
 function validate_scout_config(mode)
 {
+    if (mode == null)
+    {
+        console.log('mode does not exist')
+        return false
+    }
     if (!has_keys(mode, ['name', 'id', 'pages']) || !not_empty(mode, ['name', 'id']))
     {
         console.log('missing mode key')
