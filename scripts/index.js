@@ -198,6 +198,17 @@ function switch_theme()
 }
 
 /**
+ * function:    has_event
+ * parameters:  none
+ * returns:     If the current event is loaded
+ * description: Determines if the current event is loaded.
+ */
+function has_event()
+{
+    return has_matches() && has_teams()
+}
+
+/**
  * function:    has_teams
  * parameters:  none
  * returns:     If the current event teams are loaded
@@ -207,6 +218,18 @@ function has_teams()
 {
     let event = get_event()
     return file_exists(get_event_teams_name(event))
+}
+
+/**
+ * function:    has_matches
+ * parameters:  none
+ * returns:     If the current event matches are loaded
+ * description: Determines if the current event matches are loaded.
+ */
+function has_matches()
+{
+    let event = get_event()
+    return file_exists(get_event_matches_name(event))
 }
  
 /**

@@ -209,31 +209,29 @@ function has_event()
     return has_matches() && has_teams()
 }
 
-
 /**
  * function:    has_teams
  * parameters:  none
  * returns:     If the current event teams are loaded
  * description: Determines if the current event teams are loaded.
  */
- function has_teams()
- {
-     let event = get_event()
-     return file_exists(get_event_teams_name(event))
- }
+function has_teams()
+{
+    let event = get_event()
+    return file_exists(get_event_teams_name(event))
+}
 
-
- /**
-  * function:    has_matches
-  * parameters:  none
-  * returns:     If the current event matches are loaded
-  * description: Determines if the current event matches are loaded.
-  */
-  function has_matches()
-  {
-      let event = get_event()
-      return file_exists(get_event_matches_name(event))
-  }
+/**
+ * function:    has_matches
+ * parameters:  none
+ * returns:     If the current event matches are loaded
+ * description: Determines if the current event matches are loaded.
+ */
+function has_matches()
+{
+    let event = get_event()
+    return file_exists(get_event_matches_name(event))
+}
  
 /**
  * function:    is_blocked

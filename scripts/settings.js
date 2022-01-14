@@ -75,7 +75,7 @@ function build_column(file, config)
             func = func.substr(0, 1).toUpperCase() + func.substr(1)
             inputs.push(build_select(`${id}_fn_${index}`, 'Function', FUNCTIONS, func))
             let name = ''
-            if (val.key != '')
+            if (meta[val.key] != null)
             {
                 name = meta[val.key].name
             }
