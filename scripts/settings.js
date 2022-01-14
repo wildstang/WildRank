@@ -103,6 +103,11 @@ function build_page()
         if (file_exists(file))
         {
             let config = JSON.parse(localStorage.getItem(file))
+            if (file == 'config-coach-vals')
+            {
+                config = config[year]
+            }
+            console.log(config)
             if (Array.isArray(config))
             {
                 if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('year'))
@@ -143,7 +148,7 @@ function build_page()
 function add_coach()
 {
     let coach = get_config('coach-vals')
-    coach.push({
+    coach[year].push({
         function: 'Mean',
         key: ''
     })
@@ -163,9 +168,9 @@ function save_config()
     let configs = build_config_obj(true)
     // find empty items in coach vals
     let remove = []
-    for (let i in configs['coach-vals'])
+    for (let i in configs['coach-vals'][year])
     {
-        let val = configs['coach-vals'][i]
+        let val = configs['coach-vals'][year][i]
         if (!val.hasOwnProperty('key') || val.key == '')
         {
             remove.push(i)
@@ -174,7 +179,7 @@ function save_config()
     // remove empty items from coach vals
     for (let i = remove.length - 1; i >= 0; --i)
     {
-        configs['coach-vals'].splice(remove[i], 1)
+        configs['coach-vals'][year].splice(remove[i], 1)
     }
     // save each config to localStorage
     let str = JSON.stringify(configs)
@@ -202,9 +207,9 @@ function apply_config()
     let configs = build_config_obj()
     // find empty items in coach vals
     let remove = []
-    for (let i in configs['coach-vals'])
+    for (let i in configs['coach-vals'][year])
     {
-        let val = configs['coach-vals'][i]
+        let val = configs['coach-vals'][year][i]
         if (!val.hasOwnProperty('key') || val.key == '')
         {
             remove.push(i)
@@ -213,7 +218,7 @@ function apply_config()
     // remove empty items from coach vals
     for (let i = remove.length - 1; i >= 0; --i)
     {
-        configs['coach-vals'].splice(remove[i], 1)
+        configs['coach-vals'][year].splice(remove[i], 1)
     }
     // save each config to localStorage
     for (let key of Object.keys(configs))
@@ -274,6 +279,7 @@ function update_config(file, config)
         }
         else if (file == 'config-coach-vals')
         {
+            console.log(id, index)
             config[index] = {
                 function: FUNCTIONS[get_selected_option(`${id}_fn_${index}`)].toLowerCase(),
                 key: input_keys[document.getElementById(`${id}_key_${index}`).selectedIndex]
@@ -296,6 +302,10 @@ function build_config_obj(missing=false)
     for (let file of names)
     {
         let config = JSON.parse(localStorage.getItem(file))
+        if (file == 'config-coach-vals')
+        {
+            config = config[year]
+        }
         if (Array.isArray(config))
         {
             if (config.length > 0 && typeof config[0] == 'object' && Object.keys(config[0]).includes('year'))
@@ -335,5 +345,8 @@ function build_config_obj(missing=false)
             configs[file.replace('config-', '')] = JSON.parse(localStorage.getItem(file))
         }
     }
+    let coach = get_config('coach-vals')
+    coach[year] = configs['coach-vals']
+    configs['coach-vals'] = coach
     return configs
 }
