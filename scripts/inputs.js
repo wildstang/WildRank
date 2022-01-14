@@ -332,7 +332,7 @@ function build_option(option_id, selected='', option_name='', style='', primary_
             </div>`
 }
 
-var last_touch = 0
+var last_touch = -1
 
 /**
  * function:    check
@@ -383,7 +383,7 @@ function touch_button(secondary)
  */
 function increment(id, right, onincrement='')
 {
-    if (Date.now() - last_touch > 500 && !right)
+    if (last_touch > 0 && Date.now() - last_touch > 500 && !right)
     {
         return
     }
