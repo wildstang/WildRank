@@ -130,102 +130,105 @@ function get_result_meta(mode, year)
     let results = {}
     // go over each input in config
     let config = get_scout_config(mode, year)
-    for (let page of config.pages)
+    if (config != null)
     {
-        for (let column of page.columns)
+        for (let page of config.pages)
         {
-            // add the cycle column as an input
-            let cycle = column.cycle
-            if (cycle)
+            for (let column of page.columns)
             {
-                results[column.id] = {
-                    name: column.name,
-                    type: 'cycle',
-                    negative: false,
-                    options: [],
-                    options_index: [],
-                    cycle: cycle
-                }
-                cycle = column.id
-            }
-            for (let input of column.inputs)
-            {
-                let id = input.id
-                let name = input.name
-                let type = input.type
-                let ops = input.options
-                let neg = input.negative
-
-                // make sure no values are missing / empty
-                if (typeof neg === 'undefined')
+                // add the cycle column as an input
+                let cycle = column.cycle
+                if (cycle)
                 {
-                    if (type == 'select' || type == 'dropdown' || type == 'multicounter')
+                    results[column.id] = {
+                        name: column.name,
+                        type: 'cycle',
+                        negative: false,
+                        options: [],
+                        options_index: [],
+                        cycle: cycle
+                    }
+                    cycle = column.id
+                }
+                for (let input of column.inputs)
+                {
+                    let id = input.id
+                    let name = input.name
+                    let type = input.type
+                    let ops = input.options
+                    let neg = input.negative
+
+                    // make sure no values are missing / empty
+                    if (typeof neg === 'undefined')
                     {
-                        neg = new Array(ops.length).fill(false)
+                        if (type == 'select' || type == 'dropdown' || type == 'multicounter')
+                        {
+                            neg = new Array(ops.length).fill(false)
+                        }
+                        else
+                        {
+                            neg = false
+                        }
+                    }
+                    if (type == 'checkbox')
+                    {
+                        ops = [false, true]
+                    }
+                    if (typeof ops === 'undefined')
+                    {
+                        ops = []
+                    }
+
+                    // add each counter in a multicounter
+                    if (type == 'multicounter')
+                    {
+                        for (let i in ops)
+                        {
+                            results[`${id}_${ops[i].toLowerCase()}`] = {
+                                name: `${name} ${ops[i]}`,
+                                type: 'counter',
+                                negative: neg[i],
+                                options: [],
+                                options_index: [],
+                                cycle: cycle
+                            }
+                        }
                     }
                     else
                     {
-                        neg = false
-                    }
-                }
-                if (type == 'checkbox')
-                {
-                    ops = [false, true]
-                }
-                if (typeof ops === 'undefined')
-                {
-                    ops = []
-                }
-
-                // add each counter in a multicounter
-                if (type == 'multicounter')
-                {
-                    for (let i in ops)
-                    {
-                        results[`${id}_${ops[i].toLowerCase()}`] = {
-                            name: `${name} ${ops[i]}`,
-                            type: 'counter',
-                            negative: neg[i],
-                            options: [],
-                            options_index: [],
+                        results[id] = {
+                            name: name,
+                            type: type,
+                            negative: neg,
+                            options: ops,
+                            options_index: Object.keys(ops),
                             cycle: cycle
                         }
                     }
                 }
-                else
-                {
-                    results[id] = {
-                        name: name,
-                        type: type,
-                        negative: neg,
-                        options: ops,
-                        options_index: Object.keys(ops),
-                        cycle: cycle
-                    }
-                }
             }
         }
-    }
-    
-    // add on smart stats
-    if (mode == MATCH_MODE)
-    {
-        let stats = get_config('smart-stats')
-        for (let stat of stats)
+        
+        // add on smart stats
+        if (mode == MATCH_MODE)
         {
-            let neg = stat.neg
-            if (typeof neg === 'undefined')
+            let stats = get_config('smart-stats')
+            for (let stat of stats)
             {
-                neg = false
-            }
-    
-            results[stat.id] = {
-                name: stat.name,
-                type: 'number',
-                negative: neg,
-                options: [],
-                options_index: [],
-                cycle: stat.type == 'count'
+                let neg = stat.neg
+                if (typeof neg === 'undefined')
+                {
+                    neg = false
+                }
+        
+                results[stat.id] = {
+                    name: stat.name,
+                    type: 'number',
+                    negative: neg,
+                    options: [],
+                    options_index: [],
+                    cycle: stat.type == 'count'
+                }
             }
         }
     }
