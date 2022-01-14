@@ -108,6 +108,10 @@ function add_match()
     let event_id = document.getElementById('event_id').value
     let alliance_teams = document.getElementById('alliance_teams').value
     let file_name = get_event_matches_name(event_id)
+    if (!file_exists(file_name))
+    {
+        localStorage.setItem(file_name, '[]')
+    }
     let matches = JSON.parse(localStorage.getItem(file_name))
     let match_number = matches.length + 1
     let red_teams = []
