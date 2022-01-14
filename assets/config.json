@@ -65,6 +65,54 @@
 		}]
 	},
 	"whiteboard": [{
+		"year": "2022",
+		"red_1": {
+			"x": 400,
+			"y": 100,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 425,
+			"y": 175,
+			"color": "#FF4136"
+		},
+		"red_3": {
+			"x": 425,
+			"y": 225,
+			"color": "#FF4136"
+		},
+		"blue_1": {
+			"x": 275,
+			"y": 125,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 275,
+			"y": 175,
+			"color": "#0074D9"
+		},
+		"blue_3": {
+			"x": 300,
+			"y": 250,
+			"color": "#0074D9"
+		},
+		"game_pieces": [{
+			"name": "Blue Cargo",
+			"image": "blue-cargo.png"
+		}, {
+			"name": "Red Cargo",
+			"image": "red-cargo.png"
+		}],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 27,
+		"vertical_margin": 26,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}, {
 		"year": "2020",
 		"red_1": {
 			"x": 125,
