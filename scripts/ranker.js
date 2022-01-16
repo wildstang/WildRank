@@ -72,10 +72,10 @@ function filter_numeric(key)
  * returns:     none
  * description: Determines if a key belongs to a cycle.
  */
-function filter_cycle(key)
+function filter_cycle(key, cycle)
 {
     let type = meta[key].type
-    return (type == 'counter' || type == 'dropdown' || type == 'select') && meta[key].cycle
+    return (type == 'counter' || type == 'dropdown' || type == 'select') && meta[key].cycle == cycle
 }
 
 /**
@@ -105,15 +105,16 @@ function update_params()
             html += build_dropdown('denominator', 'Denominator', keys, '', 'calculate()')
             break
         case 'Where':
-            html += build_dropdown('cycle', 'Cycle', cycles, 'update_params()')
             let cycle = cycles[0]
             if (document.getElementById('cycle'))
             {
                 cycle = document.getElementById('cycle').value
             }
-            let inputs = Object.keys(meta).filter(filter_cycle)
+            let inputs = Object.keys(meta).filter(key => filter_cycle(key, cycle))
             let counters = inputs.filter(k => meta[k].type == 'counter').map(k => meta[k].name)
             let selects = inputs.filter(k => meta[k].type != 'counter')
+
+            html += build_dropdown('cycle', 'Cycle', cycles, cycle, 'update_params()')
             html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()')
             for (let s of selects)
             {
@@ -171,7 +172,7 @@ function build_stat()
         case 'Where':
             let cycle = document.getElementById('cycle').value
             let count = document.getElementById('count').selectedIndex
-            let inputs = Object.keys(meta).filter(filter_cycle)
+            let inputs = Object.keys(meta).filter(key => filter_cycle(key, cycle))
             let counters = inputs.filter(k => meta[k].type == 'counter')
             let selects = inputs.filter(k => meta[k].type != 'counter')
             let vals = {}
