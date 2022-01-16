@@ -132,11 +132,37 @@ function build_page()
             }
         }
     }
+
+    // make a special column of smart stats buttons to delete them
+    let config = get_config('smart-stats')
+    if (Object.keys(config).includes(year))
+    {
+        let smart_stats = config[year].map(s => build_button(s.id, s.name, `delete_smart_stat('${s.id}')`))
+        columns.push(build_column_frame('Delete Smart Stats', smart_stats))
+    }
+
     document.getElementById('body').innerHTML = build_page_frame('', columns) + build_page_frame('Save', [
         build_column_frame('', [build_button('reset-config', 'Reset Changes', 'build_page()')]),
         build_column_frame('', [build_button('save-config', 'Download Config', 'save_config()')]),
         build_column_frame('', [build_button('apply-config', 'Apply Config', 'apply_config()')])
     ])
+}
+
+/**
+ * function:    delete_smart_stat
+ * parameters:  id of stat
+ * returns:     none
+ * description: Removes the smart stat of given id from the config, then saves and rebuilds page.
+ */
+function delete_smart_stat(id)
+{
+    let config = get_config('smart-stats')
+    if (Object.keys(config).includes(year))
+    {
+        config[year] = config[year].filter(s => s.id != id)
+        localStorage.setItem('config-smart-stats', JSON.stringify(config))
+    }
+    build_page()
 }
 
 /** 
