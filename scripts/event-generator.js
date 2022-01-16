@@ -31,7 +31,7 @@ function init_page()
             build_column_frame('', [
                 build_str_entry('event_id', 'Event ID:', event_id, 'text', 'populate_matches()'),
                 build_num_entry('num_teams', 'Number of Teams', 6, [6, 100]),
-                build_num_entry('alliance_teams', 'Teams per Alliance', 3, [1, 10]),
+                build_num_entry('alliance_teams', 'Teams per Alliance', 3, [1, 10], 'populate_matches()'),
                 build_button('generate_teams', 'Generate Teams', 'generate_teams()')
             ])
         ]) + build_page_frame('Match', ['<div id="match_col"></div>'])
