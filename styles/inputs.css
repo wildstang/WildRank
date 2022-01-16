@@ -30,6 +30,12 @@
     vertical-align:top;
 }
 
+.wr_description {
+    display: block;
+    margin: 8px;
+    max-width: calc(var(--input-width) - var(--input-padding));
+}
+
 .wr_checkbox, .wr_counter, .wr_button, .wr_dropdown, .wr_string, .wr_number, .wr_text, .wr_select, .wr_card, .column_header, .page_header, .wr_color, .wr_slider, .wr_status {
     display: block;
     font-size: 16px;

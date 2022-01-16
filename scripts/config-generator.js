@@ -60,7 +60,7 @@ function build_page()
                                     build_dropdown('new-element-page', 'Page:', [], default_op='', onchange='populate_dropdowns()'),
                                     build_dropdown('new-element-column', 'Column:', [], default_op='', onchange='populate_dropdowns()'),
                                     build_dropdown('new-element-type', 'Type:', [], default_op='', onchange='populate_options()')]),
-            build_column_frame('', [build_str_entry('new-element-name', 'Name:')]),
+            build_column_frame('', [build_str_entry('new-element-name', 'Name:', '', 'text', '', 'A brief description of the input visible to the user.')]),
             build_column_frame('', ['<div id="options"></div>'])
         ]) +
         '<span id="preview"></span>' +
@@ -152,26 +152,29 @@ function populate_options()
                     ops += build_checkbox('new-element-negative', 'Negative')
                     break
                 case 'Slider':
-                    ops += build_num_entry('new-element-incr', 'Increment')
+                    ops += build_num_entry('new-element-incr', 'Increment', '', [], '', 'The size of a single step.')
                 case 'Number':
-                    ops += build_num_entry('new-element-min', 'Min')
-                    ops += build_num_entry('new-element-max', 'Max')
+                    ops += build_num_entry('new-element-min', 'Min', '', [], '', 'The minimum allowed value.')
+                    ops += build_num_entry('new-element-max', 'Max', '', [], '', 'The maximum allowed value.')
                 case 'Counter':
-                    ops += build_num_entry('new-element-default', 'Default')
+                    ops += build_num_entry('new-element-default', 'Default', '', [], '', 'The default value displayed in the box.')
                     ops += build_checkbox('new-element-negative', 'Negative')
                     break
                 case 'String':
-                    ops += build_str_entry('new-element-default', 'Default')
+                    ops += build_str_entry('new-element-default', 'Default', '', 'text', '', 'The default text displayed in the box, must not be empty.')
                     break
                 case 'Text':
-                    ops += build_text_entry('new-element-default', 'Default')
+                    ops += build_text_entry('new-element-default', 'Default', '', 'The default text displayed in the box, must not be empty.')
                     break
                 case 'Multicounter':
-                    ops += build_str_entry('new-element-negative', 'Negative')
+                    ops += build_str_entry('new-element-negative', 'Negative', '', 'text', '', 'A comma-separated list of true/false values for each counter.')
+                    ops += build_str_entry('new-element-options', 'Options', '', 'text', '', 'A comma-separated list of selectable options, all spaces will be deleted.')
+                    ops += build_str_entry('new-element-default', 'Default', '', 'text', '', 'The single default value for all counters.')
+                    break
                 case 'Select':
                 case 'Dropdown':
-                    ops += build_str_entry('new-element-options', 'Options')
-                    ops += build_str_entry('new-element-default', 'Default')
+                    ops += build_str_entry('new-element-options', 'Options', '', 'text', '', 'A comma-separated list of selectable options, all spaces will be deleted.')
+                    ops += build_str_entry('new-element-default', 'Default', '', 'text', '', 'The default selected option, must exactly match that option.')
                     break
             }
         }
@@ -243,14 +246,13 @@ function create_element()
                     input.negative = document.getElementById('new-element-negative').checked
                     break
                 case 'Multicounter':
-                    input.negative = document.getElementById('new-element-negative').value.split(',').map(n => n.toLowerCase() === 'true')
+                    input.negative = document.getElementById('new-element-negative').value.replaceAll(' ', '').split(',').map(n => n.toLowerCase() === 'true')
                 case 'Select':
                 case 'Dropdown':
                     input.options = document.getElementById('new-element-options').value.replaceAll(' ', '').split(',')
                 case 'String':
                 case 'Text':
                     input.default = document.getElementById('new-element-default').value
-                    break
             }
             if (type == 'Multicounter')
             {
@@ -262,7 +264,7 @@ function create_element()
             }
             if ((type == 'String' || type == 'Text') && input.default === '')
             {
-                input.default = ' '
+                input.default = 'N/A'
             }
             config[mode].pages[page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
         }

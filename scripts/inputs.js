@@ -207,10 +207,21 @@ function build_dropdown_op(op_name, default_op='')
  * returns:     wr_string as a string
  * description: Builds the HTML string of a string object.
  */
-function build_str_entry(id, name, value='', type='text', on_text_change='')
+function build_str_entry(id, name, value='', type='text', on_text_change='', description='')
 {
     let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
-    return `${label}<input class="wr_string" type="${type}" id="${id}" value="${value}" onKeyUp="${on_text_change}">`
+    return `${label}${build_description(description)}<input class="wr_string" type="${type}" id="${id}" value="${value}" onKeyUp="${on_text_change}">`
+}
+
+/**
+ * function:    build_description
+ * parameters:  description text
+ * returns:     wr_description as string
+ * description: Builds the HTML string of a description object.
+ */
+function build_description(text)
+{
+    return `<small class="wr_description">${text}</small>`
 }
 
 /**
@@ -242,11 +253,11 @@ function build_status_tile(id, name, color='')
  * returns:     wr_string for a number as a string
  * description: Builds the HTML string of a number object.
  */
-function build_num_entry(id, name, value='', bounds=[], on_text_change='')
+function build_num_entry(id, name, value='', bounds=[], on_text_change='', description='')
 {
     let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
-    return `${label}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" onChange="${on_text_change}" ${bounds_str}>`
+    return `${label}${build_description(description)}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" onChange="${on_text_change}" ${bounds_str}>`
 }
 
 /**
@@ -255,10 +266,10 @@ function build_num_entry(id, name, value='', bounds=[], on_text_change='')
  * returns:     wr_text as a string
  * description: Builds the HTML string of a text object.
  */
-function build_text_entry(id, name, value='')
+function build_text_entry(id, name, value='', description='')
 {
     let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
-    return `${label}<textarea class="wr_text" id="${id}">${value}</textarea>`
+    return `${label}${build_description(description)}<textarea class="wr_text" id="${id}">${value}</textarea>`
 }
 
 /**
