@@ -152,12 +152,12 @@ function populate_options()
                     ops += build_checkbox('new-element-negative', 'Negative')
                     break
                 case 'Slider':
-                    ops += build_num_entry('new-element-incr', 'Increment', '', [], '', 'The size of a single step.')
+                    ops += build_num_entry('new-element-incr', 'Increment', '1', [], '', 'The size of a single step.')
                 case 'Number':
-                    ops += build_num_entry('new-element-min', 'Min', '', [], '', 'The minimum allowed value.')
-                    ops += build_num_entry('new-element-max', 'Max', '', [], '', 'The maximum allowed value.')
+                    ops += build_num_entry('new-element-min', 'Min', '0', [], '', 'The minimum allowed value.')
+                    ops += build_num_entry('new-element-max', 'Max', '10', [], '', 'The maximum allowed value.')
                 case 'Counter':
-                    ops += build_num_entry('new-element-default', 'Default', '', [], '', 'The default value displayed in the box.')
+                    ops += build_num_entry('new-element-default', 'Default', '0', [], '', 'The default value displayed in the box.')
                     ops += build_checkbox('new-element-negative', 'Negative')
                     break
                 case 'String':
@@ -169,7 +169,7 @@ function populate_options()
                 case 'Multicounter':
                     ops += build_str_entry('new-element-negative', 'Negative', '', 'text', '', 'A comma-separated list of true/false values for each counter.')
                     ops += build_str_entry('new-element-options', 'Options', '', 'text', '', 'A comma-separated list of selectable options, all spaces will be deleted.')
-                    ops += build_str_entry('new-element-default', 'Default', '', 'text', '', 'The single default value for all counters.')
+                    ops += build_num_entry('new-element-default', 'Default', '0', [], '', 'The single default value for all counters.')
                     break
                 case 'Select':
                 case 'Dropdown':
@@ -237,12 +237,32 @@ function create_element()
                     input.negative = document.getElementById('new-element-negative').checked
                     break
                 case 'Slider':
-                    ops = [ parseInt(document.getElementById('new-element-incr').value) ]
+                    let incr = document.getElementById('new-element-incr').value
+                    if (incr === '')
+                    {
+                        incr = '1'
+                    }
+                    ops = [ parseInt(incr) ]
                 case 'Number':
-                    ops = [ parseInt(document.getElementById('new-element-min').value), parseInt(document.getElementById('new-element-max').value) ].concat(ops)
+                    let min = document.getElementById('new-element-min').value
+                    let max = document.getElementById('new-element-max').value
+                    if (min === '')
+                    {
+                        min = '0'
+                    }
+                    if (max === '')
+                    {
+                        max = '10'
+                    }
+                    ops = [ parseInt(min), parseInt(max) ].concat(ops)
                     input.options = ops
                 case 'Counter':
-                    input.default = parseInt(document.getElementById('new-element-default').value)
+                    let def = document.getElementById('new-element-default').value
+                    if (def === '')
+                    {
+                        def = '0'
+                    }
+                    input.default = parseInt(def)
                     input.negative = document.getElementById('new-element-negative').checked
                     break
                 case 'Multicounter':
