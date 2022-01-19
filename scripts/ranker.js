@@ -114,11 +114,11 @@ function update_params()
             let counters = inputs.filter(k => meta[k].type == 'counter').map(k => meta[k].name)
             let selects = inputs.filter(k => meta[k].type != 'counter')
 
-            html += build_dropdown('cycle', 'Cycle', cycles, cycle, 'update_params()')
-            html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()')
+            html += build_dropdown('cycle', 'Cycle', cycles, cycle, 'update_params()', '', 'The ID of the cycle you would like to count.')
+            html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()', '', 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.')
             for (let s of selects)
             {
-                html += build_dropdown(s, meta[s].name, [''].concat(meta[s].options), '', 'calculate()')
+                html += build_dropdown(s, meta[s].name, [''].concat(meta[s].options), '', 'calculate()', '', 'Optional, choose value of the above select to filter cycles by.')
             }
             break
     }

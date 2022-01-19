@@ -179,7 +179,7 @@ function build_select(id, name, option_names, default_op, onclick='')
  * returns:     wr_dropdown as a string
  * description: Builds the HTML string of a dropdown object and its options.
  */
-function build_dropdown(id, name, option_names, default_op='', onchange='', classes='')
+function build_dropdown(id, name, option_names, default_op='', onchange='', classes='', description='')
 {
     let label = name.length != 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
     let options = ''
@@ -187,7 +187,7 @@ function build_dropdown(id, name, option_names, default_op='', onchange='', clas
     {
         options += build_dropdown_op(op_name, default_op)
     }
-    return `${label}<select class="wr_dropdown ${classes}" id="${id}" onchange="${onchange}">${options}</select>`
+    return `${label}${build_description(description)}<select class="wr_dropdown ${classes}" id="${id}" onchange="${onchange}">${options}</select>`
 }
 
 /**
