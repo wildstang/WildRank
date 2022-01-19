@@ -5,7 +5,7 @@ from shutil import copyfile
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
-VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/selection.html', '/?']
+VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/selection.html', '/?']
 
 TBA_KEY = environ.get('TBA_KEY')
 
@@ -66,7 +66,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             for path in VALID_PATHS:
                 if self.path.startswith(path) or self.path == '/':
                     return http.server.SimpleHTTPRequestHandler.do_GET(self)
-            
+
             # send 404 otherwise
             self.send_response(404)
             self.send_header('Content-type', 'text/html')

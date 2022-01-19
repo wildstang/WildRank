@@ -53,6 +53,12 @@ document.onkeydown = function(e)
     }
 }
 
+// register service workers
+if ('serviceWorker' in navigator)
+{
+    navigator.serviceWorker.register('scripts/pwa.js')
+}
+
 /**
  * function:    deselect_all
  * parameters:  use primary option list

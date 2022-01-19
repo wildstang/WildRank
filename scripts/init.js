@@ -20,3 +20,9 @@ window.addEventListener('load', function()
 {
     init_page()
 })
+
+// register service workers
+if ('serviceWorker' in navigator)
+{
+    navigator.serviceWorker.register('scripts/pwa.js')
+}
