@@ -56,7 +56,7 @@ document.onkeydown = function(e)
 // register service workers
 if ('serviceWorker' in navigator)
 {
-    navigator.serviceWorker.register('scripts/pwa.js', { scope: '/' })
+    navigator.serviceWorker.register('pwa.js')
 }
 
 /**
