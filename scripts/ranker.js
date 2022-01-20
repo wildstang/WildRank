@@ -63,7 +63,7 @@ function init_page(contents_card, buttons_container)
 function filter_numeric(key)
 {
     let type = meta[key].type
-    return type == 'number' || type == 'counter' || type == 'slider'
+    return meta[key].cycle == false && (type == 'number' || type == 'counter' || type == 'slider')
 }
 
 /**
