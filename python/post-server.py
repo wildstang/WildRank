@@ -5,7 +5,7 @@ from shutil import copyfile
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
-VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/selection.html', '/?']
+VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/pwa.js', '/selection.html', '/?']
 
 TBA_KEY = environ.get('TBA_KEY')
 
