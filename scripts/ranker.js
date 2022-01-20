@@ -276,9 +276,18 @@ function calculate()
 function save_stat()
 {
     let stat = build_stat()
-    let config = get_config('smart-stats')
-    config[year].push(stat)
-    localStorage.setItem('config-smart-stats', JSON.stringify(config))
+    if (stat.id in meta)
+    {
+        alert('Name already exists!')
+    }
+    else
+    {
+        let config = get_config('smart-stats')
+        config[year].push(stat)
+        localStorage.setItem('config-smart-stats', JSON.stringify(config))
+        alert(`${stat.name} Created`)
+        meta = get_result_meta(type, year)
+    }
 }
 
 /**
