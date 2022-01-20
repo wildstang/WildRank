@@ -33,7 +33,7 @@ const PAGE_FRAME = build_page_frame('', [
     ]),
     build_column_frame('Status', [
         build_button('preload_event', 'Preload Event', `preload_event()`),
-        build_button('import_zip', 'Import Raw Data', `import_zip()`),
+        build_link_button('transfer', 'Transfer Raw Data', `open_transfer()`),
         build_status_tile('server_type', 'POST Server'),
         build_status_tile('config_valid', 'Config'),
         build_status_tile('scout_config_valid', 'Scout Config')
@@ -285,6 +285,17 @@ function open_about()
 {
     console.log('about')
     return build_url('index', {'page': 'about'})
+}
+
+/**
+ * function:    open_transfer
+ * parameters:  none
+ * returns:     none
+ * description: Open the raw data transfer page.
+ */
+function open_transfer()
+{
+    return build_url('index', {'page': 'transfer-raw', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**

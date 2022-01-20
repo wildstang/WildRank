@@ -23,21 +23,21 @@ document.head.appendChild(s)
 const CONFIGS = {
     'scout': {
         'Scout': ['scout'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
+        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
     },
     'note': {
         'Notes': ['pit_scout', 'note_scout'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
+        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
     },
     'drive': {
         'Drive Team': ['open_coach', 'open_whiteboard'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
+        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
     },
     'analysis': {
         'Teams': ['type_form', 'open_ranker', 'open_sides', 'open_picks', 'open_whiteboard', 'open_advanced'],
         'Keys': ['open_pivot', 'open_distro', 'open_plot'],
         'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_coach'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'export_zip', 'import_zip', 'download_csv']
+        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
     },
     'admin': {
         'Admin': ['open_config', 'open_settings', 'open_event_gen', 'open_random'],
@@ -47,29 +47,28 @@ const CONFIGS = {
 
 // requirements for each button
 const BUTTONS = {
-    'scout':            { name: 'Scout',           limits: ['event'], configs: [MATCH_MODE, 'settings'] },
-    'pit_scout':        { name: 'Pit Scout',       limits: ['teams'], configs: [PIT_MODE, 'settings'] },
-    'note_scout':       { name: 'Note Scout',      limits: ['event'], configs: [NOTE_MODE, 'settings'] },
-    'open_ranker':      { name: 'Team Rankings',   limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_sides':       { name: 'Side-by-Side',    limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_picks':       { name: 'Pick Lists',      limits: ['teams', 'admin'], configs: ['settings'] },
-    'open_whiteboard':  { name: 'Whiteboard',      limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
-    'open_advanced':    { name: 'Advanced',        limits: ['event', 'admin'], configs: ['settings'] },
-    'open_results':     { name: 'Results',         limits: ['event-pit', 'admin', 'results'], configs: ['type', 'settings'] },
-    'open_teams':       { name: 'Team Profiles',   limits: ['teams', 'admin'], configs: ['settings'] },
-    'open_matches':     { name: 'Match Summaries', limits: ['event', 'admin'], configs: ['settings'] },
-    'open_users':       { name: 'User Profiles',   limits: ['event-pit', 'admin', 'any'], configs: [] },
-    'open_pivot':       { name: 'Pivot Table',     limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_distro':      { name: 'Distributions',   limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
-    'open_plot':        { name: 'Plotter',         limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
-    'open_coach':       { name: 'Coach View',      limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
-    'open_config':      { name: 'Config Builder',  limits: ['admin'], configs: [] },
-    'open_settings':    { name: 'Settings Editor', limits: ['admin'], configs: ['settings'] },
-    'preload_event':    { name: 'Preload Event',   limits: [], configs: [] },
-    'export_zip':       { name: 'Export Raw Data', limits: ['event', 'admin'], configs: [] },
-    'import_zip':       { name: 'Import Raw Data', limits: ['admin'], configs: [] },
-    'reset':            { name: 'Reset App',       limits: ['admin'], configs: [] },
-    'open_event_gen':   { name: 'Event Generator',  limits: ['admin'], configs: [] },
+    'scout':            { name: 'Scout',             limits: ['event'], configs: [MATCH_MODE, 'settings'] },
+    'pit_scout':        { name: 'Pit Scout',         limits: ['teams'], configs: [PIT_MODE, 'settings'] },
+    'note_scout':       { name: 'Note Scout',        limits: ['event'], configs: [NOTE_MODE, 'settings'] },
+    'open_ranker':      { name: 'Team Rankings',     limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_sides':       { name: 'Side-by-Side',      limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_picks':       { name: 'Pick Lists',        limits: ['teams', 'admin'], configs: ['settings'] },
+    'open_whiteboard':  { name: 'Whiteboard',        limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
+    'open_advanced':    { name: 'Advanced',          limits: ['event', 'admin'], configs: ['settings'] },
+    'open_results':     { name: 'Results',           limits: ['event-pit', 'admin', 'results'], configs: ['type', 'settings'] },
+    'open_teams':       { name: 'Team Profiles',     limits: ['teams', 'admin'], configs: ['settings'] },
+    'open_matches':     { name: 'Match Summaries',   limits: ['event', 'admin'], configs: ['settings'] },
+    'open_users':       { name: 'User Profiles',     limits: ['event-pit', 'admin', 'any'], configs: [] },
+    'open_pivot':       { name: 'Pivot Table',       limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_distro':      { name: 'Distributions',     limits: ['event', 'admin', 'results', 'no-notes'], configs: ['type', 'settings'] },
+    'open_plot':        { name: 'Plotter',           limits: ['event', 'admin', 'results'], configs: ['type', 'settings'] },
+    'open_coach':       { name: 'Coach View',        limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals', 'type'] },
+    'open_config':      { name: 'Config Builder',    limits: ['admin'], configs: [] },
+    'open_settings':    { name: 'Settings Editor',   limits: ['admin'], configs: ['settings'] },
+    'preload_event':    { name: 'Preload Event',     limits: [], configs: [] },
+    'open_transfer':    { name: 'Transfer Raw Data', limits: ['event', 'admin'], configs: [] },
+    'reset':            { name: 'Reset App',         limits: ['admin'], configs: [] },
+    'open_event_gen':   { name: 'Event Generator',   limits: ['admin'], configs: [] },
     'open_random':      { name: 'Random Result Generator',  limits: ['event-pit', 'admin'], configs: ['type', 'settings'] },
     'upload_all':       { name: 'Upload Results to Server', limits: ['results'], configs: [] },
     'import_all':       { name: 'Import Server Results',    limits: ['admin'], configs: [] },
@@ -99,7 +98,7 @@ function init_page()
             {
                 col_contents.push(build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'))
             }
-            else if (col == 'Transfer')
+            else if (col == 'Transfer' && !key.startsWith('open_'))
             {
                 col_contents.push(build_button(key, BUTTONS[key].name, `check_press('${key}', ${key})`))
             }

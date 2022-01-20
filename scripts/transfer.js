@@ -241,111 +241,6 @@ function import_all()
 }
 
 /**
- * function:    export_zip
- * paramters:   none
- * returns:     none
- * description: Creates and downloads a zip archive containing all localStorage files.
- */
-function export_zip()
-{
-    let zip = JSZip()
-
-    // determine which files to use
-    let files = Object.keys(localStorage).filter(function(file)
-    {
-        if (!file.startsWith('avatar-') && file.includes(get_event()))
-        {
-            return true
-        }
-        return false
-    })
-
-    // add each file to the zip
-    for (let file of files)
-    {
-        let name = file
-        let base64 = false
-        let data = localStorage.getItem(file)
-        if (data.startsWith('data:image/png;base64,'))
-        {
-            name += '.png'
-            base64 = true
-            data = data.substr(data.indexOf(',') + 1)
-        }
-        else if (name.startsWith('avatar-'))
-        {
-            // JSZip doesn't seem to like avatars' base64
-            name += '.b64'
-            base64 = false
-        }
-        else 
-        {
-            name += '.json'
-        }
-        zip.file(name, data, { base64: base64 })
-    }
-
-    // download zip
-    zip.generateAsync({ type: 'base64' })
-        .then(function(base64)
-        {
-            let event = get_event()
-            let element = document.createElement('a')
-            element.setAttribute('href', `data:application/zip;base64,${base64}`)
-            element.setAttribute('download', `${get_user()}-${event}-export.zip`)
-
-            element.style.display = 'none'
-            document.body.appendChild(element)
-
-            element.click()
-
-            document.body.removeChild(element)
-        })
-}
-
-/**
- * function:    import_zip_from_event
- * paramters:   response containing zip file
- * returns:     none
- * description: Extracts a zip archive containing all JSON results.
- */
-function import_zip_from_event(event)
-{
-    let file = event.target.files[0]
-
-    // process each files details
-    JSZip.loadAsync(file).then(function (zip)
-    {
-        let files = Object.keys(zip.files)
-        for (let name of files)
-        {
-            let parts = name.split('.')
-            let n = parts[0]
-            let type = n.split('-')[0]
-
-            // only import JSON files for the current event
-            if (parts[1] == 'json' && n.includes(get_event()) && !file_exists(n))
-            {
-                // get blob of files text
-                zip.file(name).async('blob').then(function (content)
-                {
-                    content.text().then(function (text) {
-                        // save to localStorage if result or event data is missing
-                        if ((type == MATCH_MODE || type == PIT_MODE || type == NOTE_MODE || type == 'picklists') ||
-                            (!has_event() && (type == 'rankings' || type == 'matches' || type == 'teams')))
-                        {
-                            localStorage.setItem(n, text)
-                        }
-                        process_files()
-                        hide_buttons()
-                    })
-                })
-            }
-        }
-    })
-}
-
-/**
  * function:    download_csv
  * parameters:  none
  * returns:     none
@@ -384,21 +279,6 @@ function reset()
 /**
  * HELPER FUNCTIONS
  */
-
-/**
- * function:    import_zip
- * paramters:   none
- * returns:     none
- * description: Creates a file prompt to upload a zip of JSON results.
- */
-function import_zip()
-{
-    var input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'application/zip'
-    input.onchange = import_zip_from_event
-    input.click()
-}
 
 /**
  * function:    export_spreadsheet

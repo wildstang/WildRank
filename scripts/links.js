@@ -229,6 +229,17 @@ function open_event_gen()
 }
 
 /**
+ * function:    open_transfer
+ * parameters:  none
+ * returns:     none
+ * description: Open the raw data transfer page.
+ */
+function open_transfer()
+{
+    return build_url('index', {'page': 'transfer-raw', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
  * function:    sign_out
  * parameters:  none
  * returns:     none
