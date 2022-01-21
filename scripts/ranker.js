@@ -90,17 +90,30 @@ function update_params()
 
     // add appropriate inputs for the selected type
     let html = ''
+    let keys = Object.keys(meta).filter(filter_numeric)
     switch (type)
     {
         case 'Sum':
-            for (let c of Object.keys(meta).filter(filter_numeric))
+            let colA = []
+            let colB = []
+            for (let i in keys)
             {
-                html += build_checkbox(c, meta[c].name, false, 'calculate()')
+                let cb = build_checkbox(keys[i], meta[keys[i]].name, false, 'calculate()')
+                // split column in 2
+                if (i < keys.length / 2)
+                {
+                    colA.push(cb)
+                }
+                else
+                {
+                    colB.push(cb)
+                }
             }
+            html += build_page_frame('', [build_column_frame('', colA), build_column_frame('', colB)])
             break
         case 'Percent':
         case 'Ratio':
-            let keys = Object.keys(meta).filter(filter_numeric).map(k => meta[k].name)
+            keys = keys.map(k => meta[k].name)
             html += build_dropdown('numerator', 'Numerator', keys, '', 'calculate()')
             html += build_dropdown('denominator', 'Denominator', keys, '', 'calculate()')
             break
