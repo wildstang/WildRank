@@ -87,7 +87,7 @@ self.addEventListener('install', e => {
 self.addEventListener('fetch', e => {
     e.respondWith((async () => {
         // attempt to pull resource from cache
-        const R = await caches.match(e.request)
+        const R = await caches.match(e.request, {ignoreSearch: true})
         if (R)
         {
             return R
