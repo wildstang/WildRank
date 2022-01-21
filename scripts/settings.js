@@ -190,8 +190,8 @@ function apply_config()
     }
     if (file_exists('config-admins'))
     {
-        let config = get_config('admins')
-        document.getElementById('body').innerHTML += build_page_frame('Admins', [build_column_frame('', [build_text_entry('admins', 'ID List', config.join(', '))])])
+        let admins = document.getElementById('admins').value.replaceAll(' ', '').split(',')
+        localStorage.setItem('config-admins', JSON.stringify(admins))
     }
     if (file_exists('config-coach-vals'))
     {
