@@ -190,7 +190,7 @@ function apply_config()
     }
     if (file_exists('config-admins'))
     {
-        let admins = document.getElementById('admins').value.replaceAll(' ', '').split(',')
+        let admins = document.getElementById('admins').value.replaceAll(' ', '').split(',').map(a => parseInt(a))
         localStorage.setItem('config-admins', JSON.stringify(admins))
     }
     if (file_exists('config-coach-vals'))
