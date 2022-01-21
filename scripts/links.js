@@ -1,5 +1,5 @@
 /**
- * file:        link.js
+ * file:        links.js
  * description: Contains link opening functions for the index of the web app.
  * author:      Liam Fruzyna
  * date:        2021-05-24
