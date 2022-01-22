@@ -97,7 +97,7 @@ self.addEventListener('fetch', e => {
         const RES = await fetch(e.request)
         const CACHE = await caches.open(CACHE_NAME)
         CACHE.put(e.request, RES.clone())
-        return response
+        return RES
     })())
 })
 
