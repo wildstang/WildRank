@@ -22,7 +22,11 @@ var meta = {}
 function init_page()
 {
     document.getElementById('header_info').innerHTML = `Settings`
-    document.body.innerHTML += '<div id="body"></div>' + build_button('', 'Apply', 'apply_config()')
+    document.body.innerHTML += '<div id="body"></div>' + build_page_frame('', [
+        build_column_frame('', [build_button('', 'Download', 'download_config()')]),
+        build_column_frame('', [build_button('', 'Upload', 'upload_config()')]),
+        build_column_frame('', [build_button('', 'Apply', 'apply_config()')])
+    ])
 
     build_page()
 }
@@ -260,4 +264,71 @@ function build_config(file)
         }
     }
     return JSON.stringify(config)
+}
+
+/**
+ * function:    upload_config
+ * paramters:   none
+ * returns:     none
+ * description: Creates a file prompt to upload a JSON file.
+ */
+function upload_config()
+{
+    var input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json'
+    input.onchange = import_config
+    input.click()
+}
+
+/**
+ * function:    import_config
+ * paramters:   response containing JSON file
+ * returns:     none
+ * description: Loads in a config file to the editor.
+ */
+function import_config(event)
+{
+    let file = event.target.files[0]
+    let reader = new FileReader()
+    reader.readAsText(file, 'UTF-8')
+    reader.onload = readerEvent => {
+        let newConfig = JSON.parse(readerEvent.target.result)
+        for (let key of Object.keys(newConfig))
+        {
+            localStorage.setItem(`config-${key}`, JSON.stringify(newConfig[key]))
+        }
+        build_page()
+    }
+}
+
+/**
+ * function:    download_config
+ * parameters:  none
+ * returns:     none
+ * description: Downloads the current config to file.
+ */
+function download_config()
+{
+    let contents = {}
+    let files = Object.keys(localStorage)
+    for (let file of files)
+    {
+        if (file.startsWith('config-') && !file.startsWith('config-2'))
+        {
+            contents[file.substr(7)] = JSON.parse(localStorage.getItem(file))
+        }
+    }
+    let str = JSON.stringify(contents)
+
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
+    element.setAttribute('download', `config.json`)
+
+    element.style.display = 'none'
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
 }
