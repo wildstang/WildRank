@@ -83,7 +83,13 @@ const BUTTONS = {
  */
 function init_page()
 {
-    let columns = CONFIGS[get_cookie(ROLE_COOKIE, ROLE_DEFAULT)]
+    let role = get_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+    if (role == ROLE_DEFAULT)
+    {
+        window.open('/index.html?page=index', '_self')
+        return
+    }
+    let columns = CONFIGS[role]
     let page_contents = []
     for (let col of Object.keys(columns))
     {

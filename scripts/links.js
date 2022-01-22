@@ -247,5 +247,6 @@ function open_transfer()
  */
 function sign_out()
 {
+    set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
     return 'index.html'
 }
