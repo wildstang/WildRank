@@ -215,7 +215,7 @@ function get_result_meta(mode, year)
             let stats = get_config('smart-stats')[year]
             for (let stat of stats)
             {
-                let neg = stat.neg
+                let neg = stat.negative
                 if (typeof neg === 'undefined')
                 {
                     neg = false

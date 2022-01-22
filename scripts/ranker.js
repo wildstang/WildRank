@@ -63,7 +63,7 @@ function init_page(contents_card, buttons_container)
 function filter_numeric(key)
 {
     let type = meta[key].type
-    return meta[key].cycle == false && (type == 'number' || type == 'counter' || type == 'slider')
+    return (typeof meta[key].cycle === 'undefined' || meta[key].cycle == false) && (type == 'number' || type == 'counter' || type == 'slider')
 }
 
 /**
@@ -112,6 +112,10 @@ function update_params()
             html += build_page_frame('', [build_column_frame('', colA), build_column_frame('', colB)])
             break
         case 'Percent':
+            keys = keys.map(k => meta[k].name)
+            html += build_dropdown('numerator', 'Percent Value', keys, '', 'calculate()', '', 'The value being measured in the percentage.')
+            html += build_dropdown('denominator', 'Remaining Value', keys, '', 'calculate()', '', 'The remaining value used to complete the percentage.')
+            break
         case 'Ratio':
             keys = keys.map(k => meta[k].name)
             html += build_dropdown('numerator', 'Numerator', keys, '', 'calculate()')
@@ -165,13 +169,19 @@ function build_stat()
     {
         case 'Sum':
             let keys = []
+            let pos = false
             for (let c of Object.keys(meta).filter(filter_numeric))
             {
                 if (document.getElementById(c).checked)
                 {
                     keys.push(c)
+                    if (typeof meta[c].negative === 'undefined' || !meta[c].negative)
+                    {
+                        pos = true
+                    }
                 }
             }
+            stat.negative = !pos
             stat.keys = keys
             break
         case 'Percent':
@@ -181,6 +191,7 @@ function build_stat()
             let denominator = ids[document.getElementById('denominator').selectedIndex]
             stat.numerator = numerator
             stat.denominator = denominator
+            stat.negative = meta[numerator].negative && !meta[denominator].negative
             break
         case 'Where':
             let cycle = document.getElementById('cycle').value
@@ -202,6 +213,11 @@ function build_stat()
             if (count != 0)
             {
                 stat.sum = counters[count-1]
+                stat.negative = meta[counters[count-1]].negative
+            }
+            else
+            {
+                stat.negative = false
             }
             break
     }
@@ -277,6 +293,12 @@ function calculate()
         }
         return `${i} ${t} ${val}`
     })
+
+    if (stat.negative)
+    {
+        teams.reverse()
+    }
+
     populate_other(teams)
 }
 
