@@ -32,7 +32,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_link_button('admin', 'Administrator', `check_press('admin')`)
     ]),
     build_column_frame('Status', [
-        build_button('preload_event', 'Preload Event', `preload_event()`),
+        build_button('preload_event', 'Preload Event', `save_options(); preload_event()`),
         build_link_button('transfer', 'Transfer Raw Data', `open_transfer()`),
         build_status_tile('server_type', 'POST Server'),
         build_status_tile('config_valid', 'Config'),
@@ -295,6 +295,7 @@ function open_about()
  */
 function open_transfer()
 {
+    save_options()
     return build_url('index', {'page': 'transfer-raw', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
