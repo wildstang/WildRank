@@ -31,12 +31,12 @@ function init_page(contents_card, buttons_container)
                                     <img id="photo" alt="No image available">
                                     <div id="notes"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
-
-        results = get_results(prefix, year)
         
         let year = event_id.substr(0, 4)
         meta = get_result_meta(MATCH_MODE, year)
         pit_meta = get_result_meta(PIT_MODE, year)
+
+        results = get_results(prefix, year)
         
         setup_picklists()
         open_option(first)
