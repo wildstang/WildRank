@@ -70,12 +70,7 @@ function build_page()
                     let func = val.function
                     func = func.substr(0, 1).toUpperCase() + func.substr(1)
                     inputs.push(build_select(`fn_${i}`, 'Function', FUNCTIONS, func))
-                    let name = ''
-                    if (meta[val.key] != null)
-                    {
-                        name = meta[val.key].name
-                    }
-                    inputs.push(build_dropdown(`key_${i}`, 'Key', [''].concat(keys), name))
+                    inputs.push(build_dropdown(`key_${i}`, 'Key', [''].concat(keys), val.key))
                 }
             }
             inputs.push(build_button('add_coach', 'New Value', 'add_coach()'))
@@ -206,9 +201,8 @@ function apply_config()
                 let key = document.getElementById(`key_${i}`).value
                 if (key !== '')
                 {
-                    console.log(key)
                     config.push({
-                        fn: func,
+                        function: FUNCTIONS[func],
                         key: key
                     })
                 }
