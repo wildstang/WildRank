@@ -230,7 +230,7 @@ function build_result_list(new_team=false)
     for (let file of Object.keys(results))
     {
         let parts = file.split('-')
-        if (team == 'All' || team == parts[parts.length-1])
+        if ((selected != null && selected == file) || (selected == null && (team == 'All' || team == parts[parts.length-1])))
         {
             parts = file.substr(prefix.length).split('-')
             let team = parts[parts.length-1]
