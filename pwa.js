@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-220121'
+const CACHE_NAME = 'wildrank-220122a'
 const CACHE_LIST = [
     // html files
     '/index.html',
@@ -97,7 +97,7 @@ self.addEventListener('fetch', e => {
         const RES = await fetch(e.request)
         const CACHE = await caches.open(CACHE_NAME)
         CACHE.put(e.request, RES.clone())
-        return response
+        return RES
     })())
 })
 

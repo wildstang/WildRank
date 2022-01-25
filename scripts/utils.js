@@ -23,7 +23,7 @@ const TBA_KEY = 'X-TBA-Auth-Key'
 const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'light'
 const ROLE_COOKIE = 'role'
-const ROLE_DEFAULT = 'scout'
+const ROLE_DEFAULT = 'index'
 
 /**
  * function:    window_open

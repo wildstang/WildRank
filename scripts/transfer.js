@@ -117,7 +117,7 @@ function preload_event()
                 return response.json()
             })
             .then(data => {
-                if (data.hasOwnProperty('rankings') && data.rankings.length > 0)
+                if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
                 {
                     data = data.rankings
 
