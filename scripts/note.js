@@ -8,12 +8,12 @@
 const start = Date.now()
 
 /** 
- * function:    build_page
+ * function:    init_page
  * parameters:  none
  * returns:     none
  * description: Builds the page from the given team numbers.
  */
-function build_page()
+function init_page()
 {
     reds = []
     for (let i in red_teams)
@@ -140,8 +140,3 @@ for (let i = 1; urlParams.has(`blue${i}`); i++)
 {
     blue_teams.push(urlParams.get(`blue${i}`))
 }
-
-window.addEventListener('load', function()
-{
-    build_page()
-})
