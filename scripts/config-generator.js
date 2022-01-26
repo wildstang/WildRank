@@ -368,15 +368,6 @@ function save_config()
     localStorage.setItem(`config-${year}-pit`, JSON.stringify(config[0]))
     localStorage.setItem(`config-${year}-match`, JSON.stringify(config[1]))
 
-    // post string to server
-    let addr = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
-    if (check_server(addr))
-    {
-        let contents = {}
-        contents[year] = config
-        let upload = `scout-config.json|||${JSON.stringify(contents)}`
-        fetch(addr, {method: 'POST', body: upload})
-    }
     alert('Scouting config updated')
 }
 
