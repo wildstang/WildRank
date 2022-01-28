@@ -324,6 +324,11 @@ function update_cycle(cycle, decrement)
  */
 function get_results_from_page()
 {
+    if (!confirm('Are you sure you want to submit?'))
+    {
+        return
+    }
+    
     results = {}
 
     // scouter metadata
