@@ -464,13 +464,33 @@ function update_color(id)
 
 /**
  * function:    set_status
- * parameters:  element id, boolean status
+ * parameters:  element id, boolean/number(-1,0,1) status
  * returns:     none
  * description: Updates the color box with the provided color.
  */
 function set_status(id, status)
 {
-    document.getElementById(id).style.backgroundColor = status ? 'green' : 'red'
+    if (typeof status !== 'boolean')
+    {
+        switch (status)
+        {
+            case 1:
+                status = 'green'
+                break
+            case 0:
+                status = 'orange'
+                break
+            case -1:
+            default:
+                status = 'red'
+                break
+        }
+    }
+    else
+    {
+        status = status ? 'green' : 'red'
+    }
+    document.getElementById(id).style.backgroundColor = status
 }
 
 /**

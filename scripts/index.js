@@ -35,6 +35,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_button('preload_event', 'Preload Event', `save_options(); preload_event()`),
         build_link_button('transfer', 'Transfer Raw Data', `open_transfer()`),
         build_status_tile('server_type', 'POST Server'),
+        build_status_tile('event_data', 'Event Data'),
         build_status_tile('config_valid', 'Config'),
         build_status_tile('scout_config_valid', 'Scout Config')
     ]),
@@ -83,20 +84,6 @@ function on_config()
     select_option('theme_switch', theme == 'light' ? 0 : 1)
     apply_theme()
     process_files()
-
-    // update statuses
-    set_status('server_type', check_server(get_upload_addr(), false))
-    let year = get_event().substr(0, 4)
-    set_status('scout_config_valid', validate_scout_config(get_config(`${year}-match`)) && validate_scout_config(get_config(`${year}-pit`)))
-    set_status('config_valid', validate_settings_config(get_config('settings')) &&
-        validate_settings_config(get_config('settings')) &&
-        validate_defaults_config(get_config('defaults')) &&
-        validate_coach_config(get_config('coach-vals')) &&
-        validate_smart_config(get_config('smart-stats')) &&
-        validate_wb_config(get_config('whiteboard')) &&
-        validate_admin_config(get_config('admins')) &&
-        validate_theme_config(get_config('theme')) &&
-        validate_theme_config(get_config('dark-theme')))
 }
 
 /**
@@ -149,6 +136,46 @@ function process_files()
     document.getElementById('matches').innerHTML = matches
     document.getElementById('pit_results').innerHTML = pit_results
     document.getElementById('match_results').innerHTML = match_results
+
+    // update statuses
+    set_status('event_data', check_event())
+    set_status('server_type', check_server(get_upload_addr(), false))
+    let year = get_event().substr(0, 4)
+    set_status('scout_config_valid', validate_scout_config(get_config(`${year}-match`)) && validate_scout_config(get_config(`${year}-pit`)))
+    set_status('config_valid', validate_settings_config(get_config('settings')) &&
+        validate_settings_config(get_config('settings')) &&
+        validate_defaults_config(get_config('defaults')) &&
+        validate_coach_config(get_config('coach-vals')) &&
+        validate_smart_config(get_config('smart-stats')) &&
+        validate_wb_config(get_config('whiteboard')) &&
+        validate_admin_config(get_config('admins')) &&
+        validate_theme_config(get_config('theme')) &&
+        validate_theme_config(get_config('dark-theme')))
+}
+
+/**
+ * function:    check_event
+ * parameters:  none
+ * returns:     none
+ * description: Confirms event data exists for the current event.
+ */
+function check_event()
+{
+    let event = get_event()
+    let teams = file_exists(get_event_teams_name(event))
+    let matches = file_exists(get_event_matches_name(event))
+    if (teams && matches)
+    {
+        return 1
+    }
+    else if (teams || matches)
+    {
+        return 0
+    }
+    else
+    {
+        return -1
+    }
 }
 
 /**
