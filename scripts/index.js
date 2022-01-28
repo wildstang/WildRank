@@ -78,7 +78,6 @@ function on_config()
     let defaults = get_config('defaults')
     document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, defaults.event_id)
     document.getElementById('user_id').value = get_cookie(USER_COOKIE, defaults.user_id)
-    document.getElementById('position').selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
 
     let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     select_option('theme_switch', theme == 'light' ? 0 : 1)
@@ -167,6 +166,7 @@ function count_teams()
         options += build_dropdown_op(t, '')
     }
     document.getElementById('position').innerHTML = options
+    document.getElementById('position').selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
 }
 
 /**
