@@ -193,7 +193,12 @@ function count_teams()
         options += build_dropdown_op(t, '')
     }
     document.getElementById('position').innerHTML = options
-    document.getElementById('position').selectedIndex = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+    let def = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+    if (def < 0)
+    {
+        def = 0
+    }
+    document.getElementById('position').selectedIndex = def
 }
 
 /**
@@ -310,7 +315,6 @@ function check_press(id)
  */
 function open_about()
 {
-    console.log('about')
     return build_url('index', {'page': 'about'})
 }
 
