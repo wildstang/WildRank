@@ -29,6 +29,10 @@ function populate_matches(finals=true, complete=true)
         let first = ''
         matches.sort((a, b) => a.time - b.time)
 
+        // determine if event has been completed outside of WildRank
+        let completes = matches.map(m => m.alliances.red.score && m.alliances.red.score >= 0)
+        let completeTBA = completes.every(Boolean)
+
         // iterate through each match obj
         for (let match of matches)
         {
@@ -41,7 +45,7 @@ function populate_matches(finals=true, complete=true)
                 // grey out previously scouted matches/teams
                 let scouted = 'not_scouted'
                 let level = match.comp_level.replace('qm', '').toUpperCase()
-                if (complete && ((match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == '')))
+                if (complete && ((!completeTBA && match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == '')))
                 {
                     scouted = 'scouted'
                     first = ''
