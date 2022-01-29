@@ -142,11 +142,11 @@ function import_zip_from_event(event)
     JSZip.loadAsync(file).then(function (zip)
     {
         let files = Object.keys(zip.files)
+        let complete = 0
         for (let name of files)
         {
             let parts = name.split('.')
             let n = parts[0]
-            let type = n.split('-')[0]
 
             // only import JSON files for the current event
             if (parts[1] == 'json')
@@ -173,6 +173,11 @@ function import_zip_from_event(event)
                         {
                             console.log(`Importing ${n}`)
                             localStorage.setItem(n, text)
+
+                            if (++complete == files.length)
+                            {
+                                alert('Import Complete')
+                            }
                         }
                     })
                 })
