@@ -86,7 +86,7 @@ function init_page()
     let role = get_cookie(ROLE_COOKIE, ROLE_DEFAULT)
     if (role == ROLE_DEFAULT)
     {
-        window.open('/index.html?page=index', '_self')
+        window.open('index.html?page=index', '_self')
         return
     }
     let columns = CONFIGS[role]
