@@ -26,18 +26,18 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         # about page, used to check server version
         if self.path == '/getZip':
             # zip up uploads directory
-            zip = zipfile.ZipFile('tmp.zip', 'w', zipfile.ZIP_DEFLATED)
-            for f in listdir(UPLOAD_PATH):
-                if isfile(join(UPLOAD_PATH, f)):
-                    zip.write(join(UPLOAD_PATH, f), f)
-            zip.close()
+            file = 'tmp.zip'
+            with zipfile.ZipFile(file, 'w', zipfile.ZIP_DEFLATED) as zip:
+                for f in listdir(UPLOAD_PATH):
+                    if isfile(join(UPLOAD_PATH, f)):
+                        zip.write(join(UPLOAD_PATH, f), f)
             
             # read the zip as binary and upload
-            with open('tmp.zip', 'rb') as f:
+            with open(file, 'rb') as f:
                 self.wfile.write(f.read())
             
             # delete zip
-            remove('tmp.zip')
+            remove(file)
             
         elif self.path == '/about':
             self.send_response(200)
@@ -92,11 +92,16 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write('POST request for {}'.format(self.path).encode('utf-8'))
 
         # save result
-        with open('tmp.zip', 'wb') as f:
-            print('saving')
+        file = 'tmp.zip'
+        with open(file, 'wb') as f:
             f.write(b64decode(post_data))
 
-        # TODO extract zip
+        # extract zip
+        with zipfile.ZipFile(file, 'r') as zip:
+            zip.extractall(UPLOAD_PATH)
+        
+        # delete zip
+        remove(file)
 
 # make config if not exists
 if not exists('config'):
