@@ -30,8 +30,12 @@ function init_page()
             build_checkbox('config', 'Scouting Config'),
             build_checkbox('smart-stats', 'Smart Stats'),
             build_checkbox('coach-vals', 'Coach Values'),
-            build_checkbox('settings', 'Settings'),
-            build_multi_button('direction', 'Import or Export', ['Import', 'Export'], ['import_zip()', 'export_zip()'])
+            build_checkbox('settings', 'Settings')
+        ]),
+        build_column_frame('', [
+            build_str_entry('server', 'Server URL', parse_server_addr(document.location.href)),
+            build_select('method', 'Local or Server', ['Local', 'Server'], 'Local'),
+            build_multi_button('direction', 'Import or Export', ['Import', 'Export'], ['get_zip()', 'export_zip()'])
         ])
     ])
 }
@@ -94,32 +98,88 @@ function export_zip()
     zip.generateAsync({ type: 'base64' })
         .then(function(base64)
         {
-            let element = document.createElement('a')
-            element.setAttribute('href', `data:application/zip;base64,${base64}`)
-            element.setAttribute('download', `${user_id}-${event_id}-export.zip`)
-
-            element.style.display = 'none'
-            document.body.appendChild(element)
-
-            element.click()
-
-            document.body.removeChild(element)
+            if (get_selected_option('method') == 0)
+            {
+                let element = document.createElement('a')
+                element.setAttribute('href', `data:application/zip;base64,${base64}`)
+                element.setAttribute('download', `${user_id}-${event_id}-export.zip`)
+    
+                element.style.display = 'none'
+                document.body.appendChild(element)
+    
+                element.click()
+    
+                document.body.removeChild(element)
+            }
+            else // upload
+            {
+                let addr = document.getElementById('server').value
+                if (check_server(addr))
+                {                    
+                    // post string to server
+                    fetch(addr, {method: 'POST', body: base64})
+                    console.log('posted zip to', addr)
+                }
+            }
         })
 }
 
 /**
- * function:    import_zip
+ * function:    get_zip
+ * paramters:   none
+ * returns:     none
+ * description: Calls the appropriate import zip function based on the selected method.
+ */
+function get_zip()
+{
+    if (get_selected_option('method') == 0)
+    {
+        import_zip_from_file()
+    }
+    else
+    {
+        import_zip_from_server()
+    }
+}
+
+/**
+ * function:    import_zip_from_file
  * paramters:   none
  * returns:     none
  * description: Creates a file prompt to upload a zip of JSON results.
  */
-function import_zip()
+function import_zip_from_file()
 {
     var input = document.createElement('input')
     input.type = 'file'
     input.accept = 'application/zip'
     input.onchange = import_zip_from_event
     input.click()
+}
+
+/**
+ * function:    import_zip_from_server
+ * paramters:   none
+ * returns:     none
+ * description: Request a zip of JSON results from the server.
+ */
+function import_zip_from_server()
+{
+    let addr = document.getElementById('server').value
+    if (check_server(addr))
+    {
+        fetch(`${addr}/getZip`)
+            .then(transfer => {
+                return transfer.blob();
+            })
+            .then(bytes => {
+                import_zip(bytes)
+            })
+            .catch(err => {
+                alert('Error requesting results')
+                console.log(err)
+            })
+    }
 }
 
 /**
@@ -130,8 +190,17 @@ function import_zip()
  */
 function import_zip_from_event(event)
 {
-    let file = event.target.files[0]
+    import_zip(event.target.files[0])
+}
 
+/**
+ * function:    import_zip
+ * paramters:   response containing zip file
+ * returns:     none
+ * description: Extracts a zip archive containing all JSON results.
+ */
+function import_zip(file)
+{
     let overwrite = confirm('Files may overwrite, press ok to continue')
     if (!overwrite)
     {
@@ -173,14 +242,18 @@ function import_zip_from_event(event)
                         {
                             console.log(`Importing ${n}`)
                             localStorage.setItem(n, text)
+                        }
 
-                            if (++complete == files.length)
-                            {
-                                alert('Import Complete')
-                            }
+                        if (++complete == files.length)
+                        {
+                            alert('Import Complete')
                         }
                     })
                 })
+            }
+            else if (++complete == files.length)
+            {
+                alert('Import Complete')
             }
         }
     })

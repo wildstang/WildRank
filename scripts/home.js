@@ -23,21 +23,21 @@ document.head.appendChild(s)
 const CONFIGS = {
     'scout': {
         'Scout': ['scout'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
+        'Transfer': ['open_transfer', 'download_csv']
     },
     'note': {
         'Notes': ['pit_scout', 'note_scout'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
+        'Transfer': ['open_transfer', 'download_csv']
     },
     'drive': {
         'Drive Team': ['open_coach', 'open_whiteboard'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
+        'Transfer': ['open_transfer', 'download_csv']
     },
     'analysis': {
         'Teams': ['type_form', 'open_ranker', 'open_sides', 'open_picks', 'open_whiteboard', 'open_advanced'],
         'Keys': ['open_pivot', 'open_distro', 'open_plot'],
         'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_coach'],
-        'Transfer': ['upload_url', 'upload_all', 'import_all', 'open_transfer', 'download_csv']
+        'Transfer': ['open_transfer', 'download_csv']
     },
     'admin': {
         'Admin': ['open_config', 'open_settings', 'open_event_gen', 'open_random'],
@@ -70,8 +70,6 @@ const BUTTONS = {
     'reset':            { name: 'Reset App',         limits: ['admin'], configs: [] },
     'open_event_gen':   { name: 'Event Generator',   limits: ['admin'], configs: [] },
     'open_random':      { name: 'Random Result Generator',  limits: ['event-pit', 'admin'], configs: ['type', 'settings'] },
-    'upload_all':       { name: 'Upload Results to Server', limits: ['results'], configs: [] },
-    'import_all':       { name: 'Import Server Results',    limits: ['admin'], configs: [] },
     'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] }
 }
 
@@ -96,11 +94,7 @@ function init_page()
         let col_contents = []
         for (let key of columns[col])
         {
-            if (key == 'upload_url')
-            {
-                col_contents.push(build_str_entry('upload_addr', 'Upload URL:', parse_server_addr(document.location.href), 'url'))
-            }
-            else if (key == 'type_form')
+            if (key == 'type_form')
             {
                 col_contents.push(build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], 'Match'))
             }
@@ -136,12 +130,7 @@ function init_page()
  */
 function on_config()
 {
-    if (document.getElementById('upload_addr'))
-    {
-        let defaults = get_config('defaults')
-        document.getElementById('upload_addr').value = get_cookie(UPLOAD_COOKIE, defaults.upload_url)
-    }
-    else if (document.getElementById('type_form'))
+    if (document.getElementById('type_form'))
     {
         let type_cookie = get_cookie(TYPE_COOKIE, TYPE_DEFAULT)
         select_option('type_form', type_cookie == MATCH_MODE ? 1 : type_cookie == PIT_MODE ? 0 : 2)
@@ -163,7 +152,7 @@ function hide_buttons()
     {
         for (let id of columns[col])
         {
-            if (id != 'upload_url' && id != 'type_form')
+            if (id != 'type_form')
             {
                 let button = document.getElementById(`${id}-container`)
                 if (is_blocked(id))
@@ -193,10 +182,6 @@ function hide_buttons()
  */
 function save_options()
 {
-    if (document.getElementById('upload_addr'))
-    {
-        set_cookie(UPLOAD_COOKIE, get_upload_addr())
-    }
     if (document.getElementById('type_form'))
     {
         set_cookie(TYPE_COOKIE, get_selected_type())
@@ -391,23 +376,4 @@ function get_user()
 function get_position()
 {
     return get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-}
-
-/**
- * function:    get_upload_addr
- * parameters:  none
- * returns:     Currently entered upload server url.
- * description: Returns text in upload addr textbox.
- */
-function get_upload_addr()
-{
-    if (document.getElementById('upload_addr'))
-    {
-        return document.getElementById('upload_addr').value
-    }
-    else
-    {
-        let defaults = get_config('defaults')
-        return get_cookie(UPLOAD_COOKIE, defaults.upload_url)
-    }
 }

@@ -1,7 +1,8 @@
-import socketserver, http.server, logging, base64
-from os import listdir, environ, mkdir, rename
+import socketserver, http.server, logging, base64, zipfile
+from os import listdir, environ, mkdir, rename, remove
 from os.path import isfile, join, exists
 from shutil import copyfile
+from base64 import b64decode
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
@@ -21,20 +22,23 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         logging.error(self.headers)
         print(self.path)
         files = []
-
-        # request for results
-        start = 'image-'
-        ext = '.json'
-        if self.path == '/getPitResultNames':
-            start = 'pit-'
-        elif self.path == '/getImageNames':
-            ext = '.png'
-        elif self.path == '/getMatchResultNames':
-            start = 'match-'
-        elif self.path == '/getNoteNames':
-            start = 'note-'
         
         # about page, used to check server version
+        if self.path == '/getZip':
+            # zip up uploads directory
+            zip = zipfile.ZipFile('tmp.zip', 'w', zipfile.ZIP_DEFLATED)
+            for f in listdir(UPLOAD_PATH):
+                if isfile(join(UPLOAD_PATH, f)):
+                    zip.write(join(UPLOAD_PATH, f), f)
+            zip.close()
+            
+            # read the zip as binary and upload
+            with open('tmp.zip', 'rb') as f:
+                self.wfile.write(f.read())
+            
+            # delete zip
+            remove('tmp.zip')
+            
         elif self.path == '/about':
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
@@ -52,14 +56,12 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
                     git = '<br><br>Git: <a href="{0}">{1}</a>'.format(url, commit)
             
             self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2021 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}</body></html>'.format(git)))
-            return
 
         elif self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
             self.send_response(200)
             self.send_header('Content-type', 'text/js')
             self.end_headers()
             self.wfile.write(str.encode('API_KEY="{0}"'.format(TBA_KEY)))
-            return
 
         else:
             # check if its a known file
@@ -72,14 +74,6 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank - 404</h1>{0} not found!</body></html>'.format(self.path)))
-            return
-
-        # send joined results
-        files = [f for f in listdir(UPLOAD_PATH) if isfile(join(UPLOAD_PATH, f)) and f.startswith(start) and f.endswith(ext)]
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(str.encode(','.join(files)))
 
     # allow requests without credentials
     def end_headers (self):
@@ -98,28 +92,11 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write('POST request for {}'.format(self.path).encode('utf-8'))
 
         # save result
-        upload = post_data.decode('utf-8').split('|||')
-        if len(upload) > 1:
-            file = upload[0]
-            content = upload[1]
-            path = UPLOAD_PATH
+        with open('tmp.zip', 'wb') as f:
+            print('saving')
+            f.write(b64decode(post_data))
 
-            if 'data:image/png;base64,' in content:
-                file += '.png'
-                content = content.replace('data:image/png;base64,', '')
-                with open(path + file, 'wb') as f:
-                    f.write(base64.b64decode(content))
-                return
-            elif '.' not in file:
-                file += '.json'
-
-            # handle incoming configs by backing up
-            if file.endswith('config.json'):
-                path = 'config/'
-                rename(path + file, path + file + '.bkp')
-
-            with open(path + file, 'w') as f:
-                f.write(content)
+        # TODO extract zip
 
 # make config if not exists
 if not exists('config'):
