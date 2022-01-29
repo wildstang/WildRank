@@ -105,18 +105,18 @@ function validate_defaults_config(config)
 
 /**
  * function:    validate_coach_config
- * parameters:  coach config
+ * parameters:  coach config, event year
  * returns:     true if valid
  * description: Determines if a given coach config is valid.
  */
-function validate_coach_config(config)
+function validate_coach_config(config, year)
 {
     if (config == null)
     {
         console.log('config does not exist')
         return false
     }
-    for (let year of Object.keys(config))
+    if (Object.keys(config).includes(year))
     {
         let year_config = config[year]
         if (!Array.isArray(year_config))
@@ -134,34 +134,40 @@ function validate_coach_config(config)
             }
             if (!is_in(obj.function, ['mean', 'median', 'mode', 'min', 'max']))
             {
-                console.log('invalid function')
+                console.log('invalid function', obj.function)
                 return false
             }
             if (!is_in(obj.key, keys))
             {
-                console.log('invalid key')
+                console.log('invalid key', obj.key)
                 return false
             }
         }
+    }
+    else
+    {
+        console.log('year does not exist')
+        return false
     }
     return true
 }
 
 /**
  * function:    validate_smart_config
- * parameters:  smart stats config
+ * parameters:  smart stats config, event year
  * returns:     true if valid
  * description: Determines if a given smart stats config is valid.
  */
-function validate_smart_config(config)
+function validate_smart_config(config, year)
 {
     if (config == null)
     {
         console.log('config does not exist')
         return false
     }
-    for (let year_config of Object.values(config))
+    if (Object.keys(config).includes(year))
     {
+        let year_config = config[year]
         if (!Array.isArray(year_config))
         {
             console.log('invalid smart stats format')
@@ -190,6 +196,11 @@ function validate_smart_config(config)
                 return false
             }
         }
+    }
+    else
+    {
+        console.log('year does not exist')
+        return false
     }
     return true
 }
@@ -337,12 +348,12 @@ function validate_scout_config(mode)
                 }
                 if (column.cycle && !is_in(input.type, ['select', 'dropdown', 'multicounter', 'counter']))
                 {
-                    console.log('invalid cycle item')
+                    console.log('invalid cycle item', input.type)
                     return false
                 }
                 if (!is_in(input.type, ['checkbox', 'dropdown', 'select', 'number', 'string', 'slider', 'text', 'counter', 'multicounter']))
                 {
-                    console.log('invalid input type')
+                    console.log('invalid input type', input.type)
                     return false
                 }
                 if (is_in(input.type, ['dropdown', 'select', 'slider', 'multicounter']) && !input.hasOwnProperty('options'))
@@ -356,7 +367,7 @@ function validate_scout_config(mode)
                     {
                         if (typeof option === 'string' && option.includes(' '))
                         {
-                            console.log('space in option')
+                            console.log('space in option', option)
                             return false
                         }
                     }
