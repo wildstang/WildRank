@@ -210,16 +210,20 @@ function build_table(sort_by='', reverse=false)
         name = `${SORT_OPTIONS[method]} ${meta[sort_by].name}`
         
         let type = meta[sort_by].type
+        let negative = meta[sort_by].negative
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
             teams.sort((a, b) => get_weight(results, b, sort_by, label, method) - get_weight(results, a, sort_by, label, method))
+
+            let idx = meta[sort_by].options[label]
+            negative = negative[idx]
         }
         else
         {
             teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, type, method) - avg_results(get_team_results(results, a), sort_by, type, method))
         }
         // invert negative key sort
-        if (meta[sort_by].negative)
+        if (negative === true)
         {
             teams.reverse()
         }
@@ -310,6 +314,7 @@ function build_table(sort_by='', reverse=false)
                 }
                 let color = ''
                 let type = meta[key].type
+                let negative = meta[key].negative
 
                 let val = avg_results(team_results, key, type, method)
                 let valStr = get_value(meta, key, val)
@@ -329,6 +334,9 @@ function build_table(sort_by='', reverse=false)
                     // TODO use real min and max?
                     min = 0
                     max = 100
+
+                    let idx = meta[key].options[label]
+                    negative = negative[idx]
                 }
 
                 if (typeof base === 'number' && !key.startsWith('meta'))
@@ -346,7 +354,7 @@ function build_table(sort_by='', reverse=false)
                             colors = [256, 0, 0, (base - val) / (base - min) / 2]
                         }
 
-                        if (meta[key].negative ? label !== 'false' : label === 'false')
+                        if (negative === true ? label !== 'false' : label === 'false')
                         {
                             colors = [colors[1], colors[0], colors[2], colors[3]]
                         }
