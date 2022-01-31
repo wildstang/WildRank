@@ -240,6 +240,17 @@ function open_transfer()
 }
 
 /**
+ * function:    open_progress
+ * parameters:  none
+ * returns:     none
+ * description: Open the scouting progress page.
+ */
+function open_progress()
+{
+    return build_url('index', {'page': 'progress', [EVENT_COOKIE]: get_event()})
+}
+
+/**
  * function:    sign_out
  * parameters:  none
  * returns:     none

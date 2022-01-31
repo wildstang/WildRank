@@ -60,3 +60,11 @@ body {
     color: var(--primary-text-color);
     text-decoration: none;
 }
+
+#results_tab th, td {
+    padding: 8px;
+}
+  
+#results_tab tr:nth-child(even) {
+    background-color: var(--alt-table-color);
+}

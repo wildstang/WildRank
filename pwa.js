@@ -37,6 +37,7 @@ const CACHE_LIST = [
     '/scripts/pits.js',
     '/scripts/pivot.js',
     '/scripts/plot.js',
+    '/scripts/progress.js',
     '/scripts/random.js',
     '/scripts/ranker.js',
     '/scripts/results.js',

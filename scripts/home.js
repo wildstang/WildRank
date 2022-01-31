@@ -36,7 +36,7 @@ const CONFIGS = {
     'analysis': {
         'Teams': ['type_form', 'open_ranker', 'open_sides', 'open_picks', 'open_whiteboard', 'open_advanced'],
         'Keys': ['open_pivot', 'open_distro', 'open_plot'],
-        'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_coach'],
+        'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_progress', 'open_coach'],
         'Transfer': ['open_transfer', 'download_csv']
     },
     'admin': {
@@ -66,7 +66,8 @@ const BUTTONS = {
     'open_config':      { name: 'Config Builder',    limits: ['admin'], configs: [] },
     'open_settings':    { name: 'Settings Editor',   limits: ['admin'], configs: ['settings'] },
     'preload_event':    { name: 'Preload Event',     limits: [], configs: [] },
-    'open_transfer':    { name: 'Transfer Raw Data', limits: ['event', 'admin'], configs: [] },
+    'open_transfer':    { name: 'Transfer Raw Data', limits: ['event'], configs: [] },
+    'open_progress':    { name: 'Scouting Progress', limits: ['event', 'admin'], configs: [] },
     'reset':            { name: 'Reset App',         limits: ['admin'], configs: [] },
     'open_event_gen':   { name: 'Event Generator',   limits: ['admin'], configs: [] },
     'open_random':      { name: 'Random Result Generator',  limits: ['event-pit', 'admin'], configs: ['type', 'settings'] },

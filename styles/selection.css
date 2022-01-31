@@ -64,14 +64,6 @@ body {
     margin-bottom: 0;
 }
 
-#results_tab th, td {
-    padding: 8px;
-}
-  
-#results_tab tr:nth-child(even) {
-    background-color: var(--alt-table-color);
-}
-
 .pit_option {
     overflow: hidden;
     clear: both;
