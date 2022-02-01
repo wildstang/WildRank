@@ -72,8 +72,10 @@ function init_page()
 
     // add both tables to the page in cards
     document.body.innerHTML += build_page_frame('', [
-        build_column_frame('', [
-            build_card('pits', pit_table),
+        build_column_frame('Pit Progress', [
+            build_card('pits', pit_table)
+        ]),
+        build_column_frame('Match Progress', [
             build_card('matches', match_table)
         ])
     ])
