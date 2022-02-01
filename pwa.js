@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-220131'
+const CACHE_NAME = 'wildrank-220131a'
 const CACHE_LIST = [
     // html files
     '/index.html',
@@ -95,15 +95,9 @@ self.addEventListener('fetch', e => {
         // if not there pull from server
         const RES = await fetch(e.request)
         const URL = e.request.url
-        if (URL.includes('?'))
-        {
-            URL = URL.split('?')[0]
-        }
-        if (CACHE_LIST.includes(URL))
-        {
-            const CACHE = await caches.open(CACHE_NAME)
-            CACHE.put(e.request, RES.clone())
-        }
+        console.log(url)
+        const CACHE = await caches.open(CACHE_NAME)
+        CACHE.put(e.request, RES.clone())
         return RES
     })())
 })

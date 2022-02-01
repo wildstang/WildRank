@@ -560,7 +560,7 @@ function save_pick_list()
     lists[name] = []
     for (let team of teams)
     {
-        lists[name].push(team)
+        lists[name].push(team.toString())
     }
 
     // save to localStorage and open
