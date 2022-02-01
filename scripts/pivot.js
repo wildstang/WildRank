@@ -245,7 +245,7 @@ function build_table(sort_by='', reverse=false)
     }
 
     // header row
-    let table = `<tr><th onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
+    let table = `<tr><th></th><th onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
     for (let key of selected)
     {
         let name = ''
@@ -274,7 +274,7 @@ function build_table(sort_by='', reverse=false)
     table += '</tr>'
 
     // totals row
-    table += '<tr><th>Totals</th>'
+    table += '<tr><th></th><th>Totals</th>'
     for (let key of selected)
     {
         let label = ''
@@ -301,12 +301,13 @@ function build_table(sort_by='', reverse=false)
     table += '</tr>'
 
     // data rows
+    let index = 0
     for (let team of teams)
     {
         let team_results = get_team_results(results, team)
         if (Object.keys(team_results).length > 0)
         {
-            table += `<th>${team}</th>`
+            table += `<th>${++index}</th><th>${team}</th>`
             for (let key of selected)
             {
                 let label = ''
