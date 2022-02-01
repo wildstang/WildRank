@@ -194,6 +194,10 @@ function build_table(sort_by='', reverse=false)
         sort_by = sort
         reverse = ascending
     }
+    else if (sort_by == 'team')
+    {
+        teams.sort()
+    }
 
     let raw_sort = sort_by
     if (selected.includes(sort_by))
@@ -241,7 +245,7 @@ function build_table(sort_by='', reverse=false)
     }
 
     // header row
-    let table = `<tr><th onclick="build_table()" ${sort_by != '' ? 'style="font-weight: normal"' : ''}>Team</th>`
+    let table = `<tr><th onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
     for (let key of selected)
     {
         let name = ''
