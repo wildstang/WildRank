@@ -34,6 +34,9 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             
             # read the zip as binary and upload
             with open(file, 'rb') as f:
+                self.send_response(200)
+                self.send_header('Content-type', 'application/zip')
+                self.end_headers()
                 self.wfile.write(f.read())
             
             # delete zip
@@ -55,7 +58,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
                         url = 'https://{}'.format(url)
                     git = '<br><br>Git: <a href="{0}">{1}</a>'.format(url, commit)
             
-            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2021 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}</body></html>'.format(git)))
+            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2022 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}</body></html>'.format(git)))
 
         elif self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
             self.send_response(200)
