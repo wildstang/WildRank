@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-220129'
+const CACHE_NAME = 'wildrank-220131'
 const CACHE_LIST = [
     // html files
     '/index.html',
@@ -76,8 +76,6 @@ const CACHE_LIST = [
 
 // store files to cache on install
 self.addEventListener('install', e => {
-    console.log('Service worker installing')
-    
     e.waitUntil((async () => {
         const CACHE = await caches.open(CACHE_NAME)
         await CACHE.addAll(CACHE_LIST)
@@ -96,8 +94,16 @@ self.addEventListener('fetch', e => {
         
         // if not there pull from server
         const RES = await fetch(e.request)
-        const CACHE = await caches.open(CACHE_NAME)
-        CACHE.put(e.request, RES.clone())
+        const URL = e.request.url
+        if (URL.includes('?'))
+        {
+            URL = URL.split('?')[0]
+        }
+        if (CACHE_LIST.includes(URL))
+        {
+            const CACHE = await caches.open(CACHE_NAME)
+            CACHE.put(e.request, RES.clone())
+        }
         return RES
     })())
 })
