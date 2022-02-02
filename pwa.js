@@ -95,8 +95,14 @@ self.addEventListener('fetch', e => {
         // if not there pull from server
         const RES = await fetch(e.request)
         const URL = e.request.url
-        const CACHE = await caches.open(CACHE_NAME)
-        CACHE.put(e.request, RES.clone())
+        for (let file of CACHE_LIST)
+        {
+            if (URL.endsWith(file))
+            {
+                const CACHE = await caches.open(CACHE_NAME)
+                CACHE.put(e.request, RES.clone())
+            }
+        }
         return RES
     })())
 })
