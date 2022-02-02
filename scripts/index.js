@@ -273,7 +273,12 @@ function has_matches()
  */
 function is_blocked(id)
 {
-    if (id != 'scout' && !is_admin(get_user()))
+    let user = get_user()
+    if (user == 111112)
+    {
+        return 'Please set your school id'
+    }
+    if (id != 'scout' && !is_admin(user))
     {
         return 'Missing admin privileges'
     }
