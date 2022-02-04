@@ -99,6 +99,7 @@ self.addEventListener('fetch', e => {
         {
             if (URL.endsWith(file))
             {
+                console.log('updating', file, 'to', CACHE_NAME)
                 const CACHE = await caches.open(CACHE_NAME)
                 CACHE.put(e.request, RES.clone())
             }
