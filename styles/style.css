@@ -61,10 +61,10 @@ body {
     text-decoration: none;
 }
 
-#results_tab th, td {
+th, td {
     padding: 8px;
 }
   
-#results_tab tr:nth-child(even) {
+tr:nth-child(even) {
     background-color: var(--alt-table-color);
 }

@@ -251,6 +251,17 @@ function open_progress()
 }
 
 /**
+ * function:    open_events
+ * parameters:  none
+ * returns:     none
+ * description: Open the events page.
+ */
+function open_events()
+{
+    return build_url('index', {'page': 'events', [EVENT_COOKIE]: get_event()})
+}
+
+/**
  * function:    sign_out
  * parameters:  none
  * returns:     none
