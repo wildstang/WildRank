@@ -72,7 +72,7 @@ function init_page()
     }
     ws(team_num)
     build_page_from_config(scout_mode)
-    if (generate == 'random')
+    if (generate == 'random' && get_config('settings').allow_random)
     {
         generate_results()
     }

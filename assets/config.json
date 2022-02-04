@@ -2,7 +2,8 @@
 	"settings": {
 		"title": "WildRank",
 		"time_format": 24,
-		"use_images": true
+		"use_images": true,
+		"allow_random": false
 	},
 	"defaults": {
 		"event_id": "2020ilch",
