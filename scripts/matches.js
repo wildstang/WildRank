@@ -25,18 +25,15 @@ function init_page(contents_card, buttons_container)
     if (first)
     {
         let avatar = ''
-        let image = ''
         let button_txt = 'Take Match Notes'
         if (scout_mode == MATCH_MODE)
         {
             avatar = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">`
-            image = '<img id="photo" alt="No image available">'
             button_txt = 'Scout Match'
         }
         contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
                                     ${avatar}
-                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>
-                                    ${image}`
+                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>`
         
         buttons_container.innerHTML = build_link_button('scout_match', button_txt, 'start_scouting(false)') +
                                         '<div id="view_result"></div>'
@@ -123,9 +120,6 @@ function open_match(match_num)
         document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
         number_span.innerHTML = team_num
         name_span.innerHTML = get_team_name(team_num, event_id)
-
-        // find photo
-        use_cached_image(team_num, 'photo', '')
         
         // create result buttons
         let file = get_match_result(match_num, team.substr(3), event_id)

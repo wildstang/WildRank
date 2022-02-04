@@ -60,37 +60,21 @@ function export_zip()
     // determine which files to use
     let files = Object.keys(localStorage).filter(function(file)
     {
-        return ((file.includes(event_id) &&
+        return (file.includes(event_id) &&
             ((use_event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
             (use_results && (file.startsWith('match-') || file.startsWith('pit-') || file.startsWith('picklists-') || file.startsWith('note-'))))) ||
             (use_config && file.startsWith(`config-${year}-`)) ||
             (use_smart_stats && file == 'config-smart-stats') ||
             (use_coach_vals && file == 'config-coach-vals') ||
-            (use_settings && file.startsWith('config-') && !file.startsWith(`config-2`) && file != 'config-smart-stats' && file != 'config-coach-vals'))
+            (use_settings && file.startsWith('config-') && !file.startsWith(`config-2`) && file != 'config-smart-stats' && file != 'config-coach-vals')
     })
 
     // add each file to the zip
     for (let file of files)
     {
-        let name = file
+        let name = file + '.json'
         let base64 = false
         let data = localStorage.getItem(file)
-        if (data.startsWith('data:image/png;base64,'))
-        {
-            name += '.png'
-            base64 = true
-            data = data.substr(data.indexOf(',') + 1)
-        }
-        else if (name.startsWith('avatar-'))
-        {
-            // JSZip doesn't seem to like avatars' base64
-            name += '.b64'
-            base64 = false
-        }
-        else 
-        {
-            name += '.json'
-        }
         zip.file(name, data, { base64: base64 })
     }
 

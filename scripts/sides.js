@@ -154,11 +154,8 @@ function open_teams()
     // team details
     let details = `<div id="result_title"><img id="avatar" src="${get_avatar(selectedA, event_id.substr(0,4))}"> <h2 class="result_name">${selectedA} ${get_team_name(selectedA, event_id)}</h2><br>${rankA}</div> vs
         <div id="result_title"><img id="avatar" src="${get_avatar(selectedB, event_id.substr(0,4))}"> <h2 class="result_name">${selectedB} ${get_team_name(selectedB, event_id)}</h2><br>${rankB}</div>`
-    details += '<img id="photoA" alt="No image available"></img><img id="photoB" alt="No image available"></img>'
 
     document.getElementById('value').innerHTML = details
-    use_cached_image(selectedA, 'photoA', 'full_res')
-    use_cached_image(selectedB, 'photoB', 'full_res')
 
     let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th><th>Max</th></tr>`
     for (let key of keys)

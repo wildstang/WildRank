@@ -28,7 +28,6 @@ function init_page(contents_card, buttons_container)
                                     <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <h3 id="location"></h3>
                                     <h3 id="ranking"></h3>
-                                    <img id="photo" alt="No image available">
                                     <div id="notes"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
         
@@ -151,9 +150,6 @@ function open_option(team_num)
         }
     }
     document.getElementById('notes').innerHTML = notes
-
-    // find robot photo
-    use_cached_image(team_num, 'photo', '')
 
     let cards = []
 

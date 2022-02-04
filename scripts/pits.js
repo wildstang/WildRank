@@ -12,10 +12,6 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var team = ''
 var generate = ''
 
-var streaming = false
-var full_canvas
-var low_canvas
-
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -27,115 +23,15 @@ function init_page(contents_card, buttons_container)
     let first = populate_teams(false, true)
     if (first)
     {
-        contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
-                                    <img id="photo" alt="No image available">`
+        contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>`
         buttons_container.innerHTML = `${build_link_button('scout_pit', 'Scout Pit!', 'start_scouting(false)')}
                                         <div id="view_result"></div>`
-        camera_view = `<video id="prevue" height="0">Video stream not available</video>
-                        ${build_button('capture', 'Capture Robot', 'capture()')}`
-        
-        if (navigator.mediaDevices)
-        {
-            buttons_container.innerHTML += camera_view
-            init_camera()
-        }
-        else
-        {
-            console.log('Unable to init camera')
-        }
         
         open_option(first)
     }
     else
     {
         contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
-    }
-}
-
-/**
- * function:    init_camera
- * parameters:  none
- * returns:     none
- * description: Initializes camera preview
- */
-function init_camera()
-{
-    let video = document.getElementById('prevue')
-    full_canvas = document.createElement('canvas')
-    low_canvas = document.createElement('canvas')
-
-    // get video stream
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
-        .then(function(stream)
-        {
-            video.srcObject = stream
-            video.play()
-        })
-        .catch(function(err)
-        {
-            console.log(err)
-        })
-
-    // initialize camera dimensions, when available
-    video.addEventListener('canplay', function(e)
-    {
-        if (!streaming)
-        {
-            // calculate preview width
-            let width = 320 // default resolution is low bc localStorage has a limit
-            let height = video.videoHeight / (video.videoWidth/width)
-            if (isNaN(height))
-            {
-                height = width / (4/3)
-            }
-
-            // apply dimensions
-            video.setAttribute('width', video.videoWidth)
-            video.setAttribute('height', video.videoHeight)
-            low_canvas.setAttribute('width', width)
-            low_canvas.setAttribute('height', height)
-            full_canvas.setAttribute('width', video.videoWidth)
-            full_canvas.setAttribute('height', video.videoHeight)
-            streaming = true
-        }
-    }, false)
-}
-
-/**
- * function:    capture
- * parameters:  none
- * returns:     none
- * description: Captures an image from the camera.
- */
-function capture()
-{
-    if (streaming)
-    {
-        // capture image to canvas
-        let video = document.getElementById('prevue')
-        low_canvas.getContext('2d').drawImage(video, 0, 0, low_canvas.width, low_canvas.height)
-        full_canvas.getContext('2d').drawImage(video, 0, 0, full_canvas.width, full_canvas.height)
-
-        // place canvas on frame
-        let photo = document.getElementById('photo')
-        let low_res = low_canvas.toDataURL('image/png')
-        let full_res = full_canvas.toDataURL('image/png')
-        photo.setAttribute('src', full_res)
-
-        // save image to file
-        // this takes too much space so disabled
-        //localStorage.setItem(get_team_image_name(team, event_id), low_res)
-        
-        // post file to server
-        let addr = get_cookie(UPLOAD_COOKIE, UPLOAD_DEFAULT)
-        if (check_server(addr))
-        {
-            fetch(addr, {method: 'POST', body: `${get_team_image_name(team, event_id, true)}|||${full_res}`})
-        }
-    }
-    else
-    {
-        alert('Camera not found! Have you allowed the camera permission?')
     }
 }
 
@@ -148,9 +44,6 @@ function capture()
 function open_option(team_num)
 {
     deselect_all()
-    if (navigator.mediaDevices) {
-        document.getElementById('prevue').play()
-    }
 
     // fill team info
     team = team_num
@@ -176,9 +69,6 @@ function open_option(team_num)
     {
         result_buttons.innerHTML = ''
     }
-
-    // load photo
-    use_cached_image(team_num, 'photo', '', false)
 }
 
 /**

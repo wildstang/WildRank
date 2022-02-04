@@ -170,7 +170,7 @@ function open_teams()
         }
 
         // make a table of "coach-vals"
-        let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><img id="photo_${index}"><table>`
+        let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><table>`
         for (let v of vals)
         {
             let stat = avg_results(get_team_results(results, team_num), v.key, meta[v.key].type, FUNCTIONS.indexOf(v.function))
@@ -201,7 +201,6 @@ function open_teams()
         notes += '</div>'
 
         document.getElementById(`${id}_details`).innerHTML = notes
-        use_cached_image(team_num, `photo_${index}`, '')
     }
 
     toggle_notes()
