@@ -84,12 +84,12 @@ function init_page()
                                             {
                                                 // sort teams and add row
                                                 event.teams.sort((a, b) => parseInt(a) - parseInt(b))
-                                                document.getElementById('table').innerHTML += `<tr><td>${event.name}</td><td>${year}${r}</td><td>${event.start.replaceAll('2022-', '')}</td><td>${event.teams.length}</td><td>${event.teams.join(', ')}</td></tr>`
+                                                document.getElementById('table').innerHTML += `<tr><td>${event.name}</td><td>${year}${r}</td><td>${event.start.replaceAll(`${year}-`, '')}</td><td>${event.teams.length}</td><td>${event.teams.join(', ')}</td></tr>`
                                             }
                                             else
                                             {
                                                 // add simple row for current event and update summary
-                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${event_id}</td><td>${event.start.replaceAll('2022-', '')}</td><td>${event.teams.length}</td><td></td></tr>`
+                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${event_id}</td><td>${event.start.replaceAll(`${year}-`, '')}</td><td>${event.teams.length}</td><td></td></tr>`
                                                 document.getElementById('summary').innerHTML = `Of the ${event.teams.length} teams attending the ${event.name}...`
                                             }
                                         }
