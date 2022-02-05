@@ -44,9 +44,12 @@ const PAGE_FRAME = build_page_frame('', [
         build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
         build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
         build_counter('match_results', 'Match Results', 0, 'increment("match_results", false)', 'increment("match_results", true)'),
-        build_link_button('about', 'About WildRank', `open_about()`)
+        build_link_button('about', 'About WildRank', `open_about()`),
+        '<div id="install-container"></div>'
     ])
 ])
+
+var install
 
 /**
  * function:    init_page
@@ -66,6 +69,13 @@ function init_page()
     {
         fetch_config(on_config)
     }
+
+    // add install button if PWA is not installed
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault()
+        install = e
+        document.getElementById('install-container').innerHTML = build_button('install', 'Install WildRank', 'install_app()')
+    })
 }
 
 /**
@@ -89,6 +99,20 @@ function on_config()
 /**
  * HELPER FUNCTIONS
  */
+
+/**
+ * function:    install_app
+ * parameters:  none
+ * returns:     none
+ * description: Triggers the PWA install prompt.
+ */
+function install_app()
+{
+    if (typeof install !== 'undefined')
+    {
+        install.prompt()
+    }
+}
 
 /**
  * function:    process_files
