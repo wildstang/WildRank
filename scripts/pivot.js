@@ -16,7 +16,7 @@ var meta = {}
 
 var sort = ''
 var ascending = false
-var name = 'Pivot Export'
+var list_name = 'Pivot Export'
 
 /**
  * function:    init_page
@@ -86,7 +86,7 @@ function filter_teams()
  */
 function open_option(key)
 {
-    name = "Team Number"
+    list_name = "Team Number"
     // select team button 
     if (document.getElementById(`option_${key}`).classList.contains('selected'))
     {
@@ -211,7 +211,11 @@ function build_table(sort_by='', reverse=false)
             label = parts[1]
         }
         ascending = false
-        name = `${SORT_OPTIONS[method]} ${meta[sort_by].name}`
+        list_name = `${SORT_OPTIONS[method]} ${meta[sort_by].name}`
+        if (label !== '')
+        {
+            list_name += ` ${label}`
+        }
         
         let type = meta[sort_by].type
         let negative = meta[sort_by].negative
@@ -241,7 +245,7 @@ function build_table(sort_by='', reverse=false)
     {
         ascending = true
         teams.reverse()
-        name += ' reversed'
+        list_name += ' reversed'
     }
 
     // header row
@@ -562,10 +566,10 @@ function save_pick_list()
     {
         lists = {}
     }
-    lists[name] = []
+    lists[list_name] = []
     for (let team of teams)
     {
-        lists[name].push(team.toString())
+        lists[list_name].push(team.toString())
     }
 
     // save to localStorage and open
