@@ -26,3 +26,19 @@ if ('serviceWorker' in navigator)
 {
     navigator.serviceWorker.register('pwa.js')
 }
+
+/**
+ * function:    home()
+ * parameters:  none
+ * returns:     none
+ * description: Opens the appropriate home page, based on the current page.
+ */
+function home()
+{
+    let url = 'index.html?page=home'
+    if (page == 'home' || page == 'index' || page == '')
+    {
+        url = 'index.html' 
+    }
+    window_open(url, '_self')
+}
