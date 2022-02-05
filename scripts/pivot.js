@@ -17,6 +17,8 @@ var meta = {}
 var sort = ''
 var ascending = false
 var list_name = 'Pivot Export'
+var dragging = ''
+var selected_keys = []
 
 /**
  * function:    init_page
@@ -91,10 +93,12 @@ function open_option(key)
     if (document.getElementById(`option_${key}`).classList.contains('selected'))
     {
         document.getElementById(`option_${key}`).classList.remove('selected')
+        selected_keys = selected_keys.filter(s => s != key)
     }
     else
     {
         document.getElementById(`option_${key}`).classList.add('selected')
+        selected_keys.push(key)
     }
 
     build_table()
@@ -131,9 +135,8 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    let keys = Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
     let selected = []
-    for(let key of keys)
+    for(let key of selected_keys)
     {
         let type = meta[key].type
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
@@ -172,6 +175,79 @@ function get_weight(results, team, key, label, method)
 {
     let res = avg_results(get_team_results(results, team), key, meta[key].type, method, meta[key].options)
     return (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
+}
+
+/**
+ * function:    dragstart_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Stores the key of an input when picked up.
+ */
+function dragstart_handler(e)
+{
+    dragging = e.target.id
+
+    // select true key if a discrete input
+    if (!selected_keys.includes(dragging))
+    {
+        for (let key of selected_keys)
+        {
+            if (dragging.startsWith(key))
+            {
+                dragging = key
+            }
+        }
+    }
+}
+
+/**
+ * function:    dragover_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Allows drop handler to work.
+ */
+function dragover_handler(e)
+{
+    e.preventDefault()
+}
+
+/**
+ * function:    drop_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Shifts select keys around according to drag.
+ */
+function drop_handler(e)
+{
+    e.preventDefault()
+    let dropped_on = e.target.id
+
+    // select true key if a discrete input
+    if (!selected_keys.includes(dropped_on))
+    {
+        for (let key of selected_keys)
+        {
+            if (dropped_on.startsWith(key))
+            {
+                dropped_on = key
+                if (dragging.startsWith(key))
+                {
+                    dragging = ''
+                    return
+                }
+            }
+        }
+    }
+    
+    // remove dragged key
+    selected_keys = selected_keys.filter(s => s != dragging)
+
+    // insert dragged key
+    let index = dropped_on == 'team' ? 0 : selected_keys.indexOf(dropped_on) + 1
+    selected_keys.splice(index, 0, dragging)
+
+    dragging = ''
+    build_table()
 }
 
 /**
@@ -249,7 +325,7 @@ function build_table(sort_by='', reverse=false)
     }
 
     // header row
-    let table = `<tr><th></th><th onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
+    let table = `<tr><th></th><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
     for (let key of selected)
     {
         let name = ''
@@ -273,7 +349,7 @@ function build_table(sort_by='', reverse=false)
             name = meta[key].name
         }
         let rev = raw_sort == key ? !reverse : false
-        table += `<th onclick="build_table('${key}', ${rev})" ${raw_sort != key ? 'style="font-weight: normal"' : ''}>${name}</th>`
+        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('${key}', ${rev})" ${raw_sort != key ? 'style="font-weight: normal"' : ''}>${name}</th>`
     }
     table += '</tr>'
 
@@ -415,6 +491,7 @@ function import_headers(event)
         let headers = lines[0].split(',').map(l => l.trim())
         
         let keys = Array.prototype.filter.call(document.getElementsByClassName('pit_option'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+        selected_keys = Array(headers.length).fill('')
         for(let key of keys)
         {
             let type = meta[key].type
@@ -431,21 +508,28 @@ function import_headers(event)
                     {
                         op = ''
                     }
-                    if (headers.includes(`${meta[key].name} ${op}`))
+                    let idx = headers.indexOf(`${meta[key].name} ${op}`)
+                    if (idx >= 0)
                     {
                         document.getElementById(`option_${key}`).classList.add('selected')
+                        selected_keys[idx] = key
                         break
                     }
                 }
             }
             else
             {
-                if (headers.includes(meta[key].name))
+                let idx = headers.indexOf(meta[key].name)
+                if (idx >= 0)
                 {
                     document.getElementById(`option_${key}`).classList.add('selected')
+                    selected_keys[idx] = key
                 }
             }
         }
+
+        // remove keys not found (skipped in the case of multiple discretes)
+        selected_keys = selected_keys.filter(k => k != '')
         
         build_table()
     }
