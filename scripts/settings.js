@@ -149,7 +149,7 @@ function build_column(file)
  */
 function add_coach()
 {
-    let config = get_config('coach-vals')
+    let config = build_coach_config()
     config[year].push({ function: 'mean', key: '' })
     localStorage.setItem('config-coach-vals', JSON.stringify(config))
 
@@ -194,30 +194,45 @@ function apply_config()
     }
     if (file_exists('config-coach-vals'))
     {
-        let configs = get_config('coach-vals')
-        if (Object.keys(configs).includes(year))
-        {
-            let configs = get_config('coach-vals')
-            let config = []
-            for (let i in configs[year])
-            {
-                let func = get_selected_option(`fn_${i}`)
-                let key = document.getElementById(`key_${i}`).value
-                if (key !== '')
-                {
-                    config.push({
-                        function: FUNCTIONS[func],
-                        key: key
-                    })
-                }
-            }
-            configs[year] = config
-            localStorage.setItem('config-coach-vals', JSON.stringify(configs))
-        }
+        let configs = build_coach_config()
+        localStorage.setItem('config-coach-vals', JSON.stringify(configs))
     }
 
     build_page()
     alert('Settings Applied')
+}
+
+/**
+ * function:    build_coach_config
+ * parameters:  none
+ * returns:     coach config
+ * description: Builds a coach config object.
+ */
+function build_coach_config()
+{
+    let configs = get_config('coach-vals')
+    if (Object.keys(configs).includes(year))
+    {
+        let config = []
+        for (let i in configs[year])
+        {
+            let func = get_selected_option(`fn_${i}`)
+            let key = document.getElementById(`key_${i}`).value
+            if (key !== '')
+            {
+                config.push({
+                    function: FUNCTIONS[func],
+                    key: key
+                })
+            }
+        }
+        configs[year] = config
+    }
+    else
+    {
+        configs[year] = []
+    }
+    return configs
 }
 
 /**
