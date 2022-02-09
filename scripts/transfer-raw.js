@@ -35,7 +35,8 @@ function init_page()
         build_column_frame('', [
             build_str_entry('server', 'Server URL', parse_server_addr(document.location.href)),
             build_select('method', 'Local or Server', ['Local', 'Server'], 'Local'),
-            build_multi_button('direction', 'Import or Export', ['Import', 'Export'], ['get_zip()', 'export_zip()'])
+            build_multi_button('direction', 'Import or Export', ['Import', 'Export'], ['get_zip()', 'export_zip()']),
+            '<progress id="progress" class="wr_progress" value="0" max="100"></progress>'
         ])
     ])
 }
@@ -70,12 +71,18 @@ function export_zip()
     })
 
     // add each file to the zip
-    for (let file of files)
+    for (let i in files)
     {
+        let file = files[i]
         let name = file + '.json'
         let base64 = false
         let data = localStorage.getItem(file)
         zip.file(name, data, { base64: base64 })
+
+        // update progress bar
+        document.getElementById('progress').innerHTML = `${i}/${files.length + 1}`
+        document.getElementById('progress').value = i
+        document.getElementById('progress').max = files.length + 1   
     }
 
     // download zip
@@ -105,6 +112,11 @@ function export_zip()
                     console.log('posted zip to', addr)
                 }
             }
+
+            // update progress bar for zip complete
+            document.getElementById('progress').innerHTML = `${files.length + 1}/${files.length + 1}`
+            document.getElementById('progress').value = files.length + 1
+            document.getElementById('progress').max = files.length + 1
         })
 }
 
@@ -227,8 +239,13 @@ function import_zip(file)
                             console.log(`Importing ${n}`)
                             localStorage.setItem(n, text)
                         }
+                        
+                        // update progress bar
+                        document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
+                        document.getElementById('progress').value = complete
+                        document.getElementById('progress').max = files.length
 
-                        if (++complete == files.length)
+                        if (complete == files.length)
                         {
                             alert('Import Complete')
                         }
