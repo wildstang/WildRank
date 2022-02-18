@@ -22,7 +22,8 @@ function init_page(contents_card, buttons_container)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
-                                    <h3 id="result"></h3>`
+                                    <h3 id="result"></h3>
+                                    <div id="extra"></div>`
         buttons_container.innerHTML = '<div id="teams"></div>'
 
         open_match(first)
@@ -58,6 +59,7 @@ function open_match(match_num)
     {
         time.innerHTML = unix_to_match_time(actual)
         
+        // add match score
         let red_score = match.alliances.red.score
         let blue_score = match.alliances.blue.score
         let score = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
@@ -66,6 +68,37 @@ function open_match(match_num)
             score = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
         }
         document.getElementById('result').innerHTML = score
+
+        // add videos
+        let extra = '<div id="videos"></div>'
+        if (match.videos && match.videos.length > 0)
+        {
+            for (let vid of match.videos)
+            {
+                // only youtube videos
+                if (vid.type == 'youtube')
+                {
+                    extra += `<iframe id="${vid.key}" width="426" height="240" src="https://www.youtube.com/embed/${vid.key}"></iframe>`
+                }
+            }
+        }
+
+        // add score breakdown
+        if (match.score_breakdown)
+        {
+            extra += '<table style=""><tr><th>Key</th><th>Red</th><th>Blue</th></tr>'
+            for (let key of Object.keys(match.score_breakdown.red))
+            {
+                let name = key.replace('tba_', '')
+                name = name[0].toUpperCase() + name.substring(1).split(/(?=[A-Z])/).join(' ')
+                name = name.replace('1', ' 1').replace('2', ' 2').replace('3', ' 3')
+                let red = parse_val(match.score_breakdown.red[key])
+                let blue = parse_val(match.score_breakdown.blue[key])
+                extra += `<tr><th>${name}</th><td>${red}</td><td>${blue}</td></tr>`
+            }
+            extra += '</table>'
+        }
+        document.getElementById('extra').innerHTML = extra
     }
     else if (predicted > 0)
     {
@@ -151,6 +184,26 @@ function open_match(match_num)
         build_column_frame('', reds),
         build_column_frame('', blues)
     ])
+}
+
+/**
+ * function:    parse_val
+ * parameters:  value to parse
+ * returns:     parsed value
+ * parameters:  Parses a value to be more human-readable on the table.
+ */
+function parse_val(val)
+{
+    if (typeof val === 'string')
+    {
+        val = val[0].toUpperCase() + val.substring(1).split(/(?=[A-Z])/).join(' ')
+        val = val.replace('None', '').replace('Unknown', '')
+    }
+    else if (typeof val === 'boolean')
+    {
+        val = val ? 'Yes' : ''
+    }
+    return val
 }
 
 /**

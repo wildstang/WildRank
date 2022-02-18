@@ -28,7 +28,7 @@ function preload_event()
     else
     {
         // fetch simple event matches
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches/simple${build_query({[TBA_KEY]: API_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_KEY]: API_KEY})}`)
             .then(response => {
                 if (response.status == 401) {
                     alert('Invalid API Key Suspected')
