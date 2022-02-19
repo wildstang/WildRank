@@ -122,7 +122,7 @@ function add_match()
         blue_teams.push(`frc${document.getElementById(`blue_${pos}`).value}`)
     }
     matches.push({
-        actual_time: 1294765871,
+        actual_time: 0,
         alliances: {
             blue: {
                 dq_team_keys: [],

@@ -63,12 +63,15 @@ function open_match(match_num)
         // add match score
         let red_score = match.alliances.red.score
         let blue_score = match.alliances.blue.score
-        let score = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
-        if (match.winning_alliance == 'blue')
+        if (typeof red_score !== 'undefined' && typeof blue_score !== 'undefined')
         {
-            score = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
+            let score = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
+            if (match.winning_alliance == 'blue')
+            {
+                score = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
+            }
+            document.getElementById('result').innerHTML = score
         }
-        document.getElementById('result').innerHTML = score
 
         // add videos
         let extra = '<div id="videos"></div>'
