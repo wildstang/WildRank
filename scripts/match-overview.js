@@ -78,7 +78,7 @@ function open_match(match_num)
                 // only youtube videos
                 if (vid.type == 'youtube')
                 {
-                    extra += `<iframe id="${vid.key}" width="426" height="240" src="https://www.youtube.com/embed/${vid.key}"></iframe>`
+                    extra += `<iframe id="${vid.key}" width="640" height="360" src="https://www.youtube.com/embed/${vid.key}" allow="fullscreen"></iframe>`
                 }
             }
         }
