@@ -23,7 +23,8 @@ function init_page(contents_card, buttons_container)
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <h3 id="result"></h3>
-                                    <div id="extra"></div>`
+                                    ${build_button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()', '', 'slim')}
+                                    <div id="extra" style="display: none"></div>`
         buttons_container.innerHTML = '<div id="teams"></div>'
 
         open_match(first)
@@ -184,6 +185,25 @@ function open_match(match_num)
         build_column_frame('', reds),
         build_column_frame('', blues)
     ])
+}
+
+/**
+ * function:    toggle_extra
+ * parameters:  none
+ * returns:     none
+ * description: Toggles the display property of the extra content area.
+ */
+function toggle_extra()
+{
+    let extra = document.getElementById('extra')
+    if (extra.style.display == 'none')
+    {
+        extra.style.display = 'block'
+    }
+    else
+    {
+        extra.style.display = 'none'
+    }
 }
 
 /**
