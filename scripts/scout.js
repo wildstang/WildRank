@@ -156,9 +156,9 @@ function build_page_from_config()
                         break
                     case 'slider':
                         let step = 1
-                        if (options.length >= 3)
+                        if (options.length > 2)
                         {
-                            step = options[3]
+                            step = options[2]
                         }
                         item = build_slider(id, name, options[0], options[1], step, default_val)
                         break
