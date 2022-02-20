@@ -127,12 +127,12 @@ function add_match()
             blue: {
                 dq_team_keys: [],
                 surrogate_team_keys: [],
-                team_keys: red_teams
+                team_keys: blue_teams
             },
             red: {
                 dq_team_keys: [],
                 surrogate_team_keys: [],
-                team_keys: blue_teams
+                team_keys: red_teams
             }
         },
         comp_level: "qm",
