@@ -175,7 +175,13 @@ function reset()
     if (confirm('Delete all configuration, results, and other app data?'))
     {
         localStorage.clear()
-        fetch_config(function() { location.reload() }, true)
+        caches.keys().then(keyList => {
+            let ret = Promise.all(keyList.map(key => {
+                return caches.delete(key)
+            }))
+            location.reload()
+            return ret
+        })
     }
 }
 
