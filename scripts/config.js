@@ -355,15 +355,15 @@ function get_theme()
 function apply_theme()
 {
     // read title from config
-    let title = get_config('settings').title
-    if (typeof title !== 'undefined')
+    let settings = get_config('settings')
+    if (settings !== null && typeof settings !== 'undefined')
     {
-        document.title = title
-        document.getElementById('title').innerHTML = title
+        document.title = settings.title
+        document.getElementById('title').innerHTML = settings.title
     }
 
     let theme = get_theme()
-    if (typeof theme !== 'undefined')
+    if (theme !== null && typeof theme !== 'undefined')
     {
         let keys = Object.keys(theme)
         for (let key of keys)
