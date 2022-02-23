@@ -10,6 +10,7 @@ const PAGE_FRAME = build_page_frame('', [
     build_column_frame('About', [
         build_card('server', 'Server: Unknown'),
         build_card('version', 'Git: Nope', true),
+        build_card('release', 'Release: Nope', true),
         build_card('description', 'WildRank is a FIRST Robotics Competition scouting web app and a spiritual successor to <a href="https://github.com/wildstang/wildrank-android">WildRank Android</a>. Despite being a web app, the goal of WildRank is not to host a webpage on a remote server while scouting on clients, but rather to run generic lightweight servers on each of the clients themselves so that the majority of the app is platform agnostic.', true)
     ]),
     build_column_frame('Get WildRank', [
@@ -56,9 +57,23 @@ function init_page()
         // add git commit and link
         if (req.responseText.includes('Git:'))
         {
-            let words = req.responseText.split('<br>')
-            let git = words[words.length - 1]
-            document.getElementById('version').innerHTML = `${git.slice(0, git.indexOf('>') + 17)}</a>`
+            let git = /Git: <a href=".*">(.*)<\/a>/g.exec(req.responseText)
+            if (git !== null && git.length > 0)
+            {
+                git = git[0]
+                console.log('git', git)
+                document.getElementById('version').innerHTML = git.substring(0, git.length - 36) + '</a>'
+            }
+        }
+        // add pwa version and link
+        if (req.responseText.includes('Release:'))
+        {
+            let release = /Release: (.*)<\/body>/g.exec(req.responseText)
+            if (release !== null && release.length > 0)
+            {
+                release = release[0]
+                document.getElementById('release').innerHTML = release.substring(0, release.length - 7)
+            }
         }
     }
     catch (e)

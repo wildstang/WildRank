@@ -1,4 +1,4 @@
-import socketserver, http.server, logging, base64, zipfile
+import socketserver, http.server, logging, base64, zipfile, re
 from os import listdir, environ, mkdir, rename, remove
 from os.path import isfile, join, exists
 from shutil import copyfile
@@ -49,16 +49,25 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
 
             # add git commit and link if this is a repo
             git = ''
+            release = ''
             if exists('.git/FETCH_HEAD'):
                 with open('.git/FETCH_HEAD', 'r') as f:
-                    commit = f.read()
+                    commit = f.read().strip()
                     words = commit.split()
                     url = '{0}/commit/{1}'.format(words[-1].replace(':', '/'), words[0])
                     if not url.startswith('http'):
                         url = 'https://{}'.format(url)
-                    git = '<br><br>Git: <a href="{0}">{1}</a>'.format(url, commit)
+                    git = '<br><br>Git: <a href="{0}">{1}</a>'.format(url, words[0])
+            if exists('pwa.js'):
+                with open('pwa.js', 'r') as f:
+                    script = f.read()
+                    try:
+                        release = re.search('const CACHE_NAME = \'wildrank-(.+?)\'', script).group(1)
+                        release = f"<br><br>Release: {release}"
+                    except AttributeError:
+                        pass
             
-            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2022 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}</body></html>'.format(git)))
+            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2022 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}{}</body></html>'.format(git, release)))
 
         elif self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
             self.send_response(200)
