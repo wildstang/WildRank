@@ -133,6 +133,7 @@ function update_params()
 
             html += build_dropdown('cycle', 'Cycle', cycles, cycle, 'update_params()', '', 'The ID of the cycle you would like to count.')
             html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()', '', 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.')
+            html += build_dropdown('denominator', 'Percent: Remaining Value', [''].concat(counters), '', 'calculate()', '', 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.')
             for (let s of selects)
             {
                 html += build_dropdown(s, meta[s].name, [''].concat(meta[s].options), '', 'calculate()', '', 'Optional, choose value of the above select to filter cycles by.')
@@ -196,6 +197,7 @@ function build_stat()
         case 'Where':
             let cycle = document.getElementById('cycle').value
             let count = document.getElementById('count').selectedIndex
+            let wdenominator = document.getElementById('denominator').selectedIndex
             let inputs = Object.keys(meta).filter(key => filter_cycle(key, cycle))
             let counters = inputs.filter(k => meta[k].type == 'counter')
             let selects = inputs.filter(k => meta[k].type != 'counter')
@@ -218,6 +220,10 @@ function build_stat()
             else
             {
                 stat.negative = false
+            }
+            if (wdenominator != 0)
+            {
+                stat.denominator = counters[wdenominator-1]
             }
             break
     }
@@ -274,7 +280,7 @@ function calculate()
     team_order = [...teams]
     teams = teams.map(function (t, i)
     {
-        let val = team_vals[t].toFixed(1)
+        let val = team_vals[t].toFixed(2)
         if (isNaN(val))
         {
             val = '0.0'

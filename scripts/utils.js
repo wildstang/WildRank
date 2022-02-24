@@ -802,6 +802,8 @@ function add_given_smart_stats(result, stats)
             case 'where':
                 let count = typeof stat.sum === 'undefined' || !stat.sum
                 let value = 0
+                let denominator = 0
+                let percent = typeof stat.denominator !== 'undefined'
                 for (let cycle of result[stat.cycle])
                 {
                     let passed = true
@@ -822,9 +824,26 @@ function add_given_smart_stats(result, stats)
                         {
                             value += cycle[stat.sum]
                         }
+                        if (percent)
+                        {
+                            denominator += cycle[stat.denominator]
+                        }
                     }
                 }
-                result[id] = value
+
+                // store smart stat
+                if (percent)
+                {
+                    result[id] = value / (value + denominator)
+                    if (isNaN(result[id]))
+                    {
+                        result[id] = 0
+                    }
+                }
+                else
+                {
+                    result[id] = value
+                }
                 break
         }
     }

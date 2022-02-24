@@ -176,7 +176,7 @@ function reset()
     {
         // clear storage
         localStorage.clear()
-        
+
         // clear cookies
         let cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++)
