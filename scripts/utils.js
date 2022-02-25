@@ -867,6 +867,77 @@ function avg_results(results, key, type, sort_type, options=[])
             values.push(results[name][key])
         }
     }
+
+    // calculate where and percent smart stats differently
+    let stats = get_config('smart-stats')[year]
+    let matches = stats.filter(s => s.id == key)
+    if (matches.length == 1)
+    {
+        let stat = matches[0]
+        let values = []
+        if (stat.type == 'where' && typeof stat.denominator !== 'undefined')
+        {
+            let cycles = Object.values(results).map(result => result[stat.cycle])
+    
+            if (sort_type == 0)
+            {
+                cycles = [cycles.flat()]
+            }
+
+            for (let cycle of cycles)
+            {
+                let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
+                result[stat.cycle] = cycle
+                values.push(add_given_smart_stats(result, [stat])[key])
+            }
+        }
+        else if (stat.type == 'percent')
+        {
+            let numerators = Object.values(results).map(result => result[stat.numerator])
+            let denominators = Object.values(results).map(result => result[stat.denominator])
+    
+            if (sort_type == 0)
+            {
+                numerators = [numerators.reduce((partialSum, a) => partialSum + a, 0)]
+                denominators = [denominators.reduce((partialSum, a) => partialSum + a, 0)]
+            }
+
+            for (let i in numerators)
+            {
+                let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
+                result[stat.numerator] = numerators[i]
+                result[stat.denominator] = denominators[i]
+                values.push(add_given_smart_stats(result, [stat])[key])
+            }
+        }
+
+        if (values.length > 0)
+        {
+            switch (sort_type)
+            {
+                // median
+                case 1:
+                    return median(values)
+                // mode
+                case 2:
+                    return mode(values)
+                // min
+                case 3:
+                    return Math.min(... values)
+                // max
+                case 4:
+                    return Math.max(... values)
+                // std dev
+                case 5:
+                    return std_dev(values)
+                // mean
+                case 0:
+                default:
+                    return mean(values)
+            }
+        }
+    }
+
     switch (type)
     {
         // compute mode for non-numerics
