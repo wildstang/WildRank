@@ -31,11 +31,6 @@
 			"cycle": "match_teleop_shooting",
 			"sum": "match_teleop_shooting_high_hub_missed"
 		}, {
-			"name": "Total High Shots Attempted",
-			"id": "total_high_shots_attempted",
-			"type": "sum",
-			"keys": ["teleop_high_shots_made", "teleop_high_shots_missed", "auto_high_shots_missed", "auto_high_shots_made"]
-		}, {
 			"name": "Teleop High Shooting Percent",
 			"id": "teleop_high_shooting_percent",
 			"type": "percent",
@@ -79,6 +74,11 @@
 			"conditions": {},
 			"cycle": "match_auto_shooting",
 			"sum": "match_auto_shooting_high_hub_missed"
+		}, {
+			"name": "Total High Shots Attempted",
+			"id": "total_high_shots_attempted",
+			"type": "sum",
+			"keys": ["teleop_high_shots_made", "teleop_high_shots_missed", "auto_high_shots_missed", "auto_high_shots_made"]
 		}, {
 			"name": "Total Cargo Scored High",
 			"id": "total_cargo_scored_high",
@@ -240,8 +240,8 @@
 			"cycle": "match_teleop_shooting",
 			"sum": "match_teleop_shooting_high_hub_made"
 		}, {
-			"name": "High Shots Missed from Fender, Undefended",
-			"id": "high_shots_missed_from_fender,_undefended",
+			"name": "High Shots Missed from Fender Undefended",
+			"id": "high_shots_missed_from_fender_undefended",
 			"type": "where",
 			"conditions": {
 				"match_teleop_shooting_location": "Fender",
@@ -251,7 +251,7 @@
 			"sum": "match_teleop_shooting_high_hub_missed"
 		}, {
 			"name": "High Shots Made from Fender, Defended",
-			"id": "high_shots_made_from_fender,_defended",
+			"id": "high_shots_made_from_fender_defended",
 			"type": "where",
 			"conditions": {
 				"match_teleop_shooting_location": "Fender",
