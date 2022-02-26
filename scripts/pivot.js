@@ -7,6 +7,7 @@
  */
 
 const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
+const KEYS_KEY = 'pivot-keys'
 
 var teams = []
 var all_teams = []
@@ -59,6 +60,15 @@ function init_page(contents_card, buttons_container)
         // load keys from localStorage and build list
         populate_keys(meta, results, all_teams)
         select_all(false)
+        keys = sessionStorage.getItem(KEYS_KEY)
+        if (keys !== null)
+        {
+            keys = JSON.parse(keys)
+            for (let key of keys)
+            {
+                open_option(key, false)
+            }
+        }
         build_table()
     }
 }
@@ -86,7 +96,7 @@ function filter_teams()
  * returns:     none
  * description: Selects or unselects options then opens.
  */
-function open_option(key)
+function open_option(key, table=true)
 {
     list_name = "Team Number"
     // select team button 
@@ -101,7 +111,10 @@ function open_option(key)
         selected_keys.push(key)
     }
 
-    build_table()
+    if (table)
+    {
+        build_table()
+    }
 }
 
 /**
@@ -258,6 +271,8 @@ function drop_handler(e)
  */
 function build_table(sort_by='', reverse=false)
 {
+    sessionStorage.setItem(KEYS_KEY, JSON.stringify(selected_keys))
+
     let selected = get_selected_keys()
     let method = get_selected_option('type_form')
 
