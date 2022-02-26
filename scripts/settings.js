@@ -12,6 +12,7 @@ const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
 var meta = {}
+var keys = []
 
 /**
  * function:    init_page
@@ -28,6 +29,10 @@ function init_page()
         build_column_frame('', [build_button('', 'Apply', 'apply_config()')])
     ])
 
+    // load in keys
+    meta = get_result_meta(MATCH_MODE, year)
+    keys = get_keys(meta)
+
     build_page()
 }
 
@@ -40,9 +45,6 @@ function init_page()
 function build_page()
 {
     document.getElementById('body').innerHTML = ''
-    meta = get_result_meta(MATCH_MODE, year)
-
-    let keys = get_keys(meta)
     
     if (file_exists('config-settings'))
     {
@@ -62,6 +64,7 @@ function build_page()
         let configs = get_config('coach-vals')
         if (Object.keys(configs).includes(year))
         {
+            let names = keys.map(k => meta[k].name)
             let config = configs[year]
             let inputs = []
             let ckeys = Object.keys(config)
@@ -69,12 +72,13 @@ function build_page()
             {
                 let key = ckeys[i]
                 let val = config[key]
+                let name = val.key.length > 0 ? meta[val.key].name : ''
                 if (keys.includes(val.key) || val.key == '')
                 {
                     let func = val.function
                     func = func.substr(0, 1).toUpperCase() + func.substr(1)
                     inputs.push(build_select(`fn_${i}`, 'Function', FUNCTIONS, func))
-                    inputs.push(build_dropdown(`key_${i}`, 'Key', [''].concat(keys), val.key))
+                    inputs.push(build_dropdown(`key_${i}`, 'Key', [''].concat(names), name))
                 }
             }
             inputs.push(build_button('add_coach', 'New Value', 'add_coach()'))
@@ -217,12 +221,12 @@ function build_coach_config()
         for (let i in configs[year])
         {
             let func = get_selected_option(`fn_${i}`)
-            let key = document.getElementById(`key_${i}`).value
-            if (key !== '')
+            let idx = document.getElementById(`key_${i}`).selectedIndex
+            if (idx > 0)
             {
                 config.push({
-                    function: FUNCTIONS[func],
-                    key: key
+                    function: FUNCTIONS[func].toLowerCase(),
+                    key: keys[idx-1]
                 })
             }
         }
