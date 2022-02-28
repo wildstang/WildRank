@@ -73,11 +73,11 @@ function init_page()
                                         {
                                             case 1:
                                             case 2:
-                                                // winner
+                                                // winner and finalist
                                                 for (let i in award.recipient_list)
                                                 {
                                                     let team = award.recipient_list[i].team_key.substr(3)
-                                                    if (Object.keys(events[e].teams).includes(team))
+                                                    if (Object.keys(events[e].teams).includes(team) && events[e].teams[team].award == '')
                                                     {
                                                         if (award.award_type == 1)
                                                         {
@@ -85,7 +85,7 @@ function init_page()
                                                         }
                                                         else
                                                         {
-                                                            events[e].teams[team].award = 'background-color: #c0c0c0; color: #000000'
+                                                            events[e].teams[team].award = 'background-color: #ff4136; color: #ffffff'
                                                         }
                                                         switch (parseInt(i))
                                                         {
@@ -101,6 +101,16 @@ function init_page()
                                                     }
                                                 }
                                                 break
+                                            case 9:
+                                                // ei
+                                                for (let i in award.recipient_list)
+                                                {
+                                                    let team = award.recipient_list[i].team_key.substr(3)
+                                                    if (Object.keys(events[e].teams).includes(team) && events[e].teams[team].award == '')
+                                                    {
+                                                        events[e].teams[team].award = 'background-color: #c0c0c0; color: #000000'
+                                                    }
+                                                }
                                         }
                                     }
 
