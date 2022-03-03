@@ -332,7 +332,7 @@ function calculate_team_stats(teams, match_stats)
 function fetch_zebra(match_key, stats)
 {
     // get match data
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({ [TBA_KEY]: API_KEY })}`)
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({ [TBA_AUTH_KEY]: TBA_KEY })}`)
         .then(response => {
             if (response.status == 401)
             {
@@ -349,7 +349,7 @@ function fetch_zebra(match_key, stats)
         })
 
     // fetch simple event matches
-    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({ [TBA_KEY]: API_KEY })}`)
+    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({ [TBA_AUTH_KEY]: TBA_KEY })}`)
         .then(response => {
             if (response.status == 401)
             {

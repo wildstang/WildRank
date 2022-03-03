@@ -73,7 +73,7 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/js')
             self.end_headers()
-            self.wfile.write(str.encode('API_KEY="{0}"'.format(TBA_KEY)))
+            self.wfile.write(str.encode('TBA_KEY="{0}"'.format(TBA_KEY)))
 
         else:
             # check if its a known file

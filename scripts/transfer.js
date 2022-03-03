@@ -21,14 +21,14 @@ function preload_event()
     // get event id from the text box
     let event_id = get_event()
 
-    if (!API_KEY)
+    if (!TBA_KEY)
     {
         alert('No API key found for TBA!')
     }
     else
     {
         // fetch simple event matches
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_KEY]: API_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
             .then(response => {
                 if (response.status == 401) {
                     alert('Invalid API Key Suspected')
@@ -61,7 +61,7 @@ function preload_event()
             })
 
         // fetch simple event teams
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_KEY]: API_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
             .then(response => {
                 return response.json()
             })
@@ -80,24 +80,18 @@ function preload_event()
                     process_files()
 
                     // fetch team's avatar for whiteboard
-                    var avatars = 0
-                    var success = 0
                     for (let team of teams)
                     {
                         let year = get_event().substr(0, 4)
-                        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_KEY]: API_KEY})}`)
+                        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                             .then(response => {
                                 return response.json()
                             })
                             .then(data => {
                                 localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
-                                ++avatars
-                                ++success
                             })
-                            .catch(err =>
-                                {
+                            .catch(err => {
                                 console.log(`Error loading avatar: ${err}!`)
-                                ++avatars
                             })
                     }
                 }
@@ -112,7 +106,7 @@ function preload_event()
             })
 
         // fetch event rankings
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_KEY]: API_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
             .then(response => {
                 return response.json()
             })

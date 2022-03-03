@@ -7,4 +7,6 @@
  */
 
 // TBA API Key
-API_KEY=""
+TBA_KEY=""
+// FRC Events API Key
+FRC_KEY=""

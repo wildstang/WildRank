@@ -28,7 +28,7 @@ function init_page()
         let teams = JSON.parse(localStorage.getItem(file_name))
         for (let team of teams)
         {
-            fetch(`https://www.thebluealliance.com/api/v3/team/${team.key}/events/${year}/simple${build_query({[TBA_KEY]: API_KEY})}`)
+            fetch(`https://www.thebluealliance.com/api/v3/team/${team.key}/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                 .then(response => {
                     if (response.status == 401) {
                         alert('Invalid API Key Suspected')
@@ -58,7 +58,7 @@ function init_page()
                         let received = 0
                         for (let e of keys)
                         {
-                            fetch(`https://www.thebluealliance.com/api/v3/event/${year}${e}/awards${build_query({[TBA_KEY]: API_KEY})}`)
+                            fetch(`https://www.thebluealliance.com/api/v3/event/${year}${e}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                                 .then(response => {
                                     if (response.status == 401)
                                     {

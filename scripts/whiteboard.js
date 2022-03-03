@@ -434,13 +434,13 @@ function fetch_zebra(match_key)
 {
     match_plots = []
 
-    if (!API_KEY)
+    if (!TBA_KEY)
     {
         return
     }
 
     // fetch zebra match data
-    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({[TBA_KEY]: API_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/match/${match_key}/zebra_motionworks${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
         .then(response => {
             if (response.status == 401) {
                 alert('Invalid API Key Suspected')
