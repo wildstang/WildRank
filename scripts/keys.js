@@ -8,5 +8,3 @@
 
 // TBA API Key
 TBA_KEY=""
-// FRC Events API Key
-FRC_KEY=""
