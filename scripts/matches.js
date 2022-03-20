@@ -31,7 +31,17 @@ function init_page(contents_card, buttons_container)
             avatar = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">`
             button_txt = 'Scout Match'
         }
+
+        let format = get_teams_format(event_id)
+        let alliance = 'Red'
+        let pos = 1 + parseInt(scout_pos)
+        if (pos >= format.red)
+        {
+            alliance = 'Blue'
+            pos -= format.red
+        }
         contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
+                                    Scouting: ${alliance} ${pos}<br><br>
                                     ${avatar}
                                     <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>`
         

@@ -67,7 +67,13 @@ function init_page()
             document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num}</span>`
+            let format = get_teams_format(event_id)
+            let pos = 1 + parseInt(scout_pos)
+            if (pos >= format.red)
+            {
+                pos -= format.red
+            }
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
             break
     }
     ws(team_num)
@@ -316,6 +322,59 @@ function update_cycle(cycle, decrement)
     }
 }
 
+/** 
+ * function:    check_cycles
+ * parameters:  none
+ * returns:     True if there is an unsubmitted cycle
+ * description: Checks if the cycles are all submitted.
+ */
+function check_cycles()
+{
+    // iterate through each column in the page
+    for (let page of config.pages)
+    {
+        // iterate through each column in the page
+        for (let column of page.columns)
+        {
+            if (column.id == cycle)
+            {
+                // populate/save each input in the cycle
+                for (let input of column.inputs)
+                {
+                    // only multicounter, select, and dropdown are supported in cycles
+                    let type = input.type
+                    let id = input.id
+                    let def = input.default
+
+                    switch (type)
+                    {
+                        case 'multicounter':
+                            for (let op of ops)
+                            {
+                                let op_id = `${id}_${op.toLowerCase().split().join('_')}`
+                                if (document.getElementById(`${op_id}-value`).innerHTML != def)
+                                {
+                                    return false
+                                }
+                            }
+                            break
+                        case 'counter':
+                            if (document.getElementById(`${id}`).innerHTML != def)
+                            {
+                                return false
+                            }
+                            break
+                        default:
+                            // do nothing, only check counters
+                            break
+                    }
+                }
+            }
+        }
+    }
+    return true
+}
+
 /**
  * function:    get_results_from_page
  * parameters:  none
@@ -324,7 +383,14 @@ function update_cycle(cycle, decrement)
  */
 function get_results_from_page()
 {
-    if (!confirm('Are you sure you want to submit?'))
+    if (!check_cycles())
+    {
+        if (!confirm('You have an unsaved cycle, do you still want to submit?'))
+        {
+
+        }
+    }
+    else if (!confirm('Are you sure you want to submit?'))
     {
         return
     }
