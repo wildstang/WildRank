@@ -17,7 +17,10 @@ function init_page(contents_card, buttons_container)
     let first = populate_teams(false)
     if (first)
     {
-        contents_card.innerHTML = '<img id="avatar"><h2>Add team <label id="team_num"></label>, <label id="team_name"></label>, to...</h2>'
+        contents_card.innerHTML = `<img id="avatar">
+                                    <h2><label id="team_num"></label> <label id="team_name"></label></h2>
+                                    <h4>Belongs to:</h4>
+                                    <span id="belongs_to"></span>`
         buttons_container.innerHTML = ''
 
         // load lists in from localStorage, and build lists
@@ -59,6 +62,13 @@ function open_option(team_num)
     document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0,4))
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = get_team_name(team_num, event_id)
+
+    let belongs_to = []
+    if (Object.keys(lists).length > 0)
+    {
+        belongs_to = Object.keys(lists).filter(l => lists[l].includes(team_num))
+    }
+    document.getElementById('belongs_to').innerHTML = belongs_to.join(', ')
 
     // select team button
     document.getElementById(`option_${team_num}`).classList.add('selected')
