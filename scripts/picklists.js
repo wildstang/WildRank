@@ -46,31 +46,6 @@ function init_page(contents_card, buttons_container)
 }
 
 /**
- * function:    build_team_list
- * parameters:  teams
- * returns:     none
- * description: Completes left select team pane with teams from event data.
- */
-function build_team_list(teams)
-{
-    let first = ''
-    // iterate through team objs
-    for (let team of teams)
-    {
-        let number = team.team_number
-        if (first == '')
-        {
-            first = number
-        }
-
-        // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_option(number)
-    }
-    open_option(first)
-    scroll_to('option_list', `option_${first}`)
-}
-
-/**
  * function:    open_option
  * parameters:  Selected team number
  * returns:     none
@@ -117,6 +92,7 @@ function build_pick_lists(list_name='')
     // build selected list
     if (Object.keys(lists).length > 0)
     {
+        column_items.push(build_card('', `<center>${lists[list_name].length} Teams<center>`))
         column_items.push(build_button('', 'Add to Top', `add_to('${list_name}', '')`, `remove_team('${list_name}', '')`))
         for (let team of lists[list_name])
         {
