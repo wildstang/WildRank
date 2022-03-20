@@ -26,11 +26,13 @@ function init_page()
     document.body.innerHTML += build_page_frame('', [
         build_column_frame('', [
             build_checkbox('event', 'Event Data'), // teams, matches, rankings
-            build_checkbox('results', 'Results'), // pits, matches, picklists
+            build_checkbox('results', 'Results'), // pits, matches
             build_checkbox('config', 'Scouting Config'),
             build_checkbox('smart-stats', 'Smart Stats'),
             build_checkbox('coach-vals', 'Coach Values'),
-            build_checkbox('settings', 'Settings')
+            build_checkbox('settings', 'Settings'),
+            build_checkbox('picklists', 'Pick Lists'),
+            build_checkbox('avatars', 'Avatars')
         ]),
         build_column_frame('', [
             build_str_entry('server', 'Server URL', parse_server_addr(document.location.href)),
@@ -55,6 +57,8 @@ function export_zip()
     let use_smart_stats = document.getElementById('smart-stats').checked
     let use_coach_vals  = document.getElementById('coach-vals').checked
     let use_settings    = document.getElementById('settings').checked
+    let use_avatars     = document.getElementById('avatars').checked
+    let use_picklists   = document.getElementById('picklists').checked
     
     let zip = JSZip()
 
@@ -63,11 +67,13 @@ function export_zip()
     {
         return (file.includes(event_id) &&
             ((use_event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
-            (use_results && (file.startsWith('match-') || file.startsWith('pit-') || file.startsWith('picklists-') || file.startsWith('note-'))))) ||
+            (use_results && (file.startsWith('match-') || file.startsWith('pit-') || file.startsWith('note-'))))) ||
             (use_config && file.startsWith(`config-${year}-`)) ||
             (use_smart_stats && file == 'config-smart-stats') ||
             (use_coach_vals && file == 'config-coach-vals') ||
-            (use_settings && file.startsWith('config-') && !file.startsWith(`config-2`) && file != 'config-smart-stats' && file != 'config-coach-vals')
+            (use_settings && file.startsWith('config-') && !file.startsWith(`config-2`) && file != 'config-smart-stats' && file != 'config-coach-vals') ||
+            (use_avatars && file.startsWith('avatar-')) ||
+            (use_picklists && file.startsWith('picklists-'))
     })
 
     // add each file to the zip
@@ -206,6 +212,15 @@ function import_zip(file)
     // process each files details
     JSZip.loadAsync(file).then(function (zip)
     {
+        let use_event       = document.getElementById('event').checked
+        let use_results     = document.getElementById('results').checked
+        let use_config      = document.getElementById('config').checked
+        let use_smart_stats = document.getElementById('smart-stats').checked
+        let use_coach_vals  = document.getElementById('coach-vals').checked
+        let use_settings    = document.getElementById('settings').checked
+        let use_avatars     = document.getElementById('avatars').checked
+        let use_picklists   = document.getElementById('picklists').checked
+
         let files = Object.keys(zip.files)
         let complete = 0
         for (let name of files)
@@ -220,21 +235,16 @@ function import_zip(file)
                 zip.file(name).async('blob').then(function (content)
                 {
                     content.text().then(function (text) {
-                        let use_event       = document.getElementById('event').checked
-                        let use_results     = document.getElementById('results').checked
-                        let use_config      = document.getElementById('config').checked
-                        let use_smart_stats = document.getElementById('smart-stats').checked
-                        let use_coach_vals  = document.getElementById('coach-vals').checked
-                        let use_settings    = document.getElementById('settings').checked
-                    
                         // determine which files to use
                         if ((n.includes(event_id) &&
                             ((use_event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
-                            (use_results && (n.startsWith('match-') || n.startsWith('pit-') || n.startsWith('picklists-') || n.startsWith('note-'))))) ||
+                            (use_results && (n.startsWith('match-') || n.startsWith('pit-') || n.startsWith('note-'))))) ||
                             (use_config && n.startsWith(`config-${year}-`)) ||
                             (use_smart_stats && n == 'config-smart-stats') ||
                             (use_coach_vals && n == 'config-coach-vals') ||
-                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-2`) && n != 'config-smart-stats' && n != 'config-coach-vals'))
+                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-2`) && n != 'config-smart-stats' && n != 'config-coach-vals') ||
+                            (use_avatars && n.startsWith('avatar-')) ||
+                            (use_picklists && n.startsWith('picklists-')))
                         {
                             console.log(`Importing ${n}`)
                             localStorage.setItem(n, text)
