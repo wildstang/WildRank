@@ -18,9 +18,10 @@ const year = event_id.substr(0,4)
  * 
  * Pages: Match/Note Scout, Whiteboard, Match Summaries, Coach View
  */
-function populate_matches(finals=true, complete=true)
+function populate_matches(finals=true, complete=true, team_filter='')
 {
     document.getElementById('option_list').innerHTML = ''
+    team_filter = `frc${team_filter}`
     
     let file_name = get_event_matches_name(event_id)
     if (localStorage.getItem(file_name) != null)
@@ -40,7 +41,7 @@ function populate_matches(finals=true, complete=true)
             let red_teams = match.alliances.red.team_keys
             let blue_teams = match.alliances.blue.team_keys
             
-            if (match.comp_level == 'qm' || finals)
+            if ((match.comp_level == 'qm' || finals) && (team_filter == 'frc' || red_teams.includes(team_filter) || blue_teams.includes(team_filter)))
             {
                 // grey out previously scouted matches/teams
                 let scouted = 'not_scouted'

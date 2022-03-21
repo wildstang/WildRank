@@ -18,6 +18,13 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 function init_page(contents_card, buttons_container)
 {
     let first = populate_matches(true, false)
+    let file_name = get_event_teams_name(event_id)
+    if (localStorage.getItem(file_name) != null)
+    {
+        let teams = JSON.parse(localStorage.getItem(file_name)).map(t => t.team_number)
+        teams.unshift('')
+        add_dropdown_filter('team_filter', teams, 'hide_matches()')
+    }
     if (first)
     {
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
@@ -33,6 +40,19 @@ function init_page(contents_card, buttons_container)
     {
         contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
     }
+}
+
+/**
+ * function:    hide_match
+ * parameters:  none
+ * returns:     none
+ * description: Rebuilds the match list based on the selected team.
+ */
+function hide_matches()
+{
+    let team = document.getElementById('team_filter').value
+    let first = populate_matches(true, true, team)
+    open_match(first)
 }
 
 /**
