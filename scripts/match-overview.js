@@ -107,6 +107,13 @@ function open_match(match_num)
     else if (predicted > 0)
     {
         time.innerHTML = `${unix_to_match_time(predicted)} (Projected)`
+        document.getElementById('result').innerHTML = ''
+        document.getElementById('extra').innerHTML = ''
+    }
+    else
+    {
+        document.getElementById('result').innerHTML = ''
+        document.getElementById('extra').innerHTML = ''
     }
 
     // reorganize teams into single object
@@ -121,44 +128,9 @@ function open_match(match_num)
     {
         // make row for match notes
         note_button = build_link_button('note_button', 'Take Match Notes', `notes('${match_num}', ${notes_taken(match_num, event_id)})`)
-    
-        // make a row for each team
-        for (let key of teams)
-        {
-            let team_num = match_teams[key]
-            let alliance = key.slice(0, -1)
-            let rank = ''
-            let rankings = get_team_rankings(team_num, event_id)
-            if (rankings)
-            {
-                rank = `#${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
-            }
-            let team = `<span class="${alliance}">${team_num}</span>`
-            
-            // build button to either scout or result
-            let result_file = get_match_result(match_num, team_num, event_id)
-            let button = build_link_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match_num}')`)
-            if (localStorage.getItem(result_file) != null)
-            {
-                button = build_link_button(result_file, `${team} Results`, `open_result('${result_file}')`)
-            }
-    
-            // add button and description to appropriate column
-            let team_info = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center>`
-            if (alliance == 'red')
-            {
-                reds.push(button)
-                reds.push(build_card('', team_info, limitWidth=true))
-            }
-            else
-            {
-                blues.push(button)
-                blues.push(build_card('', team_info, limitWidth=true))
-            }
-        }
     }
-
-    // no scouting for finals
+    
+    // make a row for each team
     for (let key of teams)
     {
         let team_num = match_teams[key]
@@ -170,14 +142,31 @@ function open_match(match_num)
             rank = `#${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
         }
 
+        // build button to either scout or result
+        let team = `<span class="${alliance}">${team_num}</span>`
+        let result_file = get_match_result(match_num, team_num, event_id)
+        let button = build_link_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match_num}')`)
+        if (localStorage.getItem(result_file) != null)
+        {
+            button = build_link_button(result_file, `${team} Results`, `open_result('${result_file}')`)
+        }
+
         // add button and description to appropriate column
         let team_info = `<center><span class="${alliance}">${team_num}</span><br>${get_team_name(team_num, event_id)}<br>${rank}</center>`
         if (alliance == 'red')
         {
+            if (match.comp_level == 'qm')
+            {
+                reds.push(button)
+            }
             reds.push(build_card('', team_info, limitWidth=true))
         }
         else
         {
+            if (match.comp_level == 'qm')
+            {
+                blues.push(button)
+            }
             blues.push(build_card('', team_info, limitWidth=true))
         }
     }
