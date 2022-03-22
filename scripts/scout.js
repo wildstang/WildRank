@@ -69,7 +69,7 @@ function init_page()
         case MATCH_MODE:
             let format = get_teams_format(event_id)
             let pos = 1 + parseInt(scout_pos)
-            if (pos >= format.red)
+            if (pos > format.red)
             {
                 pos -= format.red
             }

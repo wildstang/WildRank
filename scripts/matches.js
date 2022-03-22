@@ -35,7 +35,7 @@ function init_page(contents_card, buttons_container)
         let format = get_teams_format(event_id)
         let alliance = 'Red'
         let pos = 1 + parseInt(scout_pos)
-        if (pos >= format.red)
+        if (pos > format.red)
         {
             alliance = 'Blue'
             pos -= format.red
