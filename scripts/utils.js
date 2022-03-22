@@ -1044,7 +1044,7 @@ function get_teams_format(event_id)
             let m = matches[0]
             format = {
                 red:    m.alliances.red.team_keys.length,
-                blue:   m.alliances.red.team_keys.length
+                blue:   m.alliances.blue.team_keys.length
             }
             format.total = format.red + format.blue
         }
