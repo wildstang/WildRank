@@ -27,6 +27,7 @@ function preload_event()
     }
     else
     {
+        let count = 0
         // fetch simple event matches
         fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
             .then(response => {
@@ -49,6 +50,10 @@ function preload_event()
                     // store matches as JSON string in matches-[event-id]
                     localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
                     process_files()
+                    if (++count === 3)
+                    {
+                        alert('Preload complete!')
+                    }
                 }
                 else
                 {
@@ -94,6 +99,10 @@ function preload_event()
                                 console.log(`Error loading avatar: ${err}!`)
                             })
                     }
+                    if (++count === 3)
+                    {
+                        alert('Preload complete!')
+                    }
                 }
                 else
                 {
@@ -125,9 +134,9 @@ function preload_event()
                     // store rankings as JSON string in rankings-[event_id]
                     localStorage.setItem(get_event_rankings_name(event_id), JSON.stringify(rankings))
                 }
-                else
+                if (++count === 3)
                 {
-                    alert('No rankings received!')
+                    alert('Preload complete!')
                 }
             })
             .catch(err => {
