@@ -169,9 +169,12 @@ function build_plot()
     {
         plots[team] = []
         let res = get_team_results(results, team)
-        for (let i in Object.keys(res))
+        let keys = Object.keys(res)
+        keys = keys.sort((a,b) => res[a].meta_match - res[b].meta_match)
+        for (let i in keys)
         {
-            let val = res[Object.keys(res)[i]][key]
+            let k = keys[i]
+            let val = res[k][key]
             plots[team].push(val)
 
             if (val > max)
