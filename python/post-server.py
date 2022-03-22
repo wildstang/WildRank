@@ -1,4 +1,4 @@
-import socketserver, http.server, logging, base64, zipfile, re
+import socketserver, http.server, logging, base64, zipfile, re, json
 from os import listdir, environ, mkdir, rename, remove
 from os.path import isfile, join, exists
 from shutil import copyfile
@@ -99,21 +99,32 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         logging.info('POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n',
                 str(self.path), str(self.headers), post_data.decode('utf-8'))
 
-        # make response
-        self._set_response()
-        self.wfile.write('POST request for {}'.format(self.path).encode('utf-8'))
-
         # save result
         file = 'tmp.zip'
         with open(file, 'wb') as f:
             f.write(b64decode(post_data))
 
         # extract zip
-        with zipfile.ZipFile(file, 'r') as zip:
-            zip.extractall(UPLOAD_PATH)
+        files = 0
+        success = True
+        try:
+            with zipfile.ZipFile(file, 'r') as zip:
+                zip.extractall(UPLOAD_PATH)
+                files = len(zip.infolist())
+        except:
+            success = False
         
         # delete zip
         remove(file)
+        
+        # send response
+        self._set_response()
+        response = {
+            "success": success,
+            "count": files
+        }
+        res_str = json.dumps(response)
+        self.wfile.write(res_str.encode('utf-8'))
 
 # make config if not exists
 if not exists('config'):

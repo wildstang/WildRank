@@ -115,7 +115,21 @@ function export_zip()
                 {                    
                     // post string to server
                     fetch(addr, {method: 'POST', body: base64})
-                    console.log('posted zip to', addr)
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success && result.count == files.length)
+                            {
+                                alert('Upload successful!')
+                            }
+                            else
+                            {
+                                alert('Upload unsuccessful!')
+                            }
+                        })
+                        .catch(e => {
+                            alert('Error uploading!')
+                            console.error(e)
+                        })
                 }
             }
 
