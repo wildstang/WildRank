@@ -28,6 +28,7 @@ function populate_matches(finals=true, complete=true, team_filter='')
     {
         let matches = JSON.parse(localStorage.getItem(file_name))
         let first = ''
+        let first_avail = ''
         matches.sort((a, b) => a.time - b.time)
 
         // determine if event has been completed outside of WildRank
@@ -51,13 +52,17 @@ function populate_matches(finals=true, complete=true, team_filter='')
                     scouted = 'scouted'
                     first = ''
                 }
-                else if (first == '')
+                else if (first === '')
                 {
                     first = number
                 }
-                if (level && level != 'F')
+                if (level && level !== 'F')
                 {
                     level += match.set_number
+                }
+                if (first_avail === '')
+                {
+                    first_avail = number
                 }
     
                 document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
