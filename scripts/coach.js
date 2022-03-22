@@ -144,17 +144,6 @@ function open_match(match_num)
         }
     }
 
-    // make a table of alliance "coach-vals"
-    let stats = '<tr><th></th><th>Red</th><th>Blue</th></tr>'
-    for (let v of vals)
-    {
-        let type = meta[v.key].type
-        let red_stat = avg_results(red_res, v.key, type, FUNCTIONS.indexOf(v.function))
-        let blue_stat = avg_results(blue_res, v.key, type, FUNCTIONS.indexOf(v.function))
-        stats += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, red_stat)}</td><td>${get_value(meta, v.key, blue_stat)}</td></tr>`
-    }
-    document.getElementById('alliance_stats').innerHTML = stats
-
     // make a row for each team
     for (let index in teams)
     {
@@ -174,6 +163,15 @@ function open_teams()
 {
     // reorganize teams into single object
     let match_teams = get_match_teams(1, event_id)
+    let format = get_teams_format(event_id)
+
+    let red_totals = {}
+    let blue_totals = {}
+    for (let v of vals)
+    {
+        red_totals[v.key] = 0
+        blue_totals[v.key] = 0
+    }
 
     // make a row for each team
     for (let index in Object.keys(match_teams))
@@ -194,6 +192,14 @@ function open_teams()
         for (let v of vals)
         {
             let stat = avg_results(get_team_results(results, team_num), v.key, meta[v.key].type, FUNCTIONS.indexOf(v.function))
+            if (parseInt(index) >= format.red)
+            {
+                blue_totals[v.key] += stat
+            }
+            else
+            {
+                red_totals[v.key] += stat
+            }
             notes += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, stat)}</td></tr>`
         }
         notes += '</table><div class="notes">'
@@ -222,6 +228,14 @@ function open_teams()
 
         document.getElementById(`${id}_details`).innerHTML = notes
     }
+
+    // make a table of alliance "coach-vals"
+    let stats = '<tr><th></th><th>Red</th><th>Blue</th></tr>'
+    for (let v of vals)
+    {
+        stats += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, red_totals[v.key])}</td><td>${get_value(meta, v.key, blue_totals[v.key])}</td></tr>`
+    }
+    document.getElementById('alliance_stats').innerHTML = stats
 
     toggle_notes()
 }
