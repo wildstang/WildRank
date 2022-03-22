@@ -298,7 +298,7 @@ function has_matches()
 function is_blocked(id)
 {
     let user = get_user()
-    if (user == 111112)
+    if (user.length < 6 || user === '111112')
     {
         return 'Please set your school id'
     }
