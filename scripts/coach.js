@@ -191,14 +191,48 @@ function open_teams()
         let notes = `<center>${get_team_name(team_num, event_id)}<br>${rank}</center><br><table>`
         for (let v of vals)
         {
-            let stat = avg_results(get_team_results(results, team_num), v.key, meta[v.key].type, FUNCTIONS.indexOf(v.function))
+            let stat = avg_results(get_team_results(results, team_num), v.key, meta[v.key].type, FUNCTIONS.indexOf(v.function), meta[v.key].options)
             if (parseInt(index) >= format.red)
             {
-                blue_totals[v.key] += stat
+                if (typeof stat === 'object')
+                {
+                    if (blue_totals[v.key] == 0)
+                    {
+                        blue_totals[v.key] = stat
+                    }
+                    else
+                    {
+                        for (let k of Object.keys(stat))
+                        {
+                            blue_totals[v.key][k] += stat[k]
+                        }
+                    }
+                }
+                else
+                {
+                    blue_totals[v.key] += stat
+                }
             }
             else
             {
-                red_totals[v.key] += stat
+                if (typeof stat === 'object')
+                {
+                    if (red_totals[v.key] == 0)
+                    {
+                        red_totals[v.key] = stat
+                    }
+                    else
+                    {
+                        for (let k of Object.keys(stat))
+                        {
+                            red_totals[v.key][k] += stat[k]
+                        }
+                    }
+                }
+                else
+                {
+                    red_totals[v.key] += stat
+                }
             }
             notes += `<tr><th>${v.function.charAt(0).toUpperCase()}${v.function.substr(1)} ${meta[v.key].name}</th><td>${get_value(meta, v.key, stat)}</td></tr>`
         }

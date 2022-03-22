@@ -273,7 +273,7 @@ function get_value(meta, key, value, html=true)
         let total = Object.values(value).reduce((a, b) => a + b)
         if (html)
         {
-            return '<table>' + Object.keys(value).map(v => `<tr><th>${get_value(meta, key, v)}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
+            return '<table>' + Object.keys(value).map(v => `<tr><th>${v}</th><td>${(100*value[v]/total).toFixed(2)}%</td></tr>`).join('') + '</table>'
         }
         else
         {
