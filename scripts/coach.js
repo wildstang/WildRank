@@ -56,12 +56,12 @@ function init_page(contents_card, buttons_container)
             if (key.slice(0, -1) == 'red')
             {
                 reds.push(build_num_entry(`team_${i}`, '', '', [0, 10000], 'open_teams()'))
-                reds.push(build_card(`team_${i}_details`, ''))
+                reds.push(build_card(`team_${i}_details`, '', false, 'red_box'))
             }
             else
             {
                 blues.push(build_num_entry(`team_${i}`, '', '', [0, 10000], 'open_teams()'))
-                blues.push(build_card(`team_${i}_details`, ''))
+                blues.push(build_card(`team_${i}_details`, '', false, 'blue_box'))
             }
         }
 

@@ -290,9 +290,9 @@ function build_slider(id, name, min, max, incr, start, oninput='')
  * returns:     wr_card as a string
  * description: Builds the HTML string of a card object.
  */
-function build_card(id, contents='', limitWidth=false)
+function build_card(id, contents='', limitWidth=false, additional_classes='')
 {
-    return `<div class="wr_card" id="${id}"${limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${contents}</div><br>`
+    return `<div class="wr_card ${additional_classes}" id="${id}"${limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${contents}</div><br>`
 }
 
 /**
