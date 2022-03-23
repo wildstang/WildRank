@@ -25,13 +25,15 @@ const CACHE_LIST = [
     '/scripts/event-generator.js',
     '/scripts/events.js',
     '/scripts/home.js',
-    '/scripts/init.js',
     '/scripts/index.js',
+    '/scripts/init.js',
+    '/scripts/inputs.js',
     '/scripts/jszip.min.js',
     '/scripts/keys.js',
     '/scripts/links.js',
     '/scripts/match-overview.js',
     '/scripts/matches.js',
+    '/scripts/mini-picklists.js',
     '/scripts/note.js',
     '/scripts/picklists-core.js',
     '/scripts/picklists.js',
@@ -59,6 +61,7 @@ const CACHE_LIST = [
     '/config/cargo.png',
     '/config/config.json',
     '/config/dozer.png',
+    '/config/field-2018.png',
     '/config/field-2019.png',
     '/config/field-2020.png',
     '/config/field-2022.png',
@@ -72,7 +75,9 @@ const CACHE_LIST = [
     '/config/red-cargo.png',
     '/config/scout-config.json',
     // other files
-    '/favicon.ico'
+    '/favicon.ico',
+    '/manifest.webmanifest',
+    '/about'
 ]
 
 // store files to cache on install
