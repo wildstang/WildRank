@@ -322,6 +322,72 @@ function update_cycle(cycle, decrement)
     }
 }
 
+/** 
+ * function:    check_cycles
+ * parameters:  none
+ * returns:     False is all cycles are saved, unsaved id otherwise.
+ * description: Determines if any cycles are unfinished.
+ */
+function check_cycles()
+{
+    // iterate through each column in the page
+    for (let page of config.pages)
+    {
+        // iterate through each column in the page
+        for (let column of page.columns)
+        {
+            if (column.cycle == true)
+            {
+                // populate/save each input in the cycle
+                for (let input of column.inputs)
+                {
+                    // only multicounter, select, and dropdown are supported in cycles
+                    let type = input.type
+                    let id = input.id
+                    let ops = input.options
+                    let def = input.default
+
+                    switch (type)
+                    {
+                        case 'select':
+                            if (get_selected_option(id) != ops.indexOf(def))
+                            {
+                                return id
+                            }
+                            break
+                        case 'dropdown':
+                            if (document.getElementById(id).value != def)
+                            {
+                                return id
+                            }
+                            break
+                        case 'multicounter':
+                            for (let op of ops)
+                            {
+                                let op_id = `${id}_${op.toLowerCase().split().join('_')}`
+                                if (document.getElementById(`${op_id}-value`).innerHTML != def)
+                                {
+                                    return id
+                                }
+                            }
+                            break
+                        case 'counter':
+                            if (document.getElementById(id).innerHTML != def)
+                            {
+                                return id
+                            }
+                            break
+                        default:
+                            // do nothing, no other inputs allowed
+                            break
+                    }
+                }
+            }
+        }
+    }
+    return false
+}
+
 /**
  * function:    get_results_from_page
  * parameters:  none
@@ -330,6 +396,14 @@ function update_cycle(cycle, decrement)
  */
 function get_results_from_page()
 {
+    let cid = check_cycles()
+    if (cid)
+    {
+        if (confirm(`There are unsaved cycles (${cid})! Do you want to return?`))
+        {
+            return
+        }
+    }
     if (!confirm('Are you sure you want to submit?'))
     {
         return
