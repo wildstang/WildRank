@@ -279,7 +279,6 @@ function export_spreadsheet(event_id)
                         result[key] = val
                     }
                 }
-                console.log(result)
                 combined[name] = result
             }
         }
@@ -296,7 +295,15 @@ function export_spreadsheet(event_id)
         {
             if (obj_keys.includes(key))
             {
-                values.push(combined[name][key])
+                let val = combined[name][key]
+                if (typeof val === 'string')
+                {
+                    values.push(`"${val}"`)
+                }
+                else
+                {
+                    values.push(val)
+                }
             }
             else
             {
