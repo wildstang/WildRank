@@ -739,6 +739,13 @@ function init_page(contents_card, buttons_container)
     wb = get_wb_config(year)
 
     let first = populate_matches()
+    let file_name = get_event_teams_name(event_id)
+    if (localStorage.getItem(file_name) != null)
+    {
+        let teams = JSON.parse(localStorage.getItem(file_name)).map(t => t.team_number)
+        teams.unshift('')
+        add_dropdown_filter('team_filter', teams, 'hide_matches()')
+    }
     if (first)
     {
         // load in match data
@@ -783,6 +790,19 @@ function init_page(contents_card, buttons_container)
         // add magnets and start drawing
         init()
     }
+}
+
+/**
+ * function:    hide_match
+ * parameters:  none
+ * returns:     none
+ * description: Rebuilds the match list based on the selected team.
+ */
+function hide_matches()
+{
+    let team = document.getElementById('team_filter').value
+    let first = populate_matches(true, true, team)
+    open_match(first)
 }
 
 /**
