@@ -101,8 +101,20 @@ body {
     padding: 0 auto 0;
 }
 
-.long_option_number {
+.long_option_val {
     font-size: 200%;
+    text-align: center;
+    padding: 0 auto 0;
+}
+
+.long_option_number {
+    font-size: 175%;
+    text-align: center;
+    padding: 0 auto 0;
+}
+
+.long_option_description {
+    font-size: 100%;
     text-align: center;
     padding: 0 auto 0;
 }

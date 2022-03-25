@@ -339,7 +339,37 @@ function build_option(option_id, selected='', option_name='', style='', primary_
         on_click = `open_secondary_option('${option_id}')`
     }
     return `<div id="${id}" class="pit_option ${selected}" onclick="${on_click}" style="${style}">
-                <span class="long_option_number">${option_name}</span>
+                <span class="long_option_val">${option_name}</span>
+            </div>`
+}
+
+/**
+ * function:    build_desc_option
+ * parameters:  option id, selected class string, option name, option description
+ * returns:     option as a string
+ * description: Builds the HTML string of a option object.
+ */
+function build_desc_option(option_id, selected='', option_name='', option_description='', style='', primary_list=true)
+{
+    if (!option_name)
+    {
+        option_name = option_id
+    }
+    if (!option_description)
+    {
+        option_description = option_name
+    }
+    // use modified id and function if secondary list
+    let id = `option_${option_id}`
+    let on_click = `open_option('${option_id}')`
+    if (!primary_list)
+    {
+        id = `soption_${option_id}`
+        on_click = `open_secondary_option('${option_id}')`
+    }
+    return `<div id="${id}" class="pit_option ${selected}" onclick="${on_click}" style="${style}">
+                <span class="long_option_number">${option_name}</span><br>
+                <span class="long_option_description">${option_description}</span>
             </div>`
 }
 

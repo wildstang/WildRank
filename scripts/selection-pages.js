@@ -109,6 +109,7 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         for (let team of teams)
         {
             let number = team.team_number
+            let name = team.nickname
             // determine if the team has already been scouted
             let scouted = 'not_scouted'
             if (complete && file_exists(get_pit_result(number, event_id)))
@@ -126,10 +127,10 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
             }
             
             // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_option(number, scouted)
+            document.getElementById('option_list').innerHTML += build_desc_option(number, scouted, '', name)
             if (secondary)
             {
-                document.getElementById('secondary_option_list').innerHTML += build_option(number, scouted, '', '', false)
+                document.getElementById('secondary_option_list').innerHTML += build_desc_option(number, scouted, '', name, '', false)
             }
         }
 
