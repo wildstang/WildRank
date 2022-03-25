@@ -11,14 +11,12 @@ const PAGE_FRAME = build_page_frame('', [
         build_card('server', 'Server: Unknown'),
         build_card('version', 'Git: Nope', true),
         build_card('release', 'Release: Nope', true),
-        build_card('description', 'WildRank is a FIRST Robotics Competition scouting web app and a spiritual successor to <a href="https://github.com/wildstang/wildrank-android">WildRank Android</a>. Despite being a web app, the goal of WildRank is not to host a webpage on a remote server while scouting on clients, but rather to run generic lightweight servers on each of the clients themselves so that the majority of the app is platform agnostic.', true)
+        build_card('description', 'WildRank is a FIRST Robotics Competition scouting web app and a spiritual successor to <a href="https://github.com/wildstang/wildrank-android">WildRank Android</a>. It was developed to be a progressive web app supporting full offline functionality on most modern devices.', true)
     ]),
     build_column_frame('Get WildRank', [
         build_link_button('source', 'Source', `'https://github.com/WildStang/WildRank'`),
         build_link_button('demo', 'Web Demo', `'/'`),
-        build_link_button('android', 'Android', `'https://play.google.com/store/apps/details?id=net.fruzyna.wildrank.android'`),
-        build_link_button('ios', 'iOS', `'https://github.com/WildStang/WildRank-iOS-Server'`),
-    ]),
+        build_link_button('wildstang', 'WildStang', `'https://wildstang.org'`)    ]),
 ])
 
 /**
