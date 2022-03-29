@@ -159,14 +159,14 @@ function build_multi_button(id, name, option_names, onclicks, additional_classes
  * returns:     wr_select as a string
  * description: Builds the HTML string of a select object and its options.
  */
-function build_select(id, name, option_names, default_op, onclick='')
+function build_select(id, name, option_names, default_op, onclick='', vertical=false)
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
     for (let index in option_names)
     {
         let op_name = option_names[index]
-        options += `<span class="wr_select_option ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
+        options += `<span class="wr_select_option ${vertical ? 'vertical' : ''} ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
                 <label>${op_name}</label>
             </span>`
     }
