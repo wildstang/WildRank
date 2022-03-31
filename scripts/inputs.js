@@ -163,13 +163,35 @@ function build_select(id, name, option_names, default_op, onclick='', vertical=f
 {
     let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
     let options = ''
+    let columns = ['']
+    if (option_names.length > 3 && !vertical)
+    {
+        columns.push('')
+    }
     for (let index in option_names)
     {
         let op_name = option_names[index]
-        options += `<span class="wr_select_option ${vertical ? 'vertical' : ''} ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
+        let i = 0
+        if (option_names.length > 3 && !vertical)
+        {
+            i = index % 2
+        }
+        columns[i] += `<span class="wr_select_option ${vertical || option_names.length > 3 ? 'vertical' : ''} ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
                 <label>${op_name}</label>
             </span>`
     }
+    for (let col of columns)
+    {
+        if (option_names.length > 3 && !vertical)
+        {
+            options += `<span style="display: table-cell">${col}</span>`
+        }
+        else
+        {
+            options += col
+        }
+    }
+    options += '</span>'
     return `${label}<div class="wr_select" id="${id}">${options}</div>`
 }
 
