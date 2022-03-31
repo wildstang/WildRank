@@ -38,13 +38,6 @@
 					"default": 0,
 					"negative": false
 				}, {
-					"name": "Max Extended Height (in)",
-					"id": "pit_body_max_height_(in)",
-					"type": "number",
-					"options": [0, 66],
-					"default": 0,
-					"negative": false
-				}, {
 					"name": "Build Quality",
 					"id": "pit_body_build_quality",
 					"type": "slider",
@@ -66,8 +59,26 @@
 					"name": "Drivetrain",
 					"id": "pit_movement_drivetrain",
 					"type": "dropdown",
-					"options": ["Tank", "Mecanum", "Omni-Wheel", "H-drive", "Swerve", "Kiwi", "Butterfly", "WestCoast", "Other"],
+					"options": ["Tank", "Mecanum", "Swerve", "Other"],
 					"default": "Tank"
+				}, {
+					"name": "Number of Drive Motors (total)",
+					"id": "pit_movement_number_of_drive_motors_(total)",
+					"type": "number",
+					"options": [2, 20],
+					"default": 4,
+					"negative": false
+				}, {
+					"name": "Type of Drive Motor",
+					"id": "pit_movement_type_of_drive_motor",
+					"type": "dropdown",
+					"options": ["Falcon", "Neo", "CIM", "Other"],
+					"default": "Falcon"
+				}, {
+					"name": "Other Notes",
+					"id": "pit_movement_other_notes",
+					"type": "text",
+					"default": "N/A"
 				}]
 			}, {
 				"name": "Intake",
@@ -76,12 +87,6 @@
 				"inputs": [{
 					"name": "Floor Pickup",
 					"id": "pit_intake_floor_pickup",
-					"type": "checkbox",
-					"default": false,
-					"negative": false
-				}, {
-					"name": "Terminal",
-					"id": "pit_intake_terminal",
 					"type": "checkbox",
 					"default": false,
 					"negative": false
@@ -96,11 +101,17 @@
 				"id": "pit_shooter",
 				"cycle": false,
 				"inputs": [{
-					"name": "Shooter Type",
-					"id": "pit_shooter_type",
-					"type": "dropdown",
-					"options": ["None", "Flywheel", "Catapult", "Linear", "Other"],
-					"default": "None"
+					"name": "High Goal Capable",
+					"id": "pit_shooter_high_goal_capable",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
+					"name": "Low Goal Capable",
+					"id": "pit_shooter_low_goal_capable",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
 				}, {
 					"name": "Other Details",
 					"id": "pit_shooter_other",
@@ -137,8 +148,8 @@
 				}, {
 					"name": "Firing From",
 					"id": "match_auto_shooting_location",
-					"type": "dropdown",
-					"options": ["Fender", "Tarmac", "LaunchPad", "Terminal", "OpenField"],
+					"type": "select",
+					"options": ["Fender", "Tarmac", "LaunchPad", "OpenField"],
 					"default": "Tarmac"
 				}]
 			}, {
@@ -178,8 +189,8 @@
 				}, {
 					"name": "Firing From",
 					"id": "match_teleop_shooting_location",
-					"type": "dropdown",
-					"options": ["Fender", "Tarmac", "LaunchPad", "Terminal", "OpenField"],
+					"type": "select",
+					"options": ["Fender", "Tarmac", "LaunchPad", "OpenField"],
 					"default": "Tarmac"
 				}, {
 					"name": "Defended?",
@@ -195,7 +206,7 @@
 				"inputs": [{
 					"name": "Climb Level",
 					"id": "match_teleop_climb_level",
-					"type": "dropdown",
+					"type": "select",
 					"options": ["NoAttempt", "Failed", "Low", "Mid", "High", "Traversal"],
 					"default": "NoAttempt"
 				}, {
@@ -235,27 +246,5 @@
 				}]
 			}]
 		}]
-	}],
-	"2020": [{
-			"name": "Pit Scouting",
-			"id": "pit",
-			"pages": []
-		},
-		{
-			"name": "Match Scouting",
-			"id": "match",
-			"pages": []
-		}
-	],
-	"2019": [{
-			"name": "Pit Scouting",
-			"id": "pit",
-			"pages": []
-		},
-		{
-			"name": "Match Scouting",
-			"id": "match",
-			"pages": []
-		}
-	]
+	}]
 }
