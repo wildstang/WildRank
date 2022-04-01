@@ -23,6 +23,7 @@ function init_page()
     let file_name = get_event_teams_name(event_id)
     if (localStorage.getItem(file_name) != null)
     {
+        let firsts = []
         let events = {}
         let team_count = 0
         let teams = JSON.parse(localStorage.getItem(file_name))
@@ -36,6 +37,7 @@ function init_page()
                     return response.json()
                 })
                 .then(data => {
+                    let earliest = ''
                     for (let d of data)
                     {
                         let e = d.event_code
@@ -49,6 +51,16 @@ function init_page()
                             award: '',
                             label: ''
                         }
+                        if (earliest === '' || new Date(events[earliest].start) > new Date(d.start_date))
+                        {
+                            earliest = e
+                        }
+                    }
+
+                    // add team to list if the current event is their first
+                    if (event_id.endsWith(earliest))
+                    {
+                        firsts.push(team.key.substring(3))
                     }
 
                     // if all team events have been collected get event data
@@ -136,7 +148,9 @@ function init_page()
                                             else
                                             {
                                                 // add simple row for current event and update summary
-                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${event_id}</td><td>${event.start.replaceAll(`${year}-`, '')}</td><td>${keys.length}</td><td></td></tr>`
+                                                firsts.sort((a, b) => parseInt(a) - parseInt(b))
+                                                let teams = firsts.join(', ')
+                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${event_id}</td><td>${event.start.replaceAll(`${year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
                                                 document.getElementById('summary').innerHTML = `Of the ${keys.length} teams attending the ${event.name}...`
                                             }
                                         }
