@@ -572,7 +572,7 @@ function build_page_from_config()
                                 item = build_multi_counter(id, name, options, default_val)
                                 break
                             case 'select':
-                                item = build_select(id, name, options, default_val, input.vertical)
+                                item = build_select(id, name, options, default_val, '', input.vertical)
                                 break
                             case 'dropdown':
                                 item = build_dropdown(id, name, options, default_val)
