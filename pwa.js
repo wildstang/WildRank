@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-1.2.1'
+const CACHE_NAME = 'wildrank-1.2.2'
 const CACHE_LIST = [
     // html files
     '/',
@@ -105,9 +105,9 @@ self.addEventListener('fetch', e => {
         {
             if (URL.endsWith(file))
             {
-                console.log('updating', file, 'to', CACHE_NAME)
                 const CACHE = await caches.open(CACHE_NAME)
-                CACHE.put(e.request, RES.clone())
+                await CACHE.addAll(CACHE_LIST)
+                break
             }
         }
         return RES
