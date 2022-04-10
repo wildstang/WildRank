@@ -623,15 +623,6 @@ function export_table()
                     res = avg_results(results, key, type, method, meta[key].options)
                     base = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
                 }
-
-                if (typeof base === 'number' && !key.startsWith('meta'))
-                {            
-                    // add std dev if proper number
-                    if (method == 0 && type != 'select' && type != 'dropdown' && type != 'checkbox')
-                    {
-                        valStr += ` (${get_value(meta, key, avg_results(team_results, key, type, 5))})`
-                    }
-                }
                 row.push(valStr)
             }
             rows.push(row.join(','))
