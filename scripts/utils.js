@@ -930,6 +930,9 @@ function avg_results(results, key, type, sort_type, options=[])
                 // std dev
                 case 5:
                     return std_dev(values)
+                // combined mean, min, and max for pivot efficiency
+                case 6:
+                    return [mean(values), Math.min(... values), Math.max(... values)]
                 // mean
                 case 0:
                 default:
@@ -982,6 +985,9 @@ function avg_results(results, key, type, sort_type, options=[])
                 // std dev
                 case 5:
                     return std_dev(values)
+                // combined mean, min, and max for pivot efficiency
+                case 6:
+                    return [mean(values), Math.min(... values), Math.max(... values)]
                 // mean
                 case 0:
                 default:

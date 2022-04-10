@@ -395,6 +395,39 @@ function build_table(sort_by='', reverse=false)
     }
     table += '</tr>'
 
+    // get general data for highlighting
+    let data = {}
+    for (let key of selected)
+    {
+        let label = ''
+        if (key.includes('-'))
+        {
+            let parts = key.split('-')
+            key = parts[0]
+            label = parts[1]
+        }
+        let type = meta[key].type
+        if (type !== 'checkbox' && type !== 'select' && type !== 'dropdown')
+        {
+            let vals = avg_results(results, key, type, 6)
+            data[key] = {
+                'base': vals[0],
+                'min': vals[1],
+                'max': vals[2]
+            }
+        }
+        else
+        {
+            let vals = avg_results(results, key, type, method, meta[key].options)
+            // note 0 - 100 is an assumption that may not always be true
+            data[key] = {
+                'base': (100 * vals[label] / Object.values(vals).reduce((a, b) => a + b, 0)),
+                'min': 0,
+                'max': 100
+            }
+        }
+    }
+
     // data rows
     let index = 0
     for (let team of teams)
@@ -418,9 +451,7 @@ function build_table(sort_by='', reverse=false)
 
                 let val = avg_results(team_results, key, type, method)
                 let valStr = get_value(meta, key, val)
-                let base = avg_results(results, key, type, method)
-                let min = avg_results(results, key, type, 3)
-                let max = avg_results(results, key, type, 4)
+                
                 // build a value string of percents for discrete inputs
                 if (type == 'checkbox' || type == 'select' || type == 'dropdown')
                 {
@@ -428,30 +459,27 @@ function build_table(sort_by='', reverse=false)
                     val = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
                     valStr = val.toFixed(1) + '%'
 
-                    res = avg_results(results, key, type, method, meta[key].options)
-                    base = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
-
-                    // TODO use real min and max?
-                    min = 0
-                    max = 100
-
                     let idx = meta[key].options[label]
-                    negative = negative[idx]
+                    if (Array.isArray(negative))
+                    {
+                        negative = negative[idx]
+                    }
                 }
 
-                if (typeof base === 'number' && !key.startsWith('meta'))
+                if (!key.startsWith('meta'))
                 {
-                    if (val != base)
+                    let d = data[key]
+                    if (val != d.base)
                     {
                         let colors = [0,0,0]
     
-                        if (val > base)
+                        if (val > d.base)
                         {
-                            colors = [0, 256, 0, (val - base) / (max - base) / 2]
+                            colors = [0, 256, 0, (val - d.base) / (d.max - d.base) / 2]
                         }
-                        else if (val < base)
+                        else if (val < d.base)
                         {
-                            colors = [256, 0, 0, (base - val) / (base - min) / 2]
+                            colors = [256, 0, 0, (d.base - val) / (d.base - d.min) / 2]
                         }
 
                         if (negative === true ? label !== 'false' : label === 'false')
@@ -460,7 +488,10 @@ function build_table(sort_by='', reverse=false)
                         }
                         color = `style="background-color: rgba(${colors.join(',')}`
                     }
+                }
             
+                if (typeof val === 'number' && !key.startsWith('meta'))
+                {
                     // add std dev if proper number
                     if (method == 0 && type != 'select' && type != 'dropdown' && type != 'checkbox')
                     {
