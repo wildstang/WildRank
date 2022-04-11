@@ -47,7 +47,7 @@ function init_page(contents_card, buttons_container)
         }
     
         // load keys from localStorage and build list
-        let first = populate_keys(meta, results, teams, false)
+        let first = populate_keys(meta, results, teams, true)
         if (first)
         {
             open_option(first)
