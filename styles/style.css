@@ -68,3 +68,9 @@ th, td {
 tr:nth-child(even) {
     background-color: var(--alt-table-color);
 }
+
+.sticky_header {
+    background-color: var(--foreground-color);
+    position: sticky;
+    top: 0;
+}

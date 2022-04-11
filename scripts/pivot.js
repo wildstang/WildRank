@@ -30,7 +30,7 @@ var selected_keys = []
  */
 function init_page(contents_card, buttons_container)
 {
-    contents_card.innerHTML = '<table id="results_tab"></table>'
+    contents_card.innerHTML = '<table id="results_tab" style="position: relative"></table>'
     buttons_container.innerHTML = build_column_frame('', [build_select('type_form', '', SORT_OPTIONS, 'Mean', 'build_table()')]) +
                                     build_column_frame('', [build_link_button('save_list', 'Save to Pick List', 'save_pick_list()')]) +
                                     build_column_frame('', [build_button('export_table', 'Export Table', 'export_table()')]) +
@@ -347,7 +347,7 @@ function build_table(sort_by='', reverse=false)
     }
 
     // header row
-    let table = `<tr><th></th><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
+    let table = `<tr class="sticky_header"><th></th><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
     let totals_row = '<tr><th></th><th>Totals</th>'
     let data = {}
     for (let key of selected)
