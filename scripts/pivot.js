@@ -11,6 +11,7 @@ const KEYS_KEY = 'pivot-keys'
 
 var teams = []
 var all_teams = []
+var team_names = {}
 var lists = {}
 var results = {}
 var meta = {}
@@ -42,9 +43,15 @@ function init_page(contents_card, buttons_container)
     if (localStorage.getItem(file_name) != null)
     {
         results = get_results(prefix, year)
+        let team_data = JSON.parse(localStorage.getItem(file_name))
         
-        all_teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
+        all_teams = team_data.map(team => team.team_number)
                     .filter(team => Object.keys(get_team_results(results, team)).length > 0)
+
+        for (let team of team_data)
+        {
+            team_names[team.team_number] = team.nickname
+        }
         
         file_name = get_event_pick_lists_name(event_id)
         if (file_exists(file_name))
@@ -409,7 +416,7 @@ function build_table(sort_by='', reverse=false)
         let team_results = get_team_results(results, team)
         if (Object.keys(team_results).length > 0)
         {
-            table += `<th>${++index}</th><th>${team}</th>`
+            table += `<th>${++index}</th><th>${team}<br>${team_names[team]}</th>`
             for (let key of selected)
             {
                 let label = ''
