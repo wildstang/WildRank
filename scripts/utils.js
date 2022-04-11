@@ -856,7 +856,7 @@ function add_given_smart_stats(result, stats)
  * returns:     average of all results
  * description: Average all the results for a given column.
  */
-function avg_results(results, key, type, sort_type, options=[])
+function avg_results(results, key, type, sort_type, options=[], min_max=false)
 {
     let values = []
     let keys = Object.keys(results)
@@ -913,31 +913,12 @@ function avg_results(results, key, type, sort_type, options=[])
 
         if (values.length > 0)
         {
-            switch (sort_type)
+            let avg = avg_values(values, sort_type)
+            if (min_max)
             {
-                // median
-                case 1:
-                    return median(values)
-                // mode
-                case 2:
-                    return mode(values)
-                // min
-                case 3:
-                    return Math.min(... values)
-                // max
-                case 4:
-                    return Math.max(... values)
-                // std dev
-                case 5:
-                    return std_dev(values)
-                // combined mean, min, and max for pivot efficiency
-                case 6:
-                    return [mean(values), Math.min(... values), Math.max(... values)]
-                // mean
-                case 0:
-                default:
-                    return mean(values)
+                avg = [avg, avg_values(values, 3), avg_values(values, 4)]
             }
+            return avg
         }
     }
 
@@ -968,31 +949,44 @@ function avg_results(results, key, type, sort_type, options=[])
         case 'multicounter':
         case 'number':
         default:
-            switch (sort_type)
+            let avg = avg_values(values, sort_type)
+            if (min_max)
             {
-                // median
-                case 1:
-                    return median(values)
-                // mode
-                case 2:
-                    return mode(values)
-                // min
-                case 3:
-                    return Math.min(... values)
-                // max
-                case 4:
-                    return Math.max(... values)
-                // std dev
-                case 5:
-                    return std_dev(values)
-                // combined mean, min, and max for pivot efficiency
-                case 6:
-                    return [mean(values), Math.min(... values), Math.max(... values)]
-                // mean
-                case 0:
-                default:
-                    return mean(values)
+                avg = [avg, avg_values(values, 3), avg_values(values, 4)]
             }
+            return avg
+    }
+}
+
+/**
+ * function:    avg_values
+ * parameters:  list of values, type of ordering
+ * returns:     average of all provided values
+ * description: Average all the given values.
+ */
+function avg_values(values, sort_type)
+{
+    switch (sort_type)
+    {
+        // median
+        case 1:
+            return median(values)
+        // mode
+        case 2:
+            return mode(values)
+        // min
+        case 3:
+            return Math.min(... values)
+        // max
+        case 4:
+            return Math.max(... values)
+        // std dev
+        case 5:
+            return std_dev(values)
+        // mean
+        case 0:
+        default:
+            return mean(values)
     }
 }
 

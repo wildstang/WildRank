@@ -341,13 +341,19 @@ function build_table(sort_by='', reverse=false)
 
     // header row
     let table = `<tr><th></th><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
+    let totals_row = '<tr><th></th><th>Totals</th>'
+    let data = {}
     for (let key of selected)
     {
         let name = ''
+        let pkey = key
+        let raw_label = ''
         if (key.includes('-'))
         {
             let parts = key.split('-')
-            let label = parts[1]
+            pkey = parts[0]
+            raw_label = parts[1]
+            let label = raw_label
             // handle boolean labels
             if (label === 'false')
             {
@@ -357,7 +363,7 @@ function build_table(sort_by='', reverse=false)
             {
                 label = ''
             }
-            name = `${meta[parts[0]].name} ${label}`
+            name = `${meta[pkey].name} ${label}`
         }
         else
         {
@@ -365,68 +371,36 @@ function build_table(sort_by='', reverse=false)
         }
         let rev = raw_sort == key ? !reverse : false
         table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('${key}', ${rev})" ${raw_sort != key ? 'style="font-weight: normal"' : ''}>${name}</th>`
-    }
-    table += '</tr>'
-
-    // totals row
-    table += '<tr><th></th><th>Totals</th>'
-    for (let key of selected)
-    {
-        let label = ''
-        if (key.includes('-'))
-        {
-            let parts = key.split('-')
-            key = parts[0]
-            label = parts[1]
-        }
+        
         let valStr = ''
-        let type = meta[key].type
+        let type = meta[pkey].type
+
+        // build general data for highlighting
         // build a value string of percents for discrete inputs
         if (type == 'checkbox' || type == 'select' || type == 'dropdown')
         {
-            let res = avg_results(results, key, meta[key].type, method, meta[key].options)
-            valStr = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0)).toFixed(1) + '%'
+            let vals = avg_results(results, pkey, type, method, meta[pkey].options)
+            // note 0 - 100 is an assumption that may not always be true
+            data[pkey] = {
+                'base': (100 * vals[raw_label] / Object.values(vals).reduce((a, b) => a + b, 0)),
+                'min': 0,
+                'max': 100
+            }
+            valStr = data[pkey].base.toFixed(1) + '%'
         }
         else
         {
-            valStr = get_value(meta, key, avg_results(results, key, meta[key].type, method))
-        }
-        table += `<td>${valStr}</td>`
-    }
-    table += '</tr>'
-
-    // get general data for highlighting
-    let data = {}
-    for (let key of selected)
-    {
-        let label = ''
-        if (key.includes('-'))
-        {
-            let parts = key.split('-')
-            key = parts[0]
-            label = parts[1]
-        }
-        let type = meta[key].type
-        if (type !== 'checkbox' && type !== 'select' && type !== 'dropdown')
-        {
-            let vals = avg_results(results, key, type, 6)
+            let vals = avg_results(results, key, type, method, [], true)
             data[key] = {
                 'base': vals[0],
                 'min': vals[1],
                 'max': vals[2]
             }
+            valStr = get_value(meta, key, data[key].base)
         }
-        else
-        {
-            let vals = avg_results(results, key, type, method, meta[key].options)
-            // note 0 - 100 is an assumption that may not always be true
-            data[key] = {
-                'base': (100 * vals[label] / Object.values(vals).reduce((a, b) => a + b, 0)),
-                'min': 0,
-                'max': 100
-            }
-        }
+        totals_row += `<td>${valStr}</td>`
     }
+    table += `</tr>${totals_row}</tr>`
 
     // data rows
     let index = 0
