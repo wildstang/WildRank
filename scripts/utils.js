@@ -875,15 +875,28 @@ function avg_results(results, key, type, sort_type, options=[], min_max=false)
     {
         let stat = matches[0]
         let values = []
+        let raw_values = []
         if (stat.type == 'where' && typeof stat.denominator !== 'undefined')
         {
             let cycles = Object.values(results).map(result => result[stat.cycle])
     
+            // store off separated data set for min/max
+            if (min_max)
+            {
+                for (let cycle of cycles)
+                {
+                    let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
+                    result[stat.cycle] = cycle
+                    raw_values.push(add_given_smart_stats(result, [stat])[key])
+                }
+            }
+
+            // reduce to one array when averaging
             if (sort_type == 0)
             {
                 cycles = [cycles.flat()]
             }
-
+            
             for (let cycle of cycles)
             {
                 let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
@@ -896,6 +909,19 @@ function avg_results(results, key, type, sort_type, options=[], min_max=false)
             let numerators = Object.values(results).map(result => result[stat.numerator])
             let denominators = Object.values(results).map(result => result[stat.denominator])
     
+            // store off separated data set for min/max
+            if (min_max)
+            {
+                for (let i in numerators)
+                {
+                    let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
+                    result[stat.numerator] = numerators[i]
+                    result[stat.denominator] = denominators[i]
+                    raw_values.push(add_given_smart_stats(result, [stat])[key])
+                }
+            }
+    
+            // reduce to one array when averaging
             if (sort_type == 0)
             {
                 numerators = [numerators.reduce((partialSum, a) => partialSum + a, 0)]
@@ -911,7 +937,17 @@ function avg_results(results, key, type, sort_type, options=[], min_max=false)
             }
         }
 
-        if (values.length > 0)
+        // special case to better min/max when going over a single large set
+        if (values.length == 1)
+        {
+            let avg = values[0]
+            if (min_max)
+            {
+                avg = [avg, avg_values(raw_values, 3), avg_values(raw_values, 4)]
+            }
+            return avg
+        }
+        else if (values.length > 0)
         {
             let avg = avg_values(values, sort_type)
             if (min_max)
