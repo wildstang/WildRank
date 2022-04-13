@@ -6,7 +6,7 @@
  * date:        2021-10-17
  */
 
-const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
+const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 
 var teams = []
 var results = {}

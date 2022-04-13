@@ -6,7 +6,7 @@
  * date:        2021-09-03
  */
 
-const FUNCTIONS = ['mean', 'median', 'mode', 'min', 'max']
+const FUNCTIONS = ['mean', 'median', 'mode', 'min', 'max', 'total']
 
 var vals = [] 
 var results = {}

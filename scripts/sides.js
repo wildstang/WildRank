@@ -6,7 +6,7 @@
  * date:        2020-05-24
  */
 
-const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
+const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 
 var meta = {}
 var keys = {}
@@ -101,7 +101,7 @@ function collect_results()
             let type = meta[key].type
 
             teams[team][key] = avg_results(team_results, key, type, get_selected_option('type_form'), meta[key].options)
-            stddevs[team][key] = avg_results(team_results, key, type, 5)
+            stddevs[team][key] = avg_results(team_results, key, type, 6)
         }
     }
 

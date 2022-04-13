@@ -6,7 +6,7 @@
  * date:        2021-04-20
  */
 
-const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
+const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 const KEYS_KEY = 'pivot-keys'
 
 var teams = []
@@ -476,7 +476,7 @@ function build_table(sort_by='', reverse=false)
                     // add std dev if proper number
                     if (method == 0 && type != 'select' && type != 'dropdown' && type != 'checkbox')
                     {
-                        valStr += ` (${get_value(meta, key, avg_results(team_results, key, type, 5))})`
+                        valStr += ` (${get_value(meta, key, avg_results(team_results, key, type, 6))})`
                     }
                 }
                 table += `<td class="result_cell" ${color})">${valStr}</td>`

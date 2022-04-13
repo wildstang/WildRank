@@ -7,7 +7,6 @@
  *              2021-11-19
  */
 
-const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
 const STAT_TYPES = ['Sum', 'Percent', 'Ratio', 'Where']
 
 var results = {}

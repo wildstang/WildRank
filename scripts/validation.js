@@ -132,7 +132,7 @@ function validate_coach_config(config, year)
                 console.log('missing key')
                 return false
             }
-            if (!is_in(obj.function, ['mean', 'median', 'mode', 'min', 'max']))
+            if (!is_in(obj.function, ['mean', 'median', 'mode', 'min', 'max', 'total']))
             {
                 console.log('invalid function', obj.function)
                 return false

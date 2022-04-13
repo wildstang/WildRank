@@ -205,7 +205,7 @@ function make_cell(results, entry, base)
         // add std dev if proper number
         if (type != 'select' && type != 'dropdown')
         {
-            valStr += ` (${get_value(meta, entry, avg_results(results, entry, type, 5))})`
+            valStr += ` (${get_value(meta, entry, avg_results(results, entry, type, 6))})`
         }
     }
     

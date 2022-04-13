@@ -903,6 +903,11 @@ function avg_results(results, key, type, sort_type, options=[], min_max=false)
                 result[stat.cycle] = cycle
                 values.push(add_given_smart_stats(result, [stat])[key])
             }
+
+            if (sort_type == 5)
+            {
+                sort_type = 0
+            }
         }
         else if (stat.type == 'percent')
         {
@@ -934,6 +939,11 @@ function avg_results(results, key, type, sort_type, options=[], min_max=false)
                 result[stat.numerator] = numerators[i]
                 result[stat.denominator] = denominators[i]
                 values.push(add_given_smart_stats(result, [stat])[key])
+            }
+
+            if (sort_type == 5)
+            {
+                sort_type = 0
             }
         }
 
@@ -1016,8 +1026,11 @@ function avg_values(values, sort_type)
         // max
         case 4:
             return Math.max(... values)
-        // std dev
+        // total
         case 5:
+            return values.reduce((a, b) => a + b, 0)
+        // std dev
+        case 6:
             return std_dev(values)
         // mean
         case 0:

@@ -6,7 +6,7 @@
  *              2022-01-20
  */
 
-const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max']
+const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
