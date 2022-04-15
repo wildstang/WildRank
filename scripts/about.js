@@ -55,22 +55,21 @@ function init_page()
         // add git commit and link
         if (req.responseText.includes('Git:'))
         {
-            let git = /Git: <a href=".*">(.*)<\/a>/g.exec(req.responseText)
+            let git = /Git: <a href=".*">(.*)<\/a><br>/g.exec(req.responseText)
             if (git !== null && git.length > 0)
             {
                 git = git[0]
-                console.log('git', git)
                 document.getElementById('version').innerHTML = git.substring(0, git.length - 36) + '</a>'
             }
         }
         // add pwa version and link
         if (req.responseText.includes('Release:'))
         {
-            let release = /Release: (.*)<\/body>/g.exec(req.responseText)
+            let release = /Release: ([^<]*)<br>/g.exec(req.responseText)
             if (release !== null && release.length > 0)
             {
                 release = release[0]
-                document.getElementById('release').innerHTML = release.substring(0, release.length - 7)
+                document.getElementById('release').innerHTML = release.substring(0, release.length)
             }
         }
     }

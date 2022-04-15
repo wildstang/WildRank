@@ -1,8 +1,10 @@
-import socketserver, http.server, logging, base64, zipfile, re, json
+import socketserver, http.server, logging, base64, zipfile, re, json, os
 from os import listdir, environ, mkdir, rename, remove
 from os.path import isfile, join, exists
 from shutil import copyfile
 from base64 import b64decode
+from datetime import datetime as dt
+from os import path
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
@@ -57,17 +59,40 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
                     url = '{0}/commit/{1}'.format(words[-1].replace(':', '/'), words[0])
                     if not url.startswith('http'):
                         url = 'https://{}'.format(url)
-                    git = '<br><br>Git: <a href="{0}">{1}</a>'.format(url, words[0])
+                    git = f'Git: <a href="{url}">{words[0]}</a><br>'
             if exists('pwa.js'):
                 with open('pwa.js', 'r') as f:
                     script = f.read()
                     try:
                         release = re.search('const CACHE_NAME = \'wildrank-(.+?)\'', script).group(1)
-                        release = f"<br><br>Release: {release}"
+                        release = f'Release: {release}<br>'
                     except AttributeError:
                         pass
             
-            self.wfile.write(str.encode('<!DOCTYPE html><html lang="en"><html><head><meta charset="utf-8"/><title>WildRank</title></head><body><h1>WildRank</h1>post-server.py Python3 POST server<br>2022 WildStang Robotics<br><a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a>{}{}</body></html>'.format(git, release)))
+            about_str = f'<!DOCTYPE html>\
+                        <html lang="en">\
+                            <head>\
+                                <meta charset="utf-8"/>\
+                                <title>WildRank</title>\
+                            </head>\
+                            <body>\
+                                <h1>WildRank</h1>\
+                                post-server.py Python3 POST server<br>\
+                                2020-{dt.now().year} <a href="https://wildstang.org">WildStang Robotics Program</a><br>\
+                                <a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a><br>\
+                                <br>\
+                                Server Created: {dt.fromtimestamp(create).strftime("%Y-%m-%d %H:%M:%S")}<br>\
+                                Up Since: {start.strftime("%Y-%m-%d %H:%M:%S")}<br>\
+                                Internal Port: {PORT}<br>\
+                                {git}\
+                                {release}\
+                                <br>\
+                                Contributors:<br>\
+                                Liam Fruzyna (<a href="https://thebluealliance.com/team/111">111</a>, <a href="https://thebluealliance.com/team/112">112</a>)<br>\
+                            </body>\
+                        </html>'
+
+            self.wfile.write(str.encode(about_str))
 
         elif self.path.startswith('/scripts/keys.js') and TBA_KEY is not None:
             self.send_response(200)
@@ -136,6 +161,12 @@ for f in listdir('assets'):
     cFile = join('config', f)
     if not isfile(cFile):
         copyfile(aFile, cFile)
+
+start = dt.now()
+try:
+    create = os.path.getmtime('python/post-server.py')
+except:
+    create = 'Unknown'
 
 # start HTTP server
 Handler = ServerHandler
