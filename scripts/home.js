@@ -41,7 +41,7 @@ const CONFIGS = {
     },
     'admin': {
         'Admin': ['open_config', 'open_settings', 'open_event_gen', 'open_random'],
-        'Transfer': ['reset']
+        'Reset': ['reset', 'reset_storage', 'reset_results', 'clear_events']
     }
 }
 
@@ -70,6 +70,9 @@ const BUTTONS = {
     'open_progress':    { name: 'Scouting Progress', limits: ['teams', 'admin'], configs: [] },
     'open_events':      { name: 'Other Events',      limits: ['teams', 'admin'], configs: [] },
     'reset':            { name: 'Reset App',         limits: ['admin'], configs: [] },
+    'reset_storage':    { name: 'Reset Storage',     limits: ['admin'], configs: [] },
+    'reset_results':    { name: 'Reset Results',     limits: ['admin'], configs: [] },
+    'clear_events':     { name: 'Clear Other Events',limits: ['admin'], configs: [] },
     'open_event_gen':   { name: 'Event Generator',   limits: ['admin'], configs: [] },
     'open_random':      { name: 'Random Result Generator',  limits: ['event-pit', 'admin'], configs: ['type', 'settings'] },
     'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] }

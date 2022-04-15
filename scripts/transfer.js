@@ -202,6 +202,60 @@ function reset()
 }
 
 /**
+ * function:    reset_storage
+ * parameters:  none
+ * returns:     none
+ * description: Reset local storage.
+ */
+function reset_storage()
+{
+    if (confirm('Delete all configuration and results?'))
+    {
+        // clear storage
+        localStorage.clear()
+    }
+}
+
+/**
+ * function:    reset_results
+ * parameters:  none
+ * returns:     none
+ * description: Reset results in local storage.
+ */
+function reset_results()
+{
+    if (confirm('Delete all results?'))
+    {
+        // remove all match and pit results
+        let files = Object.keys(localStorage).filter(f => f.startsWith(`match-`) || f.startsWith(`pit-`))
+        for (let file of files)
+        {
+            localStorage.removeItem(file)
+        }
+    }
+}
+
+/**
+ * function:    clear_events
+ * parameters:  none
+ * returns:     none
+ * description: Clear other events from local storage.
+ */
+function clear_events()
+{
+    if (confirm('Delete all configuration and results for other events?'))
+    {
+        // remove all files containing uother event ids
+        let event_id = get_event()
+        let files = Object.keys(localStorage).filter(f => !f.includes(event_id))
+        for (let file of files)
+        {
+            localStorage.removeItem(file)
+        }
+    }
+}
+
+/**
  * HELPER FUNCTIONS
  */
 
