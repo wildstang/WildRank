@@ -91,6 +91,12 @@
 					"default": false,
 					"negative": false
 				}, {
+					"name": "Color Sorting?",
+					"id": "pit_intake_color_sorting",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
 					"name": "Other Details",
 					"id": "pit_intake_other",
 					"type": "text",
@@ -109,6 +115,24 @@
 				}, {
 					"name": "Low Goal Capable",
 					"id": "pit_shooter_low_goal_capable",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
+					"name": "Fender Shot",
+					"id": "pit_shooter_fender_shot",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
+					"name": "Tarmac Shot",
+					"id": "pit_shooter_tarmac_shot",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
+					"name": "LaunchPad Shot",
+					"id": "pit_shooter_launchpad_shot",
 					"type": "checkbox",
 					"default": false,
 					"negative": false
@@ -132,6 +156,12 @@
 				"id": "match_auto_shooting",
 				"cycle": true,
 				"inputs": [{
+					"name": "Starting Location",
+					"id": "match_auto_shooting_starting_location",
+					"type": "select",
+					"options": ["5Ball", "1Ball", "2Ball"],
+					"default": "5Ball"
+				}, {
 					"name": "High Hub",
 					"id": "match_auto_shooting_high_hub",
 					"type": "multicounter",
@@ -212,6 +242,12 @@
 				}, {
 					"name": "Played Defense?",
 					"id": "match_teleop_other_played_defense",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
+					"name": "Slowed by Defense?",
+					"id": "match_teleop_other_slowed_by_defense",
 					"type": "checkbox",
 					"default": false,
 					"negative": false
