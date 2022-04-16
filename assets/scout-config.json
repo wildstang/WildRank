@@ -107,6 +107,12 @@
 				"id": "pit_shooter",
 				"cycle": false,
 				"inputs": [{
+					"name": "Turret?",
+					"id": "pit_shooter_turret",
+					"type": "checkbox",
+					"default": false,
+					"negative": false
+				}, {
 					"name": "High Goal Capable",
 					"id": "pit_shooter_high_goal_capable",
 					"type": "checkbox",
