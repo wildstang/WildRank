@@ -209,7 +209,7 @@ function create_element()
     if (page.value == 'New')
     {
         let parent = config[mode].id
-        input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_')}`
+        input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_').replaceAll(/\W+/g, '')}`
         input.short = document.getElementById('new-element-short').value
         input.columns = []
         config[mode].pages.push(input)
@@ -219,7 +219,7 @@ function create_element()
         if (column.value == 'New')
         {
             let parent = config[mode].pages[page.selectedIndex].id
-            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_')}`
+            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_').replaceAll(/\W+/g, '')}`
             input.cycle = document.getElementById('new-element-cycle').checked
             input.inputs = []
             config[mode].pages[page.selectedIndex].columns.push(input)
@@ -227,7 +227,7 @@ function create_element()
         else
         {
             let parent = config[mode].pages[page.selectedIndex].columns[column.selectedIndex].id
-            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_')}`
+            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_').replaceAll(/\W+/g, '')}`
             input.type = type.toLowerCase()
             let ops = []
             switch (type)
