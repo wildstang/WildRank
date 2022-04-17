@@ -11,6 +11,28 @@ const prefix = `${type}-${event_id}-`
 const year = event_id.substr(0,4)
 
 /**
+ * function:    check_teams
+ * parameters:  desired list of teams, teams to check
+ * returns:     if there is a matching team
+ * description: Returns true if any team of match_teams is in teams.
+ */
+function check_teams(teams, match_teams)
+{
+    for (let team of match_teams)
+    {
+        if (typeof team === 'string' && team.startsWith('frc'))
+        {
+            team = team.substring(3)
+        }
+        if (teams.includes(team))
+        {
+            return true
+        }
+    }
+    return false
+}
+
+/**
  * function:    populate_matches
  * parameters:  if finals matches should be used, if matches should be marked as completed
  * returns:     default selection
@@ -18,10 +40,19 @@ const year = event_id.substr(0,4)
  * 
  * Pages: Match/Note Scout, Whiteboard, Match Summaries, Coach View
  */
-function populate_matches(finals=true, complete=true, team_filter='')
+function populate_matches(finals=true, complete=true, team_filter='', secondary=false)
 {
-    document.getElementById('option_list').innerHTML = ''
-    team_filter = `frc${team_filter}`
+    let list = 'option_list'
+    if (secondary)
+    {
+        enable_secondary_list()
+        list = 'secondary_option_list'
+    }
+    document.getElementById(list).innerHTML = ''
+    if (!Array.isArray(team_filter))
+    {
+        team_filter = `frc${team_filter}`
+    }
     
     let file_name = get_event_matches_name(event_id)
     if (localStorage.getItem(file_name) != null)
@@ -41,8 +72,9 @@ function populate_matches(finals=true, complete=true, team_filter='')
             let number = match.match_number
             let red_teams = match.alliances.red.team_keys
             let blue_teams = match.alliances.blue.team_keys
-            
-            if ((match.comp_level == 'qm' || finals) && (team_filter == 'frc' || red_teams.includes(team_filter) || blue_teams.includes(team_filter)))
+            if ((match.comp_level == 'qm' || finals) &&
+                (Array.isArray(team_filter) || (team_filter == 'frc' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
+                (!Array.isArray(team_filter) || (team_filter.length == 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
             {
                 // grey out previously scouted matches/teams
                 let scouted = 'not_scouted'
@@ -65,17 +97,20 @@ function populate_matches(finals=true, complete=true, team_filter='')
                     first_avail = number
                 }
     
-                document.getElementById('option_list').innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
+                document.getElementById(list).innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
             }
         }
         // default to first match if no first was selected
-        if (first == '')
+        if (first === '' && first_avail !== '')
+        {
+            first = first_avail
+        }
+        else if (first == '')
         {
             first = matches[0].match_number
         }
         
-        //open_match(first)
-        scroll_to('option_list', `match_${first}`)
+        scroll_to(list, `match_${first}`)
         return first
     }
     else

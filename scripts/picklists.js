@@ -102,6 +102,7 @@ function build_pick_lists(list_name='')
     // build selected list
     if (Object.keys(lists).length > 0)
     {
+        let match_filter = []
         let file_name = get_event_teams_name(event_id)
         let names = {}
         if (localStorage.getItem(file_name) != null)
@@ -121,9 +122,16 @@ function build_pick_lists(list_name='')
             {
                 classes = 'crossed_out'
             }
+            else
+            {
+                match_filter.push(team)
+            }
             // add team button
             column_items.push(build_multi_button(team, '', [`${team} ${names[team]}`, '✗'], [`add_to('${list_name}', '${team}')`, `cross_out('${list_name}', '${team}')`], classes, [`remove_team('${list_name}', '${team}')`]))
         }
+
+        // add secondary list for picklist matches
+        populate_matches(false, true, match_filter, true)
     }
 
     // build page
