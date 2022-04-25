@@ -105,12 +105,15 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
         {
             first = first_avail
         }
-        else if (first == '')
+        else if (first == '' && matches.length > 0)
         {
             first = matches[0].match_number
         }
         
-        scroll_to(list, `match_${first}`)
+        if (first !== '')
+        {
+            scroll_to(list, `match_${first}`)
+        }
         return first
     }
     else
@@ -174,21 +177,24 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
             setup_picklists()
         }
 
-        if (first == '')
+        if (first == '' && teams.length > 0)
         {
             first = teams[0].team_number
         }
-        if (second == '')
+        if (second == '' && teams.length > 1)
         {
             second = teams[1].team_number
         }
 
-        scroll_to('option_list', `option_${first}`)
-        if (secondary)
+        if (first !== '')
         {
-            enable_secondary_list()
-            scroll_to('secondary_option_list', `soption_${first}`)
-            return [first, second]
+            scroll_to('option_list', `option_${first}`)
+            if (secondary && second !== '')
+            {
+                enable_secondary_list()
+                scroll_to('secondary_option_list', `soption_${first}`)
+                return [first, second]
+            }
         }
 
         return first
