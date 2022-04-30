@@ -208,25 +208,20 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
 
 /**
  * function:    populate_keys
- * parameters:  result metadata, results, teams, include discrete keys
+ * parameters:  data abstraction layer
  * returns:     default selection
  * description: Populates the left options list with keys and the right with teams.
  * 
  * Pages: Pivot Table, Distributions
  */
-function populate_keys(meta, results, teams, use_discrete=true)
+function populate_keys(dal)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    if (Object.keys(results).length > 0)
+    let keys = dal.get_keys()
+    if (keys.length > 0)
     {
-        let keys = get_keys(meta).filter(function (key)
-        {
-            let type = meta[key].type
-            return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text' && (use_discrete || (type != 'checkbox' && type != 'dropdown' && type != 'select'))
-        })
-        
         // add pick list selector at top
         let ops = Object.keys(lists)
         ops.unshift('None')
@@ -234,10 +229,11 @@ function populate_keys(meta, results, teams, use_discrete=true)
         // iterate through result keys
         for (let key of keys)
         {
-            document.getElementById('option_list').innerHTML += build_option(key, '', meta[key].name, 'font-size:10px')
+            document.getElementById('option_list').innerHTML += build_option(key, '', dal.meta[key].name, 'font-size:10px')
         }
         
         // add second option list of teams
+        let teams = Object.keys(dal.teams)
         for (let team of teams)
         {
             document.getElementById('secondary_option_list').innerHTML += build_option(team, '', '', '', false)

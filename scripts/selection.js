@@ -19,6 +19,8 @@ script = document.createElement('script')
 script.src = `scripts/${page}.js`
 document.head.appendChild(script)
 
+var dal
+
 // respond to keyboard inputs
 document.onkeydown = function(e)
 {
@@ -213,6 +215,10 @@ window.addEventListener('load', function()
     else if (iPad) {
         document.body.style.height = "97%"
     }
+    
+    // load in data
+    dal = new DAL(event_id)
+    dal.build_teams()
 
     init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'))
 })

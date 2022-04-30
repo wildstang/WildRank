@@ -16,8 +16,14 @@ if (!page)
 }
 document.head.appendChild(script)
 
+var dal
+
 window.addEventListener('load', function()
 {
+    // load in data
+    dal = new DAL(event_id)
+    dal.build_teams()
+
     init_page()
 })
 
