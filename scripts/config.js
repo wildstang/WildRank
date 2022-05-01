@@ -11,7 +11,7 @@
  * returns:     none
  * description: Fetch the configuration and saves to local storage.
  */
-function fetch_config(onConfig, force=false)
+function fetch_config(onConfig, year='', force=false)
 {
     let init = {}
 
@@ -27,28 +27,8 @@ function fetch_config(onConfig, force=false)
         }
     }
 
-    // fetch scouting modes config
-    fetch('config/scout-config.json', init)
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            let years = Object.keys(data)
-            for (let i = 0; i < years.length; ++i)
-            {
-                let modes = Object.values(data)[i]
-                for (let mode of modes)
-                {
-                    localStorage.setItem(`config-${years[i]}-${mode.id}`, JSON.stringify(mode))
-                }
-            }
-        })
-        .catch(err => {
-            console.log(`Error config file, ${err}`)
-        })
-
     // fetch general config
-    fetch('config/config.json', init)
+    fetch('config/settings-config.json', init)
         .then(response => {
             return response.json()
         })
@@ -58,10 +38,32 @@ function fetch_config(onConfig, force=false)
             {
                 localStorage.setItem(`config-${section}`, JSON.stringify(data[section]))
             }
-            if (typeof onConfig === 'function')
+
+            // get year from defaults if no previous config
+            if (year === '')
             {
-                onConfig()
+                year = data.defaults.event_id.substr(0, 4)
             }
+
+            // fetch scouting modes config
+            fetch(`config/${year}-config.json`, init)
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+                    let keys = Object.keys(data)
+                    for (let section of keys)
+                    {
+                        localStorage.setItem(`config-${year}-${section}`, JSON.stringify(data[section]))
+                    }
+                    if (typeof onConfig === 'function')
+                    {
+                        onConfig()
+                    }
+                })
+                .catch(err => {
+                    console.log(`Error config file, ${err}`)
+                })
         })
         .catch(err => {
             console.log(`Error config file, ${err}`)
@@ -117,123 +119,6 @@ function get_wb_config(year)
             return wbs[i]
         }
     }
-}
-
-/**
- * function:    get_result_meta
- * parameters:  scouting mode, year
- * returns:     key, metadata pairs
- * description: Builds an object of scouting result keys and their metadata.
- */
-function get_result_meta(mode, year)
-{
-    let results = {}
-    // go over each input in config
-    let config = get_scout_config(mode, year)
-    if (config != null)
-    {
-        for (let page of config.pages)
-        {
-            for (let column of page.columns)
-            {
-                // add the cycle column as an input
-                let cycle = column.cycle
-                if (cycle)
-                {
-                    results[column.id] = {
-                        name: column.name,
-                        type: 'cycle',
-                        negative: false,
-                        options: [],
-                        options_index: [],
-                        cycle: cycle
-                    }
-                    cycle = column.id
-                }
-                for (let input of column.inputs)
-                {
-                    let id = input.id
-                    let name = input.name
-                    let type = input.type
-                    let ops = input.options
-                    let neg = input.negative
-
-                    // make sure no values are missing / empty
-                    if (typeof neg === 'undefined')
-                    {
-                        if (type == 'select' || type == 'dropdown' || type == 'multicounter')
-                        {
-                            neg = new Array(ops.length).fill(false)
-                        }
-                        else
-                        {
-                            neg = false
-                        }
-                    }
-                    if (type == 'checkbox')
-                    {
-                        ops = [false, true]
-                    }
-                    if (typeof ops === 'undefined')
-                    {
-                        ops = []
-                    }
-
-                    // add each counter in a multicounter
-                    if (type == 'multicounter')
-                    {
-                        for (let i in ops)
-                        {
-                            results[`${id}_${ops[i].toLowerCase()}`] = {
-                                name: `${name} ${ops[i]}`,
-                                type: 'counter',
-                                negative: neg[i],
-                                options: [],
-                                options_index: [],
-                                cycle: cycle
-                            }
-                        }
-                    }
-                    else
-                    {
-                        results[id] = {
-                            name: name,
-                            type: type,
-                            negative: neg,
-                            options: ops,
-                            options_index: Object.keys(ops),
-                            cycle: cycle
-                        }
-                    }
-                }
-            }
-        }
-        
-        // add on smart stats
-        if (mode == MATCH_MODE)
-        {
-            let stats = get_config('smart-stats')[year]
-            for (let stat of stats)
-            {
-                let neg = stat.negative
-                if (typeof neg === 'undefined')
-                {
-                    neg = false
-                }
-        
-                results[stat.id] = {
-                    name: stat.name,
-                    type: 'number',
-                    negative: neg,
-                    options: [],
-                    options_index: [],
-                    cycle: stat.type == 'count'
-                }
-            }
-        }
-    }
-    
-    return results
 }
 
 /**

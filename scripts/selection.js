@@ -19,6 +19,7 @@ script = document.createElement('script')
 script.src = `scripts/${page}.js`
 document.head.appendChild(script)
 
+var cfg
 var dal
 
 // respond to keyboard inputs
@@ -215,6 +216,10 @@ window.addEventListener('load', function()
     else if (iPad) {
         document.body.style.height = "97%"
     }
+    
+    // load in configs
+    cfg = new Config(year)
+    cfg.load_configs()
     
     // load in data
     dal = new DAL(event_id)

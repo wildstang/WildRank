@@ -67,7 +67,8 @@ function init_page()
     }
     else
     {
-        fetch_config(on_config)
+        let year = get_event().substr(0, 4)
+        fetch_config(on_config, year)
     }
 
     // add install button if PWA is not installed

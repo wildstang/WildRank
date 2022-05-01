@@ -28,6 +28,130 @@ class DAL
     }
 
     /**
+     * function:    load_config
+     * parameters:  scouting mode
+     * returns:     none
+     * description: Populate the meta data structure for a scouting config.
+     */
+    load_config(mode)
+    {
+        // go over each input in config
+        let config = cfg.match
+        let prefix = 'results.'
+        if (mode === PIT_MODE)
+        {
+            config = cfg.pit
+            prefix = 'pit.'
+        }
+        if (config != null)
+        {
+            let meta = {}
+
+            for (let page of config)
+            {
+                for (let column of page.columns)
+                {
+                    // add the cycle column as an input
+                    let cycle = column.cycle
+                    if (cycle)
+                    {
+                        meta[prefix + column.id] = {
+                            name: column.name,
+                            type: 'cycle',
+                            negative: false,
+                            options: [],
+                            options_index: [],
+                            cycle: cycle
+                        }
+                        cycle = column.id
+                    }
+                    for (let input of column.inputs)
+                    {
+                        let id = input.id
+                        let name = input.name
+                        let type = input.type
+                        let ops = input.options
+                        let neg = input.negative
+
+                        // make sure no values are missing / empty
+                        if (typeof neg === 'undefined')
+                        {
+                            if (type == 'select' || type == 'dropdown' || type == 'multicounter')
+                            {
+                                neg = new Array(ops.length).fill(false)
+                            }
+                            else
+                            {
+                                neg = false
+                            }
+                        }
+                        if (type == 'checkbox')
+                        {
+                            ops = [false, true]
+                        }
+                        if (typeof ops === 'undefined')
+                        {
+                            ops = []
+                        }
+
+                        // add each counter in a multicounter
+                        if (type == 'multicounter')
+                        {
+                            for (let i in ops)
+                            {
+                                meta[`${prefix}${id}_${ops[i].toLowerCase()}`] = {
+                                    name: `${name} ${ops[i]}`,
+                                    type: 'counter',
+                                    negative: neg[i],
+                                    options: [],
+                                    options_index: [],
+                                    cycle: cycle
+                                }
+                            }
+                        }
+                        else
+                        {
+                            meta[prefix + id] = {
+                                name: name,
+                                type: type,
+                                negative: neg,
+                                options: ops,
+                                options_index: Object.keys(ops),
+                                cycle: cycle
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // add on smart stats
+            if (mode == MATCH_MODE)
+            {
+                let stats = cfg.smart_stats
+                for (let stat of stats)
+                {
+                    let neg = stat.negative
+                    if (typeof neg === 'undefined')
+                    {
+                        neg = false
+                    }
+            
+                    meta[prefix + stat.id] = {
+                        name: stat.name,
+                        type: 'number',
+                        negative: neg,
+                        options: [],
+                        options_index: [],
+                        cycle: stat.type === 'count'
+                    }
+                }
+            }
+
+            this.meta = Object.assign(this.meta, meta)
+        }
+    }
+
+    /**
      * function:    get_keys
      * parameters:  toggles for each section of data, types to filter by
      * returns:     none
@@ -35,7 +159,7 @@ class DAL
      */
     get_keys(include_stats=true, include_pit=true, include_ranking=true, include_meta=true, types=[])
     {
-        let keys = Object.keys(this.meta)
+        let keys = Object.keys(this.meta).filter(k => !k.startsWith('results.'))
         if (!include_stats)
         {
             keys = keys.filter(k => !k.startsWith('stats.'))
@@ -218,6 +342,7 @@ class DAL
         }
 
         // TODO pictures aren't supported
+        // TODO avatar
         let start_pictures = Date.now()
         if (this.load_pictures)
         {
@@ -233,6 +358,9 @@ class DAL
         let files = Object.keys(localStorage)
         if (this.load_pits)
         {
+            // populate meta
+            this.load_config(PIT_MODE)
+
             // add pit results
             let pit_files = files.filter(f => f.startsWith(`pit-${this.event_id}`))
             for (let file of pit_files)
@@ -240,23 +368,17 @@ class DAL
                 let pit = JSON.parse(localStorage.getItem(file))
                 this.teams[pit.meta_team.toString()].pit = pit
             }
-
-            // build meta for pit results
-            let meta = get_result_meta(PIT_MODE, this.year)
-            let keys = Object.keys(meta)
-            for (let key of keys)
-            {
-                let k = `pit.${key}`
-                this.meta[k] = meta[key]
-            }
         }
 
         // load in match results
         let start_results = Date.now()
         if (this.load_results)
         {
+            // populate meta
+            this.load_config(MATCH_MODE)
+
             // add match results
-            let stats = get_config('smart-stats')[this.year]
+            let stats = cfg.smart_stats
             let match_files = files.filter(f => f.startsWith(`match-${this.event_id}`))
             for (let file of match_files)
             {
@@ -269,11 +391,10 @@ class DAL
         let start_stats = Date.now()
         if (this.compute_stats)
         {
-            let meta = get_result_meta(MATCH_MODE, this.year)
-            let keys = Object.keys(meta)
+            let keys = Object.keys(this.meta).filter(k => k.startsWith('results.'))
             for (let key of keys)
             {
-                if (!meta[key].cycle)
+                if (!this.meta[key].cycle)
                 {
                     // compute stats for each match results
                     let teams = Object.keys(this.teams)
@@ -283,8 +404,8 @@ class DAL
                     }
 
                     // add stats to meta
-                    let k = `stats.${key}`
-                    this.meta[k] = meta[key]
+                    let k = key.replace('results.', 'stats.')
+                    this.meta[k] = this.meta[key]
                 }
             }
         }
@@ -354,8 +475,6 @@ class DAL
      */
     add_smart_stats(result, stats)
     {
-        let meta = get_result_meta(MATCH_MODE, this.year)
-        
         for (let stat of stats)
         {
             let id = stat.id
@@ -397,7 +516,7 @@ class DAL
                         let passed = true
                         for (let key of Object.keys(stat.conditions))
                         {
-                            if (cycle[key] != meta[key].options.indexOf(stat.conditions[key]))
+                            if (cycle[key] != this.meta['results.' + key].options.indexOf(stat.conditions[key]))
                             {
                                 passed = false
                             }
@@ -452,7 +571,24 @@ class DAL
             stat = stat.substring(0, 1).toUpperCase() + stat.substring(1)
             return `${stat} ${this.meta[id].name}`
         }
-        return this.meta[id].name
+        else if (this.meta.hasOwnProperty(id))
+        {
+            return this.meta[id].name
+        }
+        else
+        {
+            if (id.includes('.'))
+            {
+                let parts = id.split('.')
+                id = parts[1]
+            }
+            let parts = id.split('_')
+            for (let i in parts)
+            {
+                parts[i] = parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1)
+            }
+            return parts.join(' ')
+        }
     }
 
     /**
@@ -538,24 +674,6 @@ class DAL
     }
 
     /**
-     * function:    get_stat
-     * parameters:  team, id, stat to use if an option
-     * returns:     a given stat
-     * description: Get a given stat or compute if it does not exist.
-     */
-    get_stat(team, id, type)
-    {
-        team = team.toString()
-        let key = `${id}.${type}`
-        // compute stat if it doesn't already exist
-        if (!this.teams[team].stats.hasOwnProperty(key))
-        {
-            this.compute_stat(team, id)
-        }
-        return this.teams[team].stats[key]
-    }
-
-    /**
      * function:    compute_stat
      * parameters:  team, id
      * returns:     a computed stat
@@ -563,25 +681,30 @@ class DAL
      */
     compute_stat(team, id)
     {
-        let meta = get_result_meta(MATCH_MODE, this.year)
-
         // build list of raw values
         let values = []
         let results = this.teams[team].results
+
+        if (results.length === 0)
+        {
+            return
+        }
+
         let keys = Object.keys(results)
+        let key = id.replace('results.', '')
         for (let name of keys)
         {
-            if (!isNaN(results[name][id]))
+            if (!isNaN(results[name][key]))
             {
-                values.push(results[name][id])
+                values.push(results[name][key])
             }
         }
         values = values.filter(v => v !== '')
         let mean_vals = values
 
         // calculate where and percent smart stats differently
-        let stats = get_config('smart-stats')[this.year]
-        let matches = stats.filter(s => s.id === id)
+        let stats = cfg.smart_stats
+        let matches = stats.filter(s => s.id === key)
         if (matches.length === 1)
         {
             let stat = matches[0]
@@ -590,7 +713,7 @@ class DAL
                 let cycles = Object.values(results).map(result => result[stat.cycle])
                 let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
                 result[stat.cycle] = cycles.flat()
-                mean_vals = [add_given_smart_stats(result, [stat])[id]]
+                mean_vals = [this.add_smart_stats(result, [stat])[key]]
             }
             else if (stat.type === 'percent' || stat.type === 'ratio')
             {
@@ -602,17 +725,18 @@ class DAL
             }
         }
 
-        switch (meta[id].type)
+        let meta = this.meta[id]
+        switch (meta.type)
         {
             case 'checkbox':
             case 'select':
             case 'dropdown':
             case 'unknown':
-                if (meta.hasOwnProperty(id) && meta[id].options.length > 0 && values.length > 0)
+                if (meta.options.length > 0 && values.length > 0)
                 {
                     // count instances of each option
                     let counts = {}
-                    let options = meta[id].options
+                    let options = meta.options
                     for (let i in options)
                     {
                         counts[i] = values.filter(val => val == i).length
@@ -627,7 +751,7 @@ class DAL
                     for (let op in counts)
                     {
                         total_op += `${options[op]}: ${counts[op]}<br>`
-                        this.teams[team].stats[`${id}.${op}`] = counts[op]
+                        this.teams[team].stats[`${key}.${op}`] = counts[op]
                         if (min_op === '' || counts[op] < counts[min_op])
                         {
                             min_op = parseInt(op)
@@ -638,21 +762,21 @@ class DAL
                         }
                     }
                     // convert checkbox values to booleans
-                    if (meta[id].type === 'checkbox')
+                    if (meta.type === 'checkbox')
                     {
                         min_op = min_op == 'true'
                         max_op = max_op == 'true'
                     }
                     
                     // build data structure
-                    this.teams[team].stats[`${id}.mean`]   = mode_op
-                    this.teams[team].stats[`${id}.median`] = median_op
-                    this.teams[team].stats[`${id}.mode`]   = mode_op
+                    this.teams[team].stats[`${key}.mean`]   = mode_op
+                    this.teams[team].stats[`${key}.median`] = median_op
+                    this.teams[team].stats[`${key}.mode`]   = mode_op
                     // TODO most and least common or highest and lowest achieved
-                    this.teams[team].stats[`${id}.min`]    = min_op
-                    this.teams[team].stats[`${id}.max`]    = max_op
-                    this.teams[team].stats[`${id}.total`]  = total_op
-                    this.teams[team].stats[`${id}.stddev`] = '---'
+                    this.teams[team].stats[`${key}.min`]    = min_op
+                    this.teams[team].stats[`${key}.max`]    = max_op
+                    this.teams[team].stats[`${key}.total`]  = total_op
+                    this.teams[team].stats[`${key}.stddev`] = '---'
                 }
                 break
             // don't attempt to use strings
@@ -660,26 +784,26 @@ class DAL
             case 'text':
             case 'cycle':
                 // don't compute any stats for text
-                this.teams[team].stats[`${id}.mean`]   = '---'
-                this.teams[team].stats[`${id}.median`] = '---'
-                this.teams[team].stats[`${id}.mode`]   = '---'
-                this.teams[team].stats[`${id}.min`]    = '---'
-                this.teams[team].stats[`${id}.max`]    = '---'
-                this.teams[team].stats[`${id}.total`]  = '---'
-                this.teams[team].stats[`${id}.stddev`] = '---'
+                this.teams[team].stats[`${key}.mean`]   = '---'
+                this.teams[team].stats[`${key}.median`] = '---'
+                this.teams[team].stats[`${key}.mode`]   = '---'
+                this.teams[team].stats[`${key}.min`]    = '---'
+                this.teams[team].stats[`${key}.max`]    = '---'
+                this.teams[team].stats[`${key}.total`]  = '---'
+                this.teams[team].stats[`${key}.stddev`] = '---'
                 break
             case 'counter':
             case 'multicounter':
             case 'number':
             default:
                 // compute each stat normally for numbers
-                this.teams[team].stats[`${id}.mean`]   = mean(mean_vals)
-                this.teams[team].stats[`${id}.median`] = median(values)
-                this.teams[team].stats[`${id}.mode`]   = mode(values)
-                this.teams[team].stats[`${id}.min`]    = Math.min(... values)
-                this.teams[team].stats[`${id}.max`]    = Math.max(... values)
-                this.teams[team].stats[`${id}.total`]  = values.reduce((a, b) => a + b, 0)
-                this.teams[team].stats[`${id}.stddev`] = std_dev(values)
+                this.teams[team].stats[`${key}.mean`]   = mean(mean_vals)
+                this.teams[team].stats[`${key}.median`] = median(values)
+                this.teams[team].stats[`${key}.mode`]   = mode(values)
+                this.teams[team].stats[`${key}.min`]    = Math.min(... values)
+                this.teams[team].stats[`${key}.max`]    = Math.max(... values)
+                this.teams[team].stats[`${key}.total`]  = values.reduce((a, b) => a + b, 0)
+                this.teams[team].stats[`${key}.stddev`] = std_dev(values)
                 break
         }
     }

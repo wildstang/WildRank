@@ -1,14 +1,13 @@
 import socketserver, http.server, logging, base64, zipfile, re, json, os
-from os import listdir, environ, mkdir, rename, remove
+from os import listdir, environ, rename, remove
 from os.path import isfile, join, exists
-from shutil import copyfile
 from base64 import b64decode
 from datetime import datetime as dt
 from os import path
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
-VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/pwa.js', '/selection.html', '/?']
+VALID_PATHS = ['/assets', '/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/pwa.js', '/selection.html', '/?']
 
 TBA_KEY = environ.get('TBA_KEY')
 
@@ -150,17 +149,6 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         }
         res_str = json.dumps(response)
         self.wfile.write(res_str.encode('utf-8'))
-
-# make config if not exists
-if not exists('config'):
-    mkdir('config')
-
-# setup config if not
-for f in listdir('assets'):
-    aFile = join('assets', f)
-    cFile = join('config', f)
-    if not isfile(cFile):
-        copyfile(aFile, cFile)
 
 start = dt.now()
 try:

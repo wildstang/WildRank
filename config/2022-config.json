@@ -1,0 +1,612 @@
+{
+	"version": "wr2-indev",
+	"pit": [{
+		"name": "Pit",
+		"short": "Pit",
+		"id": "pit_pit",
+		"columns": [{
+			"name": "Body",
+			"id": "pit_body",
+			"inputs": [{
+				"name": "Weight",
+				"id": "pit_body_weight",
+				"type": "number",
+				"options": [0, 125],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Length (Long Side, in)",
+				"id": "pit_body_length",
+				"type": "number",
+				"options": [0, 120],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Width (Short Side, in)",
+				"id": "pit_body_width",
+				"type": "number",
+				"options": [0, 120],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Starting Config Height (in)",
+				"id": "pit_body_starting_height_(in)",
+				"type": "number",
+				"options": [0, 52],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Build Quality",
+				"id": "pit_body_build_quality",
+				"type": "slider",
+				"options": [1, 5, 1],
+				"default": 3,
+				"negative": false
+			}]
+		}, {
+			"name": "Movement",
+			"id": "pit_movement",
+			"cycle": false,
+			"inputs": [{
+				"name": "Climb Level",
+				"id": "pit_movement_climb_level",
+				"type": "dropdown",
+				"options": ["None", "Low", "Mid", "High", "Traversal"],
+				"default": "None"
+			}, {
+				"name": "Drivetrain",
+				"id": "pit_movement_drivetrain",
+				"type": "dropdown",
+				"options": ["Tank", "Mecanum", "Swerve", "Other"],
+				"default": "Tank"
+			}, {
+				"name": "Number of Drive Motors (total)",
+				"id": "pit_movement_number_of_drive_motors_(total)",
+				"type": "number",
+				"options": [2, 20],
+				"default": 4,
+				"negative": false
+			}, {
+				"name": "Type of Drive Motor",
+				"id": "pit_movement_type_of_drive_motor",
+				"type": "dropdown",
+				"options": ["Falcon", "Neo", "CIM", "Other"],
+				"default": "Falcon"
+			}, {
+				"name": "Other Notes",
+				"id": "pit_movement_other_notes",
+				"type": "text",
+				"default": "N/A"
+			}]
+		}, {
+			"name": "Intake",
+			"id": "pit_intake",
+			"cycle": false,
+			"inputs": [{
+				"name": "Floor Pickup",
+				"id": "pit_intake_floor_pickup",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Color Sorting?",
+				"id": "pit_intake_color_sorting",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Other Details",
+				"id": "pit_intake_other",
+				"type": "text",
+				"default": "N/A"
+			}]
+		}, {
+			"name": "Shooter",
+			"id": "pit_shooter",
+			"cycle": false,
+			"inputs": [{
+				"name": "Turret?",
+				"id": "pit_shooter_turret",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "High Goal Capable",
+				"id": "pit_shooter_high_goal_capable",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Low Goal Capable",
+				"id": "pit_shooter_low_goal_capable",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Fender Shot",
+				"id": "pit_shooter_fender_shot",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Tarmac Shot",
+				"id": "pit_shooter_tarmac_shot",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "LaunchPad Shot",
+				"id": "pit_shooter_launchpad_shot",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Other Details",
+				"id": "pit_shooter_other",
+				"type": "text",
+				"default": "N/A"
+			}]
+		}]
+	}],
+	"match": [{
+		"name": "Autonomous",
+		"id": "match_auto",
+		"short": "Auto",
+		"columns": [{
+			"name": "Shooting",
+			"id": "match_auto_shooting",
+			"cycle": true,
+			"inputs": [{
+				"name": "Starting Location",
+				"id": "match_auto_shooting_starting_location",
+				"type": "select",
+				"options": ["5Ball", "1Ball", "2Ball"],
+				"default": "5Ball"
+			}, {
+				"name": "High Hub",
+				"id": "match_auto_shooting_high_hub",
+				"type": "multicounter",
+				"negative": [false, true],
+				"options": ["Made", "Missed"],
+				"default": 0
+			}, {
+				"name": "Low Hub",
+				"id": "match_auto_shooting_low_hub",
+				"type": "multicounter",
+				"negative": [false, true],
+				"options": ["Made", "Missed"],
+				"default": 0
+			}, {
+				"name": "Firing From",
+				"id": "match_auto_shooting_location",
+				"type": "select",
+				"options": ["Fender", "Tarmac", "LaunchPad", "OpenField"],
+				"default": "Tarmac"
+			}]
+		}, {
+			"name": "Other",
+			"id": "match_auto_other",
+			"cycle": false,
+			"inputs": [{
+				"name": "Taxi?",
+				"id": "match_auto_other_taxi",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}]
+		}]
+	}, {
+		"name": "Teleoperated",
+		"id": "match_teleop",
+		"short": "TeleOp",
+		"columns": [{
+			"name": "Shooting",
+			"id": "match_teleop_shooting",
+			"cycle": true,
+			"inputs": [{
+				"name": "High Hub",
+				"id": "match_teleop_shooting_high_hub",
+				"type": "multicounter",
+				"negative": [false, true],
+				"options": ["Made", "Missed"],
+				"default": 0
+			}, {
+				"name": "Low Hub",
+				"id": "match_teleop_shooting_low_hub",
+				"type": "multicounter",
+				"negative": [false, true],
+				"options": ["Made", "Missed"],
+				"default": 0
+			}, {
+				"name": "Firing From",
+				"id": "match_teleop_shooting_location",
+				"type": "select",
+				"options": ["Fender", "Tarmac", "LaunchPad", "OpenField"],
+				"default": "Tarmac"
+			}, {
+				"name": "Defended?",
+				"id": "match_teleop_shooting_defended",
+				"type": "select",
+				"options": ["No", "Yes"],
+				"default": "No"
+			}]
+		}, {
+			"name": "Other",
+			"id": "match_teleop_other",
+			"cycle": false,
+			"inputs": [{
+				"name": "Climb Level",
+				"id": "match_teleop_climb_level",
+				"type": "select",
+				"options": ["NoAttempt", "Failed", "Low", "Mid", "High", "Traversal"],
+				"default": "NoAttempt"
+			}, {
+				"name": "Played Defense?",
+				"id": "match_teleop_other_played_defense",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Slowed by Defense?",
+				"id": "match_teleop_other_slowed_by_defense",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}]
+		}]
+	}, {
+		"name": "Post Match",
+		"id": "match_post_match",
+		"short": "Post",
+		"columns": [{
+			"name": "Notes",
+			"id": "match_post_notes",
+			"cycle": false,
+			"inputs": [{
+				"name": "Notes",
+				"id": "match_post_notes_notes",
+				"type": "text",
+				"default": "N/A"
+			}, {
+				"name": "Broke Down?",
+				"id": "match_post_notes_broke_down",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
+			}, {
+				"name": "Driver Skill",
+				"id": "match_post_notes_driver_skill",
+				"type": "slider",
+				"options": [1, 5, 1],
+				"default": 3,
+				"negative": false
+			}]
+		}]
+	}],
+	"smart-stats": [{
+		"name": "Teleop High Hub Cargo Made",
+		"id": "teleop_high_hub_cargo_made",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Teleop Low Hub Cargo Made",
+		"id": "teleop_low_hub_cargo_made",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_low_hub_made",
+		"negative": false
+	}, {
+		"name": "Teleop High Hub Accuracy",
+		"id": "teleop_high_hub_accuracy",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Teleop Low Hub Accuracy",
+		"id": "teleop_low_hub_accuracy",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_low_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_low_hub_missed"
+	}, {
+		"name": "Auto High Hub Cargo Made",
+		"id": "auto_high_hub_cargo_made",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Auto Low Hub Cargo Made",
+		"id": "auto_low_hub_cargo_made",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_low_hub_made",
+		"negative": false
+	}, {
+		"name": "Auto High Hub Accuracy",
+		"id": "auto_high_hub_accuracy",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_auto_shooting_high_hub_missed"
+	}, {
+		"name": "Auto Low Hub Accuracy",
+		"id": "auto_low_hub_accuracy",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_low_hub_made",
+		"negative": false,
+		"denominator": "match_auto_shooting_low_hub_missed"
+	}, {
+		"name": "Total High Hub Cargo Made",
+		"id": "total_high_hub_cargo_made",
+		"type": "sum",
+		"negative": false,
+		"keys": ["teleop_high_hub_cargo_made", "auto_high_hub_cargo_made"]
+	}, {
+		"name": "Total Low Hub Cargo Made",
+		"id": "total_low_hub_cargo_made",
+		"type": "sum",
+		"negative": false,
+		"keys": ["teleop_low_hub_cargo_made", "auto_low_hub_cargo_made"]
+	}, {
+		"name": "Total Cargo Made",
+		"id": "total_cargo_made",
+		"type": "sum",
+		"negative": false,
+		"keys": ["total_high_hub_cargo_made", "total_low_hub_cargo_made"]
+	}, {
+		"name": "Teleop Fender Cargo Made",
+		"id": "teleop_fender_cargo_made",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "Fender"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Teleop Fender Cargo Accuracy",
+		"id": "teleop_fender_cargo_accuracy",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "Fender"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Teleop Tarmac Cargo Made",
+		"id": "teleop_tarmac_cargo_made",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "Tarmac"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Teleop Tarmac Cargo Accuracy",
+		"id": "teleop_tarmac_cargo_accuracy",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "Tarmac"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Teleop LaunchPad Cargo Made",
+		"id": "teleop_launchpad_cargo_made",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "LaunchPad"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Teleop LaunchPad Cargo Accuracy",
+		"id": "teleop_launchpad_cargo_accuracy",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "LaunchPad"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Teleop Open Field Cargo Made",
+		"id": "teleop_open_field_cargo_made",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "OpenField"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Teleop Open Field Cargo Accuracy",
+		"id": "teleop_open_field_cargo_accuracy",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_location": "OpenField"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Accuracy When Defended",
+		"id": "accuracy_when_defended",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_defended": "Yes"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Accuracy When Undefended",
+		"id": "accuracy_when_undefended",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_defended": "No"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false,
+		"denominator": "match_teleop_shooting_high_hub_missed"
+	}, {
+		"name": "Auto Cargo High_2",
+		"id": "auto_cargo_high_2",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Auto Cargo High_3",
+		"id": "auto_cargo_high_3",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Auto Cargo High_4",
+		"id": "auto_cargo_high_4",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Auto Cargo Low_2",
+		"id": "auto_cargo_low_2",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_auto_shooting",
+		"sum": "match_auto_shooting_low_hub_made",
+		"negative": false
+	}, {
+		"name": "Tele Cargo High_2",
+		"id": "tele_cargo_high_2",
+		"type": "where",
+		"conditions": {},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}, {
+		"name": "Cargo Value per Match",
+		"id": "cargo_value_per_match",
+		"type": "sum",
+		"negative": false,
+		"keys": ["teleop_high_hub_cargo_made", "teleop_low_hub_cargo_made", "auto_high_hub_cargo_made", "auto_low_hub_cargo_made", "auto_cargo_high_2", "auto_cargo_high_3", "auto_cargo_high_4", "auto_cargo_low_2", "tele_cargo_high_2"]
+	}, {
+		"name": "Cycles Defended",
+		"id": "cycles_defended",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_defended": "Yes"
+		},
+		"cycle": "match_teleop_shooting",
+		"negative": false
+	}, {
+		"name": "High Hub Made While Defended",
+		"id": "high_hub_made_while_defended",
+		"type": "where",
+		"conditions": {
+			"match_teleop_shooting_defended": "Yes"
+		},
+		"cycle": "match_teleop_shooting",
+		"sum": "match_teleop_shooting_high_hub_made",
+		"negative": false
+	}],
+	"coach": [{
+			"function": "mean",
+			"key": "auto_high_hub_cargo_made"
+		}, {
+			"function": "mean",
+			"key": "auto_low_hub_cargo_made"
+		}, {
+			"function": "mean",
+			"key": "teleop_high_hub_cargo_made"
+		}, {
+			"function": "mean",
+			"key": "teleop_high_hub_accuracy"
+		}, {
+			"function": "mean",
+			"key": "teleop_low_hub_cargo_made"
+		}, {
+			"function": "mean",
+			"key": "match_teleop_climb_level"
+		}
+	],
+	"whiteboard": {
+		"red_1": {
+			"x": 400,
+			"y": 100,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 425,
+			"y": 175,
+			"color": "#FF4136"
+		},
+		"red_3": {
+			"x": 425,
+			"y": 225,
+			"color": "#FF4136"
+		},
+		"blue_1": {
+			"x": 275,
+			"y": 125,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 275,
+			"y": 175,
+			"color": "#0074D9"
+		},
+		"blue_3": {
+			"x": 300,
+			"y": 250,
+			"color": "#0074D9"
+		},
+		"game_pieces": [{
+			"name": "Blue Cargo",
+			"image": "blue-cargo.png"
+		}, {
+			"name": "Red Cargo",
+			"image": "red-cargo.png"
+		}],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 27,
+		"vertical_margin": 26,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}
+}

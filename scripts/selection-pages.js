@@ -272,6 +272,7 @@ function populate_other(options)
     {
         let first = ''
         // iterate through each match obj
+        let option_list = ''
         for (let op of options)
         {
             if (first == '')
@@ -281,10 +282,14 @@ function populate_other(options)
     
             // replace placeholders in template and add to screen
             let name = names ? names[op] : op
-            document.getElementById('option_list').innerHTML += build_option(op, '', name)
+            option_list += build_option(op, '', name)
         }
+        document.getElementById('option_list').innerHTML = option_list
         
-        scroll_to('option_list', `option_${first}`)
+        if (first !== '')
+        {
+            scroll_to('option_list', `option_${first}`)
+        }
         return first
     }
     return false

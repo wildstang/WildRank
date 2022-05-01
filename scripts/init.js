@@ -16,22 +16,32 @@ if (!page)
 }
 document.head.appendChild(script)
 
+// register service workers
+if ('serviceWorker' in navigator)
+{
+    navigator.serviceWorker.register('pwa.js')
+}
+
+const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
+const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
+const prefix = `${type}-${event_id}-`
+const year = event_id.substr(0,4)
+
+var cfg
 var dal
 
 window.addEventListener('load', function()
 {
+    // load in configs
+    cfg = new Config(year)
+    cfg.load_configs()
+    
     // load in data
     dal = new DAL(event_id)
     dal.build_teams()
 
     init_page()
 })
-
-// register service workers
-if ('serviceWorker' in navigator)
-{
-    navigator.serviceWorker.register('pwa.js')
-}
 
 /**
  * function:    home()

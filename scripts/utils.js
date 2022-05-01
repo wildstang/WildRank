@@ -10,7 +10,7 @@ const PIT_MODE   = 'pit'
 const NOTE_MODE  = 'note'
 
 const EVENT_COOKIE = 'event_id'
-const EVENT_DEFAULT = '2020ilch'
+const EVENT_DEFAULT = '2022ilch'
 const USER_COOKIE = 'user_id'
 const USER_DEFAULT = '120001'
 const TYPE_COOKIE = 'type'

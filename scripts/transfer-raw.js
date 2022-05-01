@@ -5,11 +5,6 @@
  * date:        2022-01-19
  */
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
-const year = event_id.substr(0,4)
 const start = Date.now()
 
 /**
