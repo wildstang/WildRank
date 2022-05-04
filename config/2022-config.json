@@ -2,7 +2,6 @@
 	"version": "wr2-indev",
 	"pit": [{
 		"name": "Pit",
-		"short": "Pit",
 		"id": "pit_pit",
 		"columns": [{
 			"name": "Body",
@@ -151,7 +150,6 @@
 	"match": [{
 		"name": "Autonomous",
 		"id": "match_auto",
-		"short": "Auto",
 		"columns": [{
 			"name": "Shooting",
 			"id": "match_auto_shooting",
@@ -543,22 +541,22 @@
 	}],
 	"coach": [{
 			"function": "mean",
-			"key": "auto_high_hub_cargo_made"
+			"key": "stats.auto_high_hub_cargo_made"
 		}, {
 			"function": "mean",
-			"key": "auto_low_hub_cargo_made"
+			"key": "stats.auto_low_hub_cargo_made"
 		}, {
 			"function": "mean",
-			"key": "teleop_high_hub_cargo_made"
+			"key": "stats.teleop_high_hub_cargo_made"
 		}, {
 			"function": "mean",
-			"key": "teleop_high_hub_accuracy"
+			"key": "stats.teleop_high_hub_accuracy"
 		}, {
 			"function": "mean",
-			"key": "teleop_low_hub_cargo_made"
+			"key": "stats.teleop_low_hub_cargo_made"
 		}, {
 			"function": "mean",
-			"key": "match_teleop_climb_level"
+			"key": "stats.match_teleop_climb_level"
 		}
 	],
 	"whiteboard": {

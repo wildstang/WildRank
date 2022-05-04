@@ -170,7 +170,7 @@ class Config
     }
 
     /**
-     * function:    is_settings_valid
+     * function:    validate_settings_configs
      * parameters:  none
      * returns:     none
      * description: Validates all settings configs.
@@ -181,6 +181,12 @@ class Config
             this.validate_admins('admins') && this.validate_defaults('defaults') && this.validate_settings('settings')
     }
 
+    /**
+     * function:    validate_theme
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a theme config.
+     */
     validate_theme(config)
     {
         let c = this[config]
@@ -192,6 +198,12 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_keys
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a keys config.
+     */
     validate_keys(config)
     {
         let c = this[config]
@@ -203,6 +215,12 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_admins
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a admins config.
+     */
     validate_admins(config)
     {
         let c = this[config]
@@ -222,6 +240,12 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_defaults
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a defaults config.
+     */
     validate_defaults(config)
     {
         let c = this[config]
@@ -234,6 +258,12 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_settings
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a settings config.
+     */
     validate_settings(config)
     {
         let c = this[config]
@@ -258,6 +288,12 @@ class Config
             this.validate_smart_stats('smart_stats') && this.validate_mode('pit') && this.validate_mode('match')
     }
 
+    /**
+     * function:    validate_version
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a version config.
+     */
     validate_version(config)
     {
         let c = this[config]
@@ -269,11 +305,18 @@ class Config
         return true
     }
 
+    /**
+     * function:    validate_coach
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a coach stats config.
+     */
     validate_coach(config)
     {
         let c = this[config]
         if (Array.isArray(c))
         {
+            let keys = dal.get_keys()
             for (let coach of c)
             {
                 if (!this.check_property(coach, 'function', 'string') || !this.check_property(coach, 'key', 'string'))
@@ -285,6 +328,11 @@ class Config
                     console.log('Invalid function')
                     return false
                 }
+                if (!keys.includes(coach.key))
+                {
+                    console.log('Unknown key')
+                    return false
+                }
             }
             return true
         }
@@ -292,6 +340,12 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_whiteboard
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a whiteboard config.
+     */
     validate_whiteboard(config)
     {
         let c = this[config]
@@ -307,6 +361,12 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_smart_stats
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a smart stats config.
+     */
     validate_smart_stats(config)
     {
         let c = this[config]
@@ -319,6 +379,37 @@ class Config
                 {
                     return false
                 }
+                switch (stat.type)
+                {
+                    case 'sum':
+                        if (!stat.hasOwnProperty('keys') && Array.isArray(stat.keys))
+                        {
+                            console.log('Invalid keys')
+                            return false
+                        }
+                        break
+                    case 'percent':
+                    case 'ratio':
+                        if (!this.check_property(stat, 'numerator', 'string') || !this.check_property(stat, 'denominator', 'string'))
+                        {
+                            return false
+                        }
+                        break
+                    case 'where':
+                        if (!this.check_property(stat, 'cycle', 'string'))
+                        {
+                            return false
+                        }
+                        if (!stat.hasOwnProperty('conditions') && Array.isArray(stat.conditions))
+                        {
+                            console.log('Invalid conditions')
+                            return false
+                        }
+                        break
+                    default:
+                        console.log('Unknown type')
+                        return false
+                }
             }
             return true
         }
@@ -326,17 +417,98 @@ class Config
         return false
     }
 
+    /**
+     * function:    validate_mode
+     * parameters:  config name
+     * returns:     none
+     * description: Validates a scouting mode config.
+     */
     validate_mode(config)
     {
         let c = this[config]
         if (Array.isArray(c))
         {
+            for (let page of c)
+            {
+                if (!this.check_property(page, 'name', 'string') || !this.check_property(page, 'id', 'string'))
+                {
+                    return false
+                }
+                if (!page.hasOwnProperty('columns') && Array.isArray(c.columns))
+                {
+                    return false
+                }
+                for (let column of page.columns)
+                {
+                    if (!this.check_property(column, 'name', 'string') || !this.check_property(column, 'id', 'string'))
+                    {
+                        return false
+                    }
+                    if (!column.hasOwnProperty('inputs') && Array.isArray(column.inputs))
+                    {
+                        return false
+                    }
+                    for (let input of column.inputs)
+                    {
+                        if (!this.check_property(input, 'name', 'string') || !this.check_property(input, 'id', 'string') ||
+                            !this.check_property(input, 'type', 'string'))
+                        {
+                            return false
+                        }
+                        switch (input.type)
+                        {
+                            case 'dropdown':
+                            case 'select':
+                                if (!this.check_property(input, 'default', 'string'))
+                                {
+                                    return false
+                                }
+                            case 'multicounter':
+                                if (!input.hasOwnProperty('options') && Array.isArray(input.options))
+                                {
+                                    return false
+                                }
+                                break
+                            case 'checkbox':
+                                if (!this.check_property(input, 'default', 'boolean'))
+                                {
+                                    return false
+                                }
+                                break
+                            case 'string':
+                            case 'text':
+                                if (!this.check_property(input, 'default', 'string'))
+                                {
+                                    return false
+                                }
+                                break
+                            case 'number':
+                            case 'slider':
+                            case 'counter':
+                                if (!this.check_property(input, 'default', 'number'))
+                                {
+                                    return false
+                                }
+                                break
+                            default:
+                                console.log('Invalid type')
+                                return false
+                        }
+                    }
+                }
+            }
             return true
         }
         console.log('Invalid mode object')
         return false
     }
 
+    /**
+     * function:    check_property
+     * parameters:  js object, property key, expected type
+     * returns:     property exists and is of valid type
+     * description: Confirms a given property exists in a given object and has a value of a given type.
+     */
     check_property(object, key, type)
     {
         if (!object.hasOwnProperty(key) || typeof object[key] !== type)
