@@ -384,6 +384,11 @@ class DAL
             for (let file of match_files)
             {
                 let match = JSON.parse(localStorage.getItem(file))
+                // add match key to pre-WR2 results
+                if (!match.hasOwnProperty('meta_match_key') && match.hasOwnProperty('meta_match') && match.hasOwnProperty('meta_event_id'))
+                {
+                    match.meta_match_key = `${match.meta_event_id}_qm${match.meta_match}`
+                }
                 this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
             }
         }
