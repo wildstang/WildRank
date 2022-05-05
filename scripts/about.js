@@ -11,6 +11,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_card('server', 'Server: Unknown'),
         build_card('version', 'Git: Nope', true),
         build_card('release', 'Release: Nope', true),
+        build_card('config', 'Config: Nope', true),
         build_card('description', 'WildRank is a FIRST Robotics Competition scouting web app and a spiritual successor to <a href="https://github.com/wildstang/wildrank-android">WildRank Android</a>. It was developed to be a progressive web app supporting full offline functionality on most modern devices.', true)
     ]),
     build_column_frame('Get WildRank', [
@@ -71,6 +72,10 @@ function init_page()
                 release = release[0]
                 document.getElementById('release').innerHTML = release.substring(0, release.length)
             }
+        }
+        if (cfg.version)
+        {
+            document.getElementById('config').innerHTML = `Config: ${cfg.version}`
         }
     }
     catch (e)
