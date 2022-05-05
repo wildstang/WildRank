@@ -1,3 +1,10 @@
+/**
+ * file:        new-inputs.js
+ * description: Contains classes to build HTML string for UI elements in app.
+ * author:      Liam Fruzyna
+ * date:        2022-05-05
+ */
+
 class Element
 {
     constructor(id, label)
@@ -511,43 +518,83 @@ class Dropdown extends OptionedInput
     }
 }
 
-/*
-function build_page_frame(id, label, columns)
+class Option extends Element
+{
+    constructor(id, label)
+    {
+        super(id, label)
+        this.primary_list = primary_list
+        this.primary_list = true
+        this.selected = ''
+        this.style = ''
+    }
 
-function build_column_frame(id, label, items)
+    get toString()
+    {
+        // use modified id and function if secondary list
+        let id = `option_${this.id}`
+        let on_click = `open_option('${this.id}')`
+        if (!this.primary_list)
+        {
+            id = `soption_${this.id}`
+            on_click = `open_secondary_option('${this.id}')`
+        }
+        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" style="${this.style}">
+                    <span class="long_option_val">${this.label}</span>
+                </div>`
+    }
+}
 
-function build_button(id, label, onclick, onsecondary='')
+class DescriptiveOption extends Option
+{
+    constructor(id, label, description)
+    {
+        super(id, label, primary_list)
+        this.description = description
+    }
 
-function build_link_button(id, label, url)
+    get toString()
+    {
+        // use modified id and function if secondary list
+        let id = `option_${this.id}`
+        let on_click = `open_option('${this.id}')`
+        if (!this.primary_list)
+        {
+            id = `soption_${this.id}`
+            on_click = `open_secondary_option('${this.id}')`
+        }
+        return `<div id="${this.id}" class="pit_option ${this.selected}" onclick="${on_click}" style="${this.style}">
+                    <span class="long_option_number">${this.label}</span><br>
+                    <span class="long_option_description">${this.description}</span>
+                </div>`
+    }
+}
 
-function build_multi_button(id, label, labels, onclicks, onsecondarys='')
+class MatchOption extends Option
+{
+    constructor(id, label, red_teams, blue_teams)
+    {
+        super(id, label)
+        this.red_teams = red_teams
+        this.blue_teams = blue_teams
+    }
 
-function build_checkbox(id, label, def=false)
-
-function build_counter(id, label, def=0)
-
-function build_multi_counter(id, label, labels, def=0)
-
-function build_select(id, label, labels, def='')
-
-function build_dropdown(id, label, labels, def='')
-
-function build_str_entry(id, label, def='')
-
-function build_color_entry(id, label, def='')
-
-function build_status_tile(id, label, def='')
-
-function build_num_entry(id, name, def=0)
-
-function build_text_entry(id, name, def='')
-
-function build_slider(id, name, def=5, min=0, max=10, incr=1)
-
-function build_card(id, label, def='')
-
-function build_match_option(id, red_labels, blue_labels)
-
-function build_option(id, label, def=false)
-
-function build_desc_option(id, label, description, def=false)*/
+    get toString()
+    {
+        // use modified id and function if secondary list
+        let id = `option_${this.id}`
+        let on_click = `open_match('${this.id}')`
+        if (!this.primary_list)
+        {
+            id = `soption_${this.id}`
+            on_click = `open_secondary_option('${this.id}')`
+        }
+        return `<div id="match_${id}" class="match_option ${this.selected}" onclick="${on_click}">
+                    <span class="option_number">${this.label}</span>
+                    <span>
+                        <div class="alliance red">${this.red_teams.join(' ')}</div>
+                        <div class="alliance blue">${this.blue_teams.join(' ')}</div>
+                    </span>
+                </div>`
+    }
+}
