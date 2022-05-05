@@ -76,7 +76,7 @@ class PageFrame extends Element
     {
         return `<div id="${this.id}" class="page ${this.top_margin ? '' : 'no_top_margin'}">
                 ${this.html_label}
-                ${this.columns.map(i => i.toString).join('')}
+                ${this.columns.map(i => typeof i === 'string' ? i : i.toString).join('')}
             </div>`
     }
 }
@@ -103,7 +103,7 @@ class ColumnFrame extends Element
     {
         return `<div id="${this.id}" class="column">
                 ${this.html_label}
-                ${this.inputs.map(i => i.toString).join('')}
+                ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
             </div>`
     }
 }
@@ -118,8 +118,8 @@ class Button extends Element
 
     set link(url)
     {
-        this.onclick = `window_open('${url}', '_self')`
-        this.onsecondary = `window_open('${url}', '_blank')`
+        this.onclick = `window_open(${url}, '_self')`
+        this.onsecondary = `window_open(${url}, '_blank')`
     }
 
     set onsecondary(onsecondary)
@@ -466,7 +466,7 @@ class Select extends OptionedInput
             {
                 rows.push('')
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name == this.def ? 'selected' : ''}" id="${this.id}-${index}" onclick="select_option('${this.id}', '${index}'); ${this.onclick}">
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() == this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="select_option('${this.id}', '${index}'); ${this.onclick}">
                     <label>${op_name}</label>
                 </span>`
         }
