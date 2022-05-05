@@ -9,46 +9,7 @@
  * PAGE INIT
  */
 
-let s = document.createElement('script')
-s.src = `scripts/validation.js`
-document.head.appendChild(s)
-s = document.createElement('script')
-s.src = `scripts/transfer.js`
-document.head.appendChild(s)
-
-// generate page
-const PAGE_FRAME = build_page_frame('', [
-    build_column_frame('Options', [
-        build_str_entry('event_id', 'Event ID:', '', 'text', 'process_files()'),
-        build_dropdown('position', 'Position:', []),
-        build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
-        build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
-    ]),
-    build_column_frame('Role', [
-        build_link_button('scout', 'Scouter', `check_press('scout')`),
-        build_link_button('note', 'Note Taker', `check_press('note')`),
-        build_link_button('drive', 'Drive Team', `check_press('drive')`),
-        build_link_button('analysis', 'Analyst', `check_press('analysis')`),
-        build_link_button('admin', 'Administrator', `check_press('admin')`)
-    ]),
-    build_column_frame('Status', [
-        build_button('preload_event', 'Preload Event', `save_options(); preload_event()`),
-        build_link_button('transfer', 'Transfer Raw Data', `open_transfer()`),
-        build_status_tile('server_type', 'POST Server'),
-        build_status_tile('event_data', 'Event Data'),
-        build_status_tile('config_valid', 'Config'),
-        build_status_tile('scout_config_valid', 'Scout Config')
-    ]),
-    build_column_frame('Data', [
-        build_counter('config', 'cfg', 0, 'increment("config", false)', 'increment("config", true)'),
-        build_counter('teams', 'Event Teams', 0, 'increment("teams", false)', 'increment("teams", true)'),
-        build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
-        build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
-        build_counter('match_results', 'Match Results', 0, 'increment("match_results", false)', 'increment("match_results", true)'),
-        build_link_button('about', 'About WildRank', `open_about()`),
-        '<div id="install-container"></div>'
-    ])
-])
+include('transfer')
 
 var install
 
@@ -60,13 +21,125 @@ var install
  */
 function init_page()
 {
-    document.body.innerHTML += PAGE_FRAME
+    let page = new PageFrame('index', '')
 
-    document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
-    document.getElementById('user_id').value = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+    let options = new ColumnFrame('options', 'Options')
+    page.add_column(options)
 
-    let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-    select_option('theme_switch', theme == 'light' ? 0 : 1)
+    let event_id = new Entry('event_id', 'Event ID')
+    event_id.on_text_change = 'process_files()'
+    event_id.def = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    options.add_input(event_id)
+
+    let position = new Dropdown('position', 'Position')
+    for (let i = 1; i <= dal.alliance_size * 2; i++)
+    {
+        let color = 'Red'
+        let pos = i
+        if (i > dal.alliance_size)
+        {
+            color = 'Blue'
+            pos = i - dal.alliance_size
+        }
+        position.add_option(`${color} ${pos}`)
+    }
+    options.add_input(position)
+
+    let user_id = new Entry('user_id', 'School ID', 111112)
+    user_id.type = 'number'
+    user_id.bounds = [100000, 999999]
+    user_id.def = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+    options.add_input(user_id)
+
+    let theme = new Select('theme_switch', 'Theme')
+    theme.onclick = 'switch_theme()'
+    theme.add_option('Light')
+    theme.add_option('Dark')
+    theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    options.add_input(theme)
+
+    let roles = new ColumnFrame('roles', 'Role')
+    page.add_column(roles)
+
+    let scout = new Button('scout', 'Scouter')
+    scout.link = `check_press('scout')`
+    roles.add_input(scout)
+
+    let note = new Button('note', 'Note Taker')
+    note.link = `check_press('note')`
+    roles.add_input(note)
+
+    let drive = new Button('drive', 'Drive Team')
+    drive.link = `check_press('drive')`
+    roles.add_input(drive)
+
+    let analyst = new Button('analyst', 'Analyst')
+    analyst.link = `check_press('analysis')`
+    roles.add_input(analyst)
+
+    let admin = new Button('admin', 'Administrator')
+    admin.link = `check_press('admin')`
+    roles.add_input(admin)
+
+    let status = new ColumnFrame('status', 'Status')
+    page.add_column(status)
+
+    let preload = new Button('preload_event', 'Preload Event')
+    preload.onclick = `save_options(); preload_event()`
+    status.add_input(preload)
+
+    let transfer = new Button('transfer', 'Transfer Raw Data')
+    transfer.link = `open_transfer()`
+    status.add_input(transfer)
+
+    let server = new StatusTile('server_type', 'Server Available')
+    status.add_input(server)
+
+    let event_data = new StatusTile('event_data', 'Event Data')
+    status.add_input(event_data)
+
+    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
+    status.add_input(scout_config_valid)
+
+    let config_valid = new StatusTile('config_valid', 'Settings')
+    status.add_input(config_valid)
+
+    let data = new ColumnFrame('data', 'Data')
+    page.add_column(data)
+
+    let version = new Counter('config_version', 'cfg')
+    version.onincrement = 'increment("", false)'
+    version.ondecrement = 'increment("", true)'
+    data.add_input(version)
+
+    let teams = new Counter('teams', 'Event Teams')
+    teams.onincrement = 'increment("", false)'
+    teams.ondecrement = 'increment("", true)'
+    data.add_input(teams)
+
+    let matches = new Counter('matches', 'Event Matches')
+    matches.onincrement = 'increment("", false)'
+    matches.ondecrement = 'increment("", true)'
+    data.add_input(matches)
+
+    let pit_results = new Counter('pit_results', 'Pit Results')
+    pit_results.onincrement = 'increment("", false)'
+    pit_results.ondecrement = 'increment("", true)'
+    data.add_input(pit_results)
+
+    let match_results = new Counter('match_results', 'Match Results')
+    match_results.onincrement = 'increment("", false)'
+    match_results.ondecrement = 'increment("", true)'
+    data.add_input(match_results)
+
+    let about = new Button('about', 'About WildRank')
+    about.link = `open_about()`
+    data.add_input(about)
+    
+    data.add_input('<div id="install-container"></div>')
+
+    document.body.innerHTML += page.toString
+
     apply_theme()
     process_files()
 
@@ -104,6 +177,11 @@ function install_app()
  */
 function process_files()
 {
+    let event = get_event()
+    dal = new DAL(event)
+    dal.build_teams()
+
+    // count results
     let matches = 0
     let pits = 0
     for (let team in dal.teams)
@@ -114,7 +192,9 @@ function process_files()
             pits++
         }
     }
-    document.getElementById('config').innerHTML = cfg.version
+
+    // update counters
+    document.getElementById('config_version').innerHTML = cfg.version
     document.getElementById('teams').innerHTML = Object.keys(dal.teams).length
     document.getElementById('matches').innerHTML = Object.keys(dal.matches).length
     document.getElementById('pit_results').innerHTML = pits
@@ -135,9 +215,8 @@ function process_files()
  */
 function check_event()
 {
-    let event = get_event()
-    let teams = file_exists(get_event_teams_name(event))
-    let matches = file_exists(get_event_matches_name(event))
+    let teams = Object.keys(dal.teams).length > 0
+    let matches = Object.keys(dal.matches).length > 0
     if (teams && matches)
     {
         return 1
