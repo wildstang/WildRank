@@ -40,6 +40,7 @@ const PAGE_FRAME = build_page_frame('', [
         build_status_tile('scout_config_valid', 'Scout Config')
     ]),
     build_column_frame('Data', [
+        build_counter('config', 'cfg', 0, 'increment("config", false)', 'increment("config", true)'),
         build_counter('teams', 'Event Teams', 0, 'increment("teams", false)', 'increment("teams", true)'),
         build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
         build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
@@ -60,16 +61,14 @@ var install
 function init_page()
 {
     document.body.innerHTML += PAGE_FRAME
-    let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
-    if (configs >= 10)
-    {
-        on_config()
-    }
-    else
-    {
-        let year = get_event().substr(0, 4)
-        fetch_config(on_config, year)
-    }
+
+    document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    document.getElementById('user_id').value = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+
+    let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    select_option('theme_switch', theme == 'light' ? 0 : 1)
+    apply_theme()
+    process_files()
 
     // add install button if PWA is not installed
     window.addEventListener('beforeinstallprompt', e => {
@@ -77,24 +76,6 @@ function init_page()
         install = e
         document.getElementById('install-container').innerHTML = build_button('install', 'Install WildRank', 'install_app()')
     })
-}
-
-/**
- * function:    on_config
- * parameters:  none
- * returns:     none
- * description: Fetch defaults, populate inputs with defaults, and apply theme.
- */
-function on_config()
-{
-    let defaults = get_config('defaults')
-    document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, defaults.event_id)
-    document.getElementById('user_id').value = get_cookie(USER_COOKIE, defaults.user_id)
-
-    let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-    select_option('theme_switch', theme == 'light' ? 0 : 1)
-    apply_theme()
-    process_files()
 }
 
 /**
@@ -123,59 +104,27 @@ function install_app()
  */
 function process_files()
 {
-    count_teams()
-
-    // get all files in localStorage
-    let files = Object.keys(localStorage)
-    let teams = 0
     let matches = 0
-    let pit_results = 0
-    let match_results = 0
-    let event = get_event()
-
-    if (file_exists(`matches-${event}`))
+    let pits = 0
+    for (let team in dal.teams)
     {
-        matches = JSON.parse(localStorage.getItem(`matches-${event}`)).length
-    }
-    if (file_exists(`teams-${event}`))
-    {
-        teams = JSON.parse(localStorage.getItem(`teams-${event}`)).length
-    }
-    for (let file of files)
-    {
-        let parts = file.split('-')
-        if (parts[1] == event)
+        matches += dal.teams[team].results.length
+        if (Object.entries(dal.teams[team].pit).length > 0)
         {
-            if (parts[0] == MATCH_MODE)
-            {
-                match_results++
-            }
-            else if (parts[0] == PIT_MODE)
-            {
-                pit_results++
-            }
+            pits++
         }
     }
-
-    document.getElementById('teams').innerHTML = teams
-    document.getElementById('matches').innerHTML = matches
-    document.getElementById('pit_results').innerHTML = pit_results
-    document.getElementById('match_results').innerHTML = match_results
+    document.getElementById('config').innerHTML = cfg.version
+    document.getElementById('teams').innerHTML = Object.keys(dal.teams).length
+    document.getElementById('matches').innerHTML = Object.keys(dal.matches).length
+    document.getElementById('pit_results').innerHTML = pits
+    document.getElementById('match_results').innerHTML = matches
 
     // update statuses
     set_status('event_data', check_event())
     set_status('server_type', check_server(get_upload_addr(), false))
-    let year = get_event().substr(0, 4)
-    set_status('scout_config_valid', validate_scout_config(get_config(`${year}-match`)) && validate_scout_config(get_config(`${year}-pit`)))
-    set_status('config_valid', validate_settings_config(get_config('settings')) &&
-        validate_settings_config(get_config('settings')) &&
-        validate_defaults_config(get_config('defaults')) &&
-        validate_coach_config(get_config('coach-vals'), year) &&
-        validate_smart_config(get_config('smart-stats'), year) &&
-        validate_wb_config(get_config('whiteboard')) &&
-        validate_admin_config(get_config('admins')) &&
-        validate_theme_config(get_config('theme')) &&
-        validate_theme_config(get_config('dark-theme')))
+    set_status('scout_config_valid', cfg.validate_game_configs())
+    set_status('config_valid', cfg.validate_settings_configs())
 }
 
 /**
@@ -201,29 +150,6 @@ function check_event()
     {
         return -1
     }
-}
-
-/**
- * function:    count_teams
- * parameters:  none
- * returns:     none
- * description: Counts teams in competition format.
- */
-function count_teams()
-{
-    let options = ''
-    let teams = get_team_keys(get_event())
-    for (let t of teams)
-    {
-        options += build_dropdown_op(t, '')
-    }
-    document.getElementById('position').innerHTML = options
-    let def = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-    if (def < 0)
-    {
-        def = 0
-    }
-    document.getElementById('position').selectedIndex = def
 }
 
 /**
