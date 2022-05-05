@@ -84,8 +84,7 @@ function init_page()
     let status = new ColumnFrame('status', 'Status')
     page.add_column(status)
 
-    let preload = new Button('preload_event', 'Preload Event')
-    preload.onclick = `save_options(); preload_event()`
+    let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
     status.add_input(preload)
 
     let transfer = new Button('transfer', 'Transfer Raw Data')
@@ -147,7 +146,8 @@ function init_page()
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault()
         install = e
-        document.getElementById('install-container').innerHTML = build_button('install', 'Install WildRank', 'install_app()')
+        let button = new Button('install', 'Install WildRank', 'install_app()')
+        document.getElementById('install-container').innerHTML = button.toString
     })
 }
 
