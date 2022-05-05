@@ -11,6 +11,7 @@ class DAL
     {
         this.event_id = event_id
         this.year = event_id.substr(0,4)
+        this.alliance_size = 0
 
         // data structures
         this.meta = {}
@@ -459,6 +460,8 @@ class DAL
                     winner: match.winning_alliance
                 }
             }
+
+            this.alliance_size = this.matches[`${this.event_id}_qm1`].red_alliance.length
         }
         
         if (Object.keys(this.matches).length === 0)
