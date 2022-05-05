@@ -1211,3 +1211,16 @@ function check_server(server, notify=true)
         return false
     }
 }
+
+/**
+ * function:    include
+ * parameters:  script name
+ * returns:     none
+ * description: Includes a script by name.
+ */
+function include(name)
+{
+    let s = document.createElement('script')
+    s.src = `scripts/${name}.js`
+    document.head.appendChild(s)
+}
