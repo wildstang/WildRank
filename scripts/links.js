@@ -49,7 +49,7 @@ function note_scout()
  */
 function open_ranker()
 {
-    return build_url('selection', {'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'ranker', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -60,7 +60,7 @@ function open_ranker()
  */
 function open_sides()
 {
-    return build_url('selection', {'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'sides', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -104,7 +104,7 @@ function open_advanced()
  */
 function open_results()
 {
-    return build_url('selection', {'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'new-results', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -115,7 +115,7 @@ function open_results()
  */
 function open_teams()
 {
-    return build_url('selection', {'page': 'teams', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'teams', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -148,7 +148,7 @@ function open_users()
  */
 function open_pivot()
 {
-    return build_url('selection', {'page': 'pivot', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'new-pivot', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -159,7 +159,7 @@ function open_pivot()
  */
 function open_distro()
 {
-    return build_url('selection', {'page': 'distro', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'distro', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -170,7 +170,7 @@ function open_distro()
  */
 function open_plot()
 {
-    return build_url('selection', {'page': 'plot', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'plot', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -192,7 +192,7 @@ function open_config()
  */
 function open_coach()
 {
-    return build_url('selection', {'page': 'coach', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'coach', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -214,7 +214,7 @@ function open_settings()
  */
 function open_random()
 {
-    return build_url('index', {'page': 'random', [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user(), [TYPE_COOKIE]: get_selected_type()})
+    return build_url('index', {'page': 'random', [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
 }
 
 /**
