@@ -185,6 +185,97 @@ class DAL
     }
 
     /**
+     * function:    get_results
+     * parameters:  teams to filter by, sort matches
+     * returns:     none
+     * description: Returns a list of matches sorted first by match then position.
+     */
+    get_results(teams=[], sort=true)
+    {
+        // build flat list of matches
+        let results = []
+        for (let team_num in this.teams)
+        {
+            if (teams.length === 0 || teams.includes(team_num))
+            {
+                results = results.concat(this.teams[team_num].results)
+            }
+        }
+
+        if (sort)
+        {
+            // sort matches first by comp level, then match number, then set number, and finally position
+            results.sort(function (a, b)
+            {
+                if (a.meta_comp_level !== b.meta_comp_level)
+                {
+                    if (a.meta_comp_level === 'qm')
+                    {
+                        return -1
+                    }
+                    else if (b.meta_comp_level === 'qm')
+                    {
+                        return 1
+                    }
+                    else if (a.meta_comp_level === 'qf')
+                    {
+                        return -1
+                    }
+                    else if (b.meta_comp_level === 'qf')
+                    {
+                        return 1
+                    }
+                    else if (a.meta_comp_level === 'sf')
+                    {
+                        return -1
+                    }
+                    else if (b.meta_comp_level === 'sf')
+                    {
+                        return 1
+                    }
+                }
+                else if (a.meta_match !== b.meta_match)
+                {
+                    return a.meta_match - b.meta_match
+                }
+                else if (a.meta_set_number !== b.meta_set_number)
+                {
+                    return a.meta_set_number - b.meta_set_number
+                }
+                return a.meta_position - b.meta_position
+            })
+        }
+        
+        return results
+    }
+
+    /**
+     * function:    get_pits
+     * parameters:  teams to filter by, sort pits
+     * returns:     none
+     * description: Returns a list of pits sorted first by match then position.
+     */
+    get_pits(teams=[], sort=true)
+    {
+        // build flat list of matches
+        let results = []
+        for (let team_num in this.teams)
+        {
+            if ((teams.length === 0 || teams.includes(team_num)) && Object.keys(this.teams[team_num].pit).length > 0)
+            {
+                results = results.concat(this.teams[team_num].pit)
+            }
+        }
+
+        if (sort)
+        {
+            results.sort((a, b) => a.meta_team - b.meta_team)
+        }
+        
+        return results
+    }
+
+    /**
      * function:    build_teams
      * parameters:  print times
      * returns:     teams data structure
@@ -388,6 +479,14 @@ class DAL
                 if (!match.hasOwnProperty('meta_match_key') && match.hasOwnProperty('meta_match') && match.hasOwnProperty('meta_event_id'))
                 {
                     match.meta_match_key = `${match.meta_event_id}_qm${match.meta_match}`
+                }
+                if (!match.hasOwnProperty('meta_comp_level') && match.hasOwnProperty('meta_match_key'))
+                {
+                    match.meta_comp_level = 'qm'
+                }
+                if (!match.hasOwnProperty('meta_set_number') && match.hasOwnProperty('meta_match_key'))
+                {
+                    match.meta_set_number = 1
                 }
                 this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
             }

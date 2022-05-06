@@ -174,14 +174,17 @@ function build_table(sort_by='', reverse=false)
         }
 
         // build dropdown for those that have stats
-        let dropdown = ''
+        let fn = ''
         if (key.startsWith('stats.'))
         {
-            dropdown = build_dropdown(`select_${key}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type, onchange=`build_table('${sort_by}', ${reverse})`, classes='slim thin')
+            let dropdown = new Dropdown(`select_${key}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
+            dropdown.onchange = `build_table('${sort_by}', ${reverse})`
+            dropdown.classes='slim thin'
+            fn = dropdown.toString
         }
 
         // build cells
-        types += `<td>${dropdown}</td>`
+        types += `<td>${fn}</td>`
         totals += `<td>${dal.get_global_value(global_stats, key, type.toLowerCase(), true)}</td>`
     }
     table += `</tr>${types}</tr>${totals}</tr>`

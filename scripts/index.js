@@ -182,16 +182,8 @@ function process_files()
     dal.build_teams()
 
     // count results
-    let matches = 0
-    let pits = 0
-    for (let team in dal.teams)
-    {
-        matches += dal.teams[team].results.length
-        if (Object.entries(dal.teams[team].pit).length > 0)
-        {
-            pits++
-        }
-    }
+    let matches = dal.get_results([], false).length
+    let pits = dal.get_pits([], false).length
 
     // update counters
     document.getElementById('config_version').innerHTML = cfg.version

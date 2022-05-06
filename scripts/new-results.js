@@ -40,38 +40,24 @@ function init_page(contents_card, buttons_container)
  */
 function build_result_list()
 {
-    // build data structure of matches and teams
-    let matches = {}
-    for (let team in dal.teams)
-    {
-        for (let result of dal.teams[team].results)
-        {
-            if (!matches.hasOwnProperty(result.meta_match))
-            {
-                matches[result.meta_match] = []
-            }
-            matches[result.meta_match].push(team)
-        }
-    }
+    let results = dal.get_results()
 
     // get selected team in filter
     let filter = document.getElementById('team_filter').value
 
     // build list of options, sorted by match
     let options = []
-    for (let match in matches)
+    for (let result of results)
     {
-        for (let team of matches[match])
+        let team = result.meta_team
+        if (filter === 'All' || team.toString() === filter)
         {
-            if (filter === 'All' || team === filter)
+            let spaces = 4 - team.length
+            for (let i = 0; i < spaces; i++)
             {
-                let spaces = 4 - team.length
-                for (let i = 0; i < spaces; i++)
-                {
-                    team = `&nbsp;${team}`
-                }
-                options.push(`${match} ${team}`)
+                team = `&nbsp;${team}`
             }
+            options.push(`${result.meta_match} ${team}`)
         }
     }
 

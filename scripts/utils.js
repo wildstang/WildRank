@@ -548,9 +548,9 @@ function is_match_scouted(event, match)
 function get_avatar(team_num, year)
 {
     let b64img = localStorage.getItem(get_team_avatar_name(team_num, year))
-    if (b64img == null || b64img == 'undefined')
+    if (b64img === null || b64img === 'undefined')
     {
-        return 'config/dozer.png'
+        return 'assets/dozer.png'
     }
     return `data:image/png;base64,${b64img}`
 }
@@ -1123,26 +1123,6 @@ function get_team_keys(event_id)
         }
     }
     return keys
-}
-
-/**
- * function:    count_results
- * parameters:  event id, scouting type
- * returns:     number of results
- * description: Determines how many results of a given type and event exist.
- */
-function count_results(event_id, type)
-{
-    let count = 0
-    let files = Object.keys(localStorage)
-    for (let file of files)
-    {
-        if (file.startsWith(`${type}-${event_id}-`))
-        {
-            ++count
-        }
-    }
-    return count
 }
 
 /**
