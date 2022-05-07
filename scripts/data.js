@@ -261,7 +261,7 @@ class DAL
         let results = []
         for (let team_num in this.teams)
         {
-            if ((teams.length === 0 || teams.includes(team_num)) && Object.keys(this.teams[team_num].pit).length > 0)
+            if ((teams.length === 0 || teams.includes(team_num)) && this.is_pit_scouted(team_num))
             {
                 results = results.concat(this.teams[team_num].pit)
             }
@@ -548,7 +548,26 @@ class DAL
             // pull necessary data into data structure
             for (let match of tba_matches)
             {
+                let match_name = ''
+                let short_match_name = ''
+                if (match.comp_level === 'qm')
+                {
+                    match_name = `Q ${match.match_number}`
+                    short_match_name = `${match.match_number}`
+                }
+                else if (match.comp_level === 'f')
+                {
+                    match_name = `F ${match.match_number}`
+                    short_match_name = `F${match.match_number}`
+                }
+                else
+                {
+                    match_name = `${match.comp_level.toUpperCase()} ${match.set_number}-${match.match_number}`
+                    short_match_name = `${match.comp_level.toUpperCase()}${match.set_number}${match.match_number}`
+                }
                 this.matches[match.key] = {
+                    match_name: match_name,
+                    short_match_name: short_match_name,
                     comp_level: match.comp_level,
                     set_number: match.set_number,
                     match_number: match.match_number,
@@ -699,6 +718,77 @@ class DAL
     }
 
     /**
+     * function:    is_pit_scouted
+     * parameters:  team number
+     * returns:     if the given teams pit is scouted
+     * description: Determines if the pit of a given team number has been scouted.
+     */
+    is_pit_scouted(team)
+    {
+        return this.teams.hasOwnProperty(team.toString()) && Object.keys(this.teams[team.toString()].pit).length > 0
+    }
+
+    /**
+     * function:    is_match_scouted
+     * parameters:  match key, team number
+     * returns:     if the given teams pit is scouted
+     * description: Determines if a match for a given team number has been scouted.
+     */
+    is_match_scouted(match_id, team)
+    {
+        let match_key = match_id.toLowerCase()
+        if (!match_key.startsWith(this.event_id))
+        {
+            match_key = `${this.event_id}_${match_key}`
+        }
+        return this.teams.hasOwnProperty(team.toString()) && this.teams[team.toString()].results.filter(r => r.meta_match_key === match_key).length > 0
+    }
+
+    /**
+     * function:    get_match_value
+     * parameters:  match id, value id
+     * returns:     requested value
+     * description: Get a given single stat from the matches data structure
+     */
+    get_match_value(match_id, id)
+    {
+        let match_key = match_id.toLowerCase()
+        if (!match_key.startsWith(this.event_id))
+        {
+            match_key = `${this.event_id}_${match_key}`
+        }
+        if (this.matches.hasOwnProperty(match_key) && this.matches[match_key].hasOwnProperty(id))
+        {
+            return this.matches[match_key][id]
+        }
+        return ''
+    }
+
+    /**
+     * function:    get_result_value
+     * parameters:  team number, match id, value id
+     * returns:     requested value
+     * description: Get a given single stat from a team's result data structure
+     */
+    get_result_value(team, match_id, id)
+    {
+        let match_key = match_id.toLowerCase()
+        if (!match_key.startsWith(this.event_id))
+        {
+            match_key = `${this.event_id}_${match_key}`
+        }
+        if (this.teams.hasOwnProperty(team.toString()))
+        {
+            let results = this.teams[team.toString()].results.filter(r => r.meta_match_key === match_key)
+            if (results.length === 1 && results[0].hasOwnProperty(id))
+            {
+                return results[0][id]
+            }
+        }
+        return ''
+    }
+ 
+    /**
      * function:    get_value
      * parameters:  team, id, stat to use if an option, if it should be a friendly value
      * returns:     a given stat
@@ -707,7 +797,7 @@ class DAL
     get_value(team, id, stat='mean', map=false)
     {
         let parts = id.split('.')
-        if (parts.length >= 2)
+        if (parts.length >= 2 && this.teams.hasOwnProperty(team.toString()))
         {
             let category = parts[0]
             let key = parts[1]

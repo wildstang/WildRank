@@ -523,7 +523,6 @@ class Option extends Element
     constructor(id, label)
     {
         super(id, label)
-        this.primary_list = primary_list
         this.primary_list = true
         this.selected = ''
         this.style = ''

@@ -8,12 +8,9 @@
 const start = Date.now()
 
 var cycles = {}
-var config = {}
 
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 
@@ -23,8 +20,6 @@ const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
 const generate = urlParams.get('generate')
 var edit = urlParams.get('edit') == 'true'
-var results = {}
-var meta = {}
 
 /**
  * function:    init_page
@@ -34,29 +29,25 @@ var meta = {}
  */
 function init_page()
 {
-    config = get_scout_config(scout_mode, year)
-    meta = get_result_meta(scout_mode, year)
-
+    // check if result exists to be edited
     if (edit)
     {
-        let file = ''
         switch (scout_mode)
         {
             case MATCH_MODE:
-                file = get_match_result(match_num, team_num, event_id)
+                edit = dal.is_match_scouted(match_num, team_num)
                 break
             case PIT_MODE:
-                file = get_pit_result(team_num, event_id)
+                edit = dal.is_pit_scouted(team_num)
+                break
+            default:
+                console.log('Invalid mode')
+                edit = false
                 break
         }
-        edit = file_exists(file)
-        if (edit)
+        if (!edit)
         {
-            results = JSON.parse(localStorage.getItem(file))
-        }
-        else
-        {
-            console.log(`Existing result, ${file}, could not be found`)
+            console.log(`Existing result, could not be found`)
         }
     }
 
@@ -67,18 +58,12 @@ function init_page()
             document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
-            let format = get_teams_format(event_id)
-            let pos = 1 + parseInt(scout_pos)
-            if (pos > format.red)
-            {
-                pos -= format.red
-            }
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${scout_pos})</span>`
             break
     }
     ws(team_num)
-    build_page_from_config(scout_mode)
-    if (generate == 'random' && get_config('settings').allow_random)
+    build_page_from_config()
+    if ((generate === 'random' && cfg.settings.allow_random) || generate === 'force')
     {
         generate_results()
     }
@@ -94,7 +79,7 @@ function build_page_from_config()
 {
     var select_ids = []
     // iterate through each page in the mode
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         var page_name = page.name
         columns = []
@@ -116,7 +101,7 @@ function build_page_from_config()
                 // map results to defaults in edit mode
                 if (edit)
                 {
-                    default_val = results[id]
+                    default_val = dal.get_result_value(team_num, match_num, id)
                     if (type == 'dropdown' || type == 'select')
                     {
                         default_val = input['options'][default_val]
@@ -126,7 +111,7 @@ function build_page_from_config()
                         default_val = input.options.map(function (op)
                         {
                             let name = `${id}_${op.toLowerCase().split().join('_')}`
-                            return results[name]
+                            return dal.get_result_value(team_num, match_num, name)
                         })
                     }
                 }
@@ -189,7 +174,7 @@ function build_page_from_config()
                 // create and populate (if editing) cycle arrays
                 if (edit)
                 {
-                    cycles[column.id] = results[column.id]
+                    cycles[column.id] = dal.get_result_value(team_num, match_num, column.id)
                 }
                 else
                 {
@@ -236,7 +221,7 @@ function update_cycle(cycle, decrement)
     let cycle_result = {}
 
     // iterate through each column in the page
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -331,7 +316,7 @@ function update_cycle(cycle, decrement)
 function check_cycles()
 {
     // iterate through each column in the page
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -424,12 +409,16 @@ function get_results_from_page()
     // match metadata
     if (scout_mode != PIT_MODE)
     {
-        results['meta_match'] = parseInt(match_num)
+        results['meta_match_key'] = match_num
+        results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
+        results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
+        results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
+        results['meta_alliance'] = alliance_color
     }
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         for (let column of page.columns)
         {
@@ -520,7 +509,7 @@ function get_results_from_page()
  */
 function generate_results()
 {
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         for (let column of page.columns)
         {

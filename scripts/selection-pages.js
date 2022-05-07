@@ -20,10 +20,6 @@ function check_teams(teams, match_teams)
 {
     for (let team of match_teams)
     {
-        if (typeof team === 'string' && team.startsWith('frc'))
-        {
-            team = team.substring(3)
-        }
         if (teams.includes(team))
         {
             return true
@@ -49,78 +45,64 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
         list = 'secondary_option_list'
     }
     document.getElementById(list).innerHTML = ''
-    if (!Array.isArray(team_filter))
-    {
-        team_filter = `frc${team_filter}`
-    }
     
-    let file_name = get_event_matches_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let matches = Object.keys(dal.matches)
+    let first = ''
+    let first_avail = ''
+    matches.sort((a, b) => dal.matches[a].scheduled_time - dal.matches[b].scheduled_time)
+
+    // determine if event has been completed outside of WildRank
+    let completes = matches.map(m => dal.matches[m].winner !== null)
+    let completeTBA = completes.every(Boolean)
+
+    // iterate through each match obj
+    for (let match_key of matches)
     {
-        let matches = JSON.parse(localStorage.getItem(file_name))
-        let first = ''
-        let first_avail = ''
-        matches.sort((a, b) => a.time - b.time)
-
-        // determine if event has been completed outside of WildRank
-        let completes = matches.map(m => m.alliances.red.score && m.alliances.red.score >= 0)
-        let completeTBA = completes.every(Boolean)
-
-        // iterate through each match obj
-        for (let match of matches)
+        let match = dal.matches[match_key]
+        let number = match.match_number
+        let red_teams = match.red_alliance
+        let blue_teams = match.blue_alliance
+        if ((match.comp_level == 'qm' || finals) &&
+            (Array.isArray(team_filter) || (team_filter == '' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
+            (!Array.isArray(team_filter) || (team_filter.length == 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
         {
-            let number = match.match_number
-            let red_teams = match.alliances.red.team_keys
-            let blue_teams = match.alliances.blue.team_keys
-            if ((match.comp_level == 'qm' || finals) &&
-                (Array.isArray(team_filter) || (team_filter == 'frc' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
-                (!Array.isArray(team_filter) || (team_filter.length == 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
+            // grey out previously scouted matches/teams
+            let scouted = 'not_scouted'
+            let level = match.comp_level.toUpperCase()
+            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_match_scouted(event_id, number) && level == 'QM')))
             {
-                // grey out previously scouted matches/teams
-                let scouted = 'not_scouted'
-                let level = match.comp_level.replace('qm', '').toUpperCase()
-                if (complete && ((!completeTBA && match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == '')))
-                {
-                    scouted = 'scouted'
-                    first = ''
-                }
-                else if (first === '')
-                {
-                    first = number
-                }
-                if (level && level !== 'F')
-                {
-                    level += match.set_number
-                }
-                if (first_avail === '')
-                {
-                    first_avail = number
-                }
-    
-                document.getElementById(list).innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
+                scouted = 'scouted'
+                first = ''
             }
+            else if (first === '')
+            {
+                first = match_key
+            }
+            if (first_avail === '')
+            {
+                first_avail = match_key
+            }
+
+            // build match name
+            let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
+            document.getElementById(list).innerHTML += option.toString
         }
-        // default to first match if no first was selected
-        if (first === '' && first_avail !== '')
-        {
-            first = first_avail
-        }
-        else if (first == '' && matches.length > 0)
-        {
-            first = matches[0].match_number
-        }
-        
-        if (first !== '')
-        {
-            scroll_to(list, `match_${first}`)
-        }
-        return first
     }
-    else
+    // default to first match if no first was selected
+    if (first === '' && first_avail !== '')
     {
-        alert('No matches found')
-        return false
+        first = first_avail
     }
+    else if (first == '' && matches.length > 0)
+    {
+        first = matches[0]
+    }
+    
+    if (first !== '')
+    {
+        scroll_to(list, `match_option_${first}`)
+    }
+    return first
 }
 
 /**
@@ -136,74 +118,64 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let teams = Object.keys(dal.teams)
+    let first = ''
+    let second = ''
+
+    // iterate through team objs
+    for (let number of teams)
     {
-        let teams = JSON.parse(localStorage.getItem(file_name))
-        let first = ''
-        let second = ''
-
-        // iterate through team objs
-        for (let team of teams)
+        let name = dal.get_value(number, 'meta.name')
+        // determine if the team has already been scouted
+        let scouted = 'not_scouted'
+        if (complete && dal.is_pit_scouted(number))
         {
-            let number = team.team_number
-            let name = team.nickname
-            // determine if the team has already been scouted
-            let scouted = 'not_scouted'
-            if (complete && file_exists(get_pit_result(number, event_id)))
-            {
-                first = ''
-                scouted = 'scouted'
-            }
-            else if (first == '')
-            {
-                first = number
-            }
-            else if (second == '')
-            {
-                second = number
-            }
-            
-            // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_desc_option(number, scouted, '', name)
-            if (secondary)
-            {
-                document.getElementById('secondary_option_list').innerHTML += build_desc_option(number, scouted, '', name, '', false)
-            }
+            first = ''
+            scouted = 'scouted'
         }
-
-        if (minipicklist)
+        else if (first == '')
         {
-            setup_picklists()
+            first = number
         }
-
-        if (first == '' && teams.length > 0)
+        else if (second == '')
         {
-            first = teams[0].team_number
+            second = number
         }
-        if (second == '' && teams.length > 1)
+        
+        // replace placeholders in template and add to screen
+        document.getElementById('option_list').innerHTML += build_desc_option(number, scouted, '', name)
+        if (secondary)
         {
-            second = teams[1].team_number
+            document.getElementById('secondary_option_list').innerHTML += build_desc_option(number, scouted, '', name, '', false)
         }
-
-        if (first !== '')
-        {
-            scroll_to('option_list', `option_${first}`)
-            if (secondary && second !== '')
-            {
-                enable_secondary_list()
-                scroll_to('secondary_option_list', `soption_${first}`)
-                return [first, second]
-            }
-        }
-
-        return first
     }
-    else
+
+    if (minipicklist)
     {
-        alert('No teams found')
-        return false
+        setup_picklists()
     }
+
+    if (first == '' && teams.length > 0)
+    {
+        first = teams[0]
+    }
+    if (second == '' && teams.length > 1)
+    {
+        second = teams[1]
+    }
+
+    if (first !== '')
+    {
+        scroll_to('option_list', `option_${first}`)
+        if (secondary && second !== '')
+        {
+            enable_secondary_list()
+            scroll_to('secondary_option_list', `soption_${first}`)
+            return [first, second]
+        }
+    }
+
+    return first
 }
 
 /**

@@ -50,7 +50,8 @@ function build_result_list()
     for (let result of results)
     {
         let team = result.meta_team
-        if (filter === 'All' || team.toString() === filter)
+        if ((selected === '' || `${result.meta_match_key}-${result.meta_team}` === selected) &&
+            (filter === 'All' || team.toString() === filter))
         {
             let spaces = 4 - team.length
             for (let i = 0; i < spaces; i++)
