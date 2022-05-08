@@ -34,7 +34,7 @@ class Config
      * returns:     none
      * description: Loads configs in from localStorage.
      */
-    load_configs(fetch_on_fail=true)
+    load_configs(fetch_on_fail=0, on_load='')
     {
         // load in settings configs
         this.keys = this.load_config('keys')
@@ -45,10 +45,10 @@ class Config
         this.settings = this.load_config('settings')
 
         // if any failed to load re-fetch them
-        if (fetch_on_fail && (this.keys === false || this.defaults === false || this.theme === false ||
+        if (fetch_on_fail < 1 && (this.keys === false || this.defaults === false || this.theme === false ||
             this.dark_theme === false || this.admins === false || this.settings === false))
         {
-            this.fetch_settings_config(true)
+            this.fetch_settings_config(true, on_load)
             return
         }
 
@@ -67,11 +67,16 @@ class Config
         this.version = this.load_config(`${this.year}-version`)
 
         // if any failed to load re-fetch them
-        if (fetch_on_fail && (this.pit === false || this.match === false || this.smart_stats === false ||
+        if (fetch_on_fail < 2 && (this.pit === false || this.match === false || this.smart_stats === false ||
             this.coach === false || this.whiteboard === false))
         {
-            this.fetch_game_config(true)
+            this.fetch_game_config(true, on_load)
             return
+        }
+
+        if (on_load !== '')
+        {
+            on_load()
         }
     }
 
@@ -97,8 +102,10 @@ class Config
      * returns:     none
      * description: Pulls the settings config file from server into localStorage.
      */
-    fetch_settings_config(force=false)
+    fetch_settings_config(force=false, on_load='')
     {
+        console.log('Fetching settings config')
+
         // force reload config if requested
         let init = {}
         if (force)
@@ -123,7 +130,7 @@ class Config
                 {
                     localStorage.setItem(`config-${section}`, JSON.stringify(data[section]))
                 }
-                this.load_configs(false)
+                this.load_configs(1, on_load)
             })
             .catch(err => {
                 console.log(`Error fetching settings config file, ${err}`)
@@ -136,8 +143,10 @@ class Config
      * returns:     none
      * description: Pulls the game config file from server into localStorage.
      */
-    fetch_game_config(force=false)
+    fetch_game_config(force=false, on_load='')
     {
+        console.log('Fetching game config')
+
         // force reload config if requested
         let init = {}
         if (force)
@@ -162,7 +171,7 @@ class Config
                 {
                     localStorage.setItem(`config-${this.year}-${section}`, JSON.stringify(data[section]))
                 }
-                this.load_configs(false)
+                this.load_configs(2, on_load)
             })
             .catch(err => {
                 console.log(`Error fetching ${this.year} config file, ${err}`)

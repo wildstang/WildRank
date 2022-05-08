@@ -10,7 +10,7 @@ const PIT_MODE   = 'pit'
 const NOTE_MODE  = 'note'
 
 const EVENT_COOKIE = 'event_id'
-const EVENT_DEFAULT = '2022ilch'
+const EVENT_DEFAULT = '2022new'
 const USER_COOKIE = 'user_id'
 const USER_DEFAULT = '120001'
 const TYPE_COOKIE = 'type'
@@ -123,7 +123,10 @@ function get_cookie(cname, dvalue)
             return c.substring(name.length, c.length);
         }
     }
-    set_cookie(cname, dvalue)
+    if (typeof dvalue !== 'undefined')
+    {
+        set_cookie(cname, dvalue)
+    }
     return dvalue;
 }
 

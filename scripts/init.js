@@ -34,14 +34,23 @@ window.addEventListener('load', function()
 {
     // load in configs
     cfg = new Config(year)
-    cfg.load_configs()
-    
+    cfg.load_configs(0, on_config)
+})
+
+/**
+ * function:    on_config()
+ * parameters:  none
+ * returns:     none
+ * description: Load in DAL and build page once there is a config.
+ */
+function on_config()
+{
     // load in data
     dal = new DAL(event_id)
     dal.build_teams()
 
     init_page()
-})
+}
 
 /**
  * function:    home()

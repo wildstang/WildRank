@@ -65,6 +65,7 @@ function preload_event()
                 if (++count === 3)
                 {
                     alert('Preload complete!')
+                    dal.build_teams()
                 }
             }
             else
@@ -114,6 +115,7 @@ function preload_event()
                 if (++count === 3)
                 {
                     alert('Preload complete!')
+                    dal.build_teams()
                 }
             }
             else
@@ -149,6 +151,7 @@ function preload_event()
             if (++count === 3)
             {
                 alert('Preload complete!')
+                dal.build_teams()
             }
         })
         .catch(err => {

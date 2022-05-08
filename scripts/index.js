@@ -197,6 +197,21 @@ function process_files()
     set_status('server_type', check_server(get_upload_addr(), false))
     set_status('scout_config_valid', cfg.validate_game_configs())
     set_status('config_valid', cfg.validate_settings_configs())
+
+    // rebuild position options
+    let position = new Dropdown('position', 'Position')
+    for (let i = 1; i <= dal.alliance_size * 2; i++)
+    {
+        let color = 'Red'
+        let pos = i
+        if (i > dal.alliance_size)
+        {
+            color = 'Blue'
+            pos = i - dal.alliance_size
+        }
+        position.add_option(`${color} ${pos}`)
+    }
+    document.getElementById('position').innerHTML = position.html_options
 }
 
 /**
