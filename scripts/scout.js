@@ -77,18 +77,16 @@ function init_page()
  */
 function build_page_from_config()
 {
-    var select_ids = []
+    let select_ids = []
     // iterate through each page in the mode
     for (let page of cfg[scout_mode])
     {
-        var page_name = page.name
-        columns = []
+        let page_frame = new PageFrame(page.id, page.name)
         // iterate through each column in the page
         for (let column of page.columns)
         {
-            var col_name = column.name
             let cycle = column.cycle
-            items = []
+            let col_frame = new ColumnFrame(column.id, column.name)
             // iterate through input in the column
             for (let input of column.inputs)
             {
@@ -99,7 +97,7 @@ function build_page_from_config()
                 let options = input['options']
 
                 // map results to defaults in edit mode
-                if (edit)
+                if (edit && scout_mode === MATCH_MODE)
                 {
                     default_val = dal.get_result_value(team_num, match_num, id)
                     if (type == 'dropdown' || type == 'select')
@@ -115,8 +113,24 @@ function build_page_from_config()
                         })
                     }
                 }
+                else if (edit && scout_mode === PIT_MODE)
+                {
+                    default_val = dal.get_value(team_num, `pit.${id}`)
+                    if (type == 'dropdown' || type == 'select')
+                    {
+                        default_val = input['options'][default_val]
+                    }
+                    else if (type == 'multicounter')
+                    {
+                        default_val = input.options.map(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            return dal.get_value(team_num, `pit.${name}`)
+                        })
+                    }
+                }
 
-                var item = ''
+                let item
                 // build each input from its template
                 switch (type)
                 {
@@ -125,25 +139,28 @@ function build_page_from_config()
                         {
                             select_ids.push(`${id}-container`)
                         }
-                        item = build_checkbox(id, name, default_val)
+                        item = new Checkbox(id, name, default_val)
                         break
                     case 'counter':
-                        item = build_counter(id, name, default_val)
+                        item = new Counter(id, name, default_val)
                         break
                     case 'multicounter':
-                        item = build_multi_counter(id, name, options, default_val)
+                        item = new MultiCounter(id, name, options, default_val)
                         break
                     case 'select':
-                        item = build_select(id, name, options, default_val, '', input.vertical)
+                        item = new Select(id, name, options, default_val)
+                        item.vertical = input.vertical
                         break
                     case 'dropdown':
-                        item = build_dropdown(id, name, options, default_val)
+                        item = new Dropdown(id, name, options, default_val)
                         break
                     case 'string':
-                        item = build_str_entry(id, name, default_val)
+                        item = new Entry(id, name, default_val)
                         break
                     case 'number':
-                        item = build_num_entry(id, name, default_val, options)
+                        item = new Entry(id, name, default_val)
+                        item.type = 'number'
+                        item.bounds = options
                         break
                     case 'slider':
                         let step = 1
@@ -151,25 +168,25 @@ function build_page_from_config()
                         {
                             step = options[2]
                         }
-                        item = build_slider(id, name, options[0], options[1], step, default_val)
+                        item = new Slider(id, name, default_val)
+                        item.bounds = options
                         break
                     case 'text':
-                        item = build_text_entry(id, name, default_val)
+                        item = new Extended(id, name, default_val)
                         break
                 }
-                items.push(item)
+                col_frame.add_input(item)
             }
             if (cycle)
             {
                 // create cycle counter, call update_cycle() on change
-                let onincrement = ''
-                let ondecrement = ''
+                let counter = new Counter(`${column.id}_cycles`, 'Cycles', 0)
                 if (cycle)
                 {
-                    onincrement = `update_cycle('${column.id}', false)`
-                    ondecrement = `update_cycle('${column.id}', true)`
+                    counter.onincrement = `update_cycle('${column.id}', false)`
+                    counter.ondecrement = `update_cycle('${column.id}', true)`
                 }
-                items.push(build_counter(`${column.id}_cycles`, 'Cycles', 0, onincrement, ondecrement))
+                col_frame.add_input(counter)
 
                 // create and populate (if editing) cycle arrays
                 if (edit)
@@ -180,14 +197,16 @@ function build_page_from_config()
                 {
                     cycles[column.id] = []
                 }
+                col_frame.add_class('cycle')
             }
-            columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
+            page_frame.add_column(col_frame)
         }
-        document.body.innerHTML += build_page_frame(page_name, columns)
+        document.body.innerHTML += page_frame.toString
         
     }
     // replace placeholders in template and add to screen
-    document.body.innerHTML += build_button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
+    let submit = new Button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
+    document.body.innerHTML += submit.toString
 
     // mark each selected box as such
     for (let id of select_ids)
@@ -483,10 +502,10 @@ function get_results_from_page()
     }
 
     // get result name
-    let file = get_pit_result(team_num, event_id)
-    if (scout_mode == MATCH_MODE)
+    let file = `pit-${event_id}-${team_num}`
+    if (scout_mode === MATCH_MODE)
     {
-        file = get_match_result(match_num, team_num, event_id)
+        file = `match-${event_id}-${match_num}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
     
