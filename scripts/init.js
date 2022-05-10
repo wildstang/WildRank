@@ -50,6 +50,7 @@ function on_config()
     dal.build_teams()
 
     init_page()
+    apply_theme()
 }
 
 /**

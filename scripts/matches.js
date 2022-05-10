@@ -19,7 +19,7 @@ var generate = ''
  * returns:     none
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
     let first = populate_matches(false)
     if (first)
@@ -33,13 +33,12 @@ function init_page(contents_card, buttons_container)
         }
 
         // add scouting position
-        let format = get_teams_format(event_id)
         let alliance = 'Red'
         let pos = 1 + parseInt(scout_pos)
-        if (pos > format.red)
+        if (pos > dal.alliance_size)
         {
             alliance = 'Blue'
-            pos -= format.red
+            pos -= dal.alliance_size
         }
         contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
                                     Scouting: ${alliance} ${pos}<br><br>

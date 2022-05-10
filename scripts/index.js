@@ -286,8 +286,7 @@ function has_event()
  */
 function has_teams()
 {
-    let event = get_event()
-    return file_exists(get_event_teams_name(event))
+    return Object.keys(dal.teams).length > 0
 }
 
 /**
@@ -298,8 +297,7 @@ function has_teams()
  */
 function has_matches()
 {
-    let event = get_event()
-    return file_exists(get_event_matches_name(event))
+    return Object.keys(dal.matches).length > 0
 }
  
 /**
@@ -315,7 +313,7 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id != 'scout' && !is_admin(user))
+    if (id != 'scout' && !cfg.admins.includes(parseInt(user)))
     {
         return 'Missing admin privileges'
     }

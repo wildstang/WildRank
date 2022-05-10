@@ -109,7 +109,6 @@ function preload_event()
                             localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
                         })
                         .catch(err => {
-                            console.log(`Error loading avatar: ${err}!`)
                         })
                 }
                 if (++count === 3)

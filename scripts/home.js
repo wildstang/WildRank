@@ -80,7 +80,7 @@ const BUTTONS = {
 function init_page()
 {
     let role = get_cookie(ROLE_COOKIE, ROLE_DEFAULT)
-    if (role == ROLE_DEFAULT)
+    if (role === ROLE_DEFAULT || typeof role === 'undefined')
     {
         window.open('index.html?page=index', '_self')
         return
@@ -113,17 +113,6 @@ function init_page()
     column.add_input(sign_out)
 
     document.body.innerHTML += page.toString + sign_out_page.toString
-}
-
-/**
- * function:    on_config
- * parameters:  none
- * returns:     none
- * description: Fetch defaults, populate inputs with defaults, and apply theme.
- */
-function on_config()
-{
-    hide_buttons()
 }
 
 /**
@@ -177,8 +166,7 @@ function has_event()
  */
 function has_teams()
 {
-    let event = get_event()
-    return file_exists(get_event_teams_name(event))
+    return Object.keys(dal.teams).length > 0
 }
 
 /**
@@ -189,8 +177,7 @@ function has_teams()
  */
 function has_matches()
 {
-    let event = get_event()
-    return file_exists(get_event_matches_name(event))
+    return Object.keys(dal.matches).length > 0
 }
  
 /**
@@ -223,7 +210,7 @@ function is_blocked(id)
     {
         return `Missing match data.`
     }
-    if (limits.includes('admin') && !is_admin(get_user()))
+    if (limits.includes('admin') && !cfg.admins.includes(parseInt(get_user())))
     {
         return `Admin access required.`
     }
@@ -240,7 +227,7 @@ function is_blocked(id)
     for (let i = 0; i < configs.length; ++i)
     {
         let config = configs[i]
-        if (!config_exists(config, year))
+        if (!cfg.hasOwnProperty(config))
         {
             return `Missing ${config} configuration.`
         }
@@ -281,8 +268,7 @@ function check_press(id, on_press)
  */
 function get_event()
 {
-    let defaults = get_config('defaults')
-    return get_cookie(EVENT_COOKIE, defaults.event_id)
+    return get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
 }
 
 /**
@@ -293,8 +279,7 @@ function get_event()
  */
 function get_user()
 {
-    let defaults = get_config('defaults')
-    return get_cookie(USER_COOKIE, defaults.user_id)
+    return get_cookie(USER_COOKIE, cfg.defaults.user_id)
 }
 
 /**

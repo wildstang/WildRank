@@ -69,7 +69,7 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             // grey out previously scouted matches/teams
             let scouted = 'not_scouted'
             let level = match.comp_level.toUpperCase()
-            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_match_scouted(event_id, number) && level == 'QM')))
+            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (dal.is_match_scouted(event_id, number) && level == 'QM')))
             {
                 scouted = 'scouted'
                 first = ''
@@ -143,10 +143,13 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         }
         
         // replace placeholders in template and add to screen
-        document.getElementById('option_list').innerHTML += build_desc_option(number, scouted, '', name)
+        let op = new DescriptiveOption(number, number, name)
+        op.add_class(scouted)
+        document.getElementById('option_list').innerHTML += op.toString
         if (secondary)
         {
-            document.getElementById('secondary_option_list').innerHTML += build_desc_option(number, scouted, '', name, '', false)
+            op.primary_list = false
+            document.getElementById('secondary_option_list').innerHTML += op.toString
         }
     }
 
@@ -201,14 +204,18 @@ function populate_keys(dal)
         // iterate through result keys
         for (let key of keys)
         {
-            document.getElementById('option_list').innerHTML += build_option(key, '', dal.meta[key].name, 'font-size:10px')
+            let op = new Option(key, dal.meta[key].name)
+            op.style = 'font-size:10px'
+            document.getElementById('option_list').innerHTML += op.toString
         }
         
         // add second option list of teams
         let teams = Object.keys(dal.teams)
         for (let team of teams)
         {
-            document.getElementById('secondary_option_list').innerHTML += build_option(team, '', '', '', false)
+            let op = new Option(team, team)
+            op.primary_list = false
+            document.getElementById('secondary_option_list').innerHTML += op.toString
         }
 
         enable_secondary_list()
@@ -253,8 +260,9 @@ function populate_other(options)
             }
     
             // replace placeholders in template and add to screen
-            let name = names ? names[op] : op
-            option_list += build_option(op, '', name)
+            let name = names.length > 0 ? names[op] : op
+            let option = new Option(op, name)
+            option_list += option.toString
         }
         document.getElementById('option_list').innerHTML = option_list
         
@@ -295,7 +303,9 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true)
     {
         id = 'secondary_filter'
     }
-    document.getElementById(id).innerHTML = build_dropdown(filter_id, '', options, options[0], func)
+    let dropdown = new Dropdown(filter_id, '', options)
+    dropdown.onclick = func
+    document.getElementById(id).innerHTML = dropdown.toString
     document.getElementById(filter_id).style.margin = '4px auto'
     document.getElementById(filter_id).style.width = `${300}px`
 }
@@ -313,7 +323,8 @@ function add_button_filter(filter_id, text, func, primary_list=true)
     {
         id = 'secondary_filter'
     }
-    document.getElementById(id).innerHTML += build_button(filter_id, text, func)
+    let button = new Button(filter_id, text, func)
+    document.getElementById(id).innerHTML += button.toString
     document.getElementById(`${filter_id}-container`).style.margin = '4px auto'
     document.getElementById(`${filter_id}-container`).style.width = `${300}px`
 }

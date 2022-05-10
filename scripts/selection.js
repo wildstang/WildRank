@@ -223,6 +223,9 @@ window.addEventListener('load', function()
     cfg.load_configs(0, on_config)
 })
 
+var contents_card
+var buttons_container
+
 /**
  * function:    on_config()
  * parameters:  none
@@ -235,5 +238,9 @@ function on_config()
     dal = new DAL(event_id)
     dal.build_teams()
 
+    contents_card = document.getElementById('contents_card')
+    buttons_container = document.getElementById('buttons_container')
+
     init_page()
+    apply_theme()
 }

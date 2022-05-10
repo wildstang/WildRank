@@ -16,7 +16,7 @@ const selected = urlParams.get('file')
  * returns:     none
  * description: Fetch results from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
     contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
                                 <table id="results_tab"></table>`
@@ -50,7 +50,7 @@ function build_result_list()
     for (let result of results)
     {
         let team = result.meta_team
-        if ((selected === '' || `${result.meta_match_key}-${result.meta_team}` === selected) &&
+        if (((selected === '' || selected === null) || `${result.meta_match_key}-${result.meta_team}` === selected) &&
             (filter === 'All' || team.toString() === filter))
         {
             let spaces = 4 - team.length
