@@ -101,7 +101,7 @@ class ColumnFrame extends Element
 
     get toString()
     {
-        return `<div id="${this.id}" class="column">
+        return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
                 ${this.html_label}
                 ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
             </div>`
@@ -371,6 +371,19 @@ class Entry extends Input
     get toString()
     {
         return `${this.html_label}${this.html_description}<input class="wr_string ${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>`
+    }
+}
+
+class Extended extends Input
+{
+    constructor(id, label, def='')
+    {
+        super(id, label, def)
+    }
+
+    get toString()
+    {
+        return `${this.html_label}${this.html_description}<textarea class="wr_text" id="${this.id}">${this.def}</textarea>`
     }
 }
 

@@ -122,6 +122,9 @@ function init_page()
     colorentry.show_color = true
     entries.add_input(colorentry)
 
+    let extentry = new Extended('', 'Extended Entry')
+    entries.add_input(extentry)
+
     let selects = new ColumnFrame('', 'Select Column')
     page.add_column(selects)
 

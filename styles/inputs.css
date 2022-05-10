@@ -25,7 +25,7 @@
 
 .column {
     display: inline-block;
-    padding-right: var(--input-gap);
+    margin-right: var(--input-gap);
     text-align: left;
     vertical-align:top;
 }
@@ -229,8 +229,7 @@
 }
 
 .cycle {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
+    background-color: #FF00FF22;
 }
 
 .red_box {
