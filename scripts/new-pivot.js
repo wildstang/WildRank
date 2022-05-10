@@ -14,7 +14,7 @@ let selected_keys = []
  * returns:     none
  * description: Assemble the structure of the page.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
     contents_card.innerHTML = '<table id="results_tab" style="position: relative"></table>'
     buttons_container.innerHTML = ''
@@ -26,6 +26,7 @@ function init_page(contents_card, buttons_container)
         lists = JSON.parse(localStorage.getItem(file_name))
         add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
     }
+    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true)
 
     // add select button above secondary list
     add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
@@ -37,7 +38,7 @@ function init_page(contents_card, buttons_container)
 }
 
 /**
- * function:    open_option
+ * function:    filter_teams
  * parameters:  none
  * returns:     none
  * description: Selects teams based off the selected picklist.
@@ -51,6 +52,30 @@ function filter_teams()
     }
 
     build_table()
+}
+
+/**
+ * function:    filter_stats
+ * parameters:  none
+ * returns:     none
+ * description: Selects stats based off the selected type.
+ */
+function filter_stats()
+{
+    let filter = document.getElementById('stat_filter').value.toLowerCase()
+    let keys = dal.get_keys()
+    for (let k of keys)
+    {
+        let element = document.getElementById(`option_${k}`)
+        if (filter !== 'all' && !k.startsWith(filter) && !element.classList.contains('selected'))
+        {
+            element.style.display = 'none'
+        }
+        else
+        {
+            element.style.display = 'block'
+        }
+    }
 }
 
 /**
@@ -179,7 +204,8 @@ function build_table(sort_by='', reverse=false)
         {
             let dropdown = new Dropdown(`select_${key}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
             dropdown.onchange = `build_table('${sort_by}', ${reverse})`
-            dropdown.classes='slim thin'
+            dropdown.add_class('slim')
+            dropdown.add_class('thin')
             fn = dropdown.toString
         }
 
