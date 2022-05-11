@@ -199,6 +199,20 @@ class MultiButton extends Element
     }
 }
 
+class Card extends Element
+{
+    constructor(id, label)
+    {
+        super(id, label)
+        this.limitWidth = false
+    }
+
+    get toString()
+    {
+        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${this.limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${this.label}</div><br>`
+    }
+}
+
 class StatusTile extends Element
 {
     constructor(id, label, color)
