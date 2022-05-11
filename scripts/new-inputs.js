@@ -561,7 +561,7 @@ class DescriptiveOption extends Option
 {
     constructor(id, label, description)
     {
-        super(id, label, primary_list)
+        super(id, label)
         this.description = description
     }
 
@@ -575,7 +575,7 @@ class DescriptiveOption extends Option
             id = `soption_${this.id}`
             on_click = `open_secondary_option('${this.id}')`
         }
-        return `<div id="${this.id}" class="pit_option ${this.selected}" onclick="${on_click}" style="${this.style}">
+        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" style="${this.style}">
                     <span class="long_option_number">${this.label}</span><br>
                     <span class="long_option_description">${this.description}</span>
                 </div>`

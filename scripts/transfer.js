@@ -60,7 +60,7 @@ function preload_event()
                 })
 
                 // store matches as JSON string in matches-[event-id]
-                localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
+                localStorage.setItem(`matches-${event_id}`, JSON.stringify(matches))
                 process_files()
                 if (++count === 3)
                 {
@@ -94,7 +94,7 @@ function preload_event()
                             : 0;
                 })
                 // store teams as JSON string in teams-[event_id]
-                localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
+                localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
                 process_files()
 
                 // fetch team's avatar for whiteboard
@@ -106,7 +106,7 @@ function preload_event()
                             return response.json()
                         })
                         .then(data => {
-                            localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
+                            localStorage.setItem(`avatar-${year}-${team.team_number}`, data[0].details.base64Image)
                         })
                         .catch(err => {
                         })
@@ -145,7 +145,7 @@ function preload_event()
                             : 0;
                 })
                 // store rankings as JSON string in rankings-[event_id]
-                localStorage.setItem(get_event_rankings_name(event_id), JSON.stringify(rankings))
+                localStorage.setItem(`rankings-${event_id}`, JSON.stringify(rankings))
             }
             if (++count === 3)
             {
