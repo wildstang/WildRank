@@ -198,7 +198,7 @@ function populate_keys(dal)
     if (keys.length > 0)
     {
         // add pick list selector at top
-        let ops = Object.keys(lists)
+        let ops = Object.keys(dal.picklists)
         ops.unshift('None')
         
         // iterate through result keys

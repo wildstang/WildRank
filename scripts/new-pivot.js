@@ -20,12 +20,7 @@ function init_page()
     buttons_container.innerHTML = ''
     
     // add pick list filter
-    let file_name = get_event_pick_lists_name(event_id)
-    if (file_exists(file_name))
-    {
-        lists = JSON.parse(localStorage.getItem(file_name))
-        add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
-    }
+    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
     add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true)
 
     // add select button above secondary list
@@ -46,9 +41,9 @@ function init_page()
 function filter_teams()
 {
     let list = document.getElementById('picklist_filter').value
-    if (Object.keys(lists).includes(list))
+    if (Object.keys(dal.picklists).includes(list))
     {
-        filter_by(lists[list], false)
+        filter_by(dal.picklists[list], false)
     }
 
     build_table()

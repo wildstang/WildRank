@@ -17,6 +17,7 @@ class DAL
         this.meta = {}
         this.teams = {}
         this.matches = {}
+        this.picklists = []
 
         // parameters to limit what data is loaded
         this.load_meta      = true
@@ -514,6 +515,13 @@ class DAL
                 }
             }
         }
+
+        let start_lists = Date.now()
+        let lists_str = localStorage.getItem(`picklists-${this.event_id}`)
+        if (lists_str != null && lists_str != false)
+        {
+            this.picklists = JSON.parse(lists_str)
+        }
         let end = Date.now()
 
         // print times to load
@@ -525,7 +533,8 @@ class DAL
             console.log('Pictures', start_pits - start_pictures)
             console.log('Pits', start_results - start_pits)
             console.log('Results', start_stats - start_results)
-            console.log('Stats', end - start_stats)
+            console.log('Stats', start_lists - start_stats)
+            console.log('Picklists', end - start_lists)
             console.log('Total', end - start)
         }
 
@@ -1107,5 +1116,17 @@ class DAL
             }
         }
         return global_stats
+    }
+
+    /**
+     * function:    save_picklists
+     * parameters:  none
+     * returns:     none
+     * description: Saves the current picklists to localStorage.
+     */
+    save_picklists()
+    {
+        let lists_str = JSON.stringify(this.picklists)
+        localStorage.setItem(`picklists-${this.event_id}`, lists_str)
     }
 }
