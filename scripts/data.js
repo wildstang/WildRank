@@ -17,7 +17,7 @@ class DAL
         this.meta = {}
         this.teams = {}
         this.matches = {}
-        this.picklists = []
+        this.picklists = {}
 
         // parameters to limit what data is loaded
         this.load_meta      = true
