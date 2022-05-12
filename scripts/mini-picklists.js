@@ -55,11 +55,15 @@ function select_list(name='')
  */
 function build_pick_lists(list_name='')
 {
-    let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
-    document.getElementById('pick_lists').innerHTML = lists_text
+    // don't show picklists UI if there are no lists
+    if (list_name !== '')
+    {
+        let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
+        document.getElementById('pick_lists').innerHTML = lists_text
 
-    select_list(list_name)
+        select_list(list_name)
 
-    // save to localStorage
-    dal.save_picklists()
+        // save to localStorage
+        dal.save_picklists()
+    }
 }
