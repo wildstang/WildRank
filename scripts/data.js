@@ -12,6 +12,7 @@ class DAL
         this.event_id = event_id
         this.year = event_id.substr(0,4)
         this.alliance_size = 0
+        this.max_alliance_size = 0
 
         // data structures
         this.meta = {}
@@ -188,7 +189,7 @@ class DAL
     /**
      * function:    get_results
      * parameters:  teams to filter by, sort matches
-     * returns:     none
+     * returns:     list of matches
      * description: Returns a list of matches sorted first by match then position.
      */
     get_results(teams=[], sort=true)
@@ -274,6 +275,42 @@ class DAL
         }
         
         return results
+    }
+
+    /**
+     * function:    get_match_teams
+     * parameters:  match key
+     * returns:     none
+     * description: Returns a map of positions to team keys for a given match.
+     */
+    get_match_teams(match_key)
+    {
+        let red_teams = this.get_match_value(match_key, 'red_alliance')
+        let blue_teams = this.get_match_value(match_key, 'blue_alliance')
+        let teams = {}
+        for (let i in red_teams)
+        {
+            teams[`red_${i}`] = red_teams[i]
+            teams[`blue_${i}`] = blue_teams[i]
+        }
+        return teams
+    }
+
+    /**
+     * function:    get_team_keys
+     * parameters:  none
+     * returns:     none
+     * description: Returns a map of position keys to names.
+     */
+    get_team_keys()
+    {
+        let positions = {}
+        for (let i = 0; i < this.max_alliance_size; i++)
+        {
+            positions[`red_${i}`] = `Red ${i+1}`
+            positions[`blue_${i}`] = `Blue ${i+1}`
+        }
+        return positions
     }
 
     /**
@@ -590,6 +627,14 @@ class DAL
                     videos: match.videos,
                     score_breakdown: match.score_breakdown,
                     winner: match.winning_alliance
+                }
+                if (this.matches[match.key].red_alliance.length > this.max_alliance_size)
+                {
+                    this.max_alliance_size = this.matches[match.key].red_alliance.length
+                }
+                if (this.matches[match.key].blue_alliance.length > this.max_alliance_size)
+                {
+                    this.max_alliance_size = this.matches[match.key].blue_alliance.length
                 }
             }
 
