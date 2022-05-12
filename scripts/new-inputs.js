@@ -560,12 +560,15 @@ class Option extends Element
         // use modified id and function if secondary list
         let id = `option_${this.id}`
         let on_click = `open_option('${this.id}')`
+        let on_secondary = `alt_option('${this.id}')`
         if (!this.primary_list)
         {
             id = `soption_${this.id}`
             on_click = `open_secondary_option('${this.id}')`
+            on_secondary = `alt_secondary_option(\\'${this.id}\\')`
         }
-        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" style="${this.style}">
+        let actions = `oncontextmenu="return false" onauxclick="${on_secondary}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${on_secondary}')"`
+        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" ${actions} on style="${this.style}">
                     <span class="long_option_val">${this.label}</span>
                 </div>`
     }
