@@ -556,6 +556,12 @@
 			"key": "stats.teleop_low_hub_cargo_made"
 		}, {
 			"function": "mean",
+			"key": "pit.pit_movement_climb_level"
+		}, {
+			"function": "max",
+			"key": "stats.match_teleop_climb_level"
+		}, {
+			"function": "median",
 			"key": "stats.match_teleop_climb_level"
 		}
 	],
