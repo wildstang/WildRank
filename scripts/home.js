@@ -55,7 +55,7 @@ const BUTTONS = {
     'open_pivot':       { name: 'Pivot Table',       limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'open_distro':      { name: 'Distributions',     limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'open_plot':        { name: 'Plotter',           limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_coach':       { name: 'Coach View',        limits: ['event', 'admin', 'results'], configs: ['settings', 'coach-vals'] },
+    'open_coach':       { name: 'Coach View',        limits: ['event', 'admin', 'results'], configs: ['settings', 'coach'] },
     'open_config':      { name: 'Config Builder',    limits: ['admin'], configs: [] },
     'open_settings':    { name: 'Settings Editor',   limits: ['admin'], configs: ['settings'] },
     'preload_event':    { name: 'Preload Event',     limits: [], configs: [] },

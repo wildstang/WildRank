@@ -376,7 +376,7 @@ function unix_to_match_time(unix_time)
     }
     let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
     let part = ''
-    if (get_config('settings').time_format == 12)
+    if (cfg.settings.time_format === 12)
     {
         if (hours > 12)
         {

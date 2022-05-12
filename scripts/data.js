@@ -1107,11 +1107,11 @@ class DAL
                             global_stats[`${id}.${op}`] = counts[op]
                             if (min_op === '' || counts[op] < counts[min_op])
                             {
-                                min_op = op
+                                min_op = parseInt(op)
                             }
                             if (max_op === '' || counts[op] > counts[max_op])
                             {
-                                max_op = op
+                                max_op = parseInt(op)
                             }
                         }
                         // convert checkbox values to booleans
