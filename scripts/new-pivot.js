@@ -6,7 +6,12 @@
  * date:        2022-04-28
  */
 
+const SESSION_KEYS_KEY = 'pivot-selected-keys'
+const SESSION_TYPES_KEY = 'pivot-selected-types'
+
 let selected_keys = []
+let last_sort = ''
+let last_reverse = false
 
 /**
  * function:    init_page
@@ -16,8 +21,12 @@ let selected_keys = []
  */
 function init_page()
 {
+    let picklist_button = new Button('create_picklist', 'Save to Picklist', 'save_picklist()')
+    let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
+    let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
+
     contents_card.innerHTML = '<table id="results_tab" style="position: relative"></table>'
-    buttons_container.innerHTML = ''
+    buttons_container.innerHTML = picklist_button.toString + export_button.toString + import_button.toString
     
     // add pick list filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
@@ -29,6 +38,29 @@ function init_page()
     // build lists
     populate_keys(dal)
     select_all(false)
+
+    // select keys from sessionStorage
+    let stored_keys = sessionStorage.getItem(SESSION_KEYS_KEY)
+    let stored_types = sessionStorage.getItem(SESSION_TYPES_KEY)
+    if (stored_keys !== null)
+    {
+        selected_keys = JSON.parse(stored_keys)
+        for (let key of selected_keys)
+        {
+            document.getElementById(`option_${key}`).classList.add('selected')
+        }
+        build_table()
+
+        if (stored_types !== null)
+        {
+            let selected_types = JSON.parse(stored_types)
+            for (let key in selected_types)
+            {
+                document.getElementById(key).value = selected_types[key]
+            }
+        }
+    }
+
     build_table()
 }
 
@@ -79,7 +111,7 @@ function filter_stats()
  * returns:     none
  * description: Selects or unselects options then opens.
  */
-function open_option(key, table=true)
+function open_option(key)
 {
     list_name = "Team Number"
     // select team button 
@@ -94,8 +126,31 @@ function open_option(key, table=true)
         selected_keys.push(key)
     }
 
-    if (table)
+    // save selection to sessionStorage
+    sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
+
+    build_table()
+}
+
+/**
+ * function:    alt_option
+ * parameters:  Selected key
+ * returns:     none
+ * description: Adds an additional column when right clicked.
+ */
+function alt_option(key)
+{
+    if (!selected_keys.includes(key))
     {
+        open_option(key)
+    }
+    else if (key.startsWith('stats.'))
+    {
+        selected_keys.push(key)
+
+        // save selection to sessionStorage
+        sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
+    
         build_table()
     }
 }
@@ -131,12 +186,7 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    let selected = []
-    for(let key of selected_keys)
-    {
-        selected.push(key)
-    }
-    return selected
+    return selected_keys
 }
 
 /**
@@ -151,15 +201,13 @@ function get_secondary_selected_keys()
 }
 
 /**
- * function:    build_table
+ * function:    get_sorted_teams
  * parameters:  key to sort by, whether to reverse all
- * returns:     none
- * description: Completes the center info pane with the selected options.
+ * returns:     array of selected and sorted teams
+ * description: Builds an array of the currently selected teams then sorts.
  */
-function build_table(sort_by='', reverse=false)
+function get_sorted_teams(sort_by='', reverse=false)
 {
-    // get selected keys on either side
-    let selected = get_selected_keys()
     let filter_teams = get_secondary_selected_keys()
 
     // sort teams based on parameters
@@ -174,31 +222,53 @@ function build_table(sort_by='', reverse=false)
         filter_teams.reverse()
     }
 
+    last_sort = sort_by
+    last_reverse = reverse
+
+    return filter_teams
+}
+
+/**
+ * function:    build_table
+ * parameters:  key to sort by, whether to reverse all
+ * returns:     none
+ * description: Completes the center info pane with the selected options.
+ */
+function build_table(sort_by='', reverse=false)
+{
+    // get selected keys on either side
+    let selected = get_selected_keys()
+    let filter_teams = get_sorted_teams(sort_by, reverse)
+    let selected_types = {}
+
     // compute totals
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
     // build table headers
     let table = `<table><tr><th onclick="build_table('', ${!reverse})">Team Number</th>`
     let types = '<tr><td></td>'
-    let totals = '<tr><td></td>' 
-    for (let key of selected)
+    let totals = '<tr><td></td>'
+    for (let i in selected)
     {
+        let key = selected[i]
+
         // add key names
         table += `<th onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
 
         // determine previously selected stat
-        type = 'Mean'
-        if (document.getElementById(`select_${key}`))
+        let type = 'Mean'
+        if (document.getElementById(`select_${key}_${i}`))
         {
-            type = document.getElementById(`select_${key}`).value
+            type = document.getElementById(`select_${key}_${i}`).value
+            selected_types[`select_${key}_${i}`] = type
         }
 
         // build dropdown for those that have stats
         let fn = ''
         if (key.startsWith('stats.'))
         {
-            let dropdown = new Dropdown(`select_${key}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
-            dropdown.onchange = `build_table('${sort_by}', ${reverse})`
+            let dropdown = new Dropdown(`select_${key}_${i}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
+            dropdown.onclick = `build_table('${sort_by}', ${reverse})`
             dropdown.add_class('slim')
             dropdown.add_class('thin')
             fn = dropdown.toString
@@ -214,13 +284,15 @@ function build_table(sort_by='', reverse=false)
     for (let team of filter_teams)
     {
         table += `<tr><td>${team}</td>`
-        for (let key of selected)
+        for (let i in selected)
         {
+            let key = selected[i]
+
             // determine previously selected stat
-            type = 'mean'
-            if (document.getElementById(`select_${key}`))
+            let type = 'mean'
+            if (document.getElementById(`select_${key}_${i}`))
             {
-                type = document.getElementById(`select_${key}`).value.toLowerCase()
+                type = document.getElementById(`select_${key}_${i}`).value.toLowerCase()
             }
 
             // compute color
@@ -257,4 +329,179 @@ function build_table(sort_by='', reverse=false)
     table += '</table>'
 
     document.getElementById('results_tab').innerHTML = table
+
+    sessionStorage.setItem(SESSION_TYPES_KEY, JSON.stringify(selected_types))
+}
+
+/**
+ * function:    save_picklist
+ * parameters:  none
+ * returns:     none
+ * description: Builds and saves a picklist by the current sort.
+ */
+function save_picklist()
+{
+    let teams = get_sorted_teams(last_sort, last_reverse)
+    let name = ''
+    if (last_sort === '')
+    {
+        name = 'Team Number'
+    }
+    else
+    {
+        name = dal.get_name(last_sort)
+    }
+    if (last_reverse)
+    {
+        name += ' Reversed'
+    }
+    if (dal.picklists.hasOwnProperty(name))
+    {
+        name += '+'
+    }
+    dal.picklists[name] = teams
+    dal.save_picklists()
+}
+
+/**
+ * function:    export_csv
+ * parameters:  none
+ * returns:     none
+ * description: Builds and saves a csv export of the table.
+ */
+function export_csv()
+{
+    // get selected keys on either side
+    let selected = get_selected_keys()
+    let filter_teams = get_sorted_teams(last_sort, last_reverse)
+
+    // compute totals
+    let global_stats = dal.compute_global_stats(selected, filter_teams)
+
+    // build table headers
+    let table = [['Name'], ['Key'], ['Function'], ['Totals']]
+    for (let i in selected)
+    {
+        let key = selected[i]
+        
+        // determine previously selected stat
+        let type = 'Mean'
+        if (document.getElementById(`select_${key}_${i}`))
+        {
+            type = document.getElementById(`select_${key}_${i}`).value
+        }
+
+        // add key names and totals
+        table[1].push(key)
+        table[3].push(dal.get_global_value(global_stats, key, type.toLowerCase(), true))
+
+        // build dropdown for those that have stats
+        if (!key.startsWith('stats.'))
+        {
+            type = ''
+        }
+        table[0].push(dal.get_name(key, type))
+        table[2].push(type)
+    }
+
+    // build team rows
+    for (let team of filter_teams)
+    {
+        let row = [team]
+        for (let i in selected)
+        {
+            let key = selected[i]
+
+            // determine previously selected stat
+            let type = 'mean'
+            if (document.getElementById(`select_${key}_${i}`))
+            {
+                type = document.getElementById(`select_${key}_${i}`).value.toLowerCase()
+            }
+
+            // add cell
+            row.push(dal.get_value(team, key, type, true))
+        }
+        table.push(row)
+    }
+
+    // convert 2D array to CSV
+    let csv = table.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+
+    // download csv
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
+    element.setAttribute('download', `pivot-export.csv`)
+
+    element.style.display = 'none'
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
+}
+
+/**
+ * function:    prompt_csv
+ * parameters:  none
+ * returns:     none
+ * description: Prompts the user to select a CSV to use for importing keys.
+ */
+function prompt_csv()
+{
+    var input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/csv'
+    input.onchange = import_keys
+    input.click()
+}
+
+/**
+ * function:    import_keys
+ * parameters:  event
+ * returns:     none
+ * description: Loads in previously selected keys and functions from file.
+ */
+function import_keys(event)
+{
+    // read in file from event
+    let file = event.target.files[0]
+    let reader = new FileReader()
+    reader.readAsText(file, 'UTF-8')
+    reader.onload = readerEvent => {
+        let lines = readerEvent.target.result.split('\n')
+        if (lines.length >= 4)
+        {
+            let keys = lines[1].split(',')
+            let types = lines[2].split(',')
+
+            // select previously selected keys and rebuild table
+            selected_keys = []
+            for (let i in keys)
+            {
+                if (i > 0)
+                {
+                    let key = keys[i].substring(1, keys[i].length - 1)
+                    document.getElementById(`option_${key}`).classList.add('selected')
+                    selected_keys.push(key)
+                }
+            }
+            build_table()
+
+            // select previously selected types and rebuild table
+            for (let i in types)
+            {
+                if (i > 0)
+                {
+                    let key = keys[i].substring(1, keys[i].length - 1)
+                    let type = types[i].substring(1, types[i].length - 1)
+                    if (document.getElementById(`select_${key}_${i-1}`))
+                    {
+                        document.getElementById(`select_${key}_${i-1}`).value = type
+                    }
+                }
+            }
+            build_table()
+        }
+    }
 }
