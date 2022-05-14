@@ -26,7 +26,12 @@ function init_page()
     event_entry.on_text_change = 'populate_matches()'
     col.add_input(event_entry)
     
-    let teams_entry = new Entry('num_teams', 'Number of Teams', Object.keys(dal.teams).length, [6, 100])
+    let num_teams = Object.keys(dal.teams).length
+    if (num_teams === 0)
+    {
+        num_teams = 6
+    }
+    let teams_entry = new Entry('num_teams', 'Number of Teams', num_teams, [6, 100])
     teams_entry.type = 'number'
     col.add_input(teams_entry)
     
@@ -93,21 +98,47 @@ function populate_matches()
 
 /**
  * function:    generate_match_teams
- * parameters:  number of teams to generate
+ * parameters:  number of teams to generate, evenly distribute teams
  * returns:     list of team numbers
  * description: Generates a new list of random teams.
- *              TODO: intelligently generate teams to evenly distribute.
  */
-function generate_match_teams(num_teams)
+function generate_match_teams(num_teams, distribute=true)
 {
     let match_teams = []
+    let unavailable = []
     let teams = Object.keys(dal.teams)
+
+    // prepopulate unavailable teams with those in last few matches
+    // this prevents an uneven distribution of matches
+    if (distribute)
+    {
+        let match_num = Object.keys(dal.matches).length // technically last match number
+        let cycle_len = Math.floor(teams.length / num_teams)
+        let cycle = Math.floor(match_num / cycle_len)
+        for (let i = cycle * cycle_len; i < match_num; i++)
+        {
+            let match_key = `${dal.event_id}_qm${i+1}`
+            let match_teams = Object.values(dal.get_match_teams(match_key))
+            unavailable = unavailable.concat(match_teams)
+        }
+        // prevent back to back matches on first match in cycle
+        if (cycle * cycle_len === match_num)
+        {
+            let match_key = `${dal.event_id}_qm${match_num}`
+            let match_teams = Object.values(dal.get_match_teams(match_key))
+            unavailable = unavailable.concat(match_teams)
+        }
+    }
+
+    // generate teams until list is full
     while (match_teams.length < num_teams)
     {
         let team = teams[random_int(0, teams.length-1)]
-        if (!match_teams.includes(team) || teams.length < num_teams)
+        // check if previously marked unavailable (current match or optionally recent match)
+        if (!unavailable.includes(team) || unavailable.length >= teams.length)
         {
             match_teams.push(team)
+            unavailable.push(team)
         }
     }
     return match_teams
@@ -155,9 +186,9 @@ function add_match()
     let alliance_teams = document.getElementById('alliance_teams').value
     let file_name = `matches-${event_id}`
     let file = localStorage.getItem(file_name)
-    if (file !== null)
+    if (file === null)
     {
-        localStorage.setItem(file_name, '[]')
+        file = '[]'
     }
     let matches = JSON.parse(file)
     let match_number = matches.length + 1
@@ -193,5 +224,6 @@ function add_match()
     localStorage.setItem(file_name, JSON.stringify(matches))
     alert(`Create match ${event_id} qm${match_number}`)
 
+    dal.build_matches()
     populate_matches()
 }
