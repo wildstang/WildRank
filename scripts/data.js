@@ -689,7 +689,15 @@ class DAL
                 }
             }
 
-            this.alliance_size = this.matches[`${this.event_id}_qm1`].red_alliance.length
+            let matches = Object.values(this.matches)
+            if (this.matches.hasOwnProperty(`${this.event_id}_qm1`))
+            {
+                this.alliance_size = this.matches[`${this.event_id}_qm1`].red_alliance.length
+            }
+            else if (matches.length > 0)
+            {
+                this.alliance_size = matches[0].red_alliance.length
+            }
         }
         
         if (Object.keys(this.matches).length === 0)

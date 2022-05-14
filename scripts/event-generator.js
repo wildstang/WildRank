@@ -6,13 +6,7 @@
  * date:        2022-01-12
  */
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-
 const start = Date.now()
-
-var teams = []
-var matches = []
 
 /**
  * function:    init_page
@@ -25,16 +19,35 @@ function init_page()
     // set header
     document.getElementById('header_info').innerHTML = 'Generate Event'
 
+    let col = new ColumnFrame('', '')
+    let team_page = new PageFrame('', 'Team', [col])
+    
+    let event_entry = new Entry('event_id', 'Event ID', dal.event_id)
+    event_entry.on_text_change = 'populate_matches()'
+    col.add_input(event_entry)
+    
+    let teams_entry = new Entry('num_teams', 'Number of Teams', Object.keys(dal.teams).length, [6, 100])
+    teams_entry.type = 'number'
+    col.add_input(teams_entry)
+    
+    let alliance_size = dal.alliance_size
+    if (alliance_size === 0)
+    {
+        alliance_size = 3
+    }
+    let alliance_entry = new Entry('alliance_teams', 'Teams per Alliance', alliance_size, [1, 10])
+    alliance_entry.on_text_change = 'populate_matches()'
+    alliance_entry.type = 'number'
+    col.add_input(alliance_entry)
+
+    let generate_button = new Button('generate_teams', 'Generate Teams', 'generate_teams()')
+    col.add_input(generate_button)
+
+    let match_page = new PageFrame('match', 'Match')
+    match_page.add_column('<div id="match_col"></div>')
+
     // build page
-    document.body.innerHTML += 
-        build_page_frame('Team', [
-            build_column_frame('', [
-                build_str_entry('event_id', 'Event ID:', event_id, 'text', 'populate_matches()'),
-                build_num_entry('num_teams', 'Number of Teams', 6, [6, 100]),
-                build_num_entry('alliance_teams', 'Teams per Alliance', 3, [1, 10], 'populate_matches()'),
-                build_button('generate_teams', 'Generate Teams', 'generate_teams()')
-            ])
-        ]) + build_page_frame('Match', ['<div id="match_col"></div>'])
+    document.body.innerHTML += team_page.toString + match_page.toString
 
     populate_matches()
 }
@@ -47,25 +60,57 @@ function init_page()
  */
 function populate_matches()
 {
-    let cols = []
     let event_id = document.getElementById('event_id').value
-    let alliance_teams = document.getElementById('alliance_teams').value
-    let file_name = get_event_teams_name(event_id)
-    if (file_exists(file_name))
+    let teams = Object.keys(dal.teams)
+    if (event_id !== dal.event_id)
     {
-        let teams = JSON.parse(localStorage.getItem(file_name)).map(t => t.team_number)
-        let reds = []
-        let blues = []
+        dal = new DAL(event_id)
+        teams = dal.build_teams()
+    }
+    let cols = ''
+    let alliance_teams = parseInt(document.getElementById('alliance_teams').value)
+    if (teams.length > 0)
+    {
+        let red_col = new ColumnFrame('', 'Red Teams')
+        let blue_col = new ColumnFrame('', 'Blue Teams')
+        
+        let match_teams = generate_match_teams(alliance_teams * 2)
         for (let pos = 0; pos < alliance_teams; pos++)
         {
-            reds.push(build_dropdown(`red_${pos}`, `Red ${pos+1}`, teams))
-            blues.push(build_dropdown(`blue_${pos}`, `Blue ${pos+1}`, teams))
+            let red = new Dropdown(`red_${pos}`, `Red ${pos+1}`, teams, match_teams[pos])
+            let blue = new Dropdown(`blue_${pos}`, `Blue ${pos+1}`, teams, match_teams[pos + alliance_teams])
+            red_col.add_input(red)
+            blue_col.add_input(blue)
         }
-        blues.push(build_button('add_match', 'Add Match', 'add_match()'))
-        cols.push(build_column_frame('Red Teams', reds))
-        cols.push(build_column_frame('Blue Teams', blues))
+
+        let add_match = new Button('add_match', 'Add Match', 'add_match()')
+        blue_col.add_input(add_match)
+
+        cols = red_col.toString + blue_col.toString
     }
-    document.getElementById('match_col').innerHTML = cols.join('')
+    document.getElementById('match_col').innerHTML = cols
+}
+
+/**
+ * function:    generate_match_teams
+ * parameters:  number of teams to generate
+ * returns:     list of team numbers
+ * description: Generates a new list of random teams.
+ *              TODO: intelligently generate teams to evenly distribute.
+ */
+function generate_match_teams(num_teams)
+{
+    let match_teams = []
+    let teams = Object.keys(dal.teams)
+    while (match_teams.length < num_teams)
+    {
+        let team = teams[random_int(0, teams.length-1)]
+        if (!match_teams.includes(team) || teams.length < num_teams)
+        {
+            match_teams.push(team)
+        }
+    }
+    return match_teams
 }
 
 /**
@@ -91,9 +136,10 @@ function generate_teams()
             team_number: team_num
         })
     }
-    localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
-    localStorage.setItem(get_event_matches_name(event_id), '[]')
+    localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
+    localStorage.setItem(`matches-${event_id}`, '[]')
 
+    dal.build_teams()
     populate_matches()
 }
 
@@ -107,12 +153,13 @@ function add_match()
 {
     let event_id = document.getElementById('event_id').value
     let alliance_teams = document.getElementById('alliance_teams').value
-    let file_name = get_event_matches_name(event_id)
-    if (!file_exists(file_name))
+    let file_name = `matches-${event_id}`
+    let file = localStorage.getItem(file_name)
+    if (file !== null)
     {
         localStorage.setItem(file_name, '[]')
     }
-    let matches = JSON.parse(localStorage.getItem(file_name))
+    let matches = JSON.parse(file)
     let match_number = matches.length + 1
     let red_teams = []
     let blue_teams = []
@@ -145,4 +192,6 @@ function add_match()
     })
     localStorage.setItem(file_name, JSON.stringify(matches))
     alert(`Create match ${event_id} qm${match_number}`)
+
+    populate_matches()
 }
