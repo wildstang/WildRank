@@ -10,7 +10,6 @@
  */
 
 include('transfer')
-include('links')
 
 // role based layouts
 const CONFIGS = {
@@ -27,7 +26,7 @@ const CONFIGS = {
         'Transfer': ['open_transfer', 'download_csv']
     },
     'analysis': {
-        'Teams': ['open_ranker', 'open_sides', 'open_picks', 'open_whiteboard', 'open_advanced'],
+        'Teams': ['open_ranker', 'open_sides', 'open_picks', 'open_whiteboard'],
         'Keys': ['open_pivot', 'open_distro', 'open_plot'],
         'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_progress', 'open_coach'],
         'Transfer': ['open_transfer', 'download_csv', 'open_events']

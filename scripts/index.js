@@ -348,29 +348,6 @@ function check_press(id)
 }
 
 /**
- * function:    open_about
- * parameters:  none
- * returns:     none
- * description: Open the about page.
- */
-function open_about()
-{
-    return build_url('index', {'page': 'about'})
-}
-
-/**
- * function:    open_transfer
- * parameters:  none
- * returns:     none
- * description: Open the raw data transfer page.
- */
-function open_transfer()
-{
-    save_options()
-    return build_url('index', {'page': 'transfer-raw', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
  * INPUT VALUE FUNCTIONS
  */
 

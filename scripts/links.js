@@ -272,3 +272,36 @@ function sign_out()
     set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
     return 'index.html'
 }
+
+/**
+ * function:    open_about
+ * parameters:  none
+ * returns:     none
+ * description: Open the about page.
+ */
+function open_about()
+{
+    return build_url('index', {'page': 'about'})
+}
+
+/**
+ * function:    open_result
+ * parameters:  match key, team number
+ * returns:     none
+ * description: Loads the result page for a button when pressed.
+ */
+function open_result(match_key, team_num)
+{
+    return build_url('selection', {'page': 'new-results', [EVENT_COOKIE]: dal.event_id, 'file': `${match_key}-${team_num}`})
+}
+
+/**
+ * function:    scout
+ * parameters:  scouting mode, match key, team number, alliance color
+ * returns:     none
+ * description: Loads the scouting page for a button when pressed.
+ */
+function start_scout(scouting_mode, match_key, team_num, alliance, edit=false)
+{
+    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: scouting_mode, [EVENT_COOKIE]: dal.event_id, [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match_key, 'team': team_num, 'alliance': alliance, 'edit': edit})
+}
