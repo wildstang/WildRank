@@ -46,11 +46,12 @@ function build_result_list()
     let filter = document.getElementById('team_filter').value
 
     // build list of options, sorted by match
-    let options = []
+    let options = {}
     for (let result of results)
     {
         let team = result.meta_team
-        if (((selected === '' || selected === null) || `${result.meta_match_key}-${result.meta_team}` === selected) &&
+        let match = result.meta_match_key
+        if (((selected === '' || selected === null) || `${match}-${result.meta_team}` === selected) &&
             (filter === 'All' || team.toString() === filter))
         {
             let spaces = 4 - team.length
@@ -58,7 +59,7 @@ function build_result_list()
             {
                 team = `&nbsp;${team}`
             }
-            options.push(`${result.meta_match} ${team}`)
+            options[`${match}-${team}`] = `${dal.get_match_value(match, 'short_match_name')} ${team}`
         }
     }
 
@@ -87,49 +88,23 @@ function open_option(option)
     document.getElementById(`option_${option}`).classList.add('selected')
 
     // pull match and team out
-    let parts = option.split(' ')
+    let parts = option.split('-')
     let match = parts[0]
     let team = parts[1].trim()
-    let result = dal.teams[team].results.filter(r => r.meta_match === parseInt(match))[0]
+    let result = dal.teams[team].results.filter(r => r.meta_match_key === match)[0]
 
     // setup header
     document.getElementById('avatar').src = get_avatar(team, event_id.substr(0, 4))
-    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.teams[team].meta.name}, Match #${match}`
-    document.getElementById('location').innerHTML = `${dal.teams[team].meta.city}, ${dal.teams[team].meta.state_prov}, ${dal.teams[team].meta.country}`
-    document.getElementById('ranking').innerHTML = `Rank: ${dal.teams[team].rank.rank} (${dal.teams[team].rank.ranking_score}, ${dal.teams[team].rank.wins}-${dal.teams[team].rank.losses}-${dal.teams[team].rank.ties})`
+    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, Match ${dal.get_match_value(match, 'match_name')}`
+    document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
+    document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
 
     let table = '<table><tr><th></th><th>Match Value</th></tr>'
     let keys = Object.keys(result)
     for (let key of keys)
     {
-        table += `<tr><th>${dal.get_name('stats.' + key, '')}</th><td>${get_value(result, key)}</td></tr>`
+        table += `<tr><th>${dal.get_name('stats.' + key, '')}</th><td>${dal.get_result_value(team, match, key, true)}</td></tr>`
     }
     table += '</table>'
     document.getElementById('results_tab').innerHTML = table
-}
-
-function get_value(result, key)
-{
-    let meta = dal.meta['results.' + key]
-    let val = result[key]
-    // map to option if available
-    if (typeof meta !== 'undefined' && typeof val === 'number' && meta.options && val < meta.options.length && (meta.type === 'dropdown' || meta.type === 'select'))
-    {
-        return meta.options[val]
-    }
-    // map numbers to 2 decimal places if they are at least that
-    else if (typeof val === 'number' && val % 1 !== 0)
-    {
-        return val.toFixed(2)
-    }
-    // map booleans to Yes/No
-    else if (typeof val === 'boolean')
-    {
-        return val ? 'Yes' : 'No'
-    }
-    else if (typeof meta !== 'undefined' && meta.cycle === true)
-    {
-        return ''
-    }
-    return val
 }

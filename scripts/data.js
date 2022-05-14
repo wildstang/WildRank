@@ -252,6 +252,18 @@ class DAL
     }
 
     /**
+     * function:    get_result_keys
+     * parameters:  teams to filter by, sort matches
+     * returns:     list of match keys
+     * description: Returns a list of match keys sorted first by match then position.
+     */
+    get_result_keys(teams=[], sort=true)
+    {
+        let results = this.get_results(teams, sort)
+        return results.map(r => `${r.meta_match_key}-${r.meta_team}`)
+    }
+
+    /**
      * function:    get_pits
      * parameters:  teams to filter by, sort pits
      * returns:     none
@@ -291,6 +303,9 @@ class DAL
         for (let i in red_teams)
         {
             teams[`red_${i}`] = red_teams[i]
+        }
+        for (let i in blue_teams)
+        {
             teams[`blue_${i}`] = blue_teams[i]
         }
         return teams
@@ -308,6 +323,9 @@ class DAL
         for (let i = 0; i < this.max_alliance_size; i++)
         {
             positions[`red_${i}`] = `Red ${i+1}`
+        }
+        for (let i = 0; i < this.max_alliance_size; i++)
+        {
             positions[`blue_${i}`] = `Blue ${i+1}`
         }
         return positions
@@ -611,6 +629,36 @@ class DAL
                     match_name = `${match.comp_level.toUpperCase()} ${match.set_number}-${match.match_number}`
                     short_match_name = `${match.comp_level.toUpperCase()}${match.set_number}${match.match_number}`
                 }
+                let display_time = ''
+                let score_str = ''
+                let complete = false
+                if (match.actual_time > 0)
+                {
+                    display_time = `${unix_to_match_time(match.actual_time)}`
+                    if (match.winning_alliance !== '' && match.alliances.red.score !== '' && match.alliances.blue.score !== '')
+                    {
+                        complete = true
+                        let winner = match.winning_alliance
+                        let red_score = match.alliances.red.score
+                        let blue_score =  match.alliances.blue.score
+                        if (winner === 'red')
+                        {
+                            score_str = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
+                        }
+                        else
+                        {
+                            score_str = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
+                        }
+                    }
+                }
+                else if (match.predicted_time > 0)
+                {
+                    display_time = `${unix_to_match_time(match.predicted_time)} (Projected)`
+                }
+                else if (match.time > 0)
+                {
+                    display_time = `${unix_to_match_time(match.time)}`
+                }
                 this.matches[match.key] = {
                     match_name: match_name,
                     short_match_name: short_match_name,
@@ -620,10 +668,13 @@ class DAL
                     scheduled_time: match.time,
                     predicted_time: match.predicted_time,
                     started_time: match.actual_time,
+                    display_time: display_time,
                     red_alliance: match.alliances.red.team_keys.map(k => k.substring(3)),
                     blue_alliance: match.alliances.blue.team_keys.map(k => k.substring(3)),
+                    complete: complete,
                     red_score: match.alliances.red.score,
                     blue_score: match.alliances.blue.score,
+                    score_str: score_str,
                     videos: match.videos,
                     score_breakdown: match.score_breakdown,
                     winner: match.winning_alliance
@@ -772,6 +823,22 @@ class DAL
     }
 
     /**
+     * function:    get_rank_str
+     * parameters:  team number
+     * returns:     a string containing rank, ranking score, and record
+     * description: Gets a friendly string containing important ranking information.
+     */
+    get_rank_str(team_num)
+    {
+        if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].rank.hasOwnProperty('rank'))
+        {
+            let rank = this.teams[team_num].rank
+            return `#${rank.rank} (${rank.ranking_score}, ${rank.wins}-${rank.losses}-${rank.ties})`
+        }
+        return ''
+    }
+
+    /**
      * function:    is_pit_scouted
      * parameters:  team number
      * returns:     if the given teams pit is scouted
@@ -820,23 +887,51 @@ class DAL
 
     /**
      * function:    get_result_value
-     * parameters:  team number, match id, value id
+     * parameters:  team number, match id, value id, if it should be a friendly value
      * returns:     requested value
      * description: Get a given single stat from a team's result data structure
      */
-    get_result_value(team, match_id, id)
+    get_result_value(team, match_id, id, map=false)
     {
         let match_key = match_id.toLowerCase()
         if (!match_key.startsWith(this.event_id))
         {
             match_key = `${this.event_id}_${match_key}`
         }
+        if (id.includes('.'))
+        {
+            id = id.split('.')[1]
+        }
         if (this.teams.hasOwnProperty(team.toString()))
         {
             let results = this.teams[team.toString()].results.filter(r => r.meta_match_key === match_key)
             if (results.length === 1 && results[0].hasOwnProperty(id))
             {
-                return results[0][id]
+                let meta = dal.meta['results.' + id]
+                let val = results[0][id]
+                if (map)
+                {
+                    // map to option if available
+                    if (typeof meta !== 'undefined' && typeof val === 'number' && meta.options && val < meta.options.length && (meta.type === 'dropdown' || meta.type === 'select'))
+                    {
+                        return meta.options[val]
+                    }
+                    // map numbers to 2 decimal places if they are at least that
+                    else if (typeof val === 'number' && val % 1 !== 0)
+                    {
+                        return val.toFixed(2)
+                    }
+                    // map booleans to Yes/No
+                    else if (typeof val === 'boolean')
+                    {
+                        return val ? 'Yes' : 'No'
+                    }
+                    else if (typeof meta !== 'undefined' && meta.cycle === true)
+                    {
+                        return ''
+                    }
+                }
+                return val
             }
         }
         return ''
@@ -900,28 +995,33 @@ class DAL
      */
     get_global_value(global_stats, id, stat='mean', map=false)
     {
-        let val = global_stats[`${id}.${stat}`]
-        // don't return null values
-        if (val === null)
+        let key = `${id}.${stat}`
+        if (global_stats.hasOwnProperty(key))
         {
-            return ''
+            let val = global_stats[key]
+            // don't return null values
+            if (val === null)
+            {
+                return ''
+            }
+            // map to option if available
+            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
+            {
+                return this.meta[id].options[val]
+            }
+            // map numbers to 2 decimal places if they are at least that
+            else if (map && typeof val === 'number' && val % 0.1 !== 0)
+            {
+                return val.toFixed(2)
+            }
+            // map booleans to Yes/No
+            else if (map && typeof val === 'boolean')
+            {
+                return val ? 'Yes' : 'No'
+            }
+            return val
         }
-        // map to option if available
-        else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
-        {
-            return this.meta[id].options[val]
-        }
-        // map numbers to 2 decimal places if they are at least that
-        else if (map && typeof val === 'number' && val % 0.1 !== 0)
-        {
-            return val.toFixed(2)
-        }
-        // map booleans to Yes/No
-        else if (map && typeof val === 'boolean')
-        {
-            return val ? 'Yes' : 'No'
-        }
-        return val
+        return ''
     }
 
     /**
@@ -1071,93 +1171,96 @@ class DAL
         let global_stats = {}
         for (let id of keys)
         {
-            // build list of values to compute on
-            let values = []
-            for (let team of teams)
+            if (this.meta.hasOwnProperty(id))
             {
-                values.push(this.get_value(team, id))
-            }
-            values = values.filter(v => v !== '')
-    
-            switch (this.meta[id].type)
-            {
-                case 'checkbox':
-                case 'select':
-                case 'dropdown':
-                case 'unknown':
-                    if (this.meta[id].options.length > 0 && values.length > 0)
-                    {
-                        // count instances of each option
-                        let counts = {}
-                        let options = this.meta[id].options
-                        for (let i in options)
+                // build list of values to compute on
+                let values = []
+                for (let team of teams)
+                {
+                    values.push(this.get_value(team, id))
+                }
+                values = values.filter(v => v !== '')
+        
+                switch (this.meta[id].type)
+                {
+                    case 'checkbox':
+                    case 'select':
+                    case 'dropdown':
+                    case 'unknown':
+                        if (this.meta[id].options.length > 0 && values.length > 0)
                         {
-                            counts[i] = values.filter(val => val == i).length
-                        }
-    
-                        // compute stats
-                        let min_op = ''
-                        let max_op = ''
-                        let mode_op = mode(values)
-                        let median_op = median(values)
-                        let total_op = ''
-                        for (let op in counts)
-                        {
-                            total_op += `${options[op]}: ${counts[op]}<br>`
-                            global_stats[`${id}.${op}`] = counts[op]
-                            if (min_op === '' || counts[op] < counts[min_op])
+                            // count instances of each option
+                            let counts = {}
+                            let options = this.meta[id].options
+                            for (let i in options)
                             {
-                                min_op = parseInt(op)
+                                counts[i] = values.filter(val => val == i).length
                             }
-                            if (max_op === '' || counts[op] > counts[max_op])
+        
+                            // compute stats
+                            let min_op = ''
+                            let max_op = ''
+                            let mode_op = mode(values)
+                            let median_op = median(values)
+                            let total_op = ''
+                            for (let op in counts)
                             {
-                                max_op = parseInt(op)
+                                total_op += `${options[op]}: ${counts[op]}<br>`
+                                global_stats[`${id}.${op}`] = counts[op]
+                                if (min_op === '' || counts[op] < counts[min_op])
+                                {
+                                    min_op = parseInt(op)
+                                }
+                                if (max_op === '' || counts[op] > counts[max_op])
+                                {
+                                    max_op = parseInt(op)
+                                }
                             }
+                            // convert checkbox values to booleans
+                            if (this.meta[id].type === 'checkbox')
+                            {
+                                min_op = min_op == 'true'
+                                max_op = max_op == 'true'
+                            }
+                            
+                            // build data structure
+                            global_stats[`${id}.mean`]   = mode_op
+                            global_stats[`${id}.median`] = median_op
+                            global_stats[`${id}.mode`]   = mode_op
+                            // TODO determine most and least common or highest and lowest achieved
+                            global_stats[`${id}.min`]    = min_op
+                            global_stats[`${id}.max`]    = max_op
+                            global_stats[`${id}.total`]  = total_op
+                            global_stats[`${id}.stddev`] = '---'
                         }
-                        // convert checkbox values to booleans
-                        if (this.meta[id].type === 'checkbox')
-                        {
-                            min_op = min_op == 'true'
-                            max_op = max_op == 'true'
-                        }
-                        
-                        // build data structure
-                        global_stats[`${id}.mean`]   = mode_op
-                        global_stats[`${id}.median`] = median_op
-                        global_stats[`${id}.mode`]   = mode_op
-                        // TODO determine most and least common or highest and lowest achieved
-                        global_stats[`${id}.min`]    = min_op
-                        global_stats[`${id}.max`]    = max_op
-                        global_stats[`${id}.total`]  = total_op
+                        break
+                    // don't attempt to use strings
+                    case 'string':
+                    case 'text':
+                    case 'cycle':
+                        // don't compute any stats for text
+                        global_stats[`${id}.mean`]   = '---'
+                        global_stats[`${id}.median`] = '---'
+                        global_stats[`${id}.mode`]   = '---'
+                        global_stats[`${id}.min`]    = '---'
+                        global_stats[`${id}.max`]    = '---'
+                        global_stats[`${id}.total`]  = '---'
                         global_stats[`${id}.stddev`] = '---'
-                    }
-                    break
-                // don't attempt to use strings
-                case 'string':
-                case 'text':
-                case 'cycle':
-                    // don't compute any stats for text
-                    global_stats[`${id}.mean`]   = '---'
-                    global_stats[`${id}.median`] = '---'
-                    global_stats[`${id}.mode`]   = '---'
-                    global_stats[`${id}.min`]    = '---'
-                    global_stats[`${id}.max`]    = '---'
-                    global_stats[`${id}.total`]  = '---'
-                    global_stats[`${id}.stddev`] = '---'
-                    break
-                case 'counter':
-                case 'multicounter':
-                case 'number':
-                default:
-                    // compute each stat normally for numbers
-                    global_stats[`${id}.mean`]   = mean(values)
-                    global_stats[`${id}.median`] = median(values)
-                    global_stats[`${id}.mode`]   = mode(values)
-                    global_stats[`${id}.min`]    = Math.min(... values)
-                    global_stats[`${id}.max`]    = Math.max(... values)
-                    global_stats[`${id}.total`]  = values.reduce((a, b) => a + b, 0)
-                    global_stats[`${id}.stddev`] = std_dev(values)
-                    break
+                        break
+                    case 'counter':
+                    case 'multicounter':
+                    case 'number':
+                    default:
+                        // compute each stat normally for numbers
+                        global_stats[`${id}.mean`]   = mean(values)
+                        global_stats[`${id}.median`] = median(values)
+                        global_stats[`${id}.mode`]   = mode(values)
+                        global_stats[`${id}.min`]    = Math.min(... values)
+                        global_stats[`${id}.max`]    = Math.max(... values)
+                        global_stats[`${id}.total`]  = values.reduce((a, b) => a + b, 0)
+                        global_stats[`${id}.stddev`] = std_dev(values)
+                        break
+                }
             }
         }
         return global_stats

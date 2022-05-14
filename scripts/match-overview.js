@@ -6,31 +6,29 @@
  * date:        2020-06-13
  */
 
-// read parameters from URL
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
  * returns:     none
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
     let first = populate_matches(true, false)
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let teams = Object.keys(dal.teams)
+    if (teams.length > 0)
     {
-        let teams = JSON.parse(localStorage.getItem(file_name)).map(t => t.team_number)
         teams.unshift('')
         add_dropdown_filter('team_filter', teams, 'hide_matches()')
     }
     if (first)
     {
+        let extra_toggle = new Button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()')
+        extra_toggle.add_class('slim')
         contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <h3 id="result"></h3>
-                                    ${build_button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()', '', 'slim')}
+                                    ${extra_toggle.toString}
                                     <div id="extra" style="display: none"></div>`
         buttons_container.innerHTML = '<div id="teams"></div>'
 
@@ -61,43 +59,29 @@ function hide_matches()
  * returns:     none
  * description: Completes right info pane for a given match number.
  */
-function open_match(match_num)
+function open_match(match_key)
 {
-    deselect_all()
     
     // select option
-    document.getElementById(`match_${match_num}`).classList.add('selected')
+    deselect_all()
+    document.getElementById(`match_option_${match_key}`).classList.add('selected')
 
     // place match number and team to scout on pane
-    document.getElementById('match_num').innerHTML = match_num
+    document.getElementById('match_num').innerHTML = dal.get_match_value(match_key, 'match_name')
 
     // place match time
-    let match = parse_match(match_num, event_id)
-    let actual = match.actual_time
-    let predicted = match.predicted_time
-    let time = document.getElementById('time')
-    if (actual > 0)
-    {
-        time.innerHTML = unix_to_match_time(actual)
-        
+    document.getElementById('time').innerHTML = dal.get_match_value(match_key, 'display_time')
+    if (dal.get_match_value(match_key, 'complete'))
+    {        
         // add match score
-        let red_score = match.alliances.red.score
-        let blue_score = match.alliances.blue.score
-        if (typeof red_score !== 'undefined' && typeof blue_score !== 'undefined')
-        {
-            let score = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
-            if (match.winning_alliance == 'blue')
-            {
-                score = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
-            }
-            document.getElementById('result').innerHTML = score
-        }
+        document.getElementById('result').innerHTML = dal.get_match_value(match_key, 'score_str')
 
         // add videos
         let extra = '<div id="videos"></div>'
-        if (match.videos && match.videos.length > 0)
+        let videos = dal.get_match_value(match_key, 'videos')
+        if (videos && videos.length > 0)
         {
-            for (let vid of match.videos)
+            for (let vid of videos)
             {
                 // only youtube videos
                 if (vid.type == 'youtube')
@@ -108,27 +92,22 @@ function open_match(match_num)
         }
 
         // add score breakdown
-        if (match.score_breakdown)
+        let breakdown = dal.get_match_value(match_key, 'score_breakdown')
+        if (breakdown)
         {
-            extra += '<table style=""><tr><th>Key</th><th>Red</th><th>Blue</th></tr>'
-            for (let key of Object.keys(match.score_breakdown.red))
+            extra += '<center><table style=""><tr><th>Key</th><th>Red</th><th>Blue</th></tr>'
+            for (let key of Object.keys(breakdown.red))
             {
                 let name = key.replace('tba_', '')
                 name = name[0].toUpperCase() + name.substring(1).split(/(?=[A-Z])/).join(' ')
                 name = name.replace('1', ' 1').replace('2', ' 2').replace('3', ' 3')
-                let red = parse_val(match.score_breakdown.red[key])
-                let blue = parse_val(match.score_breakdown.blue[key])
+                let red = parse_val(breakdown.red[key])
+                let blue = parse_val(breakdown.blue[key])
                 extra += `<tr><th>${name}</th><td>${red}</td><td>${blue}</td></tr>`
             }
-            extra += '</table>'
+            extra += '</table></center>'
         }
         document.getElementById('extra').innerHTML = extra
-    }
-    else if (predicted > 0)
-    {
-        time.innerHTML = `${unix_to_match_time(predicted)} (Projected)`
-        document.getElementById('result').innerHTML = ''
-        document.getElementById('extra').innerHTML = ''
     }
     else
     {
@@ -137,66 +116,48 @@ function open_match(match_num)
     }
 
     // reorganize teams into single object
-    let match_teams = extract_match_teams(match)
+    let match_teams = dal.get_match_teams(match_key)
 
-    let note_button = ''
-    let reds = []
-    let blues = []
+    let red_col = new ColumnFrame('', '')
+    let blue_col = new ColumnFrame('', '')
 
-    let teams = Object.keys(match_teams)
-    if (match.comp_level == 'qm')
-    {
-        // make row for match notes
-        note_button = build_link_button('note_button', 'Take Match Notes', `notes('${match_num}', ${notes_taken(match_num, event_id)})`)
-    }
+    let positions = Object.keys(match_teams)
     
     // make a row for each team
-    for (let key of teams)
+    for (let key of positions)
     {
         let team_num = match_teams[key]
-        let alliance = key.slice(0, -1)
-        let rank = ''
-        let rankings = get_team_rankings(team_num, event_id)
-        if (rankings)
-        {
-            rank = `#${rankings.rank} (${rankings.record.wins}-${rankings.record.losses}-${rankings.record.ties})`
-        }
+        let alliance = key.split('_')[0]
 
         // build button to either scout or result
         let team = `<span class="${alliance}">${team_num}</span>`
-        let result_file = get_match_result(match_num, team_num, event_id)
-        let button = build_link_button(result_file, `Scout ${team}`, `scout('${MATCH_MODE}', '${team_num}', '${alliance}', '${match_num}')`)
-        if (localStorage.getItem(result_file) != null)
+        let scout_link = new Button(`scout_${team_num}`, `Scout ${team}`)
+        scout_link.link = `start_scout('${MATCH_MODE}', '${match_key}', '${team_num}', '${alliance}')`
+        if (dal.is_match_scouted(match_key, team_num))
         {
-            button = build_link_button(result_file, `${team} Results`, `open_result('${result_file}')`)
+            scout_link = new Button(`results_${team_num}`, `${team} Results`)
+            scout_link.link = `open_result('${match_key}', '${team_num}')`
         }
 
         // add button and description to appropriate column
-        let team_info = `<center><span class="${alliance}">${team_num}</span><br>${get_team_name(team_num, event_id)}<br>${rank}</center>`
-        if (alliance == 'red')
+        let team_info = `<center><span class="${alliance}">${team_num}</span><br>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}</center>`
+        let info_card = new Card(`card_${team_num}`, team_info)
+        info_card.limitWidth = true
+        if (alliance === 'red')
         {
-            if (match.comp_level == 'qm')
-            {
-                reds.push(button)
-            }
-            reds.push(build_card('', team_info, limitWidth=true))
+            red_col.add_input(scout_link)
+            red_col.add_input(info_card)
         }
         else
         {
-            if (match.comp_level == 'qm')
-            {
-                blues.push(button)
-            }
-            blues.push(build_card('', team_info, limitWidth=true))
+            blue_col.add_input(scout_link)
+            blue_col.add_input(info_card)
         }
     }
 
-    // create columns and page
-    document.getElementById('teams').innerHTML = build_page_frame('', [
-        note_button,
-        build_column_frame('', reds),
-        build_column_frame('', blues)
-    ])
+    // create page
+    let page = new PageFrame('', '', [red_col, blue_col])
+    document.getElementById('teams').innerHTML = page.toString
 }
 
 /**
@@ -236,39 +197,4 @@ function parse_val(val)
         val = val ? 'Yes' : ''
     }
     return val
-}
-
-/**
- * function:    open_result
- * parameters:  result file to open
- * returns:     none
- * description: Loads the result page for a button when pressed.
- */
-function open_result(file)
-{
-    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: file.split('-')[0], 'file': file})
-}
-
-/**
- * function:    scout
- * parameters:  scouting mode, team number, alliance color, match number
- * returns:     none
- * description: Loads the scouting page for a button when pressed.
- */
-function scout(mode, team, alliance, match, edit=false)
-{
-    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: mode, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'team': team, 'alliance': alliance, 'edit': edit})
-}
-
-/**
- * function:    notes
- * parameters:  match number
- * returns:     none
- * description: Loads the note taking page for a button when pressed.
- */
-function notes(match, edit=false)
-{
-    let teams = get_match_teams(match, event_id)
-    let url_params = {'page': NOTE_MODE, [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match, 'edit': edit}
-    return build_url('index', Object.assign({}, teams, url_params))
 }

@@ -183,18 +183,18 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
 
 /**
  * function:    populate_keys
- * parameters:  data abstraction layer
+ * parameters:  data abstraction layer, use results only
  * returns:     default selection
  * description: Populates the left options list with keys and the right with teams.
  * 
  * Pages: Pivot Table, Distributions
  */
-function populate_keys(dal)
+function populate_keys(dal, results=false)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let keys = dal.get_keys()
+    let keys = dal.get_keys(true, !results, !results, !results)
     if (keys.length > 0)
     {
         // add pick list selector at top
@@ -230,7 +230,7 @@ function populate_keys(dal)
 
 /**
  * function:    populate_other
- * parameters:  options
+ * parameters:  options, associated ids
  * returns:     default selection
  * description: Populates the left options list with a given list of options.
  * 
@@ -241,7 +241,7 @@ function populate_other(options)
     document.getElementById('option_list').innerHTML = ''
 
     // determine if passed list or array
-    let names = []
+    let names
     if (typeof options === 'object' && !Array.isArray(options) && options !== null)
     {
         names = options
@@ -260,7 +260,7 @@ function populate_other(options)
             }
     
             // replace placeholders in template and add to screen
-            let name = names.length > 0 ? names[op] : op
+            let name = typeof names !== 'undefined' ? names[op] : op
             let option = new Option(op, name)
             option_list += option.toString
         }

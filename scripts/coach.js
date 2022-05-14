@@ -144,10 +144,9 @@ function open_teams(match_key)
         {
             blue_teams.push(team_num)
         }
-        let rank = `#${dal.get_value(team_num, 'rank.rank')} (${dal.get_value(team_num, 'rank.ranking_score')}, ${dal.get_value(team_num, 'rank.wins')}-${dal.get_value(team_num, 'rank.losses')}-${dal.get_value(team_num, 'rank.ties')})`
 
         // make a table of "coach-vals"
-        let notes = `<center>${dal.get_value(team_num, 'meta.name')}<br>${rank}</center><br><table>`
+        let notes = `<center>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}</center><br><table>`
         for (let v of vals)
         {
             let stat = dal.get_value(team_num, v.key, v.function, true)
