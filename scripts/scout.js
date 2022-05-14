@@ -505,7 +505,7 @@ function get_results_from_page()
     let file = `pit-${event_id}-${team_num}`
     if (scout_mode === MATCH_MODE)
     {
-        file = `match-${event_id}-${match_num}-${team_num}`
+        file = `match-${match_num}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
     

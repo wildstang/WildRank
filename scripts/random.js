@@ -103,10 +103,11 @@ function create_results()
         // filter out and generate for each selected team
         if (max >= min)
         {
+            let teams = Object.keys(dal.teams)
             let ts = teams.filter(t => t >= min && t <= max)
             for (let t of ts)
             {
-                create_random_result(mode, pos-1, -1, t)
+                create_random_result(mode, pos-1, -1, t, 'white')
             }
             alert(`${ts.length} pit results generated`)
         }
@@ -120,16 +121,15 @@ function create_results()
         // filter out and generate for each selected position in each selected match
         if (max >= min)
         {
-            for (let i = min; i <= max; i++)
+            let matches = Object.keys(dal.matches)
+            for (let match_key of matches)
             {
-                let fteams = matches[i-1].alliances.red.team_keys
-                    .concat(matches[i-1].alliances.blue.team_keys)
+                let fteams = Object.values(dal.get_match_teams(match_key))
                     .filter((t, j) => pos == 0 || pos == j - 1)
-                    .map(t => t.substr(3))
                 
                 for (let j in fteams)
                 {
-                    create_random_result(mode, pos == 0 ? j : pos-1, i, fteams[j])
+                    create_random_result(mode, pos == 0 ? j : pos-1, match_key, fteams[j], j < dal.alliance_size ? 'red' : 'blue')
                 }
             }
             alert(`${max - min + 1} match results generated`)
@@ -147,7 +147,7 @@ function create_results()
  * returns:     none
  * description: Generates and saves a new random result
  */
-function create_random_result(scout_mode, scout_pos, match_num, team_num)
+function create_random_result(scout_mode, scout_pos, match_key, team_num, alliance_color)
 {
     results = {}
 
@@ -164,17 +164,16 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
     // match metadata
     if (scout_mode != PIT_MODE)
     {
-        results['meta_match_key'] = match_num
-        results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
-        results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
-        results['meta_match'] = parseInt(match_num)
+        results['meta_match_key'] = match_key
+        results['meta_comp_level'] = dal.get_match_value(match_key, 'comp_level')
+        results['meta_set_number'] = parseInt(dal.get_match_value(match_key, 'set_number'))
+        results['meta_match'] = parseInt(match_key)
         results['meta_alliance'] = alliance_color
     }
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    let pages = get_scout_config(scout_mode, year).pages
-    for (let page of pages)
+    for (let page of cfg[scout_mode])
     {
         for (let column of page.columns)
         {
@@ -276,10 +275,10 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
     }
 
     // get result name and save
-    let file = get_pit_result(team_num, event_id)
-    if (scout_mode == MATCH_MODE)
+    let file = `pit-${event_id}-${team_num}`
+    if (scout_mode === MATCH_MODE)
     {
-        file = get_match_result(match_num, team_num, event_id)
+        file = `match-${match_key}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
 }
