@@ -998,7 +998,7 @@ class DAL
             }
 
             // don't return null values
-            if (val === null)
+            if (val === null || typeof val === 'undefined')
             {
                 return ''
             }
