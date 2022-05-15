@@ -9,72 +9,45 @@
 
 const STAT_TYPES = ['Sum', 'Percent', 'Ratio', 'Where']
 
-var results = {}
-var meta = {}
-var cycles = []
-var lists = []
-var team_order = []
-
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
  * returns:     none
  * description: Fetch results from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
-    // get picklists if any
-    let file_name = get_event_pick_lists_name(event_id)
-    if (file_exists(file_name))
-    {
-        lists = JSON.parse(localStorage.getItem(file_name))
-
-        add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'calculate()', true)
-    }
-
-    // gets results
-    results = get_results(prefix, year)
-    meta = get_result_meta(type, year)
-    cycles = Object.keys(meta).filter(k => meta[k].type == 'cycle')
+    // build picklist filter
+    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'update_params()', true)
 
     // build static components
-    buttons_container.innerHTML = build_page_frame('', [
-        build_column_frame('', [ build_str_entry('name', 'Name', 'New Smart Stat'),
-            build_select('type', 'Type', STAT_TYPES, 'Sum', 'update_params()'),
-            '<div id="params"></div>'
-        ]),
-        build_column_frame('', [ build_button('save_stat', 'Save Stat to Config', 'save_stat()'),
-            build_button('save_list', 'Save as Picklist', 'save_list()')
-        ])
-    ])
-    contents_card.innerHTML = '<h2>Build a Smart Stat</h2>'
+    let page = new PageFrame()
+    let builder_col = new ColumnFrame('', 'Build Stat')
+    page.add_column(builder_col)
+
+    let name = new Entry('name', 'Name', 'New Stat')
+    builder_col.add_input(name)
+
+    let type = new Select('type', 'Type', STAT_TYPES, 'Sum')
+    type.onselect = 'update_params()'
+    builder_col.add_input(type)
+
+    builder_col.add_input('<div id="params"></div>')
+
+    let button_col = new ColumnFrame('', 'Save')
+    page.add_column(button_col)
+
+    let save_stat = new Button('save_stat', 'Save Stat to Config', 'save_stat()')
+    button_col.add_input(save_stat)
+
+    let save_list = new Button('save_list', 'Save Rankings as Picklist', 'save_list()')
+    button_col.add_input(save_list)
+
+    buttons_container.innerHTML = page.toString
+    contents_card.style.display = 'none'
 
     // build dynamic components
     update_params()
-}
-
-/**
- * function:    filter_numeric
- * parameters:  key
- * returns:     none
- * description: Determines if a key results a result which is a number.
- */
-function filter_numeric(key)
-{
-    let type = meta[key].type
-    return (typeof meta[key].cycle === 'undefined' || meta[key].cycle == false) && (type == 'number' || type == 'counter' || type == 'slider')
-}
-
-/**
- * function:    filter_cycle
- * parameters:  key
- * returns:     none
- * description: Determines if a key belongs to a cycle.
- */
-function filter_cycle(key, cycle)
-{
-    let type = meta[key].type
-    return (type == 'counter' || type == 'dropdown' || type == 'select') && meta[key].cycle == cycle
 }
 
 /**
@@ -89,53 +62,74 @@ function update_params()
 
     // add appropriate inputs for the selected type
     let html = ''
-    let keys = Object.keys(meta).filter(filter_numeric)
+    let keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
     switch (type)
     {
         case 'Sum':
-            let colA = []
-            let colB = []
+            let left = new ColumnFrame()
+            let right = new ColumnFrame()
+            let page = new PageFrame('', '', [left, right])
             for (let i in keys)
             {
-                let cb = build_checkbox(keys[i], meta[keys[i]].name, false, 'calculate()')
+                let cb = new Checkbox(keys[i], dal.get_name(keys[i]), false)
+                cb.onclick = 'calculate()'
                 // split column in 2
                 if (i < keys.length / 2)
                 {
-                    colA.push(cb)
+                    left.add_input(cb)
                 }
                 else
                 {
-                    colB.push(cb)
+                    right.add_input(cb)
                 }
             }
-            html += build_page_frame('', [build_column_frame('', colA), build_column_frame('', colB)])
+            html += page.toString
             break
         case 'Percent':
-            keys = keys.map(k => meta[k].name)
-            html += build_dropdown('numerator', 'Percent Value', keys, '', 'calculate()', '', 'The value being measured in the percentage.')
-            html += build_dropdown('denominator', 'Remaining Value', keys, '', 'calculate()', '', 'The remaining value used to complete the percentage.')
+            keys = keys.map(k => dal.get_name(k))
+            let percent = new Dropdown('numerator', 'Percent Value', keys)
+            percent.onselect = 'calculate()'
+            percent.description = 'The value being measured in the percentage.'
+            let remain = new Dropdown('denominator', 'Remaining Value', keys)
+            remain.onselect = 'calculate()'
+            remain.description = 'The remaining value used to complete the percentage.'
+            html += percent.toString + remain.toString
             break
         case 'Ratio':
-            keys = keys.map(k => meta[k].name)
-            html += build_dropdown('numerator', 'Numerator', keys, '', 'calculate()')
-            html += build_dropdown('denominator', 'Denominator', keys, '', 'calculate()')
+            keys = keys.map(k => dal.get_name(k))
+            let numerator = new Dropdown('numerator', 'Numerator', keys)
+            numerator.onselect = 'calculate()'
+            let denominator = new Dropdown('denominator', 'Denominator', keys)
+            denominator.onselect = 'calculate()'
+            html += numerator.toString + denominator.toString
             break
         case 'Where':
+            let cycles = dal.get_result_keys(true, ['cycle'])//.map(c => dal.meta[c].name)
             let cycle = cycles[0]
             if (document.getElementById('cycle'))
             {
                 cycle = document.getElementById('cycle').value
             }
-            let inputs = Object.keys(meta).filter(key => filter_cycle(key, cycle))
-            let counters = inputs.filter(k => meta[k].type == 'counter').map(k => meta[k].name)
-            let selects = inputs.filter(k => meta[k].type != 'counter')
+            cycle = cycle.replace('results.', '')
+            let counters = dal.get_result_keys(cycle, ['counter']).map(c => dal.get_name(c))
+            let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
 
-            html += build_dropdown('cycle', 'Cycle', cycles, cycle, 'update_params()', '', 'The ID of the cycle you would like to count.')
-            html += build_dropdown('count', 'Count', ['Count'].concat(counters), '', 'calculate()', '', 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.')
-            html += build_dropdown('denominator', 'Percent: Remaining Value', [''].concat(counters), '', 'calculate()', '', 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.')
+            let cycle_filter = new Dropdown('cycle', 'Cycle', cycles)
+            cycle_filter.onselect = 'update_params()'
+            cycle_filter.description = 'The ID of the cycle you would like to count.'
+            let count = new Dropdown('count', 'Count', ['Count'].concat(counters))
+            count.onselect = 'calculate()'
+            count.description = 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.'
+            let cycle_percent = new Dropdown('denominator', 'Percent: Remaining Value', [''].concat(counters))
+            cycle_percent.onselect = 'calculate()'
+            cycle_percent.description = 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.'
+            html += cycle_filter.toString + count.toString + cycle_percent.toString
             for (let s of selects)
             {
-                html += build_dropdown(s, meta[s].name, [''].concat(meta[s].options), '', 'calculate()', '', 'Optional, choose value of the above select to filter cycles by.')
+                let filter = new Dropdown(s, dal.get_name(s), [''].concat(dal.meta[s].options))
+                filter.onselect = 'calculate()'
+                filter.description = 'Optional, choose value of the above select to filter cycles by.'
+                html += filter.toString
             }
             break
     }
@@ -165,17 +159,18 @@ function build_stat()
     }
 
     // fill out the stat object based on the type
+    let numeric = dal.get_result_keys(false, ['number', 'counter', 'slider'])
     switch (type)
     {
         case 'Sum':
             let keys = []
             let pos = false
-            for (let c of Object.keys(meta).filter(filter_numeric))
+            for (let c of numeric)
             {
                 if (document.getElementById(c).checked)
                 {
-                    keys.push(c)
-                    if (typeof meta[c].negative === 'undefined' || !meta[c].negative)
+                    keys.push(c.replace('results.', ''))
+                    if (typeof dal.meta[c].negative === 'undefined' || !dal.meta[c].negative)
                     {
                         pos = true
                     }
@@ -186,35 +181,33 @@ function build_stat()
             break
         case 'Percent':
         case 'Ratio':
-            let ids = Object.keys(meta).filter(filter_numeric)
-            let numerator = ids[document.getElementById('numerator').selectedIndex]
-            let denominator = ids[document.getElementById('denominator').selectedIndex]
-            stat.numerator = numerator
-            stat.denominator = denominator
-            stat.negative = meta[numerator].negative && !meta[denominator].negative
+            let numerator = numeric[document.getElementById('numerator').selectedIndex]
+            let denominator = numeric[document.getElementById('denominator').selectedIndex]
+            stat.numerator = numerator.replace('results.', '')
+            stat.denominator = denominator.replace('results.', '')
+            stat.negative = dal.meta[numerator].negative && !dal.meta[denominator].negative
             break
         case 'Where':
-            let cycle = document.getElementById('cycle').value
+            let cycle = document.getElementById('cycle').value.replace('results.', '')
             let count = document.getElementById('count').selectedIndex
             let wdenominator = document.getElementById('denominator').selectedIndex
-            let inputs = Object.keys(meta).filter(key => filter_cycle(key, cycle))
-            let counters = inputs.filter(k => meta[k].type == 'counter')
-            let selects = inputs.filter(k => meta[k].type != 'counter')
+            let counters = dal.get_result_keys(cycle, ['counter'])
+            let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
             let vals = {}
             for (let s of selects)
             {
                 let val = document.getElementById(s).value
                 if (val)
                 {
-                    vals[s] = val 
+                    vals[s.replace('results.', '')] = val
                 }
             }
             stat.conditions = vals
             stat.cycle = cycle
             if (count != 0)
             {
-                stat.sum = counters[count-1]
-                stat.negative = meta[counters[count-1]].negative
+                stat.sum = counters[count-1].replace('results.', '')
+                stat.negative = dal.meta[counters[count-1]].negative
             }
             else
             {
@@ -222,7 +215,7 @@ function build_stat()
             }
             if (wdenominator != 0)
             {
-                stat.denominator = counters[wdenominator-1]
+                stat.denominator = counters[wdenominator-1].replace('results.', '')
             }
             break
     }
@@ -240,30 +233,29 @@ function calculate()
     let name = document.getElementById('name').value
     let id = name.toLowerCase().split(' ').join('_')
     let stat = build_stat()
+    console.log(stat)
 
     // filter teams
-    let picklist = false
-    if (lists.length > 0)
+    let picklist = []
+    if (Object.keys(dal.picklists).length > 0)
     {
-        picklist = document.getElementById('picklist_filter').value
-        if (!Object.keys(lists).includes(picklist))
+        let selected = document.getElementById('picklist_filter').value
+        if (selected !== 'None')
         {
-            picklist = false
+            picklist = dal.picklists[selected]
         }    
     }
 
     // get team smart stat results
     let team_res = {}
-    for (let res of Object.values(results))
+    let result_names = dal.get_results(picklist)
+    for (let res of result_names)
     {
-        if (!picklist || lists[picklist].includes(res.meta_team.toString()))
+        if (typeof team_res[res.meta_team] === 'undefined')
         {
-            if (typeof team_res[res.meta_team] === 'undefined')
-            {
-                team_res[res.meta_team] = [] 
-            }
-            team_res[res.meta_team].push(add_given_smart_stats(res, [stat])[id])
+            team_res[res.meta_team] = [] 
         }
+        team_res[res.meta_team].push(dal.add_smart_stats(res, [stat])[id])
     }
 
     // average each set of team results
@@ -316,17 +308,17 @@ function calculate()
 function save_stat()
 {
     let stat = build_stat()
-    if (stat.id in meta)
+    if (dal.meta.hasOwnProperty(`results.${stat.id}`))
     {
-        alert('Name already exists!')
+        alert('Stat already exists!')
     }
     else
     {
-        let config = get_config('smart-stats')
-        config[year].push(stat)
-        localStorage.setItem('config-smart-stats', JSON.stringify(config))
+        cfg.smart_stats.push(stat)
+        localStorage.setItem(`config-${cfg.year}-smart-stats`, JSON.stringify(cfg.smart_stats))
+        dal.build_teams()
+        update_params()
         alert(`${stat.name} Created`)
-        meta = get_result_meta(type, year)
     }
 }
 
@@ -338,13 +330,8 @@ function save_stat()
  */
 function save_list()
 {
-    let file = get_event_pick_lists_name(event_id)
-    let picklists = JSON.parse(localStorage.getItem(file))
-    if (!picklists)
-    {
-        picklists = {}
-    }
     let name = document.getElementById('name').value
-    picklists[name] = team_order
-    localStorage.setItem(file, JSON.stringify(picklists))
+    dal.picklists[name] = team_order
+    dal.save_picklists()
+    alert(`${name} Created`)
 }
