@@ -124,7 +124,7 @@ function apply_config()
     localStorage.setItem('config-theme', build_config('theme'))
     localStorage.setItem('config-dark-theme', build_config('dark_theme'))
 
-    build_page()
+    cfg.load_configs(0, build_page)
     alert('Settings Applied')
 }
 
@@ -204,9 +204,8 @@ function import_config(event)
         for (let key of keys)
         {
             localStorage.setItem(`config-${key}`, JSON.stringify(newConfig[key]))
-            cfg.load_config(`config-${key}`)
         }
-        build_page()
+        cfg.load_configs(0, build_page)
     }
 }
 
