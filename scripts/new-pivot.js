@@ -25,7 +25,7 @@ function init_page()
     let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
     let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
 
-    contents_card.innerHTML = '<table id="results_tab" style="position: relative"></table>'
+    contents_card.innerHTML = '<table id="results_tab"></table>'
     buttons_container.innerHTML = picklist_button.toString + export_button.toString + import_button.toString
     
     // add pick list filter
@@ -245,7 +245,7 @@ function build_table(sort_by='', reverse=false)
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
     // build table headers
-    let table = `<table><tr><th onclick="build_table('', ${!reverse})">Team Number</th>`
+    let table = `<table><tr class="sticky_header"><th onclick="build_table('', ${!reverse})">Team Number</th>`
     let types = '<tr><td></td>'
     let totals = '<tr><td></td>'
     for (let i in selected)
@@ -461,6 +461,7 @@ function prompt_csv()
  * parameters:  event
  * returns:     none
  * description: Loads in previously selected keys and functions from file.
+ *              TODO import teams?
  */
 function import_keys(event)
 {
