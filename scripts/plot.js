@@ -145,7 +145,7 @@ function build_plot()
     for (let team of teams)
     {
         plots[team] = []
-        let keys = dal.get_result_keys([team])
+        let keys = dal.get_result_names([team])
         for (let i in keys)
         {
             let match_key = keys[i].split('-')[0]

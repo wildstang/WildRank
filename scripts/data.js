@@ -187,6 +187,30 @@ class DAL
     }
 
     /**
+     * function:    get_results_keys
+     * parameters:  if cycles should be searched, types to filter by
+     * returns:     none
+     * description: Return a list of all result team keys, with filters.
+     */
+    get_result_keys(cycle=true, types=[])
+    {
+        let keys = Object.keys(this.meta).filter(k => k.startsWith('results.'))
+        if (!cycle)
+        {
+            keys = keys.filter(k => typeof this.meta[k].cycle === 'undefined' || this.meta[k].cycle === false)
+        }
+        else if (cycle !== true)
+        {
+            keys = keys.filter(k => this.meta[k].cycle === cycle)
+        }
+        if (types.length > 0)
+        {
+            keys = keys.filter(k => types.includes(this.meta[k].type))
+        }
+        return keys
+    }
+
+    /**
      * function:    get_results
      * parameters:  teams to filter by, sort matches
      * returns:     list of matches
@@ -257,7 +281,7 @@ class DAL
      * returns:     list of match keys
      * description: Returns a list of match keys sorted first by match then position.
      */
-    get_result_keys(teams=[], sort=true)
+    get_result_names(teams=[], sort=true)
     {
         let results = this.get_results(teams, sort)
         return results.map(r => `${r.meta_match_key}-${r.meta_team}`)
@@ -750,29 +774,32 @@ class DAL
                     let value = 0
                     let denominator = 0
                     let percent = typeof stat.denominator !== 'undefined'
-                    for (let cycle of result[stat.cycle])
+                    if (stat.cycle)
                     {
-                        let passed = true
-                        for (let key of Object.keys(stat.conditions))
+                        for (let cycle of result[stat.cycle])
                         {
-                            if (cycle[key] != this.meta['results.' + key].options.indexOf(stat.conditions[key]))
+                            let passed = true
+                            for (let key of Object.keys(stat.conditions))
                             {
-                                passed = false
+                                if (cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
+                                {
+                                    passed = false
+                                }
                             }
-                        }
-                        if (passed)
-                        {
-                            if (count)
+                            if (passed)
                             {
-                                value++
-                            }
-                            else
-                            {
-                                value += cycle[stat.sum]
-                            }
-                            if (percent)
-                            {
-                                denominator += cycle[stat.denominator]
+                                if (count)
+                                {
+                                    value++
+                                }
+                                else
+                                {
+                                    value += cycle[stat.sum]
+                                }
+                                if (percent)
+                                {
+                                    denominator += cycle[stat.denominator]
+                                }
                             }
                         }
                     }
