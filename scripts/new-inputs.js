@@ -384,7 +384,20 @@ class Entry extends Input
 
     get toString()
     {
-        return `${this.html_label}${this.html_description}<input class="wr_string ${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>`
+        let prefix = ''
+        let postfix = ''
+        if (this.show_color)
+        {
+            this.add_class('color_text')
+            this.on_text_change = `update_color('${this.id}')`
+            prefix = '<div class="wr_color">'
+            postfix = `<span class="color_box" id="${this.id}_color" style="background-color: ${this.def}"></span></div>`
+        }
+        else
+        {
+            this.add_class('wr_string')
+        }
+        return `${this.html_label}${this.html_description}${prefix}<input class="${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>${postfix}`
     }
 }
 
