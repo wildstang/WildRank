@@ -313,7 +313,7 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id != 'scout' && !cfg.admins.includes(parseInt(user)))
+    if (id != 'scout' && !cfg.users.admins.includes(parseInt(user)))
     {
         return 'Missing admin privileges'
     }

@@ -16,7 +16,7 @@ class Config
         this.defaults = {}
         this.theme = {}
         this.dark_theme = {}
-        this.admins = []
+        this.users = {}
         this.settings = {}
 
         // build empty game data structures
@@ -41,12 +41,12 @@ class Config
         this.defaults = this.load_config('defaults')
         this.theme = this.load_config('theme')
         this.dark_theme = this.load_config('dark-theme')
-        this.admins = this.load_config('admins')
+        this.users = this.load_config('users')
         this.settings = this.load_config('settings')
 
         // if any failed to load re-fetch them
         if (fetch_on_fail < 1 && (this.keys === false || this.defaults === false || this.theme === false ||
-            this.dark_theme === false || this.admins === false || this.settings === false))
+            this.dark_theme === false || this.users === false || this.settings === false))
         {
             this.fetch_settings_config(true, on_load)
             return
@@ -187,7 +187,7 @@ class Config
     validate_settings_configs()
     {
         return this.validate_theme('theme') && this.validate_theme('dark_theme') && this.validate_keys('keys') &&
-            this.validate_admins('admins') && this.validate_defaults('defaults') && this.validate_settings('settings')
+            this.validate_users('users') && this.validate_defaults('defaults') && this.validate_settings('settings')
     }
 
     /**
@@ -225,27 +225,32 @@ class Config
     }
 
     /**
-     * function:    validate_admins
+     * function:    validate_users
      * parameters:  config name
      * returns:     none
-     * description: Validates a admins config.
+     * description: Validates a users config.
      */
-    validate_admins(config)
+    validate_users(config)
     {
         let c = this[config]
-        if (Array.isArray(c))
+        if (typeof c === 'object')
         {
-            for (let admin of c)
+            if (c.hasOwnProperty('admins') && Array.isArray(c.admins))
             {
-                if (typeof admin !== 'number')
+                for (let admin of c.admins)
                 {
-                    console.log('Invalid admin', admin)
-                    return false
+                    if (typeof admin !== 'number')
+                    {
+                        console.log('Invalid admin', admin)
+                        return false
+                    }
                 }
+                return true
             }
-            return true
+            console.log('Missing key, admins')
+            return false
         }
-        console.log('Invalid admins object')
+        console.log('Invalid users object')
         return false
     }
 
