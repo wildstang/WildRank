@@ -55,7 +55,7 @@ class Element
 
 class PageFrame extends Element
 {
-    constructor(id, label, columns=[])
+    constructor(id='', label='', columns=[])
     {
         super(id, label)
         this.columns = columns
@@ -83,7 +83,7 @@ class PageFrame extends Element
 
 class ColumnFrame extends Element
 {
-    constructor(id, label, inputs=[])
+    constructor(id='', label='', inputs=[])
     {
         super(id, label)
         this.inputs = inputs
