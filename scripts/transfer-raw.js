@@ -18,24 +18,36 @@ function init_page()
     // set header
     document.getElementById('header_info').innerHTML = 'Raw Data Zip Transfer'
 
-    document.body.innerHTML += build_page_frame('', [
-        build_column_frame('', [
-            build_checkbox('event', 'Event Data'), // teams, matches, rankings
-            build_checkbox('results', 'Results'), // pits, matches
-            build_checkbox('config', 'Scouting Config'),
-            build_checkbox('smart-stats', 'Smart Stats'),
-            build_checkbox('coach-vals', 'Coach Values'),
-            build_checkbox('settings', 'Settings'),
-            build_checkbox('picklists', 'Pick Lists'),
-            build_checkbox('avatars', 'Avatars')
-        ]),
-        build_column_frame('', [
-            build_str_entry('server', 'Server URL', parse_server_addr(document.location.href)),
-            build_select('method', 'Local or Server', ['Local', 'Server'], 'Local'),
-            build_multi_button('direction', 'Import or Export', ['Import', 'Export'], ['get_zip()', 'export_zip()']),
-            '<progress id="progress" class="wr_progress" value="0" max="100"></progress>'
-        ])
-    ])
+    let page = new PageFrame()
+    let check_col = new ColumnFrame()
+    page.add_column(check_col)
+
+    check_col.add_input(new Checkbox('event', 'Event Data'))
+    check_col.add_input(new Checkbox('results', 'Results'))
+    check_col.add_input(new Checkbox('config', 'Scouting Configs'))
+    check_col.add_input(new Checkbox('smart-stats', 'Smart Stats'))
+    check_col.add_input(new Checkbox('coach-vals', 'Coach Values'))
+    check_col.add_input(new Checkbox('settings', 'Settings'))
+    check_col.add_input(new Checkbox('picklists', 'Pick Lists'))
+    check_col.add_input(new Checkbox('avatars', 'Avatars'))
+
+    let option_col = new ColumnFrame()
+    page.add_column(option_col)
+
+    let server = new Entry('server', 'Server URL', parse_server_addr(document.location.href))
+    option_col.add_input(server)
+
+    let method = new Select('method', 'Local or Server', ['Local', 'Server'], 'Local')
+    option_col.add_input(method)
+
+    let direction = new Select('direction', 'Import or Export')
+    direction.add_option('Import', 'get_zip()')
+    direction.add_option('Export', 'export_zip()')
+    option_col.add_input(direction)
+
+    option_col.add_input('<progress id="progress" class="wr_progress" value="0" max="100"></progress>')
+
+    document.body.innerHTML += page.toString
 }
 
 /**
@@ -60,13 +72,13 @@ function export_zip()
     // determine which files to use
     let files = Object.keys(localStorage).filter(function(file)
     {
-        return (file.includes(event_id) &&
+        return (file.includes(dal.event_id) &&
             ((use_event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
-            (use_results && (file.startsWith('match-') || file.startsWith('pit-') || file.startsWith('note-'))))) ||
-            (use_config && file.startsWith(`config-${year}-`)) ||
-            (use_smart_stats && file == 'config-smart-stats') ||
-            (use_coach_vals && file == 'config-coach-vals') ||
-            (use_settings && file.startsWith('config-') && !file.startsWith(`config-2`) && file != 'config-smart-stats' && file != 'config-coach-vals') ||
+            (use_results && (file.startsWith('match-') || file.startsWith('pit-'))))) ||
+            (use_config && file.startsWith(`config-${cfg.year}-`)) ||
+            (use_smart_stats && file === 'config-smart-stats') ||
+            (use_coach_vals && file === 'config-coach-vals') ||
+            (use_settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`) && file !== 'config-smart-stats' && file !== 'config-coach-vals') ||
             (use_avatars && file.startsWith('avatar-')) ||
             (use_picklists && file.startsWith('picklists-'))
     })
@@ -94,7 +106,7 @@ function export_zip()
             {
                 let element = document.createElement('a')
                 element.setAttribute('href', `data:application/zip;base64,${base64}`)
-                element.setAttribute('download', `${user_id}-${event_id}-export.zip`)
+                element.setAttribute('download', `${user_id}-${dal.event_id}-export.zip`)
     
                 element.style.display = 'none'
                 document.body.appendChild(element)
@@ -112,7 +124,7 @@ function export_zip()
                     fetch(addr, {method: 'POST', body: base64})
                         .then(response => response.json())
                         .then(result => {
-                            if (result.success && result.count == files.length)
+                            if (result.success && result.count === files.length)
                             {
                                 alert('Upload successful!')
                             }
@@ -245,13 +257,13 @@ function import_zip(file)
                 {
                     content.text().then(function (text) {
                         // determine which files to use
-                        if ((n.includes(event_id) &&
+                        if ((n.includes(dal.event_id) &&
                             ((use_event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
-                            (use_results && (n.startsWith('match-') || n.startsWith('pit-') || n.startsWith('note-'))))) ||
-                            (use_config && n.startsWith(`config-${year}-`)) ||
-                            (use_smart_stats && n == 'config-smart-stats') ||
-                            (use_coach_vals && n == 'config-coach-vals') ||
-                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-2`) && n != 'config-smart-stats' && n != 'config-coach-vals') ||
+                            (use_results && (n.startsWith('match-') || n.startsWith('pit-'))))) ||
+                            (use_config && n.startsWith(`config-${cfg.year}-`)) ||
+                            (use_smart_stats && n === 'config-smart-stats') ||
+                            (use_coach_vals && n === 'config-coach-vals') ||
+                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`) && n !== 'config-smart-stats' && n !== 'config-coach-vals') ||
                             (use_avatars && n.startsWith('avatar-')) ||
                             (use_picklists && n.startsWith('picklists-')))
                         {

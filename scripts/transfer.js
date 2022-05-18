@@ -23,13 +23,12 @@ function preload_event()
 
     if (!TBA_KEY)
     {
-        let file = localStorage.getItem('config-keys')
+        let file = cfg.keys
         if (file != null)
         {
-            let keys = JSON.parse(file)
-            if (keys.hasOwnProperty('tba'))
+            if (cfg.keys.hasOwnProperty('tba'))
             {
-                TBA_KEY = keys.tba
+                TBA_KEY = cfg.keys.tba
             }
         }
         if (!TBA_KEY)
