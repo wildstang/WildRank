@@ -831,6 +831,7 @@ class DAL
      */
     get_name(id, stat='mean')
     {
+        stat = stat.toLowerCase()
         // add stat only to stats and if provided
         if (id.startsWith('stats.') && stat !== '')
         {
@@ -980,6 +981,7 @@ class DAL
      */
     get_value(team, id, stat='mean', map=false)
     {
+        stat = stat.toLowerCase()
         let parts = id.split('.')
         if (parts.length >= 2 && this.teams.hasOwnProperty(team.toString()))
         {
@@ -1030,6 +1032,7 @@ class DAL
      */
     get_global_value(global_stats, id, stat='mean', map=false)
     {
+        stat = stat.toLowerCase()
         let key = `${id}.${stat}`
         if (global_stats.hasOwnProperty(key))
         {
@@ -1158,9 +1161,10 @@ class DAL
                     this.teams[team].stats[`${key}.mean`]   = mode_op
                     this.teams[team].stats[`${key}.median`] = median_op
                     this.teams[team].stats[`${key}.mode`]   = mode_op
-                    // TODO most and least common or highest and lowest achieved
                     this.teams[team].stats[`${key}.min`]    = min_op
                     this.teams[team].stats[`${key}.max`]    = max_op
+                    this.teams[team].stats[`${key}.low`]    = 0
+                    this.teams[team].stats[`${key}.high`]   = options.length
                     this.teams[team].stats[`${key}.total`]  = total_op
                     this.teams[team].stats[`${key}.stddev`] = '---'
                 }
@@ -1175,6 +1179,8 @@ class DAL
                 this.teams[team].stats[`${key}.mode`]   = '---'
                 this.teams[team].stats[`${key}.min`]    = '---'
                 this.teams[team].stats[`${key}.max`]    = '---'
+                this.teams[team].stats[`${key}.low`]    = '---'
+                this.teams[team].stats[`${key}.high`]   = '---'
                 this.teams[team].stats[`${key}.total`]  = '---'
                 this.teams[team].stats[`${key}.stddev`] = '---'
                 break
@@ -1188,6 +1194,8 @@ class DAL
                 this.teams[team].stats[`${key}.mode`]   = mode(values)
                 this.teams[team].stats[`${key}.min`]    = Math.min(... values)
                 this.teams[team].stats[`${key}.max`]    = Math.max(... values)
+                this.teams[team].stats[`${key}.low`]    = this.teams[team].stats[`${key}.min`]
+                this.teams[team].stats[`${key}.high`]   = this.teams[team].stats[`${key}.max`]
                 this.teams[team].stats[`${key}.total`]  = values.reduce((a, b) => a + b, 0)
                 this.teams[team].stats[`${key}.stddev`] = std_dev(values)
                 break
@@ -1200,7 +1208,7 @@ class DAL
      * returns:     a data structure of stats for all key-teams
      * description: Compute a list of stats across all given teams.
      */
-    compute_global_stats(keys, teams)
+    compute_global_stats(keys, teams, stat='mean')
     {
         // build list of raw values
         let global_stats = {}
@@ -1212,7 +1220,7 @@ class DAL
                 let values = []
                 for (let team of teams)
                 {
-                    values.push(this.get_value(team, id))
+                    values.push(this.get_value(team, id, stat))
                 }
                 values = values.filter(v => v !== '')
         
@@ -1262,9 +1270,10 @@ class DAL
                             global_stats[`${id}.mean`]   = mode_op
                             global_stats[`${id}.median`] = median_op
                             global_stats[`${id}.mode`]   = mode_op
-                            // TODO determine most and least common or highest and lowest achieved
                             global_stats[`${id}.min`]    = min_op
                             global_stats[`${id}.max`]    = max_op
+                            global_stats[`${id}.low`]    = 0
+                            global_stats[`${id}.high`]   = options.length
                             global_stats[`${id}.total`]  = total_op
                             global_stats[`${id}.stddev`] = '---'
                         }
@@ -1279,6 +1288,8 @@ class DAL
                         global_stats[`${id}.mode`]   = '---'
                         global_stats[`${id}.min`]    = '---'
                         global_stats[`${id}.max`]    = '---'
+                        global_stats[`${id}.low`]    = '---'
+                        global_stats[`${id}.high`]   = '---'
                         global_stats[`${id}.total`]  = '---'
                         global_stats[`${id}.stddev`] = '---'
                         break
@@ -1292,6 +1303,8 @@ class DAL
                         global_stats[`${id}.mode`]   = mode(values)
                         global_stats[`${id}.min`]    = Math.min(... values)
                         global_stats[`${id}.max`]    = Math.max(... values)
+                        global_stats[`${id}.low`]    = global_stats[`${id}.min`]
+                        global_stats[`${id}.high`]   = global_stats[`${id}.max`]
                         global_stats[`${id}.total`]  = values.reduce((a, b) => a + b, 0)
                         global_stats[`${id}.stddev`] = std_dev(values)
                         break
