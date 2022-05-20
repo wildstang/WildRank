@@ -183,18 +183,18 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
 
 /**
  * function:    populate_keys
- * parameters:  data abstraction layer, use results only
+ * parameters:  data abstraction layer, use results only, exclude strings
  * returns:     default selection
  * description: Populates the left options list with keys and the right with teams.
  * 
  * Pages: Pivot Table, Distributions
  */
-function populate_keys(dal, results=false)
+function populate_keys(dal, results_only=false, exclude_strings=false)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let keys = dal.get_keys(true, !results, !results, !results)
+    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
     if (keys.length > 0)
     {
         // add pick list selector at top

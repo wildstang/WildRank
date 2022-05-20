@@ -159,7 +159,7 @@ function open_pivot()
  */
 function open_distro()
 {
-    return build_url('selection', {'page': 'distro', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'new-distro', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
