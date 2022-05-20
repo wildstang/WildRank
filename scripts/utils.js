@@ -168,7 +168,7 @@ function std_dev(values)
  */
 function median(values)
 {
-    let sorted = values.sort()
+    let sorted = values.sort((a,b ) => a - b)
     return sorted[Math.floor(sorted.length / 2)]
 }
 
