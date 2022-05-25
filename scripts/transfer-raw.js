@@ -6,6 +6,7 @@
  */
 
 const start = Date.now()
+const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 /**
  * function:    init_page
@@ -40,7 +41,7 @@ function init_page()
     let method = new Select('method', 'Local or Server', ['Local', 'Server'], 'Local')
     option_col.add_input(method)
 
-    let direction = new Select('direction', 'Import or Export')
+    let direction = new MultiButton('direction', 'Import or Export')
     direction.add_option('Import', 'get_zip()')
     direction.add_option('Export', 'export_zip()')
     option_col.add_input(direction)
