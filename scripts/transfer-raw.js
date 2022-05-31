@@ -27,9 +27,10 @@ function init_page()
     check_col.add_input(new Checkbox('results', 'Results'))
     check_col.add_input(new Checkbox('config', 'Scouting Configs'))
     check_col.add_input(new Checkbox('smart-stats', 'Smart Stats'))
-    check_col.add_input(new Checkbox('coach-vals', 'Coach Values'))
+    check_col.add_input(new Checkbox('coach', 'Coach Config'))
     check_col.add_input(new Checkbox('settings', 'Settings'))
     check_col.add_input(new Checkbox('picklists', 'Pick Lists'))
+    check_col.add_input(new Checkbox('whiteboard', 'Whiteboard'))
     check_col.add_input(new Checkbox('avatars', 'Avatars'))
 
     let option_col = new ColumnFrame()
@@ -63,10 +64,11 @@ function export_zip()
     let use_results     = document.getElementById('results').checked
     let use_config      = document.getElementById('config').checked
     let use_smart_stats = document.getElementById('smart-stats').checked
-    let use_coach_vals  = document.getElementById('coach-vals').checked
+    let use_coach       = document.getElementById('coach').checked
     let use_settings    = document.getElementById('settings').checked
     let use_avatars     = document.getElementById('avatars').checked
     let use_picklists   = document.getElementById('picklists').checked
+    let use_whiteboard  = document.getElementById('whiteboard').checked
     
     let zip = JSZip()
 
@@ -76,12 +78,13 @@ function export_zip()
         return (file.includes(dal.event_id) &&
             ((use_event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
             (use_results && (file.startsWith('match-') || file.startsWith('pit-'))))) ||
-            (use_config && file.startsWith(`config-${cfg.year}-`)) ||
-            (use_smart_stats && file === 'config-smart-stats') ||
-            (use_coach_vals && file === 'config-coach-vals') ||
-            (use_settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`) && file !== 'config-smart-stats' && file !== 'config-coach-vals') ||
+            (use_config && (file === `config-${cfg.year}-pit` || file === `config-${cfg.year}-match`)) ||
+            (use_smart_stats && file === `config-${cfg.year}-smart_stats`) ||
+            (use_coach && file === `config-${cfg.year}-coach`) ||
+            (use_settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
             (use_avatars && file.startsWith('avatar-')) ||
-            (use_picklists && file.startsWith('picklists-'))
+            (use_picklists && file.startsWith('picklists-')) ||
+            (use_whiteboard && file === `config-${cfg.year}-whiteboard`)
     })
 
     // add each file to the zip
@@ -238,10 +241,11 @@ function import_zip(file)
         let use_results     = document.getElementById('results').checked
         let use_config      = document.getElementById('config').checked
         let use_smart_stats = document.getElementById('smart-stats').checked
-        let use_coach_vals  = document.getElementById('coach-vals').checked
+        let use_coach       = document.getElementById('coach').checked
         let use_settings    = document.getElementById('settings').checked
         let use_avatars     = document.getElementById('avatars').checked
         let use_picklists   = document.getElementById('picklists').checked
+        let use_whiteboard  = document.getElementById('whiteboard').checked
 
         let files = Object.keys(zip.files)
         let complete = 0
@@ -261,12 +265,13 @@ function import_zip(file)
                         if ((n.includes(dal.event_id) &&
                             ((use_event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
                             (use_results && (n.startsWith('match-') || n.startsWith('pit-'))))) ||
-                            (use_config && n.startsWith(`config-${cfg.year}-`)) ||
-                            (use_smart_stats && n === 'config-smart-stats') ||
-                            (use_coach_vals && n === 'config-coach-vals') ||
-                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`) && n !== 'config-smart-stats' && n !== 'config-coach-vals') ||
+                            (use_config && (n === `config-${cfg.year}-pit` || n === `config-${cfg.year}-match`)) ||
+                            (use_smart_stats && n === `config-${cfg.year}-smart_stats`) ||
+                            (use_coach && n === `config-${cfg.year}-coach`) ||
+                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
                             (use_avatars && n.startsWith('avatar-')) ||
-                            (use_picklists && n.startsWith('picklists-')))
+                            (use_picklists && n.startsWith('picklists-')) ||
+                            (use_whiteboard && n === `config-${cfg.year}-whiteboard`))
                         {
                             console.log(`Importing ${n}`)
                             localStorage.setItem(n, text)

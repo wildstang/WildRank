@@ -61,7 +61,7 @@ class Config
         // load in game configs
         this.pit = this.load_config(`${this.year}-pit`)
         this.match = this.load_config(`${this.year}-match`)
-        this.smart_stats = this.load_config(`${this.year}-smart-stats`)
+        this.smart_stats = this.load_config(`${this.year}-smart_stats`)
         this.coach = this.load_config(`${this.year}-coach`)
         this.whiteboard = this.load_config(`${this.year}-whiteboard`)
         this.version = this.load_config(`${this.year}-version`)
@@ -427,7 +427,7 @@ class Config
             }
             return true
         }
-        console.log('Invalid smart-stats object')
+        console.log('Invalid smart_stats object')
         return false
     }
 

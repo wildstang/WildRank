@@ -315,7 +315,7 @@ function save_stat()
     else
     {
         cfg.smart_stats.push(stat)
-        localStorage.setItem(`config-${cfg.year}-smart-stats`, JSON.stringify(cfg.smart_stats))
+        localStorage.setItem(`config-${cfg.year}-smart_stats`, JSON.stringify(cfg.smart_stats))
         dal.build_teams()
         update_params()
         alert(`${stat.name} Created`)

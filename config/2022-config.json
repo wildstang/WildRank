@@ -281,7 +281,7 @@
 			}]
 		}]
 	}],
-	"smart-stats": [{
+	"smart_stats": [{
 		"name": "Teleop High Hub Cargo Made",
 		"id": "teleop_high_hub_cargo_made",
 		"type": "where",
