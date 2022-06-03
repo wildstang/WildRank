@@ -147,7 +147,7 @@ function build_plot()
     let highlights = get_secondary_selected_keys()
     let teams = Object.keys(dal.teams)
 
-    let func = FUNCTIONS[get_selected_option('function')]
+    let func = FUNCTIONS[Select.get_selected_option('function')]
     let num_bins = parseInt(document.getElementById('max_bins').value)
 
     document.getElementById('plot_title').innerHTML = dal.get_name(key, func)

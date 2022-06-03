@@ -144,7 +144,7 @@ function draw_drag()
  */
 function set_path_type()
 {
-    switch (get_selected_option('path_type'))
+    switch (Select.get_selected_option('path_type'))
     {
         // heatmap
         case 0:
@@ -510,9 +510,9 @@ function fetch_zebra(match_key)
             // update sliders
             if (match_plots)
             {
-                set_slider_max('trail_length', match_plots.times.length-1)
-                set_slider_max('match_time', match_plots.times.length-1)
-                set_slider('match_time', 1)
+                Slider.set_slider_max('trail_length', match_plots.times.length-1)
+                Slider.set_slider_max('match_time', match_plots.times.length-1)
+                Slider.set_slider('match_time', 1)
                 document.getElementById('playback').style.display = 'inline-block'
             }
             // hide playback controls
@@ -628,7 +628,7 @@ function pause_match()
     }
     else
     {
-        set_slider('match_time', 1)
+        Slider.set_slider('match_time', 1)
         play_match()
     }
 }
@@ -667,7 +667,7 @@ async function play_match()
             }
             else
             {
-                set_slider('match_time', i)
+                Slider.set_slider('match_time', i)
             }
             update_time()
             ++i;

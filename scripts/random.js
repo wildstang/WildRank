@@ -68,7 +68,7 @@ function init_page()
  */
 function hide_buttons()
 {
-    if (get_selected_option('type_form') === 0)
+    if (Select.get_selected_option('type_form') === 0)
     {
         document.getElementById('min_value_label').innerHTML = 'First Team'
         document.getElementById('max_value_label').innerHTML = 'Last Team'

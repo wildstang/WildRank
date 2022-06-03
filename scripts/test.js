@@ -118,9 +118,9 @@ function init_page()
     boundentry.bounds = [4, 6]
     entries.add_input(boundentry)
 
-    let colorentry = new ColorEntry('', 'Color Entry')
-    colorentry.show_color = true
-    entries.add_input(colorentry)
+    let color_entry = new Entry('', 'Color Entry', '#00FF00')
+    color_entry.show_color = true
+    entries.add_input(color_entry)
 
     let extentry = new Extended('', 'Extended Entry')
     entries.add_input(extentry)

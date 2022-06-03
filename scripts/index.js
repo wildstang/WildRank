@@ -193,10 +193,10 @@ function process_files()
     document.getElementById('match_results').innerHTML = matches
 
     // update statuses
-    set_status('event_data', check_event())
-    set_status('server_type', check_server(get_upload_addr(), false))
-    set_status('scout_config_valid', cfg.validate_game_configs())
-    set_status('config_valid', cfg.validate_settings_configs())
+    StatusTile.set_status('event_data', check_event())
+    StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
+    StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
+    StatusTile.set_status('config_valid', cfg.validate_settings_configs())
 
     // rebuild position options
     let position = new Dropdown('position', 'Position')
@@ -259,7 +259,7 @@ function save_options()
  */
 function switch_theme()
 {
-    let theme = get_selected_option('theme_switch') == 0 ? 'light' : 'dark'
+    let theme = Select.get_selected_option('theme_switch') == 0 ? 'light' : 'dark'
     if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
     {
         set_cookie(THEME_COOKIE, theme)

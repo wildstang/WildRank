@@ -58,7 +58,7 @@ function init_page()
  */
 function update_params()
 {
-    let type = STAT_TYPES[get_selected_option('type')]
+    let type = STAT_TYPES[Select.get_selected_option('type')]
 
     // add appropriate inputs for the selected type
     let html = ''
@@ -151,7 +151,7 @@ function build_stat()
     // build core stat object
     let name = document.getElementById('name').value
     let id = name.toLowerCase().split(' ').join('_')
-    let type = STAT_TYPES[get_selected_option('type')]
+    let type = STAT_TYPES[Select.get_selected_option('type')]
     let stat = {
         name: name,
         id: id,

@@ -1,415 +1,814 @@
 /**
- * file:        inputs.js
- * description: Contains functions and HTML string for the various inputs of the web app.
+ * file:        new-inputs.js
+ * description: Contains classes to build HTML string for UI elements in app.
  * author:      Liam Fruzyna
- * date:        2020-03-05
+ * date:        2022-05-05
  */
 
-/**
- * function:    build_page_frame
- * parameters:  page name, array of columns as strings, if to add top margin
- * returns:     page object as a string
- * description: Builds the HTML string of a page object given its name and columns.
- */
-function build_page_frame(page_name, columns, top_margin=true, id='')
+class Element
 {
-    if (id)
+    constructor(id, label)
     {
-        id = `id="${id}"`
-    }
-    let header = page_name.length > 0 ? `<h2 class="page_header">${page_name}</h2>` : ''
-    return `<div ${id} class="page ${top_margin ? '' : 'no_top_margin'}">
-            ${header}
-            ${columns.join('')}
-        </div>`
-}
-
-/**
- * function:    build_column_frame
- * parameters:  column name, array of items as strings, additional header css classes
- * returns:     column object as a string
- * description: Builds the HTML string of a column object given its name and items.
- */
-function build_column_frame(column_name, items, additional_classes='')
-{
-    let header = column_name.length > 0 ? `<h2 class="column_header ${additional_classes}">${column_name}</h2>` : ''
-    return `<div class="column">
-            ${header}
-            ${items.join('')}
-        </div>`
-}
-
-/**
- * function:    build_button
- * parameters:  element id, name, javascript onclick response, additional css classes
- * returns:     wr_button as a string
- * description: Builds the HTML string of a button object.
- */
-function build_button(id, name, onclick, onsecondary='', additional_classes='')
-{
-    let oncontextmenu = onsecondary.length > 0 ? onsecondary + '; return false' : ''
-    onsecondary = onsecondary.replace(/'/g, '\\\'')
-    /*
-     * Notes for handling clicks:
-     * onauxclick handles both button 2 and 3 clicks
-     * oncontextmenu handles only 2, need to be false to hide menu reguardless of onauxclick
-     * holding on some devices (Android) can activate contextmenu/aux and on touch start
-     * I'm not sure what the return value means and if it is needed in onauxclick 
-     */
-    return `<div id="${id}-container" class="wr_button ${additional_classes}" onclick="${onclick}" oncontextmenu="return false" onauxclick="${oncontextmenu}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondary}')">
-            <label id="${id}">${name}</label>
-        </div>`
-}
-
-/**
- * function:    build_link_button
- * parameters:  element id, name, link, url pre-check function
- * returns:     wr_button as a string
- * description: Builds the HTML string of a button object for a link.
- */
-function build_link_button(id, name, url)
-{
-    return build_button(id, name, `window_open(${url}, '_self')`, `window_open(${url}, '_blank')`)
-}
-
-/**
- * function:    build_checkbox
- * parameters:  element id, name, default checked state, javascript onclick response
- * returns:     wr_checkbox as a string
- * description: Builds the HTML string of a checkbox object.
- */
-function build_checkbox(id, name, checked=false, onclick='')
-{
-    return `<div id="${id}-container" class="wr_checkbox" onclick="check('${id}'); ${onclick}">
-            <input type="checkbox" onclick="check('${id}'); ${onclick}" id="${id}" name="${name}" ${checked ? 'checked' : ''}>
-            <label for="${id}" onclick="check('${id}')">${name}</label>
-        </div>`
-}
-
-/**
- * function:    build_counter
- * parameters:  element id, name, default value, js to call on increment
- * returns:     wr_counter as a string
- * description: Builds the HTML string of a counter object.
- */
-function build_counter(id, name, value, onincrement='', ondecrement='')
-{
-    onincrement = onincrement.replace(/'/g, '\\\'')
-    ondecrement = ondecrement.replace(/'/g, '\\\'')
-    return `<div class="wr_counter" onclick="increment('${id}', false, '${onincrement}')" oncontextmenu="return false" onauxclick="increment('${id}', true, '${ondecrement}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${id}\\', true, \\'${ondecrement.replace(/'/g, '\\\\\'')}\\')')">
-            <label class="wr_counter_count" id="${id}">${value}</label>
-            <label>${name}</label>
-        </div>`
-}
-
-/**
- * function:    build_multi_counter
- * parameters:  element id, name, option strings, default values
- * returns:     wr_multi_counter as a string
- * description: Builds the HTML string of a multi counter object and its options.
- */
-function build_multi_counter(id, name, option_names, values)
-{
-    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
-    let options = ''
-    for (let i in option_names)
-    {
-        let op_name = option_names[i]
-        let dval = values
-        if (Array.isArray(values))
+        if (id !== '')
         {
-            dval = values[i]
-        }
-        let name = `${id}_${op_name.toLowerCase().split().join('_')}`
-        options += `<span class="wr_select_option" id="${name}" onclick="increment('${name}-value', false)" oncontextmenu="return false" onauxclick="increment('${name}-value', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${name}-value\\', true)')\">
-                <label class="wr_counter_count" id="${name}-value">${dval}</label> ${op_name}
-            </span>`
-    }
-    return `${label}<div class="wr_select" id="${id}">${options}</div>`
-}
-
-/**
- * function:    build_multi_button
- * parameters:  element id, name, option strings, javascript onclick responses, additional css classes
- * returns:     wr_select as a string
- * description: Builds the HTML string of a multi button object and its options.
- */
-function build_multi_button(id, name, option_names, onclicks, additional_classes='', onsecondarys=[])
-{
-    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
-    let options = ''
-    for (let index in option_names)
-    {
-        let op_name = option_names[index]
-        onsecondary = ''
-        if (onsecondarys[index])
-        {
-            onsecondary = onsecondarys[index].replace(/'/g, '\\\'')
-        }
-        options += `<span class="wr_select_option ${additional_classes}" id="${id}-${index}" onclick="${onclicks[index]}" oncontextmenu="return false" onauxclick="${onsecondarys[index]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${onsecondary}')">
-                <label>${op_name}</label>
-            </span>`
-    }
-    return `${label}<div class="wr_select ${additional_classes}" id="${id}">${options}</div>`
-}
-
-/**
- * function:    build_select
- * parameters:  element id, name, option strings, default option, javascript onclick response
- * returns:     wr_select as a string
- * description: Builds the HTML string of a select object and its options.
- */
-function build_select(id, name, option_names, default_op, onclick='', vertical=false)
-{
-    let label = name.length != 0 ? `<h4 class="input_label">${name}</h4>` : ''
-    let options = ''
-    let rows = ['']
-    for (let index in option_names)
-    {
-        let op_name = option_names[index]
-        if (option_names.length > 3 && !vertical && index % 2 == 0 && index != 0)
-        {
-            rows.push('')
-        }
-        rows[rows.length - 1] += `<span class="wr_select_option ${vertical ? 'vertical' : ''} ${op_name == default_op ? 'selected' : ''}" id="${id}-${index}" onclick="select_option('${id}', '${index}'); ${onclick}">
-                <label>${op_name}</label>
-            </span>`
-    }
-    for (let row of rows)
-    {
-        if (rows.length > 1)
-        {
-            options += `<div style="display: table-row">${row}</div>`
+            this.id = id
         }
         else
         {
-            options += row
+            this.id = label.toLowerCase().split().join('_')
+        }
+        this.label = label
+        this.classes = []
+    }
+
+    add_class(style_class)
+    {
+        this.classes.push(style_class)
+    }
+
+    set onsecondary(onsecondary)
+    {
+        this.onright = onsecondary.length > 0 ? onsecondary + '; return false' : ''
+        this.onhold = onsecondary.replace(/'/g, '\\\'')
+    }
+
+    set default(def)
+    {
+        this.def = def
+    }
+
+    get toString()
+    {
+        return ''
+    }
+
+    get html_label()
+    {
+        return this.label !== '' ? `<h4 class="input_label" id="${this.id}_label">${this.label}</h4>` : ''
+    }
+
+    get html_description()
+    { 
+        return this.description ? `<small class="wr_description">${this.description}</small>` : ''
+    }
+}
+
+class PageFrame extends Element
+{
+    constructor(id='', label='', columns=[])
+    {
+        super(id, label)
+        this.columns = columns
+        this.top_margin = true
+    }
+
+    add_column(column)
+    {
+        this.columns.push(column)
+    }
+
+    get html_label()
+    {
+        return this.label !== '' ? `<h2 class="page_header" id="${this.id}_label">${this.label}</h2>` : ''
+    }
+
+    get toString()
+    {
+        return `<div id="${this.id}" class="page ${this.top_margin ? '' : 'no_top_margin'}">
+                ${this.html_label}
+                ${this.columns.map(i => typeof i === 'string' ? i : i.toString).join('')}
+            </div>`
+    }
+}
+
+class ColumnFrame extends Element
+{
+    constructor(id='', label='', inputs=[])
+    {
+        super(id, label)
+        this.inputs = inputs
+    }
+
+    add_input(input)
+    {
+        this.inputs.push(input)
+    }
+
+    get html_label()
+    {
+        return this.label !== '' ? `<h2 class="column_header" id="${this.id}_label">${this.label}</h2>` : ''
+    }
+
+    get toString()
+    {
+        return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
+                ${this.html_label}
+                ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
+            </div>`
+    }
+}
+
+class Button extends Element
+{
+    constructor(id, label, onclick='')
+    {
+        super(id, label)
+        this.onclick = onclick
+    }
+
+    set link(url)
+    {
+        this.onclick = `window_open(${url}, '_self')`
+        this.onsecondary = `window_open(${url}, '_blank')`
+    }
+
+    set onsecondary(onsecondary)
+    {
+        this.onright = onsecondary.length > 0 ? onsecondary + '; return false' : ''
+        this.onhold = onsecondary.replace(/'/g, '\\\'')
+    }
+
+    get toString()
+    {
+        let actions = ''
+        if (this.onclick)
+        {
+            actions += `onclick="${this.onclick}"`
+        }
+        if (this.onhold || this.onright)
+        {
+            actions += `oncontextmenu="return false" onauxclick="${this.onright}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.onhold}')"`
+        }
+        return `<div id="${this.id}-container" class="wr_button ${this.classes.join(' ')}" ${actions}>
+                <label id="${this.id}">${this.label}</label>
+            </div>`
+    }
+}
+
+class MultiButton extends Element
+{
+    constructor(id, label, options=[], onclicks=[])
+    {
+        super(id, label)
+        this.options = options
+        this.onclicks = onclicks
+        this.onrights = []
+        this.onholds = []
+    }
+
+    add_option(option, onclick, onsecondary='')
+    {
+        this.options.push(option)
+        this.onclicks.push(onclick)
+        this.onrights.push(onsecondary.length > 0 ? onsecondary + '; return false' : '')
+        this.onholds.push(onsecondary.replace(/'/g, '\\\''))
+    }
+
+    get html_options()
+    {
+        let options = ''
+        let rows = ['']
+        for (let i in this.options)
+        {
+            let op_name = this.options[i]
+            if (this.options.length > 3 && !this.vertical && i % 2 == 0 && i != 0)
+            {
+                rows.push('')
+            }
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${this.classes.join(' ')}" id="${this.id}-${i}" onclick="${this.onclicks[i]}" oncontextmenu="return false" onauxclick="${this.onrights[i]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.onholds[i]}')">
+                    <label>${op_name}</label>
+                </span>`
+        }
+        for (let row of rows)
+        {
+            if (rows.length > 1)
+            {
+                options += `<div style="display: table-row">${row}</div>`
+            }
+            else
+            {
+                options += row
+            }
+        }
+        return options
+    }
+
+    get toString()
+    {
+        return `${this.html_label}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+    }
+}
+
+class Card extends Element
+{
+    constructor(id, label)
+    {
+        super(id, label)
+        this.limitWidth = false
+    }
+
+    get toString()
+    {
+        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${this.limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${this.label}</div><br>`
+    }
+}
+
+class StatusTile extends Element
+{
+    constructor(id, label, color)
+    {
+        super(id, label)
+        this.color = color
+    }
+
+    get toString()
+    {
+        return `<div class="wr_status"><label class="status_text">${this.label}</label><span class="color_box" id="${this.id}" style="background-color: ${this.color}"></span></div>`
+    }
+
+    set status(status)
+    {
+        StatusTile.set_status(this.id, status)
+    }
+
+    /**
+     * function:    set_status
+     * parameters:  element id, boolean/number(-1,0,1) status
+     * returns:     none
+     * description: Updates the color box with the provided color.
+     */
+    static set_status(id, status)
+    {
+        if (typeof status !== 'boolean')
+        {
+            switch (status)
+            {
+                case 1:
+                    status = 'green'
+                    break
+                case 0:
+                    status = 'orange'
+                    break
+                case -1:
+                default:
+                    status = 'red'
+                    break
+            }
+        }
+        else
+        {
+            status = status ? 'green' : 'red'
+        }
+        document.getElementById(id).style.backgroundColor = status
+    }
+}
+
+class Input extends Element
+{
+    constructor(id, label, def='')
+    {
+        super(id, label)
+        this.def = def
+    }
+}
+
+class Checkbox extends Input
+{
+    constructor(id, label, def=false)
+    {
+        super(id, label, def)
+    }
+
+    get toString()
+    {
+        if (this.def)
+        {
+            this.classes.push('selected')
+        }
+        return `<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}')">
+                <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" name="${this.label}" ${this.def ? 'checked' : ''}>
+                <label for="${this.id}" onclick="this.parentNode.click()">${this.label}</label>
+            </div>`
+    }
+
+    check()
+    {
+        Checkbox.check(this.id)
+    }
+
+    /**
+     * function:    check
+     * parameters:  ID of checkbox button
+     * returns:     none
+     * description: Toggles a checkbox when clicked on.
+     */
+    static check(id)
+    {
+        let checked = !document.getElementById(id).checked
+        document.getElementById(id).checked = checked
+        if (checked)
+        {
+            document.getElementById(`${id}-container`).classList.add('selected')
+        }
+        else
+        {
+            document.getElementById(`${id}-container`).classList.remove('selected')
         }
     }
-    return `${label}<div class="wr_select" id="${id}">${options}</div>`
 }
 
-/**
- * function:    build_dropdown
- * parameters:  element id, name, option strings, default option, javascript onchange response
- * returns:     wr_dropdown as a string
- * description: Builds the HTML string of a dropdown object and its options.
- */
-function build_dropdown(id, name, option_names, default_op='', onchange='', classes='', description='')
+class Counter extends Input
 {
-    let label = name.length != 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
-    let options = ''
-    for (let op_name of option_names)
+    constructor(id, label, def=0)
     {
-        options += build_dropdown_op(op_name, default_op)
+        super(id, label, def)
+        this.onincr = ''
+        this.ondecr = ''
     }
-    return `${label}${build_description(description)}<select class="wr_dropdown ${classes}" id="${id}" onchange="${onchange}">${options}</select>`
-}
 
-/**
- * function:    build_dropdown_op
- * parameters:  name, default option
- * returns:     wr_dropdown_op as a string
- * description: Builds the HTML string of a dropdown option object.
- */
-function build_dropdown_op(op_name, default_op='')
-{
-    return `<option class="wr_dropdown_op" value="${op_name}" ${op_name == default_op ? 'selected' : ''}>${op_name}</option>`
-}
-
-/**
- * function:    build_str_entry
- * parameters:  element id, name, default value, input box type, on text change function
- * returns:     wr_string as a string
- * description: Builds the HTML string of a string object.
- */
-function build_str_entry(id, name, value='', type='text', on_text_change='', description='')
-{
-    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
-    return `${label}${build_description(description)}<input class="wr_string" type="${type}" id="${id}" value="${value}" onKeyUp="${on_text_change}">`
-}
-
-/**
- * function:    build_description
- * parameters:  description text
- * returns:     wr_description as string
- * description: Builds the HTML string of a description object.
- */
-function build_description(text)
-{
-    return `<small class="wr_description">${text}</small>`
-}
-
-/**
- * function:    build_color_entry
- * parameters:  element id, name, default color
- * returns:     wr_color as a string
- * description: Builds the HTML string of a color object.
- */
-function build_color_entry(id, name, color='')
-{
-    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
-    return `${label}<div class="wr_color"><input class="color_text" type="text" id="${id}" value="${color}" onKeyUp="update_color('${id}')"><span class="color_box" id="${id}_color" style="background-color: ${color}"></span></div>`
-}
-
-/**
- * function:    build_status_tile
- * parameters:  element id, name, default color
- * returns:     wr_color as a string
- * description: Builds the HTML string of a color object.
- */
-function build_status_tile(id, name, color='')
-{
-    return `<div class="wr_status"><label class="status_text">${name}</label><span class="color_box" id="${id}" style="background-color: ${color}"></span></div>`
-}
-
-/**
- * function:    build_num_entry
- * parameters:  element id, name, default value, optional limits as [min, max], on text change function
- * returns:     wr_string for a number as a string
- * description: Builds the HTML string of a number object.
- */
-function build_num_entry(id, name, value='', bounds=[], on_text_change='', description='')
-{
-    let label = name.length > 0 ? `<h4 class="input_label" id="${id}_label">${name}</h4>` : ''
-    let bounds_str = `${bounds.length > 0 ? `min="${bounds[0]}"` : ''} ${bounds.length > 1 ? `max="${bounds[1]}"` : ''}`
-    return `${label}${build_description(description)}<input class="wr_string" type="number" id="${id}" value="${value}" onKeyUp="${on_text_change}" onChange="${on_text_change}" ${bounds_str}>`
-}
-
-/**
- * function:    build_text_entry
- * parameters:  element id, name, default value
- * returns:     wr_text as a string
- * description: Builds the HTML string of a text object.
- */
-function build_text_entry(id, name, value='', description='')
-{
-    let label = name.length > 0 ? `<h4 class="input_label">${name}</h4>` : ''
-    return `${label}${build_description(description)}<textarea class="wr_text" id="${id}">${value}</textarea>`
-}
-
-/**
- * function:    build_slider
- * parameters:  element id, name, min value, max value, increment, starting value
- * returns:     wr_slider as a string
- * description: Builds the HTML string of a slider object.
- */
-function build_slider(id, name, min, max, incr, start, oninput='')
-{
-    let label = name.length > 0 ? `<h4 class="input_label">${name} - <span id="${id}_value">${start}</span></h4>` : ''
-    return `${label}<div id="${id}_container" class="wr_slider"><input type="range" min="${min}" max="${max}" step="${incr}" value="${start}" id="${id}" class="wr_slider_range" oninput="update_slider_text('${id}'); ${oninput}"></div>`
-}
-
-/**
- * function:    build_card
- * parameters:  element id, contents
- * returns:     wr_card as a string
- * description: Builds the HTML string of a card object.
- */
-function build_card(id, contents='', limitWidth=false, additional_classes='')
-{
-    return `<div class="wr_card ${additional_classes}" id="${id}"${limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${contents}</div><br>`
-}
-
-/**
- * function:    build_match_option
- * parameters:  match id, list of red teams, list of blue teams, selected class string, match name
- * returns:     match option as a string
- * description: Builds the HTML string of a match option object.
- */
-function build_match_option(match_id, red_teams, blue_teams, selected='', match_name='')
-{
-    if (!match_name)
+    set onincrement(onincrement)
     {
-        match_name = `Q${match_id}`
+        this.onincr = onincrement.replace(/'/g, '\\\'')
     }
-    let red_str = red_teams.join(' ').replace(/frc/g, '')
-    let blue_str = blue_teams.join(' ').replace(/frc/g, '')
-    return `<div id="match_${match_id}" class="match_option ${selected}" onclick="open_match('${match_id}')">
-                <span class="option_number">${match_name}</span>
-                <span>
-                    <div class="alliance red">${red_str}</div>
-                    <div class="alliance blue">${blue_str}</div>
-                </span>
+
+    set ondecrement(ondecrement)
+    {
+        this.ondecr = ondecrement.replace(/'/g, '\\\'')
+    }
+
+    get toString()
+    {
+        return `<div class="wr_counter ${this.classes.join(' ')}" onclick="increment('${this.id}', false, '${this.onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}', true, '${this.ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}\\', true, \\'${this.ondecr.replace(/'/g, '\\\\\'')}\\')')">
+                <label class="wr_counter_count" id="${this.id}">${this.def}</label>
+                <label>${this.label}</label>
             </div>`
+    }
+}
+
+class MultiCounter extends Input
+{
+    constructor(id, label, options=[], def=0)
+    {
+        super(id, label, def)
+        this.options = options
+    }
+
+    add_option(option, def=0)
+    {
+        this.options.push(option)
+        if (Array.isArray(this.def) && this.def.length == this.options.length)
+        {
+            this.def.push(def)
+        }
+    }
+
+    get html_options()
+    {
+        let options = ''
+        let rows = ['']
+        for (let i in this.options)
+        {
+            let op_name = this.options[i]
+            if (this.options.length > 3 && !this.vertical && i % 2 == 0 && i != 0)
+            {
+                rows.push('')
+            }
+            let dval = this.def
+            if (Array.isArray(this.def) && this.def.length == this.options.length)
+            {
+                dval = this.def[i]
+            }
+            else if (Array.isArray(this.def))
+            {
+                dval = this.def[0]
+            }
+            let name = `${this.id}_${op_name.toLowerCase().split().join('_')}`
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''}" id="${name}" onclick="increment('${name}-value', false)" oncontextmenu="return false" onauxclick="increment('${name}-value', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${name}-value\\', true)')\">
+                    <label class="wr_counter_count" id="${name}-value">${dval}</label> ${op_name}
+                </span>`
+        }
+        for (let row of rows)
+        {
+            if (rows.length > 1)
+            {
+                options += `<div style="display: table-row">${row}</div>`
+            }
+            else
+            {
+                options += row
+            }
+        }
+        return options
+    }
+
+    get toString()
+    {
+        return `${this.html_label}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+    }
+}
+
+class Entry extends Input
+{
+    constructor(id, label, def='')
+    {
+        super(id, label, def)
+        this.type = 'text'
+        this.on_text_change = ''
+        this.show_color = false
+    }
+
+    set bounds(bounds)
+    {
+        if (bounds.length > 0)
+        {
+            this.min = bounds[0]
+        }
+        if (bounds.length > 1)
+        {
+            this.max = bounds[1]
+        }
+        if (bounds.length > 2)
+        {
+            this.incr = bounds[2]
+        }
+    }
+
+    get bounds()
+    {
+        return this.type === 'number' ? `${this.min ? `min="${this.min}"` : ''} ${this.max ? `max="${this.max}"` : ''} ${this.incr ? `step="${this.incr}"` : ''}` : ''
+    }
+
+    get toString()
+    {
+        let prefix = ''
+        let postfix = ''
+        if (this.show_color)
+        {
+            this.add_class('color_text')
+            this.on_text_change = `Entry.update_color('${this.id}')`
+            prefix = '<div class="wr_color">'
+            postfix = `<span class="color_box" id="${this.id}_color" style="background-color: ${this.def}"></span></div>`
+        }
+        else
+        {
+            this.add_class('wr_string')
+        }
+        return `${this.html_label}${this.html_description}${prefix}<input class="${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>${postfix}`
+    }
+
+    update_color()
+    {
+        Entry.update_color(this.id)
+    }
+
+    /**
+     * function:    update_color
+     * parameters:  element id
+     * returns:     none
+     * description: Updates the color box base on color text.
+     */
+    static update_color(id)
+    {
+        let color = document.getElementById(id).value
+        if (color.startsWith('#') && color.length == 7)
+        {
+            document.getElementById(`${id}_color`).style.backgroundColor = color
+        }
+    }
+}
+
+class Extended extends Input
+{
+    constructor(id, label, def='')
+    {
+        super(id, label, def)
+    }
+
+    get toString()
+    {
+        return `${this.html_label}${this.html_description}<textarea class="wr_text" id="${this.id}">${this.def}</textarea>`
+    }
+}
+
+class Slider extends Entry
+{
+    constructor(id, label, def=0)
+    {
+        super(id, label, def)
+        this.min = 1
+        this.max = 10
+        this.incr = 1
+        this.type = 'number'
+        if (def < this.min)
+        {
+            this.def = this.min
+        }
+    }
+
+    get html_label()
+    {
+        return this.label !== '' ? `<h4 class="input_label" id="${this.id}_label">${this.label} - <span id="${this.id}_value">${this.def}</span></h4>` : ''
+    }
+
+    get toString()
+    {
+        return `${this.html_label}${this.html_description}<div id="${this.id}_container" class="wr_slider ${this.classes.join(' ')}"><input id="${this.id}" type="range" class="wr_slider_range" value="${this.def}" oninput="Slider.update_slider_text('${this.id}'); ${this.oninput}" ${this.bounds}></div>`
+    }
+
+    set slider(value)
+    {
+        Slider.set_slider(this.id, value)
+    }
+
+    /**
+     * function:    set_slider
+     * parameters:  slider id, value
+     * returns:     none
+     * description: Set the text and position of a slider.
+     */
+    static set_slider(id, value)
+    {
+        document.getElementById(id).value = value
+        update_slider_text(id)
+    }
+
+    update_text()
+    {
+        Slider.update_slider_text(this.id)
+    }
+    
+    /**
+     * function:    update_slider_text
+     * parameters:  slider id
+     * returns:     none
+     * description: Update the text for a slider.
+     */
+    static update_slider_text(id)
+    {
+        document.getElementById(`${id}_value`).innerHTML = document.getElementById(id).value
+    }
+
+    set update_max(max)
+    {
+        this.max = max
+        Slider.set_slider_max(this.id, max)
+    }
+    
+    /**
+     * function:    set_slider_max
+     * parameters:  slider id, max
+     * returns:     none
+     * description: Set the maximum value of a slider.
+     */
+    static set_slider_max(id, max)
+    {
+        document.getElementById(id).max = max
+    }
+}
+
+class OptionedInput extends Input
+{
+    constructor(id, label, options=[], def='')
+    {
+        super(id, label, def)
+        this.options = options
+        if (options.length > 0 && !options.includes(def))
+        {
+            this.def = options[0]
+        }
+        else
+        {
+            this.def = def
+        }
+    }
+
+    add_option(option)
+    {
+        if (this.options.length === 0)
+        {
+            this.def = option
+        }
+        this.options.push(option)
+    }
+}
+
+class Select extends OptionedInput
+{
+    constructor(id, label, options=[], def='')
+    {
+        super(id, label, options, def)
+    }
+
+    set onselect(onselect)
+    {
+        this.onclick = onselect
+    }
+
+    get html_options()
+    {
+        let options = ''
+        let rows = ['']
+        for (let index in this.options)
+        {
+            let op_name = this.options[index]
+            if (this.options.length > 3 && !this.vertical && index % 2 == 0 && index != 0)
+            {
+                rows.push('')
+            }
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() == this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="select_option('${this.id}', '${index}'); ${this.onclick}">
+                    <label>${op_name}</label>
+                </span>`
+        }
+        for (let row of rows)
+        {
+            if (rows.length > 1)
+            {
+                options += `<div style="display: table-row">${row}</div>`
+            }
+            else
+            {
+                options += row
+            }
+        }
+        return options
+    }
+
+    get toString()
+    {
+        return `${this.html_label}${this.html_description}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+    }
+
+    get selected_option()
+    {
+        return Select.get_selected_option(this.id)
+    }
+
+    /**
+     * function:    get_selected_option
+     * parameters:  ID of selected item
+     * returns:     index of selected option
+     * description: Returns the selected index of the given select.
+     */
+    static get_selected_option(id)
+    {
+        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+        let i = 0
+        for (let option of children)
+        {
+            if (option.classList.contains('selected'))
+            {
+                return i
+            }
+            ++i
+        }
+        return -1
+    }
+
+    set selected_option(index)
+    {
+        if (typeof index === 'number' && index < this.options.length)
+        {
+            Select.select_option(this.id, index)
+        }
+        else
+        {
+            console.log('Invalid index')
+        }
+    }
+
+    /**
+     * function:    select_option
+     * parameters:  ID of the selector, index of the newly selected option
+     * returns:     none
+     * description: Select a given option in a selector.
+     */
+    static select_option(id, index)
+    {
+        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+        for (let option of children)
+        {
+            option.classList.remove('selected')
+        }
+        document.getElementById(`${id}-${index}`).classList.add('selected')
+    }
+}
+
+class Dropdown extends OptionedInput
+{
+    constructor(id, label, options=[], def='')
+    {
+        super(id, label, options, def)
+    }
+
+    set onselect(onselect)
+    {
+        this.onclick = onselect
+    }
+
+    get html_options()
+    {
+        let options = ''
+        for (let op_name of this.options)
+        {
+            options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name == this.def ? 'selected' : ''}>${op_name}</option>`
+        }
+        return options
+    }
+
+    get toString()
+    {
+        return `${this.html_label}${this.html_description}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.onclick}">${this.html_options}</select>`
+    }
+}
+
+class Option extends Element
+{
+    constructor(id, label)
+    {
+        super(id, label)
+        this.primary_list = true
+        this.selected = ''
+        this.style = ''
+    }
+
+    get toString()
+    {
+        // use modified id and function if secondary list
+        let id = `option_${this.id}`
+        let on_click = `open_option('${this.id}')`
+        let on_secondary = `alt_option('${this.id}')`
+        if (!this.primary_list)
+        {
+            id = `soption_${this.id}`
+            on_click = `open_secondary_option('${this.id}')`
+            on_secondary = `alt_secondary_option(\\'${this.id}\\')`
+        }
+        let actions = `oncontextmenu="return false" onauxclick="${on_secondary}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${on_secondary}')"`
+        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" ${actions} on style="${this.style}">
+                    <span class="long_option_val">${this.label}</span>
+                </div>`
+    }
+}
+
+class DescriptiveOption extends Option
+{
+    constructor(id, label, description)
+    {
+        super(id, label)
+        this.description = description
+    }
+
+    get toString()
+    {
+        // use modified id and function if secondary list
+        let id = `option_${this.id}`
+        let on_click = `open_option('${this.id}')`
+        if (!this.primary_list)
+        {
+            id = `soption_${this.id}`
+            on_click = `open_secondary_option('${this.id}')`
+        }
+        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" style="${this.style}">
+                    <span class="long_option_number">${this.label}</span><br>
+                    <span class="long_option_description">${this.description}</span>
+                </div>`
+    }
+}
+
+class MatchOption extends Option
+{
+    constructor(id, label, red_teams, blue_teams)
+    {
+        super(id, label)
+        this.red_teams = red_teams
+        this.blue_teams = blue_teams
+    }
+
+    get toString()
+    {
+        // use modified id and function if secondary list
+        let id = `option_${this.id}`
+        let on_click = `open_match('${this.id}')`
+        if (!this.primary_list)
+        {
+            id = `soption_${this.id}`
+            on_click = `open_secondary_option('${this.id}')`
+        }
+        return `<div id="match_${id}" class="match_option ${this.selected}" onclick="${on_click}">
+                    <span class="option_number">${this.label}</span>
+                    <span>
+                        <div class="alliance red">${this.red_teams.join(' ')}</div>
+                        <div class="alliance blue">${this.blue_teams.join(' ')}</div>
+                    </span>
+                </div>`
+    }
 }
 
 /**
- * function:    build_option
- * parameters:  option id, selected class string, option name
- * returns:     option as a string
- * description: Builds the HTML string of a option object.
+ * Aux Funcs
  */
-function build_option(option_id, selected='', option_name='', style='', primary_list=true)
-{
-    if (!option_name)
-    {
-        option_name = option_id
-    }
-    // use modified id and function if secondary list
-    let id = `option_${option_id}`
-    let on_click = `open_option('${option_id}')`
-    if (!primary_list)
-    {
-        id = `soption_${option_id}`
-        on_click = `open_secondary_option('${option_id}')`
-    }
-    return `<div id="${id}" class="pit_option ${selected}" onclick="${on_click}" style="${style}">
-                <span class="long_option_val">${option_name}</span>
-            </div>`
-}
-
-/**
- * function:    build_desc_option
- * parameters:  option id, selected class string, option name, option description
- * returns:     option as a string
- * description: Builds the HTML string of a option object.
- */
-function build_desc_option(option_id, selected='', option_name='', option_description='', style='', primary_list=true)
-{
-    if (!option_name)
-    {
-        option_name = option_id
-    }
-    if (!option_description)
-    {
-        option_description = option_name
-    }
-    // use modified id and function if secondary list
-    let id = `option_${option_id}`
-    let on_click = `open_option('${option_id}')`
-    if (!primary_list)
-    {
-        id = `soption_${option_id}`
-        on_click = `open_secondary_option('${option_id}')`
-    }
-    return `<div id="${id}" class="pit_option ${selected}" onclick="${on_click}" style="${style}">
-                <span class="long_option_number">${option_name}</span><br>
-                <span class="long_option_description">${option_description}</span>
-            </div>`
-}
 
 var last_touch = -1
-
-/**
- * function:    check
- * parameters:  ID of checkbox button
- * returns:     none
- * description: Toggles a checkbox when clicked on.
- */
-function check(id)
-{
-    let checked = !document.getElementById(id).checked
-    document.getElementById(id).checked = checked
-    if (checked)
-    {
-        document.getElementById(`${id}-container`).classList.add('selected')
-    }
-    else
-    {
-        document.getElementById(`${id}-container`).classList.remove('selected')
-    }
-}
 
 /**
  * function:    touch_button
@@ -454,121 +853,4 @@ function increment(id, right, onincrement='')
     {
         eval(onincrement)
     }
-}
-
-/**
- * function:    get_selected_option
- * parameters:  ID of selected item
- * returns:     index of selected option
- * description: Returns the selected index of the given select.
- */
-function get_selected_option(id)
-{
-    let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-    let i = 0
-    for (let option of children)
-    {
-        if (option.classList.contains('selected'))
-        {
-            return i
-        }
-        ++i
-    }
-    return -1
-}
-
-/**
- * function:    select_option
- * parameters:  ID of the selector, index of the newly selected option
- * returns:     none
- * description: Select a given option in a selector.
- */
-function select_option(id, index)
-{
-    let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-    for (let option of children)
-    {
-        option.classList.remove('selected')
-    }
-    document.getElementById(`${id}-${index}`).classList.add('selected')
-}
-
-/**
- * function:    update_color
- * parameters:  element id
- * returns:     none
- * description: Updates the color box base on color text.
- */
-function update_color(id)
-{
-    let color = document.getElementById(id).value
-    if (color.startsWith('#') && color.length == 7)
-    {
-        document.getElementById(`${id}_color`).style.backgroundColor = color
-    }
-}
-
-/**
- * function:    set_status
- * parameters:  element id, boolean/number(-1,0,1) status
- * returns:     none
- * description: Updates the color box with the provided color.
- */
-function set_status(id, status)
-{
-    if (typeof status !== 'boolean')
-    {
-        switch (status)
-        {
-            case 1:
-                status = 'green'
-                break
-            case 0:
-                status = 'orange'
-                break
-            case -1:
-            default:
-                status = 'red'
-                break
-        }
-    }
-    else
-    {
-        status = status ? 'green' : 'red'
-    }
-    document.getElementById(id).style.backgroundColor = status
-}
-
-/**
- * function:    set_slider
- * parameters:  slider id, value
- * returns:     none
- * description: Set the text and position of a slider.
- */
-function set_slider(id, value)
-{
-    document.getElementById(id).value = value
-    update_slider_text(id)
-}
-
-/**
- * function:    update_slider_text
- * parameters:  slider id
- * returns:     none
- * description: Update the text for a slider.
- */
-function update_slider_text(id)
-{
-    document.getElementById(`${id}_value`).innerHTML = document.getElementById(id).value
-}
-
-/**
- * function:    set_slider_max
- * parameters:  slider id, max
- * returns:     none
- * description: Set the maximum value of a slider.
- */
-function set_slider_max(id, max)
-{
-    document.getElementById(id).max = max
 }

@@ -106,7 +106,7 @@ function export_zip()
     zip.generateAsync({ type: 'base64' })
         .then(function(base64)
         {
-            if (get_selected_option('method') == 0)
+            if (Select.get_selected_option('method') == 0)
             {
                 let element = document.createElement('a')
                 element.setAttribute('href', `data:application/zip;base64,${base64}`)
@@ -159,7 +159,7 @@ function export_zip()
  */
 function get_zip()
 {
-    if (get_selected_option('method') == 0)
+    if (Select.get_selected_option('method') == 0)
     {
         import_zip_from_file()
     }

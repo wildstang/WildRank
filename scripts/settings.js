@@ -148,11 +148,11 @@ function build_config(file)
             let new_val = ''
             if (key === 'time_format')
             {
-                new_val = get_selected_option(id) == 0 ? 12 : 24
+                new_val = Select.get_selected_option(id) == 0 ? 12 : 24
             }
             else if (typeof val === 'boolean')
             {
-                new_val = get_selected_option(id) == 0
+                new_val = Select.get_selected_option(id) == 0
             }
             else if (typeof val === 'number')
             {

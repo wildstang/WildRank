@@ -261,12 +261,12 @@ function update_cycle(cycle, decrement)
                         case 'select':
                             if (!decrement)
                             {
-                                cycle_result[id] = get_selected_option(id)
-                                select_option(id, ops.indexOf(def))
+                                cycle_result[id] = Select.get_selected_option(id)
+                                Select.select_option(id, ops.indexOf(def))
                             }
                             if (val < last)
                             {
-                                select_option(id, cycles[cycle][val][id])
+                                Select.select_option(id, cycles[cycle][val][id])
                             }
                             break
                         case 'dropdown':
@@ -354,7 +354,7 @@ function check_cycles()
                     switch (type)
                     {
                         case 'select':
-                            if (get_selected_option(id) != ops.indexOf(def))
+                            if (Select.get_selected_option(id) != ops.indexOf(def))
                             {
                                 return id
                             }
@@ -591,7 +591,7 @@ function generate_results()
                             }
                             break
                         case 'select':
-                            select_option(id, random_int(0, options.length - 1))
+                            Select.select_option(id, random_int(0, options.length - 1))
                             break
                         case 'dropdown':
                             document.getElementById(id).selectedIndex = random_int(0, options.length - 1)

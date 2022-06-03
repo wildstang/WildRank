@@ -101,7 +101,7 @@ function open_both_teams()
 
     let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th><th>Max</th></tr>`
     let keys = dal.get_keys(true, true, true, false)
-    let type = SORT_OPTIONS[get_selected_option('type_form')]
+    let type = SORT_OPTIONS[Select.get_selected_option('type_form')]
     for (let key of keys)
     {
         let aVal = dal.get_value(selectedA, key, type)
@@ -137,7 +137,7 @@ function build_row(key, aVal, bVal, label='')
 {
     // get max
     let max = Math.max(aVal, bVal)
-    if (get_selected_option('scale_max') === 1)
+    if (Select.get_selected_option('scale_max') === 1)
     {
         let global = dal.compute_global_stats([key], Object.keys(dal.teams))
         max = dal.get_global_value(global, key, 'max')
