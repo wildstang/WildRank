@@ -18,7 +18,7 @@ const CONFIGS = {
         'Transfer': ['open_transfer', 'download_csv']
     },
     'note': {
-        'Notes': ['pit_scout', 'note_scout'],
+        'Notes': ['pit_scout'],
         'Transfer': ['open_transfer', 'download_csv']
     },
     'drive': {
@@ -41,7 +41,6 @@ const CONFIGS = {
 const BUTTONS = {
     'scout':            { name: 'Scout',             limits: ['event'], configs: [MATCH_MODE, 'settings'] },
     'pit_scout':        { name: 'Pit Scout',         limits: ['teams'], configs: [PIT_MODE, 'settings'] },
-    'note_scout':       { name: 'Note Scout',        limits: ['event'], configs: [NOTE_MODE, 'settings'] },
     'open_ranker':      { name: 'Team Rankings',     limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'open_sides':       { name: 'Side-by-Side',      limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'open_picks':       { name: 'Pick Lists',        limits: ['teams', 'admin'], configs: ['settings'] },

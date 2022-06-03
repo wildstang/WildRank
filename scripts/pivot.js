@@ -1,87 +1,71 @@
 /**
  * file:        pivot.js
  * description: Contains functions for the pivot table page of the web app.
- *              Primarily for building the interface from event data.
+ *              New because rewritten for DAL.
  * author:      Liam Fruzyna
- * date:        2021-04-20
+ * date:        2022-04-28
  */
 
-const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
-const KEYS_KEY = 'pivot-keys'
+const SESSION_KEYS_KEY = 'pivot-selected-keys'
+const SESSION_TYPES_KEY = 'pivot-selected-types'
 
-var teams = []
-var all_teams = []
-var team_names = {}
-var lists = {}
-var results = {}
-var meta = {}
-
-var sort = ''
-var ascending = false
-var list_name = 'Pivot Export'
-var dragging = ''
-var selected_keys = []
+let selected_keys = []
+let last_sort = ''
+let last_reverse = false
 
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
  * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
+ * description: Assemble the structure of the page.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
-    contents_card.innerHTML = '<table id="results_tab" style="position: relative"></table>'
-    buttons_container.innerHTML = build_column_frame('', [build_select('type_form', '', SORT_OPTIONS, 'Mean', 'build_table()')]) +
-                                    build_column_frame('', [build_link_button('save_list', 'Save to Pick List', 'save_pick_list()')]) +
-                                    build_column_frame('', [build_button('export_table', 'Export Table', 'export_table()')]) +
-                                    build_column_frame('', [build_button('upload_csv', 'Import Headers', 'upload_csv()')])
-        
-    meta = get_result_meta(type, year)
+    let picklist_button = new Button('create_picklist', 'Save to Picklist', 'save_picklist()')
+    let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
+    let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
 
-    // load all event teams from localStorage
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    contents_card.innerHTML = '<table id="results_tab"></table>'
+    buttons_container.innerHTML = picklist_button.toString + export_button.toString + import_button.toString
+    
+    // add pick list filter
+    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
+    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true)
+
+    // add select button above secondary list
+    add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
+
+    // build lists
+    populate_keys(dal)
+    select_all(false)
+
+    // select keys from sessionStorage
+    let stored_keys = sessionStorage.getItem(SESSION_KEYS_KEY)
+    let stored_types = sessionStorage.getItem(SESSION_TYPES_KEY)
+    if (stored_keys !== null)
     {
-        results = get_results(prefix, year)
-        let team_data = JSON.parse(localStorage.getItem(file_name))
-        
-        all_teams = team_data.map(team => team.team_number)
-                    .filter(team => Object.keys(get_team_results(results, team)).length > 0)
-
-        for (let team of team_data)
+        selected_keys = JSON.parse(stored_keys)
+        for (let key of selected_keys)
         {
-            team_names[team.team_number] = team.nickname
-        }
-        
-        file_name = get_event_pick_lists_name(event_id)
-        if (file_exists(file_name))
-        {
-            lists = JSON.parse(localStorage.getItem(file_name))
-
-            add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
-        }
-
-        // add select button above secondary list
-        add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
-
-        // load keys from localStorage and build list
-        populate_keys(meta, results, all_teams)
-        select_all(false)
-        keys = sessionStorage.getItem(KEYS_KEY)
-        if (keys !== null)
-        {
-            keys = JSON.parse(keys)
-            for (let key of keys)
-            {
-                open_option(key, false)
-            }
+            document.getElementById(`option_${key}`).classList.add('selected')
         }
         build_table()
+
+        if (stored_types !== null)
+        {
+            let selected_types = JSON.parse(stored_types)
+            for (let key in selected_types)
+            {
+                document.getElementById(key).value = selected_types[key]
+            }
+        }
     }
+
+    build_table()
 }
 
 /**
- * function:    open_option
+ * function:    filter_teams
  * parameters:  none
  * returns:     none
  * description: Selects teams based off the selected picklist.
@@ -89,12 +73,36 @@ function init_page(contents_card, buttons_container)
 function filter_teams()
 {
     let list = document.getElementById('picklist_filter').value
-    if (Object.keys(lists).includes(list))
+    if (Object.keys(dal.picklists).includes(list))
     {
-        filter_by(lists[list], false)
+        filter_by(dal.picklists[list], false)
     }
 
     build_table()
+}
+
+/**
+ * function:    filter_stats
+ * parameters:  none
+ * returns:     none
+ * description: Selects stats based off the selected type.
+ */
+function filter_stats()
+{
+    let filter = document.getElementById('stat_filter').value.toLowerCase()
+    let keys = dal.get_keys()
+    for (let k of keys)
+    {
+        let element = document.getElementById(`option_${k}`)
+        if (filter !== 'all' && !k.startsWith(filter) && !element.classList.contains('selected'))
+        {
+            element.style.display = 'none'
+        }
+        else
+        {
+            element.style.display = 'block'
+        }
+    }
 }
 
 /**
@@ -103,7 +111,7 @@ function filter_teams()
  * returns:     none
  * description: Selects or unselects options then opens.
  */
-function open_option(key, table=true)
+function open_option(key)
 {
     list_name = "Team Number"
     // select team button 
@@ -118,8 +126,31 @@ function open_option(key, table=true)
         selected_keys.push(key)
     }
 
-    if (table)
+    // save selection to sessionStorage
+    sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
+
+    build_table()
+}
+
+/**
+ * function:    alt_option
+ * parameters:  Selected key
+ * returns:     none
+ * description: Adds an additional column when right clicked.
+ */
+function alt_option(key)
+{
+    if (!selected_keys.includes(key))
     {
+        open_option(key)
+    }
+    else if (key.startsWith('stats.'))
+    {
+        selected_keys.push(key)
+
+        // save selection to sessionStorage
+        sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
+    
         build_table()
     }
 }
@@ -155,23 +186,7 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    let selected = []
-    for(let key of selected_keys)
-    {
-        let type = meta[key].type
-        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-        {
-            for (let op of meta[key].options)
-            {
-                selected.push(`${key}-${op}`)
-            }
-        }
-        else
-        {
-            selected.push(key)
-        }
-    }
-    return selected
+    return selected_keys
 }
 
 /**
@@ -186,465 +201,237 @@ function get_secondary_selected_keys()
 }
 
 /**
- * function:    get_weight
- * parameters:  results, team, key, label, sort method
- * returns:     calculated weight
- * description: Calculates a weight for sorting a discrete result average.
+ * function:    get_sorted_teams
+ * parameters:  key to sort by, whether to reverse all
+ * returns:     array of selected and sorted teams
+ * description: Builds an array of the currently selected teams then sorts.
  */
-function get_weight(results, team, key, label, method)
+function get_sorted_teams(sort_by='', reverse=false)
 {
-    let res = avg_results(get_team_results(results, team), key, meta[key].type, method, meta[key].options)
-    return (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
-}
+    let filter_teams = get_secondary_selected_keys()
 
-/**
- * function:    dragstart_handler
- * parameters:  drag event
- * returns:     none
- * description: Stores the key of an input when picked up.
- */
-function dragstart_handler(e)
-{
-    dragging = e.target.id
-
-    // select true key if a discrete input
-    if (!selected_keys.includes(dragging))
+    // sort teams based on parameters
+    let type = 'mean'
+    if (document.getElementById(`select_${sort_by}`))
     {
-        for (let key of selected_keys)
-        {
-            if (dragging.startsWith(key))
-            {
-                dragging = key
-            }
-        }
+        type = document.getElementById(`select_${sort_by}`).value.toLowerCase()
     }
-}
-
-/**
- * function:    dragover_handler
- * parameters:  drag event
- * returns:     none
- * description: Allows drop handler to work.
- */
-function dragover_handler(e)
-{
-    e.preventDefault()
-}
-
-/**
- * function:    drop_handler
- * parameters:  drag event
- * returns:     none
- * description: Shifts select keys around according to drag.
- */
-function drop_handler(e)
-{
-    e.preventDefault()
-    let dropped_on = e.target.id
-
-    // select true key if a discrete input
-    if (!selected_keys.includes(dropped_on))
+    filter_teams.sort((a,b) => dal.get_value(b, sort_by, type) - dal.get_value(a, sort_by, type))
+    if (reverse)
     {
-        for (let key of selected_keys)
-        {
-            if (dropped_on.startsWith(key))
-            {
-                dropped_on = key
-                if (dragging.startsWith(key))
-                {
-                    dragging = ''
-                    return
-                }
-            }
-        }
+        filter_teams.reverse()
     }
-    
-    // remove dragged key
-    selected_keys = selected_keys.filter(s => s != dragging)
 
-    // insert dragged key
-    let index = dropped_on == 'team' ? 0 : selected_keys.indexOf(dropped_on) + 1
-    selected_keys.splice(index, 0, dragging)
+    last_sort = sort_by
+    last_reverse = reverse
 
-    dragging = ''
-    build_table()
+    return filter_teams
 }
 
 /**
  * function:    build_table
- * parameters:  none
+ * parameters:  key to sort by, whether to reverse all
  * returns:     none
- * description: Completes right info pane with the selected options.
+ * description: Completes the center info pane with the selected options.
  */
 function build_table(sort_by='', reverse=false)
 {
-    sessionStorage.setItem(KEYS_KEY, JSON.stringify(selected_keys))
-
+    // get selected keys on either side
     let selected = get_selected_keys()
-    let method = get_selected_option('type_form')
+    let filter_teams = get_sorted_teams(sort_by, reverse)
+    let selected_types = {}
 
-    let filter_teams = get_secondary_selected_keys()
-    teams = all_teams.filter(team => filter_teams.includes(team.toString()))
+    // compute totals
+    let global_stats = dal.compute_global_stats(selected, filter_teams)
 
-    // restore sort
-    if (!sort_by && sort && selected.includes(sort))
+    // build table headers
+    let table = `<table><tr class="sticky_header"><th onclick="build_table('', ${!reverse})">Team Number</th>`
+    let types = '<tr><td></td>'
+    let totals = '<tr><td></td>'
+    for (let i in selected)
     {
-        sort_by = sort
-        reverse = ascending
+        let key = selected[i]
+
+        // add key names
+        table += `<th onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
+
+        // determine previously selected stat
+        let type = 'Mean'
+        if (document.getElementById(`select_${key}_${i}`))
+        {
+            type = document.getElementById(`select_${key}_${i}`).value
+            selected_types[`select_${key}_${i}`] = type
+        }
+
+        // build dropdown for those that have stats
+        let fn = ''
+        if (key.startsWith('stats.'))
+        {
+            let dropdown = new Dropdown(`select_${key}_${i}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
+            dropdown.onclick = `build_table('${sort_by}', ${reverse})`
+            dropdown.add_class('slim')
+            dropdown.add_class('thin')
+            fn = dropdown.toString
+        }
+
+        // build cells
+        types += `<td>${fn}</td>`
+        totals += `<td>${dal.get_global_value(global_stats, key, type.toLowerCase(), true)}</td>`
     }
-    else if (sort_by == 'team')
+    table += `</tr>${types}</tr>${totals}</tr>`
+
+    // build team rows
+    for (let team of filter_teams)
     {
-        teams.sort()
+        table += `<tr><td>${team}</td>`
+        for (let i in selected)
+        {
+            let key = selected[i]
+
+            // determine previously selected stat
+            let type = 'mean'
+            if (document.getElementById(`select_${key}_${i}`))
+            {
+                type = document.getElementById(`select_${key}_${i}`).value.toLowerCase()
+            }
+
+            // compute color
+            let color = ''
+            let val = dal.get_value(team, key, type)
+            let min = dal.get_global_value(global_stats, key, 'min')
+            let max = dal.get_global_value(global_stats, key, 'max')
+            let mean = dal.get_global_value(global_stats, key, 'mean')
+            if (val !== mean)
+            {
+                let colors = [0,0,0,0]
+
+                if (val > mean)
+                {
+                    colors = [0, 256, 0, (val - mean) / (max - mean) / 2]
+                }
+                else if (val < mean)
+                {
+                    colors = [256, 0, 0, (mean - val) / (mean - min) / 2]
+                }
+
+                if (dal.meta[key].negative === true)
+                {
+                    colors = [colors[1], colors[0], colors[2], colors[3]]
+                }
+                color = `style="background-color: rgba(${colors.join(',')}"`
+            }
+
+            // build cell
+            table += `<td ${color}>${dal.get_value(team, key, type, true)}</td>`
+        }
+        table += '</tr>'
     }
+    table += '</table>'
 
-    let raw_sort = sort_by
-    if (selected.includes(sort_by))
+    document.getElementById('results_tab').innerHTML = table
+
+    sessionStorage.setItem(SESSION_TYPES_KEY, JSON.stringify(selected_types))
+}
+
+/**
+ * function:    save_picklist
+ * parameters:  none
+ * returns:     none
+ * description: Builds and saves a picklist by the current sort.
+ */
+function save_picklist()
+{
+    let teams = get_sorted_teams(last_sort, last_reverse)
+    let name = ''
+    if (last_sort === '')
     {
-        sort = sort_by
-        let label = ''
-        if (sort_by.includes('-'))
-        {
-            let parts = sort_by.split('-')
-            sort_by = parts[0]
-            label = parts[1]
-        }
-        ascending = false
-        list_name = `${SORT_OPTIONS[method]} ${meta[sort_by].name}`
-        if (label !== '')
-        {
-            list_name += ` ${label}`
-        }
-        
-        let type = meta[sort_by].type
-        let negative = meta[sort_by].negative
-        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-        {
-            teams.sort((a, b) => get_weight(results, b, sort_by, label, method) - get_weight(results, a, sort_by, label, method))
-
-            let idx = meta[sort_by].options[label]
-            negative = negative[idx]
-        }
-        else
-        {
-            teams.sort((a, b) => avg_results(get_team_results(results, b), sort_by, type, method) - avg_results(get_team_results(results, a), sort_by, type, method))
-        }
-        // invert negative key sort
-        if (negative === true)
-        {
-            teams.reverse()
-        }
+        name = 'Team Number'
     }
     else
     {
-        teams.sort((a, b) => parseInt(a) - parseInt(b))
+        name = dal.get_name(last_sort)
     }
-    // reverse teams to ascending
-    if (reverse)
+    if (last_reverse)
     {
-        ascending = true
-        teams.reverse()
-        list_name += ' reversed'
+        name += ' Reversed'
     }
-
-    // header row
-    let table = `<tr class="sticky_header"><th></th><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('team', ${sort_by !== 'team' ? false : !reverse})" ${sort_by != 'team' ? 'style="font-weight: normal"' : ''}>Team</th>`
-    let totals_row = '<tr><th></th><th>Totals</th>'
-    let data = {}
-    for (let key of selected)
+    if (dal.picklists.hasOwnProperty(name))
     {
-        let name = ''
-        let pkey = key
-        let raw_label = ''
-        if (key.includes('-'))
-        {
-            let parts = key.split('-')
-            pkey = parts[0]
-            raw_label = parts[1]
-            let label = raw_label
-            // handle boolean labels
-            if (label === 'false')
-            {
-                label = 'Not'
-            }
-            else if (label === 'true')
-            {
-                label = ''
-            }
-            name = `${meta[pkey].name} ${label}`
-        }
-        else
-        {
-            name = meta[key].name
-        }
-        let rev = raw_sort == key ? !reverse : false
-        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('${key}', ${rev})" ${raw_sort != key ? 'style="font-weight: normal"' : ''}>${name}</th>`
-        
-        let valStr = ''
-        let type = meta[pkey].type
-
-        // build general data for highlighting
-        // build a value string of percents for discrete inputs
-        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-        {
-            let vals = avg_results(results, pkey, type, method, meta[pkey].options)
-            // note 0 - 100 is an assumption that may not always be true
-            data[pkey] = {
-                'base': (100 * vals[raw_label] / Object.values(vals).reduce((a, b) => a + b, 0)),
-                'min': 0,
-                'max': 100
-            }
-            valStr = data[pkey].base.toFixed(1) + '%'
-        }
-        else
-        {
-            let vals = avg_results(results, key, type, method, [], true)
-            data[key] = {
-                'base': vals[0],
-                'min': vals[1],
-                'max': vals[2]
-            }
-            valStr = get_value(meta, key, data[key].base)
-        }
-        totals_row += `<td>${valStr}</td>`
+        name += '+'
     }
-    table += `</tr>${totals_row}</tr>`
-
-    // data rows
-    let index = 0
-    for (let team of teams)
-    {
-        let team_results = get_team_results(results, team)
-        if (Object.keys(team_results).length > 0)
-        {
-            table += `<th>${++index}</th><th>${team}<br>${team_names[team]}</th>`
-            for (let key of selected)
-            {
-                let label = ''
-                if (key.includes('-'))
-                {
-                    let parts = key.split('-')
-                    key = parts[0]
-                    label = parts[1]
-                }
-                let color = ''
-                let type = meta[key].type
-                let negative = meta[key].negative
-
-                let val = avg_results(team_results, key, type, method)
-                let valStr = get_value(meta, key, val)
-                
-                // build a value string of percents for discrete inputs
-                if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-                {
-                    let res = avg_results(team_results, key, type, method, meta[key].options)
-                    val = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
-                    valStr = val.toFixed(1) + '%'
-
-                    let idx = meta[key].options[label]
-                    if (Array.isArray(negative))
-                    {
-                        negative = negative[idx]
-                    }
-                }
-
-                if (!key.startsWith('meta'))
-                {
-                    let d = data[key]
-                    if (val != d.base)
-                    {
-                        let colors = [0,0,0]
-    
-                        if (val > d.base)
-                        {
-                            colors = [0, 256, 0, (val - d.base) / (d.max - d.base) / 2]
-                        }
-                        else if (val < d.base)
-                        {
-                            colors = [256, 0, 0, (d.base - val) / (d.base - d.min) / 2]
-                        }
-
-                        if (negative === true ? label !== 'false' : label === 'false')
-                        {
-                            colors = [colors[1], colors[0], colors[2], colors[3]]
-                        }
-                        color = `style="background-color: rgba(${colors.join(',')}`
-                    }
-                }
-            
-                if (typeof val === 'number' && !key.startsWith('meta'))
-                {
-                    // add std dev if proper number
-                    if (method == 0 && type != 'select' && type != 'dropdown' && type != 'checkbox')
-                    {
-                        valStr += ` (${get_value(meta, key, avg_results(team_results, key, type, 6))})`
-                    }
-                }
-                table += `<td class="result_cell" ${color})">${valStr}</td>`
-            }
-            table += '</tr>'
-        }
-    }
-    document.getElementById('results_tab').innerHTML = table
+    dal.picklists[name] = teams
+    dal.save_picklists()
 }
 
 /**
- * function:    upload_csv
- * paramters:   none
- * returns:     none
- * description: Creates a file prompt to upload a CSV file.
- */
-function upload_csv()
-{
-    var input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'text/csv'
-    input.onchange = import_headers
-    input.click()
-}
-
-/**
- * function:    import_headers
- * paramters:   response containing CSV file
- * returns:     none
- * description: Loads in headers from a CSV file.
- */
-function import_headers(event)
-{
-    let file = event.target.files[0]
-    let reader = new FileReader()
-    reader.readAsText(file, 'UTF-8')
-    reader.onload = readerEvent => {
-        let lines = readerEvent.target.result.split('\n')
-        let headers = lines[0].split(',').map(l => l.trim())
-        
-        let keys = Array.prototype.filter.call(document.getElementsByClassName('pit_option'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
-        selected_keys = Array(headers.length).fill('')
-        for(let key of keys)
-        {
-            let type = meta[key].type
-            if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-            {
-                for (let op of meta[key].options)
-                {
-                    // handle boolean labels
-                    if (op === 'false')
-                    {
-                        op = 'Not'
-                    }
-                    else if (op === 'true')
-                    {
-                        op = ''
-                    }
-                    let idx = headers.indexOf(`${meta[key].name} ${op}`)
-                    if (idx >= 0)
-                    {
-                        document.getElementById(`option_${key}`).classList.add('selected')
-                        selected_keys[idx] = key
-                        break
-                    }
-                }
-            }
-            else
-            {
-                let idx = headers.indexOf(meta[key].name)
-                if (idx >= 0)
-                {
-                    document.getElementById(`option_${key}`).classList.add('selected')
-                    selected_keys[idx] = key
-                }
-            }
-        }
-
-        // remove keys not found (skipped in the case of multiple discretes)
-        selected_keys = selected_keys.filter(k => k != '')
-        
-        build_table()
-    }
-}
-
-/**
- * function:    export_table
+ * function:    export_csv
  * parameters:  none
  * returns:     none
- * description: Exports the current table as a CSV file.
+ * description: Builds and saves a csv export of the table.
  */
-function export_table()
+function export_csv()
 {
+    // get selected keys on either side
     let selected = get_selected_keys()
-    let method = get_selected_option('type_form')
+    let filter_teams = get_sorted_teams(last_sort, last_reverse)
 
-    let filter_teams = get_secondary_selected_keys()
-    teams = all_teams.filter(team => filter_teams.includes(team.toString()))
+    // compute totals
+    let global_stats = dal.compute_global_stats(selected, filter_teams)
 
-    // header row
-    let header = ['Team']
-    for (let key of selected)
+    // build table headers
+    let table = [['Name'], ['Key'], ['Function'], ['Totals']]
+    for (let i in selected)
     {
-        let name = ''
-        if (key.includes('-'))
+        let key = selected[i]
+        
+        // determine previously selected stat
+        let type = 'Mean'
+        if (document.getElementById(`select_${key}_${i}`))
         {
-            let parts = key.split('-')
-            let label = parts[1]
-            // handle boolean labels
-            if (label === 'false')
-            {
-                label = 'Not'
-            }
-            else if (label === 'true')
-            {
-                label = ''
-            }
-            name = `${meta[parts[0]].name} ${label}`
+            type = document.getElementById(`select_${key}_${i}`).value
         }
-        else
+
+        // add key names and totals
+        table[1].push(key)
+        table[3].push(dal.get_global_value(global_stats, key, type.toLowerCase(), true))
+
+        // build dropdown for those that have stats
+        if (!key.startsWith('stats.'))
         {
-            name = meta[key].name
+            type = ''
         }
-        header.push(name)
+        table[0].push(dal.get_name(key, type))
+        table[2].push(type)
     }
 
-    // data rows
-    let rows = [header.join(',')]
-    for (let team of teams)
+    // build team rows
+    for (let team of filter_teams)
     {
         let row = [team]
-        let team_results = get_team_results(results, team)
-        if (Object.keys(team_results).length > 0)
+        for (let i in selected)
         {
-            for (let key of selected)
+            let key = selected[i]
+
+            // determine previously selected stat
+            let type = 'mean'
+            if (document.getElementById(`select_${key}_${i}`))
             {
-                let label = ''
-                if (key.includes('-'))
-                {
-                    let parts = key.split('-')
-                    key = parts[0]
-                    label = parts[1]
-                }
-                let type = meta[key].type
-
-                let val = avg_results(team_results, key, type, method)
-                let valStr = get_value(meta, key, val)
-                let base = avg_results(results, key, type, method)
-                // build a value string of percents for discrete inputs
-                if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-                {
-                    let res = avg_results(team_results, key, type, method, meta[key].options)
-                    val = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
-                    valStr = val.toFixed(1) + '%'
-
-                    res = avg_results(results, key, type, method, meta[key].options)
-                    base = (100 * res[label] / Object.values(res).reduce((a, b) => a + b, 0))
-                }
-                row.push(valStr)
+                type = document.getElementById(`select_${key}_${i}`).value.toLowerCase()
             }
-            rows.push(row.join(','))
+
+            // add cell
+            row.push(dal.get_value(team, key, type, true))
         }
+        table.push(row)
     }
 
-    // download CSV
+    // convert 2D array to CSV
+    let csv = table.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+
+    // download csv
     let element = document.createElement('a')
-    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n')))
-    element.setAttribute('download', `${event_id}-pivot-export.csv`)
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
+    element.setAttribute('download', `pivot-export.csv`)
 
     element.style.display = 'none'
     document.body.appendChild(element)
@@ -655,26 +442,67 @@ function export_table()
 }
 
 /**
- * function:    save_pick_list
+ * function:    prompt_csv
  * parameters:  none
  * returns:     none
- * description: Saves the current table sort into a pick list, named by the sorting order.
+ * description: Prompts the user to select a CSV to use for importing keys.
  */
-function save_pick_list()
+function prompt_csv()
 {
-    let lists = JSON.parse(localStorage.getItem(get_event_pick_lists_name(event_id)))
+    var input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/csv'
+    input.onchange = import_keys
+    input.click()
+}
 
-    if (lists == null)
-    {
-        lists = {}
-    }
-    lists[list_name] = []
-    for (let team of teams)
-    {
-        lists[list_name].push(team.toString())
-    }
+/**
+ * function:    import_keys
+ * parameters:  event
+ * returns:     none
+ * description: Loads in previously selected keys and functions from file.
+ *              TODO import teams?
+ */
+function import_keys(event)
+{
+    // read in file from event
+    let file = event.target.files[0]
+    let reader = new FileReader()
+    reader.readAsText(file, 'UTF-8')
+    reader.onload = readerEvent => {
+        let lines = readerEvent.target.result.split('\n')
+        if (lines.length >= 4)
+        {
+            let keys = lines[1].split(',')
+            let types = lines[2].split(',')
 
-    // save to localStorage and open
-    localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
-    return build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: event_id})
+            // select previously selected keys and rebuild table
+            selected_keys = []
+            for (let i in keys)
+            {
+                if (i > 0)
+                {
+                    let key = keys[i].substring(1, keys[i].length - 1)
+                    document.getElementById(`option_${key}`).classList.add('selected')
+                    selected_keys.push(key)
+                }
+            }
+            build_table()
+
+            // select previously selected types and rebuild table
+            for (let i in types)
+            {
+                if (i > 0)
+                {
+                    let key = keys[i].substring(1, keys[i].length - 1)
+                    let type = types[i].substring(1, types[i].length - 1)
+                    if (document.getElementById(`select_${key}_${i-1}`))
+                    {
+                        document.getElementById(`select_${key}_${i-1}`).value = type
+                    }
+                }
+            }
+            build_table()
+        }
+    }
 }

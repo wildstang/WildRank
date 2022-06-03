@@ -24,7 +24,7 @@ function init_page()
                                     <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <h3 id="location"></h3>
                                     <h3 id="ranking"></h3>
-                                    <div id="notes"></div>`
+                                    <div id="stats_tab"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
         
         setup_picklists()
@@ -66,7 +66,7 @@ function open_option(team_num)
     }
 
     // build stats table
-    let notes = '<table style="text-align: left">'
+    let stats_tab = '<table style="text-align: left">'
     let match_stats = dal.get_keys(true, false, false, false)
     let pit_stats = dal.get_keys(false, true, false, false)
     let num_match = match_stats.length
@@ -74,28 +74,28 @@ function open_option(team_num)
     let max_len = num_match > num_pit ? num_match : num_pit
     for (let i = 0; i < max_len; ++i)
     {
-        notes += '<tr>'
+        stats_tab += '<tr>'
         if (i < num_pit)
         {
             let key = pit_stats[i]
-            notes += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+            stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
         }
         else
         {
-            notes += '<th></th><td></td>'
+            stats_tab += '<th></th><td></td>'
         }
         if (i < num_match)
         {
             let key = match_stats[i]
-            notes += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+            stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
         }
         else
         {
-            notes += '<th></th><td></td>'
+            stats_tab += '<th></th><td></td>'
         }
-        notes += '</tr>'
+        stats_tab += '</tr>'
     }
-    document.getElementById('notes').innerHTML = notes
+    document.getElementById('stats_tab').innerHTML = stats_tab
 
     let cards = []
 

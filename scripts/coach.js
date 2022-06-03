@@ -79,7 +79,6 @@ function open_match(match_key)
         time.innerHTML = `${unix_to_match_time(predicted)} (Projected)`
     }
 
-    // make row for match notes
     let red_col = new ColumnFrame('red_alliance', '')
     let blue_col = new ColumnFrame('blue_alliance', '')
     let page = new PageFrame('', '', [red_col, blue_col])
@@ -145,38 +144,16 @@ function open_teams(match_key)
             blue_teams.push(team_num)
         }
 
-        // make a table of "coach-vals"
-        let notes = `<center>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}</center><br><table>`
+        // make a table of "coach_vals"
+        let coach_tab = `<center>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}</center><br><table>`
         for (let v of vals)
         {
             let stat = dal.get_value(team_num, v.key, v.function, true)
-            notes += `<tr><th>${dal.get_name(v.key, v.function)}</th><td>${stat}</td></tr>`
+            coach_tab += `<tr><th>${dal.get_name(v.key, v.function)}</th><td>${stat}</td></tr>`
         }
-        notes += '</table><div class="notes">'
+        coach_tab += '</table>'
 
-        // add notes from notes mode, if box is checked
-        let files = Object.keys(localStorage)
-        for (let file of files)
-        {
-            if (file.startsWith(`${NOTE_MODE}-`))
-            {
-                let result = JSON.parse(localStorage.getItem(file))
-                if (result.meta_team == team_num && result.meta_event_id == event_id)
-                {
-                    if (notes == '')
-                    {
-                        notes = ''
-                    }
-                    else {
-                        notes += '<br>'
-                    }
-                    notes += result.notes
-                }
-            }
-        }
-        notes += '</div>'
-
-        document.getElementById(`${id}_details`).innerHTML = notes
+        document.getElementById(`${id}_details`).innerHTML = coach_tab
     }
 
     // make a table of alliance "coach-vals"

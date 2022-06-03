@@ -30,18 +30,6 @@ function pit_scout()
 }
 
 /**
- * function:    note_scout
- * parameters:  none
- * returns:     none
- * description: Start note scouting mode.
- */
-function note_scout()
-{
-    let query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
-    return build_url('selection', query)
-}
-
-/**
  * function:    open_ranker
  * parameters:  none
  * returns:     none
@@ -104,7 +92,7 @@ function open_advanced()
  */
 function open_results()
 {
-    return build_url('selection', {'page': 'new-results', [EVENT_COOKIE]: get_event()})
+    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -148,7 +136,7 @@ function open_users()
  */
 function open_pivot()
 {
-    return build_url('selection', {'page': 'new-pivot', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'pivot', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -159,7 +147,7 @@ function open_pivot()
  */
 function open_distro()
 {
-    return build_url('selection', {'page': 'new-distro', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+    return build_url('selection', {'page': 'distro', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
 }
 
 /**
@@ -292,7 +280,7 @@ function open_about()
  */
 function open_result(match_key, team_num)
 {
-    return build_url('selection', {'page': 'new-results', [EVENT_COOKIE]: dal.event_id, 'file': `${match_key}-${team_num}`})
+    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: dal.event_id, 'file': `${match_key}-${team_num}`})
 }
 
 /**

@@ -1,6 +1,6 @@
 /**
  * file:        random.js
- * description: Page for generating random match/pit/note results.
+ * description: Page for generating random match/pit results.
  *              Built for easy data generation for testing.
  * author:      Liam Fruzyna
  * date:        2021-09-06

@@ -3,113 +3,34 @@
  * description: Contains functions for the result distribution page of the web app.
  *              Primarily for building the interface from results.
  * author:      Liam Fruzyna
- * date:        2021-10-17
+ * date:        2022-05-18
  */
 
-const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
+const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 
-var teams = []
-var results = {}
-var lists = {}
-var meta = {}
-var bars = []
-var bin_raws = []
-var team_modes = {}
+let pwidth, pheight = 0
 
-var pwidth
-var pheight
-
-/**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
- */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
-    contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
-    buttons_container.innerHTML = build_column_frame('', [ build_select('type_form', 'Sort numeric results by', SORT_OPTIONS, 'Mean', 'build_plot()') ]) +
-                                    build_column_frame('', [ build_num_entry('max_bins', 'Max Bins', 10, [], 'build_plot()') ])
+    contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="canvas"></canvas>'
 
-    meta = get_result_meta(type, year)
+    let max_bins = new Entry('max_bins', 'Max bins', 5)
+    max_bins.entry = 'number'
+    max_bins.on_text_change = 'build_plot()'
 
-    // load all event teams from localStorage
-    let file_name = get_event_teams_name(event_id)
-    if (file_exists(file_name))
+    let select = new Select('function', 'Function', FUNCTIONS, 'Mean')
+    select.onselect = 'build_plot()'
+
+    buttons_container.innerHTML = new ColumnFrame('', '', [max_bins]).toString + new ColumnFrame('', '', [select]).toString
+
+    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
+    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank'], 'filter_stats()', true)
+
+    let first = populate_keys(dal, false, true)
+    if (first !== '')
     {
-        results = get_results(prefix, year)
-        
-        teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
-                    .filter(team => Object.keys(get_team_results(results, team)).length > 0)
-        
-        file_name = get_event_pick_lists_name(event_id)
-        if (file_exists(file_name))
-        {
-            lists = JSON.parse(localStorage.getItem(file_name))
-
-            // add select button above secondary list
-            add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
-        }
-    
-        // load keys from localStorage and build list
-        let first = populate_keys(meta, results, teams)
-        if (first)
-        {
-            open_option(first)
-            init_canvas()
-        }
-    }
-}
-
-/**
- * function:    find_bin
- * parameters:  mouse event
- * returns:     none
- * description: Handles onclick on canvas to select teams of a selected bin.
- */
-function find_bin(e)
-{
-    let x = e.layerX
-    for (let i in bars)
-    {
-        i = parseInt(i)
-        let bar = bars[i]
-        let left = bar[0] + 25 // not sure why we need additional margin
-        let right = left + bar[2]
-        // determine if in bar (only horizontally)
-        if (x >= left && x <= right)
-        {
-            deselect_all(false)
-            let raw = bin_raws[i]
-            // check each team
-            for (let team in team_modes)
-            {
-                let mode = team_modes[team]
-                let pos = bin_raws.indexOf(mode)
-                // if it falls exactly on a bin
-                if (pos == i)
-                {
-                    // select team
-                    document.getElementById(`soption_${team}`).classList.add('selected')
-                }
-                else if (pos < 0)
-                {
-                    // if it doesn't find the closest
-                    // (if it did fall on a bin its not the one we clicked)
-                    let delta_c = Math.abs(raw - mode)
-                    let delta_l = i > 0 ? Math.abs(bin_raws[i-1] - mode) : raw
-                    let delta_r = i < bin_raws.length - 1 ? Math.abs(bin_raws[i+1] - mode) : raw
-                    console.log(delta_l, delta_c, delta_r, bin_raws[i-1], raw, bin_raws[i+1], mode)
-                    if (delta_c < delta_l && delta_c < delta_r)
-                    {
-                        // select team
-                        document.getElementById(`soption_${team}`).classList.add('selected')
-                    }
-                }
-            }
-            build_plot()
-            break
-        }
+        init_canvas()
+        open_option(first)
     }
 }
 
@@ -123,29 +44,35 @@ function init_canvas()
 {
     pwidth = preview.offsetWidth - 64
     pheight = window.innerHeight/2 - 64
-    let canvas = document.getElementById('whiteboard')
+    let canvas = document.getElementById('canvas')
     canvas.width = pwidth
     canvas.height = pheight
     canvas.onclick = find_bin
     canvas.ontouchend = find_bin
-    build_plot()
 }
 
 /**
- * function:    open_option
+ * function:    filter_stats
  * parameters:  none
  * returns:     none
- * description: Selects teams based off the selected picklist.
+ * description: Filters stats based off the selected type.
  */
-function filter_teams()
+function filter_stats()
 {
-    let list = document.getElementById('picklist_filter').value
-    if (Object.keys(lists).includes(list))
+    let filter = document.getElementById('stat_filter').value.toLowerCase()
+    let keys = dal.get_keys(true, true, true, false)
+    for (let k of keys)
     {
-        filter_by(lists[list], false)
+        let element = document.getElementById(`option_${k}`)
+        if (filter !== 'all' && !k.startsWith(filter) && !element.classList.contains('selected'))
+        {
+            element.style.display = 'none'
+        }
+        else
+        {
+            element.style.display = 'block'
+        }
     }
-
-    init_canvas()
 }
 
 /**
@@ -215,213 +142,149 @@ function get_secondary_selected_keys()
  */
 function build_plot()
 {
-    let key = get_selected_keys()[0]
-    let type = meta[key].type
-    let method = get_selected_option('type_form')
+    let keys = get_selected_keys()
+    let key = keys[0]
+    let highlights = get_secondary_selected_keys()
+    let teams = Object.keys(dal.teams)
 
-    // build distribution
-    let values = []
-    let team_vals = {}
-    team_modes = {}
-    let use_modes = type == 'checkbox' || type == 'select' || type == 'dropdown'
+    let func = FUNCTIONS[get_selected_option('function')]
+    let num_bins = parseInt(document.getElementById('max_bins').value)
+
+    document.getElementById('plot_title').innerHTML = dal.get_name(key, func)
+
+    // calculate number of bins and what ranges the bins cover
+    let global = dal.compute_global_stats(keys, teams, func)
+    let min = dal.get_global_value(global, key, 'low')
+    let max = dal.get_global_value(global, key, 'high')
+    if (min === '---')
+    {
+        return
+    }
+    let select = dal.meta[key].type === 'checkbox' || dal.meta[key].type === 'select' || dal.meta[key].type === 'dropdown'
+    if (select)
+    {
+        num_bins = max
+    }
+    let bin_size = (max - min) / num_bins
+
+    // build list of empty bin counts
+    let bins = []
+    for (let i = 0; i < num_bins; i++)
+    {
+        bins.push([])
+    }
+
+    // determine which team each bin belongs in
     for (let team of teams)
     {
-        let team_results = get_team_results(results, team)
-        // build a value string of percents for discrete inputs
-        if (use_modes)
+        let val = dal.get_value(team, key, func)
+        if (typeof val === 'boolean')
         {
-            let ops = meta[key].options
-            if (type == 'checkbox')
-            {
-                ops = [false, true]
-            }
-            else
-            {
-                ops = ops.map((_, i) => i)
-            }
-            // add each count to a list to plot
-            let counts = avg_results(team_results, key, type, method, ops)
-            let cvals = Object.values(counts)
-            for (let i in cvals)
-            {
-                let c = cvals[i]
-                for (let j = 0; j < c; ++j)
-                {
-                    values.push(i)
-                }
-            }
-            // get mode for placing highlight
-            let mode = avg_results(team_results, key, type, 2)
-            // convert mode to numeric values
-            if (type == 'checkbox')
-            {
-                mode = mode ? 1 : 0
-            }
-            team_vals[team] = counts
-            team_modes[team] = mode
+            val = val ? 1 : 0
         }
-        else
+        let bin = Math.floor((val - min) / bin_size)
+        if (isNaN(bin))
         {
-            if (Object.keys(team_results).length > 0)
-            {
-                let val = avg_results(team_results, key, type, method)
-                values.push(val)
-                team_vals[team] = val
-                team_modes[team] = val
-            }
+            continue
         }
+        if (val === max)
+        {
+            bin = num_bins - 1
+        }
+        bins[bin].push(team)
     }
 
-    // bin math
-    let max_bins = document.getElementById('max_bins').value
-    let bins = max_bins
-    let min = Math.min(...values)
-    let max = Math.max(...values)
-    let delta = max - min
-    let bin_size = delta / bins
-
-    // get unique values and find smallest delta between values
-    let unique = [... new Set(values)]
-    unique.sort((a, b) => a - b)
-    let min_delta = delta
-    for (let i in unique)
+    // determine the largest bin
+    let max_teams = 0
+    for (let bin of bins)
     {
-        let u = unique[i]
-        if (i+1 < unique.length)
+        if (bin.length > max_teams)
         {
-            let udelta = unique[i+1] - u
-            if (udelta < min_delta)
-            {
-                min_delta = udelta
-            }
+            max_teams = bin.length
         }
     }
 
-    // reduce bin size if possible
-    if (delta / min_delta <= bins)
-    {
-        bins = delta / min_delta + 1
-        bin_size = delta / bins
-    }
-
-    // calculate each bin
-    let counts = []
-    let bin_names = []
-    bin_raws = []
-    for (let i = 0; i < bins; ++i)
-    {
-        // define bin
-        let binStart = min + i * bin_size
-        let binEnd = binStart + bin_size
-
-        // count results in bin
-        let count = values.filter(v => v >= binStart && (v < binEnd || i == bins - 1)).length
-        counts.push(count)
-        
-        // build list of names
-        // for discrete string results
-        if (type == 'checkbox' || type == 'select' || type == 'dropdown')
-        {
-            bin_names.push(get_value(meta, key, i))
-            bin_raws.push(i)
-        }
-        // for discrete number results
-        else if (unique.length <= max_bins)
-        {
-            bin_names.push(unique[i])
-            bin_raws.push(unique[i])
-        }
-        // for continuous number results
-        else
-        {
-            let val = (binStart + binEnd) / 2
-            bin_names.push(val.toFixed(2))
-            bin_raws.push(val)
-        }
-    }
-
-    // reset canvas
-    var ctx = document.getElementById('whiteboard').getContext('2d')
+    // clear canvas
+    var ctx = document.getElementById('canvas').getContext('2d')
     ctx.globalCompositeOperation = 'destination-over'
     ctx.clearRect(0, 0, pwidth, pheight)
-    
-    let width = (pwidth - 25) / bins
-    let font_size = 16
-    
-    // draw line to highlight teams
-    let selected = 0
-    let keys = get_secondary_selected_keys()
-    for (let highlight of keys)
-    {
-        // check if selected and avoid invalid team numbers
-        if (!isNaN(parseInt(highlight)))
-        {
-            ctx.beginPath()
-            ctx.fillStyle = 'firebrick'
-            ctx.font = `${font_size}px mono, courier`
-            let raw_val = team_vals[highlight]
-            let team_val = get_value(meta, key, raw_val, false)
-            let x = 25 + (team_val - min) / delta * (pwidth - 25)
-            // fix values for line position
-            if (use_modes)
-            {
-                let vals = Object.values(raw_val)
-                x = 25 + vals.map((v, i) => v * i).reduce((a, b) => a + b) / ((vals.length - 1) *vals.reduce((a, b) => a + b)) * (pwidth - 25)
-                team_val = Object.keys(team_val).map(k => `${k}: ${team_val[k]}%`)
-                raw_val = team_modes[highlight]
-            }
-            // handle non-numeric and low bin values
-            else if (unique.length <= max_bins)
-            {
-                x = 25 + (unique.indexOf(raw_val) + 0.5) * width
-            }
-            ctx.fillRect(x, 0, 1, pheight-20)
-            ctx.fillText(highlight, x + 5, font_size * (selected + 1))
-            selected++
-            if (typeof team_val !== 'string' && Array.isArray(team_val))
-            {
-                for (let t of team_val)
-                {
-                    ctx.fillText(t, x + 5, font_size * (selected + 1))
-                    selected++
-                }
-            }
-            else
-            {
-                ctx.fillText(team_val, x + 5, font_size * (selected + 1))
-                selected++
-            }
-            selected++
-            ctx.stroke()
-        }
-    }
 
-    // draw each bin
-    let maxBin = Math.max(...counts)
-    let j = 0
-    let neg = meta[key].negative
-    bars = []
-    for (let i = 0; i < bins; ++i)
+    // draw radio dial bars and their labels to highlight teams
+    // this is first because JS drawing order is backwards... I think
+    for (let team of highlights)
     {
-        let l = i
-        if (neg)
-        {
-            l = bins - (i + 1)
-        }
-        let height = (counts[i] / maxBin) * (pheight - 25)
         ctx.beginPath()
-        ctx.fillStyle = 'gray'
-        ctx.font = `${font_size}px mono, courier`
-        ctx.fillRect(25 + l * width, (pheight - 25) - height, width - 1, height)
-        bars.push([25 + l * width, (pheight - 25) - height, width - 1, height, bin_names[j]])
-        // draw labels
-        if (counts[l] > 0 || unique.length >= counts.length)
+        ctx.fillStyle = 'red'
+        ctx.font = `15px mono, courier`
+        let val = dal.get_value(team, key, func)
+        if (typeof val === 'boolean')
         {
-            let text_width = ctx.measureText(bin_names[j]).width
-            ctx.fillText(bin_names[j], 25 + (l + 0.5) * width - text_width / 2, (pheight - 25 + font_size))
-            ++j
+            val = val ? 1 : 0
         }
-        ctx.fillText(counts[l], 0, (pheight - 25 + font_size) - height)
+        let percent = (val - min) / (max - min)
+        ctx.fillRect(25 + percent * (pwidth - 50), 0, 1, pheight - 25)
+
+        let label = (val).toFixed(1)
+        let text_width = ctx.measureText(label).width
+        ctx.fillText(label, 25 + percent * (pwidth - 50) - text_width / 2, pheight - 10)
+
         ctx.stroke()
     }
+
+    // draw each bin and its label
+    for (let i in bins)
+    {
+        let bin = bins[i]
+        let height = (bin.length / max_teams) * (pheight - 25)
+        let width = (pwidth - 50) / num_bins
+
+        ctx.beginPath()
+        ctx.fillStyle = 'white'
+        ctx.font = `20px mono, courier`
+
+        let label = bin.length
+        let text_width = ctx.measureText(label).width
+        ctx.fillText(label, 25 + i * width - text_width / 2 + width / 2, pheight - height)
+
+        ctx.stroke()
+
+        ctx.beginPath()
+        ctx.fillStyle = 'gray'
+        ctx.font = `20px mono, courier`
+        ctx.fillRect(25 + i * width, (pheight - 25) - height, width - 1, height)
+
+        label = (bin_size * i + min).toFixed(1)
+        // use option name for checkboxes, selects, dropdowns
+        let label_shift = 0
+        if (select)
+        {
+            label = dal.meta[key].options[i]
+            if (typeof label === 'boolean')
+            {
+                label = label ? 'Yes' : 'No'
+            }
+            label_shift = width / 2
+        }
+        text_width = ctx.measureText(label).width
+        ctx.fillText(label, 25 + i * width - text_width / 2 + label_shift, pheight - 10)
+
+        ctx.stroke()
+    }
+
+    // add a label at the end
+    if (!select)
+    {
+        ctx.beginPath()
+        ctx.fillStyle = 'gray'
+        ctx.font = `20px mono, courier`
+        label = (max).toFixed(1)
+        text_width = ctx.measureText(label).width
+        ctx.fillText(label, pwidth - 25 - text_width / 2, pheight - 10)
+        ctx.stroke()
+    }
+}
+
+function find_bin()
+{
+    // TODO highlight teams in selected bin
 }

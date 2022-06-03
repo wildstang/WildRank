@@ -34,7 +34,7 @@ function check_teams(teams, match_teams)
  * returns:     default selection
  * description: Populates the left options list with matches.
  * 
- * Pages: Match/Note Scout, Whiteboard, Match Summaries, Coach View
+ * Pages: Match Scout, Whiteboard, Match Summaries, Coach View
  */
 function populate_matches(finals=true, complete=true, team_filter='', secondary=false)
 {

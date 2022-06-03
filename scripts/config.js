@@ -1,5 +1,5 @@
 /**
- * file:        new-config.js
+ * file:        config.js
  * description: Contains config object for importing and accessing config files.
  * author:      Liam Fruzyna
  * date:        2022-05-01
@@ -368,8 +368,8 @@ class Config
             return this.check_property(c, 'draw_color', 'string') && this.check_property(c, 'field_height', 'number') && this.check_property(c, 'field_height_ft', 'number') &&
                 this.check_property(c, 'field_height_px', 'number') && this.check_property(c, 'field_width', 'number') && this.check_property(c, 'horizontal_margin', 'number') &&
                 this.check_property(c, 'line_width', 'number') && this.check_property(c, 'magnet_size', 'number') && this.check_property(c, 'vertical_margin', 'number') &&
-                Array.isArray(c.game_pieces) && typeof c.blue_1 === 'object' && typeof c.blue_2 === 'object' && typeof c.blue_3 === 'object' &&
-                typeof c.red_1 === 'object' && typeof c.red_2 === 'object' && typeof c.red_3 === 'object'
+                Array.isArray(c.game_pieces) && typeof c.blue_1 === 'object' && typeof c.blue_2 === 'object' && typeof c.blue_0 === 'object' &&
+                typeof c.red_1 === 'object' && typeof c.red_2 === 'object' && typeof c.red_0 === 'object'
         }
         console.log('Invalid whiteboard object')
         return false

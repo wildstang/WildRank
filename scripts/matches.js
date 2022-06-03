@@ -133,5 +133,5 @@ function open_match(match_num)
  */
 function can_edit(match_num, team_num)
 {
-    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === user_id || cfg.admins.includes(parseInt(user_id))
+    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === user_id || cfg.users.admins.includes(parseInt(user_id))
 }
