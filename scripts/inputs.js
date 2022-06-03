@@ -51,6 +51,11 @@ class Element
     { 
         return this.description ? `<small class="wr_description">${this.description}</small>` : ''
     }
+    
+    get header()
+    {
+        return this.html_label + this.html_description
+    }
 }
 
 class PageFrame extends Element
@@ -75,7 +80,7 @@ class PageFrame extends Element
     get toString()
     {
         return `<div id="${this.id}" class="page ${this.top_margin ? '' : 'no_top_margin'}">
-                ${this.html_label}
+                ${this.header}
                 ${this.columns.map(i => typeof i === 'string' ? i : i.toString).join('')}
             </div>`
     }
@@ -102,7 +107,7 @@ class ColumnFrame extends Element
     get toString()
     {
         return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
-                ${this.html_label}
+                ${this.header}
                 ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
             </div>`
     }
@@ -139,7 +144,7 @@ class Button extends Element
         {
             actions += `oncontextmenu="return false" onauxclick="${this.onright}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.onhold}')"`
         }
-        return `<div id="${this.id}-container" class="wr_button ${this.classes.join(' ')}" ${actions}>
+        return `${this.html_description}<div id="${this.id}-container" class="wr_button ${this.classes.join(' ')}" ${actions}>
                 <label id="${this.id}">${this.label}</label>
             </div>`
     }
@@ -195,7 +200,7 @@ class MultiButton extends Element
 
     get toString()
     {
-        return `${this.html_label}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
     }
 }
 
@@ -223,7 +228,7 @@ class StatusTile extends Element
 
     get toString()
     {
-        return `<div class="wr_status"><label class="status_text">${this.label}</label><span class="color_box" id="${this.id}" style="background-color: ${this.color}"></span></div>`
+        return `${this.html_description}<div class="wr_status"><label class="status_text">${this.label}</label><span class="color_box" id="${this.id}" style="background-color: ${this.color}"></span></div>`
     }
 
     set status(status)
@@ -285,7 +290,7 @@ class Checkbox extends Input
         {
             this.classes.push('selected')
         }
-        return `<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}')">
+        return `${this.html_description}<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}')">
                 <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" name="${this.label}" ${this.def ? 'checked' : ''}>
                 <label for="${this.id}" onclick="this.parentNode.click()">${this.label}</label>
             </div>`
@@ -338,7 +343,7 @@ class Counter extends Input
 
     get toString()
     {
-        return `<div class="wr_counter ${this.classes.join(' ')}" onclick="increment('${this.id}', false, '${this.onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}', true, '${this.ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}\\', true, \\'${this.ondecr.replace(/'/g, '\\\\\'')}\\')')">
+        return `${this.html_description}<div class="wr_counter ${this.classes.join(' ')}" onclick="increment('${this.id}', false, '${this.onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}', true, '${this.ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}\\', true, \\'${this.ondecr.replace(/'/g, '\\\\\'')}\\')')">
                 <label class="wr_counter_count" id="${this.id}">${this.def}</label>
                 <label>${this.label}</label>
             </div>`
@@ -403,7 +408,7 @@ class MultiCounter extends Input
 
     get toString()
     {
-        return `${this.html_label}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
     }
 }
 
@@ -453,7 +458,7 @@ class Entry extends Input
         {
             this.add_class('wr_string')
         }
-        return `${this.html_label}${this.html_description}${prefix}<input class="${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>${postfix}`
+        return `${this.header}${prefix}<input class="${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>${postfix}`
     }
 
     update_color()
@@ -486,7 +491,7 @@ class Extended extends Input
 
     get toString()
     {
-        return `${this.html_label}${this.html_description}<textarea class="wr_text" id="${this.id}">${this.def}</textarea>`
+        return `${this.header}<textarea class="wr_text" id="${this.id}">${this.def}</textarea>`
     }
 }
 
@@ -512,7 +517,7 @@ class Slider extends Entry
 
     get toString()
     {
-        return `${this.html_label}${this.html_description}<div id="${this.id}_container" class="wr_slider ${this.classes.join(' ')}"><input id="${this.id}" type="range" class="wr_slider_range" value="${this.def}" oninput="Slider.update_slider_text('${this.id}'); ${this.oninput}" ${this.bounds}></div>`
+        return `${this.header}<div id="${this.id}_container" class="wr_slider ${this.classes.join(' ')}"><input id="${this.id}" type="range" class="wr_slider_range" value="${this.def}" oninput="Slider.update_slider_text('${this.id}'); ${this.oninput}" ${this.bounds}></div>`
     }
 
     set slider(value)
@@ -635,7 +640,7 @@ class Select extends OptionedInput
 
     get toString()
     {
-        return `${this.html_label}${this.html_description}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
     }
 
     get selected_option()
@@ -717,7 +722,7 @@ class Dropdown extends OptionedInput
 
     get toString()
     {
-        return `${this.html_label}${this.html_description}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.onclick}">${this.html_options}</select>`
+        return `${this.header}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.onclick}">${this.html_options}</select>`
     }
 }
 
