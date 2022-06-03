@@ -268,8 +268,8 @@ function init() {
     }
 
     let names = Object.keys(game_pieces)
-    let button = build_multi_button('add_game_piece', 'Add Game Piece', names, names.map(name => `add_game_piece('${name}')`))
-    document.getElementById('add_element_container').innerHTML = button
+    let button = new MultiButton('add_game_piece', 'Add Game Piece', names, names.map(name => `add_game_piece('${name}')`))
+    document.getElementById('add_element_container').innerHTML = button.toString
 
     window.requestAnimationFrame(draw);
 }

@@ -147,11 +147,11 @@ class Button extends Element
 
 class MultiButton extends Element
 {
-    constructor(id, label)
+    constructor(id, label, options=[], onclicks=[])
     {
         super(id, label)
-        this.options = []
-        this.onclicks = []
+        this.options = options
+        this.onclicks = onclicks
         this.onrights = []
         this.onholds = []
     }
