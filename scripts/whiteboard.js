@@ -40,8 +40,6 @@ var draw_heatmap = true
 var mouseDown = false
 var hasChanged = true
 
-var wb = {}
-
 // playback status
 const STOPPED  = 0
 const RUNNING  = 1
@@ -52,39 +50,46 @@ var status = STOPPED
 
 /**
  * function:    open_match
- * parameters:  selected match number
+ * parameters:  selected match key
  * returns:     none
  * description: Updates robot images with selected match.
  */
-function open_match(match_num)
+function open_match(match_key)
 {
     deselect_all()
     
-    let match = parse_match(match_num, event_id)
-    let match_div = document.getElementById(`match_${match_num}`)
+    let match_div = document.getElementById(`match_option_${match_key}`)
     if (match_div != null)
     {
-        let red_teams = match.alliances.red.team_keys
-        let blue_teams = match.alliances.blue.team_keys
-
         // update avatars
         bot_images = {}
-        for (let i in red_teams)
+        let teams = dal.get_match_teams(match_key)
+        let keys = dal.get_team_keys()
+        let red_teams = new ColumnFrame('red_teams', 'Red Teams')
+        let blue_teams = new ColumnFrame('blue_teams', 'Blue Teams')
+        for (let team of Object.keys(teams))
         {
-            let pos = `red_${parseInt(i)+1}`
-            bot_images[pos] = new Image()
-            document.getElementById(pos).value = red_teams[i].substr(3)
+            let entry = new Entry(team, keys[team], teams[team])
+            entry.type = 'number'
+            entry.bounds = [0, 10000]
+            entry.on_text_change = 'update_teams()'
+            if (team.startsWith('red'))
+            {
+                red_teams.add_input(entry)
+            }
+            else if (team.startsWith('blue'))
+            {
+                blue_teams.add_input(entry)
+            }
+            
+            bot_images[team] = new Image()
         }
-        for (let i in blue_teams)
-        {
-            let pos = `blue_${parseInt(i)+1}`
-            bot_images[pos] = new Image()
-            document.getElementById(pos).value = blue_teams[i].substr(3)
-        }
+
+        document.getElementById('teams').innerHTML = red_teams.toString + blue_teams.toString
 
         update_teams()
 
-        fetch_zebra(match.key)
+        fetch_zebra(match_key)
 
         // select option
         match_div.classList.add('selected')
@@ -152,7 +157,7 @@ function set_path_type()
             draw_trace = true
             break
         // both
-        case 2:
+        case 2:cfg.whiteboard
             draw_heatmap = true
             draw_trace = true
             break
@@ -251,14 +256,14 @@ function init() {
     let bi_names = Object.keys(bot_images)
     for (let pos of bi_names)
     {
-        create_magnet(wb[pos].x / scale_factor, wb[pos].y / scale_factor, bot_images[pos], wb[pos].color)
+        create_magnet(cfg.whiteboard[pos].x / scale_factor, cfg.whiteboard[pos].y / scale_factor, bot_images[pos], cfg.whiteboard[pos].color)
     }
 
     // determine game piece by game
-    for (let piece of wb.game_pieces)
+    for (let piece of cfg.whiteboard.game_pieces)
     {
         let image = new Image()
-        image.src = `config/${piece.image}`
+        image.src = `assets/${piece.image}`
         game_pieces[piece.name] = image
     }
 
@@ -433,10 +438,23 @@ function mouse_move(evt) {
 function fetch_zebra(match_key)
 {
     match_plots = []
-
+    
     if (!TBA_KEY)
     {
-        return
+        let file = cfg.keys
+        if (file != null)
+        {
+            if (cfg.keys.hasOwnProperty('tba'))
+            {
+                TBA_KEY = cfg.keys.tba
+            }
+        }
+        if (!TBA_KEY)
+        {
+            document.getElementById('playback').style.display = 'none'
+            console.log('No API key found for TBA!')
+            return
+        }
     }
 
     // fetch zebra match data
@@ -524,14 +542,14 @@ function plot_zebra(team)
         // get points and color for position
         let pos = Object.keys(bot_images)[team]
         let parts = pos.split('_')
-        let color = wb[pos].color
+        let color = cfg.whiteboard[pos].color
         let num = document.getElementById(pos).value
 
         // find heatmap for team
         if (draw_heatmap)
         {
             heatmap = heatmaps[num]
-            hm_color = wb[pos].color
+            hm_color = cfg.whiteboard[pos].color
         }
 
         let points = match_plots.alliances[parts[0]].filter(t => t.team_key == `frc${num}`)[0]
@@ -669,9 +687,9 @@ async function play_match()
  */
 function scale_coord(x, y, add_margin=true, invert_x=true)
 {
-    let xm = add_margin ? wb.horizontal_margin : 0
-    let ym = add_margin ? wb.vertical_margin : 0
-    let ft2px = wb.field_height_px / wb.field_height_ft
+    let xm = add_margin ? cfg.whiteboard.horizontal_margin : 0
+    let ym = add_margin ? cfg.whiteboard.vertical_margin : 0
+    let ft2px = cfg.whiteboard.field_height_px / cfg.whiteboard.field_height_ft
     let scaled = { x: (xm + x * ft2px) / scale_factor, y: (ym + y * ft2px) / scale_factor }
     if (invert_x) {
         scaled.x = field_width - scaled.x
@@ -731,57 +749,38 @@ function mouse_up(evt)
  * returns:     matches
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
     // fill in page template
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
 
-    wb = get_wb_config(year)
-
     let first = populate_matches()
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
-    {
-        let teams = JSON.parse(localStorage.getItem(file_name)).map(t => t.team_number)
-        teams.unshift('')
-        add_dropdown_filter('team_filter', teams, 'hide_matches()')
-    }
+    add_dropdown_filter('team_filter', [''].concat(Object.keys(dal.teams)), 'hide_matches()')
     if (first)
     {
-        // load in match data
-        let matches = JSON.parse(localStorage.getItem(`matches-${event_id}`))
-        let red_buttons = matches[0].alliances.red.team_keys.map(function (team, i)
-        {
-            return build_num_entry(`red_${i+1}`, `Red ${i+1}`, '', bounds=[0, 10000])
-        })
-        let blue_buttons = matches[0].alliances.blue.team_keys.map(function (team, i)
-        {
-            return build_num_entry(`blue_${i+1}`, `Blue ${i+1}`, '', bounds=[0, 10000])
-        })
-        blue_buttons.push(build_button('update_teams', 'Update Teams', 'update_teams()'))
-        
+        let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
+        draw_drag.onclick = 'draw_drag()'
+        let path_type = new Select('path_type', 'Path Type', ['Heatmap', 'Trace', 'Both'], 'Heatmap')
+        path_type.onselect = 'set_path_type()'
+        let clear_lines = new Button('clear_lines', 'Clear Lines', 'clear_whiteboard()')
+        let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'init()')
+        let controls = new ColumnFrame('', '', ['<span id="add_element_container"></span>', draw_drag, clear_lines, reset_whiteboard])
+
+        let play_match = new Button('play_match', 'Play', 'pause_match()')
+        let playback_speed = new Slider('playback_speed', 'Play at', 10)
+        playback_speed.bounds = [1, 50, 1]
+        let match_time = new Slider('match_time', 'Match Time', 1)
+        match_time.bounds = [1, 1, 1]
+        match_time.oninput = 'update_time()'
+        let trail_length = new Slider('trail_length', 'Trail Length', 0)
+        trail_length.bounds = [0, 1, 10]
+        trail_length.oninput = 'update_trail()'
+        let playback = new ColumnFrame('', '', [play_match, playback_speed, match_time, trail_length])
+
         buttons_container.innerHTML = '<br>' +
-            build_page_frame('Controls', [
-                build_column_frame('', [
-                    '<span id="add_element_container"></span>',
-                    build_checkbox('draw_drag', 'Draw on Drag', false, 'draw_drag()'),
-                    build_select('path_type', 'Path Type ', ['Heatmap', 'Trace', 'Both'], 'Heatmap', 'set_path_type()'),
-                    build_button('clear_lines', 'Clear Lines', 'clear_whiteboard()'),
-                    build_button('reset_whiteboard', 'Reset Whiteboard', 'init()')
-                ])
-            ]) +
-            build_page_frame('Playback', [
-                build_column_frame('', [
-                    build_button('play_match', 'Play', 'pause_match()'),
-                    build_slider('playback_speed', 'Play at', 1, 50, 1, 10),
-                    build_slider('match_time', 'Match Time', 1, 1, 1, 1, 'update_time()'),
-                    build_slider('trail_length', 'Trail Length', 0, 1, 10, 0, 'update_trail()')
-                ])
-            ], true, 'playback') +
-            build_page_frame('Team Avatars', [
-                build_column_frame('Red Teams', red_buttons),
-                build_column_frame('Blue Teams', blue_buttons)
-            ])
+            new PageFrame('controls', 'Controls', [controls]).toString +
+            new PageFrame('playback', 'Playback', [playback]).toString +
+            new PageFrame('teams_page', 'Teams', ['<span id="teams"></span>']).toString
         
         open_match(first)
 
@@ -818,8 +817,8 @@ function init_canvas()
     let preview_height = preview.offsetHeight - 16 - 32 - 8
 
     // determine scaling factor based on most limited dimension
-    let scale_factor_w = wb.field_width / preview_width
-    let scale_factor_h = wb.field_height / preview_height
+    let scale_factor_w = cfg.whiteboard.field_width / preview_width
+    let scale_factor_h = cfg.whiteboard.field_height / preview_height
     let old_scale_factor = scale_factor
     if (scale_factor_w > scale_factor_h)
     {
@@ -831,15 +830,15 @@ function init_canvas()
     }
 
     // get properties from config
-    draw_color = wb.draw_color
-    field_height = wb.field_height / scale_factor
-    field_width = wb.field_width / scale_factor
-    magnet_size = wb.magnet_size / scale_factor
-    line_width = wb.line_width / scale_factor
+    draw_color = cfg.whiteboard.draw_color
+    field_height = cfg.whiteboard.field_height / scale_factor
+    field_width = cfg.whiteboard.field_width / scale_factor
+    magnet_size = cfg.whiteboard.magnet_size / scale_factor
+    line_width = cfg.whiteboard.line_width / scale_factor
 
     // resize canvas
     canvas = document.getElementById('whiteboard')
-    canvas.style.backgroundImage = `url('config/field-${year}.png')`
+    canvas.style.backgroundImage = `url('assets/field-${year}.png')`
     canvas.width = field_width
     canvas.height = field_height
 
