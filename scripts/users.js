@@ -6,9 +6,6 @@
  * date:        2020-06-13
  */
 
-// read parameters from URL
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 var users = {}
 
 /**
@@ -17,33 +14,23 @@ var users = {}
  * returns:     none
  * description: Fetch user results from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
-    if (Object.keys(localStorage).length > 0)
+    let matches = dal.get_results([], false)
+    let pits = dal.get_pits([], false)
+    if (matches.length > 0 || pits.length > 0)
     {
         contents_card.style = 'display: none'
         buttons_container.innerHTML = '<div id="contents"></div>'
         
-        // build list of users and results
-        let files = Object.keys(localStorage)
-        for (let file of files)
-        {
-            if (file.startsWith(`${MATCH_MODE}-${event_id}-`) || file.startsWith(`${PIT_MODE}-${event_id}-`) || file.startsWith(`${NOTE_MODE}-${event_id}-`))
-            {
-                let user = JSON.parse(localStorage.getItem(file)).meta_scouter_id
-                if (users.hasOwnProperty(user))
-                {
-                    users[user].push(file)
-                }
-                else
-                {
-                    users[user] = [file]
-                }
-            }
-        }
+        // build list of users
+        let match_users = matches.map(m => m.meta_scouter_id)
+        let pit_users = pits.map(p => p.meta_scouter_id)
+        let users = match_users.concat(pit_users)
+        users = [... new Set(users)]
         
-        let first = populate_other(Object.keys(users))
-        if (first)
+        let first = populate_other(users)
+        if (first !== '')
         {
             open_option(first)
         }
@@ -62,92 +49,56 @@ function init_page(contents_card, buttons_container)
  */
 function open_option(user_id)
 {
-    // remove selected options
-    let names = Object.keys(users)
-    for (let user of names)
-    {
-        document.getElementById(`option_${user}`).classList.remove('selected')
-    }
-
-    // iterate through each result
-    let total_pit = 0
-    let total_match = 0
-    let total_notes = 0
-    let total_match_delta = 0
-    let total_notes_delta = 0
-    let pits = []
-    let matches = []
-    let notes = []
-    for (let file of users[user_id])
-    {
-        let parts = file.split('-')
-
-        let result = JSON.parse(localStorage.getItem(file))
-        let duration = result.meta_scouting_duration
-        let summary = `${unix_to_match_time(result.meta_scout_time)} for ${duration} secs`
-
-        // build columns for each result type
-        if (parts[0] == PIT_MODE)
-        {
-            pits.push(build_link_button(file, `Team ${parts[2]}`, `open_result('${file}')`))
-            pits.push(build_card('', summary))
-            total_pit += duration
-        }
-        else if (parts[0] == MATCH_MODE)
-        {
-            matches.push(build_link_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
-            let delta = get_delta(parts[2], result.meta_scout_time)
-            matches.push(build_card('', `${delta} secs behind<br>${summary}`))
-            total_match += duration
-            total_match_delta += delta
-        }
-        else if (parts[0] == NOTE_MODE)
-        {
-            notes.push(build_link_button(file, `Match ${parts[2]} Team ${parts[3]}`, `open_result('${file}')`))
-            let delta = get_delta(parts[2], result.meta_scout_time)
-            notes.push(build_card('', `${delta} secs behind<br>${summary}`))
-            total_notes += duration
-            total_notes_delta += delta
-        }
-    }
-
-    let user_class = is_admin(user_id) ? '(admin)' : ''
-
-    if (pits.length > 0)
-    {
-        pits.unshift(build_card('', `<b>${pits.length/2}</b> pits scouted<br><br>Mean Duration: <b>${Math.round(total_pit / (pits.length / 2))}</b> secs`))
-    }
-    else
-    {
-        pits = [build_card('', 'No pits scouted')]
-    }
-    if (matches.length > 0)
-    {
-        matches.unshift(build_card('', `<b>${matches.length/2}</b> matches scouted<br>Mean Delay: <b>${Math.round(total_match_delta / (matches.length / 2))}</b> secs<br>Mean Duration: <b>${Math.round(total_match / (matches.length / 2))}</b> secs`))
-    }
-    else
-    {
-        matches = [build_card('', 'No matches scouted')]
-    }
-    if (notes.length > 0)
-    {
-        notes.unshift(build_card('', `<b>${notes.length/2}</b> match notes taken<br>Mean Delay: <b>${Math.round(total_notes_delta / (notes.length / 2))}</b> secs<br>Mean Duration: <b>${Math.round(total_notes / (notes.length / 2))}</b> secs`))
-    }
-    else
-    {
-        notes = [build_card('', 'No match notes taken')]
-    }
-
-    // build page
-    let table = build_page_frame(`${user_id} ${user_class}`, [
-        build_column_frame('Pits', pits),
-        build_column_frame('Matches', matches),
-        build_column_frame('Notes', notes)
-    ])
-
-    // update page
+    // select option
+    select_all(false)
     document.getElementById(`option_${user_id}`).classList.add('selected')
-    document.getElementById('contents').innerHTML = table
+
+    // get user's results
+    let matches = dal.get_results([], false).filter(m => m.meta_scouter_id === user_id)
+    matches.sort((a, b) => a.meta_scout_time - b.meta_scout_time)
+    let pits = dal.get_pits([], false).filter(m => m.meta_scouter_id === user_id)
+
+    let pos_counts = {}
+    let durations = []
+    let delays = []
+    let time_table = `<table id="time_table"><tr><th>Match</th><th>Team</th><th>Position</th><th>Start Delay</th><th>Duration</th></tr>`
+    for (let match of matches)
+    {
+        let pos = match.meta_position
+        if (!pos_counts.hasOwnProperty(pos))
+        {
+            pos_counts[pos] = 0
+        }
+        pos_counts[pos]++
+
+        durations.push(match.meta_scouting_duration)
+        let actual = dal.get_match_value(match.meta_match_key, 'started_time')
+        if (typeof actual === 'number')
+        {
+            delays.push(actual - match.meta_scout_time)
+        }
+        else
+        {
+            delays.push(0)
+        }
+        time_table += `<tr><td>${dal.get_match_value(match.meta_match_key, 'short_match_name')}</td><td>${match.meta_team}</td><td>${match.meta_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_scouting_duration.toFixed()}s</td></tr>`
+    }
+    time_table += `<tr><th>Averages</th><td>${mean(delays).toFixed()}s</td><td>${mean(durations).toFixed()}s</td></tr></table>`
+    
+    let pos_table = '<table id="pos_table"><tr><th>Position</th><th>Matches Scouted</th></tr>'
+    for (let pos in pos_counts)
+    {
+        pos_table += `<tr><td>${pos}</td><td>${pos_counts[pos]}</tr>`
+    }
+    pos_table += '</table>'
+
+    let card = new Card('user_card', `${user_id} has scouted <b>${matches.length} matches</b> and <b>${pits.length} pits</b>.`)
+    card.limitWidth = true
+    let pos_card = new Card('pos_card', pos_table)
+    pos_card.limitWidth = true
+    let time_card = new Card('time_card', time_table)
+    
+    document.getElementById('contents').innerHTML = new PageFrame('', '', [card, pos_card, time_card]).toString
 }
 
 /**
@@ -179,9 +130,5 @@ function get_delta(match_num, scout_time)
 function open_result(file)
 {
     let type = file.split('-')[0]
-    if (type == 'notes')
-    {
-        file = ''
-    }
     return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: type, 'file': file})
 }
