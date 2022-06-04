@@ -751,6 +751,25 @@ class DAL
                     }
                     result[id] = total
                     break
+                case 'math':
+                    let math_fn = stat.math
+                    let matches = math_fn.match(/[a-z][a-z0-9_]+/g)
+                    if (matches)
+                    {
+                        for (let m of matches)
+                        {
+                            math_fn = math_fn.replace(m, result[m])
+                        }
+                    }
+                    try
+                    {
+                        result[id] = eval(math_fn)
+                    }
+                    catch (err)
+                    {
+                        result[id] = 0
+                    }
+                    break
                 case 'percent':
                     result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
                     if (isNaN(result[id]))

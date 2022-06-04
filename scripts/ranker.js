@@ -7,7 +7,7 @@
  *              2021-11-19
  */
 
-const STAT_TYPES = ['Sum', 'Percent', 'Ratio', 'Where']
+const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where']
 
 /**
  * function:    init_page
@@ -28,7 +28,7 @@ function init_page()
     let name = new Entry('name', 'Name', 'New Stat')
     builder_col.add_input(name)
 
-    let type = new Select('type', 'Type', STAT_TYPES, 'Sum')
+    let type = new Select('type', 'Type', STAT_TYPES, 'Math')
     type.onselect = 'update_params()'
     builder_col.add_input(type)
 
@@ -85,6 +85,22 @@ function update_params()
             }
             html += page.toString
             break
+        case 'Math':
+            let math = new Extended('math', 'Math Function')
+            math.on_text_change = 'calculate()'
+            let operators = new MultiButton('operators', 'Operators', ['+', '-', '*', '/'],
+                [`add_operator('+')`, `add_operator('-')`, `add_operator('*')`, `add_operator('/')`])
+            let keys_dropdown = new Dropdown('keys', 'Keys')
+            keys_dropdown.onselect = 'add_key()'
+            for (let i in keys)
+            {
+                keys_dropdown.add_option(dal.get_name(keys[i]))
+            }
+            html += new PageFrame('', '', [
+                new ColumnFrame('', '', [math]),
+                new ColumnFrame('', '', [operators, keys_dropdown]),
+            ]).toString
+            break
         case 'Percent':
             keys = keys.map(k => dal.get_name(k))
             let percent = new Dropdown('numerator', 'Percent Value', keys)
@@ -139,6 +155,32 @@ function update_params()
     calculate()
 }
 
+/**
+ * function:    add_operator
+ * parameters:  operator string
+ * returns:     none
+ * description: Adds a given operator to the text box then calculates.
+ */
+function add_operator(op)
+{
+    let box = document.getElementById('math')
+    box.value += `${op} `
+    calculate()
+}
+
+/**
+ * function:    add_key
+ * parameters:  none
+ * returns:     none
+ * description: Adds the selected key to the text box then calculates.
+ */
+function add_key()
+{
+    let box = document.getElementById('math')
+    let index = document.getElementById('keys').selectedIndex
+    box.value += `${dal.get_result_keys(false, ['number', 'counter', 'slider'])[index].split('.')[1]} `
+    calculate()
+}
 
 /**
  * function:    build_stat
@@ -178,6 +220,9 @@ function build_stat()
             }
             stat.negative = !pos
             stat.keys = keys
+            break
+        case 'Math':
+            stat.math = document.getElementById('math').value.replace(/\s/g, '').toLowerCase()
             break
         case 'Percent':
         case 'Ratio':
