@@ -753,18 +753,37 @@ class DAL
                     break
                 case 'math':
                     let math_fn = stat.math
-                    let matches = math_fn.match(/[a-z][a-z0-9_]+/g)
-                    if (matches)
+                    // pull constants first so they aren't picked up as 2 keys
+                    let constants = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
+                    if (constants)
                     {
-                        for (let m of matches)
+                        let team = result['meta_team']
+                        for (let c of constants)
                         {
-                            math_fn = math_fn.replace(m, result[m])
+                            let parts = c.split('.')
+                            if (this.teams[team].hasOwnProperty(parts[0]) && this.teams[team][parts[0]].hasOwnProperty(parts[1]))
+                            {
+                                math_fn = math_fn.replace(c, this.get_value(team, c))
+                            }
                         }
                     }
+                    let keys = math_fn.match(/[a-z][a-z0-9_]+/g)
+                    if (keys)
+                    {
+                        for (let k of keys)
+                        {
+                            if (result.hasOwnProperty(k))
+                            {
+                                math_fn = math_fn.replace(k, result[k])
+                            }
+                        }
+                    }
+                    console.log(math_fn)
                     try
                     {
                         result[id] = eval(math_fn)
                     }
+                    // if the JS is not valid just make it 0
                     catch (err)
                     {
                         result[id] = 0
@@ -962,7 +981,7 @@ class DAL
             let results = this.teams[team.toString()].results.filter(r => r.meta_match_key === match_key)
             if (results.length === 1 && results[0].hasOwnProperty(id))
             {
-                let meta = dal.meta['results.' + id]
+                let meta = this.meta['results.' + id]
                 let val = results[0][id]
                 if (map)
                 {

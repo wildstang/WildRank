@@ -63,6 +63,7 @@ function update_params()
     // add appropriate inputs for the selected type
     let html = ''
     let keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
+    let constants = dal.get_keys(false, true, true, true, ['number'])
     switch (type)
     {
         case 'Sum':
@@ -88,17 +89,28 @@ function update_params()
         case 'Math':
             let math = new Extended('math', 'Math Function')
             math.on_text_change = 'calculate()'
-            let operators = new MultiButton('operators', 'Operators', ['+', '-', '*', '/'],
-                [`add_operator('+')`, `add_operator('-')`, `add_operator('*')`, `add_operator('/')`])
-            let keys_dropdown = new Dropdown('keys', 'Keys')
+            let operators = new MultiButton('operators', 'Operators', ['+', '-', '*', '/', '%', 'π', ',', ')', 'b^n', '√x', 'Min', 'Max'],
+                [`add_operator('+')`, `add_operator('-')`, `add_operator('*')`, `add_operator('/')`,
+                `add_operator('%')`, `add_operator('Math.PI')`, `add_operator(',')`, `add_operator(')')`,
+                `add_operator('Math.pow(')`, `add_operator('Math.sqrt(')`, `add_operator('Math.min(')`, `add_operator('Math.max(')`])
+            operators.description = 'Math stats do not exclusively require these operators. Any valid JS operations should work.'
+            operators.columns = 4
+            let keys_dropdown = new Dropdown('keys', 'Match Keys', [''])
             keys_dropdown.onselect = 'add_key()'
+            let constants_dropdown = new Dropdown('constants', 'Team Constants', [''])
+            constants_dropdown.onselect = 'add_constant()'
             for (let i in keys)
             {
                 keys_dropdown.add_option(dal.get_name(keys[i]))
             }
+            for (let i in constants)
+            {
+                constants_dropdown.add_option(dal.get_name(constants[i]))
+            }
             html += new PageFrame('', '', [
                 new ColumnFrame('', '', [math]),
-                new ColumnFrame('', '', [operators, keys_dropdown]),
+                new ColumnFrame('', '', [operators]),
+                new ColumnFrame('', '', [keys_dropdown, constants_dropdown]),
             ]).toString
             break
         case 'Percent':
@@ -164,7 +176,7 @@ function update_params()
 function add_operator(op)
 {
     let box = document.getElementById('math')
-    box.value += `${op} `
+    box.value += op
     calculate()
 }
 
@@ -178,7 +190,29 @@ function add_key()
 {
     let box = document.getElementById('math')
     let index = document.getElementById('keys').selectedIndex
-    box.value += `${dal.get_result_keys(false, ['number', 'counter', 'slider'])[index].split('.')[1]} `
+    if (index === 0)
+    {
+        return
+    }
+    box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
+    calculate()
+}
+
+/**
+ * function:    add_constant
+ * parameters:  none
+ * returns:     none
+ * description: Adds the selected key to the text box then calculates.
+ */
+function add_constant()
+{
+    let box = document.getElementById('math')
+    let index = document.getElementById('constants').selectedIndex
+    if (index === 0)
+    {
+        return
+    }
+    box.value += dal.get_keys(false, true, true, true, ['number'])[index-1]
     calculate()
 }
 
@@ -222,7 +256,7 @@ function build_stat()
             stat.keys = keys
             break
         case 'Math':
-            stat.math = document.getElementById('math').value.replace(/\s/g, '').toLowerCase()
+            stat.math = document.getElementById('math').value.replace(/\s/g, '')
             break
         case 'Percent':
         case 'Ratio':
