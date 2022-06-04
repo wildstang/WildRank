@@ -159,6 +159,7 @@ class MultiButton extends Element
         this.onclicks = onclicks
         this.onrights = []
         this.onholds = []
+        this.columns = 2
     }
 
     add_option(option, onclick, onsecondary='')
@@ -176,7 +177,7 @@ class MultiButton extends Element
         for (let i in this.options)
         {
             let op_name = this.options[i]
-            if (this.options.length > 3 && !this.vertical && i % 2 == 0 && i != 0)
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
                 rows.push('')
             }
@@ -356,6 +357,7 @@ class MultiCounter extends Input
     {
         super(id, label, def)
         this.options = options
+        this.columns = 2
     }
 
     add_option(option, def=0)
@@ -374,7 +376,7 @@ class MultiCounter extends Input
         for (let i in this.options)
         {
             let op_name = this.options[i]
-            if (this.options.length > 3 && !this.vertical && i % 2 == 0 && i != 0)
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
                 rows.push('')
             }
@@ -603,6 +605,7 @@ class Select extends OptionedInput
     constructor(id, label, options=[], def='')
     {
         super(id, label, options, def)
+        this.columns = 2
     }
 
     set onselect(onselect)
@@ -617,7 +620,7 @@ class Select extends OptionedInput
         for (let index in this.options)
         {
             let op_name = this.options[index]
-            if (this.options.length > 3 && !this.vertical && index % 2 == 0 && index != 0)
+            if (this.options.length >= this.columns && !this.vertical && index % this.columns == 0 && index != 0)
             {
                 rows.push('')
             }
