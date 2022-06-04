@@ -487,11 +487,12 @@ class Extended extends Input
     constructor(id, label, def='')
     {
         super(id, label, def)
+        this.on_text_change = ''
     }
 
     get toString()
     {
-        return `${this.header}<textarea class="wr_text" id="${this.id}">${this.def}</textarea>`
+        return `${this.header}<textarea class="wr_text" id="${this.id}" onKeyUp="${this.on_text_change}">${this.def}</textarea>`
     }
 }
 
@@ -620,7 +621,7 @@ class Select extends OptionedInput
             {
                 rows.push('')
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() == this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="select_option('${this.id}', '${index}'); ${this.onclick}">
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() == this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="Select.select_option('${this.id}', '${index}'); ${this.onclick}">
                     <label>${op_name}</label>
                 </span>`
         }
