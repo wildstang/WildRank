@@ -6,6 +6,8 @@
  * date:        2020-03-19
  */
 
+include('picklists-core')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container

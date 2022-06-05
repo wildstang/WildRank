@@ -6,6 +6,8 @@
  * date:        2020-02-26
  */
 
+include('mini-picklists')
+
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')

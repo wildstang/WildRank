@@ -5,6 +5,8 @@
  * date:        2020-10-05
  */
 
+include('picklists-core')
+
 /**
  * function:    select_list
  * parameters:  selected list name
@@ -53,7 +55,7 @@ function select_list(name='')
  * returns:     none
  * description: Builds HTML elements of all pick lists with buttons.
  */
-function build_pick_lists(list_name='')
+function build_pick_lists(list_name='first_default')
 {
     // don't show picklists UI if there are no lists
     if (list_name !== '')
@@ -61,6 +63,10 @@ function build_pick_lists(list_name='')
         let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
         document.getElementById('pick_lists').innerHTML = lists_text
 
+        if (list_name === 'first_default')
+        {
+            list_name = ''
+        }
         select_list(list_name)
 
         // save to localStorage

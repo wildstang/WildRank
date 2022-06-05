@@ -5,10 +5,6 @@
  * date:        2022-04-03
  */
 
-let inputs = document.createElement('script')
-inputs.src = `scripts/new-inputs.js`
-document.head.appendChild(inputs)
-
 /**
  * function:    init_page
  * parameters:  none

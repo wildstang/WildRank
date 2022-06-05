@@ -5,13 +5,6 @@
  * date:        2020-03-08
  */
 
-if (page != 'picklists')
-{
-    script = document.createElement('script')
-    script.src = `scripts/mini-picklists.js`
-    document.head.appendChild(script)
-}
-
 // respond to keyboard inputs
 document.onkeydown = function(e)
 {

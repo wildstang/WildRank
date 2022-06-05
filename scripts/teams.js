@@ -6,6 +6,8 @@
  * date:        2020-06-13
  */
 
+include('mini-picklists')
+
 // read parameters from URL
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
@@ -27,7 +29,6 @@ function init_page()
                                     <div id="stats_tab"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
         
-        setup_picklists()
         open_option(first)
     }
     else
