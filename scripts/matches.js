@@ -76,7 +76,6 @@ function open_match(match_num)
 
     let number_span = document.getElementById('team_scouting')
     let name_span = document.getElementById('team_name')
-    let buttons = document.getElementById('buttons_container')
 
     // select option
     document.getElementById(`match_option_${match_num}`).classList.add('selected')
@@ -107,7 +106,7 @@ function open_match(match_num)
         let scout_button = new Button('scout_match', 'Scout Match')
         let key = match_num.toLowerCase()
         scout_button.link = `start_scout('${MATCH_MODE}', '${key}', '${team_num}', '${alliance}', false)`
-        buttons.innerHTML = scout_button.toString
+        buttons_container.innerHTML = scout_button.toString
     
         if (dal.is_match_scouted(match_num, team_num))
         {
@@ -115,11 +114,11 @@ function open_match(match_num)
             {
                 let edit_button = new Button('edit_match', 'Edit Match')
                 edit_button.link = `start_scout('${MATCH_MODE}', '${key}', '${team_num}', '${alliance}', true)`
-                buttons.innerHTML += edit_button.toString
+                buttons_container.innerHTML += edit_button.toString
             }
             let result_button = new Button('view_result', 'View Result')
             result_button.link = `open_result('${key}', '${team_num}')`
-            buttons.innerHTML += result_button.toString
+            buttons_container.innerHTML += result_button.toString
         }
     }
     // TODO notes

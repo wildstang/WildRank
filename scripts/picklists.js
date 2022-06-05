@@ -136,7 +136,7 @@ function build_pick_lists(list_name='')
     new_list.add_input(new_button)
 
     // build page
-    document.getElementById('buttons_container').innerHTML = list.toString + new_list.toString
+    buttons_container.innerHTML = list.toString + new_list.toString
     
     // save to localStorage
     dal.save_picklists()

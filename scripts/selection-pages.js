@@ -5,11 +5,6 @@
  * date:        2021-11-05
  */
 
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const prefix = `${type}-${event_id}-`
-const year = event_id.substr(0,4)
-
 /**
  * function:    check_teams
  * parameters:  desired list of teams, teams to check

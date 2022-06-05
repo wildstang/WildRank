@@ -1,13 +1,15 @@
 /**
  * file:        init.js
- * description: Imports appropriate script for desired screen.
+ * description: The first Javascript that runs on any page load.
  * author:      Liam Fruzyna
- * date:        2020-06-20
+ * date:        2022-06-05
  */
 
+// determine the desired page
 var urlParams = new URLSearchParams(window.location.search)
 const page = urlParams.get('page')
 
+// load in requested page
 let script = document.createElement('script')
 script.src = `scripts/${page}.js`
 if (!page)
@@ -16,32 +18,38 @@ if (!page)
 }
 document.head.appendChild(script)
 
-// register service workers
+// register service workers for PWA
 if ('serviceWorker' in navigator)
 {
     navigator.serviceWorker.register('pwa.js')
 }
 
+// pull in event id and determine game year
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const prefix = `${type}-${event_id}-`
 const year = event_id.substr(0,4)
 
 var cfg
 var dal
 
-window.addEventListener('load', function()
+/**
+ * function:    create_config()
+ * parameters:  none
+ * returns:     none
+ * description: Load in Config, then calls on_config() when complete.
+ *              This function is required to be called by all HTML pages after page load.
+ */
+function create_config()
 {
     // load in configs
     cfg = new Config(year)
     cfg.load_configs(0, on_config)
-})
+}
 
 /**
  * function:    on_config()
  * parameters:  none
  * returns:     none
- * description: Load in DAL and build page once there is a config.
+ * description: Load in DAL and build page once there is a config, called by create_config().
  */
 function on_config()
 {
@@ -51,20 +59,4 @@ function on_config()
 
     init_page()
     apply_theme()
-}
-
-/**
- * function:    home()
- * parameters:  none
- * returns:     none
- * description: Opens the appropriate home page, based on the current page.
- */
-function home()
-{
-    let url = 'index.html?page=home'
-    if (page == 'home' || page == 'index' || page == '')
-    {
-        url = 'index.html' 
-    }
-    window_open(url, '_self')
 }

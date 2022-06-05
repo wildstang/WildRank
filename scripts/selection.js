@@ -5,22 +5,12 @@
  * date:        2020-03-08
  */
 
-var urlParams = new URLSearchParams(window.location.search)
-const page = urlParams.get('page')
-
 if (page != 'picklists')
 {
     script = document.createElement('script')
     script.src = `scripts/mini-picklists.js`
     document.head.appendChild(script)
 }
-
-script = document.createElement('script')
-script.src = `scripts/${page}.js`
-document.head.appendChild(script)
-
-var cfg
-var dal
 
 // respond to keyboard inputs
 document.onkeydown = function(e)
@@ -54,12 +44,6 @@ document.onkeydown = function(e)
             }
         }
     }
-}
-
-// register service workers
-if ('serviceWorker' in navigator)
-{
-    navigator.serviceWorker.register('pwa.js')
 }
 
 /**
@@ -204,6 +188,9 @@ function enable_secondary_list()
     document.getElementById('secondary_menu_toggle').style.display = 'block'
 }
 
+var contents_card
+var buttons_container
+
 window.addEventListener('load', function()
 {
     // fix for selection pages being cut off by notch/home bar
@@ -216,31 +203,11 @@ window.addEventListener('load', function()
     else if (iPad) {
         document.body.style.height = "97%"
     }
-    
-    
-    // load in configs
-    cfg = new Config(year)
-    cfg.load_configs(0, on_config)
-})
 
-var contents_card
-var buttons_container
-
-/**
- * function:    on_config()
- * parameters:  none
- * returns:     none
- * description: Load in DAL and build page once there is a config.
- */
-function on_config()
-{
-    // load in data
-    dal = new DAL(event_id)
-    dal.build_teams()
-
+    // save elements of body
     contents_card = document.getElementById('contents_card')
     buttons_container = document.getElementById('buttons_container')
 
-    init_page()
-    apply_theme()
-}
+    // load in configs
+    create_config()
+})
