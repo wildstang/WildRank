@@ -93,7 +93,7 @@ function hide_buttons()
 function create_results()
 {
     // load in appropriate config
-    let mode = [PIT_MODE, MATCH_MODE, NOTE_MODE][get_selected_option('type_form')]
+    let mode = [PIT_MODE, MATCH_MODE, NOTE_MODE][Select.get_selected_option('type_form')]
     let pos = document.getElementById('position').selectedIndex
 
     let min = parseInt(document.getElementById('min_value').value)

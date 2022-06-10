@@ -163,7 +163,7 @@ function toggle_menu(primary_list=true)
     }
 
     // rescale whiteboard
-    if (document.getElementById('whiteboard'))
+    if (document.getElementById('whiteboard') || document.getElementById('canvas'))
     {
         init_canvas()
     }

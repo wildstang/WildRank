@@ -291,7 +291,7 @@ class DAL
      * function:    get_pits
      * parameters:  teams to filter by, sort pits
      * returns:     none
-     * description: Returns a list of pits sorted first by match then position.
+     * description: Returns a list of pits sorted by team.
      */
     get_pits(teams=[], sort=true)
     {
