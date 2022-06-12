@@ -7,6 +7,9 @@ This provided Dockerfile allows the application to easily be run in a continer. 
 docker build . -t wildrank
 ```
 
+This builds with the latest release on Github. To build with a specfic release or master add the release name to the end of line 8 of the Dockerfile.
+
+
 ### Launch App
 ```
 docker run -d --rm              # background, don't save

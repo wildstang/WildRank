@@ -5,9 +5,9 @@ from sys import argv, exit
 import tarfile
 
 # check for valid number of arguments
-if len(argv) != 3:
+if len(argv) < 3 or len(argv) > 4:
 	print('Invalid number of arguments')
-	print('python3 download-latest-tar.py [REPO_OWNER] [REPO_NAME]')
+	print('python3 download-latest-tar.py [REPO_OWNER] [REPO_NAME] [optional RELEASE]')
 	exit(1)
 
 # parse arguments
@@ -16,15 +16,18 @@ REPO_NAME = argv[2]
 TARBALL = '{0}.tar.gz'.format(REPO_NAME)
 
 # get URL of latest release tarball
-latest = ''
-try:
-	latest = get('https://api.github.com/repos/{0}/{1}/releases/latest'.format(REPO_OWNER, REPO_NAME)).json()['tarball_url']
-except KeyError:
-	print('Invalid repo')
-	exit(2)
+if len(argv) == 4:
+	url = f'https://api.github.com/repos/wildstang/WildRank/tarball/{argv[3]}'
+else:
+	url = ''
+	try:
+		url = get(f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest').json()['tarball_url']
+	except KeyError:
+		print('Invalid repo')
+		exit(2)
 
 # download tarball
-urlretrieve(latest, TARBALL)
+urlretrieve(url, TARBALL)
 
 # extract tarball
 tar = tarfile.open(TARBALL)
