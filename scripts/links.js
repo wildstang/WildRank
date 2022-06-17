@@ -184,6 +184,17 @@ function open_coach()
 }
 
 /**
+ * function:    open_edit_coach
+ * parameters:  none
+ * returns:     none
+ * description: Open the drive coach view page.
+ */
+function open_edit_coach()
+{
+    return build_url('index', {'page': 'edit-coach', [EVENT_COOKIE]: dal.event_id})
+}
+
+/**
  * function:    open_settings
  * parameters:  none
  * returns:     none
