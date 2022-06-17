@@ -93,6 +93,29 @@ function create_list()
 }
 
 /**
+ * function:    rename_list
+ * parameters:  none
+ * returns:     none
+ * description: Renames the current picklist.
+ */
+function rename_list()
+{
+    let new_name = document.getElementById('new_name').value
+    let old_name = document.getElementById('list_names').value
+    if (Object.keys(dal.picklists).includes(new_name))
+    {
+        alert(`List "${new_name}" already exists!`)
+    }
+    else
+    {
+        // add empty array of list name
+        dal.picklists[new_name] = dal.picklists[old_name]
+        delete dal.picklists[old_name]
+        build_pick_lists(new_name)
+    }
+}
+
+/**
  * function:    setup_picklists
  * parameters:  none
  * returns:     none

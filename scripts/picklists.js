@@ -132,10 +132,17 @@ function build_pick_lists(list_name='')
     }
 
     let new_list = new ColumnFrame('', 'New Pick List')
-    let new_name = new Entry('pick_list_name', '', 'new pick list')
+    let new_name = new Entry('pick_list_name', '', 'New Pick List')
     new_list.add_input(new_name)
     let new_button = new Button('create_list', 'Create', 'create_list()')
+    new_button.add_class('slim')
     new_list.add_input(new_button)
+    new_list.add_input('<br>')
+    let rename = new Entry('new_name', '', 'New Name')
+    new_list.add_input(rename)
+    let save_name = new Button('rename', `Rename "${list_name}"`, 'rename_list()')
+    save_name.add_class('slim')
+    new_list.add_input(save_name)
 
     // build page
     buttons_container.innerHTML = list.toString + new_list.toString
