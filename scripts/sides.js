@@ -94,8 +94,8 @@ function open_both_teams()
     let rankB = `${dal.get_rank_str(selectedB)}<br>`
 
     // team details
-    let details = `<div id="result_title"><img id="avatar" src="${get_avatar(selectedA, cfg.year)}"> <h2 class="result_name">${selectedA} ${dal.get_value(selectedA, 'meta.name')}</h2><br>${rankA}</div> vs
-        <div id="result_title"><img id="avatar" src="${get_avatar(selectedB, cfg.year)}"> <h2 class="result_name">${selectedB} ${dal.get_value(selectedB, 'meta.name')}</h2><br>${rankB}</div>`
+    let details = `<div id="result_title"><img id="avatar" src="${dal.get_value(selectedA, 'pictures.avatar')}"> <h2 class="result_name">${selectedA} ${dal.get_value(selectedA, 'meta.name')}</h2><br>${rankA}</div> vs
+        <div id="result_title"><img id="avatar" src="${dal.get_value(selectedB, 'pictures.avatar')}"> <h2 class="result_name">${selectedB} ${dal.get_value(selectedB, 'meta.name')}</h2><br>${rankB}</div>`
 
     document.getElementById('value').innerHTML = details
 

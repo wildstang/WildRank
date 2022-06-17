@@ -9,7 +9,6 @@
 // read parameters from URL
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var team = ''
 var generate = ''
 
 /**
@@ -45,8 +44,7 @@ function open_option(team_num)
     deselect_all()
 
     // fill team info
-    team = team_num
-    document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
+    document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
     document.getElementById(`option_${team_num}`).classList.add('selected')

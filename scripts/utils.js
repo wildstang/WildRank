@@ -318,22 +318,6 @@ function scroll_to(container, goal)
 }
 
 /**
- * function:    get_avatar
- * parameters:  team number, year to choose
- * returns:     source of team avatar
- * description: Fetches the team's avatar string from localStorage and return that or the dozer image if it can't be found.
- */
-function get_avatar(team_num, year)
-{
-    let b64img = localStorage.getItem(`avatar-${year}-${team_num}`)
-    if (b64img === null || b64img === 'undefined')
-    {
-        return 'assets/dozer.png'
-    }
-    return `data:image/png;base64,${b64img}`
-}
-
-/**
  * function:    ws
  * parameters:  team number
  * returns:     none

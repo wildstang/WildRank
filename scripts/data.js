@@ -381,7 +381,7 @@ class DAL
                     stats: {},
                     matches: [],
                     results: [],
-                    pictures: []
+                    pictures: {}
                 }
 
                 // add meta data
@@ -518,10 +518,36 @@ class DAL
         let start_pictures = Date.now()
         if (this.load_pictures)
         {
-            let pics_str = localStorage.getItem(`pictures-${this.event_id}`)
+            let pics_str = localStorage.getItem(`photos-${this.event_id}`)
+            let pics = {}
             if (pics_str != null && pics_str != false)
             {
-                let pics = JSON.parse(pics_str)
+                pics = JSON.parse(pics_str)
+            }
+
+            let teams = Object.keys(this.teams)
+            for (let team of teams)
+            {
+                let avatar = localStorage.getItem(`avatar-${this.year}-${team}`)
+                if (avatar === null || avatar === 'undefined')
+                {
+                    avatar = 'assets/dozer.png'
+                }
+                else
+                {
+                    avatar = `data:image/png;base64,${avatar}`
+                }
+
+                let photos = []
+                if (Object.keys(pics).includes(team))
+                {
+                    photos = pics[team]
+                }
+
+                this.teams[team].pictures = {
+                    avatar: avatar,
+                    photos: photos
+                }
             }
         }
 
@@ -894,6 +920,58 @@ class DAL
             }
             return parts.join(' ')
         }
+    }
+
+    /**
+     * function:    get_photo
+     * parameters:  team number
+     * returns:     src for team picture
+     * description: Gets a picture of a given team's robot.
+     */
+    get_photo(team_num)
+    {
+        if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        {
+            let pics = this.teams[team_num].pictures.photos
+            if (pics.length > 0)
+            {
+                return pics[0]
+            }
+        }
+        return ''
+    }
+
+    /**
+     * function:    add_photo
+     * parameters:  team number, photo url 
+     * returns:     none
+     * description: Adds a photo url to a team.
+     */
+    add_photo(team_num, url)
+    {
+        if (this.teams.hasOwnProperty(team_num))
+        {
+            if (!this.teams[team_num].pictures.hasOwnProperty('photos'))
+            {
+                this.teams[team_num].pictures.photos = []
+            }
+            if (!this.teams[team_num].pictures.photos.includes(url))
+            {
+                this.teams[team_num].pictures.photos.push(url)
+            }
+
+            let photos = {}
+            let teams = Object.keys(this.teams)
+            for (let team of teams)
+            {
+                if (this.teams[team].pictures.hasOwnProperty('photos'))
+                {
+                    photos[team] = this.teams[team].pictures.photos
+                }
+            }
+            localStorage.setItem(`photos-${this.event_id}`, JSON.stringify(photos))
+        }
+        return ''
     }
 
     /**

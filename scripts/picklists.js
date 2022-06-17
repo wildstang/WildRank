@@ -55,7 +55,7 @@ function open_option(team_num)
     deselect_all()
 
     // build team header
-    document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0,4))
+    document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
 

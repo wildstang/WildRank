@@ -96,7 +96,7 @@ function open_option(option)
     let result = dal.teams[team].results.filter(r => r.meta_match_key === match)[0]
 
     // setup header
-    document.getElementById('avatar').src = get_avatar(team, event_id.substr(0, 4))
+    document.getElementById('avatar').src = dal.get_value(team, 'pictures.avatar')
     document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, Match ${dal.get_match_value(match, 'match_name')}`
     document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team)

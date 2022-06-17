@@ -105,7 +105,22 @@ function preload_event()
                             return response.json()
                         })
                         .then(data => {
-                            localStorage.setItem(`avatar-${year}-${team.team_number}`, data[0].details.base64Image)
+                            for (let m of data)
+                            {
+                                switch (m.type)
+                                {
+                                    case 'avatar':
+                                        localStorage.setItem(`avatar-${year}-${team.team_number}`, m.details.base64Image)
+                                        break
+                                    case 'cdphotothread':
+                                    case 'imgur':
+                                    case 'instagram-image':
+                                    case 'onshape':
+                                        dal.add_photo(team.team_number, m.direct_url)
+                                        break
+
+                                }
+                            }
                         })
                         .catch(err => {
                         })

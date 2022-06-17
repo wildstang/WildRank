@@ -96,7 +96,7 @@ function open_match(match_num)
         }
 
         // populate team info
-        document.getElementById('avatar').src = get_avatar(team_num, event_id.substr(0, 4))
+        document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
         number_span.innerHTML = team_num
         name_span.innerHTML = dal.get_value(team_num, 'meta.name')
         number_span.style.color = color

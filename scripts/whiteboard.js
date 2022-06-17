@@ -109,7 +109,7 @@ function update_teams()
     let names = Object.keys(bot_images)
     for (let pos of names)
     {
-        bot_images[pos].src = get_avatar(document.getElementById(pos).value, year)
+        bot_images[pos].src = dal.get_value(document.getElementById(pos).value, 'pictures.avatar')
     }
 }
 
