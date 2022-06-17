@@ -72,6 +72,10 @@ function init_page()
     let counter = new Counter('', 'Test Counter')
     counters.add_input(counter)
 
+    let cycler = new Cycler('', 'Test Cycler')
+    cycler.ondecrement = `alert('decrement cycle')`
+    counters.add_input(cycler)
+
     let alertcounter = new Counter('', 'Alert Counter', 5)
     alertcounter.onincrement = `alert('Up')`
     alertcounter.ondecrement = `alert('Down')`

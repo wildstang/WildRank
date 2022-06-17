@@ -351,6 +351,57 @@ class Counter extends Input
     }
 }
 
+class Cycler extends Counter
+{
+    static onincrement(id)
+    {
+        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
+        let max = parseInt(document.getElementById(`${id}-max`).innerHTML)
+        if (val >= max)
+        {
+            document.getElementById(`${id}-max`).innerHTML = val
+            document.getElementById(`${id}-label`).innerHTML = 'Save Cycle'
+        }
+        else
+        {
+            document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
+        }
+        document.getElementById(`${id}-back`).style.display = 'table-cell'
+        document.getElementById(`${id}-back`).innerHTML = 'Last'
+    }
+
+    static ondecrement(id)
+    {
+        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
+        if (val > 0)
+        {
+            document.getElementById(`${id}-back`).style.display = 'table-cell'
+            document.getElementById(`${id}-back`).innerHTML = 'Last'
+        }
+        else
+        {
+            document.getElementById(`${id}-back`).style.display = 'none'
+            document.getElementById(`${id}-back`).innerHTML = ''
+        }
+        document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
+    }
+
+    get toString()
+    {
+        let onincr = `${this.onincr}; Cycler.onincrement(\\'${this.id}\\')`
+        let ondecr = `${this.ondecr}; Cycler.ondecrement(\\'${this.id}\\')`
+        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">
+                <span class="wr_select_option" id="${this.id}-back" onclick="increment('${this.id}-value', true, '${ondecr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', true, '${ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', true, \\'${ondecr.replace(/'/g, '\\\\\'')}\\')')\" style="display: none"></span>
+                <span class="wr_cycle_count" id="${this.id}-count">
+                    <label class="wr_counter_count" id="${this.id}-value">${this.def}</label> <label id="${this.id}-max" style="display: none">${this.def}</label>
+                </span>
+                <span class="wr_select_option" id="${this.id}-save" onclick="increment('${this.id}-value', false, '${onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', false, '${onincr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', false, \\'${onincr.replace(/'/g, '\\\\\'')}\\')')\">
+                    <b id="${this.id}-label">Save Cycle</b>
+                </span>
+            </div>`
+    }
+}
+
 class MultiCounter extends Input
 {
     constructor(id, label, options=[], def=0)

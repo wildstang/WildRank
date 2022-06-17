@@ -180,13 +180,13 @@ function build_page_from_config()
             if (cycle)
             {
                 // create cycle counter, call update_cycle() on change
-                let counter = new Counter(`${column.id}_cycles`, 'Cycles', 0)
+                let cycler = new Cycler(`${column.id}_cycles`, 'Cycles')
                 if (cycle)
                 {
-                    counter.onincrement = `update_cycle('${column.id}', false)`
-                    counter.ondecrement = `update_cycle('${column.id}', true)`
+                    cycler.onincrement = `update_cycle('${column.id}', false)`
+                    cycler.ondecrement = `update_cycle('${column.id}', true)`
                 }
-                col_frame.add_input(counter)
+                col_frame.add_input(cycler)
 
                 // create and populate (if editing) cycle arrays
                 if (edit)
@@ -233,7 +233,7 @@ function build_page_from_config()
 function update_cycle(cycle, decrement)
 {
     // get selected and total number of cycles
-    let cycles_id = `${cycle}_cycles`
+    let cycles_id = `${cycle}_cycles-value`
     let val = parseInt(document.getElementById(cycles_id).innerHTML)
     let last = cycles[cycle].length
 
