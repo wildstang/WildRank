@@ -26,6 +26,7 @@ function init_page()
                                     <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
                                     <h3 id="location"></h3>
                                     <h3 id="ranking"></h3>
+                                    <center><span id="photos"></span></center>
                                     <div id="stats_tab"></div>`
         buttons_container.innerHTML = '<div id="matches"></div>'
         
@@ -54,6 +55,7 @@ function open_option(team_num)
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
     document.getElementById('location').innerHTML = `${dal.get_value(team_num, 'meta.city')}, ${dal.get_value(team_num, 'meta.state_prov')}, ${dal.get_value(team_num, 'meta.country')}`
+    document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
 
     // populate ranking
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team_num)
@@ -75,26 +77,29 @@ function open_option(team_num)
     let max_len = num_match > num_pit ? num_match : num_pit
     for (let i = 0; i < max_len; ++i)
     {
-        stats_tab += '<tr>'
-        if (i < num_pit)
+        if ((i < num_pit && dal.is_pit_scouted(team_num)) || (i < num_match && dal.teams[team_num].results.length > 0))
         {
-            let key = pit_stats[i]
-            stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+            stats_tab += '<tr>'
+            if (i < num_pit && dal.is_pit_scouted(team_num))
+            {
+                let key = pit_stats[i]
+                stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+            }
+            else
+            {
+                stats_tab += '<th></th><td></td>'
+            }
+            if (i < num_match && dal.teams[team_num].results.length > 0)
+            {
+                let key = match_stats[i]
+                stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+            }
+            else
+            {
+                stats_tab += '<th></th><td></td>'
+            }
+            stats_tab += '</tr>'
         }
-        else
-        {
-            stats_tab += '<th></th><td></td>'
-        }
-        if (i < num_match)
-        {
-            let key = match_stats[i]
-            stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
-        }
-        else
-        {
-            stats_tab += '<th></th><td></td>'
-        }
-        stats_tab += '</tr>'
     }
     document.getElementById('stats_tab').innerHTML = stats_tab
 

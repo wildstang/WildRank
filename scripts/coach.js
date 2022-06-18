@@ -148,7 +148,12 @@ function open_teams(match_key)
         }
 
         // make a table of "coach_vals"
-        let coach_tab = `<center>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}</center><br><table>`
+        let image = dal.get_photo_carousel(team_num, '400px')
+        if (image !== '')
+        {
+            image = `<br>${image}`
+        }
+        let coach_tab = `<center>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}${image}</center><br><table>`
         for (let v of vals)
         {
             let stat = dal.get_value(team_num, v.key, v.function, true)

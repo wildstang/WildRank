@@ -942,6 +942,30 @@ class DAL
     }
 
     /**
+     * function:    get_photo_carousel
+     * parameters:  team number
+     * returns:     a carousel of images
+     * description: Builds a carousel of a team's images.
+     */
+    get_photo_carousel(team_num, width='500px')
+    {
+        if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        {
+            let pics = this.teams[team_num].pictures.photos
+            if (pics.length > 0)
+            {
+                let html = `<div id="${team_num}-carousel" style="width: ${width}" class="photo-carousel">`
+                for (let pic of pics)
+                {
+                    html += `<img src="${pic}">`
+                }
+                return html + '</div>'
+            }
+        }
+        return ''
+    }
+
+    /**
      * function:    add_photo
      * parameters:  team number, photo url 
      * returns:     none

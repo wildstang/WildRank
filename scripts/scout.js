@@ -79,6 +79,7 @@ function build_page_from_config()
 {
     let select_ids = []
     // iterate through each page in the mode
+    let body = '<div class="scouting-carousel">'
     for (let page of cfg[scout_mode])
     {
         let page_frame = new PageFrame(page.id, page.name)
@@ -201,12 +202,12 @@ function build_page_from_config()
             }
             page_frame.add_column(col_frame)
         }
-        document.body.innerHTML += page_frame.toString
-        
+        body += page_frame.toString  
     }
     // replace placeholders in template and add to screen
     let submit = new Button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
-    document.body.innerHTML += submit.toString
+    body += '</div>' + submit.toString
+    document.body.innerHTML += body
 
     // mark each selected box as such
     for (let id of select_ids)

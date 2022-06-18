@@ -9,6 +9,10 @@
     :root {
         --input-width: 90vw;
     }
+
+    .photo-carousel {
+        max-width: 350px;
+    }
 }
 
 .page {
@@ -243,4 +247,38 @@
 .thin {
     width: auto;
     min-width: 0;
+}
+
+.photo-carousel, .scouting-carousel {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+}
+
+.photo-carousel > img, .scouting-carousel > .page {
+    scroll-snap-align: start;
+    white-space: normal;
+}
+
+.photo-carousel > img {
+    vertical-align: middle;
+    width: 100%;
+    max-height: 550px;
+    object-fit: cover;
+}
+
+.scouting-carousel > .page {
+    vertical-align: top;
+    width: 100%;
+    padding: 0;
+}
+
+.scouting-carousel > .page > .page_header {
+    margin-right: 0px;
+}
+
+.scouting-carousel > .page > .column {
+    margin-left: calc(var(--input-gap)/2);
+    margin-right: calc(var(--input-gap)/2);
 }

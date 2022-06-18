@@ -22,7 +22,9 @@ function init_page()
     let first = populate_teams(false, true)
     if (first)
     {
-        contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')"> <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>`
+        contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
+            <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
+            <span id="photos"></span>`
         buttons_container.innerHTML = `<div id="view_result"></div>`
         
         open_option(first)
@@ -48,6 +50,7 @@ function open_option(team_num)
     document.getElementById('team_num').innerHTML = team_num
     document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
     document.getElementById(`option_${team_num}`).classList.add('selected')
+    document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
 
     if (document.getElementById('open_result_container') !== null)
     {

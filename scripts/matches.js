@@ -44,7 +44,8 @@ function init_page()
                                     Time: <span id="match_time"></span><br><br>
                                     Scouting: ${alliance} ${pos}<br><br>
                                     ${avatar}
-                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>`
+                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>
+                                    <span id="photos"></span>`
         
         buttons_container.innerHTML = ''
 
@@ -97,6 +98,7 @@ function open_match(match_num)
 
         // populate team info
         document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
+        document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
         number_span.innerHTML = team_num
         name_span.innerHTML = dal.get_value(team_num, 'meta.name')
         number_span.style.color = color
