@@ -88,6 +88,10 @@ async def manifest():
 async def favicon():
     return 'favicon.ico'
 
+@app.get('/uploads/{file}.png', response_class=FileResponse)
+async def image(file):
+    return f'{UPLOAD_PATH}{file}.png'
+
 
 # build about page
 @app.get('/about', response_class=HTMLResponse)
@@ -156,6 +160,11 @@ class POSTResponse(BaseModel):
     success: bool
     count: int
 
+# Object representing what is returned in response to a POST request
+class PhotoPOSTResponse(BaseModel):
+    success: bool
+    name: str
+
 
 # response to POST requests containing base64 encoded zip data
 @app.post('/', response_model=POSTResponse)
@@ -184,6 +193,28 @@ async def post(request: Request):
     return {
         'success': success,
         'count': files
+    }
+
+# response to POST requests containing base64 encoded zip data
+@app.post('/photo/{team_num}', response_model=PhotoPOSTResponse)
+async def post(team_num, request: Request):
+    post_data = await request.body()
+
+    # determine file name
+    num = 0
+    file = f'{UPLOAD_PATH}{team_num}-{num}.png'
+    while exists(file):
+        num += 1
+        file = f'{UPLOAD_PATH}{team_num}-{num}.png'
+
+    # save image
+    with open(file, 'wb') as f:
+        f.write(b64decode(post_data))
+    
+    # send response
+    return {
+        'success': True,
+        'name': file
     }
 
 

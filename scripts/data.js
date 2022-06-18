@@ -967,11 +967,11 @@ class DAL
 
     /**
      * function:    add_photo
-     * parameters:  team number, photo url 
+     * parameters:  team number, photo url, add to front of list
      * returns:     none
      * description: Adds a photo url to a team.
      */
-    add_photo(team_num, url)
+    add_photo(team_num, url, front=false)
     {
         if (this.teams.hasOwnProperty(team_num))
         {
@@ -981,7 +981,14 @@ class DAL
             }
             if (!this.teams[team_num].pictures.photos.includes(url))
             {
-                this.teams[team_num].pictures.photos.push(url)
+                if (front)
+                {
+                    this.teams[team_num].pictures.photos.unshift(url)
+                }
+                else
+                {
+                    this.teams[team_num].pictures.photos.push(url)
+                }
             }
 
             let photos = {}

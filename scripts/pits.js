@@ -10,6 +10,7 @@
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var generate = ''
+var streaming = false
 
 /**
  * function:    init_page
@@ -22,10 +23,17 @@ function init_page()
     let first = populate_teams(false, true)
     if (first)
     {
+        let capture = new Button('capture', 'Capture', 'capture()')
+        capture.add_class('slim')
+
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
             <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
             <span id="photos"></span>`
-        buttons_container.innerHTML = `<div id="view_result"></div>`
+        buttons_container.innerHTML = `<div id="view_result"></div>
+            <div id="camera-container" style="display: none">
+                <video id="camera-preview">Video stream not available.</video>
+                ${capture.toString}
+            </div>`
         
         open_option(first)
     }
@@ -67,6 +75,90 @@ function open_option(team_num)
         let edit = new Button('edit_result', 'Edit Results')
         edit.link = `start_scouting('${team_num}', true)`
         result_buttons.innerHTML += edit.toString
+    }
+
+    // setup camera feed
+    if (navigator.mediaDevices)
+    {
+        document.getElementById('capture-container').onclick = function () { capture(`${team_num}`) }
+        document.getElementById('camera-container').style.display = 'block'
+        let video = document.getElementById('camera-preview')
+
+        // get video stream
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
+            .then(function(stream)
+            {
+                video.srcObject = stream
+                video.play()
+            })
+            .catch(function(err)
+            {
+                console.log(err)
+            })
+
+        // initialize camera dimensions, when available
+        video.addEventListener('canplay', function(e)
+        {
+            if (!streaming)
+            {
+                // apply dimensions
+                video.setAttribute('width', video.videoWidth)
+                video.setAttribute('height', video.videoHeight)
+                streaming = true
+            }
+        }, false)
+    }
+}
+
+/**
+ * function:    capture
+ * parameters:  captured team number
+ * returns:     none
+ * description: Saves the current frame of the video, uploads, then adds the pictures list.
+ */
+function capture(team_num)
+{
+    let video = document.getElementById('camera-preview')
+    let canvas = document.createElement('canvas')
+    let context = canvas.getContext('2d')
+    if (streaming)
+    {
+        // get image
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight)
+        let data = canvas.toDataURL('image/png')
+
+        // place image in carousel
+        let carousel = document.getElementById(`${team_num}-carousel`)
+        carousel.innerHTML = `<img src="${data}">` + carousel.innerHTML
+
+        // upload image
+        let addr = parse_server_addr(document.location.href)
+        if (check_server(addr))
+        {
+            let base64 = data.substring(data.indexOf(','))
+            // post string to server
+            fetch(`${addr}/photo/${team_num}`, {method: 'POST', body: base64})
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success)
+                    {
+                        // add image to team photos
+                        dal.add_photo(team_num, `${addr}/${result.name}`, true)
+                        alert('Upload successful!')
+                    }
+                    else
+                    {
+                        alert('Upload unsuccessful!')
+                    }
+                })
+                .catch(e => {
+                    alert('Error uploading!')
+                    console.error(e)
+                })
+        }
+        // TODO cache away image for later upload if no server available
     }
 }
 
