@@ -392,7 +392,7 @@ class Cycler extends Counter
         let ondecr = `${this.ondecr}; Cycler.ondecrement(\\'${this.id}\\')`
         return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">
                 <span class="wr_select_option" id="${this.id}-back" onclick="increment('${this.id}-value', true, '${ondecr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', true, '${ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', true, \\'${ondecr.replace(/'/g, '\\\\\'')}\\')')\" style="display: none"></span>
-                <span class="wr_cycle_count" id="${this.id}-count">
+                <span class="wr_select_option" id="${this.id}-count">
                     <label class="wr_counter_count" id="${this.id}-value">${this.def}</label> <label id="${this.id}-max" style="display: none">${this.def}</label>
                 </span>
                 <span class="wr_select_option" id="${this.id}-save" onclick="increment('${this.id}-value', false, '${onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', false, '${onincr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', false, \\'${onincr.replace(/'/g, '\\\\\'')}\\')')\">
