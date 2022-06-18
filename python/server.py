@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel
 
-import re
+import re, requests, sys
 from os import listdir, remove
 from os.path import getmtime, exists, isfile, join
 from datetime import datetime as dt
@@ -26,9 +26,21 @@ Useful params:
 --workers NUM_WORKERS, default 1
 """
 
-# TODO dynamically determine port
-PORT = 8000
 UPLOAD_PATH = 'uploads/'
+REPORT = True
+REPORT_FILE = 'reports.csv'
+
+
+# pull out parameters for web server
+port = 8000
+if '--port' in sys.argv:
+    try:
+        port = int(sys.argv[sys.argv.index('--port')+1])
+    except:
+        pass
+host = 'localhost'
+if '--host' in sys.argv:
+    host = sys.argv[sys.argv.index('--host')+1]
 
 
 # get time of server start and creation
@@ -37,6 +49,11 @@ try:
     create = getmtime('python/server.py')
 except:
     create = 0
+
+
+# report instance to official instance
+if REPORT:
+    requests.get(url='https://wildrank.wildstang.dev/report', params={'host': host, 'port': port})
 
 
 # create an instance of FastAPI
@@ -93,6 +110,19 @@ async def image(file):
     return f'{UPLOAD_PATH}{file}.png'
 
 
+# save server reports
+@app.get('/report', response_class=HTMLResponse)
+async def report(request: Request, host: str = '', port: int = 0):
+    if not exists(REPORT_FILE):
+        with open(REPORT_FILE, 'w') as f:
+            f.write('IP,Datetime,Host,Port\n')
+
+    with open(REPORT_FILE, 'a') as f:
+        f.write(f'{request.client.host},{dt.now().strftime("%Y-%m-%d %H:%M:%S")},{host},{port}\n')
+
+    return 'Instance reported!'
+
+
 # build about page
 @app.get('/about', response_class=HTMLResponse)
 async def about():
@@ -132,7 +162,9 @@ async def about():
                 <br>\
                 Server Created: {dt.fromtimestamp(create).strftime("%Y-%m-%d %H:%M:%S")}<br>\
                 Up Since: {start.strftime("%Y-%m-%d %H:%M:%S")}<br>\
-                Internal Port: {PORT}<br>\
+                Reporting: {REPORT}<br>\
+                Host: {host}<br>\
+                Internal Port: {port}<br>\
                 {git}\
                 {release}\
                 <br>\
