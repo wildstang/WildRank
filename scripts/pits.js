@@ -23,19 +23,49 @@ function init_page()
     let first = populate_teams(false, true)
     if (first)
     {
-        let capture = new Button('capture', 'Capture', 'capture()')
-        capture.add_class('slim')
-
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
             <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
             <span id="photos"></span>`
         buttons_container.innerHTML = `<div id="view_result"></div>
             <div id="camera-container" style="display: none">
                 <video id="camera-preview">Video stream not available.</video>
-                ${capture.toString}
+                <span id="capture-button"></span>
             </div>`
         
         open_option(first)
+
+        // setup camera feed
+        if (navigator.mediaDevices)
+        {
+            let video = document.getElementById('camera-preview')
+    
+            // get video stream
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
+                .then(function(stream)
+                {
+                    video.srcObject = stream
+                    video.play()
+                })
+                .catch(function(err)
+                {
+                    console.log(err)
+                })
+    
+            // initialize camera dimensions, when available
+            video.addEventListener('canplay', function(e)
+            {
+                if (!streaming)
+                {
+                    // apply dimensions
+                    video.setAttribute('width', video.videoWidth)
+                    video.setAttribute('height', video.videoHeight)
+                    streaming = true
+
+                    // show camera when available
+                    document.getElementById('camera-container').style.display = 'block'
+                }
+            }, false)
+        }
     }
     else
     {
@@ -59,11 +89,6 @@ function open_option(team_num)
     document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
     document.getElementById(`option_${team_num}`).classList.add('selected')
     document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
-
-    if (document.getElementById('open_result_container') !== null)
-    {
-        document.getElementById('open_result_container').remove()
-    }
     
     // show edit/view result buttons
     let result_buttons = document.getElementById('view_result')
@@ -77,37 +102,10 @@ function open_option(team_num)
         result_buttons.innerHTML += edit.toString
     }
 
-    // setup camera feed
-    if (navigator.mediaDevices)
-    {
-        document.getElementById('capture-container').onclick = function () { capture(`${team_num}`) }
-        document.getElementById('camera-container').style.display = 'block'
-        let video = document.getElementById('camera-preview')
-
-        // get video stream
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
-            .then(function(stream)
-            {
-                video.srcObject = stream
-                video.play()
-            })
-            .catch(function(err)
-            {
-                console.log(err)
-            })
-
-        // initialize camera dimensions, when available
-        video.addEventListener('canplay', function(e)
-        {
-            if (!streaming)
-            {
-                // apply dimensions
-                video.setAttribute('width', video.videoWidth)
-                video.setAttribute('height', video.videoHeight)
-                streaming = true
-            }
-        }, false)
-    }
+    // update capture button for new team
+    let capture = new Button('capture', 'Capture', `capture('${team_num}')`)
+    capture.add_class('slim')
+    document.getElementById('capture-button').innerHTML = capture.toString
 }
 
 /**

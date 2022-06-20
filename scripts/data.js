@@ -951,16 +951,16 @@ class DAL
     {
         if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
         {
+            let html = `<div id="${team_num}-carousel" style="width: ${width}" class="photo-carousel">`
             let pics = this.teams[team_num].pictures.photos
             if (pics.length > 0)
             {
-                let html = `<div id="${team_num}-carousel" style="width: ${width}" class="photo-carousel">`
                 for (let pic of pics)
                 {
                     html += `<img src="${pic}">`
                 }
-                return html + '</div>'
             }
+            return html + '</div>'
         }
         return ''
     }
