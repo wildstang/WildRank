@@ -8,7 +8,7 @@ from os import listdir, remove
 from os.path import getmtime, exists, isfile, join
 from datetime import datetime as dt
 from zipfile import ZipFile, ZIP_DEFLATED
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 """
 server.py
@@ -174,17 +174,66 @@ async def about():
         </html>'
 
 
-# build request of data in /uploads
-@app.get('/getZip', response_class=FileResponse)
-async def zip():
+# build a zip archive tmp.zip containing the contents of UPLOAD_PATH
+def build_zip(event_id='', event_data=True, results=True, scout_configs=True, smart_stats=True, coach_config=True, settings=True, picklists=True, whiteboard=True, avatars=True, pictures=True):
+    # determine year from event id
+    year = ''
+    if len(event_id) > 4:
+        year = year[:4]
+
     # zip up uploads directory
     file = 'tmp.zip'
     with ZipFile(file, 'w', ZIP_DEFLATED) as zip:
         for f in listdir(UPLOAD_PATH):
-            if isfile(join(UPLOAD_PATH, f)) and f.endswith('.json'):
+            if isfile(join(UPLOAD_PATH, f)) and \
+                ((pictures and f.endswith('.png')) or \
+                    (f.endswith('.json') and ( \
+                        (event_data and event_id in f and (f.startswith('teams-') or f.startswith('matches-') or f.startswith('rankings-'))) or \
+                        (results and event_id in f and (f.startswith('match-') or f.startswith('pit-'))) or \
+                        (scout_configs and (f.startswith(f'config-{year}') and (f.endswith('-pit') or f.endswith('-match')))) or \
+                        (smart_stats and (f.startswith(f'config-{year}') and f.endswith('-smart_stats'))) or \
+                        (coach_config and (f.startswith(f'config-{year}') and f.endswith('-coach'))) or \
+                        (settings and f.startswith('config-') and not f.startswith(f'config-{year}')) or \
+                        (avatars and f.startswith(f'avatar-{year}')) or \
+                        (picklists and event_id in f and f.startswith(f'picklists-')) or \
+                        (whiteboard and (f.startswith(f'config-{year}') and f.endswith('-whiteboard'))) \
+                    )) \
+                ):
                 zip.write(join(UPLOAD_PATH, f), f)
     
     return file
+
+
+# build request of data in /uploads
+@app.get('/getZip', response_class=FileResponse)
+async def zip():
+    return build_zip(pictures=False)
+
+
+# build request of data in /uploads
+@app.get('/export', response_class=HTMLResponse)
+async def export(to='', event_id='', event_data=True, results=True, scout_configs=True, smart_stats=True, coach_config=True, settings=True, picklists=True, whiteboard=True, avatars=True, pictures=True):
+    file = build_zip(event_id, event_data, results, scout_configs, smart_stats, coach_config, settings, picklists, whiteboard, avatars, pictures)
+
+    b64file = ''
+    with open(file, 'rb') as f:
+        b64file = b64encode(f.read())
+
+    requests.post(url=to, data=b64file)
+
+    remove(file)
+    
+    return f'<!DOCTYPE html>\
+        <html lang="en">\
+            <head>\
+                <meta charset="utf-8"/>\
+                <title>WildRank</title>\
+            </head>\
+            <body>\
+                <h1>WildRank</h1>\
+                <h2>Zip posted to {to}</h2>\
+            </body>\
+        </html>'
 
 
 # Object representing what is returned in response to a POST request
