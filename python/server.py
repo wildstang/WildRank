@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel
 
 import re, requests, sys
-from os import listdir, remove
+from os import listdir, remove, getenv
 from os.path import getmtime, exists, isfile, join
 from datetime import datetime as dt
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -29,6 +29,7 @@ Useful params:
 UPLOAD_PATH = 'uploads/'
 REPORT = True
 REPORT_FILE = 'reports.csv'
+PASSWORD = getenv('WILDRANK_PASSWORD')
 
 
 # pull out parameters for web server
@@ -58,6 +59,17 @@ if REPORT:
 
 # create an instance of FastAPI
 app = FastAPI()
+
+
+# Object representing what is returned in response to a POST request
+class POSTResponse(BaseModel):
+    success: bool
+    count: int
+
+# Object representing what is returned in response to a photo POST request
+class PhotoPOSTResponse(BaseModel):
+    success: bool
+    name: str
 
 
 # return requested files
@@ -183,6 +195,7 @@ def build_zip(event_id='', event_data=True, results=True, scout_configs=True, sm
 
     # zip up uploads directory
     file = 'tmp.zip'
+    count = 0
     with ZipFile(file, 'w', ZIP_DEFLATED) as zip:
         for f in listdir(UPLOAD_PATH):
             if isfile(join(UPLOAD_PATH, f)) and \
@@ -200,57 +213,56 @@ def build_zip(event_id='', event_data=True, results=True, scout_configs=True, sm
                     )) \
                 ):
                 zip.write(join(UPLOAD_PATH, f), f)
+                count += 1
     
-    return file
+    return file, count
 
 
 # build request of data in /uploads
 @app.get('/getZip', response_class=FileResponse)
 async def zip():
-    return build_zip(pictures=False)
+    # TODO check password
+    return build_zip(pictures=False)[0]
 
 
 # build request of data in /uploads
-@app.get('/export', response_class=HTMLResponse)
-async def export(to='', event_id='', event_data=True, results=True, scout_configs=True, smart_stats=True, coach_config=True, settings=True, picklists=True, whiteboard=True, avatars=True, pictures=True):
-    file = build_zip(event_id, event_data, results, scout_configs, smart_stats, coach_config, settings, picklists, whiteboard, avatars, pictures)
+@app.get('/export', response_class=JSONResponse)
+async def export(to='', password='', event_id='', event_data=True, results=True, scout_configs=True, smart_stats=True, coach_config=True, settings=True, picklists=True, whiteboard=True, avatars=True, pictures=True):
+    file, count = build_zip(event_id, event_data, results, scout_configs, smart_stats, coach_config, settings, picklists, whiteboard, avatars, pictures)
 
     b64file = ''
     with open(file, 'rb') as f:
         b64file = b64encode(f.read())
 
-    requests.post(url=to, data=b64file)
+    result = 0
+    try:
+        response = requests.post(url=f'{to}?password={password}', data=b64file)
+        remove(file)
+        if not response.json()['success'] or count == response.json()['count']:
+            return response.json()
+    except:
+        result = -3
 
-    remove(file)
-    
-    return f'<!DOCTYPE html>\
-        <html lang="en">\
-            <head>\
-                <meta charset="utf-8"/>\
-                <title>WildRank</title>\
-            </head>\
-            <body>\
-                <h1>WildRank</h1>\
-                <h2>Zip posted to {to}</h2>\
-            </body>\
-        </html>'
-
-
-# Object representing what is returned in response to a POST request
-class POSTResponse(BaseModel):
-    success: bool
-    count: int
-
-# Object representing what is returned in response to a POST request
-class PhotoPOSTResponse(BaseModel):
-    success: bool
-    name: str
+    # delete zip
+    if exists(file):
+        remove(file)
+    return {
+        'success': False,
+        'count': result
+    }
 
 
 # response to POST requests containing base64 encoded zip data
 @app.post('/', response_model=POSTResponse)
-async def post(request: Request):
+async def post(request: Request, password=''):
     post_data = await request.body()
+
+    # check server password if there is one
+    if PASSWORD is not None and password != PASSWORD:
+        return {
+            'success': False,
+            'count': -1
+        }
 
     # save result
     file = 'tmp.zip'
@@ -266,9 +278,11 @@ async def post(request: Request):
             files = len(zip.infolist())
     except:
         success = False
+        files = -2
     
     # delete zip
-    remove(file)
+    if exists(file):
+        remove(file)
     
     # send response
     return {
