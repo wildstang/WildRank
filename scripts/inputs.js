@@ -221,7 +221,7 @@ class Card extends Element
 
 class StatusTile extends Element
 {
-    constructor(id, label, color)
+    constructor(id, label, color='red')
     {
         super(id, label)
         this.color = color
@@ -229,7 +229,7 @@ class StatusTile extends Element
 
     get toString()
     {
-        return `${this.html_description}<div class="wr_status"><label class="status_text">${this.label}</label><span class="color_box" id="${this.id}" style="background-color: ${this.color}"></span></div>`
+        return `<div class="wr_status"><label class="status_text">${this.label}</label><span class="color_box" id="${this.id}" style="background-color: ${this.color}"></span></div>${this.html_description}`
     }
 
     set status(status)
