@@ -295,6 +295,17 @@ function open_export()
 }
 
 /**
+ * function:    open_config_debug
+ * parameters:  none
+ * returns:     none
+ * description: Open the configuration debugger page.
+ */
+function open_config_debug()
+{
+    return build_url('index', {'page': 'config-debug', [EVENT_COOKIE]: dal.event_id})
+}
+
+/**
  * function:    open_result
  * parameters:  match key, team number
  * returns:     none
