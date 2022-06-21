@@ -191,20 +191,41 @@ class Config
     }
 
     /**
+     * function:    Config.return_description
+     * parameters:  boolean result, result description, whether to return the description
+     * returns:     either the boolean result or an array of the result and its description
+     * description: Variably returns a description with a result
+     */
+    static return_description(result, description, return_description)
+    {
+        if (description !== '')
+        {
+            console.log(description)
+        }
+        if (return_description)
+        {
+            return [result, description]
+        }
+        else
+        {
+            return result
+        }
+    }
+
+    /**
      * function:    validate_theme
      * parameters:  config name
      * returns:     none
      * description: Validates a theme config.
      */
-    validate_theme(config)
+    validate_theme(config, description=false)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return true
+            return Config.return_description(true, '', description)
         }
-        console.log('Invalid theme object')
-        return false
+        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -213,15 +234,14 @@ class Config
      * returns:     none
      * description: Validates a keys config.
      */
-    validate_keys(config)
+    validate_keys(config, description=false)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return this.check_property(c, 'tba', 'string') && this.check_property(c, 'server', 'string')
+            return Config.check_properties(c, {'tba': 'string', 'server': 'string'}, description)
         }
-        console.log('Invalid keys object')
-        return false
+        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -230,7 +250,7 @@ class Config
      * returns:     none
      * description: Validates a users config.
      */
-    validate_users(config)
+    validate_users(config, description=false)
     {
         let c = this[config]
         if (typeof c === 'object')
@@ -241,17 +261,19 @@ class Config
                 {
                     if (typeof admin !== 'number')
                     {
-                        console.log('Invalid admin', admin)
-                        return false
+                        return Config.return_description(false, `admin "${admin}" should be a number`, description)
                     }
                 }
-                return true
+                return Config.return_description(true, '', description)
             }
-            console.log('Missing key, admins')
-            return false
+            else if (c.hasOwnProperty('admins'))
+            {
+                return Config.return_description(false, `admins is not an array`, description)
+
+            }
+            return Config.return_description(false, `missing property admins`, description)
         }
-        console.log('Invalid users object')
-        return false
+        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -260,16 +282,14 @@ class Config
      * returns:     none
      * description: Validates a defaults config.
      */
-    validate_defaults(config)
+    validate_defaults(config, description=false)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return this.check_property(c, 'event_id', 'string') && this.check_property(c, 'upload_url', 'string') &&
-                this.check_property(c, 'user_id', 'number')
+            return Config.check_properties(c, {'event_id': 'string', 'upload_url': 'string', 'user_id': 'number'}, description)
         }
-        console.log('Invalid defaults object')
-        return false
+        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -278,16 +298,14 @@ class Config
      * returns:     none
      * description: Validates a settings config.
      */
-    validate_settings(config)
+    validate_settings(config, description=false)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return this.check_property(c, 'allow_random', 'boolean') && this.check_property(c, 'time_format', 'number') &&
-                this.check_property(c, 'title', 'string') && this.check_property(c, 'use_images', 'boolean')
+            return Config.check_properties(c, {'allow_random': 'boolean', 'time_format': 'number', 'title': 'string', 'use_images': 'boolean'}, description)
         }
-        console.log('Invalid defaults object')
-        return false
+        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -308,15 +326,14 @@ class Config
      * returns:     none
      * description: Validates a version config.
      */
-    validate_version(config)
+    validate_version(config, description=false)
     {
         let c = this[config]
         if (typeof c !== 'string')
         {
-            console.log('Invalid version')
-            return false
+            return Config.return_description(false, `should be a string, but found ${typeof c}`, description)
         }
-        return true
+        return Config.return_description(true, '', description)
     }
 
     /**
@@ -325,7 +342,7 @@ class Config
      * returns:     none
      * description: Validates a coach stats config.
      */
-    validate_coach(config)
+    validate_coach(config, description=false)
     {
         let c = this[config]
         if (Array.isArray(c))
@@ -333,25 +350,23 @@ class Config
             let keys = dal.get_keys()
             for (let coach of c)
             {
-                if (!this.check_property(coach, 'function', 'string') || !this.check_property(coach, 'key', 'string'))
+                let result = Config.check_properties(coach, {'function': 'string', 'key': 'string'})
+                if (Config.failed(result))
                 {
-                    return false
+                    return result
                 }
                 if (!['mean', 'median', 'mode', 'min', 'max', 'total'].includes(coach.function))
                 {
-                    console.log('Invalid function')
-                    return false
+                    return Config.return_description(false, `invalid function ${coach.function}`, description)
                 }
                 if (!keys.includes(coach.key))
                 {
-                    console.log('Unknown key')
-                    return false
+                    return Config.return_description(false, `key ${coach.key} does not exist`, description)
                 }
             }
-            return true
+            return Config.return_description(true, '', description)
         }
-        console.log('Invalid coach object')
-        return false
+        return Config.return_description(false, `should be an array`, description)
     }
 
     /**
@@ -360,19 +375,24 @@ class Config
      * returns:     none
      * description: Validates a whiteboard config.
      */
-    validate_whiteboard(config)
+    validate_whiteboard(config, description=false)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return this.check_property(c, 'draw_color', 'string') && this.check_property(c, 'field_height', 'number') && this.check_property(c, 'field_height_ft', 'number') &&
-                this.check_property(c, 'field_height_px', 'number') && this.check_property(c, 'field_width', 'number') && this.check_property(c, 'horizontal_margin', 'number') &&
-                this.check_property(c, 'line_width', 'number') && this.check_property(c, 'magnet_size', 'number') && this.check_property(c, 'vertical_margin', 'number') &&
-                Array.isArray(c.game_pieces) && typeof c.blue_1 === 'object' && typeof c.blue_2 === 'object' && typeof c.blue_0 === 'object' &&
-                typeof c.red_1 === 'object' && typeof c.red_2 === 'object' && typeof c.red_0 === 'object'
+            if (!c.hasOwnProperty('game_pieces'))
+            {
+                return Config.return_description(false, `missing property game_pieces`, description)
+            }
+            if (!Array.isArray(c.game_pieces))
+            {
+                return Config.return_description(false, `property game_pieces should be an array`, description)
+            }
+            return Config.check_properties(c, {'draw_color': 'string', 'field_height': 'number', 'field_height_ft': 'number', 'field_height_px': 'number',
+                'field_width': 'number', 'horizontal_margin': 'number', 'line_width': 'number', 'magnet_size': 'number', 'vertical_margin': 'number',
+                'blue_0': 'object', 'blue_1': 'object', 'blue_2': 'object', 'red_0': 'object', 'red_1': 'object', 'red_2': 'object'}, description)
         }
-        console.log('Invalid whiteboard object')
-        return false
+        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -381,54 +401,70 @@ class Config
      * returns:     none
      * description: Validates a smart stats config.
      */
-    validate_smart_stats(config)
+    validate_smart_stats(config, description=false)
     {
         let c = this[config]
         if (Array.isArray(c))
         {
             for (let stat of c)
             {
-                if (!this.check_property(stat, 'id', 'string') || !this.check_property(stat, 'type', 'string') ||
-                    !this.check_property(stat, 'name', 'string') || !this.check_property(stat, 'negative', 'boolean'))
+                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string', 'negative': 'boolean'}, description)
+                if (Config.failed(result))
                 {
-                    return false
+                    return result
                 }
                 switch (stat.type)
                 {
                     case 'sum':
-                        if (!stat.hasOwnProperty('keys') && Array.isArray(stat.keys))
+                        if (!stat.hasOwnProperty('keys'))
                         {
-                            console.log('Invalid keys')
-                            return false
+                            return Config.return_description(false, `stat missing property keys`, description)
+                        }
+                        if (!Array.isArray(stat.keys))
+                        {
+                            return Config.return_description(false, `stat property keys should be an array`, description)
                         }
                         break
                     case 'percent':
                     case 'ratio':
-                        if (!this.check_property(stat, 'numerator', 'string') || !this.check_property(stat, 'denominator', 'string'))
+                        result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, description)
+                        if (Config.failed(result))
                         {
-                            return false
+                            return result
                         }
                         break
                     case 'where':
-                        if (!this.check_property(stat, 'cycle', 'string'))
+                        result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, description)
+                        if (Config.failed(result))
                         {
-                            return false
+                            return result
                         }
-                        if (!stat.hasOwnProperty('conditions') && Array.isArray(stat.conditions))
+                        let keys = dal.get_result_keys(true, ['cycle'])
+                        if (!keys.includes(`results.${stat.cycle}`))
                         {
-                            console.log('Invalid conditions')
-                            return false
+                            return Config.return_description(false, `cycle ${stat.cycle} for where does not exist`, description)
+                        }
+                        keys = dal.get_result_keys(stat.cycle)
+                        let conditions = Object.keys(stat.conditions)
+                        for (let key of conditions)
+                        {
+                            if (!keys.includes(`results.${key}`))
+                            {
+                                return Config.return_description(false, `condition ${key} for where does not exist`, description)
+                            }
+                            if (!dal.meta[`results.${key}`].options.includes(stat.conditions[key]))
+                            {
+                                return Config.return_description(false, `condition ${key} does not have option ${stat.conditions[key]} for where`, description)
+                            }
                         }
                         break
                     default:
-                        console.log('Unknown type')
-                        return false
+                        return Config.return_description(false, `Unknown type, ${stat.type}`, description)
                 }
             }
-            return true
+            return Config.return_description(true, '', description)
         }
-        console.log('Invalid smart_stats object')
-        return false
+        return Config.return_description(false, `should be an array`, description)
     }
 
     /**
@@ -437,84 +473,97 @@ class Config
      * returns:     none
      * description: Validates a scouting mode config.
      */
-    validate_mode(config)
+    validate_mode(config, description=false)
     {
         let c = this[config]
         if (Array.isArray(c))
         {
             for (let page of c)
             {
-                if (!this.check_property(page, 'name', 'string') || !this.check_property(page, 'id', 'string'))
+                let result = Config.check_properties(page, {'name': 'string', 'id': 'string'}, description)
+                if (Config.failed(result))
                 {
-                    return false
+                    return result
                 }
-                if (!page.hasOwnProperty('columns') && Array.isArray(c.columns))
+                if (!page.hasOwnProperty('columns'))
                 {
-                    return false
+                    return Config.return_description(false, `page missing property columns`, description)
+                }
+                if (!Array.isArray(page.columns))
+                {
+                    return Config.return_description(false, `page property columns should be an array`, description)
                 }
                 for (let column of page.columns)
                 {
-                    if (!this.check_property(column, 'name', 'string') || !this.check_property(column, 'id', 'string'))
+                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, description)
+                    if (Config.failed(result))
                     {
-                        return false
+                        return result
                     }
-                    if (!column.hasOwnProperty('inputs') && Array.isArray(column.inputs))
+                    if (!column.hasOwnProperty('inputs'))
                     {
-                        return false
+                        return Config.return_description(false, `column missing property inputs`, description)
+                    }
+                    if (!Array.isArray(column.inputs))
+                    {
+                        return Config.return_description(false, `column property inputs should be an array`, description)
                     }
                     for (let input of column.inputs)
                     {
-                        if (!this.check_property(input, 'name', 'string') || !this.check_property(input, 'id', 'string') ||
-                            !this.check_property(input, 'type', 'string'))
+                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, description)
+                        if (Config.failed(result))
                         {
-                            return false
+                            return result
                         }
                         switch (input.type)
                         {
                             case 'dropdown':
                             case 'select':
-                                if (!this.check_property(input, 'default', 'string'))
+                                result = Config.check_properties(input, {'default': 'string'}, description)
+                                if (Config.failed(result))
                                 {
-                                    return false
+                                    return result
                                 }
+                                break
                             case 'multicounter':
                                 if (!input.hasOwnProperty('options') && Array.isArray(input.options))
                                 {
-                                    return false
+                                    return Config.return_description(false, '', description)
                                 }
                                 break
                             case 'checkbox':
-                                if (!this.check_property(input, 'default', 'boolean'))
+                                result = Config.check_properties(input, {'default': 'boolean'}, description)
+                                if (Config.failed(result))
                                 {
-                                    return false
+                                    return result
                                 }
                                 break
                             case 'string':
                             case 'text':
-                                if (!this.check_property(input, 'default', 'string'))
+                                result = Config.check_properties(input, {'default': 'string'}, description)
+                                if (Config.failed(result))
                                 {
-                                    return false
+                                    return result
                                 }
                                 break
                             case 'number':
                             case 'slider':
                             case 'counter':
-                                if (!this.check_property(input, 'default', 'number'))
+                                result = Config.check_properties(input, {'default': 'number'}, description)
+                                if (Config.failed(result))
                                 {
-                                    return false
+                                    return result
                                 }
                                 break
                             default:
-                                console.log('Invalid type')
-                                return false
+                                return Config.return_description(false, 'Invalid type', description)
                         }
                     }
                 }
             }
-            return true
+            return Config.return_description(true, '', description)
         }
-        console.log('Invalid mode object')
-        return false
+        return Config.return_description(false, 'Invalid mode object', description)
     }
 
     /**
@@ -523,13 +572,37 @@ class Config
      * returns:     property exists and is of valid type
      * description: Confirms a given property exists in a given object and has a value of a given type.
      */
-    check_property(object, key, type)
+    static check_properties(object, types, description=false)
     {
-        if (!object.hasOwnProperty(key) || typeof object[key] !== type)
+        let keys = Object.keys(types)
+        let fails = []
+        for (let key of keys)
         {
-            console.log('Invalid', key)
-            return false
+            let type = types[key]
+            if (!object.hasOwnProperty(key))
+            {
+                fails.push(`missing property ${key} of type ${type}`)
+            }
+            else if (typeof object[key] !== type)
+            {
+                fails.push(`${key} should be a ${type}, but found ${typeof object[key]}`)
+            }
         }
-        return true
+        if (fails.length > 0)
+        {
+            return Config.return_description(false, fails.join('; '), description)
+        }
+        return Config.return_description(true, '', description)
+    }
+
+    /**
+     * function:    failed
+     * parameters:  result
+     * returns:     If the result is false
+     * description: Determines if the given result is false.
+     */
+    static failed(result)
+    {
+        return (Array.isArray(result) && !result[0]) || !result
     }
 }
