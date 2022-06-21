@@ -137,7 +137,7 @@ function capture(team_num)
         {
             let base64 = data.substring(data.indexOf(','))
             // post string to server
-            fetch(`${addr}/photo/${team_num}`, {method: 'POST', body: base64})
+            fetch(`${addr}/photo/${team_num}?password=${cfg.keys.server}`, {method: 'POST', body: base64})
                 .then(response => response.json())
                 .then(result => {
                     if (result.success)
@@ -145,6 +145,10 @@ function capture(team_num)
                         // add image to team photos
                         dal.add_photo(team_num, `${addr}/${result.name}`, true)
                         alert('Upload successful!')
+                    }
+                    else if (result.name === 'Invalid password')
+                    {
+                        alert('Invalid password!')
                     }
                     else
                     {

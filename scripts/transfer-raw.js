@@ -127,16 +127,24 @@ function export_zip()
                 if (check_server(addr))
                 {                    
                     // post string to server
-                    fetch(addr, {method: 'POST', body: base64})
+                    fetch(`${addr}?password=${cfg.keys.server}`, {method: 'POST', body: base64})
                         .then(response => response.json())
                         .then(result => {
                             if (result.success && result.count === files.length)
                             {
                                 alert('Upload successful!')
                             }
+                            else if (result.count === -1)
+                            {
+                                alert('Incorrect password!')
+                            }
+                            else if (result.count === -2)
+                            {
+                                alert('Failed to extract archive!')
+                            }
                             else
                             {
-                                alert('Upload unsuccessful!')
+                                alert('Unknown server error!')
                             }
                         })
                         .catch(e => {

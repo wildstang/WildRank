@@ -221,7 +221,6 @@ def build_zip(event_id='', event_data=True, results=True, scout_configs=True, sm
 # build request of data in /uploads
 @app.get('/getZip', response_class=FileResponse)
 async def zip():
-    # TODO check password
     return build_zip(pictures=False)[0]
 
 
@@ -292,8 +291,15 @@ async def post(request: Request, password=''):
 
 # response to POST requests containing base64 encoded zip data
 @app.post('/photo/{team_num}', response_model=PhotoPOSTResponse)
-async def post(team_num, request: Request):
+async def post(team_num, request: Request, password=''):
     post_data = await request.body()
+
+    # check server password if there is one
+    if PASSWORD is not None and password != PASSWORD:
+        return {
+            'success': False,
+            'name': 'Invalid password'
+        }
 
     # determine file name
     num = 0

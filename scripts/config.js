@@ -218,7 +218,7 @@ class Config
         let c = this[config]
         if (typeof c === 'object')
         {
-            return this.check_property(c, 'tba', 'string')
+            return this.check_property(c, 'tba', 'string') && this.check_property(c, 'server', 'string')
         }
         console.log('Invalid keys object')
         return false

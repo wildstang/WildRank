@@ -59,15 +59,15 @@ function submit()
             {
                 alert('Export successful!')
             }
-            else if (result.count == -1)
+            else if (result.count === -1)
             {
                 alert('Incorrect password!')
             }
-            else if (result.count == -2)
+            else if (result.count === -2)
             {
                 alert('Failed to extract archive!')
             }
-            else if (result.count == -3)
+            else if (result.count === -3)
             {
                 alert('To server not found!')
             }
