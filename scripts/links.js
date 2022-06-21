@@ -284,6 +284,17 @@ function open_about()
 }
 
 /**
+ * function:    open_export
+ * parameters:  none
+ * returns:     none
+ * description: Open the export page.
+ */
+function open_export()
+{
+    return build_url('index', {'page': 'export', [EVENT_COOKIE]: dal.event_id})
+}
+
+/**
  * function:    open_result
  * parameters:  match key, team number
  * returns:     none
