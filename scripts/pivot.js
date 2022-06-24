@@ -247,6 +247,7 @@ function build_table(sort_by='', reverse=false)
     // build table headers
     let table = `<table><tr class="sticky_header"><th onclick="build_table('', ${!reverse})">Team Number</th>`
     let types = '<tr><td></td>'
+    let filters = '<tr><td></td>'
     let totals = '<tr><td></td>'
     for (let i in selected)
     {
@@ -263,6 +264,64 @@ function build_table(sort_by='', reverse=false)
             selected_types[`select_${key}_${i}`] = type
         }
 
+        // determine previously selected filter
+        let filter = ''
+        if (document.getElementById(`filter_${key}_${i}`))
+        {
+            filter = document.getElementById(`filter_${key}_${i}`).value
+        }
+
+        // determine previously less/greater
+        let ltgt_def = ''
+        if (document.getElementById(`ltgt_${key}_${i}`))
+        {
+            ltgt_def = Select.get_selected_option(`ltgt_${key}_${i}`)
+        }
+
+        // find unique values and make array of teams that don't match filter
+        let unique = []
+        let remove_teams = []
+        for (let team of filter_teams)
+        {
+            let val = dal.get_value(team, key, type)
+            let mapped_val = dal.get_value(team, key, type, true)
+            if (filter !== '' && ((ltgt_def === 0 && val >= parseFloat(filter)) ||
+                (ltgt_def === 1 && val <= parseFloat(filter)) ||
+                (ltgt_def === '' && filter !== mapped_val)))
+            {
+                remove_teams.push(team)
+            }
+            if (!unique.includes(mapped_val))
+            {
+                unique.push(mapped_val)
+            }
+        }
+
+        // remove teams that does match
+        for (let team of remove_teams)
+        {
+            filter_teams.splice(filter_teams.indexOf(team), 1)
+        }
+
+        // sort filter options
+        let t = dal.meta[key].type
+        if (t === 'number' || t === 'counter' || t === 'slider')
+        {
+            unique.sort((a, b) => parseFloat(a) - parseFloat(b))
+        }
+        else
+        {
+            unique.sort()
+        }
+        unique.unshift('')
+
+        // build dropdown for filter
+        let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
+        filter_dd.onclick = `build_table('${sort_by}', ${reverse})`
+        filter_dd.add_class('slim')
+        filter_dd.add_class('thin')
+        let filter_str = filter_dd.toString
+
         // build dropdown for those that have stats
         let fn = ''
         if (key.startsWith('stats.'))
@@ -274,11 +333,22 @@ function build_table(sort_by='', reverse=false)
             fn = dropdown.toString
         }
 
+        // build a select for less/greater than if a number
+        if (t === 'number' || t === 'counter' || t === 'slider')
+        {
+            let ltgt = new Select(`ltgt_${key}_${i}`, '', ['Less', 'Greater'], ['Less', 'Greater'][ltgt_def])
+            ltgt.onselect = `build_table('${sort_by}', ${reverse})`
+            ltgt.add_class('slim')
+            ltgt.add_class('thin')
+            filter_str = ltgt.toString + filter_str
+        }
+
         // build cells
         types += `<td>${fn}</td>`
+        filters += `<td>${filter_str}</td>`
         totals += `<td>${dal.get_global_value(global_stats, key, type.toLowerCase(), true)}</td>`
     }
-    table += `</tr>${types}</tr>${totals}</tr>`
+    table += `</tr>${types}</tr>${filters}</tr>${totals}</tr>`
 
     // build team rows
     for (let team of filter_teams)
