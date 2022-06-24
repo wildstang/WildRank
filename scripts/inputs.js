@@ -675,7 +675,7 @@ class Select extends OptionedInput
             {
                 rows.push('')
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() == this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="Select.select_option('${this.id}', '${index}'); ${this.onclick}">
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() === this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="Select.select_option('${this.id}', '${index}'); ${this.onclick}">
                     <label>${op_name}</label>
                 </span>`
         }
@@ -770,7 +770,7 @@ class Dropdown extends OptionedInput
         let options = ''
         for (let op_name of this.options)
         {
-            options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name == this.def ? 'selected' : ''}>${op_name}</option>`
+            options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name === this.def ? 'selected' : ''}>${op_name}</option>`
         }
         return options
     }
