@@ -447,7 +447,8 @@ class DAL
                 // build meta of ranking data
                 this.meta['rank.rank'] = {
                     name: 'Ranking',
-                    type: 'number'
+                    type: 'number',
+                    negative: true
                 }
                 this.meta['rank.wins'] = {
                     name: 'Wins',
