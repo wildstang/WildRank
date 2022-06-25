@@ -7,11 +7,11 @@
 
 /**
  * function:    remove_team
- * parameters:  list name, team number
+ * parameters:  list name, team number, list position
  * returns:     none
  * description: Removes the clicked team from the containing list.
  */
-function remove_team(name, team)
+function remove_team(name, team, i=0)
 {
     if (team !== '')
     {
@@ -21,16 +21,16 @@ function remove_team(name, team)
     {
         delete dal.picklists[name]
     }
-    build_pick_lists(name)
+    build_pick_lists(name, i)
 }
 
 /**
  * function:    add_to
- * parameters:  list name, team number
+ * parameters:  list name, team number, list position
  * returns:     none
  * description: Adds the selected team to the selected list after the clicked team.
  */
-function add_to(name, after_team)
+function add_to(name, after_team, i=0)
 {
     let team_num = document.getElementById('team_num').innerHTML
     if (team_num == after_team)
@@ -43,16 +43,16 @@ function add_to(name, after_team)
     }
     // insert team in list after clicked button (list name will return index of -1 so 0)
     dal.picklists[name].splice(dal.picklists[name].indexOf(after_team)+1, 0, team_num)
-    build_pick_lists(name)
+    build_pick_lists(name, i)
 }
 
 /**
  * function:    cross_out
- * parameters:  team number
+ * parameters:  list name, team number, list position
  * returns:     none
  * description: Toggles the selected team's crossed out status across all picklists.
  */
-function cross_out(name, team)
+function cross_out(name, team, i=0)
 {
     if (!Object.keys(dal.picklists).includes('picked'))
     {
@@ -68,7 +68,7 @@ function cross_out(name, team)
         dal.picklists['picked'].push(team)
     }
 
-    build_pick_lists(name)
+    build_pick_lists(name, i)
 }
 
 /**
@@ -94,14 +94,13 @@ function create_list()
 
 /**
  * function:    rename_list
- * parameters:  none
+ * parameters:  original list name, list position
  * returns:     none
  * description: Renames the current picklist.
  */
-function rename_list()
+function rename_list(old_name, i=0)
 {
-    let new_name = document.getElementById('new_name').value
-    let old_name = document.getElementById('list_names').value
+    let new_name = document.getElementById(`new_name_${old_name}`).value
     if (Object.keys(dal.picklists).includes(new_name))
     {
         alert(`List "${new_name}" already exists!`)
@@ -111,7 +110,7 @@ function rename_list()
         // add empty array of list name
         dal.picklists[new_name] = dal.picklists[old_name]
         delete dal.picklists[old_name]
-        build_pick_lists(new_name)
+        build_pick_lists(new_name, i)
     }
 }
 

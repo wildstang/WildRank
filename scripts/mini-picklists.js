@@ -51,11 +51,11 @@ function select_list(name='')
 
 /**
  * function:    build_pick_lists
- * parameters:  selected list name
+ * parameters:  selected list name, list number
  * returns:     none
  * description: Builds HTML elements of all pick lists with buttons.
  */
-function build_pick_lists(list_name='first_default')
+function build_pick_lists(list_name='first_default', i=0)
 {
     // don't show picklists UI if there are no lists
     if (list_name !== '')
