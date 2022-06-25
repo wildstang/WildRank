@@ -23,12 +23,25 @@ function init_page()
         server = ''
     }
 
+    // add column of checkboxes
+    let check_col = new ColumnFrame()
+    check_col.add_input(new Checkbox('event', 'Event Data'))
+    check_col.add_input(new Checkbox('results', 'Results'))
+    check_col.add_input(new Checkbox('config', 'Scouting Configs'))
+    check_col.add_input(new Checkbox('smart-stats', 'Smart Stats'))
+    check_col.add_input(new Checkbox('coach', 'Coach Config'))
+    check_col.add_input(new Checkbox('settings', 'Settings'))
+    check_col.add_input(new Checkbox('picklists', 'Pick Lists'))
+    check_col.add_input(new Checkbox('whiteboard', 'Whiteboard'))
+    check_col.add_input(new Checkbox('avatars', 'Avatars'))
+    check_col.add_input(new Checkbox('pictures', 'Pictures'))
+
     let from = new Entry('from_server', 'From Server', server)
     let to = new Entry('to_server', 'To Server')
     let password = new Entry('password', 'Server Password')
     let submit = new Button('submit', 'Export', 'submit()')
 
-    document.body.innerHTML += new PageFrame('', '', [new ColumnFrame('', '', [from, to, password, submit])]).toString
+    document.body.innerHTML += new PageFrame('', '', [check_col, new ColumnFrame('', '', [from, to, password, submit])]).toString
 }
 
 /**
@@ -44,6 +57,17 @@ function submit()
     let to = parse_server_addr(document.getElementById('to_server').value)
     let password = document.getElementById('password').value
 
+    let use_event       = document.getElementById('event').checked
+    let use_results     = document.getElementById('results').checked
+    let use_config      = document.getElementById('config').checked
+    let use_smart_stats = document.getElementById('smart-stats').checked
+    let use_coach       = document.getElementById('coach').checked
+    let use_settings    = document.getElementById('settings').checked
+    let use_avatars     = document.getElementById('avatars').checked
+    let use_picklists   = document.getElementById('picklists').checked
+    let use_whiteboard  = document.getElementById('whiteboard').checked
+    let use_pictures    = document.getElementById('pictures').checked
+
     // check servers
     if (!check_server(from))
     {
@@ -52,7 +76,7 @@ function submit()
     // NOTE: to server cannot be checked because cross site policies
 
     // make request to from server
-    fetch(`${from}/export?to=${to}&password=${password}&event_id=${event_id}`)
+    fetch(`${from}/export?to=${to}&password=${password}&event_id=${event_id}&event_data=${use_event}&results=${use_results}&scout_configs=${use_config}&smart_stats=${use_smart_stats}&coach_config=${use_coach}&settings=${use_settings}&picklists=${use_picklists}&whiteboard=${use_whiteboard}&avatars=${use_avatars}&pictures=${use_pictures}`)
         .then(response => response.json())
         .then(result => {
             if (result.success)
