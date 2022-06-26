@@ -88,11 +88,22 @@ function open_advanced()
  * function:    open_results
  * parameters:  none
  * returns:     none
- * description: Open the results of the selected scouting mode.
+ * description: Open the cycles page.
  */
 function open_results()
 {
     return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_event()})
+}
+
+/**
+ * function:    open_cycles
+ * parameters:  none
+ * returns:     none
+ * description: Open the results page.
+ */
+function open_cycles()
+{
+    return build_url('selection', {'page': 'cycles', [EVENT_COOKIE]: get_event()})
 }
 
 /**
@@ -314,6 +325,17 @@ function open_config_debug()
 function open_result(match_key, team_num)
 {
     return build_url('selection', {'page': 'results', [EVENT_COOKIE]: dal.event_id, 'file': `${match_key}-${team_num}`})
+}
+
+/**
+ * function:    open_cycles_result
+ * parameters:  match key, team number
+ * returns:     none
+ * description: Loads the cycles page for a button when pressed.
+ */
+function open_cycles_result(match_key, team_num)
+{
+    return build_url('selection', {'page': 'cycles', [EVENT_COOKIE]: dal.event_id, 'file': `${match_key}-${team_num}`})
 }
 
 /**

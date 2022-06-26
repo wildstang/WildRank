@@ -23,7 +23,6 @@ function init_page()
                                     <h2><label id="team_num"></label> <label id="team_name"></label></h2>
                                     <h4>Belongs to:</h4>
                                     <span id="belongs_to"></span>`
-        buttons_container.innerHTML = ''
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)

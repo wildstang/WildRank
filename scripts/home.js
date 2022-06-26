@@ -28,7 +28,7 @@ const CONFIGS = {
     'analysis': {
         'Teams': ['open_ranker', 'open_sides', 'open_picks', 'open_whiteboard'],
         'Keys': ['open_pivot', 'open_distro', 'open_plot'],
-        'Data': ['open_results', 'open_teams', 'open_matches', 'open_users', 'open_progress', 'open_coach'],
+        'Data': ['open_results', 'open_cycles', 'open_teams', 'open_matches', 'open_users', 'open_progress', 'open_coach'],
         'Transfer': ['open_transfer', 'download_csv', 'open_events']
     },
     'admin': {
@@ -47,6 +47,7 @@ const BUTTONS = {
     'open_whiteboard':  { name: 'Whiteboard',        limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
     'open_advanced':    { name: 'Advanced',          limits: ['event', 'admin'], configs: ['settings'] },
     'open_results':     { name: 'Results',           limits: ['admin', 'results'], configs: ['settings'] },
+    'open_cycles':      { name: 'Cycles',            limits: ['admin', 'results'], configs: ['settings'] },
     'open_teams':       { name: 'Team Profiles',     limits: ['teams', 'admin'], configs: ['settings'] },
     'open_matches':     { name: 'Match Summaries',   limits: ['event', 'admin'], configs: ['settings'] },
     'open_users':       { name: 'User Profiles',     limits: ['admin', 'any'], configs: [] },
