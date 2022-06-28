@@ -167,7 +167,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
         results['meta_match_key'] = match_key
         results['meta_comp_level'] = dal.get_match_value(match_key, 'comp_level')
         results['meta_set_number'] = parseInt(dal.get_match_value(match_key, 'set_number'))
-        results['meta_match'] = parseInt(match_key)
+        results['meta_match'] = dal.get_match_value(match_key, 'match_number')
         results['meta_alliance'] = alliance_color
     }
     results['meta_team'] = parseInt(team_num)
