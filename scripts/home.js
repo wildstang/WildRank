@@ -32,7 +32,8 @@ const CONFIGS = {
         'Transfer': ['open_transfer', 'download_csv', 'open_events']
     },
     'admin': {
-        'Admin': ['open_config', 'open_settings', 'open_config_debug', 'open_event_gen', 'open_random', 'open_export'],
+        'Configuration': ['open_config', 'open_settings', 'open_event_gen', 'open_export'],
+        'Debugging': ['open_config_debug', 'open_cache', 'open_random'],
         'Reset': ['reset', 'reset_storage', 'reset_results', 'clear_events']
     }
 }
@@ -70,6 +71,7 @@ const BUTTONS = {
     'open_random':      { name: 'Random Result Generator',  limits: ['admin'], configs: ['settings'] },
     'open_export':      { name: 'Server Exporter',   limits: ['admin'], configs: [] },
     'open_config_debug':{ name: 'Config Debugger',   limits: ['admin'], configs: [] },
+    'open_cache':       { name: 'Cache Manager',     limits: ['admin'], configs: [] },
     'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] }
 }
 

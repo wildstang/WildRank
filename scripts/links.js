@@ -283,6 +283,17 @@ function open_events()
 }
 
 /**
+ * function:    open_cache
+ * parameters:  none
+ * returns:     none
+ * description: Open the cache manager page.
+ */
+function open_cache()
+{
+    return build_url('index', {'page': 'cache'})
+}
+
+/**
  * function:    sign_out
  * parameters:  none
  * returns:     none
