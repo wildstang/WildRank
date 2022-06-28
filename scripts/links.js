@@ -173,6 +173,17 @@ function open_plot()
 }
 
 /**
+ * function:    open_scatter
+ * parameters:  none
+ * returns:     none
+ * description: Open the scatter page.
+ */
+function open_scatter()
+{
+    return build_url('selection', {'page': 'scatter', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
+}
+
+/**
  * function:    open_config
  * parameters:  none
  * returns:     none

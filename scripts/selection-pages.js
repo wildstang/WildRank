@@ -224,6 +224,46 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
 }
 
 /**
+ * function:    populate_dual_keys
+ * parameters:  data abstraction layer, use results only, exclude strings
+ * returns:     default selection
+ * description: Populates the left and right options lists with keys.
+ * 
+ * Pages: Scatter
+ */
+function populate_dual_keys(dal, results_only=false, exclude_strings=false)
+{
+    document.getElementById('option_list').innerHTML = ''
+    document.getElementById('secondary_option_list').innerHTML = ''
+
+    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
+    if (keys.length > 0)
+    {
+        // add pick list selector at top
+        let ops = Object.keys(dal.picklists)
+        ops.unshift('None')
+        
+        // iterate through result keys
+        for (let key of keys)
+        {
+            let op = new Option(key, dal.meta[key].name)
+            op.style = 'font-size:10px'
+            document.getElementById('option_list').innerHTML += op.toString
+            op.primary_list = false
+            document.getElementById('secondary_option_list').innerHTML += op.toString
+        }
+
+        enable_secondary_list()
+        return keys[0]
+    }
+    else
+    {
+        alert('No results found')
+        return false
+    }
+}
+
+/**
  * function:    populate_other
  * parameters:  options, associated ids
  * returns:     default selection
