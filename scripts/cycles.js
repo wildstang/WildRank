@@ -72,7 +72,7 @@ function build_result_list()
         open_option(first)
     }
 }
- 
+
 /**
  * function:    open_option
  * parameters:  selected result
@@ -100,7 +100,7 @@ function open_option(option)
     document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, Match ${dal.get_match_value(match, 'match_name')}`
     document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
- 
+
     let cycles = dal.get_result_keys(true, ['cycle'])
     buttons_container.innerHTML = ''
     for (let key of cycles)
@@ -139,8 +139,69 @@ function open_option(option)
                 }
                 column.add_input(item)
             }
+
+            // remove button for cycle
+            let remove = new Button('', 'Remove Cycle', `remove_cycle('${option}', '${match}', '${team}', '${key}', ${i})`)
+            remove.add_class('slim')
+            column.add_input(remove)
+
             page.add_column(column)
         }
         buttons_container.innerHTML += page.toString
+    }
+}
+
+/**
+ * function:    remove_cycle
+ * parameters:  selected result
+ * returns:     none
+ * description: Removes a given cycle from the result.
+ */
+function remove_cycle(option, match_key, team_num, cycle, idx)
+{
+    // find result by default file name
+    let files = Object.keys(localStorage)
+    let file = `match-${match_key}-${team_num}`
+    let raw = localStorage.getItem(file)
+    let found = raw !== null
+
+    // attempt to find result manually if it wasn't the default name
+    if (!found)
+    {
+        for (file of files)
+        {
+            if (file.startsWith(`match-${dal.event_id}`))
+            {
+                raw = localStorage.getItem(file)
+                let result = JSON.parse(raw)
+                if (match_key === `${dal.event_id}_qm${result.meta_match}` && result.meta_team === parseInt(team_num))
+                {
+                    found = true
+                    break
+                }
+            }
+        }
+    }
+
+    // if a file was never found give up
+    if (!found)
+    {
+        return
+    }
+
+    // confirm before deleting file
+    if (confirm(`Are you sure you want to remove "${dal.get_name(cycle)}" cycle ${idx+1} from ${file}`))
+    {
+        // load result and remove cycle
+        let result = JSON.parse(raw)
+        let id = cycle.replace('results.', '')
+        result[id].splice(idx, 1)
+    
+        // save and reload
+        localStorage.setItem(file, JSON.stringify(result))
+        dal.build_teams()
+    
+        // rebuild page
+        open_option(option)
     }
 }
