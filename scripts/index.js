@@ -46,6 +46,7 @@ function init_page()
     options.add_input(position)
 
     let user_id = new Entry('user_id', 'School ID', 111112)
+    user_id.on_text_change = 'check_id()'
     user_id.type = 'number'
     user_id.bounds = [100000, 999999]
     user_id.def = get_cookie(USER_COOKIE, cfg.defaults.user_id)
@@ -139,6 +140,7 @@ function init_page()
 
     document.body.innerHTML += page.toString
 
+    check_id()
     apply_theme()
     process_files()
 
@@ -235,6 +237,21 @@ function check_event()
     else
     {
         return -1
+    }
+}
+
+/**
+ * function:    check_id
+ * parameters:  none
+ * returns:     none
+ * description: Checks to see if the user has a preset scouting position.
+ */
+function check_id()
+{
+    let id = get_user()
+    if (Object.keys(cfg.users.scouters[get_event()]).includes(id))
+    {
+        position.selectedIndex = cfg.users.scouters[get_event()][id]
     }
 }
 

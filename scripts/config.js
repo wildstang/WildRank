@@ -264,7 +264,7 @@ class Config
                         return Config.return_description(false, `admin "${admin}" should be a number`, description)
                     }
                 }
-                return Config.return_description(true, '', description)
+                return Config.check_properties(c, {'scouters': 'object'}, description)
             }
             else if (c.hasOwnProperty('admins'))
             {
