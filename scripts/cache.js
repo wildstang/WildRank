@@ -35,8 +35,8 @@ async function populate_page()
     let server = parse_server_addr(document.location.href)
 
     let button_col = new ColumnFrame()
-    button_col.add_input(new Button('import_app', 'Import App from Zip', 'import_from_zip()'))
     button_col.add_input(new Button('cache_pics', 'Cache Pictures', 'cache_pics()'))
+    button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
 
     // make a table for each cache
     let text = ''
@@ -174,7 +174,7 @@ async function cache_pics()
                     let parts = name.split('.')
                     let ext = parts[parts.length-1]
         
-                    // only import JSON files for the current event
+                    // only import pngs
                     if (parts.length > 1 && ext === 'png')
                     {
                         // get blob of files text
@@ -236,7 +236,7 @@ async function import_zip(event)
             let parts = name.split('.')
             let ext = parts[parts.length-1]
 
-            // only import JSON files for the current event
+            // only import files
             if (parts.length > 1 && !name.includes('docker/') && !name.includes('docs/') && !name.includes('python/') && !name.includes('uploads/') && !name.endsWith('/'))
             {
                 // get blob of files text
