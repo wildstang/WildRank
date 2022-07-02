@@ -265,7 +265,7 @@ function import_zip(file)
             let n = parts[0]
 
             // only import JSON files for the current event
-            if (parts[1] == 'json')
+            if (parts[1] === 'json')
             {
                 // get blob of files text
                 zip.file(name).async('blob').then(function (content)

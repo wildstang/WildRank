@@ -225,6 +225,12 @@ async def zip():
 
 
 # build request of data in /uploads
+@app.get('/getPics', response_class=FileResponse)
+async def zip():
+    return build_zip(event_data=False, results=False, scout_configs=False, smart_stats=False, coach_config=False, settings=False, picklists=False, whiteboard=False, avatars=False, pictures=True)[0]
+
+
+# build request of data in /uploads
 @app.get('/export', response_class=JSONResponse)
 async def export(to='', password='', event_id='', event_data:bool=True, results:bool=True, scout_configs:bool=True, smart_stats:bool=True, coach_config:bool=True, settings:bool=True, picklists:bool=True, whiteboard:bool=True, avatars:bool=True, pictures:bool=True):
     file, count = build_zip(event_id, event_data, results, scout_configs, smart_stats, coach_config, settings, picklists, whiteboard, avatars, pictures)
