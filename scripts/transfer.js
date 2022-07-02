@@ -114,7 +114,8 @@ function preload_event()
                                         break
                                     case 'cdphotothread':
                                     case 'imgur':
-                                    case 'instagram-image':
+                                    // NOTE: instagram does things weird
+                                    //case 'instagram-image':
                                     case 'onshape':
                                         dal.add_photo(team.team_number, m.direct_url)
                                         break
