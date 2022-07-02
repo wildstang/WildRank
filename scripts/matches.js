@@ -7,7 +7,7 @@
  */
 
 // read parameters from URL
-const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
+var scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
@@ -32,6 +32,13 @@ function init_page()
             button_txt = 'Scout Match'
         }
 
+        // override scouting position with that from config
+        // TODO: determine if this is acutally desired
+        if (Object.keys(cfg.users.scouters[dal.event_id]).includes(user_id))
+        {
+            scout_pos = cfg.users.scouters[dal.event_id][user_id]
+        }
+
         // add scouting position
         let alliance = 'Red'
         let pos = 1 + parseInt(scout_pos)
@@ -42,9 +49,8 @@ function init_page()
         }
         contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
                                     Time: <span id="match_time"></span><br><br>
-                                    Scouting: ${alliance} ${pos}<br><br>
                                     ${avatar}
-                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span></h2>
+                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span> <span id="position">(${pos})</span></h2>
                                     <span id="photos"></span>`
         
         buttons_container.innerHTML = ''
@@ -77,6 +83,7 @@ function open_match(match_num)
 
     let number_span = document.getElementById('team_scouting')
     let name_span = document.getElementById('team_name')
+    let pos_span = document.getElementById('position')
 
     // select option
     document.getElementById(`match_option_${match_num}`).classList.add('selected')
@@ -103,6 +110,7 @@ function open_match(match_num)
         name_span.innerHTML = dal.get_value(team_num, 'meta.name')
         number_span.style.color = color
         name_span.style.color = color
+        pos_span.style.color = color
 
         // build buttons
         let scout_button = new Button('scout_match', 'Scout Match')
