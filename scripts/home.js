@@ -34,7 +34,7 @@ const CONFIGS = {
     'admin': {
         'Configuration': ['open_config', 'open_settings', 'open_event_gen', 'open_export'],
         'Debugging': ['open_config_debug', 'open_cache', 'open_random'],
-        'Reset': ['reset', 'reset_storage', 'reset_results', 'clear_events']
+        'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     }
 }
 
@@ -64,6 +64,7 @@ const BUTTONS = {
     'open_progress':    { name: 'Scouting Progress', limits: ['teams', 'admin'], configs: [] },
     'open_events':      { name: 'Other Events',      limits: ['teams', 'admin'], configs: [] },
     'reset':            { name: 'Reset App',         limits: ['admin'], configs: [] },
+    'reset_cache':      { name: 'Reset Cache',       limits: ['admin'], configs: [] },
     'reset_storage':    { name: 'Reset Storage',     limits: ['admin'], configs: [] },
     'reset_results':    { name: 'Reset Results',     limits: ['admin'], configs: [] },
     'clear_events':     { name: 'Clear Other Events',limits: ['admin'], configs: [] },
@@ -100,7 +101,7 @@ function init_page()
         for (let key of columns[col])
         {
             let button = new Button(key, BUTTONS[key].name, `check_press('${key}', ${key})`)
-            if (col !== 'Transfer' || key.startsWith('open_'))
+            if ((col !== 'Transfer' || key.startsWith('open_')) && col !== 'Reset')
             {
                 button.link = `check_press('${key}', ${key})`
             }

@@ -222,9 +222,9 @@ function download_csv()
  * function:    reset
  * parameters:  none
  * returns:     none
- * description: Reset local storage.
+ * description: Reset the entire app.
  */
-function reset()
+async function reset()
 {
     if (confirm('Delete all configuration, results, and other app data?'))
     {
@@ -242,13 +242,29 @@ function reset()
         }
 
         // clear offline pages
-        caches.keys().then(keyList => {
-            let ret = Promise.all(keyList.map(key => {
-                return caches.delete(key)
-            }))
-            location.reload()
-            return ret
-        })
+        let keys = await caches.keys()
+        for (let key of keys)
+        {
+            caches.delete(key)
+        }
+    }
+}
+
+/**
+ * function:    reset_cache
+ * parameters:  none
+ * returns:     none
+ * description: Reset app cache.
+ */
+async function reset_cache()
+{
+    if (confirm('Delete all cache data?'))
+    {
+        let keys = await caches.keys()
+        for (let key of keys)
+        {
+            caches.delete(key)
+        }
     }
 }
 
