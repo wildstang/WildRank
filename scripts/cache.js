@@ -151,60 +151,34 @@ function import_from_zip()
  * function:    cache_pics
  * paramters:   none
  * returns:     none
- * description: Downloads a zip of robot pictures from server and adds to cache.
+ * description: Caches all known robot pictures.
  */
 async function cache_pics()
 {
-    let server = parse_server_addr(document.location.href)
     let cache = await caches.open(current)
-
-    fetch(`${server}/getPics`)
-        .then(transfer => {
-            return transfer.blob();
-        })
-        .then(file => {
-        
-            // process each files details
-            JSZip.loadAsync(file).then(function (zip)
+    let teams = Object.keys(dal.teams)
+    let count = 0
+    let total = 0
+    for (let team of teams)
+    {
+        let photos = dal.teams[team].pictures.photos
+        total += photos.length
+        for (let pic of photos)
+        {
+            fetch(pic).then(function (res)
             {
-                let files = Object.keys(zip.files)
-                let count = 0
-                for (let name of files)
+                if (++count === total)
                 {
-                    let parts = name.split('.')
-                    let ext = parts[parts.length-1]
-        
-                    // only import pngs
-                    if (parts.length > 1 && ext === 'png')
-                    {
-                        // get blob of files text
-                        zip.file(name).async('blob').then(function (content)
-                        {
-                            // TODO override res.url and res.type
-                            let headers = new Headers()
-                            headers.append('Content-Type', 'image/png')
-                            headers.append('Content-Length', content.size)
-        
-                            let res = new Response(content, { statusText: 'OK', headers: headers })
-                            cache.put(new URL(`${server}/uploads/${name}`), res)
-
-                            if (++count === files.length)
-                            {
-                                alert('Pictures Loaded!')
-                            }
-                        })
-                    }
-                    else if (++count === files.length)
-                    {
-                        alert('Pictures Loaded!')
-                    }
+                    alert('Pictures Cached!')
                 }
+                if (!res.ok)
+                {
+                    return
+                }
+                return cache.put(pic, res)
             })
-        })
-        .catch(err => {
-            alert('Error requesting pictures')
-            console.log(err)
-        })
+        }
+    }
 }
 
 /**

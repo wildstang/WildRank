@@ -172,6 +172,29 @@ function preload_event()
             alert('Error loading rankings!')
             console.log(err)
         })
+
+    // fetch list of server pictures
+    let server = parse_server_addr(document.location.href)
+    fetch(`${server}/listPics`)
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            // add each picture to config
+            let teams = Object.keys(data)
+            for (let team of teams)
+            {
+                let pics = data[team]
+                for (let i in pics)
+                {
+                    dal.add_photo(team, `${server}/uploads/${pics[i]}`, i === 0)
+                }
+            }
+        })
+        .catch(err => {
+            alert('Error loading pictures!')
+            console.log(err)
+        })
 }
 
 /**

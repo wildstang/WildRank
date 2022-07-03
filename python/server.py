@@ -225,9 +225,22 @@ async def zip():
 
 
 # build request of data in /uploads
-@app.get('/getPics', response_class=FileResponse)
-async def zip():
-    return build_zip(event_data=False, results=False, scout_configs=False, smart_stats=False, coach_config=False, settings=False, picklists=False, whiteboard=False, avatars=False, pictures=True)[0]
+@app.get('/listPics', response_class=JSONResponse)
+async def pics():
+    pics = {}
+
+    for f in listdir(UPLOAD_PATH):
+        # look at all png files with a "-"
+        if isfile(join(UPLOAD_PATH, f)) and f.endswith('.png') and '-' in f:
+            team = f.split('-')[0]
+
+            # add team to dict
+            if team not in pics:
+                pics[team] = []
+            
+            pics[team].append(f)
+    
+    return pics
 
 
 # build request of data in /uploads
