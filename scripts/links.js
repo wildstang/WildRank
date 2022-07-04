@@ -370,3 +370,36 @@ function start_scout(scouting_mode, match_key, team_num, alliance, edit=false)
 {
     return build_url('index', {'page': 'scout', [TYPE_COOKIE]: scouting_mode, [EVENT_COOKIE]: dal.event_id, [POSITION_COOKIE]: get_cookie(POSITION_COOKIE, POSITION_DEFAULT), [USER_COOKIE]: get_cookie(USER_COOKIE, USER_DEFAULT), 'match': match_key, 'team': team_num, 'alliance': alliance, 'edit': edit})
 }
+
+/**
+ * function:    open_extras
+ * parameters:  none
+ * returns:     none
+ * description: Open the extras home page.
+ */
+function open_extras()
+{
+    return build_url('index', {'page': 'home', 'role': 'extras'})
+}
+
+/**
+ * function:    open_22_estimator
+ * parameters:  none
+ * returns:     none
+ * description: Open the 2022 final score estimator page.
+ */
+function open_22_estimator()
+{
+    return build_url('index', {'page': 'misc/2022-score-estimator'})
+}
+
+/**
+ * function:    open_match_counter
+ * parameters:  none
+ * returns:     none
+ * description: Open the match counter page.
+ */
+function open_match_counter()
+{
+    return build_url('index', {'page': 'misc/match-counter'})
+}

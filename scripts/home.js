@@ -33,8 +33,12 @@ const CONFIGS = {
     },
     'admin': {
         'Configuration': ['open_config', 'open_settings', 'open_event_gen', 'open_export'],
-        'Debugging': ['open_config_debug', 'open_cache', 'open_random'],
+        'Debugging': ['open_config_debug', 'open_cache', 'open_random', 'open_extras'],
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
+    },
+    'extras': {
+        'Generic': ['open_match_counter'],
+        'Game Specific': ['open_22_estimator']
     }
 }
 
@@ -73,7 +77,10 @@ const BUTTONS = {
     'open_export':      { name: 'Server Exporter',   limits: ['admin'], configs: [] },
     'open_config_debug':{ name: 'Config Debugger',   limits: ['admin'], configs: [] },
     'open_cache':       { name: 'Cache Manager',     limits: ['admin'], configs: [] },
-    'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] }
+    'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] },
+    'open_extras':      { name: 'Extras',            limits: ['admin'], configs: [] },
+    'open_match_counter':{name: 'Match Counter',     limits: ['admin'], configs: [] },
+    'open_22_estimator':{ name: '2022 Score Estimator',  limits: ['admin'], configs: [] }
 }
 
 /**
@@ -84,7 +91,7 @@ const BUTTONS = {
  */
 function init_page()
 {
-    let role = get_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+    let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
     if (role === ROLE_DEFAULT || typeof role === 'undefined')
     {
         window.open('index.html?page=index', '_self')

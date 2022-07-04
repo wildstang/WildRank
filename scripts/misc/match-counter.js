@@ -47,6 +47,23 @@ var total = 0
  */
 function process_year(year)
 {
+    if (!TBA_KEY)
+    {
+        let file = cfg.keys
+        if (file != null)
+        {
+            if (cfg.keys.hasOwnProperty('tba'))
+            {
+                TBA_KEY = cfg.keys.tba
+            }
+        }
+        if (!TBA_KEY)
+        {
+            alert('No API key found for TBA!')
+            return
+        }
+    }
+
     fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
         .then(response => {
             if (response.status === 401) {
