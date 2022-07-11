@@ -35,7 +35,7 @@ function init_page()
         open_option(first)
 
         // setup camera feed
-        if (navigator.mediaDevices)
+        if (cfg.settings.use_images && navigator.mediaDevices)
         {
             let video = document.getElementById('camera-preview')
     

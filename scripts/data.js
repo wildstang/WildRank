@@ -931,7 +931,7 @@ class DAL
      */
     get_photo(team_num)
     {
-        if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        if (cfg.settings.use_images && this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
         {
             let pics = this.teams[team_num].pictures.photos
             if (pics.length > 0)
@@ -950,7 +950,7 @@ class DAL
      */
     get_photo_carousel(team_num, width='500px')
     {
-        if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        if (cfg.settings.use_images && this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
         {
             let html = `<div id="${team_num}-carousel" style="width: ${width}" class="photo-carousel">`
             let pics = this.teams[team_num].pictures.photos
