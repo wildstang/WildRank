@@ -80,7 +80,7 @@ function hide_buttons()
         document.getElementById('min_value_label').innerHTML = 'First Match'
         document.getElementById('max_value_label').innerHTML = 'Last Match'
         document.getElementById('min_value').value = 1
-        document.getElementById('max_value').value = Object.keys(dal.matches).length
+        document.getElementById('max_value').value = Math.max(...Object.values(dal.matches).map(m => m.match_number))
     }
 }
 
@@ -127,9 +127,12 @@ function create_results()
                 let fteams = Object.values(dal.get_match_teams(match_key))
                     .filter((t, j) => pos == 0 || pos == j - 1)
                 
-                for (let j in fteams)
+                if (dal.matches[match_key].match_number <= max && dal.matches[match_key].comp_level === 'qm')
                 {
-                    create_random_result(mode, pos == 0 ? j : pos-1, match_key, fteams[j], j < dal.alliance_size ? 'red' : 'blue')
+                    for (let j in fteams)
+                    {
+                        create_random_result(mode, pos == 0 ? j : pos-1, match_key, fteams[j], j < dal.alliance_size ? 'red' : 'blue')
+                    }
                 }
             }
             alert(`${max - min + 1} match results generated`)
