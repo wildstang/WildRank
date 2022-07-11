@@ -12,9 +12,6 @@ var config = [[], []]
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-// load in validation code
-include('validation')
-
 /**
  * function:    init_page
  * parameters:  none
@@ -544,7 +541,8 @@ function build_page_from_config()
                 button.add_option('&#9664;', `shift('${page.id}', 'up')`)
                 button.add_option('X', `shift('${page.id}', 'rm')`)
                 button.add_option('&#9654;', `shift('${page.id}', 'down')`)
-                button.add_class('slim page_header')
+                button.add_class('slim page_color')
+                button.columns = 3
                 page_frame.add_column(button)
             }
             // iterate through each column in the page
@@ -564,7 +562,8 @@ function build_page_from_config()
                         button.add_option('&#9664;', `shift('${column.id}', 'up')`)
                         button.add_option('X', `shift('${column.id}', 'rm')`)
                         button.add_option('&#9654;', `shift('${column.id}', 'down')`)
-                        button.add_class('slim column_header')
+                        button.add_class('slim column_color')
+                        button.columns = 3
                         column_frame.add_input(button)
                     }
                     // iterate through input in the column
@@ -628,6 +627,7 @@ function build_page_from_config()
                         button.add_option('X', `shift('${id}', 'rm')`)
                         button.add_option('&#9660;', `shift('${id}', 'down')`)
                         button.add_class('slim')
+                        button.columns = 3
                         column_frame.add_input(button)
                     }
                     if (cycle)

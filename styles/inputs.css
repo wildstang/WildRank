@@ -89,6 +89,16 @@
     color: var(--primary-color);
 }
 
+.page_color {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.column_color {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
 .wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number, .wr_slider {
     width: calc(var(--input-width) - 2*var(--input-padding));
     min-height: calc(var(--input-height) - 2*var(--input-padding));

@@ -1,7 +1,6 @@
 /**
  * file:        export.js
  * description: Page transfering data from one server to another.
- *              TODO: textbox and checkboxes like transfer raw
  * author:      Liam Fruzyna
  * date:        2022-06-20
  */

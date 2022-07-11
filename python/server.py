@@ -89,6 +89,10 @@ async def styles(file):
 async def javascript(file):
     return f'scripts/{file}.js'
 
+@app.get('/scripts/misc/{file}.js', response_class=FileResponse)
+async def misc_javascript(file):
+    return f'scripts/misc/{file}.js'
+
 @app.get('/config/{file}.json', response_class=FileResponse)
 async def config(file):
     return f'config/{file}.json'
