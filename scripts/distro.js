@@ -91,11 +91,11 @@ function open_option(key)
 
 /**
  * function:    open_secondary_option
- * parameters:  Selected key
+ * parameters:  Selected key, rebuild the plot
  * returns:     none
  * description: Selects and opens a secondary option.
  */
-function open_secondary_option(key)
+function open_secondary_option(key, rebuild=true)
 {
     let class_list = document.getElementById(`soption_${key}`).classList
     // select team button
@@ -108,8 +108,11 @@ function open_secondary_option(key)
         class_list.add('selected')
     }
 
-    select_none()
-    build_plot()
+    if (rebuild)
+    {
+        select_none()
+        build_plot()
+    }
 }
 
 /**
@@ -145,6 +148,7 @@ function build_plot()
     let keys = get_selected_keys()
     let key = keys[0]
     let highlights = get_secondary_selected_keys()
+    console.log('h', highlights)
     let teams = Object.keys(dal.teams)
 
     let func = FUNCTIONS[Select.get_selected_option('function')]
@@ -307,7 +311,69 @@ function build_plot()
     }
 }
 
-function find_bin()
+/**
+ * function:    find_bin
+ * parameters:  MouseEvent
+ * returns:     none
+ * description: Highlights teams based on a clicked on bin.
+ */
+function find_bin(event)
 {
-    // TODO highlight teams in selected bin
+    deselect_all(false)
+
+    let keys = get_selected_keys()
+    let key = keys[0]
+    let teams = Object.keys(dal.teams)
+
+    let func = FUNCTIONS[Select.get_selected_option('function')]
+    let num_bins = parseInt(document.getElementById('max_bins').value)
+
+    // calculate number of bins and what ranges the bins cover
+    let global = dal.compute_global_stats(keys, teams, func)
+    let min = dal.get_global_value(global, key, 'low')
+    let max = dal.get_global_value(global, key, 'high')
+    if (min === '---')
+    {
+        return
+    }
+    let select = dal.meta[key].type === 'checkbox' || dal.meta[key].type === 'select' || dal.meta[key].type === 'dropdown'
+    if (select)
+    {
+        num_bins = max
+    }
+    let bin_size = (max - min) / num_bins
+
+    // determine which bin was selected
+    let width = (pwidth - 49) / num_bins
+    let selected = Math.floor((event.offsetX - 25) / width)
+    if (selected < 0 || selected >= num_bins)
+    {
+        build_plot()
+        return
+    }
+
+    // determine which team each bin belongs in
+    for (let team of teams)
+    {
+        let val = dal.get_value(team, key, func)
+        if (typeof val === 'boolean')
+        {
+            val = val ? 1 : 0
+        }
+        let bin = Math.floor((val - min) / bin_size)
+        if (isNaN(bin))
+        {
+            continue
+        }
+        if (val === max)
+        {
+            bin = num_bins - 1
+        }
+        if (bin === selected)
+        {
+            open_secondary_option(team, rebuilt=false)
+        }
+    }
+
+    build_plot()
 }
