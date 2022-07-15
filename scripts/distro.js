@@ -211,22 +211,45 @@ function build_plot()
 
     // draw radio dial bars and their labels to highlight teams
     // this is first because JS drawing order is backwards... I think
+    let vals = {}
     for (let team of highlights)
     {
-        ctx.beginPath()
-        ctx.fillStyle = 'red'
-        ctx.font = `15px mono, courier`
         let val = dal.get_value(team, key, func)
         if (typeof val === 'boolean')
         {
             val = val ? 1 : 0
         }
-        let percent = (val - min) / (max - min)
-        ctx.fillRect(25 + percent * (pwidth - 50), 0, 1, pheight - 25)
+        val = val.toFixed(1).replace('.0', '')
+        if (!Object.keys(vals).includes(val))
+        {
+            vals[val] = []
+        }
+        vals[val].push(team)
+    }
+    let dials = Object.keys(vals)
+    for (let val of dials)
+    {
+        ctx.beginPath()
+        ctx.fillStyle = 'red'
+        let pos = parseInt(val)
+        let label = val
+        if (dal.meta[key].type === 'checkbox' || dal.meta[key].type === 'dropdown' || dal.meta[key].type === 'select')
+        {
+            pos += 0.5
+        }
+        let percent = (pos - min) / (max - min)
+        ctx.fillRect(25 + percent * (pwidth - 50), 0, 1, pheight - 35)
 
-        let label = (val).toFixed(1)
-        let text_width = ctx.measureText(label).width
-        ctx.fillText(label, 25 + percent * (pwidth - 50) - text_width / 2, pheight - 10)
+        if (dal.meta[key].type !== 'checkbox' && dal.meta[key].type !== 'dropdown' && dal.meta[key].type !== 'select')
+        {
+            ctx.font = `bold 17px mono, courier`
+            let text_width = ctx.measureText(label).width
+            ctx.fillText(label, 25 + percent * (pwidth - 50) - text_width / 2, pheight - 20)
+        }
+        ctx.font = `15px mono, courier`
+        let teams = vals[val].join(',')
+        text_width = ctx.measureText(teams).width
+        ctx.fillText(teams, 25 + percent * (pwidth - 50) - text_width / 2, pheight - 5)
 
         ctx.stroke()
     }
@@ -235,7 +258,7 @@ function build_plot()
     for (let i in bins)
     {
         let bin = bins[i]
-        let height = (bin.length / max_teams) * (pheight - 25)
+        let height = (bin.length / max_teams) * (pheight - 35)
         let width = (pwidth - 50) / num_bins
 
         ctx.beginPath()
@@ -251,9 +274,9 @@ function build_plot()
         ctx.beginPath()
         ctx.fillStyle = 'gray'
         ctx.font = `20px mono, courier`
-        ctx.fillRect(25 + i * width, (pheight - 25) - height, width - 1, height)
+        ctx.fillRect(25 + i * width, (pheight - 35) - height, width - 1, height)
 
-        label = (bin_size * i + min).toFixed(1)
+        label = (bin_size * i + min).toFixed(1).replace('.0', '')
         // use option name for checkboxes, selects, dropdowns
         let label_shift = 0
         if (select)
@@ -266,7 +289,7 @@ function build_plot()
             label_shift = width / 2
         }
         text_width = ctx.measureText(label).width
-        ctx.fillText(label, 25 + i * width - text_width / 2 + label_shift, pheight - 10)
+        ctx.fillText(label, 25 + i * width - text_width / 2 + label_shift, pheight - 20)
 
         ctx.stroke()
     }
@@ -277,9 +300,9 @@ function build_plot()
         ctx.beginPath()
         ctx.fillStyle = 'gray'
         ctx.font = `20px mono, courier`
-        label = (max).toFixed(1)
+        label = (max).toFixed(1).replace('.0', '')
         text_width = ctx.measureText(label).width
-        ctx.fillText(label, pwidth - 25 - text_width / 2, pheight - 10)
+        ctx.fillText(label, pwidth - 25 - text_width / 2, pheight - 20)
         ctx.stroke()
     }
 }
