@@ -148,7 +148,6 @@ function build_plot()
     let keys = get_selected_keys()
     let key = keys[0]
     let highlights = get_secondary_selected_keys()
-    console.log('h', highlights)
     let teams = Object.keys(dal.teams)
 
     let func = FUNCTIONS[Select.get_selected_option('function')]
@@ -242,18 +241,60 @@ function build_plot()
             pos += 0.5
         }
         let percent = (pos - min) / (max - min)
+
+        // draw line
         ctx.fillRect(25 + percent * (pwidth - 50), 0, 1, pheight - 35)
 
+        // draw team numbers
+        ctx.font = `15px mono, courier`
+        let teams = vals[val].join(',')
+        text_width = ctx.measureText(teams).width
+        let lines = 1
+        if (text_width > pwidth)
+        {
+            teams = ''
+            lines = Math.ceil(text_width / pwidth)
+            let length = vals[val].length / lines
+            for (let i = 0; i < lines; i++)
+            {
+                if (i === lines - 1)
+                {
+                    length = vals[val].length - i * length
+                }
+                teams += vals[val].slice(i * length, (i+1) * length) + '\n'
+            }
+        }
+        let x = 25 + percent * (pwidth - 50) - text_width / 2
+        if (x + text_width > pwidth)
+        {
+            x -= (x + text_width) - pwidth
+        }
+        else if (x < 0)
+        {
+            x = 0
+        }
+        let text = teams.split('\n')
+        for (let line = 0; line < lines; line++)
+        {
+            ctx.fillText(text[line], x, pheight - 12 * (lines - line) + 7)
+        }
+
+        // draw team(s) value
         if (dal.meta[key].type !== 'checkbox' && dal.meta[key].type !== 'dropdown' && dal.meta[key].type !== 'select')
         {
             ctx.font = `bold 17px mono, courier`
             let text_width = ctx.measureText(label).width
-            ctx.fillText(label, 25 + percent * (pwidth - 50) - text_width / 2, pheight - 20)
+            let x = 25 + percent * (pwidth - 50) - text_width / 2
+            if (x + text_width > pwidth)
+            {
+                x -= (x + text_width) - pwidth
+            }
+            else if (x < 0)
+            {
+                x = 0
+            }
+            ctx.fillText(label, x, pheight - 20 - (lines - 1) * 12)
         }
-        ctx.font = `15px mono, courier`
-        let teams = vals[val].join(',')
-        text_width = ctx.measureText(teams).width
-        ctx.fillText(teams, 25 + percent * (pwidth - 50) - text_width / 2, pheight - 5)
 
         ctx.stroke()
     }
