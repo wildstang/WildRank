@@ -130,8 +130,9 @@ function open_match(match_num)
             result_button.link = `open_result('${key}', '${team_num}')`
             buttons_container.innerHTML += result_button.toString
         }
+
+        ws(team_num)
     }
-    // TODO notes
 }
 
 /**

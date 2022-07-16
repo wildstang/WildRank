@@ -198,6 +198,10 @@ function build_plot()
             let team = selected_teams[j]
             ctx.beginPath()
             let color = COLORS[j % COLORS.length]
+            if (team !== 'avg')
+            {
+                color = dal.get_value(team, 'meta.color')
+            }
             ctx.fillStyle = color
             
             // points

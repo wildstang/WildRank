@@ -3,6 +3,7 @@
 		"title": "WildRank",
 		"time_format": 12,
 		"use_images": true,
+		"use_team_color": true,
 		"allow_random": false
 	},
 	"defaults": {

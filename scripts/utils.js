@@ -333,7 +333,12 @@ function ws(team_num)
     }
     else
     {
-        document.getElementById('header').style.background = cfg.theme['primary-color']
+        let color = cfg.theme['primary-color']
+        if (cfg.settings.use_team_color)
+        {
+            color = dal.get_value(team_num, 'meta.color')
+        }
+        document.getElementById('header').style.background = color
         document.getElementById('header').style['background-size'] = ''
         document.getElementById('header').style.animation = ''
     }
@@ -477,4 +482,20 @@ function apply_theme()
     {
         document.documentElement.style.setProperty(`--${key}`, theme[key])
     }
+}
+
+/**
+ * function:    to_hex
+ * parameters:  integer
+ * returns:     none
+ * description: Converts a given value to a 2 byte hex string.
+ */
+function to_hex(value)
+{
+    let hex = value.toString(16)
+    if (hex.length < 2)
+    {
+        hex = '0' + hex
+    }
+    return hex
 }

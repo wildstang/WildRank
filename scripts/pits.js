@@ -106,6 +106,8 @@ function open_option(team_num)
     let capture = new Button('capture', 'Capture', `capture('${team_num}')`)
     capture.add_class('slim')
     document.getElementById('capture-button').innerHTML = capture.toString
+
+    ws(team_num)
 }
 
 /**

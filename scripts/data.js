@@ -5,6 +5,8 @@
  * date:        2022-04-30
  */
 
+include('Vibrant.min')
+
 class DAL
 {
     constructor(event_id)
@@ -391,7 +393,8 @@ class DAL
                         name: team.nickname,
                         city: team.city,
                         state_prov: team.state_prov,
-                        country: team.country
+                        country: team.country,
+                        color: cfg.theme['primary-color']
                     }
                 }
             }
@@ -514,8 +517,7 @@ class DAL
             }
         }
 
-        // TODO pictures aren't supported
-        // TODO avatar
+        // find pictures
         let start_pictures = Date.now()
         if (this.load_pictures)
         {
@@ -537,6 +539,18 @@ class DAL
                 else
                 {
                     avatar = `data:image/png;base64,${avatar}`
+
+                    // pull out color from avatar
+                    let img = document.createElement('img')
+                    img.setAttribute('src', avatar)
+                    img.addEventListener('load', () => {
+                        let vibrant = new Vibrant(img)
+                        let color = vibrant.swatches().Vibrant
+                        if (typeof color !== 'undefined')
+                        {
+                            this.teams[team].meta.color = `#${to_hex(color.rgb[0])}${to_hex(color.rgb[1])}${to_hex(color.rgb[2])}`
+                        }
+                    })
                 }
 
                 let photos = []
