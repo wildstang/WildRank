@@ -403,3 +403,14 @@ function open_match_counter()
 {
     return build_url('index', {'page': 'misc/match-counter'})
 }
+
+/**
+ * function:    open_test
+ * parameters:  none
+ * returns:     none
+ * description: Open the input test page.
+ */
+function open_test()
+{
+    return build_url('index', {'page': 'misc/test'})
+}

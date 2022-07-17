@@ -37,7 +37,7 @@ const CONFIGS = {
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
     'extras': {
-        'Generic': ['open_match_counter'],
+        'Generic': ['open_test', 'open_match_counter'],
         'Game Specific': ['open_22_estimator']
     }
 }
@@ -80,6 +80,7 @@ const BUTTONS = {
     'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] },
     'open_extras':      { name: 'Extras',            limits: ['admin'], configs: [] },
     'open_match_counter':{name: 'Match Counter',     limits: ['admin'], configs: [] },
+    'open_test':        { name: 'Input Tester',       limits: ['admin'], configs: [] },
     'open_22_estimator':{ name: '2022 Score Estimator',  limits: ['admin'], configs: [] }
 }
 
