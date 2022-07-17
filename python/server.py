@@ -54,7 +54,7 @@ except:
 
 # report instance to official instance
 if REPORT:
-    requests.get(url='https://wildrank.wildstang.dev/report', params={'host': host, 'port': port})
+    requests.get(url='https://wildrank.app/report', params={'host': host, 'port': port})
 
 
 # create an instance of FastAPI
@@ -172,7 +172,7 @@ async def about():
             </head>\
             <body>\
                 <h1>WildRank</h1>\
-                post-server.py Python3 POST server<br>\
+                server.py Python3 FastAPI POST server<br>\
                 2020-{dt.now().year} <a href="https://wildstang.org">WildStang Robotics Program</a><br>\
                 <a href="https://github.com/WildStang/WildRank">MPL Licensed on GitHub</a><br>\
                 <br>\
