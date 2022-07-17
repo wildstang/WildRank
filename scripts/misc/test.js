@@ -37,6 +37,7 @@ function init_page()
     multibutton.add_option('A', `alert('A')`)
     multibutton.add_option('B', `alert('B')`)
     multibutton.add_option('C', `alert('C')`)
+    multibutton.columns = 3
     multibuttons.add_input(multibutton)
 
     let wrapmultibutton = new MultiButton('', 'Wrapping Multi-Button')
@@ -89,6 +90,7 @@ function init_page()
     multicounter.add_option('A')
     multicounter.add_option('B')
     multicounter.add_option('C')
+    multicounter.columns = 3
     multicounters.add_input(multicounter)
 
     let wrapmulticounter = new MultiCounter('', 'Wrapping Multi-Counter', ['A', 'B', 'C', 'D'], [0, 1, 2, 3])
@@ -129,6 +131,7 @@ function init_page()
     page.add_column(selects)
 
     let select = new Select('', 'Test Select', ['A', 'B', 'C'], 'C')
+    select.columns = 3
     selects.add_input(select)
 
     let alertselect = new Select('', 'Alert Select')
