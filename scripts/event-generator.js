@@ -34,6 +34,9 @@ function init_page()
     let teams_entry = new Entry('num_teams', 'Number of Teams', num_teams, [6, 100])
     teams_entry.type = 'number'
     col.add_input(teams_entry)
+
+    let team_list = new Entry('team_list', 'Attending Teams', '')
+    col.add_input(team_list)
     
     let alliance_size = dal.alliance_size
     if (alliance_size === 0)
@@ -153,8 +156,14 @@ function generate_match_teams(num_teams, distribute=true)
 function generate_teams()
 {
     let teams = []
-    let num_teams = document.getElementById('num_teams').value
+    let team_nums = document.getElementById('team_list').value
     let event_id = document.getElementById('event_id').value
+    if (team_nums.includes(','))
+    {
+        return pull_teams(event_id, team_nums)
+    }
+    
+    let num_teams = document.getElementById('num_teams').value
     for (let team_num = 1; team_num <= num_teams; team_num++)
     {
         teams.push({
@@ -167,11 +176,118 @@ function generate_teams()
             team_number: team_num
         })
     }
+
+    save_teams(event_id, teams)
+}
+
+/**
+ * function:    save_teams
+ * parameters:  event id, list of teams objects
+ * returns:     none
+ * description: Saves a generated list of teams to localStorage.
+ */
+ function save_teams(event_id, teams)
+ {
     localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
     localStorage.setItem(`matches-${event_id}`, '[]')
 
     dal.build_teams()
     populate_matches()
+}
+
+/**
+ * function:    pull_teams
+ * parameters:  event id, commas separated list of teams
+ * returns:     none
+ * description: Generates a new teams file for the event using the current list of team numbers.
+ */
+function pull_teams(event_id, team_list)
+{
+    if (!TBA_KEY)
+    {
+        let file = cfg.keys
+        if (file != null)
+        {
+            if (cfg.keys.hasOwnProperty('tba'))
+            {
+                TBA_KEY = cfg.keys.tba
+            }
+        }
+        if (!TBA_KEY)
+        {
+            alert('No API key found for TBA!')
+            return
+        }
+    }
+
+    // split up list of teams
+    let team_nums = team_list.split(',').map(t => t.trim())
+    let teams = []
+
+    let count = 0
+    for (let team_num of team_nums)
+    {
+        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        .then(response => {
+            return response.json()
+        })
+        .then(team => {
+            if ('Error' in team)
+            {
+                throw team.Error
+            }
+            teams.push(team)
+
+            let year = event_id.substr(0, 4)
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+                    for (let m of data)
+                    {
+                        switch (m.type)
+                        {
+                            case 'avatar':
+                                localStorage.setItem(`avatar-${year}-${team.team_number}`, m.details.base64Image)
+                                break
+                            case 'cdphotothread':
+                            case 'imgur':
+                            // NOTE: instagram does things weird
+                            //case 'instagram-image':
+                            case 'onshape':
+                                dal.add_photo(team.team_number, m.direct_url)
+                                break
+
+                        }
+                    }
+                })
+                .catch(err => {
+                })
+                
+            if (++count === team_nums.length)
+            {
+                save_teams(event_id, teams)
+            }
+        })
+        .catch(err => {
+            console.log(`Could not find team ${team_num}, generating`)
+            teams.push({
+                city: 'Generated Team',
+                country: 'GT',
+                key: `frc${team_num}`,
+                name: `Generated Team ${team_num}`,
+                nickname: `Generated Team ${team_num}`,
+                state_prov: 'GT',
+                team_number: team_num
+            })
+                
+            if (++count === team_nums.length)
+            {
+                save_teams(event_id, teams)
+            }
+        })
+    }
 }
 
 /**
