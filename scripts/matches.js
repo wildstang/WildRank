@@ -21,7 +21,14 @@ var generate = ''
  */
 function init_page()
 {
-    let first = populate_matches(false)
+    // override scouting position with that from config
+    // TODO: determine if this is acutally desired
+    if (dal.event_id in cfg.users.scouters && Object.keys(cfg.users.scouters[dal.event_id]).includes(user_id))
+    {
+        scout_pos = cfg.users.scouters[dal.event_id][user_id]
+    }
+
+    let first = populate_matches(false, true, '', false, scout_pos)
     if (first)
     {
         let avatar = ''
@@ -30,13 +37,6 @@ function init_page()
         {
             avatar = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">`
             button_txt = 'Scout Match'
-        }
-
-        // override scouting position with that from config
-        // TODO: determine if this is acutally desired
-        if (dal.event_id in cfg.users.scouters && Object.keys(cfg.users.scouters[dal.event_id]).includes(user_id))
-        {
-            scout_pos = cfg.users.scouters[dal.event_id][user_id]
         }
 
         // add scouting position

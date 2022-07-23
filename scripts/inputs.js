@@ -854,7 +854,7 @@ class MatchOption extends Option
             id = `soption_${this.id}`
             on_click = `open_secondary_option('${this.id}')`
         }
-        return `<div id="match_${id}" class="match_option ${this.selected}" onclick="${on_click}">
+        return `<div id="match_${id}" class="match_option ${this.selected} ${this.classes.join(' ')}" onclick="${on_click}">
                     <span class="option_number">${this.label}</span>
                     <span>
                         <div class="alliance red">${this.red_teams.join(' ')}</div>
