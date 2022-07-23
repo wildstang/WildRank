@@ -34,7 +34,7 @@ function init_page()
 
         // override scouting position with that from config
         // TODO: determine if this is acutally desired
-        if (Object.keys(cfg.users.scouters[dal.event_id]).includes(user_id))
+        if (dal.event_id in cfg.users.scouters && Object.keys(cfg.users.scouters[dal.event_id]).includes(user_id))
         {
             scout_pos = cfg.users.scouters[dal.event_id][user_id]
         }

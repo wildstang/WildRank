@@ -249,7 +249,7 @@ function check_event()
 function check_id()
 {
     let id = get_user()
-    if (Object.keys(cfg.users.scouters[get_event()]).includes(id))
+    if (get_event() in cfg.users.scouters && Object.keys(cfg.users.scouters[get_event()]).includes(id))
     {
         position.selectedIndex = cfg.users.scouters[get_event()][id]
     }
