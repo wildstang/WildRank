@@ -975,7 +975,7 @@ class DAL
                     html += `<img src="${pic}">`
                 }
             }
-            return html + '</div>'
+            return `<center>${html}</div></center>`
         }
         return ''
     }
