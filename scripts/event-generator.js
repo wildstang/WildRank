@@ -92,9 +92,9 @@ function populate_matches()
         }
 
         let add_match = new Button('add_match', 'Add Match', 'add_match()')
-        blue_col.add_input(add_match)
+        red_col.add_input(add_match)
 
-        cols = red_col.toString + blue_col.toString
+        cols = blue_col.toString + red_col.toString
     }
     document.getElementById('match_col').innerHTML = cols
 }
