@@ -43,6 +43,7 @@ function init_page()
         }
         position.add_option(`${color} ${pos}`)
     }
+    position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
     options.add_input(position)
 
     let user_id = new Entry('user_id', 'School ID', 111112)
@@ -251,7 +252,7 @@ function check_id()
     let id = get_user()
     if (get_event() in cfg.users.scouters && Object.keys(cfg.users.scouters[get_event()]).includes(id))
     {
-        position.selectedIndex = cfg.users.scouters[get_event()][id]
+        document.getElementById('position').selectedIndex = cfg.users.scouters[get_event()][id]
     }
 }
 
