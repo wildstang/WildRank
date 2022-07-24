@@ -58,7 +58,12 @@ function init_page()
             document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${scout_pos})</span>`
+            let pos = 1 + parseInt(scout_pos)
+            if (pos > dal.alliance_size)
+            {
+                pos -= dal.alliance_size
+            }
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
             break
     }
     ws(team_num)
