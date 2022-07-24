@@ -35,7 +35,8 @@ function init_page()
     teams_entry.type = 'number'
     col.add_input(teams_entry)
 
-    let team_list = new Entry('team_list', 'Attending Teams', '')
+    let teams = Object.keys(dal.teams)
+    let team_list = new Extended('team_list', 'Attending Teams', teams.join(','))
     col.add_input(team_list)
     
     let alliance_size = dal.alliance_size
