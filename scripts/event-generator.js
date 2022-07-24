@@ -19,7 +19,7 @@ function init_page()
     // set header
     document.getElementById('header_info').innerHTML = 'Generate Event'
 
-    let col = new ColumnFrame('', '')
+    let col = new ColumnFrame()
     let team_page = new PageFrame('', 'Team', [col])
     
     let event_entry = new Entry('event_id', 'Event ID', dal.event_id)

@@ -32,8 +32,8 @@ const CONFIGS = {
         'Transfer': ['open_transfer', 'download_csv', 'open_events']
     },
     'admin': {
-        'Configuration': ['open_config', 'open_settings', 'open_event_gen', 'open_export'],
-        'Debugging': ['open_config_debug', 'open_cache', 'open_random', 'open_extras'],
+        'Configuration': ['open_config', 'open_settings', 'open_schedule_import', 'open_export'],
+        'Debugging': ['open_config_debug', 'open_event_gen', 'open_cache', 'open_random', 'open_extras'],
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
     'extras': {
@@ -73,15 +73,16 @@ const BUTTONS = {
     'reset_results':    { name: 'Reset Results',     limits: ['admin'], configs: [] },
     'clear_events':     { name: 'Clear Other Events',limits: ['admin'], configs: [] },
     'open_event_gen':   { name: 'Event Generator',   limits: ['admin'], configs: [] },
-    'open_random':      { name: 'Random Result Generator',  limits: ['admin'], configs: ['settings'] },
+    'open_schedule_import':{name: 'Schedule Importer', limits: ['admin'], configs: [] },
+    'open_random':      { name: 'Random Result Generator', limits: ['admin'], configs: ['settings'] },
     'open_export':      { name: 'Server Exporter',   limits: ['admin'], configs: [] },
     'open_config_debug':{ name: 'Config Debugger',   limits: ['admin'], configs: [] },
     'open_cache':       { name: 'Cache Manager',     limits: ['admin'], configs: [] },
-    'download_csv':     { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] },
+    'download_csv':     { name: 'Export Results as Sheet', limits: ['event', 'admin', 'any'], configs: [] },
     'open_extras':      { name: 'Extras',            limits: ['admin'], configs: [] },
     'open_match_counter':{name: 'Match Counter',     limits: ['admin'], configs: [] },
     'open_test':        { name: 'Input Tester',       limits: ['admin'], configs: [] },
-    'open_22_estimator':{ name: '2022 Score Estimator',  limits: ['admin'], configs: [] }
+    'open_22_estimator':{ name: '2022 Score Estimator', limits: ['admin'], configs: [] }
 }
 
 /**

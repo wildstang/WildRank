@@ -242,11 +242,22 @@ function open_random()
  * function:    open_event_gen
  * parameters:  none
  * returns:     none
- * description: Open the generate random results page.
+ * description: Open the event generator page.
  */
 function open_event_gen()
 {
     return build_url('index', {'page': 'event-generator', [EVENT_COOKIE]: get_event()})
+}
+
+/**
+ * function:    open_schedule_import
+ * parameters:  none
+ * returns:     none
+ * description: Open the schedule importer page.
+ */
+function open_schedule_import()
+{
+    return build_url('index', {'page': 'schedule-importer', [EVENT_COOKIE]: get_event()})
 }
 
 /**
