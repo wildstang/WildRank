@@ -140,7 +140,13 @@ function open_option(team_num)
         }
     }
 
-    let left_col = new ColumnFrame('', '', cards.splice(0, cards.length/2))
+    let count = cards.length/2
+    // prevent time and button from ending up in different columns
+    if (count % 2 === 1)
+    {
+        count++
+    }
+    let left_col = new ColumnFrame('', '', cards.splice(0, count))
     let right_col = new ColumnFrame('', '', cards)
     let page = new PageFrame('', '', [pit_button, left_col, right_col])
 
