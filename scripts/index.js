@@ -214,6 +214,7 @@ function process_files()
         }
         position.add_option(`${color} ${pos}`)
     }
+    position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
     document.getElementById('position').innerHTML = position.html_options
 }
 
