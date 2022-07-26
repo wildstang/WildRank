@@ -49,7 +49,8 @@ async function populate_page()
     {
         let cache = await caches.open(name)
         let keys = await cache.keys()
-        let table = `<table><tr><th>${name}</th><td>${keys.length} files</td></tr>`
+        let table = `<table><tr><th>${name}</th><td>${keys.length} files</td><td>CACHE_HASH</td></tr>`
+        let cache_str = ''
         
         // add each file in the cache to the table
         for (let key of keys)
@@ -59,6 +60,7 @@ async function populate_page()
             let reader = response.body.getReader()
             let full = false
             let bytes = 0
+            let str = ''
             while (!full)
             {
                 await reader.read().then(({done, value}) =>
@@ -66,6 +68,10 @@ async function populate_page()
                     if (!done)
                     {
                         bytes += value.length
+                        for (let c of value)
+                        {
+                            str += String.fromCharCode(c)
+                        }
                     }
                     else
                     {
@@ -84,9 +90,10 @@ async function populate_page()
             {
                 file = file.replace(server, '')
             }
-            table += `<tr><td>${file}</td><td>${format_bytes(bytes)}</td></tr>`
+            table += `<tr><td>${file}</td><td>${format_bytes(bytes)}</td><td>${hash(str)}</td></tr>`
+            cache_str += str
         }
-        text += table + '</table>'
+        text += table.replace('CACHE_HASH', hash(cache_str)) + '</table>'
         button_col.add_input(new Button(`purge_${name}`, `Purge ${name}`, `purge_cache('${name}')`))
     }
 

@@ -499,3 +499,26 @@ function to_hex(value)
     }
     return hex
 }
+
+/**
+ * function:    hash
+ * parameters:  string to hash
+ * returns:     hashed string
+ * description: Produces a hash from any given string.
+ *              Based on this SO answer: https://stackoverflow.com/a/52171480
+ */
+function hash(str)
+{
+    let h1 = 0x00000000
+    let h2 = 0x00000000
+    for (let i = 0, ch; i < str.length; i++)
+    {
+        ch = str.charCodeAt(i)
+        h1 = Math.imul(h1 ^ ch, 2654435761)
+        h2 = Math.imul(h2 ^ ch, 1597334677)
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909)
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909)
+    let hash = 4294967296 * (2097151 & h2) + (h1>>>0)
+    return hash.toString(16)
+}
