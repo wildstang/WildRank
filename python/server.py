@@ -54,7 +54,10 @@ except:
 
 # report instance to official instance
 if REPORT:
-    requests.get(url='https://wildrank.app/report', params={'host': host, 'port': port})
+    try:
+        requests.get(url='https://wildrank.app/report', params={'host': host, 'port': port})
+    except:
+        pass
 
 
 # create an instance of FastAPI
