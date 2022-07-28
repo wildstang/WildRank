@@ -105,6 +105,11 @@ function build_column(name, file)
             let entry = new Extended(id, name, val.join(', '))
             column.add_input(entry)
         }
+        else
+        {
+            let entry = new Extended(id, name, JSON.stringify(val))
+            column.add_input(entry)
+        }
     }
     return column
 }
@@ -145,7 +150,7 @@ function build_config(file)
         if (document.getElementById(id))
         {
             let val = config[key]
-            let new_val = ''
+            let new_val = val
             if (key === 'time_format')
             {
                 new_val = Select.get_selected_option(id) == 0 ? 12 : 24
@@ -165,6 +170,10 @@ function build_config(file)
             else if (Array.isArray(val))
             {
                 new_val = document.getElementById(id).value.split(',').map(v => parseInt(v.trim()))
+            }
+            else
+            {
+                new_val = JSON.parse(document.getElementById(id).value)
             }
             config[key] = new_val
         }
