@@ -239,7 +239,7 @@ function download_config()
 
     let element = document.createElement('a')
     element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
-    element.setAttribute('download', `config.json`)
+    element.setAttribute('download', `settings-config.json`)
 
     element.style.display = 'none'
     document.body.appendChild(element)
