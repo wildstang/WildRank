@@ -198,6 +198,8 @@
     margin-top: 1px;
     border: none;
     font-size: 16px;
+    background-color: var(--foreground-color);
+    color: var(--foreground-text-color);
 }
 
 .status_text {
