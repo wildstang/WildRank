@@ -48,10 +48,10 @@ function init_page()
     get_col.add_input(source)
 
     let demo = new Button('demo', 'Web Demo')
-    demo.link = `'/'`
+    demo.link = `'https://wildrank.app'`
     get_col.add_input(demo)
 
-    let wildstang = new Button('wildstang', 'wildstang')
+    let wildstang = new Button('wildstang', 'WildStang')
     wildstang.link = `'https://wildstang.org'`
     get_col.add_input(wildstang)
 
