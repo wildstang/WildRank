@@ -28,8 +28,9 @@ const CONFIGS = {
     'analysis': {
         'Teams': ['open_ranker', 'open_sides', 'open_picks', 'open_whiteboard'],
         'Keys': ['open_pivot', 'open_distro', 'open_plot', 'open_scatter'],
-        'Data': ['open_results', 'open_cycles', 'open_teams', 'open_matches', 'open_users', 'open_progress', 'open_coach'],
-        'Transfer': ['open_transfer', 'download_csv', 'open_events']
+        'Data': ['open_results', 'open_cycles', 'open_coach'],
+        'Overviews': ['open_teams', 'open_matches', 'open_users', 'open_progress', 'open_events'],
+        'Transfer': ['open_transfer', 'download_csv']
     },
     'admin': {
         'Configuration': ['open_config', 'open_settings', 'open_schedule_import', 'open_export'],
