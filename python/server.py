@@ -351,15 +351,19 @@ async def post(team_num, request: Request, password=''):
 
 # respond to exceptions (non-matching requests)
 @app.exception_handler(HTTPException)
+@app.exception_handler(RuntimeError)
 async def custom_http_exception_handler(request, exc):
-    return HTMLResponse(f'<!DOCTYPE html>\
-        <html lang="en">\
-            <head>\
-                <meta charset="utf-8"/>\
-                <title>WildRank</title>\
-            </head>\
-            <body>\
-                <h1>WildRank</h1>\
-                <h2>404 - Page Not Found</h2>\
-            </body>\
-        </html>', status_code=404)
+    if request.url.path.endswith('.json'):
+        return JSONResponse(content={}, status_code=404)
+    else:
+        return HTMLResponse(f'<!DOCTYPE html>\
+            <html lang="en">\
+                <head>\
+                    <meta charset="utf-8"/>\
+                    <title>WildRank</title>\
+                </head>\
+                <body>\
+                    <h1>WildRank</h1>\
+                    <h2>404 - Page Not Found</h2>\
+                </body>\
+            </html>', status_code=404)
