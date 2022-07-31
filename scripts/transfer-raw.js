@@ -8,7 +8,7 @@
 const start = Date.now()
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-include('jszip.min')
+include('libs/jszip.min')
 
 /**
  * function:    init_page

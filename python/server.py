@@ -96,6 +96,10 @@ async def javascript(file):
 async def misc_javascript(file):
     return f'scripts/misc/{file}.js'
 
+@app.get('/scripts/libs/{file}.js', response_class=FileResponse)
+async def lib_javascript(file):
+    return f'scripts/libs/{file}.js'
+
 @app.get('/config/{file}.json', response_class=FileResponse)
 async def config(file):
     return f'config/{file}.json'

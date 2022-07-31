@@ -5,7 +5,7 @@
  * date:        2022-06-28
  */
 
-include('jszip.min')
+include('libs/jszip.min')
 
 let current = 'default'
 
