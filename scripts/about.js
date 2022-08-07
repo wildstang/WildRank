@@ -18,40 +18,41 @@ function init_page()
 
     // generate page
     let page = new PageFrame()
-    let about_col = new ColumnFrame('', 'About')
+    let about_col = new ColumnFrame('', 'Application')
     page.add_column(about_col)
 
     let server = new Card('server', 'Server: Unknown')
+    server.space_after = false
+    server.limitWidth = true
     about_col.add_input(server)
 
     let version = new Card('version', 'Git: Nope')
+    version.space_after = false
     version.limitWidth = true
     about_col.add_input(version)
 
     let release = new Card('release', 'Release: Nope')
     release.limitWidth = true
+    release.space_after = false
     about_col.add_input(release)
 
     let config = new Card('config', 'Config: Nope')
     config.limitWidth = true
+    config.space_after = false
     about_col.add_input(config)
 
-    let description = new Card('description', 'WildRank is a FIRST Robotics Competition scouting web app and a spiritual successor to <a href="https://github.com/wildstang/wildrank-android">WildRank Android</a>. It was developed to be a progressive web app supporting full offline functionality on most modern devices.')
-    description.limitWidth = true
-    about_col.add_input(description)
-
-    let get_col = new ColumnFrame('', 'Get WildRank')
+    let get_col = new ColumnFrame('', 'Links')
     page.add_column(get_col)
 
-    let source = new Button('source', 'Source')
+    let source = new Button('source', 'GitHub')
     source.link = `'https://github.com/WildStang/WildRank'`
     get_col.add_input(source)
 
-    let demo = new Button('demo', 'Web Demo')
+    let demo = new Button('demo', 'Public Demo')
     demo.link = `'https://wildrank.app'`
     get_col.add_input(demo)
 
-    let wildstang = new Button('wildstang', 'WildStang')
+    let wildstang = new Button('wildstang', 'WildStang Program')
     wildstang.link = `'https://wildstang.org'`
     get_col.add_input(wildstang)
 
