@@ -211,11 +211,17 @@ class Card extends Element
     {
         super(id, label)
         this.limitWidth = false
+        this.space_after = true
     }
 
     get toString()
     {
-        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${this.limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${this.label}</div><br>`
+        let suffix = '<br>'
+        if (!this.space_after)
+        {
+            suffix = ''
+        }
+        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${this.limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${this.label}</div>${suffix}`
     }
 }
 
