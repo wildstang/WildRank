@@ -209,8 +209,10 @@ def build_zip(event_id='', event_data=True, results=True, scout_configs=True, sm
     count = 0
     with ZipFile(file, 'w', ZIP_DEFLATED) as zip:
         for f in listdir(UPLOAD_PATH):
+            # NOTE: we intentionally ignore directories here
+            #   we don't want to pass around other servers' images for them
             if isfile(join(UPLOAD_PATH, f)) and \
-                ((pictures and f.endswith('.png')) or \
+                ((pictures and (f.endswith('.png') or f.endswith('.jpg'))) or \
                     (f.endswith('.json') and ( \
                         (event_data and event_id in f and (f.startswith('teams-') or f.startswith('matches-') or f.startswith('rankings-'))) or \
                         (results and event_id in f and (f.startswith('match-') or f.startswith('pit-'))) or \
@@ -232,7 +234,7 @@ def build_zip(event_id='', event_data=True, results=True, scout_configs=True, sm
 # build request of data in /uploads
 @app.get('/getZip', response_class=FileResponse)
 async def zip():
-    return build_zip(pictures=False)[0]
+    return build_zip()[0]
 
 
 # build request of data in /uploads

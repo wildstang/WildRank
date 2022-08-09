@@ -243,6 +243,9 @@ async function import_zip(event)
                         case 'png':
                             headers.append('Content-Type', 'image/png')
                             break
+                        case 'jpg':
+                            headers.append('Content-Type', 'image/jpeg')
+                            break
                         case 'svg':
                             headers.append('Content-Type', 'image/svg+xml')
                             break

@@ -26,12 +26,13 @@ function init_page()
     page.add_column(check_col)
 
     check_col.add_input(new Checkbox('event', 'Event Data'))
-    check_col.add_input(new Checkbox('results', 'Results'))
     check_col.add_input(new Checkbox('config', 'Scouting Configs'))
+    check_col.add_input(new Checkbox('results', 'Results'))
     check_col.add_input(new Checkbox('smart-stats', 'Smart Stats'))
     check_col.add_input(new Checkbox('coach', 'Coach Config'))
-    check_col.add_input(new Checkbox('settings', 'Settings'))
     check_col.add_input(new Checkbox('picklists', 'Pick Lists'))
+    check_col.add_input(new Checkbox('pictures', 'Pictures'))
+    check_col.add_input(new Checkbox('settings', 'Settings'))
     check_col.add_input(new Checkbox('whiteboard', 'Whiteboard'))
     check_col.add_input(new Checkbox('avatars', 'Avatars'))
 
@@ -60,7 +61,7 @@ function init_page()
  * returns:     none
  * description: Creates and downloads a zip archive containing all localStorage files.
  */
-function export_zip()
+async function export_zip()
 {
     let use_event       = document.getElementById('event').checked
     let use_results     = document.getElementById('results').checked
@@ -71,6 +72,7 @@ function export_zip()
     let use_avatars     = document.getElementById('avatars').checked
     let use_picklists   = document.getElementById('picklists').checked
     let use_whiteboard  = document.getElementById('whiteboard').checked
+    let use_pictures    = document.getElementById('pictures').checked
     
     let zip = JSZip()
 
@@ -102,6 +104,39 @@ function export_zip()
         document.getElementById('progress').innerHTML = `${i}/${files.length + 1}`
         document.getElementById('progress').value = i
         document.getElementById('progress').max = files.length + 1   
+    }
+
+    // export pictures from cache
+    let names = await caches.keys()
+    if (names.length > 0 && use_pictures)
+    {
+        let server = parse_server_addr(document.location.href)
+        let cache = await caches.open(names[0])
+        let keys = await cache.keys()
+        
+        // add each file in the cache to the table
+        for (let key of keys)
+        {
+            // add up all bytes in file
+            let response = await cache.match(key)
+
+            // create row
+            let file = response.url
+            if (file === '')
+            {
+                file = key.url
+            }
+            
+            // check for pictures and don't put in directory if belonging to server (like server does)
+            if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${server}/assets/`))
+            {
+                if (file.startsWith(`${server}/uploads/`))
+                {
+                    file = file.replace(`${server}/uploads/`, '')
+                }
+                zip.file(file, response.blob())
+            }
+        }
     }
 
     // download zip
@@ -236,8 +271,15 @@ function import_zip_from_event(event)
  * returns:     none
  * description: Extracts a zip archive containing all JSON results.
  */
-function import_zip(file)
+async function import_zip(file)
 {
+    // get cache
+    let names = await caches.keys()
+    if (names.length > 0)
+    {
+        var cache = await caches.open(names[0])
+    }
+
     // process each files details
     JSZip.loadAsync(file).then(function (zip)
     {
@@ -250,6 +292,9 @@ function import_zip(file)
         let use_avatars     = document.getElementById('avatars').checked
         let use_picklists   = document.getElementById('picklists').checked
         let use_whiteboard  = document.getElementById('whiteboard').checked
+        let use_pictures    = document.getElementById('pictures').checked
+
+        let server = parse_server_addr(document.location.href) + '/uploads/'
 
         let files = Object.keys(zip.files)
         let complete = 0
@@ -258,12 +303,68 @@ function import_zip(file)
             let parts = name.split('.')
             let n = parts[0]
 
-            // only import JSON files for the current event
-            if (parts[1] === 'json')
+            // skip directories
+            if (name.endsWith('/'))
             {
-                // get blob of files text
-                zip.file(name).async('blob').then(function (content)
+                // update progress bar
+                document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
+                document.getElementById('progress').value = complete
+                document.getElementById('progress').max = files.length
+
+                if (complete === files.length)
                 {
+                    alert('Import Complete')
+                }
+                continue
+            }
+
+            // get blob of file
+            zip.file(name).async('blob').then(function (content)
+            {
+                // import pictures to cache
+                if (name.endsWith('.jpg') || name.endsWith('.png'))
+                {
+                    if (use_pictures)
+                    {
+                        // build response headers
+                        let headers = new Headers()
+                        if (name.endsWith('.jpg'))
+                        {
+                            headers.append('Content-Type', 'image/jpeg')
+                        }
+                        else if (name.endsWith('.png'))
+                        {
+                            headers.append('Content-Type', 'image/png')
+                        }
+                        headers.append('Content-Length', content.size)
+
+                        // adjust url
+                        let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
+                        if (!url.startsWith('http'))
+                        {
+                            url = server + url
+                            let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
+                            dal.add_photo(team, url)
+                        }
+    
+                        // add to cache
+                        let res = new Response(content, { statusText: 'OK', headers: headers })
+                        cache.put(new URL(url), res)
+                    }
+                    
+                    // update progress bar
+                    document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
+                    document.getElementById('progress').value = complete
+                    document.getElementById('progress').max = files.length
+
+                    if (complete === files.length)
+                    {
+                        alert('Import Complete')
+                    }
+                }
+                else if (name.endsWith('.json'))
+                {
+                    // import everything else as strings to localStorage
                     content.text().then(function (text) {
                         // determine which files to use
                         if ((n.includes(dal.event_id) &&
@@ -302,17 +403,25 @@ function import_zip(file)
                         document.getElementById('progress').value = complete
                         document.getElementById('progress').max = files.length
 
-                        if (complete == files.length)
+                        if (complete === files.length)
                         {
                             alert('Import Complete')
                         }
                     })
-                })
-            }
-            else if (++complete == files.length)
-            {
-                alert('Import Complete')
-            }
+                }
+                else
+                {
+                    // update progress bar
+                    document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
+                    document.getElementById('progress').value = complete
+                    document.getElementById('progress').max = files.length
+
+                    if (complete === files.length)
+                    {
+                        alert('Import Complete')
+                    }
+                }
+            })
         }
     })
 }
