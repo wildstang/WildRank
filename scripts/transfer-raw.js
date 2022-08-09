@@ -238,12 +238,6 @@ function import_zip_from_event(event)
  */
 function import_zip(file)
 {
-    let overwrite = confirm('Files may overwrite, press ok to continue')
-    if (!overwrite)
-    {
-        return
-    }
-
     // process each files details
     JSZip.loadAsync(file).then(function (zip)
     {
@@ -283,8 +277,24 @@ function import_zip(file)
                             (use_picklists && n.startsWith('picklists-')) ||
                             (use_whiteboard && n === `config-${cfg.year}-whiteboard`))
                         {
-                            console.log(`Importing ${n}`)
-                            localStorage.setItem(n, text)
+                            let write = true
+                            let existing = localStorage.getItem(n)
+                            if (existing !== null)
+                            {
+                                if (existing !== text && !n.startsWith('avatar-'))
+                                {
+                                    write = confirm(`"${n}" already exists, overwrite?`)
+                                }
+                                else
+                                {
+                                    write = false
+                                }
+                            }
+                            if (write)
+                            {
+                                console.log(`Importing ${n}`)
+                                localStorage.setItem(n, text)
+                            }
                         }
                         
                         // update progress bar
