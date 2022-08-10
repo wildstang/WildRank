@@ -150,20 +150,43 @@ function capture(team_num)
                     }
                     else if (result.name === 'Invalid password')
                     {
+                        cache_image(addr, team_num, data)
                         alert('Invalid password!')
                     }
                     else
                     {
-                        alert('Upload unsuccessful!')
+                        cache_image(addr, team_num, data)
                     }
                 })
                 .catch(e => {
-                    alert('Error uploading!')
+                    cache_image(addr, team_num, data)
                     console.error(e)
                 })
         }
-        // TODO cache away image for later upload if no server available
+        else
+        {
+            cache_image(addr, team_num, data)
+        }
     }
+}
+
+/**
+ * function:    cache_image
+ * parameters:  server address, team number, base64 image
+ * returns:     none
+ * description: If server upload failed, generate a random url and put in the cache.
+ */
+function cache_image(server, team_num, base64)
+{
+    console.log(base64)
+    fetch(base64)
+    .then(response => response.blob())
+    .then(blob => {
+        // assign a number 100-999 to avoid overlap with other devices
+        let url = `${server}/uploads/${team_num}-${Math.floor(899 * Math.random() + 100)}.png`
+        dal.add_photo(team_num, url, true)
+        cache_file(url, blob)
+    })
 }
 
 /**
