@@ -326,18 +326,6 @@ async function import_zip(file)
                 {
                     if (use_pictures)
                     {
-                        // build response headers
-                        let headers = new Headers()
-                        if (name.endsWith('.jpg'))
-                        {
-                            headers.append('Content-Type', 'image/jpeg')
-                        }
-                        else if (name.endsWith('.png'))
-                        {
-                            headers.append('Content-Type', 'image/png')
-                        }
-                        headers.append('Content-Length', content.size)
-
                         // adjust url
                         let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
                         if (!url.startsWith('http'))
@@ -346,10 +334,8 @@ async function import_zip(file)
                             let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
                             dal.add_photo(team, url)
                         }
-    
-                        // add to cache
-                        let res = new Response(content, { statusText: 'OK', headers: headers })
-                        cache.put(new URL(url), res)
+
+                        cache_file(url, content)
                     }
                     
                     // update progress bar

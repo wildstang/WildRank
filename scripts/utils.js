@@ -522,3 +522,62 @@ function hash(str)
     let hash = 4294967296 * (2097151 & h2) + (h1>>>0)
     return hash.toString(16)
 }
+
+/**
+ * function:    cache_file
+ * parameters:  file URL location, response body (like blob)
+ * returns:     none
+ * description: Adds a given file to the current cache
+ */
+async function cache_file(url, file)
+{
+    // get latest cache
+    let current = 'default'
+    let names = await caches.keys()
+    if (names.length > 0)
+    {
+        current = names[0]
+    }
+    let cache = await caches.open(current)
+
+    // TODO override res.url and res.type
+    // set content type by file extension
+    let headers = new Headers()
+    headers.append('Content-Length', file.size)
+    switch (url.substring(url.lastIndexOf('.') + 1))
+    {
+        case 'js':
+            headers.append('Content-Type', 'application/javascript')
+            break
+        case 'html':
+            headers.append('Content-Type', 'text/html; charset=utf-8')
+            break
+        case 'css':
+            headers.append('Content-Type', 'text/css; charset=utf-8')
+            break
+        case 'ico':
+            headers.append('Content-Type', 'image/x-icon')
+            break
+        case 'png':
+            headers.append('Content-Type', 'image/png')
+            break
+        case 'jpg':
+            headers.append('Content-Type', 'image/jpeg')
+            break
+        case 'svg':
+            headers.append('Content-Type', 'image/svg+xml')
+            break
+        case 'json':
+            headers.append('Content-Type', 'application/json')
+            break
+        case 'webmanifest':
+            headers.append('Content-Type', 'application/manifest')
+            break
+        default:
+            return
+    }
+
+    // build response and add to cache
+    let res = new Response(file, { statusText: 'OK', headers: headers })
+    cache.put(new URL(url), res)
+}

@@ -205,7 +205,6 @@ async function import_zip(event)
     }
 
     let server = parse_server_addr(document.location.href)
-    let cache = await caches.open(current)
 
     // process each files details
     JSZip.loadAsync(file).then(function (zip)
@@ -215,7 +214,6 @@ async function import_zip(event)
         for (let name of files)
         {
             let parts = name.split('.')
-            let ext = parts[parts.length-1]
 
             // only import files
             if (parts.length > 1 && !name.includes('docker/') && !name.includes('docs/') && !name.includes('python/') && !name.includes('uploads/') && !name.endsWith('/'))
@@ -223,50 +221,8 @@ async function import_zip(event)
                 // get blob of files text
                 zip.file(name).async('blob').then(function (content)
                 {
-                    // TODO override res.url and res.type
-                    // set content type by file extension
-                    let headers = new Headers()
-                    switch (ext)
-                    {
-                        case 'js':
-                            headers.append('Content-Type', 'application/javascript')
-                            break
-                        case 'html':
-                            headers.append('Content-Type', 'text/html; charset=utf-8')
-                            break
-                        case 'css':
-                            headers.append('Content-Type', 'text/css; charset=utf-8')
-                            break
-                        case 'ico':
-                            headers.append('Content-Type', 'image/x-icon')
-                            break
-                        case 'png':
-                            headers.append('Content-Type', 'image/png')
-                            break
-                        case 'jpg':
-                            headers.append('Content-Type', 'image/jpeg')
-                            break
-                        case 'svg':
-                            headers.append('Content-Type', 'image/svg+xml')
-                            break
-                        case 'json':
-                            headers.append('Content-Type', 'application/json')
-                            break
-                        case 'webmanifest':
-                            headers.append('Content-Type', 'application/manifest')
-                            break
-                        default:
-                            if (++count === files.length)
-                            {
-                                alert('Cache Updated!')
-                                populate_page()
-                            }
-                            return
-                    }
-                    headers.append('Content-Length', content.size)
-
-                    let res = new Response(content, { statusText: 'OK', headers: headers })
-                    cache.put(new URL(`${server}${name.substring(name.indexOf('/'))}`), res)
+                    let url = `${server}${name.substring(name.indexOf('/'))}`
+                    cache_file(url, content)
 
                     if (++count === files.length)
                     {
