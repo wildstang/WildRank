@@ -306,7 +306,7 @@ async def post(request: Request, password=''):
     try:
         with ZipFile(file, 'r') as zip:
             zip.extractall(UPLOAD_PATH)
-            files = len(zip.infolist())
+            files = len([f for f in zip.namelist() if not f.endswith('/')])
     except:
         success = False
         files = -2

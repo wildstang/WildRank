@@ -90,6 +90,7 @@ async function export_zip()
             (use_picklists && file.startsWith('picklists-')) ||
             (use_whiteboard && file === `config-${cfg.year}-whiteboard`)
     })
+    let num_uploads = files.length
 
     // add each file to the zip
     for (let i in files)
@@ -135,6 +136,7 @@ async function export_zip()
                     file = file.replace(`${server}/uploads/`, '')
                 }
                 zip.file(file, response.blob())
+                num_uploads++
             }
         }
     }
@@ -165,7 +167,7 @@ async function export_zip()
                     fetch(`${addr}?password=${cfg.keys.server}`, {method: 'POST', body: base64})
                         .then(response => response.json())
                         .then(result => {
-                            if (result.success && result.count === files.length)
+                            if (result.success && result.count === num_uploads)
                             {
                                 alert('Upload successful!')
                             }
