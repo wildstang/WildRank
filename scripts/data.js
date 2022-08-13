@@ -825,7 +825,6 @@ class DAL
                             }
                         }
                     }
-                    console.log(math_fn)
                     try
                     {
                         result[id] = eval(math_fn)
