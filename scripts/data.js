@@ -141,9 +141,15 @@ class DAL
                         neg = false
                     }
             
+                    let type = 'number'
+                    if (stat.type === 'min' || stat.type === 'max')
+                    {
+                        type = 'string'
+                    }
+
                     meta[prefix + stat.id] = {
                         name: stat.name,
-                        type: 'number',
+                        type: type,
                         negative: neg,
                         options: [],
                         options_index: [],
@@ -896,6 +902,26 @@ class DAL
                     {
                         result[id] = value
                     }
+                    break
+                case 'min':
+                case 'max':
+                    let extreme = [stat.keys[0]]
+                    for (let k of stat.keys)
+                    {
+                        if (stat.type === 'min' && result[k] < result[extreme[0]])
+                        {
+                            extreme = [k]
+                        }
+                        if (stat.type === 'max' && result[k] > result[extreme[0]])
+                        {
+                            extreme = [k]
+                        }
+                        else if (result[k] === result[extreme[0]] && k != stat.keys[0])
+                        {
+                            extreme.push(k)
+                        }
+                    }
+                    result[id] = extreme.map(k => this.get_name(k, '')).join(', ')
                     break
             }
         }

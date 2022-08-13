@@ -408,7 +408,7 @@ class Config
         {
             for (let stat of c)
             {
-                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string', 'negative': 'boolean'}, description)
+                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string'}, description)
                 if (Config.failed(result))
                 {
                     return result
@@ -456,6 +456,24 @@ class Config
                             {
                                 return Config.return_description(false, `condition ${key} does not have option ${stat.conditions[key]} for where`, description)
                             }
+                        }
+                        break
+                    case 'min':
+                    case 'max':
+                        if (!stat.hasOwnProperty('keys'))
+                        {
+                            return Config.return_description(false, `stat missing property keys`, description)
+                        }
+                        if (!Array.isArray(stat.keys))
+                        {
+                            return Config.return_description(false, `stat property keys should be an array`, description)
+                        }
+                        break
+                    case 'math':
+                        result = Config.check_properties(stat, {'math': 'string'}, description)
+                        if (Config.failed(result))
+                        {
+                            return result
                         }
                         break
                     default:

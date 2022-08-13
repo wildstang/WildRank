@@ -7,7 +7,7 @@
  *              2021-11-19
  */
 
-const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where']
+const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max']
 
 /**
  * function:    init_page
@@ -96,7 +96,7 @@ function update_params()
             operators.description = 'Math stats do not exclusively require these operators. Any valid JS operations should work.'
             operators.columns = 4
             let keys_dropdown = new Dropdown('keys', 'Match Keys', [''])
-            keys_dropdown.onselect = 'add_key()'
+            keys_dropdown.onselect = 'add_key_math()'
             let constants_dropdown = new Dropdown('constants', 'Team Constants', [''])
             constants_dropdown.onselect = 'add_constant()'
             for (let i in keys)
@@ -160,6 +160,19 @@ function update_params()
                 html += filter.toString
             }
             break
+        case 'Min/Max':
+            let keylist = new Extended('keys', 'Keys')
+            keylist.on_text_change = 'calculate()'
+            let key = new Dropdown('key_selector', 'Match Keys', [''])
+            key.onselect = 'add_key_minmax()'
+            for (let i in keys)
+            {
+                key.add_option(dal.get_name(keys[i]))
+            }
+            keys = keys.map(k => dal.get_name(k))
+            let select = new Select('minmax', 'Min/Max', ['Min', 'Max'])
+            html += keylist.toString + key.toString + select.toString
+            break
     }
     document.getElementById('params').innerHTML = html
 
@@ -181,12 +194,12 @@ function add_operator(op)
 }
 
 /**
- * function:    add_key
+ * function:    add_key_math
  * parameters:  none
  * returns:     none
  * description: Adds the selected key to the text box then calculates.
  */
-function add_key()
+function add_key_math()
 {
     let box = document.getElementById('math')
     let index = document.getElementById('keys').selectedIndex
@@ -213,6 +226,28 @@ function add_constant()
         return
     }
     box.value += dal.get_keys(false, true, true, true, ['number'])[index-1]
+    calculate()
+}
+
+/**
+ * function:    add_key_minmax
+ * parameters:  none
+ * returns:     none
+ * description: Adds the selected key to the text box then calculates.
+ */
+function add_key_minmax()
+{
+    let box = document.getElementById('keys')
+    let index = document.getElementById('key_selector').selectedIndex
+    if (index === 0)
+    {
+        return
+    }
+    if (box.value !== '')
+    {
+        box.value += ', '
+    }
+    box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
     calculate()
 }
 
@@ -297,6 +332,10 @@ function build_stat()
                 stat.denominator = counters[wdenominator-1].replace('results.', '')
             }
             break
+        case 'Min/Max':
+            stat.keys = document.getElementById('keys').value.replace(/\s/g, '').split(',')
+            stat.type = ['min', 'max'][Select.get_selected_option('minmax')]
+            break
     }
     return stat
 }
@@ -341,7 +380,14 @@ function calculate()
     let team_vals = {}
     for (let team of Object.keys(team_res))
     {
-        team_vals[team] = mean(team_res[team])
+        if (stat.type !== 'min' && stat.type !== 'max')
+        {
+            team_vals[team] = mean(team_res[team])
+        }
+        else
+        {
+            team_vals[team] = median(team_res[team])
+        }
     }
     
     // sort teams and populate left
@@ -350,10 +396,14 @@ function calculate()
     team_order = [...teams]
     teams = teams.map(function (t, i)
     {
-        let val = team_vals[t].toFixed(2)
-        if (isNaN(val))
+        let val = team_vals[t]
+        if (stat.type !== 'min' && stat.type !== 'max')
         {
-            val = '0.0'
+            val = val.toFixed(2)
+            if (isNaN(val))
+            {
+                val = '0.0'
+            }
         }
         if (++i < 10)
         {
