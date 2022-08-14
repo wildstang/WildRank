@@ -141,6 +141,9 @@ function init_page()
 
     document.body.innerHTML += page.toString
 
+    let button = new Button('reset', 'Reset Cache', 'reset_cache()')
+    document.getElementById('install-container').innerHTML = button.toString
+
     check_id()
     apply_theme()
     process_files()
