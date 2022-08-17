@@ -118,15 +118,15 @@ async def vector(file):
 
 @app.get('/manifest.webmanifest', response_class=FileResponse)
 async def manifest():
-    return 'manifest.webmanifest'
+    return 'config/manifest.webmanifest'
 
 @app.get('/pwa.js', response_class=FileResponse)
 async def manifest():
-    return 'pwa.js'
+    return 'scripts/pwa.js'
 
 @app.get('/favicon.ico', response_class=FileResponse)
 async def favicon():
-    return 'favicon.ico'
+    return 'assets/favicon.ico'
 
 @app.get('/uploads/{file}.png', response_class=FileResponse)
 async def image(file):
@@ -162,8 +162,8 @@ async def about():
                 url = 'https://{}'.format(url)
             git = f'Git: <a href="{url}">{words[0]}</a><br>'
 
-    if exists('pwa.js'):
-        with open('pwa.js', 'r') as f:
+    if exists('scripts/pwa.js'):
+        with open('scripts/pwa.js', 'r') as f:
             script = f.read()
             try:
                 release = re.search('const CACHE_NAME = \'wildrank-(.+?)\'', script).group(1)
