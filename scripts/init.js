@@ -28,7 +28,11 @@ if ('serviceWorker' in navigator)
 const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const year = event_id.substr(0,4)
 
-var cfg
+// create config object, load in what is available, and set the theme
+var cfg = new Config(year)
+cfg.load_configs(2, '')
+apply_theme()
+
 var dal
 
 /**
@@ -41,7 +45,6 @@ var dal
 function create_config()
 {
     // load in configs
-    cfg = new Config(year)
     cfg.load_configs(0, on_config)
 }
 
@@ -53,10 +56,11 @@ function create_config()
  */
 function on_config()
 {
+    apply_theme()
+    
     // load in data
     dal = new DAL(event_id)
     dal.build_teams()
 
     init_page()
-    apply_theme()
 }

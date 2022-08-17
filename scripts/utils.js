@@ -470,7 +470,10 @@ function apply_theme()
 {
     // read title from config
     document.title = cfg.settings.title
-    document.getElementById('title').innerHTML = cfg.settings.title
+    if (document.getElementById('title') !== null)
+    {
+        document.getElementById('title').innerHTML = cfg.settings.title
+    }
 
     let theme = cfg.theme
     if (get_cookie(THEME_COOKIE, THEME_DEFAULT) === 'dark')
