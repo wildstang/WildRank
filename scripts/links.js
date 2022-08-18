@@ -416,6 +416,17 @@ function open_match_counter()
 }
 
 /**
+ * function:    open_district_counter
+ * parameters:  none
+ * returns:     none
+ * description: Open the district counter page.
+ */
+function open_district_counter()
+{
+    return build_url('index', {'page': 'misc/district-counter', 'year': cfg.year})
+}
+
+/**
  * function:    open_test
  * parameters:  none
  * returns:     none

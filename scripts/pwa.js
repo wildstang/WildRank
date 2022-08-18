@@ -63,6 +63,7 @@ const CACHE_LIST = [
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
     '/scripts/misc/2022-score-estimator.js',
+    '/scripts/misc/district-counter.js',
     '/scripts/misc/match-counter.js',
     '/scripts/misc/test.js',
     // assets

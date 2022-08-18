@@ -81,8 +81,8 @@ function process_year(year)
                 {
                     fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/matches/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                         .then(response => {
-                            if (response.status == 401) {
-                                alert('Invalid AP=I Key Suspected')
+                            if (response.status === 401) {
+                                alert('Invalid API Key Suspected')
                             }
                             return response.json()
                         })
