@@ -1,3 +1,4 @@
 [submodule "docs"]
 	path = docs
 	url = https://github.com/wildstang/wildrank.wiki.git
+	branch = master
