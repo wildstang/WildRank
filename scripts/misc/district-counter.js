@@ -107,7 +107,7 @@ function process_year(year)
                             let district_regionals = 0
                             let total_district_teams = 0
                             let total_regional_teams = 0
-                            let keys = Object.keys(regionals)
+                            let keys = Object.keys(regionals).sort()
                             for (let event of keys)
                             {
                                 // count district teams in regional

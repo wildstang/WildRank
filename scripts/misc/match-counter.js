@@ -106,7 +106,7 @@ function process_year(year)
                                 // label as complete
                                 else
                                 {
-                                    document.getElementById('summary').innerHTML = `From ${FIRST_YEAR} through 2022 ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
+                                    document.getElementById('summary').innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
                                 }
                             }
                         })

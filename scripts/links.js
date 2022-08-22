@@ -427,6 +427,17 @@ function open_district_counter()
 }
 
 /**
+ * function:    open_international_counter
+ * parameters:  none
+ * returns:     none
+ * description: Open the international counter page.
+ */
+function open_international_counter()
+{
+    return build_url('index', {'page': 'misc/international-counter', 'year': cfg.year})
+}
+
+/**
  * function:    open_test
  * parameters:  none
  * returns:     none
