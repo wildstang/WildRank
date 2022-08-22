@@ -38,7 +38,7 @@ const CONFIGS = {
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
     'extras': {
-        'Generic': ['open_test', 'open_match_counter', 'open_district_counter', 'open_international_counter'],
+        'Generic': ['open_test', 'open_match_counter', 'open_district_counter', 'open_international_counter', 'open_score_counter'],
         'Game Specific': ['open_22_estimator']
     }
 }
@@ -85,7 +85,8 @@ const BUTTONS = {
     'open_test':        { name: 'Input Tester',       limits: ['admin'], configs: [] },
     'open_22_estimator':{ name: '2022 Score Estimator', limits: ['admin'], configs: [] },
     'open_district_counter':{ name: 'District Counter', limits: ['admin'], configs: [] },
-    'open_international_counter':{ name: 'International Counter', limits: ['admin'], configs: [] }
+    'open_international_counter':{ name: 'International Counter', limits: ['admin'], configs: [] },
+    'open_score_counter':{ name: 'Score Counter', limits: ['admin'], configs: [] }
 }
 
 /**

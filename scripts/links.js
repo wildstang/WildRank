@@ -438,6 +438,17 @@ function open_international_counter()
 }
 
 /**
+ * function:    open_score_counter
+ * parameters:  none
+ * returns:     none
+ * description: Open the score counter page.
+ */
+function open_score_counter()
+{
+    return build_url('index', {'page': 'misc/score-counter', 'year': cfg.year})
+}
+
+/**
  * function:    open_test
  * parameters:  none
  * returns:     none
