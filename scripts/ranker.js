@@ -7,7 +7,7 @@
  *              2021-11-19
  */
 
-const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max']
+const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter']
 
 /**
  * function:    init_page
@@ -173,6 +173,20 @@ function update_params()
             let select = new Select('minmax', 'Min/Max', ['Min', 'Max'])
             select.onselect = 'calculate()'
             html += keylist.toString + key.toString + select.toString
+            break
+        case 'Filter':
+            keys = keys.map(k => dal.get_name(k))
+            let stat = new Dropdown('primary_stat', 'Primary Stat', keys)
+            stat.onselect = 'calculate()'
+            let filter = new Dropdown('filter_by', 'Filter By', keys)
+            filter.onselect = 'calculate()'
+            let comparitors = new Select('comparitors', 'When', ['>', '≥', '=', '≤', '<'])
+            comparitors.columns = 5
+            comparitors.onselect = 'calculate()'
+            let value = new Entry('value', '')
+            value.type = 'number'
+            value.on_text_change = 'calculate()'
+            html += stat.toString + filter.toString + comparitors.toString + value.toString
             break
     }
     document.getElementById('params').innerHTML = html
@@ -340,6 +354,14 @@ function build_stat()
             stat.keys = document.getElementById('keys').value.replace(/\s/g, '').split(',')
             stat.type = ['min', 'max'][Select.get_selected_option('minmax')]
             break
+        case 'Filter':
+            let primary = numeric[document.getElementById('primary_stat').selectedIndex]
+            let filter = numeric[document.getElementById('filter_by').selectedIndex]
+            stat.key = primary.replace('results.', '')
+            stat.filter = filter.replace('results.', '')
+            stat.compare_type = Select.get_selected_option('comparitors')
+            stat.value = parseFloat(document.getElementById('value').value)
+            break
     }
     return stat
 }
@@ -377,7 +399,11 @@ function calculate()
         {
             team_res[res.meta_team] = [] 
         }
-        team_res[res.meta_team].push(dal.add_smart_stats(res, [stat])[id])
+        let result = dal.add_smart_stats(res, [stat])[id]
+        if (typeof result !== 'undefined')
+        {
+            team_res[res.meta_team].push(result)
+        }
     }
 
     // average each set of team results

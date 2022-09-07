@@ -922,6 +922,36 @@ class DAL
                     }
                     result[id] = extreme.map(k => this.get_name(k, '')).join(', ')
                     break
+                case 'filter':
+                    let val = result[stat.filter]
+                    let passes = false
+                    switch (stat.compare_type)
+                    {
+                        case 0:
+                            passes = val > stat.value
+                            break
+                        case 1:
+                            passes = val >= stat.value
+                            break
+                        case 2:
+                            passes = val === stat.value
+                            break
+                        case 3:
+                            passes = val <= stat.value
+                            break
+                        case 4:
+                            passes = val < stat.value
+                            break
+                    }
+                    if (passes)
+                    {
+                        result[id] = result[stat.key]
+                    }
+                    else
+                    {
+                        delete result[id]
+                    }
+                    break
             }
         }
         return result

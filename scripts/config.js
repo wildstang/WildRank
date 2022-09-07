@@ -476,6 +476,13 @@ class Config
                             return result
                         }
                         break
+                    case 'filter':
+                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number', 'value': 'number'}, description)
+                        if (Config.failed(result))
+                        {
+                            return result
+                        }
+                        break
                     default:
                         return Config.return_description(false, `Unknown type, ${stat.type}`, description)
                 }
