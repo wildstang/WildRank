@@ -209,6 +209,7 @@ function add_key_math()
     }
     box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
     calculate()
+    document.getElementById('keys').selectedIndex = 0
 }
 
 /**
@@ -227,6 +228,7 @@ function add_constant()
     }
     box.value += dal.get_keys(false, true, true, true, ['number'])[index-1]
     calculate()
+    document.getElementById('constants').selectedIndex = 0
 }
 
 /**
@@ -249,6 +251,7 @@ function add_key_minmax()
     }
     box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
     calculate()
+    document.getElementById('key_selector').selectedIndex = 0
 }
 
 /**
