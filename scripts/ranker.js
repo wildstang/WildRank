@@ -171,6 +171,7 @@ function update_params()
             }
             keys = keys.map(k => dal.get_name(k))
             let select = new Select('minmax', 'Min/Max', ['Min', 'Max'])
+            select.onselect = 'calculate()'
             html += keylist.toString + key.toString + select.toString
             break
     }
