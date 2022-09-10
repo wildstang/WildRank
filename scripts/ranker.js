@@ -175,21 +175,22 @@ function update_params()
             html += keylist.toString + key.toString + select.toString
             break
         case 'Filter':
+            keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
             keys = keys.map(k => dal.get_name(k))
             let stat = new Dropdown('primary_stat', 'Primary Stat', keys)
             stat.onselect = 'calculate()'
             let filter = new Dropdown('filter_by', 'Filter By', keys)
-            filter.onselect = 'calculate()'
-            let comparitors = new Select('comparitors', 'When', ['>', '≥', '=', '≤', '<'])
-            comparitors.columns = 5
-            comparitors.onselect = 'calculate()'
-            let value = new Entry('value', '')
-            value.type = 'number'
-            value.on_text_change = 'calculate()'
-            html += stat.toString + filter.toString + comparitors.toString + value.toString
+            filter.onselect = 'update_filter()'
+
+            html += stat.toString + filter.toString + `<span id="filter_ops"></span>`
             break
     }
     document.getElementById('params').innerHTML = html
+
+    if (type === 'Filter')
+    {
+        update_filter()
+    }
 
     // always update the calculations on any change
     calculate()
@@ -267,6 +268,49 @@ function add_key_minmax()
     box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
     calculate()
     document.getElementById('key_selector').selectedIndex = 0
+}
+
+/**
+ * function:    update_filter
+ * parameters:  none
+ * returns:     none
+ * description: Updates the filter options based on the selected filter.
+ */
+function update_filter()
+{
+    let ops = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
+    let filter = ops[document.getElementById('filter_by').selectedIndex]
+    let type = dal.meta[filter].type
+
+    comps = ['>', '≥', '=', '≠', '≤', '<']
+    let value = new Entry('value', '')
+    value.on_text_change = 'calculate()'
+    switch (type)
+    {
+        case 'number':
+        case 'counter':
+        case 'slider':
+            value.type = 'number'
+            break
+        case 'checkbox':
+            comps = ['=', '≠']
+            value = new Checkbox('value', 'True')
+            break
+        case 'select':
+        case 'dropdown':
+            value = new Dropdown('value', '', dal.meta[filter].options)
+            break
+    }
+    let comparitors = new Select('comparitors', 'When', comps)
+    comparitors.columns = comps.length
+    if (comps.length > 5)
+    {
+        comparitors.columns = Math.ceil(comps.length / 2)
+    }
+    comparitors.onselect = 'calculate()'
+
+    document.getElementById('filter_ops').innerHTML = comparitors.toString + value.toString
+    calculate()
 }
 
 /**
@@ -355,12 +399,31 @@ function build_stat()
             stat.type = ['min', 'max'][Select.get_selected_option('minmax')]
             break
         case 'Filter':
-            let primary = numeric[document.getElementById('primary_stat').selectedIndex]
-            let filter = numeric[document.getElementById('filter_by').selectedIndex]
+            let ops = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
+            let primary = ops[document.getElementById('primary_stat').selectedIndex]
+            let filter = ops[document.getElementById('filter_by').selectedIndex]
             stat.key = primary.replace('results.', '')
             stat.filter = filter.replace('results.', '')
             stat.compare_type = Select.get_selected_option('comparitors')
-            stat.value = parseFloat(document.getElementById('value').value)
+            stat.value = document.getElementById('value').value
+            
+            // parse string value
+            switch (dal.meta[filter].type)
+            {
+                case 'number':
+                case 'counter':
+                case 'slider':
+                    stat.value = parseFloat(stat.value)
+                    break
+                case 'checkbox':
+                    stat.value = stat.value === 'true'
+                    stat.compare_type += 2
+                    break
+                case 'select':
+                case 'dropdown':
+                    stat.value = dal.meta[filter].options.indexOf(stat.value)
+                    break
+            }
             break
     }
     return stat

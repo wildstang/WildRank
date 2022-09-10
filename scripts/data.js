@@ -937,9 +937,12 @@ class DAL
                             passes = val === stat.value
                             break
                         case 3:
-                            passes = val <= stat.value
+                            passes = val !== stat.value
                             break
                         case 4:
+                            passes = val <= stat.value
+                            break
+                        case 5:
                             passes = val < stat.value
                             break
                     }

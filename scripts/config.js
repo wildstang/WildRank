@@ -477,10 +477,14 @@ class Config
                         }
                         break
                     case 'filter':
-                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number', 'value': 'number'}, description)
+                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, description)
                         if (Config.failed(result))
                         {
                             return result
+                        }
+                        if (!stat.hasOwnProperty('value'))
+                        {
+                            return Config.return_description(false, `stat missing property value`, description)
                         }
                         break
                     default:
