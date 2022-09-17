@@ -448,6 +448,29 @@ function check_server(server, notify=true)
 }
 
 /**
+ * function:    link
+ * parameters:  stylesheet name
+ * returns:     none
+ * description: Includes a stylesheet by name.
+ */
+function link(name)
+{
+    let s = document.createElement('link')
+    s.rel = 'stylesheet'
+    s.type = 'text/css'
+    if (name.startsWith('https://'))
+    {
+        s.href = name
+        s.crossOrigin = ''
+    }
+    else
+    {
+        s.href = `scripts/${name}.js`
+    }
+    document.head.appendChild(s)
+}
+
+/**
  * function:    include
  * parameters:  script name
  * returns:     none
@@ -456,7 +479,15 @@ function check_server(server, notify=true)
 function include(name)
 {
     let s = document.createElement('script')
-    s.src = `scripts/${name}.js`
+    if (name.startsWith('https://'))
+    {
+        s.src = name
+        s.crossOrigin = ''
+    }
+    else
+    {
+        s.src = `scripts/${name}.js`
+    }
     document.head.appendChild(s)
 }
 
