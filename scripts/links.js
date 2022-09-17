@@ -449,6 +449,17 @@ function open_score_counter()
 }
 
 /**
+ * function:    open_event_planner
+ * parameters:  none
+ * returns:     none
+ * description: Open the score counter page.
+ */
+function open_event_planner()
+{
+    return build_url('index', {'page': 'misc/event-planner', 'year': cfg.year})
+}
+
+/**
  * function:    open_test
  * parameters:  none
  * returns:     none
