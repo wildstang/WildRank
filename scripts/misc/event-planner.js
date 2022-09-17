@@ -2,28 +2,23 @@
  * file:        event-planner.js
  * description: Helps a team plan their events.
  *              TODO:
- *                  - add location filters to page
- *                  - filter by normal unit
- *                  - add state filters
  *                  - add map (plot and select)
- *                  - add type filters (regionals vs districts, official vs offseason)
- *                  - line up tables
- *                  - add time filters
+ *                  - add travel time filters
  * author:      Liam Fruzyna
  * date:        2022-09-17
  */
 
 // TBA event types
+const REGIONAL = 0
+const DISTRICT = 1
+const DISTRICT_CMP = 2
 const CMP_DIVISION = 3
 const CMP_FINALS = 4
+const DISTRICT_CMP_DIVISION = 5
 const FOC = 6
 
 const OFFSEASON = 99
 const PRESEASON = 100
-
-var filt_lat = 42.109243
-var filt_lon = -87.949200
-var filt_mi = 300
 
 /**
  * function:    init_page
@@ -33,9 +28,6 @@ var filt_mi = 300
  */
 function init_page()
 {
-    let card = new Card('card', '<div id="summary">Loading data....</div><div id="weeks"></div>')
-    document.body.innerHTML += new PageFrame('', '', [card]).toString
-
     // read year from URL or use current year
     let urlParams = new URLSearchParams(window.location.search)
     let year = urlParams.get('year')
@@ -43,6 +35,35 @@ function init_page()
     {
         year = cfg.year
     }
+
+    let range = new Entry('range', 'Range (mi)', 250)
+    range.type = 'number'
+    let latitude = new Entry('latitude', 'Latitude', 42.109243)
+    latitude.type = 'number'
+    let longitude = new Entry('longitude', 'Longitude', -87.949200)
+    longitude.type = 'number'
+    let states = new Entry('states', 'States', '')
+    let regionals = new Checkbox('regionals', 'Show Regionals', true)
+    let districts = new Checkbox('districts', 'Show District Events', false)
+    let offseasons = new Checkbox('offseasons', 'Show Offseason Events', false)
+    let championships = new Checkbox('championships', 'Show Championships', false)
+    let search = new Button('search', 'Search', `process_year(${year})`)
+    let filters = new PageFrame('', '', [new ColumnFrame('', '', [range, states]), new ColumnFrame('', '', [latitude, regionals, districts, search]), new ColumnFrame('', '', [longitude, championships, offseasons])])
+
+    let card = new Card('card', '<div id="summary">Loading data....</div><table id="weeks" style="text-align: left"></table>')
+    document.body.innerHTML += filters.toString + '<br>' + new PageFrame('', '', [card]).toString
+
+    if ('geolocation' in navigator)
+    {
+        navigator.geolocation.getCurrentPosition(position => {
+            console.log(position)
+            document.getElementById('latitude').value = position.coords.latitude
+            document.getElementById('longitude').value = position.coords.longitude
+        }, e => {
+            console.log('Failed to get location', e)
+        }, {timeout: 10000})
+    }
+
     process_year(year)
 }
 
@@ -114,18 +135,32 @@ function process_year(year)
             }
 
             // add a table for each week
+            document.getElementById('weeks').innerHTML = ''
             for (let week in weeks)
             {
-                document.getElementById('weeks').innerHTML += `<h3>${week}</h3><table id="${week}" style="text-align: left"></table>`
+                document.getElementById('weeks').innerHTML += `<tr><td></td><td><h3>${week}</h3></td></tr>`
                 for (let event of weeks[week])
                 {
+                    let latitude = parseFloat(document.getElementById('latitude').value)
+                    let longitude = parseFloat(document.getElementById('longitude').value)
+                    let range = parseInt(document.getElementById('range').value) / 69 // convert to degrees
+                    let states = document.getElementById('states').value.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== '')
+                    let regionals = document.getElementById('regionals').checked
+                    let districts = document.getElementById('districts').checked
+                    let offseasons = document.getElementById('offseasons').checked
+                    let championships = document.getElementById('championships').checked
+
                     // apply filters
-                    let range = filt_mi / 69 // convert to degrees
-                    if (event.lat > filt_lat - range && event.lat < filt_lat + range &&
-                        event.lng > filt_lon - range && event.lng < filt_lon + range)
+                    if (event.lat > latitude - range && event.lat < latitude + range &&
+                        event.lng > longitude - range && event.lng < longitude + range &&
+                        (states.length === 0 || states.includes(event.state_prov)) &&
+                        (districts || (event.event_type !== DISTRICT && event.event_type !== DISTRICT_CMP && event.event_type !== DISTRICT_CMP_DIVISION)) &&
+                        (offseasons || (event.event_type !== PRESEASON && event.event_type !== OFFSEASON)) &&
+                        (championships || (event.event_type !== CMP_DIVISION && event.event_type !== CMP_FINALS && event.event_type !== FOC && event.event_type !== DISTRICT_CMP && event.event_type !== DISTRICT_CMP_DIVISION)) &&
+                        (regionals || (event.event_type !== REGIONAL)))
                     {
                         count++
-                        document.getElementById(week).innerHTML += `<tr><td>${event.key}</td><td>${event.name}</td><td>${event.city}, ${event.state_prov}, ${event.country}</td><td>${event.start_date}</td></tr>`
+                        document.getElementById('weeks').innerHTML += `<tr><td>${event.key}</td><td>${event.name}</td><td>${event.city}, ${event.state_prov}, ${event.country}</td><td>${event.start_date}</td></tr>`
                     }
                 }
             }
