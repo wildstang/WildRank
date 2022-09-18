@@ -117,10 +117,11 @@ class Button extends Element
         this.on_hold = ''
     }
 
+    // NOTE: a function as a string can be passed or a URL wrapped in quotes
     set link(url)
     {
-        this.on_click = `window_open('${url}', '_self')`
-        this.on_secondary = `window_open('${url}', '_blank')`
+        this.on_click = `window_open(${url}, '_self')`
+        this.on_secondary = `window_open(${url}, '_blank')`
     }
 
     set on_secondary(on_secondary)

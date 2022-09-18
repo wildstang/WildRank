@@ -26,7 +26,7 @@ function init_page()
     buttons.add_input(button)
 
     let link = new Button('', 'Link Button')
-    link.link = 'https://fruzyna.net'
+    link.link = `'https://fruzyna.net'`
     buttons.add_input(link)
 
 
