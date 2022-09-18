@@ -73,7 +73,7 @@ function update_params()
             for (let i in keys)
             {
                 let cb = new Checkbox(keys[i], dal.get_name(keys[i]), false)
-                cb.onclick = 'calculate()'
+                cb.on_click = 'calculate()'
                 // split column in 2
                 if (i < keys.length / 2)
                 {
@@ -108,6 +108,7 @@ function update_params()
                 constants_dropdown.add_option(dal.get_name(constants[i]))
             }
             let negative = new Checkbox('negative', 'Negative')
+            negative.on_click = 'calculate()'
             html += new PageFrame('', '', [
                 new ColumnFrame('', '', [math]),
                 new ColumnFrame('', '', [operators]),
@@ -294,12 +295,14 @@ function update_filter()
             value.type = 'number'
             break
         case 'checkbox':
-            comps = ['=', '≠']
-            value = new Checkbox('value', 'True')
+            comps = ['=']
+            value = new Select('value', '', ['True', 'False'])
+            value.onselect = 'calculate()'
             break
         case 'select':
         case 'dropdown':
             value = new Dropdown('value', '', dal.meta[filter].options)
+            value.onselect = 'calculate()'
             break
     }
     let comparitors = new Select('comparitors', 'When', comps)
@@ -419,8 +422,8 @@ function build_stat()
                     stat.value = parseFloat(stat.value)
                     break
                 case 'checkbox':
-                    stat.value = stat.value === 'true'
-                    stat.compare_type += 2
+                    stat.value = Select.get_selected_option('value') === 0
+                    stat.compare_type = 2
                     break
                 case 'select':
                 case 'dropdown':

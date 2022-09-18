@@ -289,6 +289,7 @@ class Checkbox extends Input
     constructor(id, label, def=false)
     {
         super(id, label, def)
+        this.on_click = ''
     }
 
     get toString()
@@ -297,7 +298,7 @@ class Checkbox extends Input
         {
             this.classes.push('selected')
         }
-        return `${this.html_description}<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}')">
+        return `${this.html_description}<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}'); ${this.on_click}">
                 <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" name="${this.label}" ${this.def ? 'checked' : ''}>
                 <label for="${this.id}" onclick="this.parentNode.click()">${this.label}</label>
             </div>`
