@@ -234,6 +234,7 @@ function process_year(year)
             }
 
             document.getElementById('summary').innerHTML = `There are ${count} events within your parameters.`
+            changeLoc(latitude, longitude)
         })
         .catch(err => {
             console.log(`Error fetching ${year} events, ${err}`)
