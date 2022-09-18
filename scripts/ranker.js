@@ -107,10 +107,11 @@ function update_params()
             {
                 constants_dropdown.add_option(dal.get_name(constants[i]))
             }
+            let negative = new Checkbox('negative', 'Negative')
             html += new PageFrame('', '', [
                 new ColumnFrame('', '', [math]),
                 new ColumnFrame('', '', [operators]),
-                new ColumnFrame('', '', [keys_dropdown, constants_dropdown]),
+                new ColumnFrame('', '', [keys_dropdown, constants_dropdown, negative]),
             ]).toString
             break
         case 'Percent':
@@ -354,6 +355,7 @@ function build_stat()
             break
         case 'Math':
             stat.math = document.getElementById('math').value.replace(/\s/g, '')
+            stat.negative = document.getElementById('negative').checked
             break
         case 'Percent':
         case 'Ratio':
@@ -361,7 +363,7 @@ function build_stat()
             let denominator = numeric[document.getElementById('denominator').selectedIndex]
             stat.numerator = numerator.replace('results.', '')
             stat.denominator = denominator.replace('results.', '')
-            stat.negative = dal.meta[numerator].negative && !dal.meta[denominator].negative
+            stat.negative = dal.meta[numerator].negative
             break
         case 'Where':
             let cycle = document.getElementById('cycle').value.replace('results.', '')
@@ -406,6 +408,7 @@ function build_stat()
             stat.filter = filter.replace('results.', '')
             stat.compare_type = Select.get_selected_option('comparitors')
             stat.value = document.getElementById('value').value
+            stat.negative = dal.meta[primary].negative
             
             // parse string value
             switch (dal.meta[filter].type)
