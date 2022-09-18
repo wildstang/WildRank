@@ -34,13 +34,13 @@ function init_page()
 function build_page()
 {
     let mode = new Dropdown('new-element-mode', 'Mode:', MODES)
-    mode.onselect = 'populate_dropdowns()'
+    mode.on_change = 'populate_dropdowns()'
     let page = new Dropdown('new-element-page', 'Page:')
-    page.onselect = 'populate_dropdowns()'
+    page.on_change = 'populate_dropdowns()'
     let column = new Dropdown('new-element-column', 'Column:')
-    column.onselect = 'populate_dropdowns()'
+    column.on_change = 'populate_dropdowns()'
     let type = new Dropdown('new-element-type', 'Type:')
-    type.onselect = 'populate_options()'
+    type.on_change = 'populate_options()'
     let name = new Entry('new-element-name', 'Name:')
     name.description = 'A brief description of the input visible to the user.'
 

@@ -26,12 +26,6 @@ class Element
         this.classes.push(style_class)
     }
 
-    set onsecondary(onsecondary)
-    {
-        this.onright = onsecondary.length > 0 ? onsecondary + '; return false' : ''
-        this.onhold = onsecondary.replace(/'/g, '\\\'')
-    }
-
     set default(def)
     {
         this.def = def
@@ -115,34 +109,36 @@ class ColumnFrame extends Element
 
 class Button extends Element
 {
-    constructor(id, label, onclick='')
+    constructor(id, label, on_click='')
     {
         super(id, label)
-        this.onclick = onclick
+        this.on_click = on_click
+        this.on_right = ''
+        this.on_hold = ''
     }
 
     set link(url)
     {
-        this.onclick = `window_open(${url}, '_self')`
-        this.onsecondary = `window_open(${url}, '_blank')`
+        this.on_click = `window_open('${url}', '_self')`
+        this.on_secondary = `window_open('${url}', '_blank')`
     }
 
-    set onsecondary(onsecondary)
+    set on_secondary(on_secondary)
     {
-        this.onright = onsecondary.length > 0 ? onsecondary + '; return false' : ''
-        this.onhold = onsecondary.replace(/'/g, '\\\'')
+        this.on_right = on_secondary.length > 0 ? on_secondary + '; return false' : ''
+        this.on_hold = on_secondary.replace(/'/g, '\\\'')
     }
 
     get toString()
     {
         let actions = ''
-        if (this.onclick)
+        if (this.on_click)
         {
-            actions += `onclick="${this.onclick}"`
+            actions += `onclick="${this.on_click}"`
         }
-        if (this.onhold || this.onright)
+        if (this.on_hold || this.on_right)
         {
-            actions += `oncontextmenu="return false" onauxclick="${this.onright}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.onhold}')"`
+            actions += `oncontextmenu="return false" onauxclick="${this.on_right}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.on_hold}')"`
         }
         return `${this.html_description}<div id="${this.id}-container" class="wr_button ${this.classes.join(' ')}" ${actions}>
                 <label id="${this.id}">${this.label}</label>
@@ -152,22 +148,22 @@ class Button extends Element
 
 class MultiButton extends Element
 {
-    constructor(id, label, options=[], onclicks=[])
+    constructor(id, label, options=[], on_clicks=[])
     {
         super(id, label)
         this.options = options
-        this.onclicks = onclicks
-        this.onrights = []
-        this.onholds = []
+        this.on_clicks = on_clicks
+        this.on_rights = []
+        this.on_holds = []
         this.columns = 2
     }
 
-    add_option(option, onclick, onsecondary='')
+    add_option(option, on_click, on_secondary='')
     {
         this.options.push(option)
-        this.onclicks.push(onclick)
-        this.onrights.push(onsecondary.length > 0 ? onsecondary + '; return false' : '')
-        this.onholds.push(onsecondary.replace(/'/g, '\\\''))
+        this.on_clicks.push(on_click)
+        this.on_rights.push(on_secondary.length > 0 ? on_secondary + '; return false' : '')
+        this.on_holds.push(on_secondary.replace(/'/g, '\\\''))
     }
 
     get html_options()
@@ -181,7 +177,7 @@ class MultiButton extends Element
             {
                 rows.push('')
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${this.classes.join(' ')}" id="${this.id}-${i}" onclick="${this.onclicks[i]}" oncontextmenu="return false" onauxclick="${this.onrights[i]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.onholds[i]}')">
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${this.classes.join(' ')}" id="${this.id}-${i}" onclick="${this.on_clicks[i]}" oncontextmenu="return false" onauxclick="${this.on_rights[i]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.on_holds[i]}')">
                     <label>${op_name}</label>
                 </span>`
         }
@@ -335,23 +331,23 @@ class Counter extends Input
     constructor(id, label, def=0)
     {
         super(id, label, def)
-        this.onincr = ''
-        this.ondecr = ''
+        this.on_incr = ''
+        this.on_decr = ''
     }
 
-    set onincrement(onincrement)
+    set on_increment(on_increment)
     {
-        this.onincr = onincrement.replace(/'/g, '\\\'')
+        this.on_incr = on_increment.replace(/'/g, '\\\'')
     }
 
-    set ondecrement(ondecrement)
+    set on_decrement(on_decrement)
     {
-        this.ondecr = ondecrement.replace(/'/g, '\\\'')
+        this.on_decr = on_decrement.replace(/'/g, '\\\'')
     }
 
     get toString()
     {
-        return `${this.html_description}<div class="wr_counter ${this.classes.join(' ')}" onclick="increment('${this.id}', false, '${this.onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}', true, '${this.ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}\\', true, \\'${this.ondecr.replace(/'/g, '\\\\\'')}\\')')">
+        return `${this.html_description}<div class="wr_counter ${this.classes.join(' ')}" onclick="increment('${this.id}', false, '${this.on_incr}')" oncontextmenu="return false" onauxclick="increment('${this.id}', true, '${this.on_decr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}\\', true, \\'${this.on_decr.replace(/'/g, '\\\\\'')}\\')')">
                 <label class="wr_counter_count" id="${this.id}">${this.def}</label>
                 <label>${this.label}</label>
             </div>`
@@ -360,7 +356,7 @@ class Counter extends Input
 
 class Cycler extends Counter
 {
-    static onincrement(id)
+    static on_increment(id)
     {
         let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
         let max = parseInt(document.getElementById(`${id}-max`).innerHTML)
@@ -377,7 +373,7 @@ class Cycler extends Counter
         document.getElementById(`${id}-back`).innerHTML = 'Last'
     }
 
-    static ondecrement(id)
+    static on_decrement(id)
     {
         let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
         if (val > 0)
@@ -395,14 +391,14 @@ class Cycler extends Counter
 
     get toString()
     {
-        let onincr = `${this.onincr}; Cycler.onincrement(\\'${this.id}\\')`
-        let ondecr = `${this.ondecr}; Cycler.ondecrement(\\'${this.id}\\')`
+        let on_incr = `${this.on_incr}; Cycler.on_increment(\\'${this.id}\\')`
+        let on_decr = `${this.on_decr}; Cycler.on_decrement(\\'${this.id}\\')`
         return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">
-                <span class="wr_select_option" id="${this.id}-back" onclick="increment('${this.id}-value', true, '${ondecr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', true, '${ondecr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', true, \\'${ondecr.replace(/'/g, '\\\\\'')}\\')')\" style="display: none"></span>
+                <span class="wr_select_option" id="${this.id}-back" onclick="increment('${this.id}-value', true, '${on_decr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', true, '${on_decr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', true, \\'${on_decr.replace(/'/g, '\\\\\'')}\\')')\" style="display: none"></span>
                 <span class="wr_select_option" id="${this.id}-count">
                     <label class="wr_counter_count" id="${this.id}-value">${this.def}</label> <label id="${this.id}-max" style="display: none">${this.def}</label>
                 </span>
-                <span class="wr_select_option" id="${this.id}-save" onclick="increment('${this.id}-value', false, '${onincr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', false, '${onincr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', false, \\'${onincr.replace(/'/g, '\\\\\'')}\\')')\">
+                <span class="wr_select_option" id="${this.id}-save" onclick="increment('${this.id}-value', false, '${on_incr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', false, '${on_incr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', false, \\'${on_incr.replace(/'/g, '\\\\\'')}\\')')\">
                     <b id="${this.id}-label">Save Cycle</b>
                 </span>
             </div>`
@@ -569,6 +565,7 @@ class Slider extends Entry
         {
             this.def = this.min
         }
+        this.on_change = ''
     }
 
     get html_label()
@@ -578,7 +575,7 @@ class Slider extends Entry
 
     get toString()
     {
-        return `${this.header}<div id="${this.id}_container" class="wr_slider ${this.classes.join(' ')}"><input id="${this.id}" type="range" class="wr_slider_range" value="${this.def}" oninput="Slider.update_slider_text('${this.id}'); ${this.oninput}" ${this.bounds}></div>`
+        return `${this.header}<div id="${this.id}_container" class="wr_slider ${this.classes.join(' ')}"><input id="${this.id}" type="range" class="wr_slider_range" value="${this.def}" oninput="Slider.update_slider_text('${this.id}'); ${this.on_change}" ${this.bounds}></div>`
     }
 
     set slider(value)
@@ -646,6 +643,7 @@ class OptionedInput extends Input
         {
             this.def = def
         }
+        this.on_change = ''
     }
 
     add_option(option)
@@ -666,11 +664,6 @@ class Select extends OptionedInput
         this.columns = 2
     }
 
-    set onselect(onselect)
-    {
-        this.onclick = onselect
-    }
-
     get html_options()
     {
         let options = ''
@@ -682,7 +675,7 @@ class Select extends OptionedInput
             {
                 rows.push('')
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() === this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="Select.select_option('${this.id}', '${index}'); ${this.onclick}">
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() === this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="Select.select_option('${this.id}', '${index}'); ${this.on_change}">
                     <label>${op_name}</label>
                 </span>`
         }
@@ -767,11 +760,6 @@ class Dropdown extends OptionedInput
         super(id, label, options, def)
     }
 
-    set onselect(onselect)
-    {
-        this.onclick = onselect
-    }
-
     get html_options()
     {
         let options = ''
@@ -784,7 +772,7 @@ class Dropdown extends OptionedInput
 
     get toString()
     {
-        return `${this.header}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.onclick}">${this.html_options}</select>`
+        return `${this.header}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.on_change}">${this.html_options}</select>`
     }
 }
 
@@ -904,7 +892,7 @@ function touch_button(secondary)
  * returns:     none
  * description: Increases the value of the counter on click, descreases on right.
  */
-function increment(id, right, onincrement='')
+function increment(id, right, on_increment='')
 {
     if (last_touch > 0 && Date.now() - last_touch > 500 && !right)
     {
@@ -916,8 +904,8 @@ function increment(id, right, onincrement='')
     {
         document.getElementById(id).innerHTML = parseInt(current) + modifier
     }
-    if (onincrement)
+    if (on_increment)
     {
-        eval(onincrement)
+        eval(on_increment)
     }
 }

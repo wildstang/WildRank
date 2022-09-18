@@ -341,7 +341,7 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true)
         id = 'secondary_filter'
     }
     let dropdown = new Dropdown(filter_id, '', options)
-    dropdown.onclick = func
+    dropdown.on_click = func
     document.getElementById(id).innerHTML = dropdown.toString
     document.getElementById(filter_id).style.margin = '4px auto'
     document.getElementById(filter_id).style.width = `${300}px`

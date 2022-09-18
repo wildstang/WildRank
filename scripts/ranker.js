@@ -29,7 +29,7 @@ function init_page()
     builder_col.add_input(name)
 
     let type = new Select('type', 'Type', STAT_TYPES, 'Math')
-    type.onselect = 'update_params()'
+    type.on_change = 'update_params()'
     builder_col.add_input(type)
 
     builder_col.add_input('<div id="params"></div>')
@@ -96,9 +96,9 @@ function update_params()
             operators.description = 'Math stats do not exclusively require these operators. Any valid JS operations should work.'
             operators.columns = 4
             let keys_dropdown = new Dropdown('keys', 'Match Keys', [''])
-            keys_dropdown.onselect = 'add_key_math()'
+            keys_dropdown.on_change = 'add_key_math()'
             let constants_dropdown = new Dropdown('constants', 'Team Constants', [''])
-            constants_dropdown.onselect = 'add_constant()'
+            constants_dropdown.on_change = 'add_constant()'
             for (let i in keys)
             {
                 keys_dropdown.add_option(dal.get_name(keys[i]))
@@ -118,19 +118,19 @@ function update_params()
         case 'Percent':
             keys = keys.map(k => dal.get_name(k))
             let percent = new Dropdown('numerator', 'Percent Value', keys)
-            percent.onselect = 'calculate()'
+            percent.on_change = 'calculate()'
             percent.description = 'The value being measured in the percentage.'
             let remain = new Dropdown('denominator', 'Remaining Value', keys)
-            remain.onselect = 'calculate()'
+            remain.on_change = 'calculate()'
             remain.description = 'The remaining value used to complete the percentage.'
             html += percent.toString + remain.toString
             break
         case 'Ratio':
             keys = keys.map(k => dal.get_name(k))
             let numerator = new Dropdown('numerator', 'Numerator', keys)
-            numerator.onselect = 'calculate()'
+            numerator.on_change = 'calculate()'
             let denominator = new Dropdown('denominator', 'Denominator', keys)
-            denominator.onselect = 'calculate()'
+            denominator.on_change = 'calculate()'
             html += numerator.toString + denominator.toString
             break
         case 'Where':
@@ -145,19 +145,19 @@ function update_params()
             let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
 
             let cycle_filter = new Dropdown('cycle', 'Cycle', cycles)
-            cycle_filter.onselect = 'update_params()'
+            cycle_filter.on_change = 'update_params()'
             cycle_filter.description = 'The ID of the cycle you would like to count.'
             let count = new Dropdown('count', 'Count', ['Count'].concat(counters))
-            count.onselect = 'calculate()'
+            count.on_change = 'calculate()'
             count.description = 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.'
             let cycle_percent = new Dropdown('denominator', 'Percent: Remaining Value', [''].concat(counters))
-            cycle_percent.onselect = 'calculate()'
+            cycle_percent.on_change = 'calculate()'
             cycle_percent.description = 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.'
             html += cycle_filter.toString + count.toString + cycle_percent.toString
             for (let s of selects)
             {
                 let filter = new Dropdown(s, dal.get_name(s), [''].concat(dal.meta[s].options))
-                filter.onselect = 'calculate()'
+                filter.on_change = 'calculate()'
                 filter.description = 'Optional, choose value of the above select to filter cycles by.'
                 html += filter.toString
             }
@@ -166,23 +166,23 @@ function update_params()
             let keylist = new Extended('keys', 'Keys')
             keylist.on_text_change = 'calculate()'
             let key = new Dropdown('key_selector', 'Match Keys', [''])
-            key.onselect = 'add_key_minmax()'
+            key.on_change = 'add_key_minmax()'
             for (let i in keys)
             {
                 key.add_option(dal.get_name(keys[i]))
             }
             keys = keys.map(k => dal.get_name(k))
             let select = new Select('minmax', 'Min/Max', ['Min', 'Max'])
-            select.onselect = 'calculate()'
+            select.on_change = 'calculate()'
             html += keylist.toString + key.toString + select.toString
             break
         case 'Filter':
             keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
             keys = keys.map(k => dal.get_name(k))
             let stat = new Dropdown('primary_stat', 'Primary Stat', keys)
-            stat.onselect = 'calculate()'
+            stat.on_change = 'calculate()'
             let filter = new Dropdown('filter_by', 'Filter By', keys)
-            filter.onselect = 'update_filter()'
+            filter.on_change = 'update_filter()'
 
             html += stat.toString + filter.toString + `<span id="filter_ops"></span>`
             break
@@ -297,12 +297,12 @@ function update_filter()
         case 'checkbox':
             comps = ['=']
             value = new Select('value', '', ['True', 'False'])
-            value.onselect = 'calculate()'
+            value.on_change = 'calculate()'
             break
         case 'select':
         case 'dropdown':
             value = new Dropdown('value', '', dal.meta[filter].options)
-            value.onselect = 'calculate()'
+            value.on_change = 'calculate()'
             break
     }
     let comparitors = new Select('comparitors', 'When', comps)
@@ -311,7 +311,7 @@ function update_filter()
     {
         comparitors.columns = Math.ceil(comps.length / 2)
     }
-    comparitors.onselect = 'calculate()'
+    comparitors.on_change = 'calculate()'
 
     document.getElementById('filter_ops').innerHTML = comparitors.toString + value.toString
     calculate()

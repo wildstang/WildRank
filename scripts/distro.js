@@ -19,7 +19,7 @@ function init_page()
     max_bins.on_text_change = 'build_plot()'
 
     let select = new Select('function', 'Function', FUNCTIONS, 'Mean')
-    select.onselect = 'build_plot()'
+    select.on_change = 'build_plot()'
 
     buttons_container.innerHTML = new ColumnFrame('', '', [max_bins]).toString + new ColumnFrame('', '', [select]).toString
 

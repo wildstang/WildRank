@@ -20,10 +20,10 @@ var selectedB = ''
 function init_page()
 {
     let type_form = new Select('type_form', 'Sort numeric resuts by', SORT_OPTIONS, 'Mean')
-    type_form.onselect = 'open_both_teams()'
+    type_form.on_change = 'open_both_teams()'
 
     let scale_max = new Select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair')
-    scale_max.onselect = 'open_both_teams()'
+    scale_max.on_change = 'open_both_teams()'
 
     let page = new PageFrame('', '', [
         new ColumnFrame('', '', [type_form]),

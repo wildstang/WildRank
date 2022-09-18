@@ -189,8 +189,8 @@ function build_page_from_config()
                 let cycler = new Cycler(`${column.id}_cycles`, 'Cycles')
                 if (cycle)
                 {
-                    cycler.onincrement = `update_cycle('${column.id}', false)`
-                    cycler.ondecrement = `update_cycle('${column.id}', true)`
+                    cycler.on_increment = `update_cycle('${column.id}', false)`
+                    cycler.on_decrement = `update_cycle('${column.id}', true)`
                 }
                 col_frame.add_input(cycler)
 

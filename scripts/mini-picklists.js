@@ -22,13 +22,13 @@ function select_list(name='')
     }
     // create new dropdown with current selection as default
     let dropdown = new Dropdown('list_names', '', Object.keys(dal.picklists), name)
-    dropdown.onclick = 'select_list()'
+    dropdown.on_click = 'select_list()'
     dropdown.add_class('slim')
     let list_text = `<tr><td>${dropdown.toString}</td>`
     if (Object.keys(dal.picklists).includes(name))
     {
         let top = new Button('', 'Add to Top', `add_to('${name}', '')`)
-        top.onsecondary = `remove_team('${name}', '')`
+        top.on_secondary = `remove_team('${name}', '')`
         top.add_class('pick_item')
         top.add_class('slim')
         list_text += `<td>${top.toString}</td>`
@@ -41,7 +41,7 @@ function select_list(name='')
             }
             // add team button
             let entry = new Button('', team, `add_to('${name}', '${team}')`)
-            entry.onsecondary = `remove_team('${name}', '${team}')`
+            entry.on_secondary = `remove_team('${name}', '${team}')`
             entry.add_class(classes)
             list_text += `<td>${entry.toString}</td>`
         }

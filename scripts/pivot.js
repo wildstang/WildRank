@@ -317,7 +317,7 @@ function build_table(sort_by='', reverse=false)
 
         // build dropdown for filter
         let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
-        filter_dd.onclick = `build_table('${sort_by}', ${reverse})`
+        filter_dd.on_click = `build_table('${sort_by}', ${reverse})`
         filter_dd.add_class('slim')
         filter_dd.add_class('thin')
         let filter_str = filter_dd.toString
@@ -327,7 +327,7 @@ function build_table(sort_by='', reverse=false)
         if (key.startsWith('stats.'))
         {
             let dropdown = new Dropdown(`select_${key}_${i}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
-            dropdown.onclick = `build_table('${sort_by}', ${reverse})`
+            dropdown.on_click = `build_table('${sort_by}', ${reverse})`
             dropdown.add_class('slim')
             dropdown.add_class('thin')
             fn = dropdown.toString
@@ -337,7 +337,7 @@ function build_table(sort_by='', reverse=false)
         if (t === 'number' || t === 'counter' || t === 'slider')
         {
             let ltgt = new Select(`ltgt_${key}_${i}`, '', ['Less', 'Greater'], ['Less', 'Greater'][ltgt_def])
-            ltgt.onselect = `build_table('${sort_by}', ${reverse})`
+            ltgt.on_change = `build_table('${sort_by}', ${reverse})`
             ltgt.add_class('slim')
             ltgt.add_class('thin')
             filter_str = ltgt.toString + filter_str

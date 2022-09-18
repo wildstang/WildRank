@@ -135,7 +135,7 @@ function build_pick_lists(list_name='', list_num=0, add_list=false)
 
         // rebuild dropdown
         let dropdown = new Dropdown(`list_names_${i}`, '', Object.keys(dal.picklists), list_name)
-        dropdown.onclick = 'build_pick_lists()'
+        dropdown.on_click = 'build_pick_lists()'
         list.add_input(dropdown)
         
         // build selected list
@@ -145,7 +145,7 @@ function build_pick_lists(list_name='', list_num=0, add_list=false)
             let card = new Card('', `<center>${dal.picklists[list_name].length} Teams<center>`)
             list.add_input(card)
             let top = new Button('', 'Add to Top', `add_to('${list_name}', '', ${i})`)
-            top.onsecondary = `remove_team('${list_name}', '', ${i})`
+            top.on_secondary = `remove_team('${list_name}', '', ${i})`
             list.add_input(top)
             for (let team of dal.picklists[list_name])
             {

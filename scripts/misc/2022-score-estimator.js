@@ -23,13 +23,13 @@ function init_page()
     red_base.type = 'number'
     red_col.add_input(red_base)
     let red_climb_1 = new Select('red_climb_1', 'Climb 1', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
-    red_climb_1.onselect = 'calc_score()'
+    red_climb_1.on_change = 'calc_score()'
     red_col.add_input(red_climb_1)
     let red_climb_2 = new Select('red_climb_2', 'Climb 2', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
-    red_climb_2.onselect = 'calc_score()'
+    red_climb_2.on_change = 'calc_score()'
     red_col.add_input(red_climb_2)
     let red_climb_3 = new Select('red_climb_3', 'Climb 3', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
-    red_climb_3.onselect = 'calc_score()'
+    red_climb_3.on_change = 'calc_score()'
     red_col.add_input(red_climb_3)
     red_col.add_input(new Counter('red_final_score', 'Red Score', 0))
 
@@ -39,13 +39,13 @@ function init_page()
     blue_base.type = 'number'
     blue_col.add_input(blue_base)
     let blue_climb_1 = new Select('blue_climb_1', 'Climb 1', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
-    blue_climb_1.onselect = 'calc_score()'
+    blue_climb_1.on_change = 'calc_score()'
     blue_col.add_input(blue_climb_1)
     let blue_climb_2 = new Select('blue_climb_2', 'Climb 2', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
-    blue_climb_2.onselect = 'calc_score()'
+    blue_climb_2.on_change = 'calc_score()'
     blue_col.add_input(blue_climb_2)
     let blue_climb_3 = new Select('blue_climb_3', 'Climb 3', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
-    blue_climb_3.onselect = 'calc_score()'
+    blue_climb_3.on_change = 'calc_score()'
     blue_col.add_input(blue_climb_3)
     blue_col.add_input(new Counter('blue_final_score', 'Blue Score', 0))
 

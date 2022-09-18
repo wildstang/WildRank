@@ -54,7 +54,7 @@ function init_page()
     options.add_input(user_id)
 
     let theme = new Select('theme_switch', 'Theme')
-    theme.onclick = 'switch_theme()'
+    theme.on_click = 'switch_theme()'
     theme.add_option('Light')
     theme.add_option('Dark')
     theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
@@ -109,28 +109,28 @@ function init_page()
     page.add_column(data)
 
     let version = new Counter('config_version', 'cfg')
-    version.onincrement = 'increment("", false)'
-    version.ondecrement = 'increment("", true)'
+    version.on_increment = 'increment("", false)'
+    version.on_decrement = 'increment("", true)'
     data.add_input(version)
 
     let teams = new Counter('teams', 'Event Teams')
-    teams.onincrement = 'increment("", false)'
-    teams.ondecrement = 'increment("", true)'
+    teams.on_increment = 'increment("", false)'
+    teams.on_decrement = 'increment("", true)'
     data.add_input(teams)
 
     let matches = new Counter('matches', 'Event Matches')
-    matches.onincrement = 'increment("", false)'
-    matches.ondecrement = 'increment("", true)'
+    matches.on_increment = 'increment("", false)'
+    matches.on_decrement = 'increment("", true)'
     data.add_input(matches)
 
     let pit_results = new Counter('pit_results', 'Pit Results')
-    pit_results.onincrement = 'increment("", false)'
-    pit_results.ondecrement = 'increment("", true)'
+    pit_results.on_increment = 'increment("", false)'
+    pit_results.on_decrement = 'increment("", true)'
     data.add_input(pit_results)
 
     let match_results = new Counter('match_results', 'Match Results')
-    match_results.onincrement = 'increment("", false)'
-    match_results.ondecrement = 'increment("", true)'
+    match_results.on_increment = 'increment("", false)'
+    match_results.on_decrement = 'increment("", true)'
     data.add_input(match_results)
 
     let about = new Button('about', 'About WildRank')

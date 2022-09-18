@@ -21,8 +21,8 @@ function init_page()
     page.add_column(buttons)
 
     let button = new Button('', 'Test Button')
-    button.onclick = `alert('Button clicked')`
-    button.onsecondary = `alert('Button right clicked')`
+    button.on_click = `alert('Button clicked')`
+    button.on_secondary = `alert('Button right clicked')`
     buttons.add_input(button)
 
     let link = new Button('', 'Link Button')
@@ -63,7 +63,7 @@ function init_page()
     checkboxes.add_input(checkbox)
 
     let alertbox = new Checkbox('', 'Alert Checkbox', true)
-    alertbox.onclick = `alert('Hi!')`
+    alertbox.on_click = `alert('Hi!')`
     checkboxes.add_input(alertbox)
 
 
@@ -74,12 +74,12 @@ function init_page()
     counters.add_input(counter)
 
     let cycler = new Cycler('', 'Test Cycler')
-    cycler.ondecrement = `alert('decrement cycle')`
+    cycler.on_decrement = `alert('decrement cycle')`
     counters.add_input(cycler)
 
     let alertcounter = new Counter('', 'Alert Counter', 5)
-    alertcounter.onincrement = `alert('Up')`
-    alertcounter.ondecrement = `alert('Down')`
+    alertcounter.on_increment = `alert('Up')`
+    alertcounter.on_decrement = `alert('Down')`
     counters.add_input(alertcounter)
 
 
@@ -139,7 +139,7 @@ function init_page()
     alertselect.add_option('B')
     alertselect.add_option('C')
     alertselect.default = 'B'
-    alertselect.onselect = `alert('Select')`
+    alertselect.on_change = `alert('Select')`
     selects.add_input(alertselect)
 
     let wrapselect = new Select('', 'Wrapping Select', ['A', 'B', 'C', 'D'], 'C')
@@ -161,7 +161,7 @@ function init_page()
     alertdropdown.add_option('B')
     alertdropdown.add_option('C')
     alertdropdown.default = 'B'
-    alertdropdown.onselect = `alert('Select')`
+    alertdropdown.on_change = `alert('Select')`
     dropdowns.add_input(alertdropdown)
 
 
@@ -176,7 +176,7 @@ function init_page()
 
     let alertslider = new Slider('', 'Alert Slider', 5)
     alertslider.bounds = [3, 7, 2]
-    alertslider.oninput = `alert('Slid')`
+    alertslider.on_change = `alert('Slid')`
     others.add_input(alertslider)
 
     document.body.innerHTML += page.toString

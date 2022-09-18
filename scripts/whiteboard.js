@@ -759,9 +759,9 @@ function init_page()
     if (first)
     {
         let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
-        draw_drag.onclick = 'draw_drag()'
+        draw_drag.on_click = 'draw_drag()'
         let path_type = new Select('path_type', 'Path Type', ['Heatmap', 'Trace', 'Both'], 'Heatmap')
-        path_type.onselect = 'set_path_type()'
+        path_type.on_change = 'set_path_type()'
         let clear_lines = new Button('clear_lines', 'Clear Lines', 'clear_whiteboard()')
         let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'init()')
         let controls = new ColumnFrame('', '', ['<span id="add_element_container"></span>', draw_drag, clear_lines, reset_whiteboard])
@@ -771,10 +771,10 @@ function init_page()
         playback_speed.bounds = [1, 50, 1]
         let match_time = new Slider('match_time', 'Match Time', 1)
         match_time.bounds = [1, 1, 1]
-        match_time.oninput = 'update_time()'
+        match_time.on_change = 'update_time()'
         let trail_length = new Slider('trail_length', 'Trail Length', 0)
         trail_length.bounds = [0, 1, 10]
-        trail_length.oninput = 'update_trail()'
+        trail_length.on_change = 'update_trail()'
         let playback = new ColumnFrame('', '', [play_match, playback_speed, match_time, trail_length])
 
         buttons_container.innerHTML = '<br>' +

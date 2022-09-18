@@ -32,7 +32,7 @@ function init_page()
     page.add_column(right_col)
 
     let type_form = new Select('type_form', 'Mode', ['Pit', 'Match'], 'Match')
-    type_form.onselect = 'hide_buttons()'
+    type_form.on_change = 'hide_buttons()'
     left_col.add_input(type_form)
 
     let user_form = new Entry('user_id', 'School ID', user_id)
@@ -52,7 +52,7 @@ function init_page()
     right_col.add_input(max_value)
 
     let generate = new Button('generate', 'Generate Results')
-    generate.onclick = 'create_results()'
+    generate.on_click = 'create_results()'
     right_col.add_input(generate)
 
     // build page
