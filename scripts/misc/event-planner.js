@@ -134,6 +134,7 @@ function process_year(year)
     {
         map.removeLayer(loc)
     }
+    locs = []
 
     if (!TBA_KEY)
     {
@@ -213,7 +214,8 @@ function process_year(year)
                 for (let event of weeks[week])
                 {
                     // apply filters
-                    if (center.distanceTo(new L.LatLng(event.lat, event.lng)) < range &&
+                    let distance = center.distanceTo(new L.LatLng(event.lat, event.lng))
+                    if (distance < range &&
                         (states.length === 0 || states.includes(event.state_prov)) &&
                         (districts || (event.event_type !== DISTRICT && event.event_type !== DISTRICT_CMP && event.event_type !== DISTRICT_CMP_DIVISION)) &&
                         (offseasons || (event.event_type !== PRESEASON && event.event_type !== OFFSEASON)) &&
@@ -228,7 +230,9 @@ function process_year(year)
                         count++
                         document.getElementById('weeks').innerHTML += `<tr><td>${event.key}</td><td>${event.name}</td><td>${event.city}, ${event.state_prov}, ${event.country}</td><td>${event.start_date}</td></tr>`
 
-                        locs.push(L.marker([event.lat, event.lng]).addTo(map))
+                        locs.push(L.marker([event.lat, event.lng]).addTo(map)
+                                   .bindTooltip(event.name)
+                                   .bindPopup(`${(distance / 1609.34).toFixed(1)} mi`))
                     }
                 }
             }
