@@ -460,6 +460,17 @@ function open_event_planner()
 }
 
 /**
+ * function:    open_team_profile
+ * parameters:  none
+ * returns:     none
+ * description: Open the score counter page.
+ */
+function open_team_profile()
+{
+    return build_url('index', {'page': 'misc/team-profile'})
+}
+
+/**
  * function:    open_test
  * parameters:  none
  * returns:     none
