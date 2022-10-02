@@ -294,3 +294,25 @@
     margin-left: calc(var(--input-gap)/2);
     margin-right: calc(var(--input-gap)/2);
 }
+
+.profile {
+    text-align: center;
+    padding: 0;
+}
+
+.wr_card h1 {
+    margin: 0;
+    background-color: gray;
+    padding: var(--input-padding);
+}
+
+.wr_card .card_body {
+    text-align: left;
+    padding: var(--input-padding);
+}
+
+.links {
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+}
