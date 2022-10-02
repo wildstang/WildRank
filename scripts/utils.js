@@ -157,7 +157,8 @@ function std_dev(values)
     {
         return 0
     }
-    return Math.sqrt(values.map(x => Math.pow(x - mean(values), 2)).reduce((a, b) => a + b) / values.length)
+    let avg = mean(values)
+    return Math.sqrt(values.map(x => Math.pow(x - avg, 2)).reduce((a, b) => a + b) / values.length)
 }
 
 /**
