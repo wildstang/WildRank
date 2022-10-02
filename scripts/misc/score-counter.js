@@ -30,7 +30,7 @@ const FIRST_YEAR = 2002
  */
 function init_page()
 {
-    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Average</th><th>Winning</th><th>Losing</th><th>Regional</th><th>District</th><th>Dist Champ</th><th>Champ Div</th><th>Champ Final</th><th>Dist Champ Div</th></tr></table>')
+    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Average</th><th>Winning</th><th>Losing</th><th>Regional</th><th>District</th><th>Dist Champ</th><th>Champ Div</th><th>Champ Final</th><th>Dist Champ Div</th></tr></table><table id="week_table" style="text-align: right"><tr id="weeks"></tr></table>')
     document.body.innerHTML += new PageFrame('', '', [card]).toString
 
     process_year(FIRST_YEAR)
@@ -63,7 +63,7 @@ function process_year(year)
         }
     }
 
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -77,6 +77,7 @@ function process_year(year)
             let processed = 0
             let event_points = [0, 0, 0, 0, 0, 0]
             let event_count = [0, 0, 0, 0, 0, 0]
+            let weeks = {}
             for (let event of events)
             {
                 let type = event.event_type
@@ -95,6 +96,28 @@ function process_year(year)
                             return response.json()
                         })
                         .then(matches => {
+                            let week = event.week
+                            if (event.event_type === PRESEASON)
+                            {
+                                week = 'Week 0'
+                            }
+                            else if (event.event_type === OFFSEASON)
+                            {
+                                week = 'Offseason'
+                            }
+                            else if (event.event_type == CMP_DIVISION || event.event_type == CMP_FINALS || event.event_type == FOC)
+                            {
+                                week = 'Championship'
+                            }
+                            else
+                            {
+                                week = `Week ${parseInt(week) + 1}`
+                            }
+                            if (!weeks.hasOwnProperty(week))
+                            {
+                                weeks[week] = []
+                            }
+
                             count += matches.length
                             event_count[type] += matches.length
                             for (let match of matches)
@@ -108,6 +131,8 @@ function process_year(year)
                                 }
                                 winning_points += match.alliances[winner].score
                                 event_points[type] += total_score
+                                weeks[week].push(match.alliances.red.score)
+                                weeks[week].push(match.alliances.blue.score)
                             }
 
                             // if all events are processed
@@ -131,6 +156,10 @@ function process_year(year)
                                 {
                                     document.getElementById('summary').innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
                                 }
+
+                                let names = Object.keys(weeks)
+                                document.getElementById('weeks').innerHTML = '<tr>' + names.map(w => `<td>${w.join('')}</td>`) + '</tr>'
+                                document.getElementById('week_table').innerHTML += '<tr>' + names.map(w => `<td>${mean(weeks[w]).toFixed(0)}:${std_dev(weeks[w]).toFixed(0)}</td>`).join('') + '</tr>'
                             }
                         })
                         .catch(err => {
