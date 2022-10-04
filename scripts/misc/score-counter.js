@@ -30,7 +30,10 @@ const FIRST_YEAR = 2002
  */
 function init_page()
 {
-    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Average</th><th>Winning</th><th>Losing</th><th>Regional</th><th>District</th><th>Dist Champ</th><th>Champ Div</th><th>Champ Final</th><th>Dist Champ Div</th></tr></table><table id="week_table" style="text-align: right"><tr id="weeks"></tr></table>')
+    let summary = '<div id="summary">Loading data....</div>'
+    let typetab = '<table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Average</th><th>Winning</th><th>Losing</th><th>Share</th><th>Regional</th><th>District</th><th>Dist Champ</th><th>Champ Div</th><th>Champ Final</th><th>Dist Champ Div</th></tr></table>'
+    let weektab = '<table id="week_table" style="text-align: right"><tr><th>Year</th><th>Week 0</th><th>Week 1</th><th>Week 2</th><th>Week 3</th><th>Week 4</th><th>Week 5</th><th>Week 6</th><th>Week 7</th><th>Week 8</th><th>Championship</th><th>Offseason</th></tr></table>'
+    let card = new Card('card', summary + typetab + weektab)
     document.body.innerHTML += new PageFrame('', '', [card]).toString
 
     process_year(FIRST_YEAR)
@@ -77,7 +80,19 @@ function process_year(year)
             let processed = 0
             let event_points = [0, 0, 0, 0, 0, 0]
             let event_count = [0, 0, 0, 0, 0, 0]
-            let weeks = {}
+            let weeks = {
+                'Week 0': [],
+                'Week 1': [],
+                'Week 2': [],
+                'Week 3': [],
+                'Week 4': [],
+                'Week 5': [],
+                'Week 6': [],
+                'Week 7': [],
+                'Week 8': [],
+                'Championship': [],
+                'Offseason': [],
+            }
             for (let event of events)
             {
                 let type = event.event_type
@@ -144,8 +159,34 @@ function process_year(year)
                                 {
                                     event_cells += `<td>${average(event_points[type] / 2, event_count[type])}</td>`
                                 }
+
                                 // add to page
-                                document.getElementById('table').innerHTML += `<tr><th>${year}</th><td>${count}</td><td>${average(points / 2, count)}</td><td>${average(winning_points, count)}</td><td>${average(points - winning_points, count)}</td>${event_cells}</tr>`
+                                let winning = average(winning_points, count)
+                                let losing = average(points - winning_points, count)
+                                let winner_share = (100 * winning_points / points).toFixed(0)
+                                if (winner_share === 'NaN')
+                                {
+                                    winner_share = ''
+                                }
+                                else
+                                {
+                                    winner_share += '%'
+                                }
+                                document.getElementById('table').innerHTML += `<tr><th>${year}</th><td>${count}</td><td>${average(points / 2, count)}</td><td>${winning}</td><td>${losing}</td><td>${winner_share}</td>${event_cells}</tr>`
+
+                                let names = Object.keys(weeks)
+                                let cells = names.map(function (w)
+                                {
+                                    let avg = mean(weeks[w]).toFixed(0)
+                                    let dev = std_dev(weeks[w]).toFixed(0)
+                                    if (avg === '0' && dev === '0')
+                                    {
+                                        return '<td></td>'
+                                    }
+                                    return `<td>${avg} (${dev})</td>`
+                                })
+                                document.getElementById('week_table').innerHTML += `<tr><th>${year}</th>` + cells.join('') + '</tr>'
+                                
                                 // count next year
                                 if (year < cfg.year)
                                 {
@@ -156,10 +197,6 @@ function process_year(year)
                                 {
                                     document.getElementById('summary').innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
                                 }
-
-                                let names = Object.keys(weeks)
-                                document.getElementById('weeks').innerHTML = '<tr>' + names.map(w => `<td>${w.join('')}</td>`) + '</tr>'
-                                document.getElementById('week_table').innerHTML += '<tr>' + names.map(w => `<td>${mean(weeks[w]).toFixed(0)}:${std_dev(weeks[w]).toFixed(0)}</td>`).join('') + '</tr>'
                             }
                         })
                         .catch(err => {
