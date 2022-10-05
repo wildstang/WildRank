@@ -90,7 +90,7 @@ function init_page()
     status.add_input(preload)
 
     let transfer = new Button('transfer', 'Transfer Raw Data')
-    transfer.link = `open_transfer()`
+    transfer.link = `open_page('transfer-raw')`
     status.add_input(transfer)
 
     let server = new StatusTile('server_type', 'Server Available')
@@ -134,7 +134,7 @@ function init_page()
     data.add_input(match_results)
 
     let about = new Button('about', 'About WildRank')
-    about.link = `open_about()`
+    about.link = `open_page('about')`
     data.add_input(about)
     
     data.add_input('<div id="install-container"></div>')

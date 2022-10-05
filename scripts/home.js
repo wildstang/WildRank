@@ -14,81 +14,80 @@ include('transfer')
 // role based layouts
 const CONFIGS = {
     'scout': {
-        'Scout': ['scout'],
-        'Transfer': ['open_transfer', 'download_csv']
+        'Scout': ['matches'],
+        'Transfer': ['transfer-raw', 'download_csv']
     },
     'note': {
-        'Notes': ['pit_scout'],
-        'Transfer': ['open_transfer', 'download_csv']
+        'Notes': ['pits'],
+        'Transfer': ['transfer-raw', 'download_csv']
     },
     'drive': {
-        'Drive Team': ['open_coach', 'open_whiteboard'],
-        'Transfer': ['open_transfer', 'download_csv']
+        'Drive Team': ['coach', 'whiteboard'],
+        'Transfer': ['transfer-raw', 'download_csv']
     },
     'analysis': {
-        'Teams': ['open_ranker', 'open_sides', 'open_picks', 'open_whiteboard'],
-        'Keys': ['open_pivot', 'open_distro', 'open_plot', 'open_scatter'],
-        'Data': ['open_results', 'open_cycles', 'open_coach'],
-        'Overviews': ['open_teams', 'open_matches', 'open_users', 'open_progress', 'open_events'],
-        'Transfer': ['open_transfer', 'download_csv']
+        'Teams': ['ranker', 'sides', 'picklists', 'whiteboard'],
+        'Keys': ['pivot', 'distro', 'plot', 'scatter'],
+        'Data': ['results', 'cycles', 'coach'],
+        'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events'],
+        'Transfer': ['transfer-raw', 'download_csv']
     },
     'admin': {
-        'Configuration': ['open_config', 'open_settings', 'open_schedule_import', 'open_export'],
-        'Debugging': ['open_config_debug', 'open_event_gen', 'open_cache', 'open_random', 'open_extras'],
+        'Configuration': ['config-generator', 'settings', 'schedule-importer', 'export'],
+        'Debugging': ['config-debug', 'event-generator', 'cache', 'random', 'open_extras'],
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
     'extras': {
-        'Generic': ['open_test', 'open_match_counter', 'open_district_counter', 'open_international_counter', 'open_score_counter', 'open_event_planner', 'open_team_profile'],
-        'Game Specific': ['open_22_estimator']
+        'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile'],
+        'Game Specific': ['misc/2022-score-estimator']
     }
 }
 
 // requirements for each button
 const BUTTONS = {
-    'scout':            { name: 'Scout',             limits: ['event'], configs: [MATCH_MODE, 'settings'] },
-    'pit_scout':        { name: 'Pit Scout',         limits: ['teams'], configs: [PIT_MODE, 'settings'] },
-    'open_ranker':      { name: 'Team Rankings',     limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_sides':       { name: 'Side-by-Side',      limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_picks':       { name: 'Pick Lists',        limits: ['teams', 'admin'], configs: ['settings'] },
-    'open_whiteboard':  { name: 'Whiteboard',        limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
-    'open_advanced':    { name: 'Advanced',          limits: ['event', 'admin'], configs: ['settings'] },
-    'open_results':     { name: 'Results',           limits: ['admin', 'results'], configs: ['settings'] },
-    'open_cycles':      { name: 'Cycles',            limits: ['admin', 'results'], configs: ['settings'] },
-    'open_teams':       { name: 'Team Profiles',     limits: ['teams', 'admin'], configs: ['settings'] },
-    'open_matches':     { name: 'Match Summaries',   limits: ['event', 'admin'], configs: ['settings'] },
-    'open_users':       { name: 'User Profiles',     limits: ['admin', 'any'], configs: [] },
-    'open_pivot':       { name: 'Pivot Table',       limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_distro':      { name: 'Distributions',     limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_plot':        { name: 'Plotter',           limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_scatter':     { name: 'Scatter',           limits: ['event', 'admin', 'results'], configs: ['settings'] },
-    'open_coach':       { name: 'Coach View',        limits: ['event', 'admin', 'results'], configs: ['settings', 'coach'] },
-    'open_config':      { name: 'Config Builder',    limits: ['admin'], configs: [] },
-    'open_settings':    { name: 'Settings Editor',   limits: ['admin'], configs: ['settings'] },
-    'preload_event':    { name: 'Preload Event',     limits: [], configs: [] },
-    'open_transfer':    { name: 'Transfer Raw Data', limits: ['event'], configs: [] },
-    'open_progress':    { name: 'Scouting Progress', limits: ['teams', 'admin'], configs: [] },
-    'open_events':      { name: 'Other Events',      limits: ['teams', 'admin'], configs: [] },
-    'reset':            { name: 'Reset App',         limits: ['admin'], configs: [] },
-    'reset_cache':      { name: 'Reset Cache',       limits: ['admin'], configs: [] },
-    'reset_storage':    { name: 'Reset Storage',     limits: ['admin'], configs: [] },
-    'reset_results':    { name: 'Reset Results',     limits: ['admin'], configs: [] },
-    'clear_events':     { name: 'Clear Other Events',limits: ['admin'], configs: [] },
-    'open_event_gen':   { name: 'Event Generator',   limits: ['admin'], configs: [] },
-    'open_schedule_import':{name: 'Schedule Importer', limits: ['admin'], configs: [] },
-    'open_random':      { name: 'Random Result Generator', limits: ['admin'], configs: ['settings'] },
-    'open_export':      { name: 'Server Exporter',   limits: ['admin'], configs: [] },
-    'open_config_debug':{ name: 'Config Debugger',   limits: ['admin'], configs: [] },
-    'open_cache':       { name: 'Cache Manager',     limits: ['admin'], configs: [] },
-    'download_csv':     { name: 'Export Results as Sheet', limits: ['event', 'admin', 'any'], configs: [] },
-    'open_extras':      { name: 'Extras',            limits: ['admin'], configs: [] },
-    'open_match_counter':{name: 'Match Counter',     limits: ['admin'], configs: [] },
-    'open_test':        { name: 'Input Tester',       limits: ['admin'], configs: [] },
-    'open_22_estimator':{ name: '2022 Score Estimator', limits: ['admin'], configs: [] },
-    'open_district_counter':{ name: 'District Counter', limits: ['admin'], configs: [] },
-    'open_international_counter':{ name: 'International Counter', limits: ['admin'], configs: [] },
-    'open_score_counter':{ name: 'Score Counter', limits: ['admin'], configs: [] },
-    'open_event_planner':{ name: 'Event Planner', limits: ['admin'], configs: [] },
-    'open_team_profile':{ name: 'Team Profile', limits: ['admin'], configs: [] }
+    'cache':                { name: 'Cache Manager',            limits: ['admin'], configs: [] },
+    'clear_events':         { name: 'Clear Other Events',       limits: ['admin'], configs: [] },
+    'coach':                { name: 'Coach View',               limits: ['event', 'admin', 'results'], configs: ['settings', 'coach'] },
+    'config-debug':         { name: 'Config Debugger',          limits: ['admin'], configs: [] },
+    'config-generator':     { name: 'Config Builder',           limits: ['admin'], configs: [] },
+    'cycles':               { name: 'Cycles',                   limits: ['admin', 'results'], configs: ['settings'] },
+    'distro':               { name: 'Distributions',            limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'download_csv':         { name: 'Export Results as Sheet',  limits: ['event', 'admin', 'any'], configs: [] },
+    'event-generator':      { name: 'Event Generator',          limits: ['admin'], configs: [] },
+    'events':               { name: 'Other Events',             limits: ['teams', 'admin'], configs: [] },
+    'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
+    'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
+    'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
+    'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
+    'picklists':            { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
+    'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },
+    'pivot':                { name: 'Pivot Table',              limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'plot':                 { name: 'Plotter',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'preload_event':        { name: 'Preload Event',            limits: [], configs: [] },
+    'progress':             { name: 'Scouting Progress',        limits: ['teams', 'admin'], configs: [] },
+    'random':               { name: 'Random Result Generator',  limits: ['admin'], configs: ['settings'] },
+    'ranker':               { name: 'Team Rankings',            limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'reset':                { name: 'Reset App',                limits: ['admin'], configs: [] },
+    'reset_cache':          { name: 'Reset Cache',              limits: ['admin'], configs: [] },
+    'reset_results':        { name: 'Reset Results',            limits: ['admin'], configs: [] },
+    'reset_storage':        { name: 'Reset Storage',            limits: ['admin'], configs: [] },
+    'results':              { name: 'Results',                  limits: ['admin', 'results'], configs: ['settings'] },
+    'scatter':              { name: 'Scatter',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'schedule-importer':    { name: 'Schedule Importer',        limits: ['admin'], configs: [] },
+    'settings':             { name: 'Settings Editor',          limits: ['admin'], configs: ['settings'] },
+    'sides':                { name: 'Side-by-Side',             limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'teams':                { name: 'Team Profiles',            limits: ['teams', 'admin'], configs: ['settings'] },
+    'transfer-raw':         { name: 'Transfer Raw Data',        limits: ['event'], configs: [] },
+    'users':                { name: 'User Profiles',            limits: ['admin', 'any'], configs: [] },
+    'whiteboard':           { name: 'Whiteboard',               limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
+    'misc/match-counter':   { name: 'Match Counter',            limits: ['admin'], configs: [] },
+    'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: ['admin'], configs: [] },
+    'misc/district-counter':        { name: 'District Counter',         limits: ['admin'], configs: [] },
+    'misc/event-planner':           { name: 'Event Planner',            limits: ['admin'], configs: [] },
+    'misc/international-counter':   { name: 'International Counter',    limits: ['admin'], configs: [] },
+    'misc/score-counter':           { name: 'Score Counter',            limits: ['admin'], configs: [] },
+    'misc/team-profile':            { name: 'Team Profile',             limits: ['admin'], configs: [] },
+    'misc/test':                    { name: 'Input Tester',             limits: ['admin'], configs: [] }
 }
 
 /**
@@ -116,7 +115,11 @@ function init_page()
         for (let key of columns[col])
         {
             let button = new Button(key, BUTTONS[key].name, `check_press('${key}', ${key})`)
-            if ((col !== 'Transfer' || key.startsWith('open_')) && col !== 'Reset')
+            if (key !== 'download_csv' && col !== 'Reset' && key !== 'open_extras')
+            {
+                button.link = `check_press('${key}')`
+            }
+            else if (key === 'open_extras')
             {
                 button.link = `check_press('${key}', ${key})`
             }
@@ -261,7 +264,7 @@ function is_blocked(id)
  * returns:     none
  * description: Attempts to operate a button press otherwise explains why not.
  */
-function check_press(id, on_press)
+function check_press(id, on_press=open_page)
 {
     let blocked = is_blocked(id)
     if (blocked)
@@ -272,7 +275,7 @@ function check_press(id, on_press)
     }
     else
     {
-        return on_press()
+        return on_press(id)
     }
 }
 
@@ -311,4 +314,15 @@ function get_user()
 function get_position()
 {
     return get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+}
+
+/**
+ * function:    open_extras
+ * parameters:  none
+ * returns:     none
+ * description: Open the extras home page.
+ */
+function open_extras()
+{
+    return build_url('index', {'page': 'home', 'role': 'extras'})
 }

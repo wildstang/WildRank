@@ -136,7 +136,7 @@ function open_match(match_key)
         if (dal.is_match_scouted(match_key, team_num))
         {
             scout_link = new Button(`results_${team_num}`, `${team} Results`)
-            scout_link.link = `open_result('${match_key}', '${team_num}')`
+            scout_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
         }
 
         // add button and description to appropriate column

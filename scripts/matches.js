@@ -127,7 +127,7 @@ function open_match(match_num)
                 buttons_container.innerHTML += edit_button.toString
             }
             let result_button = new Button('view_result', 'View Result')
-            result_button.link = `open_result('${key}', '${team_num}')`
+            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
             buttons_container.innerHTML += result_button.toString
         }
 

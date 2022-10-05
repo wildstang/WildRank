@@ -109,7 +109,7 @@ function open_match(match_key)
     }
 
     let edit = new Button('edit_coach', 'Edit Values')
-    edit.link = 'open_edit_coach()'
+    edit.link = `open_page('edit-coach')`
 
     // build template
     buttons_container.innerHTML = `<div id="teams">${page.toString}</div>` + edit.toString

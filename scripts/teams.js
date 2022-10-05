@@ -133,7 +133,7 @@ function open_option(team_num)
             if (dal.is_match_scouted(match_key, team_num))
             {
                 match_link = new Button(`result_${match_key}`, `Match ${match_num} Results`)
-                match_link.link = `open_result('${match_key}', '${team_num}')`
+                match_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
             }
             cards.push(match_link)
             cards.push(new Card(`card_${match_key}`, `<center>${time}</center>`))
