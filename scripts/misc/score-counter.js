@@ -22,6 +22,9 @@ const UNLABLED = -1
 // first year to count
 const FIRST_YEAR = 2002
 
+// stat options
+const STAT_OPTIONS = ['Mean', 'Median', 'Mode', 'StdDev', 'Min', 'Max', 'Total']
+
 /**
  * function:    init_page
  * parameters:  none
@@ -34,7 +37,9 @@ function init_page()
     let typetab = '<table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Average</th><th>Winning</th><th>Losing</th><th>Share</th><th>Regional</th><th>District</th><th>Dist Champ</th><th>Champ Div</th><th>Champ Final</th><th>Dist Champ Div</th></tr></table>'
     let weektab = '<table id="week_table" style="text-align: right"><tr><th>Year</th><th>Week 0</th><th>Week 1</th><th>Week 2</th><th>Week 3</th><th>Week 4</th><th>Week 5</th><th>Week 6</th><th>Week 7</th><th>Week 8</th><th>Championship</th><th>Offseason</th></tr></table>'
     let card = new Card('card', summary + typetab + weektab)
-    document.body.innerHTML += new PageFrame('', '', [card]).toString
+    let select = new Select('stat', 'Stat', STAT_OPTIONS)
+    select.on_change = 'show_stat()'
+    document.body.innerHTML += new PageFrame('', '', [card, select]).toString
 
     process_year(FIRST_YEAR)
 }
@@ -74,12 +79,17 @@ function process_year(year)
             return response.json()
         })
         .then(events => {
-            let count = 0
-            let points = 0
-            let winning_points = 0
             let processed = 0
-            let event_points = [0, 0, 0, 0, 0, 0]
-            let event_count = [0, 0, 0, 0, 0, 0]
+            let scores = []
+            let winners = []
+            let types = {
+                [REGIONAL]: [],
+                [DISTRICT]: [],
+                [DISTRICT_CMP_DIVISION]: [],
+                [DISTRICT_CMP]: [],
+                [CMP_DIVISION]: [],
+                [CMP_FINALS]: []
+            }
             let weeks = {
                 'Week 0': [],
                 'Week 1': [],
@@ -97,7 +107,7 @@ function process_year(year)
             {
                 let type = event.event_type
                 // only use some event types
-                if (type >= REGIONAL && type <= FOC)
+                if (type >= REGIONAL)
                 {
                     if (type === FOC)
                     {
@@ -133,37 +143,35 @@ function process_year(year)
                                 weeks[week] = []
                             }
 
-                            count += matches.length
-                            event_count[type] += matches.length
                             for (let match of matches)
                             {
-                                let total_score = match.alliances.blue.score + match.alliances.red.score
-                                points += total_score
+                                let match_scores = [match.alliances.red.score, match.alliances.blue.score]
+                                scores.push.apply(scores, match_scores)
+                                if (type in types)
+                                {
+                                    types[type].push.apply(types[type], match_scores)
+                                }
+                                weeks[week].push.apply(weeks[week], match_scores)
+
                                 let winner = match.winning_alliance
                                 if (!match.winning_alliance)
                                 {
                                     winner = 'red'
                                 }
-                                winning_points += match.alliances[winner].score
-                                event_points[type] += total_score
-                                weeks[week].push(match.alliances.red.score)
-                                weeks[week].push(match.alliances.blue.score)
+                                winners.push(match.alliances[winner].score)
                             }
 
                             // if all events are processed
                             if (++processed === events.length)
                             {
-                                total += count
-                                let event_cells = ''
-                                for (let type in event_points)
-                                {
-                                    event_cells += `<td>${average(event_points[type] / 2, event_count[type])}</td>`
-                                }
+                                total += scores.length
+                                let event_cells = Object.values(types).map(t => build_stats_cell(t))
 
                                 // add to page
-                                let winning = average(winning_points, count)
-                                let losing = average(points - winning_points, count)
-                                let winner_share = (100 * winning_points / points).toFixed(0)
+                                let points = mean(scores)
+                                let winning = mean(winners)
+                                let losing = (points * 2) - winning
+                                let winner_share = (100 * winning / (points * 2)).toFixed(0)
                                 if (winner_share === 'NaN')
                                 {
                                     winner_share = ''
@@ -172,20 +180,12 @@ function process_year(year)
                                 {
                                     winner_share += '%'
                                 }
-                                document.getElementById('table').innerHTML += `<tr><th>${year}</th><td>${count}</td><td>${average(points / 2, count)}</td><td>${winning}</td><td>${losing}</td><td>${winner_share}</td>${event_cells}</tr>`
+                                document.getElementById('table').innerHTML += `<tr><th>${year}</th><td>${scores.length/2}</td>${build_stats_cell(scores)}
+                                    ${build_stats_cell(winners)}<td>${losing.toFixed(0)}</td><td>${winner_share}</td>${event_cells.join('')}</tr>`
 
                                 let names = Object.keys(weeks)
-                                let cells = names.map(function (w)
-                                {
-                                    let avg = mean(weeks[w]).toFixed(0)
-                                    let dev = std_dev(weeks[w]).toFixed(0)
-                                    if (avg === '0' && dev === '0')
-                                    {
-                                        return '<td></td>'
-                                    }
-                                    return `<td>${avg} (${dev})</td>`
-                                })
-                                document.getElementById('week_table').innerHTML += `<tr><th>${year}</th>` + cells.join('') + '</tr>'
+                                let cells = names.map(w => build_stats_cell(weeks[w]))
+                                document.getElementById('week_table').innerHTML += `<tr><th>${year}</th>${cells.join('')}</tr>`
                                 
                                 // count next year
                                 if (year < cfg.year)
@@ -214,17 +214,47 @@ function process_year(year)
         })
 }
 
-/**
- * function:    average
- * parameters:  total points, number of matches
- * returns:     round average score or empty string
- * description: Calculates average score, rounded. If 0 matches returns empty string.
- */
-function average(points, matches)
+function build_stats_cell(values)
 {
-    if (matches > 0)
+    if (values.length === 0)
     {
-        return (points / matches).toFixed(0)
+        return '<td></td>'
     }
-    return ''
+
+    let avg = mean(values).toFixed(0)
+    let dev = std_dev(values).toFixed(0)
+    let min = Math.min(...values)
+    let max = Math.max(...values)
+    let med = median(values)
+    let mod = mode(values)
+    let tot = values.reduce((a,b) => a + b, 0)
+    return `<td><span class="Mean">${avg}</span>
+        <span class="StdDev" style="display: none">${dev}</span>
+        <span class="Min" style="display: none">${min}</span>
+        <span class="Max" style="display: none">${max}</span>
+        <span class="Median" style="display: none">${med}</span>
+        <span class="Mode" style="display: none">${mod}</span>
+        <span class="Total" style="display: none">${tot}</span>
+    </td>`
+}
+
+function show_stat()
+{
+    let selection = Select.get_selected_option('stat')
+
+    for (let op in STAT_OPTIONS)
+    {
+        let elements = document.getElementsByClassName(STAT_OPTIONS[op])
+        for (let e of elements)
+        {
+            if (op == selection)
+            {
+                e.style.display = 'inline'
+            }
+            else
+            {
+                e.style.display = 'none'
+            }
+        }
+    }
 }
