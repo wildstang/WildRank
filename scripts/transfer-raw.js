@@ -142,14 +142,14 @@ async function export_zip()
     }
 
     // download zip
-    zip.generateAsync({ type: 'base64' })
-        .then(function(base64)
+    zip.generateAsync({ type: 'blob' })
+        .then(function(blob)
         {
             if (Select.get_selected_option('method') == 0)
             {
                 let element = document.createElement('a')
-                element.setAttribute('href', `data:application/zip;base64,${base64}`)
-                element.setAttribute('download', `${user_id}-${dal.event_id}-export.zip`)
+                element.href = window.URL.createObjectURL = blob
+                element.download = `${user_id}-${dal.event_id}-export.zip`
     
                 element.style.display = 'none'
                 document.body.appendChild(element)
@@ -164,7 +164,9 @@ async function export_zip()
                 if (check_server(addr))
                 {                    
                     // post string to server
-                    fetch(`${addr}?password=${cfg.keys.server}`, {method: 'POST', body: base64})
+                    let formData = new FormData()
+                    formData.append('upload', blob)
+                    fetch(`${addr}?password=${cfg.keys.server}`, {method: 'POST', body: formData})
                         .then(response => response.json())
                         .then(result => {
                             if (result.success && result.count === num_uploads)

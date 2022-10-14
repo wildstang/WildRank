@@ -137,31 +137,35 @@ function capture(team_num)
         let addr = parse_server_addr(document.location.href)
         if (check_server(addr))
         {
-            let base64 = data.substring(data.indexOf(','))
-            // post string to server
-            fetch(`${addr}/photo/${team_num}?password=${cfg.keys.server}`, {method: 'POST', body: base64})
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success)
-                    {
-                        // add image to team photos
-                        dal.add_photo(team_num, `${addr}/${result.name}`, true)
-                        alert('Upload successful!')
-                    }
-                    else if (result.name === 'Invalid password')
-                    {
+            canvas.toBlob(function (blob)
+            {
+                // post string to server
+                let formData = new FormData()
+                formData.append('upload', blob)
+                fetch(`${addr}/photo/${team_num}?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success)
+                        {
+                            // add image to team photos
+                            dal.add_photo(team_num, `${addr}/${result.name}`, true)
+                            alert('Upload successful!')
+                        }
+                        else if (result.name === 'Invalid password')
+                        {
+                            cache_image(addr, team_num, data)
+                            alert('Invalid password!')
+                        }
+                        else
+                        {
+                            cache_image(addr, team_num, data)
+                        }
+                    })
+                    .catch(e => {
                         cache_image(addr, team_num, data)
-                        alert('Invalid password!')
-                    }
-                    else
-                    {
-                        cache_image(addr, team_num, data)
-                    }
-                })
-                .catch(e => {
-                    cache_image(addr, team_num, data)
-                    console.error(e)
-                })
+                        console.error(e)
+                    })
+            })
         }
         else
         {

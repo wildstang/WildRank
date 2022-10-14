@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel
@@ -285,9 +285,7 @@ async def export(to='', password='', event_id='', event_data:bool=True, results:
 
 # response to POST requests containing base64 encoded zip data
 @app.post('/', response_model=POSTResponse)
-async def post(request: Request, password=''):
-    post_data = await request.body()
-
+async def post(upload: UploadFile = File(...), password=''):
     # check server password if there is one
     if PASSWORD is not None and password != PASSWORD:
         return {
@@ -298,7 +296,7 @@ async def post(request: Request, password=''):
     # save result
     file = 'tmp.zip'
     with open(file, 'wb') as f:
-        f.write(b64decode(post_data))
+        f.write(upload.file.read())
 
     # extract zip
     files = 0
@@ -323,9 +321,7 @@ async def post(request: Request, password=''):
 
 # response to POST requests containing base64 encoded zip data
 @app.post('/photo/{team_num}', response_model=PhotoPOSTResponse)
-async def post(team_num, request: Request, password=''):
-    post_data = await request.body()
-
+async def post(team_num, upload: UploadFile = File(...), password=''):
     # check server password if there is one
     if PASSWORD is not None and password != PASSWORD:
         return {
@@ -342,7 +338,7 @@ async def post(team_num, request: Request, password=''):
 
     # save image
     with open(file, 'wb') as f:
-        f.write(b64decode(post_data))
+        f.write(upload.file.read())
     
     # send response
     return {
