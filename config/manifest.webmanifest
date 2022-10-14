@@ -56,7 +56,7 @@
         "name": "Scout",
         "url": "/selection.html?page=matches&type=match",
         "icons": [{
-            "src": "/clipboard-edit-outline.svg",
+            "src": "/assets/clipboard-edit-outline.svg",
             "type": "image/png",
             "sizes": "96x96"
         }]
