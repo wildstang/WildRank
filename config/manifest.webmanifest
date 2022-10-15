@@ -52,13 +52,24 @@
             }]
         }
     },
-    "shortcuts": [{
-        "name": "Scout",
-        "url": "/selection.html?page=matches&type=match",
-        "icons": [{
-            "src": "/assets/clipboard-edit-outline.png",
-            "type": "image/png",
-            "sizes": "96x96"
-        }]
-    }]
+    "shortcuts": [
+        {
+            "name": "Pit Scout",
+            "url": "/selection.html?page=pits&type=pit",
+            "icons": [{
+                "src": "/assets/clipboard-edit-outline.png",
+                "type": "image/png",
+                "sizes": "96x96"
+            }]
+        },
+        {
+            "name": "Match Scout",
+            "url": "/selection.html?page=matches&type=match",
+            "icons": [{
+                "src": "/assets/clipboard-edit-outline.png",
+                "type": "image/png",
+                "sizes": "96x96"
+            }]
+        }
+    ]
 }
