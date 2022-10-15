@@ -8,7 +8,6 @@ from os import listdir, remove, getenv
 from os.path import getmtime, exists, isfile, join
 from datetime import datetime as dt
 from zipfile import ZipFile, ZIP_DEFLATED
-from base64 import b64decode, b64encode
 
 """
 server.py
@@ -261,13 +260,9 @@ async def pics():
 async def export(to='', password='', event_id='', event_data:bool=True, results:bool=True, scout_configs:bool=True, smart_stats:bool=True, coach_config:bool=True, settings:bool=True, picklists:bool=True, whiteboard:bool=True, avatars:bool=True, pictures:bool=True):
     file, count = build_zip(event_id, event_data, results, scout_configs, smart_stats, coach_config, settings, picklists, whiteboard, avatars, pictures)
 
-    b64file = ''
-    with open(file, 'rb') as f:
-        b64file = b64encode(f.read())
-
     result = 0
     try:
-        response = requests.post(url=f'{to}?password={password}', data=b64file)
+        response = requests.post(url=f'{to}?password={password}', files={'upload': (file, open(file, 'rb'), 'application/zip')})
         remove(file)
         if not response.json()['success'] or count == response.json()['count']:
             return response.json()
@@ -283,7 +278,7 @@ async def export(to='', password='', event_id='', event_data:bool=True, results:
     }
 
 
-# response to POST requests containing base64 encoded zip data
+# response to POST requests containing zip file
 @app.post('/', response_model=POSTResponse)
 async def post(upload: UploadFile = File(...), password=''):
     # check server password if there is one
@@ -319,7 +314,7 @@ async def post(upload: UploadFile = File(...), password=''):
         'count': files
     }
 
-# response to POST requests containing base64 encoded zip data
+# response to POST requests containing zip file
 @app.post('/photo/{team_num}', response_model=PhotoPOSTResponse)
 async def post(team_num, upload: UploadFile = File(...), password=''):
     # check server password if there is one
