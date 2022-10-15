@@ -74,7 +74,7 @@ const CACHE_LIST = [
     // assets
     '/assets/blue-cargo.png',
     '/assets/cargo.png',
-    '/assets/clipboard-edit-outline.svg',
+    '/assets/clipboard-edit-outline.png',
     '/assets/dozer.png',
     '/assets/field-2018.png',
     '/assets/field-2019.png',
