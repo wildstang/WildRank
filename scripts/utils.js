@@ -608,6 +608,9 @@ async function cache_file(url, file)
         case 'webmanifest':
             headers.append('Content-Type', 'application/manifest')
             break
+        case 'zip':
+            headers.append('Content-Type', 'application/zip')
+            break
         default:
             return
     }

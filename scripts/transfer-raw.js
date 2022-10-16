@@ -16,7 +16,7 @@ include('libs/jszip.min')
  * returns:     none
  * description: Runs onload to fill out the page.
  */
-function init_page()
+async function init_page()
 {
     // set header
     document.getElementById('header_info').innerHTML = 'Raw Data Zip Transfer'
@@ -45,8 +45,26 @@ function init_page()
     let method = new Select('method', 'Local or Server', ['Local', 'Server'], 'Local')
     option_col.add_input(method)
 
+    // get latest cache
+    let current = 'default'
+    let names = await caches.keys()
+    if (names.length > 0)
+    {
+        current = names[0]
+    }
+    let cache = await caches.open(current)
+    let r = await cache.match('/import')
+    if (r)
+    {
+        option_col.add_input(`<div id="file_name">Cached file available</div>`)
+    }
+    else
+    {
+        current = ''
+    }
+
     let direction = new MultiButton('direction', 'Import or Export')
-    direction.add_option('Import', 'get_zip()')
+    direction.add_option('Import', `get_zip('${current}')`)
     direction.add_option('Export', 'export_zip()')
     option_col.add_input(direction)
 
@@ -148,7 +166,7 @@ async function export_zip()
             if (Select.get_selected_option('method') == 0)
             {
                 let element = document.createElement('a')
-                element.href = window.URL.createObjectURL = blob
+                element.href = window.URL.createObjectURL(blob)
                 element.download = `${user_id}-${dal.event_id}-export.zip`
     
                 element.style.display = 'none'
@@ -165,8 +183,8 @@ async function export_zip()
                 {                    
                     // post string to server
                     let formData = new FormData()
-                    formData.append('upload', blob)
-                    fetch(`${addr}?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                    formData.append('import', blob)
+                    fetch(`${addr}/import`, {method: 'POST', body: formData})
                         .then(response => response.json())
                         .then(result => {
                             if (result.success && result.count === num_uploads)
@@ -202,15 +220,22 @@ async function export_zip()
 
 /**
  * function:    get_zip
- * paramters:   none
+ * paramters:   optional cache name
  * returns:     none
  * description: Calls the appropriate import zip function based on the selected method.
  */
-function get_zip()
+function get_zip(cache_name='')
 {
     if (Select.get_selected_option('method') == 0)
     {
-        import_zip_from_file()
+        if (cache_name !== '')
+        {
+            import_zip_from_cache(cache_name)
+        }
+        else
+        {
+            import_zip_from_file()
+        }
     }
     else
     {
@@ -259,6 +284,27 @@ function import_zip_from_server()
 }
 
 /**
+ * function:    import_zip_from_cache
+ * paramters:   cache name
+ * returns:     none
+ * description: Import a zip stored in CacheStorage.
+ */
+async function import_zip_from_cache(cache_name)
+{
+    let cache = await caches.open(cache_name)
+    let r = await cache.match('/import')
+    if (r)
+    {
+        import_zip(r.blob())
+        cache.delete(r)
+    }
+    else
+    {
+        alert('No cached file available!')
+    }
+}
+
+/**
  * function:    import_zip_from_event
  * paramters:   response containing zip file
  * returns:     none
@@ -277,13 +323,6 @@ function import_zip_from_event(event)
  */
 async function import_zip(file)
 {
-    // get cache
-    let names = await caches.keys()
-    if (names.length > 0)
-    {
-        var cache = await caches.open(names[0])
-    }
-
     // process each files details
     JSZip.loadAsync(file).then(function (zip)
     {

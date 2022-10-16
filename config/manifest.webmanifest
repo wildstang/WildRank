@@ -42,12 +42,12 @@
         }
     ],
     "share_target": {
-        "action": "/",
+        "action": "/import",
         "enctype": "multipart/form-data",
         "method": "POST",
         "params": {
             "files": [{
-                "name": "externalMedia",
+                "name": "import",
                 "accept": ["application/zip"]
             }]
         }

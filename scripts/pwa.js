@@ -108,26 +108,52 @@ self.addEventListener('install', e => {
 // use cache instead of server
 self.addEventListener('fetch', e => {
     e.respondWith((async () => {
-        // attempt to pull resource from cache
-        const R = await caches.match(e.request, {ignoreSearch: true})
-        if (R)
+        // intercept POSTs to /import to cache for later import (used for manifest share_target)
+        if (e.request.method === 'POST' && e.request.url.endsWith('/import'))
         {
-            return R
+            const form_data = await e.request.formData()
+            let file = form_data.get('import')
+
+            // get latest cache
+            let current = 'default'
+            let names = await caches.keys()
+            if (names.length > 0)
+            {
+                current = names[0]
+            }
+            let cache = await caches.open(current)
+        
+            let headers = new Headers()
+            headers.append('Content-Length', file.size)
+            headers.append('Content-Type', 'application/zip')
+        
+            // build response and add to cache
+            let res = new Response(file, { statusText: 'OK', headers: headers })
+            cache.put(e.request.url, res)
+
+            return Response.redirect('/index.html?page=transfer-raw', 303);
+        }
+
+        // attempt to pull resource from cache
+        let r = await caches.match(e.request, {ignoreSearch: true})
+        if (r)
+        {
+            return r
         }
         
         // if not there pull from server
-        const RES = await fetch(e.request)
-        const URL = e.request.url
+        let res = await fetch(e.request)
+        let url = e.request.url
         for (let file of CACHE_LIST)
         {
-            if (URL.endsWith(file))
+            if (url.endsWith(file))
             {
-                const CACHE = await caches.open(CACHE_NAME)
-                await CACHE.addAll(CACHE_LIST)
+                let cache = await caches.open(CACHE_NAME)
+                await cache.addAll(CACHE_LIST)
                 break
             }
         }
-        return RES
+        return res
     })())
 })
 
