@@ -72,22 +72,25 @@ const CACHE_LIST = [
     '/scripts/misc/team-profile.js',
     '/scripts/misc/test.js',
     // assets
-    '/assets/blue-cargo.png',
-    '/assets/cargo.png',
+    '/assets/2019/cargo.png',
+    '/assets/2019/field-2019.png',
+    '/assets/2019/hatch_panel.png',
+    '/assets/2020/field-2020.png',
+    '/assets/2020/power_cell.png',
+    '/assets/2022/blue-cargo.png',
+    '/assets/2022/field-2022.png',
+    '/assets/2022/red-cargo.png',
+    '/assets/icons/icon-192x192-maskable.png',
+    '/assets/icons/icon-192x192.png',
+    '/assets/icons/icon-256x256-maskable.png',
+    '/assets/icons/icon-256x256.png',
+    '/assets/icons/icon-384x384-maskable.png',
+    '/assets/icons/icon-384x384.png',
+    '/assets/icons/icon-512x512-maskable.png',
+    '/assets/icons/icon-512x512.png',
     '/assets/clipboard-edit-outline.png',
     '/assets/dozer.png',
-    '/assets/field-2018.png',
-    '/assets/field-2019.png',
-    '/assets/field-2020.png',
-    '/assets/field-2022.png',
-    '/assets/hatch_panel.png',
-    '/assets/icon-192x192-maskable.png',
-    '/assets/icon-256x256-maskable.png',
-    '/assets/icon-384x384-maskable.png',
-    '/assets/icon-512x512-maskable.png',
     '/assets/menu-white-18dp.svg',
-    '/assets/power_cell.png',
-    '/assets/red-cargo.png',
     // configs
     '/config/2022-config.json',
     '/config/settings-config.json',
@@ -109,8 +112,10 @@ self.addEventListener('install', e => {
 self.addEventListener('fetch', e => {
     e.respondWith((async () => {
         // intercept POSTs to /import to cache for later import (used for manifest share_target)
+        console.log(e.request.method, e.request.url)
         if (e.request.method === 'POST' && e.request.url.endsWith('/import'))
         {
+            console.log('got post import req')
             const form_data = await e.request.formData()
             let file = form_data.get('import')
 

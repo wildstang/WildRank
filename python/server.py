@@ -111,6 +111,10 @@ async def upload(file):
 async def image(file):
     return f'assets/{file}.png'
 
+@app.get('/assets/{dir}/{file}.png', response_class=FileResponse)
+async def dir_image(dir, file):
+    return f'assets/{dir}/{file}.png'
+
 @app.get('/assets/{file}.svg', response_class=FileResponse)
 async def vector(file):
     return f'assets/{file}.svg'
@@ -125,7 +129,7 @@ async def manifest():
 
 @app.get('/favicon.ico', response_class=FileResponse)
 async def favicon():
-    return 'assets/favicon.ico'
+    return 'assets/icons/favicon.ico'
 
 @app.get('/uploads/{file}.png', response_class=FileResponse)
 async def image(file):

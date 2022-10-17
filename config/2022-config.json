@@ -598,10 +598,10 @@
 		},
 		"game_pieces": [{
 			"name": "Blue Cargo",
-			"image": "blue-cargo.png"
+			"image": "2022/blue-cargo.png"
 		}, {
 			"name": "Red Cargo",
-			"image": "red-cargo.png"
+			"image": "2022/red-cargo.png"
 		}],
 		"draw_color": "#FFFFFF",
 		"field_width": 750,
