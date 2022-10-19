@@ -64,12 +64,13 @@ const CACHE_LIST = [
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
     '/scripts/misc/2022-score-estimator.js',
+    /* don't cache misc scripts that rely on tba
     '/scripts/misc/district-counter.js',
     '/scripts/misc/event-planner.js',
     '/scripts/misc/international-counter.js',
     '/scripts/misc/match-counter.js',
     '/scripts/misc/score-counter.js',
-    '/scripts/misc/team-profile.js',
+    '/scripts/misc/team-profile.js',*/
     '/scripts/misc/test.js',
     // assets
     '/assets/2019/cargo.png',
@@ -80,6 +81,7 @@ const CACHE_LIST = [
     '/assets/2022/blue-cargo.png',
     '/assets/2022/field-2022.png',
     '/assets/2022/red-cargo.png',
+    /* icons should be cached when pwa is installed
     '/assets/icons/icon-192x192-maskable.png',
     '/assets/icons/icon-192x192.png',
     '/assets/icons/icon-256x256-maskable.png',
@@ -87,7 +89,7 @@ const CACHE_LIST = [
     '/assets/icons/icon-384x384-maskable.png',
     '/assets/icons/icon-384x384.png',
     '/assets/icons/icon-512x512-maskable.png',
-    '/assets/icons/icon-512x512.png',
+    '/assets/icons/icon-512x512.png',*/
     '/assets/clipboard-edit-outline.png',
     '/assets/dozer.png',
     '/assets/menu-white-18dp.svg',
@@ -96,7 +98,7 @@ const CACHE_LIST = [
     '/config/settings-config.json',
     // other files
     '/favicon.ico',
-    '/manifest.webmanifest',
+    //'/manifest.webmanifest',
     '/about'
 ]
 
@@ -112,7 +114,6 @@ self.addEventListener('install', e => {
 self.addEventListener('fetch', e => {
     e.respondWith((async () => {
         // intercept POSTs to /import to cache for later import (used for manifest share_target)
-        console.log(e.request.method, e.request.url)
         if (e.request.method === 'POST' && e.request.url.endsWith('/import'))
         {
             console.log('got post import req')
