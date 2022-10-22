@@ -142,3 +142,57 @@ function sign_out()
     set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
     return 'index.html'
 }
+
+/**
+ * keyboard shortcuts
+ */
+document.onkeydown = function (e)
+{
+    let page = ''
+    if (e.altKey && e.key === 's')
+    {
+        page = open_page('matches')
+    }
+    else if (e.altKey && e.key === 't')
+    {
+        page = open_page('pits')
+    }
+    else if (e.altKey && e.key === 'c')
+    {
+        page = open_page('coach')
+    }
+    else if (e.altKey && e.key === 'r')
+    {
+        page = open_page('results')
+    }
+    else if (e.altKey && e.key === 'p')
+    {
+        page = open_page('pivot')
+    }
+    else if (e.altKey && e.key === 'l')
+    {
+        page = open_page('picklists')
+    }
+
+    if (page !== '')
+    {
+        window_open(page, '_self')
+    }
+    else if (e.altKey && e.key === 'd')
+    {
+        if (get_cookie(THEME_COOKIE, THEME_DEFAULT) === 'dark')
+        {
+            set_cookie(THEME_COOKIE, THEME_DEFAULT)
+        }
+        else
+        {
+            set_cookie(THEME_COOKIE, 'dark')
+        }
+        apply_theme()
+    }
+    else
+    {
+        return
+    }
+    return false
+}
