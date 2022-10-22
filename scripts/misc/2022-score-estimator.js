@@ -31,7 +31,7 @@ function init_page()
     let red_climb_3 = new Select('red_climb_3', 'Climb 3', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
     red_climb_3.on_change = 'calc_score()'
     red_col.add_input(red_climb_3)
-    red_col.add_input(new Counter('red_final_score', 'Red Score', 0))
+    red_col.add_input(new Number('red_final_score', 'Red Score', 0))
 
     // build blue score column
     let blue_col = new ColumnFrame('', 'Red Alliance')
@@ -47,7 +47,7 @@ function init_page()
     let blue_climb_3 = new Select('blue_climb_3', 'Climb 3', ['No', 'Low', 'Med', 'High', 'Trav'], 'No')
     blue_climb_3.on_change = 'calc_score()'
     blue_col.add_input(blue_climb_3)
-    blue_col.add_input(new Counter('blue_final_score', 'Blue Score', 0))
+    blue_col.add_input(new Number('blue_final_score', 'Blue Score', 0))
 
     // build page
     document.body.innerHTML += new PageFrame('', '', [red_col, blue_col]).toString
