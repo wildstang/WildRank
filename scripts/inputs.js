@@ -327,6 +327,22 @@ class Checkbox extends Input
     }
 }
 
+class Number extends Input
+{
+    constructor(id, label, def=0)
+    {
+        super(id, label, def)
+    }
+
+    get toString()
+    {
+        return `${this.html_description}<div class="wr_number ${this.classes.join(' ')}">
+                <label>${this.label}</label>
+                <label class="wr_number_num" id="${this.id}">${this.def}</label>
+            </div>`
+    }
+}
+
 class Counter extends Input
 {
     constructor(id, label, def=0)

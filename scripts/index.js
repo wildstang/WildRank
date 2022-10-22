@@ -108,27 +108,27 @@ function init_page()
     let data = new ColumnFrame('data', 'Data')
     page.add_column(data)
 
-    let version = new Counter('config_version', 'cfg')
+    let version = new Number('config_version', 'cfg')
     version.on_increment = 'increment("", false)'
     version.on_decrement = 'increment("", true)'
     data.add_input(version)
 
-    let teams = new Counter('teams', 'Event Teams')
+    let teams = new Number('teams', 'Event Teams')
     teams.on_increment = 'increment("", false)'
     teams.on_decrement = 'increment("", true)'
     data.add_input(teams)
 
-    let matches = new Counter('matches', 'Event Matches')
+    let matches = new Number('matches', 'Event Matches')
     matches.on_increment = 'increment("", false)'
     matches.on_decrement = 'increment("", true)'
     data.add_input(matches)
 
-    let pit_results = new Counter('pit_results', 'Pit Results')
+    let pit_results = new Number('pit_results', 'Pit Results')
     pit_results.on_increment = 'increment("", false)'
     pit_results.on_decrement = 'increment("", true)'
     data.add_input(pit_results)
 
-    let match_results = new Counter('match_results', 'Match Results')
+    let match_results = new Number('match_results', 'Match Results')
     match_results.on_increment = 'increment("", false)'
     match_results.on_decrement = 'increment("", true)'
     data.add_input(match_results)
