@@ -116,7 +116,6 @@ self.addEventListener('fetch', e => {
         // intercept POSTs to /import to cache for later import (used for manifest share_target)
         if (e.request.method === 'POST' && e.request.url.endsWith('/import'))
         {
-            console.log('got post import req')
             const form_data = await e.request.formData()
             let file = form_data.get('import')
 

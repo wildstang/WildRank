@@ -42,9 +42,6 @@ async function init_page()
     let server = new Entry('server', 'Server URL', parse_server_addr(document.location.href))
     option_col.add_input(server)
 
-    let method = new Select('method', 'Local or Server', ['Local', 'Server'], 'Local')
-    option_col.add_input(method)
-
     // get latest cache
     let current = 'default'
     let names = await caches.keys()
@@ -54,16 +51,17 @@ async function init_page()
     }
     let cache = await caches.open(current)
     let r = await cache.match('/import')
+
+    let method = new Select('method', 'Source', ['Local', 'Server'], 'Local')
     if (r)
     {
-        option_col.add_input(`<div id="file_name">Cached file available</div>`)
+        method.columns = 3
+        method.add_option('Cache')
+        method.description = '<div id="file_name">File shared with WildRank from OS. Use "Cache" to import from this archive.</div>'
     }
-    else
-    {
-        current = ''
-    }
+    option_col.add_input(method)
 
-    let direction = new MultiButton('direction', 'Import or Export')
+    let direction = new MultiButton('direction', 'Direction')
     direction.add_option('Import', `get_zip('${current}')`)
     direction.add_option('Export', 'export_zip()')
     option_col.add_input(direction)
@@ -163,7 +161,8 @@ async function export_zip()
     zip.generateAsync({ type: 'blob' })
         .then(function(blob)
         {
-            if (Select.get_selected_option('method') == 0)
+            let op = Select.get_selected_option('method')
+            if (op === 0)
             {
                 let element = document.createElement('a')
                 element.href = window.URL.createObjectURL(blob)
@@ -176,7 +175,7 @@ async function export_zip()
     
                 document.body.removeChild(element)
             }
-            else // upload
+            else if (op === 1) // upload
             {
                 let addr = document.getElementById('server').value
                 if (check_server(addr))
@@ -210,6 +209,10 @@ async function export_zip()
                         })
                 }
             }
+            else if (op === 2)
+            {
+                alert('Cannot export to cache.')
+            }
 
             // update progress bar for zip complete
             document.getElementById('progress').innerHTML = `${files.length + 1}/${files.length + 1}`
@@ -226,20 +229,18 @@ async function export_zip()
  */
 function get_zip(cache_name='')
 {
-    if (Select.get_selected_option('method') == 0)
+    let op = Select.get_selected_option('method')
+    if (op === 0)
     {
-        if (cache_name !== '')
-        {
-            import_zip_from_cache(cache_name)
-        }
-        else
-        {
-            import_zip_from_file()
-        }
+        import_zip_from_file()
     }
-    else
+    else if (op === 1)
     {
         import_zip_from_server()
+    }
+    else if (op === 2)
+    {
+        import_zip_from_cache(cache_name)
     }
 }
 
@@ -296,7 +297,7 @@ async function import_zip_from_cache(cache_name)
     if (r)
     {
         import_zip(r.blob())
-        cache.delete(r)
+        cache.delete('/import')
     }
     else
     {
