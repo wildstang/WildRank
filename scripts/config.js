@@ -213,6 +213,54 @@ class Config
     }
 
     /**
+     * function:    is_admin
+     * parameters:  user id
+     * returns:     if the user is an admin
+     * description: Returns whether the user is an administrator.
+     */
+    is_admin(id)
+    {
+        return cfg.users.hasOwnProperty(id) && cfg.users[id].hasOwnProperty('admin') && cfg.users[id].admin
+    }
+
+    /**
+     * function:    get_name
+     * parameters:  user id
+     * returns:     the users name or id number
+     * description: Returns a users name or ID number if name is not provided.
+     */
+    get_name(id)
+    {
+        if (cfg.users.hasOwnProperty(id))
+        {
+            if (cfg.users[id].hasOwnProperty('name'))
+            {
+                return cfg.users[id].name
+            }
+            else
+            {
+                return id
+            }
+        }
+        return 'Unknown User'
+    }
+
+    /**
+     * function:    get_position
+     * parameters:  user id
+     * returns:     the users scouting position
+     * description: Returns the users scouting position
+     */
+    get_position(id)
+    {
+        if (cfg.users.hasOwnProperty(id) && cfg.users[id].hasOwnProperty('position'))
+        {
+            return cfg.users[id].position
+        }
+        return -1
+    }
+
+    /**
      * function:    validate_theme
      * parameters:  config name
      * returns:     none
@@ -255,23 +303,7 @@ class Config
         let c = this[config]
         if (typeof c === 'object')
         {
-            if (c.hasOwnProperty('admins') && Array.isArray(c.admins))
-            {
-                for (let admin of c.admins)
-                {
-                    if (typeof admin !== 'number')
-                    {
-                        return Config.return_description(false, `admin "${admin}" should be a number`, description)
-                    }
-                }
-                return Config.check_properties(c, {'scouters': 'object'}, description)
-            }
-            else if (c.hasOwnProperty('admins'))
-            {
-                return Config.return_description(false, `admins is not an array`, description)
-
-            }
-            return Config.return_description(false, `missing property admins`, description)
+            return true
         }
         return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }

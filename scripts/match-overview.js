@@ -132,7 +132,7 @@ function open_match(match_key)
         // build button to either scout or result
         let team = `<span class="${alliance}">${team_num}</span>`
         let scout_link = new Button(`scout_${team_num}`, `Scout ${team}`)
-        scout_link.link = `start_scout('${MATCH_MODE}', '${match_key}', '${team_num}', '${alliance}')`
+        scout_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match_key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
         if (dal.is_match_scouted(match_key, team_num))
         {
             scout_link = new Button(`results_${team_num}`, `${team} Results`)

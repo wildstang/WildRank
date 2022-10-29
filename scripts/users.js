@@ -92,7 +92,7 @@ function open_option(user_id)
     }
     pos_table += '</table>'
 
-    let card = new Card('user_card', `${user_id} has scouted <b>${matches.length} matches</b> and <b>${pits.length} pits</b>.`)
+    let card = new Card('user_card', `${cfg.get_name(user_id)} has scouted <b>${matches.length} matches</b> and <b>${pits.length} pits</b>.`)
     card.limitWidth = true
     let pos_card = new Card('pos_card', pos_table)
     pos_card.limitWidth = true

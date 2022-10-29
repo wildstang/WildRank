@@ -254,9 +254,9 @@ function check_event()
 function check_id()
 {
     let id = get_user()
-    if (get_event() in cfg.users.scouters && Object.keys(cfg.users.scouters[get_event()]).includes(id))
+    if (cfg.get_position(id) > -1)
     {
-        document.getElementById('position').selectedIndex = cfg.users.scouters[get_event()][id]
+        document.getElementById('position').selectedIndex = cfg.get_position(id)
     }
 }
 
@@ -335,7 +335,7 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id != 'scout' && !cfg.users.admins.includes(parseInt(user)))
+    if (id != 'scout' && !cfg.is_admin(user))
     {
         return 'Missing admin privileges'
     }

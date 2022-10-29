@@ -233,7 +233,7 @@ function is_blocked(id)
     {
         return `Missing match data.`
     }
-    if (limits.includes('admin') && !cfg.users.admins.includes(parseInt(get_user())))
+    if (limits.includes('admin') && !cfg.is_admin(get_user()))
     {
         return `Admin access required.`
     }

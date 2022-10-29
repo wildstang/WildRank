@@ -65,7 +65,7 @@ function open_option(team_num)
     if (!dal.is_pit_scouted(team_num))
     {
         pit_button = new Button('', 'Scout Pit')
-        pit_button.link = `start_scout('${PIT_MODE}', '', '${team_num}', 'white')`
+        pit_button.link = `open_page('scout', {type: '${PIT_MODE}', team: '${team_num}', alliance: 'white', edit: false})`
     }
 
     // build stats table
@@ -129,7 +129,7 @@ function open_option(team_num)
             let match_num = `<span class="${alliance}">${dal.get_match_value(match_key, 'short_match_name')}</span>`
             // make match button
             let match_link = new Button(`scout_${match_key}`, `Scout Match ${match_num}`)
-            match_link.link = `start_scout('${MATCH_MODE}', '${match.match_number}', '${team_num}', '${alliance}')`
+            match_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match.match_number}', team: '${team_num}', alliance: '${alliance}', edit: false})`
             if (dal.is_match_scouted(match_key, team_num))
             {
                 match_link = new Button(`result_${match_key}`, `Match ${match_num} Results`)

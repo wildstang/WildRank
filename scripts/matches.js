@@ -23,9 +23,9 @@ function init_page()
 {
     // override scouting position with that from config
     // TODO: determine if this is acutally desired
-    if (dal.event_id in cfg.users.scouters && Object.keys(cfg.users.scouters[dal.event_id]).includes(user_id))
+    if (cfg.get_position(user_id) > -1)
     {
-        scout_pos = cfg.users.scouters[dal.event_id][user_id]
+        scout_pos = cfg.get_position(user_id)
     }
 
     let first = populate_matches(false, true, '', false, scout_pos)
@@ -115,7 +115,7 @@ function open_match(match_num)
         // build buttons
         let scout_button = new Button('scout_match', 'Scout Match')
         let key = match_num.toLowerCase()
-        scout_button.link = `start_scout('${MATCH_MODE}', '${key}', '${team_num}', '${alliance}', false)`
+        scout_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
         buttons_container.innerHTML = scout_button.toString
     
         if (dal.is_match_scouted(match_num, team_num))
@@ -123,7 +123,7 @@ function open_match(match_num)
             if (can_edit(match_num, team_num))
             {
                 let edit_button = new Button('edit_match', 'Edit Match')
-                edit_button.link = `start_scout('${MATCH_MODE}', '${key}', '${team_num}', '${alliance}', true)`
+                edit_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: true})`
                 buttons_container.innerHTML += edit_button.toString
             }
             let result_button = new Button('view_result', 'View Result')
@@ -143,5 +143,5 @@ function open_match(match_num)
  */
 function can_edit(match_num, team_num)
 {
-    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === user_id || cfg.users.admins.includes(parseInt(user_id))
+    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === user_id || cfg.is_admin(user_id)
 }
