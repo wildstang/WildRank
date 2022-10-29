@@ -54,10 +54,10 @@ function build_page()
  * returns:     none
  * description: Builds a column for a generic array based config.
  */
-function build_column(name, file)
+function build_column(cfg_name, file)
 {
     let config = cfg[file]
-    let column = new ColumnFrame(file, name)
+    let column = new ColumnFrame(`${file}-column`, cfg_name)
     let keys = Object.keys(config)
     for (let index in keys)
     {
@@ -89,7 +89,7 @@ function build_column(name, file)
                 entry.show_color = true
                 column.add_input(entry)
             }
-            else if (val.length > 24)
+            else if (val.length > 32)
             {
                 let entry = new Extended(id, name, val)
                 column.add_input(entry)
@@ -100,6 +100,12 @@ function build_column(name, file)
                 column.add_input(entry)
             }
         }
+        else if (file === 'users')
+        {
+            let entry = new Extended(file, 'raw user config', JSON.stringify(config, null, 2))
+            column.add_input(entry)
+            break
+        }
         else if (Array.isArray(val))
         {
             let entry = new Extended(id, name, val.join(', '))
@@ -107,7 +113,7 @@ function build_column(name, file)
         }
         else
         {
-            let entry = new Extended(id, name, JSON.stringify(val))
+            let entry = new Extended(id, name, JSON.stringify(val, null, 2))
             column.add_input(entry)
         }
     }
@@ -176,6 +182,11 @@ function build_config(file)
                 new_val = JSON.parse(document.getElementById(id).value)
             }
             config[key] = new_val
+        }
+        else if (document.getElementById(file))
+        {
+            config = JSON.parse(document.getElementById(file).value)
+            break
         }
     }
     return JSON.stringify(config)
