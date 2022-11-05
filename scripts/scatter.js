@@ -177,4 +177,24 @@ function build_plot()
     ctx.fillRect(0, 0, left_margin, pheight)
     ctx.fillRect(0, pheight - bottom_margin, pwidth, bottom_margin)
     ctx.fill()
+
+    // set tooltip on hover over dot
+    let canvas = document.getElementById('whiteboard')
+    canvas.onmousemove = function(e) {
+        let rect = this.getBoundingClientRect()
+        let x = e.clientX - rect.left
+        let y = e.clientY - rect.top
+        
+        canvas.title = ''
+        for (let team of teams)
+        {
+            let team_x = left_margin + (points[team].a / max_a) * (pwidth - left_margin)
+            let team_y = pheight - ((points[team].b / max_b) * (pheight - bottom_margin) + bottom_margin)
+            
+            if (x > team_x - 3 && x < team_x + 3 && y > team_y - 3 && y < team_y + 3)
+            {
+                canvas.title = team
+            }
+        }
+    }
 }
