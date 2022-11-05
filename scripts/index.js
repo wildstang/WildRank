@@ -94,13 +94,9 @@ function init_page()
     status.add_input(event_data)
 
     let teams = new Number('teams', 'Event Teams')
-    teams.on_increment = 'increment("", false)'
-    teams.on_decrement = 'increment("", true)'
     status.add_input(teams)
 
     let matches = new Number('matches', 'Event Matches')
-    matches.on_increment = 'increment("", false)'
-    matches.on_decrement = 'increment("", true)'
     status.add_input(matches)
 
     let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
@@ -114,8 +110,6 @@ function init_page()
     data.add_input(transfer)
 
     let version = new Number('config_version', 'cfg')
-    version.on_increment = 'increment("", false)'
-    version.on_decrement = 'increment("", true)'
     data.add_input(version)
 
     let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
@@ -125,13 +119,9 @@ function init_page()
     data.add_input(config_valid)
 
     let pit_results = new Number('pit_results', 'Pit Results')
-    pit_results.on_increment = 'increment("", false)'
-    pit_results.on_decrement = 'increment("", true)'
     data.add_input(pit_results)
 
     let match_results = new Number('match_results', 'Match Results')
-    match_results.on_increment = 'increment("", false)'
-    match_results.on_decrement = 'increment("", true)'
     data.add_input(match_results)
 
     let about = new Button('about', 'About WildRank')

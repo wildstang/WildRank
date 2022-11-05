@@ -22,7 +22,7 @@ async function init_page()
     document.getElementById('header_info').innerHTML = 'Raw Data Zip Transfer'
 
     let page = new PageFrame()
-    let check_col = new ColumnFrame()
+    let check_col = new ColumnFrame('', 'Data to Transfer')
     page.add_column(check_col)
 
     check_col.add_input(new Checkbox('event', 'Event Data'))
@@ -36,11 +36,14 @@ async function init_page()
     check_col.add_input(new Checkbox('whiteboard', 'Whiteboard'))
     check_col.add_input(new Checkbox('avatars', 'Avatars'))
 
-    let option_col = new ColumnFrame()
+    let option_col = new ColumnFrame('', 'Transfer Options')
     page.add_column(option_col)
 
     let server = new Entry('server', 'Server URL', parse_server_addr(document.location.href))
     option_col.add_input(server)
+
+    let server_type = new StatusTile('server_type', 'Server')
+    option_col.add_input(server_type)
 
     // get latest cache
     let current = 'default'
@@ -68,7 +71,35 @@ async function init_page()
 
     option_col.add_input('<progress id="progress" class="wr_progress" value="0" max="100"></progress>')
 
+    let status_col = new ColumnFrame('', 'Data Status')
+    page.add_column(status_col)
+
+    let event_data = new StatusTile('event_data', 'Event Data')
+    status_col.add_input(event_data)
+
+    let teams = new Number('teams', 'Event Teams')
+    status_col.add_input(teams)
+
+    let matches = new Number('matches', 'Event Matches')
+    status_col.add_input(matches)
+
+    let version = new Number('config_version', 'cfg')
+    status_col.add_input(version)
+
+    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
+    status_col.add_input(scout_config_valid)
+
+    let config_valid = new StatusTile('config_valid', 'Settings')
+    status_col.add_input(config_valid)
+
+    let pit_results = new Number('pit_results', 'Pit Results')
+    status_col.add_input(pit_results)
+
+    let match_results = new Number('match_results', 'Match Results')
+    status_col.add_input(match_results)
+
     document.body.innerHTML += page.toString
+    process_files()
 }
 
 /**
@@ -127,7 +158,7 @@ async function export_zip()
     let names = await caches.keys()
     if (names.length > 0 && use_pictures)
     {
-        let server = parse_server_addr(document.location.href)
+        let server = get_upload_addr()
         let cache = await caches.open(names[0])
         let keys = await cache.keys()
         
@@ -338,7 +369,7 @@ async function import_zip(file)
         let use_whiteboard  = document.getElementById('whiteboard').checked
         let use_pictures    = document.getElementById('pictures').checked
 
-        let server = parse_server_addr(document.location.href) + '/uploads/'
+        let server = get_upload_addr() + '/uploads/'
 
         let files = Object.keys(zip.files)
         let complete = 0
@@ -389,6 +420,7 @@ async function import_zip(file)
 
                     if (complete === files.length)
                     {
+                        process_files()
                         alert('Import Complete')
                     }
                 }
@@ -435,6 +467,7 @@ async function import_zip(file)
 
                         if (complete === files.length)
                         {
+                            process_files()
                             alert('Import Complete')
                         }
                     })
@@ -448,10 +481,75 @@ async function import_zip(file)
 
                     if (complete === files.length)
                     {
+                        process_files()
                         alert('Import Complete')
                     }
                 }
             })
         }
     })
+}
+
+/**
+ * function:    get_upload_addr
+ * parameters:  none
+ * returns:     Currently entered upload server url.
+ * description: Returns text in upload addr textbox.
+ */
+function get_upload_addr()
+{
+    return parse_server_addr(document.getElementById('server').value)
+}
+
+/**
+ * function:    process_files
+ * parameters:  none
+ * returns:     none
+ * description: Counts files and displays numbers on screen
+ */
+function process_files()
+{
+    dal = new DAL(dal.event_id)
+    dal.build_teams()
+
+    // count results
+    let matches = dal.get_results([], false).length
+    let pits = dal.get_pits([], false).length
+
+    // update counters
+    document.getElementById('config_version').innerHTML = cfg.version
+    document.getElementById('teams').innerHTML = Object.keys(dal.teams).length
+    document.getElementById('matches').innerHTML = Object.keys(dal.matches).length
+    document.getElementById('pit_results').innerHTML = pits
+    document.getElementById('match_results').innerHTML = matches
+
+    // update statuses
+    StatusTile.set_status('event_data', check_event())
+    StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
+    StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
+    StatusTile.set_status('config_valid', cfg.validate_settings_configs())
+}
+
+/**
+ * function:    check_event
+ * parameters:  none
+ * returns:     none
+ * description: Confirms event data exists for the current event.
+ */
+function check_event()
+{
+    let teams = Object.keys(dal.teams).length > 0
+    let matches = Object.keys(dal.matches).length > 0
+    if (teams && matches)
+    {
+        return 1
+    }
+    else if (teams || matches)
+    {
+        return 0
+    }
+    else
+    {
+        return -1
+    }
 }
