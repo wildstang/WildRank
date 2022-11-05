@@ -21,15 +21,19 @@ var install
  */
 function init_page()
 {
-    let page = new PageFrame('index', '')
+    let user_page = new PageFrame('scouter', 'Scouter')
+    let data_page = new PageFrame('data', 'Data')
 
     let options = new ColumnFrame('options', 'Options')
-    page.add_column(options)
+    user_page.add_column(options)
 
-    let event_id = new Entry('event_id', 'Event ID')
-    event_id.on_text_change = 'process_files()'
-    event_id.def = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
-    options.add_input(event_id)
+    let user_id = new Entry('user_id', 'School ID', 111112)
+    user_id.on_text_change = 'check_id()'
+    user_id.type = 'number'
+    user_id.bounds = [100000, 999999]
+    user_id.def = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+    user_id.description = ' '
+    options.add_input(user_id)
 
     let position = new Dropdown('position', 'Position')
     for (let i = 1; i <= dal.alliance_size * 2; i++)
@@ -46,22 +50,17 @@ function init_page()
     position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
     options.add_input(position)
 
-    let user_id = new Entry('user_id', 'School ID', 111112)
-    user_id.on_text_change = 'check_id()'
-    user_id.type = 'number'
-    user_id.bounds = [100000, 999999]
-    user_id.def = get_cookie(USER_COOKIE, cfg.defaults.user_id)
-    options.add_input(user_id)
-
     let theme = new Select('theme_switch', 'Theme')
     theme.on_click = 'switch_theme()'
     theme.add_option('Light')
     theme.add_option('Dark')
     theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     options.add_input(theme)
+    
+    options.add_input('<div id="install-container"></div>')
 
     let roles = new ColumnFrame('roles', 'Role')
-    page.add_column(roles)
+    user_page.add_column(roles)
 
     let scout = new Button('scout', 'Scouter')
     scout.link = `check_press('scout')`
@@ -83,45 +82,47 @@ function init_page()
     admin.link = `check_press('admin')`
     roles.add_input(admin)
 
-    let status = new ColumnFrame('status', 'Status')
-    page.add_column(status)
+    let status = new ColumnFrame('status', 'Event')
+    data_page.add_column(status)
 
-    let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
-    status.add_input(preload)
-
-    let transfer = new Button('transfer', 'Transfer Raw Data')
-    transfer.link = `open_page('transfer-raw')`
-    status.add_input(transfer)
-
-    let server = new StatusTile('server_type', 'Server Available')
-    status.add_input(server)
+    let event_id = new Entry('event_id', 'Event ID')
+    event_id.on_text_change = 'process_files()'
+    event_id.def = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    status.add_input(event_id)
 
     let event_data = new StatusTile('event_data', 'Event Data')
     status.add_input(event_data)
 
-    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
-    status.add_input(scout_config_valid)
+    let teams = new Number('teams', 'Event Teams')
+    teams.on_increment = 'increment("", false)'
+    teams.on_decrement = 'increment("", true)'
+    status.add_input(teams)
 
-    let config_valid = new StatusTile('config_valid', 'Settings')
-    status.add_input(config_valid)
+    let matches = new Number('matches', 'Event Matches')
+    matches.on_increment = 'increment("", false)'
+    matches.on_decrement = 'increment("", true)'
+    status.add_input(matches)
 
-    let data = new ColumnFrame('data', 'Data')
-    page.add_column(data)
+    let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
+    status.add_input(preload)
+
+    let data = new ColumnFrame('data', 'Results')
+    data_page.add_column(data)
+
+    let transfer = new Button('transfer', 'Transfer Data')
+    transfer.link = `open_page('transfer-raw')`
+    data.add_input(transfer)
 
     let version = new Number('config_version', 'cfg')
     version.on_increment = 'increment("", false)'
     version.on_decrement = 'increment("", true)'
     data.add_input(version)
 
-    let teams = new Number('teams', 'Event Teams')
-    teams.on_increment = 'increment("", false)'
-    teams.on_decrement = 'increment("", true)'
-    data.add_input(teams)
+    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
+    data.add_input(scout_config_valid)
 
-    let matches = new Number('matches', 'Event Matches')
-    matches.on_increment = 'increment("", false)'
-    matches.on_decrement = 'increment("", true)'
-    data.add_input(matches)
+    let config_valid = new StatusTile('config_valid', 'Settings')
+    data.add_input(config_valid)
 
     let pit_results = new Number('pit_results', 'Pit Results')
     pit_results.on_increment = 'increment("", false)'
@@ -136,10 +137,8 @@ function init_page()
     let about = new Button('about', 'About WildRank')
     about.link = `open_page('about')`
     data.add_input(about)
-    
-    data.add_input('<div id="install-container"></div>')
 
-    document.body.innerHTML += page.toString
+    document.body.innerHTML += user_page.toString + data_page.toString
 
     let button = new Button('reset', 'Reset Cache', 'reset_cache()')
     document.getElementById('install-container').innerHTML = button.toString
@@ -200,7 +199,7 @@ function process_files()
 
     // update statuses
     StatusTile.set_status('event_data', check_event())
-    StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
+    //StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
     StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
     StatusTile.set_status('config_valid', cfg.validate_settings_configs())
 
@@ -254,9 +253,23 @@ function check_event()
 function check_id()
 {
     let id = get_user()
-    if (cfg.get_position(id) > -1)
+    let pos = cfg.get_position(id)
+    let name = cfg.get_name(id)
+    let admin = cfg.is_admin(id)
+
+    if (pos > -1)
     {
-        document.getElementById('position').selectedIndex = cfg.get_position(id)
+        document.getElementById('position').selectedIndex = pos
+    }
+
+    document.getElementById('user_id_desc').innerHTML = ''
+    if (name !== id)
+    {
+        document.getElementById('user_id_desc').innerHTML += name + ' '
+    }
+    if (admin)
+    {
+        document.getElementById('user_id_desc').innerHTML += '(Admin)'
     }
 }
 

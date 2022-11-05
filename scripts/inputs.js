@@ -43,7 +43,7 @@ class Element
 
     get html_description()
     { 
-        return this.description ? `<small class="wr_description">${this.description}</small>` : ''
+        return this.description ? `<small class="wr_description" id="${this.id}_desc">${this.description}</small>` : ''
     }
     
     get header()
