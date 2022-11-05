@@ -14,12 +14,10 @@ include('transfer')
 // role based layouts
 const CONFIGS = {
     'scout': {
-        'Scout': ['matches'],
-        'Transfer': ['transfer-raw', 'download_csv']
+        'Scout': ['matches']
     },
     'note': {
-        'Notes': ['pits'],
-        'Transfer': ['transfer-raw', 'download_csv']
+        'Notes': ['pits']
     },
     'drive': {
         'Drive Team': ['coach', 'whiteboard'],
@@ -105,8 +103,18 @@ function init_page()
         return
     }
 
-    // build core page
+    // redirect if there is only 1 option on the page
     let columns = CONFIGS[role]
+    if (Object.keys(columns).length === 1)
+    {
+        let column = Object.values(columns)[0]
+        if (column.length === 1)
+        {
+            return window_open(check_press(column[0]), '_self')
+        }
+    }
+
+    // build core page
     let page = new PageFrame('page', '')
     for (let col of Object.keys(columns))
     {

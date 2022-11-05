@@ -29,6 +29,7 @@ function init_page()
     }
 
     let first = populate_matches(false, true, '', false, scout_pos)
+    add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
     if (first)
     {
         let avatar = ''

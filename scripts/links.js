@@ -69,6 +69,10 @@ function open_page(page, params={})
         file = 'selection'
         requirements = SELECTION_PAGES[page]
     }
+    else
+    {
+        return ''
+    }
     params.page = page
 
     for (let p of requirements)

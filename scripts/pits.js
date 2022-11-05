@@ -21,6 +21,7 @@ var streaming = false
 function init_page()
 {
     let first = populate_teams(false, true)
+    add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
     if (first)
     {
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
