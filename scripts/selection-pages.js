@@ -343,8 +343,6 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true)
     let dropdown = new Dropdown(filter_id, '', options)
     dropdown.on_click = func
     document.getElementById(id).innerHTML = dropdown.toString
-    document.getElementById(filter_id).style.margin = '4px auto'
-    document.getElementById(filter_id).style.width = `${300}px`
 }
 
 /**
@@ -362,6 +360,4 @@ function add_button_filter(filter_id, text, func, primary_list=true)
     }
     let button = new Button(filter_id, text, func)
     document.getElementById(id).innerHTML += button.toString
-    document.getElementById(`${filter_id}-container`).style.margin = '4px auto'
-    document.getElementById(`${filter_id}-container`).style.width = `${300}px`
 }
