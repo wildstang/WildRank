@@ -51,7 +51,7 @@ function init_page()
     options.add_input(position)
 
     let theme = new Select('theme_switch', 'Theme')
-    theme.on_click = 'switch_theme()'
+    theme.on_change = 'switch_theme()'
     theme.add_option('Light')
     theme.add_option('Dark')
     theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
