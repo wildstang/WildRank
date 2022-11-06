@@ -57,6 +57,8 @@ function create_config()
 function on_config()
 {
     apply_theme()
+    // listen for dark mode changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
     
     // load in data
     dal = new DAL(event_id)

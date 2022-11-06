@@ -21,7 +21,7 @@ const UPLOAD_COOKIE = 'upload_url'
 const UPLOAD_DEFAULT = 'http://localhost:80'
 const TBA_AUTH_KEY = 'X-TBA-Auth-Key'
 const THEME_COOKIE = 'theme'
-const THEME_DEFAULT = 'light'
+const THEME_DEFAULT = 'auto'
 const ROLE_COOKIE = 'role'
 const ROLE_DEFAULT = 'index'
 
@@ -508,7 +508,16 @@ function apply_theme()
     }
 
     let theme = cfg.theme
-    if (get_cookie(THEME_COOKIE, THEME_DEFAULT) === 'dark')
+    let theme_name = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    if (theme_name === 'auto')
+    {
+        theme_name = 'light'
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        {
+            theme_name = 'dark'
+        }
+    }
+    if (theme_name === 'dark')
     {
         theme = cfg.dark_theme
     }

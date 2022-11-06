@@ -54,6 +54,8 @@ function init_page()
     theme.on_change = 'switch_theme()'
     theme.add_option('Light')
     theme.add_option('Dark')
+    theme.add_option('Auto')
+    theme.columns = 3
     theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     options.add_input(theme)
     
@@ -284,7 +286,19 @@ function save_options()
  */
 function switch_theme()
 {
-    let theme = Select.get_selected_option('theme_switch') == 0 ? 'light' : 'dark'
+    let theme = 'auto'
+    switch (Select.get_selected_option('theme_switch'))
+    {
+        case 0:
+            theme = 'light'
+            break
+        case 1:
+            theme = 'dark'
+            break
+        case 2:
+        default:
+            theme = 'auto'
+    }
     if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
     {
         set_cookie(THEME_COOKIE, theme)
