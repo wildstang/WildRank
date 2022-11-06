@@ -25,7 +25,7 @@
     <body>
         <div id="header">
             <img id="menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu()" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu()')">
-            <h1><a href="index.html?page=home" id="title">WildRank</a></h1>
+            <h1><a onclick="home(false)" oncontextmenu="home(true); return false" id="title">WildRank</a></h1>
             <img id="secondary_menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu(false)" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu(false)')">
         </div>
         <div id="body">

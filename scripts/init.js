@@ -64,3 +64,26 @@ function on_config()
 
     init_page()
 }
+
+/**
+ * function:    home()
+ * parameters:  right click
+ * returns:     none
+ * description: Opens the appropriate home page, based on the current page.
+ */
+function home(right=false)
+{
+    let url = 'index.html?page=home'
+    if (page == 'home' || page == 'index' || page == '' || page == 'matches' || page == 'pits')
+    {
+        url = 'index.html' 
+    }
+    if (!right)
+    {
+        window_open(url, '_self')
+    }
+    else
+    {
+        window_open(url, '_blank')
+    }
+}
