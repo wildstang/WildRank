@@ -536,7 +536,17 @@ class Config
      */
     validate_mode(config, description=false)
     {
-        let c = this[config]
+        return Config.validate_mode_raw(this[config], description)
+    }
+
+    /**
+     * function:    validate_mode_raw
+     * parameters:  config array
+     * returns:     none
+     * description: Validates a scouting mode config.
+     */
+    static validate_mode_raw(c, description=false)
+    {
         if (Array.isArray(c))
         {
             for (let page of c)

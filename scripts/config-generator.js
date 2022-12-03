@@ -122,81 +122,100 @@ function populate_options()
 
     // set options column appropriately
     let ops = new ColumnFrame()
-    if (page == 'New')
+    if (column == 'New')
     {
-        ops.add_input(new Entry('new-element-short', 'Short Name:'))
+        ops.add_input(new Checkbox('new-element-cycle', 'Is Cycle'))
     }
     else
     {
-        if (column == 'New')
+        switch (type)
         {
-            ops.add_input(new Checkbox('new-element-cycle', 'Is Cycle'))
-        }
-        else
-        {
-            switch (type)
-            {
-                case 'Checkbox':
-                    ops.add_input(new Checkbox('new-element-default', 'Default'))
-                    ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                    break
-                case 'Slider':
-                    let incr = new Entry('new-element-incr', 'Increment', '1')
-                    incr.type = 'number'
-                    incr.description = 'The size of a single step.'
-                    ops.add_input(incr)
-                case 'Number':
-                    let min = new Entry('new-element-min', 'Min', '0')
-                    min.type = 'number'
-                    min.description = 'The minimum allowed value.'
-                    ops.add_input(min)
-                    let max = new Entry('new-element-max', 'Max', '10')
-                    max.type = 'number'
-                    max.description = 'The maximum allowed value.'
-                    ops.add_input(max)
-                case 'Counter':
-                    let def = new Entry('new-element-default', 'Default', '0')
-                    def.type = 'number'
-                    def.description = 'The default value displayed in the box.'
-                    ops.add_input(def)
-                    ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                    break
-                case 'String':
-                    let defs = new Entry('new-element-default', 'Default', '')
-                    defs.description = 'The default text displayed in the box, must not be empty.'
-                    ops.add_input(defs)
-                    break
-                case 'Text':
-                    let defe = new Extended('new-element-default', 'Default', '')
-                    defe.description = 'The default text displayed in the box, must not be empty.'
-                    ops.add_input(defe)
-                    break
-                case 'Multicounter':
-                    let neg = new Entry('new-element-negative', 'Negative')
-                    neg.description = 'A comma-separated list of true/false values for each counter.'
-                    ops.add_input(neg)
-                    let mops = new Entry('new-element-options', 'Options')
-                    mops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-                    ops.add_input(mops)
-                    let defm = new Entry('new-element-default', 'Default', '0')
-                    defm.type = 'number'
-                    defm.description = 'The single default value for all counters.'
-                    ops.add_input(defm)
-                    break
-                case 'Select':
-                case 'Dropdown':
-                    let sops = new Entry('new-element-options', 'Options')
-                    sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-                    ops.add_input(sops)
-                    let defo = new Entry('new-element-default', 'Default', '')
-                    defo.description = 'The default selected option, must exactly match that option.'
-                    ops.add_input(defo)
-                    break
-            }
+            case 'Checkbox':
+                ops.add_input(new Checkbox('new-element-default', 'Default'))
+                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
+                break
+            case 'Slider':
+                let incr = new Entry('new-element-incr', 'Increment', '1')
+                incr.type = 'number'
+                incr.description = 'The size of a single step.'
+                ops.add_input(incr)
+            case 'Number':
+                let min = new Entry('new-element-min', 'Min', '0')
+                min.type = 'number'
+                min.description = 'The minimum allowed value.'
+                ops.add_input(min)
+                let max = new Entry('new-element-max', 'Max', '10')
+                max.type = 'number'
+                max.description = 'The maximum allowed value.'
+                ops.add_input(max)
+            case 'Counter':
+                let def = new Entry('new-element-default', 'Default', '0')
+                def.type = 'number'
+                def.description = 'The default value displayed in the box.'
+                ops.add_input(def)
+                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
+                break
+            case 'String':
+                let defs = new Entry('new-element-default', 'Default', '')
+                defs.description = 'The default text displayed in the box, must not be empty.'
+                ops.add_input(defs)
+                break
+            case 'Text':
+                let defe = new Extended('new-element-default', 'Default', '')
+                defe.description = 'The default text displayed in the box, must not be empty.'
+                ops.add_input(defe)
+                break
+            case 'Multicounter':
+                let neg = new Entry('new-element-negative', 'Negative')
+                neg.description = 'A comma-separated list of true/false values for each counter.'
+                ops.add_input(neg)
+                let mops = new Entry('new-element-options', 'Options')
+                mops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
+                ops.add_input(mops)
+                let defm = new Entry('new-element-default', 'Default', '0')
+                defm.type = 'number'
+                defm.description = 'The single default value for all counters.'
+                ops.add_input(defm)
+                break
+            case 'Select':
+            case 'Dropdown':
+                let sops = new Entry('new-element-options', 'Options')
+                sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
+                ops.add_input(sops)
+                let defo = new Entry('new-element-default', 'Default', '')
+                defo.description = 'The default selected option, must exactly match that option.'
+                ops.add_input(defo)
+                break
         }
     }
     ops.add_input(new Button('new-element-submit', 'Add', 'create_element()'))
     options.innerHTML = ops.toString
+}
+
+/**
+ * function:    create_id_from_name
+ * parameters:  parent id, name string
+ * returns:     sanitized name
+ * description: Sanitizes an input name so it can be used for the ID.
+ */
+function create_id_from_name(parent, name)
+{
+    let id = name.toLowerCase()
+                 .replaceAll(/[- ]/g, '_') // replace spaces and hyphens with underscores
+                 .replaceAll(/\W+/g, '')   // remove any non-alphanumeric or underscore character
+
+    return `${parent}_${id}`
+}
+
+/**
+ * function:    parse_list
+ * parameters:  raw inputed list string
+ * returns:     array of sanitized strings
+ * description: Parses and sanatizes a comma separated list of strings.
+ */
+function parse_list(list)
+{
+    return list.split(',').map(s => s.trim())
 }
 
 /** 
@@ -225,9 +244,8 @@ function create_element()
     // populate rest of input object
     if (page.value == 'New')
     {
-        let parent = config[mode].id
-        input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_').replaceAll(/\W+/g, '')}`
-        input.short = document.getElementById('new-element-short').value
+        let parent = mode ? 'match' : 'pit'
+        input.id = create_id_from_name(parent, name)
         input.columns = []
         config[mode].push(input)
     }
@@ -236,7 +254,7 @@ function create_element()
         if (column.value == 'New')
         {
             let parent = config[mode][page.selectedIndex].id
-            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_').replaceAll(/\W+/g, '')}`
+            input.id = create_id_from_name(parent, name)
             input.cycle = document.getElementById('new-element-cycle').checked
             input.inputs = []
             config[mode][page.selectedIndex].columns.push(input)
@@ -244,7 +262,7 @@ function create_element()
         else
         {
             let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
-            input.id = `${parent}_${name.toLowerCase().replaceAll(' ', '_').replaceAll(/\W+/g, '')}`
+            input.id = create_id_from_name(parent, name)
             input.type = type.toLowerCase()
             let ops = []
             switch (type)
@@ -283,10 +301,10 @@ function create_element()
                     input.negative = document.getElementById('new-element-negative').checked
                     break
                 case 'Multicounter':
-                    input.negative = document.getElementById('new-element-negative').value.replaceAll(' ', '').split(',').map(n => n.toLowerCase() === 'true')
+                    input.negative = parse_list(document.getElementById('new-element-negative').value).map(n => n.toLowerCase() === 'true')
                 case 'Select':
                 case 'Dropdown':
-                    input.options = document.getElementById('new-element-options').value.replaceAll(' ', '').split(',')
+                    input.options = parse_list(document.getElementById('new-element-options').value)
                 case 'String':
                 case 'Text':
                     input.default = document.getElementById('new-element-default').value
@@ -319,8 +337,9 @@ function create_element()
         add_col = name
     }
     
-    // restore old config if invalid
-    if (validate_scout_config(config[0]) && validate_scout_config(config[1]))
+    // remove change to config if invalid
+    console.log(config[1])
+    if (Config.validate_mode_raw(config[0]) && Config.validate_mode_raw(config[1]))
     {
         // populate to add to dropdown
         populate_dropdowns()
@@ -608,11 +627,6 @@ function build_page_from_config()
                                 item.bounds = options
                                 break
                             case 'slider':
-                                let step = 1
-                                if (options.length >= 3)
-                                {
-                                    step = options[3]
-                                }
                                 item = new Slider(id, name, default_val)
                                 item.bounds = options
                                 break
