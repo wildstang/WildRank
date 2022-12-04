@@ -352,11 +352,15 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id != 'scout' && !cfg.is_admin(user))
+    if (id !== 'scout' && !cfg.is_admin(user))
     {
         return 'Missing admin privileges'
     }
-    if (id != 'admin' && !has_teams())
+    if (id === 'scout' && !has_matches())
+    {
+        return 'Missing match data'
+    }
+    if (id !== 'admin' && !has_teams())
     {
         return 'Missing event data'
     }
