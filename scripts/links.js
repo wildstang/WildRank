@@ -28,6 +28,7 @@ var BLANK_PAGES = {
     'misc/2022-score-estimator': [],
     'misc/match-counter': [],
     'misc/score-counter': [],
+    'misc/revival-counter': [],
     'misc/team-profile': [],
     'misc/test': [],
     'misc/district-counter': ['year'],

@@ -69,6 +69,7 @@ const CACHE_LIST = [
     '/scripts/misc/event-planner.js',
     '/scripts/misc/international-counter.js',
     '/scripts/misc/match-counter.js',
+    '/scripts/misc/revival-counter.js',
     '/scripts/misc/score-counter.js',
     '/scripts/misc/team-profile.js',*/
     '/scripts/misc/test.js',

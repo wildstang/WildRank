@@ -36,7 +36,7 @@ const CONFIGS = {
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
     'extras': {
-        'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile'],
+        'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile', 'misc/revival-counter'],
         'Game Specific': ['misc/2022-score-estimator']
     }
 }
@@ -85,6 +85,7 @@ const BUTTONS = {
     'misc/international-counter':   { name: 'International Counter',    limits: ['admin'], configs: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: ['admin'], configs: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: ['admin'], configs: [] },
+    'misc/revival-counter':         { name: 'Revival Counter',          limits: ['admin'], configs: [] },
     'misc/test':                    { name: 'Input Tester',             limits: ['admin'], configs: [] }
 }
 
