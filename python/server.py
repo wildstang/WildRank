@@ -87,17 +87,9 @@ async def html(file):
 async def styles(file):
     return f'styles/{file}.css'
 
-@app.get('/scripts/{file}.js', response_class=FileResponse)
-async def javascript(file):
-    return f'scripts/{file}.js'
-
-@app.get('/scripts/misc/{file}.js', response_class=FileResponse)
-async def misc_javascript(file):
-    return f'scripts/misc/{file}.js'
-
-@app.get('/scripts/libs/{file}.js', response_class=FileResponse)
-async def lib_javascript(file):
-    return f'scripts/libs/{file}.js'
+@app.get('/scripts/{file_path:path}.js', response_class=FileResponse)
+async def javascript(file_path):
+    return f'scripts/{file_path}.js'
 
 @app.get('/config/{file}.json', response_class=FileResponse)
 async def config(file):
@@ -107,13 +99,9 @@ async def config(file):
 async def upload(file):
     return f'uploads/{file}.json'
 
-@app.get('/assets/{file}.png', response_class=FileResponse)
-async def image(file):
-    return f'assets/{file}.png'
-
-@app.get('/assets/{dir}/{file}.png', response_class=FileResponse)
-async def dir_image(dir, file):
-    return f'assets/{dir}/{file}.png'
+@app.get('/assets/{file_path:path}.png', response_class=FileResponse)
+async def image(file_path):
+    return f'assets/{file_path}.png'
 
 @app.get('/assets/{file}.svg', response_class=FileResponse)
 async def vector(file):
