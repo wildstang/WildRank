@@ -100,6 +100,7 @@ const CACHE_LIST = [
     // other files
     '/favicon.ico',
     //'/manifest.webmanifest',
+    //'/pwa.js',
     '/about'
 ]
 

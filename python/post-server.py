@@ -1,6 +1,6 @@
 import socketserver, http.server, logging, base64, zipfile, re, json, os
-from os import listdir, environ, rename, remove
-from os.path import isfile, join, exists
+from os import listdir, environ, rename, remove, symlink
+from os.path import isfile, join, exists, basename
 from base64 import b64decode
 from datetime import datetime as dt
 from os import path
@@ -149,6 +149,18 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         }
         res_str = json.dumps(response)
         self.wfile.write(res_str.encode('utf-8'))
+
+def link(file):
+    name = basename(file)
+    if not exists(file):
+        symlink(file, name)
+
+# link files
+link('markup/index.html')
+link('markup/selection.html')
+link('config/manifest.webmanifest')
+link('scripts/pwa.js')
+link('assets/icons/favicon.ico')
 
 start = dt.now()
 try:

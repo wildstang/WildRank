@@ -77,11 +77,11 @@ class PhotoPOSTResponse(BaseModel):
 # return requested files
 @app.get('/', response_class=FileResponse)
 async def index():
-    return 'index.html'
+    return 'markup/index.html'
 
 @app.get('/{file}.html', response_class=FileResponse)
 async def html(file):
-    return f'{file}.html'
+    return f'markup/{file}.html'
 
 @app.get('/styles/{file}.css', response_class=FileResponse)
 async def styles(file):

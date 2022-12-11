@@ -218,10 +218,29 @@ async function import_zip(event)
             // only import files
             if (parts.length > 1 && !name.includes('docker/') && !name.includes('docs/') && !name.includes('python/') && !name.includes('uploads/') && !name.endsWith('/'))
             {
+                // virtually move files which aren't stored in the same path
+                let path = name 
+                if (name.includes('markup/'))
+                {
+                    path = name.replace('markup/', '')
+                }
+                else if (name.includes('manifest.webmanifest'))
+                {
+                    path = name.replace('config/', '')
+                }
+                else if (name.includes('pwa.js'))
+                {
+                    path = name.replace('scripts/', '')
+                }
+                else if (name.includes('favicon.ico'))
+                {
+                    path = name.replace('assets/icons/', '')
+                }
+
                 // get blob of files text
                 zip.file(name).async('blob').then(function (content)
                 {
-                    let url = `${server}${name.substring(name.indexOf('/'))}`
+                    let url = `${server}/${path}`
                     cache_file(url, content)
 
                     if (++count === files.length)
