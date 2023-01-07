@@ -1,0 +1,55 @@
+{
+	"version": "wr2-2023-kickoff",
+	"pit": [],
+	"match": [],
+	"smart_stats": [],
+	"coach": [],
+	"whiteboard": {
+		"red_0": {
+			"x": 615,
+			"y": 160,
+			"color": "#FF4136"
+		},
+		"red_1": {
+			"x": 615,
+			"y": 230,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 615,
+			"y": 300,
+			"color": "#FF4136"
+		},
+		"blue_0": {
+			"x": 85,
+			"y": 160,
+			"color": "#0074D9"
+		},
+		"blue_1": {
+			"x": 85,
+			"y": 230,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 85,
+			"y": 300,
+			"color": "#0074D9"
+		},
+		"game_pieces": [{
+			"name": "Cone",
+			"image": "2023/cone.png"
+		}, {
+			"name": "Cube",
+			"image": "2023/cube.png"
+		}],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 27,
+		"vertical_margin": 26,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}
+}
