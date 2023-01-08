@@ -25,11 +25,17 @@ if ('serviceWorker' in navigator)
 }
 
 // pull in event id and determine game year
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
+var event_id = get_parameter(EVENT_COOKIE, undefined)
+if (typeof event_id === 'undefined')
+{
+    var cfg = new Config()
+}
+else
+{
+    var cfg = new Config(event_id.substring(0, 4))
+}
 
 // create config object, load in what is available, and set the theme
-var cfg = new Config(year)
 cfg.load_configs(2, '')
 apply_theme()
 
@@ -59,6 +65,11 @@ function on_config()
     apply_theme()
     // listen for dark mode changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
+
+    if (typeof event_id === 'undefined')
+    {
+        event_id = cfg.defaults.event_id
+    }
     
     // load in data
     dal = new DAL(event_id)
