@@ -201,8 +201,10 @@ function populate_options()
 function create_id_from_name(parent, name)
 {
     let id = name.toLowerCase()
-                 .replaceAll(/[- ]/g, '_') // replace spaces and hyphens with underscores
-                 .replaceAll(/\W+/g, '')   // remove any non-alphanumeric or underscore character
+                 .replaceAll(/\(.*\)/g, '') // remove parenthesis
+                 .replaceAll(/[- ]/g, '_')  // replace spaces and hyphens with underscores
+                 .replaceAll(/__+/g, '_')   // prevent repeated underscores
+                 .replaceAll(/\W+/g, '')    // remove any non-alphanumeric or underscore character
 
     return `${parent}_${id}`
 }
@@ -383,8 +385,8 @@ function load_config()
  */
 function save_config()
 {
-    localStorage.setItem(`config-${year}-pit`, JSON.stringify(config[0]))
-    localStorage.setItem(`config-${year}-match`, JSON.stringify(config[1]))
+    localStorage.setItem(`config-${cfg.year}-pit`, JSON.stringify(config[0]))
+    localStorage.setItem(`config-${cfg.year}-match`, JSON.stringify(config[1]))
     cfg.load_configs(2)
 
     alert('Scouting config updated')
@@ -417,7 +419,7 @@ function import_config(event)
     let reader = new FileReader()
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
-        let newConfig = JSON.parse(readerEvent.target.result)[year]
+        let newConfig = JSON.parse(readerEvent.target.result)[cfg.year]
         let merge = confirm('Press ok to merge configs, cancel to overwrite')
         if (merge)
         {
