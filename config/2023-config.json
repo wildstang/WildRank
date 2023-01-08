@@ -1,7 +1,205 @@
 {
 	"version": "wr2-2023-kickoff",
-	"pit": [],
-	"match": [],
+	"pit": [{
+		"name": "Pit",
+		"id": "pit_pit",
+		"columns": [{
+			"name": "Body",
+			"id": "pit_pit_body",
+			"cycle": false,
+			"inputs": [{
+				"name": "Weight no Battery Bumpers",
+				"id": "pit_pit_body_weight_no_battery_bumpers",
+				"type": "slider",
+				"options": [30, 130, 5],
+				"default": 100,
+				"negative": false
+			}, {
+				"name": "Max Width",
+				"id": "pit_pit_body_max_width",
+				"type": "number",
+				"options": [0, 120],
+				"default": 36,
+				"negative": false
+			}, {
+				"name": "Min Width",
+				"id": "pit_pit_body_min_width",
+				"type": "number",
+				"options": [0, 120],
+				"default": 36,
+				"negative": false
+			}]
+		}, {
+			"name": "Game Pieces",
+			"id": "pit_pit_game_pieces",
+			"cycle": false,
+			"inputs": [{
+				"name": "Handle Cones",
+				"id": "pit_pit_game_pieces_handle_cones",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Handle Cubes",
+				"id": "pit_pit_game_pieces_handle_cubes",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Max Grid Row",
+				"id": "pit_pit_game_pieces_max_grid_row",
+				"type": "select",
+				"options": ["None", "Bottom", "Middle", "Top"],
+				"default": ""
+			}]
+		}, {
+			"name": "Other",
+			"id": "pit_pit_other",
+			"cycle": false,
+			"inputs": [{
+				"name": "Drive Train",
+				"id": "pit_pit_other_drive_train",
+				"type": "dropdown",
+				"options": ["Tank", "Mecanum", "Swerve", "Other"],
+				"default": ""
+			}, {
+				"name": "Drive Motor Count",
+				"id": "pit_pit_other_drive_motor_count",
+				"type": "slider",
+				"options": [2, 12, 1],
+				"default": 4,
+				"negative": false
+			}, {
+				"name": "Build Quality",
+				"id": "pit_pit_other_build_quality",
+				"type": "slider",
+				"options": [1, 5, 1],
+				"default": 3,
+				"negative": false
+			}, {
+				"name": "Self Balancing",
+				"id": "pit_pit_other_self_balancing",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}]
+		}]
+	}],
+	"match": [{
+		"name": "Auto",
+		"id": "match_auto",
+		"columns": [{
+			"name": "Position",
+			"id": "match_auto_position",
+			"cycle": false,
+			"inputs": [{
+				"name": "Moved",
+				"id": "match_auto_position_moved",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Left Community",
+				"id": "match_auto_position_mobility_left_community",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Charging Station",
+				"id": "match_auto_position_charging_station",
+				"type": "select",
+				"options": ["Failed", "NoAttempt", "Docked", "Staged"],
+				"default": "NoAttempt"
+			}]
+		}, {
+			"name": "Scoring",
+			"id": "match_auto_scoring",
+			"cycle": false,
+			"inputs": [{
+				"name": "Preload",
+				"id": "match_auto_scoring_preload",
+				"type": "select",
+				"options": ["None", "Cone", "Cube"],
+				"default": ""
+			}, {
+				"name": "Cube Scoring",
+				"id": "match_auto_scoring_cube_scoring",
+				"type": "multicounter",
+				"negative": [true, false, false, false],
+				"options": ["Failed", "Bottom", "Middle", "High"],
+				"default": 0
+			}, {
+				"name": "Cone Scoring",
+				"id": "match_auto_scoring_cone_scoring",
+				"type": "multicounter",
+				"negative": [true, false, false, false],
+				"options": ["Failed", "Bottom", "Middle", "High"],
+				"default": 0
+			}]
+		}]
+	}, {
+		"name": "Tele",
+		"id": "match_tele",
+		"columns": [{
+			"name": "Cycling",
+			"id": "match_tele_cycling",
+			"cycle": true,
+			"inputs": [{
+				"name": "Piece Source",
+				"id": "match_tele_cycling_piece_source",
+				"type": "select",
+				"options": ["Substation", "LoadingZone", "OpenField", "Community"],
+				"default": ""
+			}, {
+				"name": "Game Piece",
+				"id": "match_tele_cycling_game_piece",
+				"type": "select",
+				"options": ["Cube", "Cone"],
+				"default": ""
+			}, {
+				"name": "Defended",
+				"id": "match_tele_cycling_defended",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
+				"name": "Grid Row",
+				"id": "match_tele_cycling_grid_row",
+				"type": "select",
+				"options": ["Failed", "Bottom", "Middle", "Top"],
+				"default": ""
+			}]
+		}, {
+			"name": "Post Match",
+			"id": "match_tele_post_match",
+			"cycle": false,
+			"inputs": [{
+				"name": "Charging Station",
+				"id": "match_tele_post_match_charging_station",
+				"type": "select",
+				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
+				"default": "NoAttempt"
+			}, {
+				"name": "Driver Skill",
+				"id": "match_tele_post_match_driver_skill",
+				"type": "slider",
+				"options": [1, 5, 1],
+				"default": 3,
+				"negative": false
+			}, {
+				"name": "Broke Down",
+				"id": "match_tele_post_match_broke_down",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
+			}, {
+				"name": "Notes",
+				"id": "match_tele_post_match_notes",
+				"type": "text",
+				"default": "None"
+			}]
+		}]
+	}],
 	"smart_stats": [],
 	"coach": [],
 	"whiteboard": {
