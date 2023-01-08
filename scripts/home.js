@@ -31,7 +31,7 @@ const CONFIGS = {
         'Transfer': ['transfer-raw', 'download_csv']
     },
     'admin': {
-        'Configuration': ['config-generator', 'settings', 'schedule-importer', 'export'],
+        'Configuration': ['config-generator', 'settings', 'schedule-importer', 'scouter-scheduler', 'export'],
         'Debugging': ['config-debug', 'event-generator', 'cache', 'random', 'open_extras'],
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
@@ -78,6 +78,7 @@ const BUTTONS = {
     'transfer-raw':         { name: 'Transfer Raw Data',        limits: ['event'], configs: [] },
     'users':                { name: 'User Profiles',            limits: ['admin', 'any'], configs: [] },
     'whiteboard':           { name: 'Whiteboard',               limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
+    'scouter-scheduler':    { name: 'Scouter Scheduler',        limits: ['admin'], configs: [] },
     'misc/match-counter':   { name: 'Match Counter',            limits: ['admin'], configs: [] },
     'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: ['admin'], configs: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: ['admin'], configs: [] },

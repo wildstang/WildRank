@@ -25,6 +25,7 @@ var BLANK_PAGES = {
         // team
         // alliance
         // edit
+    'scouter-scheduler': [],
     'misc/2022-score-estimator': [],
     'misc/match-counter': [],
     'misc/score-counter': [],
