@@ -9,6 +9,7 @@ COPY download-latest-tar.py .
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 RUN python download-latest-tar.py wildstang wildrank $GIT_TAG
+RUN cp -r /usr/src/app/wildrank/config /usr/src/app/wildrank/default-config
 RUN ln -s /usr/src/app/wildrank/config /config
 RUN ln -s /usr/src/app/wildrank/uploads /uploads
 

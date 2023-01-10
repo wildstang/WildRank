@@ -8,6 +8,7 @@ from os import listdir, remove, getenv
 from os.path import getmtime, exists, isfile, join
 from datetime import datetime as dt
 from zipfile import ZipFile, ZIP_DEFLATED
+from subprocess import call
 
 """
 server.py
@@ -29,6 +30,11 @@ UPLOAD_PATH = 'uploads/'
 REPORT = True
 REPORT_FILE = 'reports.csv'
 PASSWORD = getenv('WILDRANK_PASSWORD')
+
+
+# copy files that docker build copied from config/ back into config/
+if exists('default-config/') and len(listdir('config/')) == 0:
+    call(['bash', '-c', 'cp default-config/* config/'])
 
 
 # pull out parameters for web server
