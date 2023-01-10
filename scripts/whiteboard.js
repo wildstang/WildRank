@@ -838,7 +838,7 @@ function init_canvas()
 
     // resize canvas
     canvas = document.getElementById('whiteboard')
-    canvas.style.backgroundImage = `url('assets/${year}/field-${year}.png')`
+    canvas.style.backgroundImage = `url('assets/${cfg.year}/field-${cfg.year}.png')`
     canvas.width = field_width
     canvas.height = field_height
 
