@@ -590,13 +590,12 @@ class Config
                         {
                             case 'dropdown':
                             case 'select':
-                            case 'multiselect':
                                 result = Config.check_properties(input, {'default': 'string'}, description)
                                 if (Config.failed(result))
                                 {
                                     return result
                                 }
-                                break
+                            case 'multiselect':
                             case 'multicounter':
                                 if (!input.hasOwnProperty('options') && Array.isArray(input.options))
                                 {
