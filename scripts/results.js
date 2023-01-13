@@ -114,19 +114,12 @@ function open_option(option)
         opponents = red
     }
 
+    let alliances = dal.build_relative_alliances(team, match)
     let table = '<table><tr><th></th><th>Match Value</th></tr>'
     let keys = Object.keys(result)
     for (let key of keys)
     {
-        let name = dal.get_name('stats.' + key, '')
-        // if opponentX is in the name, replace with the team number for this match
-        if (name.includes('opponent'))
-        {
-            for (let i = 0; i < opponents.length; i++)
-            {
-                name = name.replace(`opponent${i+1}`, opponents[i])
-            }
-        }
+        let name = dal.fill_team_numbers(dal.get_name('stats.' + key, ''), alliances)
         table += `<tr><th>${name}</th><td>${dal.get_result_value(team, match, key, true)}</td></tr>`
     }
     table += '</table>'

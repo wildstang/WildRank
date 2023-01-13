@@ -513,7 +513,7 @@ class Entry extends Input
 
     get bounds()
     {
-        return this.type === 'number' ? `${this.min ? `min="${this.min}"` : ''} ${this.max ? `max="${this.max}"` : ''} ${this.incr ? `step="${this.incr}"` : ''}` : ''
+        return this.type === 'number' ? `${this.min || this.min === 0 ? `min="${this.min}"` : ''} ${this.max ? `max="${this.max}"` : ''} ${this.incr ? `step="${this.incr}"` : ''}` : ''
     }
 
     get toString()
@@ -578,10 +578,6 @@ class Slider extends Entry
         this.max = 10
         this.incr = 1
         this.type = 'number'
-        if (def < this.min)
-        {
-            this.def = this.min
-        }
         this.on_change = ''
     }
 

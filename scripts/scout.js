@@ -8,8 +8,6 @@
 const start = Date.now()
 
 var cycles = {}
-var opponents = []
-var opp_ids = []
 
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
@@ -67,9 +65,7 @@ function init_page()
             }
             document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
 
-            let alliance = alliance_color === 'red' ? 'blue' : 'red'
-            opponents = dal.matches[match_num][`${alliance}_alliance`]
-            opp_ids = opponents.map((_, i) => `opponent${i+1}`)
+            alliances = dal.build_relative_alliances(team_num, match_num)
             break
     }
     ws(team_num)
@@ -143,10 +139,11 @@ function build_page_from_config()
                 }
 
                 // replace opponentsX with the team's opponent team numbers
-                if (options instanceof Array && options.length === opp_ids.length && options.every((val, i) => val === opp_ids[i]))
+                if (options instanceof Array && options.length > 0)
                 {
-                    options = opponents
+                    options = options.map(op => dal.fill_team_numbers(op, alliances))
                 }
+                name = dal.fill_team_numbers(name, alliances)
 
                 let item
                 // build each input from its template
@@ -200,11 +197,6 @@ function build_page_from_config()
                         item.bounds = options
                         break
                     case 'slider':
-                        let step = 1
-                        if (options.length > 2)
-                        {
-                            step = options[2]
-                        }
                         item = new Slider(id, name, default_val)
                         item.bounds = options
                         break
@@ -501,9 +493,9 @@ function get_results_from_page()
 
                     // replace opponentsX with the team's opponent team numbers
                     let op_ids = options
-                    if (options instanceof Array && options.length === opp_ids.length && options.every((val, i) => val === opp_ids[i]))
+                    if (options instanceof Array && options.length > 0)
                     {
-                        op_ids = opponents
+                        op_ids = options.map(op => dal.fill_team_numbers(op, alliances))
                     }
 
                     switch (type)

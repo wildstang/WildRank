@@ -975,56 +975,56 @@ class DAL
     }
 
     /**
-     * function:    fill_team_numbers
-     * parameters:  team number, match id, options to fill
-     * returns:     options with team numbers instead of keys
-     * description: Replaces opponentX and partnerX with appropriate team number.
+     * function:    build_relative_alliances
+     * parameters:  team number, match id
+     * returns:     opponent and partner alliance team numbers
+     * description: Builds an object with opponent and partner alliance team numbers.
      */
-    fill_team_numbers(team_num, match_id, options)
+    build_relative_alliances(team_num, match_id)
     {
         let red = this.matches[match_id].red_alliance
         let blue = this.matches[match_id].blue_alliance
-        let opponents = []
-        let partners = []
+        let alliances = {}
         if (red.includes(team_num))
         {
-            opponents = blue
-            partners = red
+            alliances['opponent'] = blue
+            alliances['partner'] = red
         }
         else if (blue.includes(team_num))
         {
-            opponents = blue
-            partners = red
+            alliances['opponent'] = red
+            alliances['partner'] = blue
         }
-        for (let i in options)
+        return alliances
+    }
+
+    /**
+     * function:    fill_team_numbers
+     * parameters:  text to replace, opponent and partner teams
+     * returns:     text with team numbers instead of keys
+     * description: Replaces opponentX and partnerX with the appropriate team number.
+     */
+    fill_team_numbers(text, alliances)
+    {
+        if (typeof text !== 'string')
         {
-            let option = options[i]
-            if (option.includes('opponent'))
+            return text
+        }
+        let new_text = text
+        let matches = [...new_text.matchAll(/(opponent|partner)([0-9])/g)]
+        for (let match of matches)
+        {
+            if (match.length === 3)
             {
-                let idx = option.indexOf('opponent') + 8
-                if (option.length > idx)
+                let type = match[1]
+                let idx = match[2] - 1
+                if (alliances[type].length > idx)
                 {
-                    let num = parseInt(option[idx])
-                    if (num <= opponents.length)
-                    {
-                        options[i] = option.replace(`opponent${num}`, opponents[num - 1])
-                    }
-                }
-            }
-            else if (option.includes('partner'))
-            {
-                let idx = option.indexOf('partner') + 7
-                if (option.length > idx)
-                {
-                    let num = parseInt(option[idx])
-                    if (num <= partners.length)
-                    {
-                        options[i] = option.replace(`partner${num}`, partners[num - 1])
-                    }
+                    new_text = new_text.replace(match[0], alliances[type][idx])
                 }
             }
         }
-        return options
+        return new_text
     }
 
     /**
