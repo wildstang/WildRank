@@ -81,7 +81,7 @@ class DAL
                         // make sure no values are missing / empty
                         if (typeof neg === 'undefined')
                         {
-                            if (type == 'select' || type == 'dropdown' || type == 'multicounter')
+                            if (type === 'select' || type === 'multiselect' || type === 'dropdown' || type === 'multicounter')
                             {
                                 neg = new Array(ops.length).fill(false)
                             }
@@ -90,7 +90,7 @@ class DAL
                                 neg = false
                             }
                         }
-                        if (type == 'checkbox')
+                        if (type === 'checkbox')
                         {
                             ops = [false, true]
                         }
@@ -100,13 +100,27 @@ class DAL
                         }
 
                         // add each counter in a multicounter
-                        if (type == 'multicounter')
+                        if (type === 'multicounter')
                         {
                             for (let i in ops)
                             {
                                 meta[`${prefix}${id}_${ops[i].toLowerCase()}`] = {
                                     name: `${name} ${ops[i]}`,
                                     type: 'counter',
+                                    negative: neg[i],
+                                    options: [],
+                                    options_index: [],
+                                    cycle: cycle
+                                }
+                            }
+                        }
+                        else if (type === 'multiselect')
+                        {
+                            for (let i in ops)
+                            {
+                                meta[`${prefix}${id}_${ops[i].toLowerCase()}`] = {
+                                    name: `${name} ${ops[i]}`,
+                                    type: 'checkbox',
                                     negative: neg[i],
                                     options: [],
                                     options_index: [],
@@ -1339,6 +1353,7 @@ class DAL
         {
             case 'checkbox':
             case 'select':
+            case 'multiselect':
             case 'dropdown':
             case 'unknown':
                 if (meta.options.length > 0 && values.length > 0)
@@ -1448,6 +1463,7 @@ class DAL
                 {
                     case 'checkbox':
                     case 'select':
+                    case 'multiselect':
                     case 'dropdown':
                     case 'unknown':
                         if (this.meta[id].options.length > 0 && values.length > 0)
