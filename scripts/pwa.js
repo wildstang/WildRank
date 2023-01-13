@@ -39,6 +39,7 @@ const CACHE_LIST = [
     '/scripts/match-overview.js',
     '/scripts/matches.js',
     '/scripts/mini-picklists.js',
+    '/scripts/multipicklists.js',
     '/scripts/picklists-core.js',
     '/scripts/picklists.js',
     '/scripts/pits.js',
@@ -51,6 +52,7 @@ const CACHE_LIST = [
     '/scripts/scatter.js',
     '/scripts/schedule-importer.js',
     '/scripts/scout.js',
+    '/scripts/scouter-scheduler.js',
     '/scripts/selection-pages.js',
     '/scripts/selection.js',
     '/scripts/settings.js',
@@ -82,6 +84,9 @@ const CACHE_LIST = [
     '/assets/2022/blue-cargo.png',
     '/assets/2022/field-2022.png',
     '/assets/2022/red-cargo.png',
+    '/assets/2023/cone.png',
+    '/assets/2023/cube.png',
+    '/assets/2023/field-2023.png',
     /* icons should be cached when pwa is installed
     '/assets/icons/icon-192x192-maskable.png',
     '/assets/icons/icon-192x192.png',
@@ -96,6 +101,7 @@ const CACHE_LIST = [
     '/assets/menu-white-18dp.svg',
     // configs
     '/config/2022-config.json',
+    '/config/2023-config.json',
     '/config/settings-config.json',
     // other files
     '/favicon.ico',
