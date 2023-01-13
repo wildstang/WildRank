@@ -106,11 +106,11 @@ function build_page_from_config()
                 if (edit && scout_mode === MATCH_MODE)
                 {
                     default_val = dal.get_result_value(team_num, match_num, id)
-                    if (type == 'dropdown' || type == 'select')
+                    if (type === 'dropdown' || type === 'select')
                     {
                         default_val = input['options'][default_val]
                     }
-                    else if (type == 'multicounter')
+                    else if (type === 'multicounter' || type === 'multiselect')
                     {
                         default_val = input.options.map(function (op)
                         {
@@ -155,6 +155,25 @@ function build_page_from_config()
                         break
                     case 'select':
                         item = new Select(id, name, options, default_val)
+                        item.vertical = input.vertical
+                        break
+                    case 'multiselect':
+                        let def = []
+                        if (default_val instanceof Array)
+                        {
+                            for (let i in default_val)
+                            {
+                                if (default_val[i])
+                                {
+                                    def.push(options[parseInt(i)])
+                                }
+                            }
+                        }
+                        else if (default_val)
+                        {
+                            default_val.split(',')
+                        }
+                        item = new MultiSelect(id, name, options, def)
                         item.vertical = input.vertical
                         break
                     case 'dropdown':
@@ -268,7 +287,11 @@ function update_cycle(cycle, decrement)
                             if (!decrement)
                             {
                                 cycle_result[id] = Select.get_selected_option(id)
-                                Select.select_option(id, ops.indexOf(def))
+                                let op = ops.indexOf(def)
+                                if (op >= 0)
+                                {
+                                    Select.select_option(id, op)
+                                }
                             }
                             if (val < last)
                             {
@@ -279,7 +302,11 @@ function update_cycle(cycle, decrement)
                             if (!decrement)
                             {
                                 cycle_result[id] = document.getElementById(id).selectedIndex
-                                document.getElementById(id).selectedIndex = ops.indexOf(def)
+                                let op = ops.indexOf(def)
+                                if (op >= 0)
+                                {
+                                    document.getElementById(id).selectedIndex = op
+                                }
                             }
                             if (val < last)
                             {
@@ -488,6 +515,13 @@ function get_results_from_page()
                                 i++
                             }
                             break
+                        case 'multiselect':
+                            for (let i in options)
+                            {
+                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                results[name] = MultiSelect.get_selected_options(id).includes(parseInt(i))
+                            }
+                            break
                         case 'dropdown':
                             results[id] = document.getElementById(id).selectedIndex
                             break
@@ -598,6 +632,9 @@ function generate_results()
                             break
                         case 'select':
                             Select.select_option(id, random_int(0, options.length - 1))
+                            break
+                        case 'multiselect':
+                            MultiSelect.select_option(id, random_int(0, options.length - 1))
                             break
                         case 'dropdown':
                             document.getElementById(id).selectedIndex = random_int(0, options.length - 1)

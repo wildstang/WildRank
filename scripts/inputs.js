@@ -15,7 +15,7 @@ class Element
         }
         else
         {
-            this.id = label.toLowerCase().split().join('_')
+            this.id = label.toLowerCase().replaceAll(/ /g, '_')
         }
         this.label = label
         this.classes = []
@@ -790,6 +790,111 @@ class Dropdown extends OptionedInput
     get toString()
     {
         return `${this.header}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.on_change}">${this.html_options}</select>`
+    }
+}
+
+class MultiSelect extends Input
+{
+    constructor(id, label, options=[], def=[])
+    {
+        super(id, label, def)
+        this.options = options
+        this.def = def
+        this.on_change = ''
+        this.columns = 2
+    }
+
+    add_option(option)
+    {
+        if (this.options.length === 0)
+        {
+            this.def = option
+        }
+        this.options.push(option)
+    }
+
+    get html_options()
+    {
+        let options = ''
+        let rows = ['']
+        for (let index in this.options)
+        {
+            let op_name = this.options[index]
+            if (this.options.length >= this.columns && !this.vertical && index % this.columns == 0 && index != 0)
+            {
+                rows.push('')
+            }
+            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${this.def.includes(op_name) ? 'selected' : ''}" id="${this.id}-${index}" onclick="MultiSelect.select_option('${this.id}', '${index}'); ${this.on_change}">
+                    <label>${op_name}</label>
+                </span>`
+        }
+        for (let row of rows)
+        {
+            if (rows.length > 1)
+            {
+                options += `<div style="display: table-row">${row}</div>`
+            }
+            else
+            {
+                options += row
+            }
+        }
+        return options
+    }
+
+    get toString()
+    {
+        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+    }
+
+    get selected_options()
+    {
+        return Select.get_selected_option(this.id)
+    }
+
+    /**
+     * function:    get_selected_options
+     * parameters:  ID of selected item
+     * returns:     list of indices of selected options
+     * description: Returns the selected index of the given select.
+     */
+    static get_selected_options(id)
+    {
+        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+        let i = 0
+        let selected = []
+        for (let option of children)
+        {
+            if (option.classList.contains('selected'))
+            {
+                selected.push(i)
+            }
+            ++i
+        }
+        return selected
+    }
+
+    set selected_option(index)
+    {
+        if (typeof index === 'number' && index < this.options.length)
+        {
+            Select.select_option(this.id, index)
+        }
+        else
+        {
+            console.log('Invalid index')
+        }
+    }
+
+    /**
+     * function:    select_option
+     * parameters:  ID of the selector, index of the newly selected option
+     * returns:     none
+     * description: Select a given option in a selector.
+     */
+    static select_option(id, index)
+    {
+        document.getElementById(`${id}-${index}`).classList.toggle('selected')
     }
 }
 

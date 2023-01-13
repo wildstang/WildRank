@@ -6,7 +6,7 @@
  */
 
 const MODES = ['Pit Scouting', 'Match Scouting']
-const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Slider', 'Number', 'String', 'Text']
+const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
 var config = [[], []]
 
@@ -178,6 +178,7 @@ function populate_options()
                 ops.add_input(defm)
                 break
             case 'Select':
+            case 'Multiselect':
             case 'Dropdown':
                 let sops = new Entry('new-element-options', 'Options')
                 sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
@@ -305,6 +306,7 @@ function create_element()
                 case 'Multicounter':
                     input.negative = parse_list(document.getElementById('new-element-negative').value).map(n => n.toLowerCase() === 'true')
                 case 'Select':
+                case 'Multiselect':
                 case 'Dropdown':
                     input.options = parse_list(document.getElementById('new-element-options').value)
                 case 'String':
@@ -615,6 +617,10 @@ function build_page_from_config()
                                 break
                             case 'select':
                                 item = new Select(id, name, options, default_val)
+                                item.vertical = input.vertical
+                                break
+                            case 'multiselect':
+                                item = new MultiSelect(id, name, options, default_val.split(','))
                                 item.vertical = input.vertical
                                 break
                             case 'dropdown':

@@ -149,6 +149,12 @@ function init_page()
     vertselect.vertical = true
     selects.add_input(vertselect)
 
+    let multiselects = new ColumnFrame('', 'MultiSelect Column')
+    page.add_column(multiselects)
+
+    let multiselect = new MultiSelect('', 'Test MultiSelect', ['A', 'B', 'C'], ['C'])
+    multiselect.columns = 3
+    multiselects.add_input(multiselect)
 
     let dropdowns = new ColumnFrame('', 'Dropdown Column')
     page.add_column(dropdowns)

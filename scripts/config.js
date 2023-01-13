@@ -590,6 +590,7 @@ class Config
                         {
                             case 'dropdown':
                             case 'select':
+                            case 'multiselect':
                                 result = Config.check_properties(input, {'default': 'string'}, description)
                                 if (Config.failed(result))
                                 {
