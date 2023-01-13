@@ -1,5 +1,5 @@
 {
-	"version": "wr2-2023-kickoff",
+	"version": "wr2-2023-fill-test",
 	"pit": [{
 		"name": "Pit",
 		"id": "pit_pit",
@@ -180,19 +180,6 @@
 				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
 				"default": "NoAttempt"
 			}, {
-				"name": "Defensive Interactions",
-				"id": "match_tele_post_match_defensive_interations",
-				"type": "multicounter",
-				"options": ["opponent1", "opponent2", "opponent3"],
-				"default": 0
-			}, {
-				"name": "Driver Skill",
-				"id": "match_tele_post_match_driver_skill",
-				"type": "slider",
-				"options": [1, 5, 1],
-				"default": 3,
-				"negative": false
-			}, {
 				"name": "State",
 				"id": "match_tele_post_match_state",
 				"type": "multiselect",
@@ -203,6 +190,42 @@
 				"id": "match_tele_post_match_notes",
 				"type": "text",
 				"default": "None"
+			}]
+		}, {
+			"name": "Driver",
+			"id": "match_tele_driver",
+			"cycle": false,
+			"inputs": [{
+				"name": "Defending opponent1",
+				"id": "match_tele_driver_defending_opponent1",
+				"type": "slider",
+				"options": [0, 100, 10],
+				"default": 0
+			}, {
+				"name": "Defending opponent2",
+				"id": "match_tele_driver_defending_opponent2",
+				"type": "slider",
+				"options": [0, 100, 10],
+				"default": 0
+			}, {
+				"name": "Defending opponent3",
+				"id": "match_tele_driver_defending_opponent3",
+				"type": "slider",
+				"options": [0, 100, 10],
+				"default": 0
+			}, {
+				"name": "Defensive Interactions",
+				"id": "match_tele_driver_defensive_interations",
+				"type": "multicounter",
+				"options": ["opponent1", "opponent2", "opponent3"],
+				"default": 0
+			}, {
+				"name": "Driver Skill",
+				"id": "match_tele_driver_driver_skill",
+				"type": "slider",
+				"options": [1, 5, 1],
+				"default": 3,
+				"negative": false
 			}]
 		}]
 	}],
