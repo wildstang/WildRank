@@ -24,7 +24,7 @@ const CONFIGS = {
         'Transfer': ['transfer-raw', 'download_csv']
     },
     'analysis': {
-        'Teams': ['ranker', 'sides', 'picklists', 'whiteboard'],
+        'Teams': ['ranker', 'sides', 'picklists', 'multipicklists', 'whiteboard'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
         'Data': ['results', 'cycles', 'coach'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events'],
@@ -56,6 +56,7 @@ const BUTTONS = {
     'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
+    'multipicklists':       { name: 'Multi Pick Lists',         limits: ['teams', 'admin'], configs: ['settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
     'picklists':            { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },

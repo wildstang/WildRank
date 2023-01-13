@@ -43,6 +43,7 @@ var SELECTION_PAGES = {
     ranker: ['event'],
     sides: ['event'],
     picklists: ['event'],
+    multipicklists: ['event'],
     whiteboard: ['event'],
     cycles: ['event'],
     teams: ['event', 'user'],

@@ -90,10 +90,6 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
     {
         first = first_avail
     }
-    else if (first == '' && matches.length > 0)
-    {
-        first = matches[0]
-    }
     
     if (first !== '')
     {
