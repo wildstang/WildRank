@@ -180,6 +180,12 @@
 				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
 				"default": "NoAttempt"
 			}, {
+				"name": "Defensive Interactions",
+				"id": "match_tele_post_match_defensive_interations",
+				"type": "multicounter",
+				"options": ["opponent1", "opponent2", "opponent3"],
+				"default": 0
+			}, {
 				"name": "Driver Skill",
 				"id": "match_tele_post_match_driver_skill",
 				"type": "slider",
@@ -187,10 +193,10 @@
 				"default": 3,
 				"negative": false
 			}, {
-				"name": "Broke Down",
-				"id": "match_tele_post_match_broke_down",
-				"type": "checkbox",
-				"default": false,
+				"name": "State",
+				"id": "match_tele_post_match_state",
+				"type": "multiselect",
+				"options": ["BrokeDown", "LostComms", "Tipped"],
 				"negative": true
 			}, {
 				"name": "Notes",
