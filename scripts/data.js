@@ -975,6 +975,59 @@ class DAL
     }
 
     /**
+     * function:    fill_team_numbers
+     * parameters:  team number, match id, options to fill
+     * returns:     options with team numbers instead of keys
+     * description: Replaces opponentX and partnerX with appropriate team number.
+     */
+    fill_team_numbers(team_num, match_id, options)
+    {
+        let red = this.matches[match_id].red_alliance
+        let blue = this.matches[match_id].blue_alliance
+        let opponents = []
+        let partners = []
+        if (red.includes(team_num))
+        {
+            opponents = blue
+            partners = red
+        }
+        else if (blue.includes(team_num))
+        {
+            opponents = blue
+            partners = red
+        }
+        for (let i in options)
+        {
+            let option = options[i]
+            if (option.includes('opponent'))
+            {
+                let idx = option.indexOf('opponent') + 8
+                if (option.length > idx)
+                {
+                    let num = parseInt(option[idx])
+                    if (num <= opponents.length)
+                    {
+                        options[i] = option.replace(`opponent${num}`, opponents[num - 1])
+                    }
+                }
+            }
+            else if (option.includes('partner'))
+            {
+                let idx = option.indexOf('partner') + 7
+                if (option.length > idx)
+                {
+                    let num = parseInt(option[idx])
+                    if (num <= partners.length)
+                    {
+                        options[i] = option.replace(`partner${num}`, partners[num - 1])
+                    }
+                }
+            }
+        }
+        return options
+    }
+
+    /**
      * function:    get_name
      * parameters:  id, stat to use if an option
      * returns:     friendly name for stat

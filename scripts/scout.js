@@ -8,6 +8,8 @@
 const start = Date.now()
 
 var cycles = {}
+var opponents = []
+var opp_ids = []
 
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
@@ -64,6 +66,10 @@ function init_page()
                 pos -= dal.alliance_size
             }
             document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+
+            let alliance = alliance_color === 'red' ? 'blue' : 'red'
+            opponents = dal.matches[match_num][`${alliance}_alliance`]
+            opp_ids = opponents.map((_, i) => `opponent${i+1}`)
             break
     }
     ws(team_num)
@@ -126,7 +132,7 @@ function build_page_from_config()
                     {
                         default_val = input['options'][default_val]
                     }
-                    else if (type == 'multicounter')
+                    else if (type == 'multicounter' || type === 'multiselect')
                     {
                         default_val = input.options.map(function (op)
                         {
@@ -134,6 +140,12 @@ function build_page_from_config()
                             return dal.get_value(team_num, `pit.${name}`)
                         })
                     }
+                }
+
+                // replace opponentsX with the team's opponent team numbers
+                if (options instanceof Array && options.length === opp_ids.length && options.every((val, i) => val === opp_ids[i]))
+                {
+                    options = opponents
                 }
 
                 let item
@@ -487,6 +499,13 @@ function get_results_from_page()
                     let type = input.type
                     let options = input.options
 
+                    // replace opponentsX with the team's opponent team numbers
+                    let op_ids = options
+                    if (options instanceof Array && options.length === opp_ids.length && options.every((val, i) => val === opp_ids[i]))
+                    {
+                        op_ids = opponents
+                    }
+
                     switch (type)
                     {
                         case 'checkbox':
@@ -496,10 +515,11 @@ function get_results_from_page()
                             results[id] = parseInt(document.getElementById(id).innerHTML)
                             break
                         case 'multicounter':
-                            for (let op of options)
+                            for (let i in options)
                             {
-                                let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
+                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                let html_id = `${id}_${op_ids[i].toLowerCase().split().join('_')}`
+                                results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
                             }
                             break
                         case 'select':

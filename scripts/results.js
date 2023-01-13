@@ -101,11 +101,33 @@ function open_option(option)
     document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
 
+    // build a list of opponents to prepare for replacing opponentX in names
+    let red = dal.matches[match].red_alliance
+    let blue = dal.matches[match].blue_alliance
+    let opponents = []
+    if (red.includes(team))
+    {
+        opponents = blue
+    }
+    else if (blue.includes(team))
+    {
+        opponents = red
+    }
+
     let table = '<table><tr><th></th><th>Match Value</th></tr>'
     let keys = Object.keys(result)
     for (let key of keys)
     {
-        table += `<tr><th>${dal.get_name('stats.' + key, '')}</th><td>${dal.get_result_value(team, match, key, true)}</td></tr>`
+        let name = dal.get_name('stats.' + key, '')
+        // if opponentX is in the name, replace with the team number for this match
+        if (name.includes('opponent'))
+        {
+            for (let i = 0; i < opponents.length; i++)
+            {
+                name = name.replace(`opponent${i+1}`, opponents[i])
+            }
+        }
+        table += `<tr><th>${name}</th><td>${dal.get_result_value(team, match, key, true)}</td></tr>`
     }
     table += '</table>'
     document.getElementById('results_tab').innerHTML = table
