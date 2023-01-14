@@ -206,7 +206,8 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
         let teams = Object.keys(dal.teams)
         for (let team of teams)
         {
-            let op = new Option(team, team)
+            let name = dal.get_value(team, 'meta.name')
+            let op = new DescriptiveOption(team, team, name)
             op.primary_list = false
             document.getElementById('secondary_option_list').innerHTML += op.toString
         }
