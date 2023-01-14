@@ -209,6 +209,17 @@ class DAL
     }
 
     /**
+     * function:    get_placeholder_keys
+     * parameters:  none
+     * returns:     none
+     * description: Return a list of all single team keys with placeholders.
+     */
+    get_placeholder_keys()
+    {
+        return this.get_keys(true, false, false, false).filter(k => find_team_placeholders(k).length > 0)
+    }
+
+    /**
      * function:    get_results_keys
      * parameters:  if cycles should be searched, types to filter by
      * returns:     none
@@ -999,6 +1010,31 @@ class DAL
     }
 
     /**
+     * function:    find_matches
+     * parameters:  two arrays of teams
+     * returns:     match IDs of matching matches
+     * description: Finds all matches where the given teams are in the alliances.
+     */
+    find_matches(alliance_a, alliance_b=[])
+    {
+        let matches = this.matches
+        return Object.keys(matches).filter(function (m)
+        {
+            let red = matches[m].red_alliance
+            let blue = matches[m].blue_alliance
+            if (alliance_b.length > 0)
+            {
+                return (alliance_a.every(t => red.includes(t)) && alliance_b.every(t => blue.includes(t))) ||
+                    (alliance_a.every(t => blue.includes(t)) && alliance_b.every(t => red.includes(t)))
+            }
+            else
+            {
+                return alliance_a.every(t => red.includes(t)) || alliance_a.every(t => blue.includes(t))
+            }
+        })
+    }
+
+    /**
      * function:    fill_team_numbers
      * parameters:  text to replace, opponent and partner teams
      * returns:     text with team numbers instead of keys
@@ -1011,7 +1047,7 @@ class DAL
             return text
         }
         let new_text = text
-        let matches = [...new_text.matchAll(/(opponent|partner)([0-9])/g)]
+        let matches = find_team_placeholders(new_text)
         for (let match of matches)
         {
             if (match.length === 3)

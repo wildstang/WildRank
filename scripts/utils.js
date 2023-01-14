@@ -627,4 +627,15 @@ async function cache_file(url, file)
     // build response and add to cache
     let res = new Response(file, { statusText: 'OK', headers: headers })
     cache.put(new URL(url), res)
+} 
+
+/**
+ * function:    find_team_placeholders
+ * parameters:  text to search
+ * returns:     list of results
+ * description: Finds placeholder text in a string for a opponent or partner team.
+ */
+function find_team_placeholders(text)
+{
+    return [...text.matchAll(/(opponent|partner)([0-9])/g)]
 }
