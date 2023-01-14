@@ -124,6 +124,12 @@ class Button extends Element
         this.on_secondary = `window_open(${url}, '_blank')`
     }
 
+    set external_link(url)
+    {
+        this.on_click = `window_open('${url}', '_blank')`
+        this.on_secondary = `window_open('${url}', '_blank')`
+    }
+
     set on_secondary(on_secondary)
     {
         this.on_right = on_secondary.length > 0 ? on_secondary + '; return false' : ''
