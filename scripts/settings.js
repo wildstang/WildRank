@@ -99,6 +99,12 @@ function build_column(cfg_name, file)
                 let entry = new Entry(id, name, val)
                 column.add_input(entry)
             }
+            if (key === 'tba' && val === '')
+            {
+                let button = new Button('tba_link', 'Get an API Key')
+                button.external_link = 'https://www.thebluealliance.com/account#submissions-accepted-count-row'
+                column.add_input(button)
+            }
         }
         else if (file === 'users')
         {
