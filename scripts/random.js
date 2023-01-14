@@ -205,6 +205,10 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                         {
                             c[id] = random_int()
                         }
+                        else if (type == 'checkbox')
+                        {
+                            c[id] = random_bool()
+                        }
                         else
                         {
                             c[id] = random_int(0, ops.length-1)
@@ -238,6 +242,13 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                             {
                                 let name = `${id}_${op.toLowerCase().split().join('_')}`
                                 results[name] = random_int()
+                            }
+                            break
+                        case 'multiselect':
+                            for (let op of options)
+                            {
+                                let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                results[name] = random_bool(1 - 0.5 / options.length)
                             }
                             break
                         case 'select':
