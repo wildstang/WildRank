@@ -45,15 +45,15 @@ function init_page()
     page.add_column(get_col)
 
     let source = new Button('source', 'GitHub')
-    source.link = `'https://github.com/WildStang/WildRank'`
+    source.external_link = `https://github.com/WildStang/WildRank`
     get_col.add_input(source)
 
     let demo = new Button('demo', 'Public Demo')
-    demo.link = `'https://wildrank.app'`
+    demo.external_link = `https://wildrank.app`
     get_col.add_input(demo)
 
     let wildstang = new Button('wildstang', 'WildStang Program')
-    wildstang.link = `'https://wildstang.org'`
+    wildstang.external_link = `https://wildstang.org`
     get_col.add_input(wildstang)
 
     document.body.innerHTML += page.toString
