@@ -92,10 +92,13 @@ function open_both_teams()
     // populate ranking
     let rankA = `${dal.get_rank_str(selectedA)}<br>`
     let rankB = `${dal.get_rank_str(selectedB)}<br>`
+    let opponents = dal.find_matches([selectedA], [selectedB])
+    let partners = dal.find_matches([selectedA, selectedB])
 
     // team details
     let details = `<div id="result_title"><img id="avatar" src="${dal.get_value(selectedA, 'pictures.avatar')}"> <h2 class="result_name">${selectedA} ${dal.get_value(selectedA, 'meta.name')}</h2><br>${rankA}</div> vs
-        <div id="result_title"><img id="avatar" src="${dal.get_value(selectedB, 'pictures.avatar')}"> <h2 class="result_name">${selectedB} ${dal.get_value(selectedB, 'meta.name')}</h2><br>${rankB}</div>`
+        <div id="result_title"><img id="avatar" src="${dal.get_value(selectedB, 'pictures.avatar')}"> <h2 class="result_name">${selectedB} ${dal.get_value(selectedB, 'meta.name')}</h2><br>${rankB}<br>
+        Competed<br>Together ${partners.length} times<br>Against ${opponents.length} times<br></div>`
 
     document.getElementById('value').innerHTML = details
 
@@ -106,6 +109,21 @@ function open_both_teams()
     {
         let aVal = dal.get_value(selectedA, key, type)
         let bVal = dal.get_value(selectedB, key, type)
+
+        let placeholders = find_team_placeholders(key)
+        if (placeholders.length > 0)
+        {
+            if (partners.length > 0 && placeholders.some(p => p[1] === 'partner'))
+            {
+                aVal = mean(partners.map(match => dal.get_result_value(selectedA, match, key)))
+                bVal = mean(partners.map(match => dal.get_result_value(selectedB, match, key)))
+            }
+            else if (opponents.length > 0 && placeholders.some(p => p[1] === 'opponent'))
+            {
+                aVal = mean(opponents.map(match => dal.get_result_value(selectedA, match, key)))
+                bVal = mean(opponents.map(match => dal.get_result_value(selectedB, match, key)))
+            }
+        }
 
         if (typeof aVal === 'object')
         {
@@ -152,7 +170,8 @@ function build_row(key, aVal, bVal, label='')
     }
     if (isNaN(max))
     {
-        max = '---'
+        // skip row if its a string
+        return ''
     }
 
     // determine colors
