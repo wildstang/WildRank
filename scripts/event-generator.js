@@ -52,7 +52,7 @@ function init_page()
     let generate_button = new Button('generate_teams', 'Generate Teams', 'generate_teams()')
     col.add_input(generate_button)
 
-    let match_page = new PageFrame('match', 'Match')
+    let match_page = new PageFrame('match', 'Match <span id="number"></span>')
     match_page.add_column('<div id="match_col"></div>')
 
     // build page
@@ -112,11 +112,13 @@ function generate_match_teams(num_teams, distribute=true)
     let unavailable = []
     let teams = Object.keys(dal.teams)
 
+    let match_num = Object.keys(dal.matches).length // technically last match number
+    document.getElementById('number').innerHTML = match_num + 1
+
     // prepopulate unavailable teams with those in last few matches
     // this prevents an uneven distribution of matches
     if (distribute)
     {
-        let match_num = Object.keys(dal.matches).length // technically last match number
         let cycle_len = Math.floor(teams.length / num_teams)
         let cycle = Math.floor(match_num / cycle_len)
         for (let i = cycle * cycle_len; i < match_num; i++)
