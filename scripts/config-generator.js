@@ -620,7 +620,16 @@ function build_page_from_config()
                                 item.vertical = input.vertical
                                 break
                             case 'multiselect':
-                                item = new MultiSelect(id, name, options, default_val.split(','))
+                                let dval = ''
+                                if (typeof dval === 'string')
+                                {
+                                    dval = default_val
+                                }
+                                else if (dval instanceof Array)
+                                {
+                                    davl = default_val.split(',')
+                                }
+                                item = new MultiSelect(id, name, options, dval)
                                 item.vertical = input.vertical
                                 break
                             case 'dropdown':
