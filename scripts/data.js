@@ -1035,6 +1035,43 @@ class DAL
     }
 
     /**
+     * function:    num_complete_matches
+     * parameters:  none
+     * returns:     the number of fully scouted matches
+     * description: Determines how many matches have been completely scouted.
+     */
+    num_complete_matches()
+    {
+        let matches = Object.keys(this.matches)
+        matches.sort((a, b) => this.get_match_value(a, 'scheduled_time') - this.get_match_value(b, 'scheduled_time'))
+        let complete = 0
+        for (let match of matches)
+        {
+            let teams = Object.values(this.get_match_teams(match))
+            for (let team of teams)
+            {
+                if (!this.is_match_scouted(match, team))
+                {
+                    return complete
+                }
+            }
+            complete++
+        }
+        return complete
+    }
+
+    /**
+     * function:    num_quali_matches
+     * parameters:  none
+     * returns:     the number of qualification matches
+     * description: Determines how many qualification matches are at the event.
+     */
+    num_quali_matches()
+    {
+        return Object.values(this.matches).filter(m => m.comp_level === 'qm').length
+    }
+
+    /**
      * function:    fill_team_numbers
      * parameters:  text to replace, opponent and partner teams
      * returns:     text with team numbers instead of keys
