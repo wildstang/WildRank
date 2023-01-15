@@ -76,7 +76,7 @@ function populate_dropdowns()
 
     // reset name and id
     document.getElementById('new-element-name').value = ''
-    
+
     let page_dd = new Dropdown('new-element-page', 'Page:', config[mode].map(p => p.name).concat(['New']), page.value)
     page.innerHTML = page_dd.html_options
 
@@ -342,7 +342,6 @@ function create_element()
     }
     
     // remove change to config if invalid
-    console.log(config[1])
     if (Config.validate_mode_raw(config[0]) && Config.validate_mode_raw(config[1]))
     {
         // populate to add to dropdown
@@ -421,7 +420,13 @@ function import_config(event)
     let reader = new FileReader()
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
-        let newConfig = JSON.parse(readerEvent.target.result)[cfg.year]
+        let newConfig = JSON.parse(readerEvent.target.result)
+        if (!newConfig.hasOwnProperty('pit') || !newConfig.hasOwnProperty('match'))
+        {
+            alert('Invalid config!')
+            return
+        }
+        newConfig = [newConfig['pit'], newConfig['match']]
         let merge = confirm('Press ok to merge configs, cancel to overwrite')
         if (merge)
         {
