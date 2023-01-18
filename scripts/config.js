@@ -73,6 +73,17 @@ class Config
             this.fetch_game_config(true, on_load)
             return
         }
+        else if (this.pit === false && this.match === false && this.smart_stats === false &&
+            this.coach === false && this.whiteboard === false)
+        {
+            // if the game config was never found, fill in with empty config so the page loads
+            this.pit = []
+            this.match = []
+            this.smart_stats = []
+            this.coach = []
+            this.whiteboard = {}
+            this.version = 'NO-CONFIG-FOUND'
+        }
 
         if (on_load !== '')
         {
@@ -175,6 +186,7 @@ class Config
             })
             .catch(err => {
                 console.log(`Error fetching ${this.year} config file, ${err}`)
+                this.load_configs(2, on_load)
             })
     }
 
