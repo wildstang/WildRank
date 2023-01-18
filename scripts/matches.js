@@ -22,7 +22,7 @@ var generate = ''
 function init_page()
 {
     // override scouting position with that from config
-    // TODO: determine if this is acutally desired
+    // TODO: determine if this is actually desired
     if (cfg.get_position(user_id) > -1)
     {
         scout_pos = cfg.get_position(user_id)

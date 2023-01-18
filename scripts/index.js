@@ -402,7 +402,7 @@ function check_press(id)
  */
 function get_event()
 {
-    return document.getElementById('event_id').value
+    return document.getElementById('event_id').value.toLowerCase()
 }
 
 /**
