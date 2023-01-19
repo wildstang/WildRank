@@ -1,12 +1,12 @@
 {
-	"version": "2017-defense-test",
+	"version": "2019-defense-test",
 	"pit": [],
 	"match": [{
 		"name": "Auto",
 		"id": "match_auto",
 		"columns": [{
-			"name": "No Need to Scout Auto, Move to Tele",
-			"id": "match_auto_no_need_to_scout_auto_move_to_tele",
+			"name": "Nothing to Scout, Move to Tele",
+			"id": "match_auto_nothing_to_scout_move_to_tele",
 			"cycle": false,
 			"inputs": []
 		}]
@@ -14,18 +14,24 @@
 		"name": "Tele",
 		"id": "match_tele",
 		"columns": [{
-			"name": "Gear Scoring",
-			"id": "match_tele_gear_scoring",
+			"name": "Scoring",
+			"id": "match_tele_scoring",
 			"cycle": true,
 			"inputs": [{
-				"name": "Pickup Location",
-				"id": "match_tele_gear_scoring_pickup_location",
+				"name": "Game Piece",
+				"id": "match_tele_scoring_game_piece",
 				"type": "select",
-				"options": ["LoadingZone", "OpenField", "ScoringZone"],
-				"default": "LoadingZone"
+				"options": ["Hatch(Disk)", "Cargo(Ball)"],
+				"default": "Hatch(Disk)"
 			}, {
-				"name": "Drops Before Scoring",
-				"id": "match_tele_gear_scoring_drops_before_scoring",
+				"name": "Scoring Location",
+				"id": "match_tele_scoring_scoring_location",
+				"type": "select",
+				"options": ["Rocket", "CargoShip"],
+				"default": "Rocket"
+			}, {
+				"name": "Number of Drops",
+				"id": "match_tele_scoring_number_of_drops",
 				"type": "counter",
 				"default": 0,
 				"negative": true
@@ -55,9 +61,15 @@
 				"options": [0, 135, 5],
 				"default": 0,
 				"negative": false
+			}, {
+				"name": "Need Data Reviewed?",
+				"id": "match_tele_defense_need_data_reviewed",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
 			}]
 		}, {
-			"name": "Post Match",
+			"name": "Post-Match",
 			"id": "match_tele_post_match",
 			"cycle": false,
 			"inputs": [{
@@ -65,7 +77,7 @@
 				"id": "match_tele_post_match_driver_skill",
 				"type": "slider",
 				"options": [1, 10, 1],
-				"default": 5,
+				"default": 1,
 				"negative": false
 			}, {
 				"name": "Broke Down?",
@@ -73,6 +85,11 @@
 				"type": "checkbox",
 				"default": false,
 				"negative": true
+			}, {
+				"name": "Notes",
+				"id": "match_tele_post_match_notes",
+				"type": "text",
+				"default": "Type Notes Here"
 			}]
 		}]
 	}],
@@ -109,7 +126,13 @@
 			"y": 300,
 			"color": "#0074D9"
 		},
-		"game_pieces": [],
+		"game_pieces": [{
+			"name": "Cargo",
+			"image": "2019/cargo.png"
+		}, {
+			"name": "Hatch Panel",
+			"image": "2019/hatch_panel.png"
+		}],
 		"draw_color": "#FFFFFF",
 		"field_width": 750,
 		"field_height": 400,
