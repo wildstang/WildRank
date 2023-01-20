@@ -213,8 +213,8 @@ async function export_zip()
                 {                    
                     // post string to server
                     let formData = new FormData()
-                    formData.append('import', blob)
-                    fetch(`${addr}/import`, {method: 'POST', body: formData})
+                    formData.append('upload', blob)
+                    fetch(`${addr}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
                         .then(response => response.json())
                         .then(result => {
                             if (result.success && result.count === num_uploads)
