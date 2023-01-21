@@ -143,7 +143,7 @@ function init_page()
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault()
         install = e
-        let button = new Button('install', 'Install WildRank', 'install_app()')
+        let button = new Button('install', `Install ${cfg.settings.title}`, 'install_app()')
         document.getElementById('install-container').innerHTML = button.toString
     })
 }
