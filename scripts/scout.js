@@ -76,7 +76,25 @@ function init_page()
     }
 }
 
-/** 
+/**
+ * function:    check_for_last_page
+ * parameters:  none
+ * returns:     none
+ * description: If on the last page, add the submit button.
+ */
+function check_for_last_page()
+{
+    let carousel = document.getElementById('scouting-carousel')
+    let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
+    if (carousel.scrollLeft >= final_page && document.getElementById('submit') === null)
+    {
+        // replace placeholders in template and add to screen
+        let submit = new Button('submit', 'Submit', 'get_results_from_page()')
+        document.getElementById('submit_container').innerHTML = '<br>' + submit.toString
+    }
+}
+
+/**
  * function:    build_page_from_config
  * parameters:  none
  * returns:     none
@@ -86,7 +104,7 @@ function build_page_from_config()
 {
     let select_ids = []
     // iterate through each page in the mode
-    let body = '<div class="scouting-carousel">'
+    let body = '<div id="scouting-carousel" class="scouting-carousel" onscroll="check_for_last_page()">'
     for (let page of cfg[scout_mode])
     {
         let page_frame = new PageFrame(page.id, page.name)
@@ -232,9 +250,7 @@ function build_page_from_config()
         }
         body += page_frame.toString  
     }
-    // replace placeholders in template and add to screen
-    let submit = new Button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
-    body += '</div>' + submit.toString
+    body += '</div><span id="submit_container"></span>'
     document.body.innerHTML += body
 
     // mark each selected box as such
@@ -253,7 +269,7 @@ function build_page_from_config()
     }
 }
 
-/** 
+/**
  * function:    update_cycle
  * parameters:  cycle name, if cycle was decremented
  * returns:     none
@@ -363,7 +379,7 @@ function update_cycle(cycle, decrement)
     }
 }
 
-/** 
+/**
  * function:    check_cycles
  * parameters:  none
  * returns:     False is all cycles are saved, unsaved id otherwise.
