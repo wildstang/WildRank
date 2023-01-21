@@ -76,14 +76,6 @@ const CACHE_LIST = [
     '/scripts/misc/team-profile.js',*/
     '/scripts/misc/test.js',
     // assets
-    '/assets/2019/cargo.png',
-    '/assets/2019/field-2019.png',
-    '/assets/2019/hatch_panel.png',
-    '/assets/2020/field-2020.png',
-    '/assets/2020/power_cell.png',
-    '/assets/2022/blue-cargo.png',
-    '/assets/2022/field-2022.png',
-    '/assets/2022/red-cargo.png',
     '/assets/2023/cone.png',
     '/assets/2023/cube.png',
     '/assets/2023/field-2023.png',
@@ -100,7 +92,6 @@ const CACHE_LIST = [
     '/assets/dozer.png',
     '/assets/menu-white-18dp.svg',
     // configs
-    '/config/2022-config.json',
     '/config/2023-config.json',
     '/config/settings-config.json',
     // other files
