@@ -53,7 +53,7 @@ class Config
         }
 
         // if no year has been set, pull from config default
-        if (this.year === '')
+        if (this.year === '' && typeof this.defaults.event_id !== 'undefined')
         {
             this.year = this.defaults.event_id.substring(0, 4)
         }
@@ -68,7 +68,7 @@ class Config
 
         // if any failed to load re-fetch them
         if (fetch_on_fail < 2 && (this.pit === false || this.match === false || this.smart_stats === false ||
-            this.coach === false || this.whiteboard === false))
+            this.coach === false || this.whiteboard === false) && this.year !== '')
         {
             this.fetch_game_config(true, on_load)
             return
