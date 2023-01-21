@@ -108,7 +108,7 @@ function init_page()
     data_page.add_column(data)
 
     let transfer = new Button('transfer', 'Transfer Data')
-    transfer.link = `open_page('transfer-raw')`
+    transfer.link = `open_link('transfer-raw')`
     data.add_input(transfer)
 
     let version = new Number('config_version', 'cfg')
@@ -127,7 +127,7 @@ function init_page()
     data.add_input(match_results)
 
     let about = new Button('about', 'About WildRank')
-    about.link = `open_page('about')`
+    about.link = `open_link('about')`
     data.add_input(about)
 
     document.body.innerHTML += user_page.toString + data_page.toString
@@ -365,6 +365,18 @@ function is_blocked(id)
         return 'Missing event data'
     }
     return false
+}
+
+/**
+ * function:    open_link
+ * parameters:  page
+ * returns:     none
+ * description: Saves options then creates link for page.
+ */
+function open_link(page)
+{
+    save_options()
+    return open_page(page)
 }
 
 /**
