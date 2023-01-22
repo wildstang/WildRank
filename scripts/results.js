@@ -49,6 +49,7 @@ function build_result_list()
 
     // build list of options, sorted by match
     let options = {}
+    let classes = {}
     for (let result of results)
     {
         let team = result.meta_team
@@ -62,11 +63,12 @@ function build_result_list()
                 team = `&nbsp;${team}`
             }
             options[`${match}-${team}`] = `${dal.get_match_value(match, 'short_match_name')} ${team}`
+            classes[`${match}-${team}`] = dal.get_result_value(team, match, 'meta_unsure') ? 'highlighted' : ''
         }
     }
 
     // populate list and open first option
-    let first = populate_other(options)
+    let first = populate_other(options, classes)
     if (first !== '')
     {
         open_option(first)

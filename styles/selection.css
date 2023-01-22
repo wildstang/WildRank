@@ -136,6 +136,10 @@ body {
     color: var(--inactive-text-color);
 }
 
+.highlighted {
+    background-color: var(--highlight-color);
+}
+
 .selected {
     background-color: var(--active-color);
     color: var(--active-text-color);

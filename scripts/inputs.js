@@ -923,7 +923,7 @@ class Option extends Element
             on_secondary = `alt_secondary_option(\\'${this.id}\\')`
         }
         let actions = `oncontextmenu="return false" onauxclick="${on_secondary}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${on_secondary}')"`
-        return `<div id="${id}" class="pit_option ${this.selected}" onclick="${on_click}" ${actions} on style="${this.style}">
+        return `<div id="${id}" class="pit_option ${this.selected} ${this.classes}" onclick="${on_click}" ${actions} style="${this.style}">
                     <span class="long_option_val">${this.label}</span>
                 </div>`
     }

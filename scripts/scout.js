@@ -88,9 +88,10 @@ function check_for_last_page()
     let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
     if (carousel.scrollLeft >= final_page && document.getElementById('submit') === null)
     {
-        // replace placeholders in template and add to screen
+        let unsure = new Checkbox('unsure', `Unsure of Results`)
         let submit = new Button('submit', 'Submit', 'get_results_from_page()')
-        document.getElementById('submit_container').innerHTML = '<br>' + submit.toString
+        let page_frame = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
+        document.getElementById('submit_container').innerHTML = '<br>' + page_frame.toString
     }
 }
 
@@ -472,6 +473,7 @@ function get_results_from_page()
     results['meta_scouter_id'] = parseInt(user_id)
     results['meta_scout_time'] = Math.round(start / 1000)
     results['meta_scouting_duration'] = (Date.now() - start) / 1000
+    results['meta_unsure'] = document.getElementById('unsure').checked
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode

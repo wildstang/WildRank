@@ -270,7 +270,7 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
  * 
  * Pages: User Profiles, Results, Team Rankings
  */
-function populate_other(options)
+function populate_other(options, classes={})
 {
     document.getElementById('option_list').innerHTML = ''
 
@@ -296,6 +296,10 @@ function populate_other(options)
             // replace placeholders in template and add to screen
             let name = typeof names !== 'undefined' ? names[op] : op
             let option = new Option(op, name)
+            if (classes.hasOwnProperty(op) && classes[op] !== '')
+            {
+                option.add_class(classes[op])
+            }
             option_list += option.toString
         }
         document.getElementById('option_list').innerHTML = option_list
