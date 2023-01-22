@@ -24,6 +24,8 @@ const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'auto'
 const ROLE_COOKIE = 'role'
 const ROLE_DEFAULT = 'index'
+const OFFLINE_COOKIE = 'offline'
+const OFFLINE_DEFAULT = 'on'
 
 /**
  * function:    window_open

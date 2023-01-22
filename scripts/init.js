@@ -5,6 +5,22 @@
  * date:        2022-06-05
  */
 
+// register service workers for PWA
+if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on')
+{
+    navigator.serviceWorker.register('pwa.js')
+}
+else if ('serviceWorker' in navigator)
+{
+    navigator.serviceWorker.getRegistrations().then(function(registrations)
+    {
+        for(let registration of registrations)
+        {
+            registration.unregister()
+        }
+    })
+}
+
 // determine the desired page
 var urlParams = new URLSearchParams(window.location.search)
 const page = urlParams.get('page')
@@ -17,12 +33,6 @@ if (!page)
     script.src = `scripts/index.js`
 }
 document.head.appendChild(script)
-
-// register service workers for PWA
-if ('serviceWorker' in navigator)
-{
-    navigator.serviceWorker.register('pwa.js')
-}
 
 // pull in event id and determine game year
 var event_id = get_parameter(EVENT_COOKIE, undefined)
@@ -65,6 +75,19 @@ function on_config()
     apply_theme()
     // listen for dark mode changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
+
+    if (cfg.settings.use_offline)
+    {
+        set_cookie(OFFLINE_COOKIE, 'on')
+    }
+    else if (cfg.settings.use_offline === false)
+    {
+        set_cookie(OFFLINE_COOKIE, 'off')
+    }
+    else
+    {
+        set_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT)
+    }
 
     if (typeof event_id === 'undefined')
     {

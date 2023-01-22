@@ -4,7 +4,8 @@
 		"time_format": 12,
 		"use_images": true,
 		"use_team_color": true,
-		"allow_random": false
+		"allow_random": false,
+		"use_offline": true
 	},
 	"defaults": {
 		"event_id": "2023ilch",
