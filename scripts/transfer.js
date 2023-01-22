@@ -267,6 +267,8 @@ async function reset_cache()
         {
             caches.delete(key)
         }
+
+        window_open('/', '_self')
     }
 }
 
