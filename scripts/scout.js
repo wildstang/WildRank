@@ -88,10 +88,8 @@ function check_for_last_page()
     let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
     if (carousel.scrollLeft >= final_page && document.getElementById('submit') === null)
     {
-        let unsure = new Checkbox('unsure', `Unsure of Results`)
         let submit = new Button('submit', 'Submit', 'get_results_from_page()')
-        let page_frame = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
-        document.getElementById('submit_container').innerHTML = '<br>' + page_frame.toString
+        document.getElementById('submit_container').innerHTML = submit.toString
     }
 }
 
@@ -251,8 +249,10 @@ function build_page_from_config()
         }
         body += page_frame.toString  
     }
-    body += '</div><span id="submit_container"></span>'
-    document.body.innerHTML += body
+    body += '</div>'
+    let unsure = new Checkbox('unsure', `Unsure of Results`)
+    let page_frame = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', ['<span id="submit_container"></span>'])])
+    document.body.innerHTML += body + page_frame.toString
 
     // mark each selected box as such
     for (let id of select_ids)
