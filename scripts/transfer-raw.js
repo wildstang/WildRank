@@ -373,6 +373,12 @@ async function import_zip(file)
 
         let files = Object.keys(zip.files)
         let complete = 0
+
+        if (files.length == 0)
+        {
+            alert('No files found!')
+        }
+
         for (let name of files)
         {
             let parts = name.split('.')
