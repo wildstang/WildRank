@@ -33,7 +33,7 @@ const CONFIGS = {
     'admin': {
         'Configuration': ['config-generator', 'settings', 'schedule-importer', 'scouter-scheduler', 'export'],
         'Debugging': ['config-debug', 'event-generator', 'cache', 'random', 'open_extras'],
-        'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
+        'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_config']
     },
     'extras': {
         'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile', 'misc/revival-counter'],
@@ -70,6 +70,7 @@ const BUTTONS = {
     'reset_cache':          { name: 'Reset Cache',              limits: ['admin'], configs: [] },
     'reset_results':        { name: 'Reset Results',            limits: ['admin'], configs: [] },
     'reset_storage':        { name: 'Reset Storage',            limits: ['admin'], configs: [] },
+    'reset_config':         { name: 'Reset Configuration',      limits: ['admin'], configs: [] },
     'results':              { name: 'Results',                  limits: ['admin', 'results'], configs: ['settings'] },
     'scatter':              { name: 'Scatter',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'schedule-importer':    { name: 'Schedule Importer',        limits: ['admin'], configs: [] },

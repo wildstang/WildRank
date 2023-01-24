@@ -285,6 +285,8 @@ function reset_storage()
         // clear storage
         localStorage.clear()
     }
+
+    window_open('/', '_self')
 }
 
 /**
@@ -303,6 +305,44 @@ function reset_results()
         {
             localStorage.removeItem(file)
         }
+    }
+}
+
+/**
+ * function:    reset_config
+ * parameters:  none
+ * returns:     none
+ * description: Reset settings files.
+ */
+async function reset_config()
+{
+    if (confirm('Reset all settings and configuration?'))
+    {
+        // search all caches for "-config.json" files and delete them
+        let keys = await caches.keys()
+        for (let key of keys)
+        {
+            let cache = await caches.open(key)
+            let files = await cache.keys()
+            for (let file of files)
+            {
+                if (file.url.endsWith('-config.json'))
+                {
+                    cache.delete(file)
+                    console.log('removed', key)
+                }
+            }
+        }
+
+        // search localStorage for "config-" files and delete them
+        let files = Object.keys(localStorage).filter(f => f.startsWith(`config-`))
+        for (let file of files)
+        {
+            localStorage.removeItem(file)
+            console.log('removed', file)
+        }
+
+        window_open('/', '_self')
     }
 }
 
