@@ -16,7 +16,7 @@ var pheight
  */
 function init_page()
 {
-    contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
+    contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = ''
 
     // load keys from localStorage and build list
@@ -39,7 +39,7 @@ function init_page()
 function init_canvas()
 {
     pwidth = preview.offsetWidth - 64
-    pheight = window.innerHeight/2 - 64
+    pheight = 2*window.innerHeight/3 - 64
     let canvas = document.getElementById('whiteboard')
     canvas.width = pwidth
     canvas.height = pheight
@@ -107,6 +107,11 @@ function build_plot()
     let key_a = get_selected_keys()[0]
     let key_b = get_secondary_selected_keys()[0]
 
+    // get key names and create title
+    let name_a = dal.get_name(key_a)
+    let name_b = dal.get_name(key_b)
+    document.getElementById('plot_title').innerHTML = `${name_b} vs ${name_a}`
+
     // build table of values
     let points = []
     let teams = Object.keys(dal.teams)
@@ -138,8 +143,8 @@ function build_plot()
 
     // plot points and lines
     let font_size = 16
-    let left_margin = 60
-    let bottom_margin = 30
+    let left_margin = 75
+    let bottom_margin = 50
     for (let team of teams)
     {
         let x = left_margin + (points[team].a / max_a) * (pwidth - left_margin)
@@ -149,24 +154,28 @@ function build_plot()
         ctx.fillStyle = 'black'
             
         // points
-        ctx.arc(x, y, 3, 0, 2 * Math.PI, false)
+        ctx.arc(x, y, 5, 0, 2 * Math.PI, false)
         ctx.fill()
     }
 
-    // draw Y axis labels
+    // draw axis labels
     ctx.beginPath()
     ctx.fillStyle = 'black'
     ctx.font = `${font_size}px mono, courier`
+    ctx.fillText(name_a, pwidth / 2 - 5 * name_a.toString().length, pheight - 10)
+    ctx.rotate(-Math.PI * 2 / 4)
+    ctx.fillText(name_b, -pheight / 2 - 5 * name_b.toString().length, 15)
+    ctx.rotate(Math.PI * 2 / 4)
     for (let i = 0; i <= 10; i++)
     {
         let val = (i / 10 * max_b).toFixed(1)
         let y = pheight - bottom_margin - val * (pheight - 50) / max_b
-        ctx.fillText(val, 5, y + font_size)
-        ctx.fillRect(0, y, pwidth, 1)
+        ctx.fillText(val, 25, y + font_size)
+        ctx.fillRect(25, y, pwidth, 1)
 
         val = (i / 10 * max_a).toFixed(1)
         let x = left_margin + val * (pwidth - 50) / max_a
-        ctx.fillText(val, x - 5 * val.toString().length, pheight - 5)
+        ctx.fillText(val, x - 5 * val.toString().length, pheight - 30)
         ctx.fillRect(x, 0, 1, pheight - bottom_margin)
     }
     ctx.fill()
