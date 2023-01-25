@@ -49,8 +49,13 @@ function init_page()
  */
 function open_option(user_id)
 {
+    if (typeof user_id === 'string')
+    {
+        user_id = parseInt(user_id)
+    }
+
     // select option
-    select_all(false)
+    deselect_all()
     document.getElementById(`option_${user_id}`).classList.add('selected')
 
     // get user's results
