@@ -342,7 +342,7 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true)
         id = 'secondary_filter'
     }
     let dropdown = new Dropdown(filter_id, '', options)
-    dropdown.on_click = func
+    dropdown.on_change = func
     document.getElementById(id).innerHTML = dropdown.toString
 }
 
