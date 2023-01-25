@@ -575,12 +575,15 @@ class DAL
                     let img = document.createElement('img')
                     img.setAttribute('src', avatar)
                     img.addEventListener('load', () => {
-                        let vibrant = new Vibrant(img)
-                        let color = vibrant.swatches().Vibrant
-                        if (typeof color !== 'undefined')
-                        {
-                            this.teams[team].meta.color = `#${to_hex(color.rgb[0])}${to_hex(color.rgb[1])}${to_hex(color.rgb[2])}`
+                        try {
+                            let vibrant = new Vibrant(img)
+                            let color = vibrant.swatches().Vibrant
+                            if (typeof color !== 'undefined')
+                            {
+                                this.teams[team].meta.color = `#${to_hex(color.rgb[0])}${to_hex(color.rgb[1])}${to_hex(color.rgb[2])}`
+                            }
                         }
+                        catch {}
                     })
                 }
 
