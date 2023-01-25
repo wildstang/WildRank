@@ -18,7 +18,7 @@ var pheight
  */
 function init_page()
 {
-    contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
+    contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = ''
     
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
@@ -134,6 +134,7 @@ function build_plot()
 {
     let key = get_selected_keys()[0]
     let selected_teams = ['avg'].concat(get_secondary_selected_keys())
+    document.getElementById('plot_title').innerHTML = dal.get_name(key)
 
     // build table of values
     let plots = {}
