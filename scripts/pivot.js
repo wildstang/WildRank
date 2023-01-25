@@ -12,7 +12,6 @@ const SESSION_TYPES_KEY = 'pivot-selected-types'
 let selected_keys = []
 let last_sort = ''
 let last_reverse = false
-let dragging = ''
 
 /**
  * function:    init_page
@@ -246,7 +245,7 @@ function build_table(sort_by='', reverse=false)
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
     // build table headers
-    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})">Team Number</th>`
+    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})">Team Number</th>`
     let types = '<tr><td></td>'
     let filters = '<tr><td></td>'
     let totals = '<tr><td></td>'
@@ -255,7 +254,7 @@ function build_table(sort_by='', reverse=false)
         let key = selected[i]
 
         // add key names
-        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
+        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"  onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
 
         // determine previously selected stat
         let type = 'Mean'
@@ -586,7 +585,8 @@ function import_keys(event)
  */
 function dragstart_handler(e)
 {
-    dragging = e.target.id
+    let dragging = e.target.id
+    e.dataTransfer.setData("text/plain", dragging)
 
     // select true key if a discrete input
     if (!selected_keys.includes(dragging))
@@ -595,7 +595,7 @@ function dragstart_handler(e)
         {
             if (dragging.startsWith(key))
             {
-                dragging = key
+                e.dataTransfer.setData("text/plain", key)
             }
         }
     }
@@ -613,6 +613,17 @@ function dragover_handler(e)
 }
 
 /**
+ * function:    dragenter_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Allows drop handler to work.
+ */
+function dragenter_handler(e)
+{
+    e.preventDefault()
+}
+
+/**
  * function:    drop_handler
  * parameters:  drag event
  * returns:     none
@@ -622,6 +633,7 @@ function drop_handler(e)
 {
     e.preventDefault()
     let dropped_on = e.target.id
+    let dragging = e.dataTransfer.getData("text")
 
     // select true key if a discrete input
     if (!selected_keys.includes(dropped_on))
@@ -633,7 +645,6 @@ function drop_handler(e)
                 dropped_on = key
                 if (dragging.startsWith(key))
                 {
-                    dragging = ''
                     return
                 }
             }
@@ -647,6 +658,8 @@ function drop_handler(e)
     let index = dropped_on == 'team' ? 0 : selected_keys.indexOf(dropped_on) + 1
     selected_keys.splice(index, 0, dragging)
 
-    dragging = ''
+    // save selection to sessionStorage
+    sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
+
     build_table()
 }
