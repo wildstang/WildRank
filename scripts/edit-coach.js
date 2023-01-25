@@ -60,7 +60,7 @@ function create()
         key: key
     }
     cfg.coach.push(coach)
-    localStorage.setItem(`config-${year}-coach`, JSON.stringify(cfg.coach))
+    localStorage.setItem(`config-${cfg.year}-coach`, JSON.stringify(cfg.coach))
 
     build_buttons()
 }
@@ -74,7 +74,7 @@ function create()
 function delete_val(idx)
 {
     cfg.coach.splice(idx, 1)
-    localStorage.setItem(`config-${year}-coach`, JSON.stringify(cfg.coach))
+    localStorage.setItem(`config-${cfg.year}-coach`, JSON.stringify(cfg.coach))
 
     build_buttons()
 }

@@ -35,7 +35,7 @@ function init_page()
 }
 
 /**
- * function:    hide_match
+ * function:    hide_matches
  * parameters:  none
  * returns:     none
  * description: Rebuilds the match list based on the selected team.
