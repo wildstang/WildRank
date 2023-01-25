@@ -65,7 +65,7 @@ const BUTTONS = {
     'preload_event':        { name: 'Preload Event',            limits: [], configs: [] },
     'progress':             { name: 'Scouting Progress',        limits: ['teams', 'admin'], configs: [] },
     'random':               { name: 'Random Result Generator',  limits: ['admin'], configs: ['settings'] },
-    'ranker':               { name: 'Team Rankings',            limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'ranker':               { name: 'Stat Builder',             limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'reset':                { name: 'Reset App',                limits: ['admin'], configs: [] },
     'reset_cache':          { name: 'Reset Cache',              limits: ['admin'], configs: [] },
     'reset_results':        { name: 'Reset Results',            limits: ['admin'], configs: [] },
