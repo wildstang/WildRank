@@ -156,11 +156,14 @@ function build_page_from_config()
                 }
 
                 // replace opponentsX with the team's opponent team numbers
-                if (options instanceof Array && options.length > 0)
+                if (options instanceof Array && options.length > 0 && scout_mode === MATCH_MODE)
                 {
                     options = options.map(op => dal.fill_team_numbers(op, alliances))
                 }
-                name = dal.fill_team_numbers(name, alliances)
+                if (scout_mode === MATCH_MODE)
+                {
+                    name = dal.fill_team_numbers(name, alliances)
+                }
 
                 let item
                 // build each input from its template
@@ -253,6 +256,7 @@ function build_page_from_config()
     let unsure = new Checkbox('unsure', `Unsure of Results`)
     let page_frame = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', ['<span id="submit_container"></span>'])])
     document.body.innerHTML += body + page_frame.toString
+    check_for_last_page()
 
     // mark each selected box as such
     for (let id of select_ids)
@@ -511,7 +515,7 @@ function get_results_from_page()
 
                     // replace opponentsX with the team's opponent team numbers
                     let op_ids = options
-                    if (options instanceof Array && options.length > 0)
+                    if (options instanceof Array && options.length > 0 && scout_mode === MATCH_MODE)
                     {
                         op_ids = options.map(op => dal.fill_team_numbers(op, alliances))
                     }
