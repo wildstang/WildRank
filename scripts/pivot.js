@@ -12,6 +12,7 @@ const SESSION_TYPES_KEY = 'pivot-selected-types'
 let selected_keys = []
 let last_sort = ''
 let last_reverse = false
+let dragging = ''
 
 /**
  * function:    init_page
@@ -245,7 +246,7 @@ function build_table(sort_by='', reverse=false)
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
     // build table headers
-    let table = `<table><tr class="sticky_header"><th onclick="build_table('', ${!reverse})">Team Number</th>`
+    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})">Team Number</th>`
     let types = '<tr><td></td>'
     let filters = '<tr><td></td>'
     let totals = '<tr><td></td>'
@@ -254,7 +255,7 @@ function build_table(sort_by='', reverse=false)
         let key = selected[i]
 
         // add key names
-        table += `<th onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
+        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
 
         // determine previously selected stat
         let type = 'Mean'
@@ -575,4 +576,77 @@ function import_keys(event)
             build_table()
         }
     }
+}
+
+/**
+ * function:    dragstart_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Stores the key of an input when picked up.
+ */
+function dragstart_handler(e)
+{
+    dragging = e.target.id
+
+    // select true key if a discrete input
+    if (!selected_keys.includes(dragging))
+    {
+        for (let key of selected_keys)
+        {
+            if (dragging.startsWith(key))
+            {
+                dragging = key
+            }
+        }
+    }
+}
+
+/**
+ * function:    dragover_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Allows drop handler to work.
+ */
+function dragover_handler(e)
+{
+    e.preventDefault()
+}
+
+/**
+ * function:    drop_handler
+ * parameters:  drag event
+ * returns:     none
+ * description: Shifts select keys around according to drag.
+ */
+function drop_handler(e)
+{
+    e.preventDefault()
+    let dropped_on = e.target.id
+
+    // select true key if a discrete input
+    if (!selected_keys.includes(dropped_on))
+    {
+        for (let key of selected_keys)
+        {
+            if (dropped_on.startsWith(key))
+            {
+                dropped_on = key
+                if (dragging.startsWith(key))
+                {
+                    dragging = ''
+                    return
+                }
+            }
+        }
+    }
+    
+    // remove dragged key
+    selected_keys = selected_keys.filter(s => s != dragging)
+
+    // insert dragged key
+    let index = dropped_on == 'team' ? 0 : selected_keys.indexOf(dropped_on) + 1
+    selected_keys.splice(index, 0, dragging)
+
+    dragging = ''
+    build_table()
 }
