@@ -31,15 +31,32 @@ function init_page()
     for (let match of matches)
     {
         match_table += `<tr><th>${dal.get_match_value(match, 'short_match_name')}</th>`
-        let teams = Object.values(dal.get_match_teams(match))
-        for (let team of teams)
+        let teams = dal.get_match_teams(match)
+        for (let team_key of Object.keys(teams))
         {
-            let color = dal.is_match_scouted(match, team) ? 'green' : 'red'
-            if (dal.get_result_value(team, match, 'meta_unsure'))
+            let team = teams[team_key]
+            let alliance = team_key.substring(0, team_key.indexOf('_'))
+            let color = 'red'
+            let link = ''
+            if (dal.is_match_scouted(match, team))
             {
-               color = 'yellow'
+                if (dal.get_result_value(team, match, 'meta_unsure'))
+                {
+                    color = 'yellow'
+                    link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
+                }
+                else
+                {
+                    color = 'green'
+                    link = open_page('results', {'file': `${match}-${team}`})
+                }
             }
-            match_table += `<td style="background-color: ${color}">${team}</td>`
+            else
+            {
+                color = 'red'
+                link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: false})
+            }
+            match_table += `<td style="background-color: ${color}" onclick="window_open('${link}', '_self')">${team}</td>`
         }
         match_table += '</tr>'
     }
@@ -58,8 +75,19 @@ function init_page()
             }
             pit_table += '<tr>'
         }
-        let color = dal.is_pit_scouted(teams[i]) ? 'green' : 'red'
-        pit_table += `<td style="background-color: ${color}">${teams[i]}</td>`
+        let color = 'red'
+        let link = ''
+        if (dal.is_pit_scouted(teams[i]))
+        {
+            color = 'green'
+            link = open_page('scout', {type: PIT_MODE, team: teams[i], edit: true})
+        }
+        else
+        {
+            color = 'red'
+            link = open_page('scout', {type: PIT_MODE, team: teams[i], edit: false})
+        }
+        pit_table += `<td style="background-color: ${color}" onclick="window_open('${link}', '_self')">${teams[i]}</td>`
     }
     pit_table += '</tr></table>'
 
