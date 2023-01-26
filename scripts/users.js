@@ -86,7 +86,7 @@ function open_option(user_id)
         {
             delays.push(0)
         }
-        time_table += `<tr><td><a href="${open_result(`${match.meta_match_key}-${match.meta_team}`)}">${dal.get_match_value(match.meta_match_key, 'short_match_name')}</a></td><td>${match.meta_team}</td><td>${match.meta_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_scouting_duration.toFixed()}s</td></tr>`
+        time_table += `<tr onclick="window_open('${open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`})}', '_self')"><td><a>${dal.get_match_value(match.meta_match_key, 'short_match_name')}</a></td><td>${match.meta_team}</td><td>${match.meta_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_scouting_duration.toFixed()}s</td></tr>`
     }
     time_table += `<tr><th>Averages</th><td>${mean(delays).toFixed()}s</td><td>${mean(durations).toFixed()}s</td></tr></table>`
     
@@ -124,16 +124,4 @@ function get_delta(match_num, scout_time)
         return scout_time - match.predicted_time
     }
     return 0
-}
-
-/**
- * function:    open_result
- * parameters:  result file to open
- * returns:     none
- * description: Loads the result page for a button when pressed.
- */
-function open_result(file)
-{
-    let type = file.split('-')[0]
-    return build_url('selection', {'page': 'results', [EVENT_COOKIE]: get_cookie(EVENT_COOKIE, EVENT_DEFAULT), [TYPE_COOKIE]: type, 'file': file})
 }
