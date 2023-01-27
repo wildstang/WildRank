@@ -128,8 +128,8 @@ async function export_zip()
     {
         return (file.includes(dal.event_id) &&
             ((use_event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
-            (use_results && (file.startsWith('match-') || file.startsWith('pit-'))))) ||
-            (use_config && (file === `config-${cfg.year}-pit` || file === `config-${cfg.year}-match`)) ||
+            (use_results && MODES.some(m => file.startsWith(`${m}-`))))) ||
+            (use_config && MODES.some(m => file === `config-${cfg.year}-${m}`)) ||
             (use_smart_stats && file === `config-${cfg.year}-smart_stats`) ||
             (use_coach && file === `config-${cfg.year}-coach`) ||
             (use_settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
@@ -437,8 +437,8 @@ async function import_zip(file)
                         // determine which files to use
                         if ((n.includes(dal.event_id) &&
                             ((use_event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
-                            (use_results && (n.startsWith('match-') || n.startsWith('pit-'))))) ||
-                            (use_config && (n === `config-${cfg.year}-pit` || n === `config-${cfg.year}-match`)) ||
+                            (use_results && MODES.some(m => n.startsWith(`${m}-`))))) ||
+                            (use_config && MODES.some(m => n === `config-${cfg.year}-${m}`)) ||
                             (use_smart_stats && n === `config-${cfg.year}-smart_stats`) ||
                             (use_coach && n === `config-${cfg.year}-coach`) ||
                             (use_settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
