@@ -21,15 +21,6 @@ class DAL
         this.teams = {}
         this.matches = {}
         this.picklists = {}
-
-        // parameters to limit what data is loaded
-        this.load_meta      = true
-        this.load_results   = true
-        this.load_pits      = true
-        this.load_rankings  = true
-        this.load_matches   = true
-        this.load_pictures  = true
-        this.compute_stats  = true
     }
 
     /**
@@ -41,12 +32,11 @@ class DAL
     load_config(mode)
     {
         // go over each input in config
-        let config = cfg.match
-        let prefix = 'results.'
-        if (mode === PIT_MODE)
+        let config = cfg[mode]
+        let prefix = `${mode}.`
+        if (mode === MATCH_MODE || mode === NOTE_MODE)
         {
-            config = cfg.pit
-            prefix = 'pit.'
+            prefix = 'results.'
         }
         if (config != null)
         {
@@ -418,15 +408,12 @@ class DAL
                 }
 
                 // add meta data
-                if (this.load_meta)
-                {
-                    this.teams[team_num].meta = {
-                        name: team.nickname,
-                        city: team.city,
-                        state_prov: team.state_prov,
-                        country: team.country,
-                        color: cfg.theme['primary-color']
-                    }
+                this.teams[team_num].meta = {
+                    name: team.nickname,
+                    city: team.city,
+                    state_prov: team.state_prov,
+                    country: team.country,
+                    color: cfg.theme['primary-color']
                 }
             }
 
@@ -459,214 +446,212 @@ class DAL
         let start_rankings = Date.now()
 
         // load in rankings
-        if (this.load_rankings)
+        let ranks_str = localStorage.getItem(`rankings-${this.event_id}`)
+        if (ranks_str != null && ranks_str != false)
         {
-            let ranks_str = localStorage.getItem(`rankings-${this.event_id}`)
-            if (ranks_str != null && ranks_str != false)
+            let tba_ranks = JSON.parse(ranks_str)
+            // add ranking data
+            for (let team of tba_ranks)
             {
-                let tba_ranks = JSON.parse(ranks_str)
-                // add ranking data
-                for (let team of tba_ranks)
-                {
-                    let team_num = team.team_key.substring(3)
-                    this.teams[team_num].rank.rank = team.rank
-                    this.teams[team_num].rank.wins = team.record.wins
-                    this.teams[team_num].rank.losses = team.record.losses
-                    this.teams[team_num].rank.ties = team.record.ties
-                    this.teams[team_num].rank.ranking_points = team.extra_stats[0]
-                    this.teams[team_num].rank.ranking_score = team.sort_orders[0]
-                    this.teams[team_num].rank.tie_breaker = team.sort_orders[1]
-                }
+                let team_num = team.team_key.substring(3)
+                this.teams[team_num].rank.rank = team.rank
+                this.teams[team_num].rank.wins = team.record.wins
+                this.teams[team_num].rank.losses = team.record.losses
+                this.teams[team_num].rank.ties = team.record.ties
+                this.teams[team_num].rank.ranking_points = team.extra_stats[0]
+                this.teams[team_num].rank.ranking_score = team.sort_orders[0]
+                this.teams[team_num].rank.tie_breaker = team.sort_orders[1]
+            }
 
-                // build meta of ranking data
-                this.meta['rank.rank'] = {
-                    name: 'Ranking',
-                    type: 'number',
-                    negative: true
-                }
-                this.meta['rank.wins'] = {
-                    name: 'Wins',
-                    type: 'number'
-                }
-                this.meta['rank.losses'] = {
-                    name: 'Losses',
-                    type: 'number',
-                    negative: true
-                }
-                this.meta['rank.ties'] = {
-                    name: 'Ties',
-                    type: 'number'
-                }
-                this.meta['rank.ranking_points'] = {
-                    name: 'Ranking Points',
-                    type: 'number'
-                }
-                this.meta['rank.ranking_score'] = {
-                    name: 'Ranking Score',
-                    type: 'number'
-                }
-                this.meta['rank.tie_breaker'] = {
-                    name: 'Tie Breaker',
-                    type: 'number'
-                }
+            // build meta of ranking data
+            this.meta['rank.rank'] = {
+                name: 'Ranking',
+                type: 'number',
+                negative: true
+            }
+            this.meta['rank.wins'] = {
+                name: 'Wins',
+                type: 'number'
+            }
+            this.meta['rank.losses'] = {
+                name: 'Losses',
+                type: 'number',
+                negative: true
+            }
+            this.meta['rank.ties'] = {
+                name: 'Ties',
+                type: 'number'
+            }
+            this.meta['rank.ranking_points'] = {
+                name: 'Ranking Points',
+                type: 'number'
+            }
+            this.meta['rank.ranking_score'] = {
+                name: 'Ranking Score',
+                type: 'number'
+            }
+            this.meta['rank.tie_breaker'] = {
+                name: 'Tie Breaker',
+                type: 'number'
             }
         }
 
         // load in matches
         let start_matches = Date.now()
-        if (this.load_matches)
+        // add match data
+        if (Object.keys(this.matches).length === 0)
         {
-            // add match data
-            if (Object.keys(this.matches).length === 0)
+            this.build_matches()
+        }
+        
+        for (let match_key in this.matches)
+        {
+            let match = this.matches[match_key]
+            for (let team of match.red_alliance)
             {
-                this.build_matches()
+                this.teams[team].matches.push({
+                    key: match_key,
+                    comp_level: match.comp_level,
+                    set_number: match.set_number,
+                    match_number: match.match_number,
+                    alliance: 'red'
+                })
             }
-            
-            for (let match_key in this.matches)
+            for (let team of match.blue_alliance)
             {
-                let match = this.matches[match_key]
-                for (let team of match.red_alliance)
-                {
-                    this.teams[team].matches.push({
-                        key: match_key,
-                        comp_level: match.comp_level,
-                        set_number: match.set_number,
-                        match_number: match.match_number,
-                        alliance: 'red'
-                    })
-                }
-                for (let team of match.blue_alliance)
-                {
-                    this.teams[team].matches.push({
-                        key: match_key,
-                        comp_level: match.comp_level,
-                        set_number: match.set_number,
-                        match_number: match.match_number,
-                        alliance: 'blue'
-                    })
-                }
+                this.teams[team].matches.push({
+                    key: match_key,
+                    comp_level: match.comp_level,
+                    set_number: match.set_number,
+                    match_number: match.match_number,
+                    alliance: 'blue'
+                })
             }
         }
 
         // find pictures
         let start_pictures = Date.now()
-        if (this.load_pictures)
+        let pics_str = localStorage.getItem(`photos-${this.event_id}`)
+        let pics = {}
+        if (pics_str != null && pics_str != false)
         {
-            let pics_str = localStorage.getItem(`photos-${this.event_id}`)
-            let pics = {}
-            if (pics_str != null && pics_str != false)
+            pics = JSON.parse(pics_str)
+        }
+
+        let teams = Object.keys(this.teams)
+        for (let team of teams)
+        {
+            let avatar = localStorage.getItem(`avatar-${this.year}-${team}`)
+            if (avatar === null || avatar === 'undefined')
             {
-                pics = JSON.parse(pics_str)
+                avatar = 'assets/dozer.png'
+            }
+            else
+            {
+                avatar = `data:image/png;base64,${avatar}`
+
+                // pull out color from avatar
+                let img = document.createElement('img')
+                img.setAttribute('src', avatar)
+                img.addEventListener('load', () => {
+                    try {
+                        let vibrant = new Vibrant(img)
+                        let color = vibrant.swatches().Vibrant
+                        if (typeof color !== 'undefined')
+                        {
+                            this.teams[team].meta.color = `#${to_hex(color.rgb[0])}${to_hex(color.rgb[1])}${to_hex(color.rgb[2])}`
+                        }
+                    }
+                    catch {}
+                })
             }
 
-            let teams = Object.keys(this.teams)
-            for (let team of teams)
+            let photos = []
+            if (Object.keys(pics).includes(team))
             {
-                let avatar = localStorage.getItem(`avatar-${this.year}-${team}`)
-                if (avatar === null || avatar === 'undefined')
-                {
-                    avatar = 'assets/dozer.png'
-                }
-                else
-                {
-                    avatar = `data:image/png;base64,${avatar}`
+                photos = pics[team]
+            }
 
-                    // pull out color from avatar
-                    let img = document.createElement('img')
-                    img.setAttribute('src', avatar)
-                    img.addEventListener('load', () => {
-                        try {
-                            let vibrant = new Vibrant(img)
-                            let color = vibrant.swatches().Vibrant
-                            if (typeof color !== 'undefined')
-                            {
-                                this.teams[team].meta.color = `#${to_hex(color.rgb[0])}${to_hex(color.rgb[1])}${to_hex(color.rgb[2])}`
-                            }
-                        }
-                        catch {}
-                    })
-                }
-
-                let photos = []
-                if (Object.keys(pics).includes(team))
-                {
-                    photos = pics[team]
-                }
-
-                this.teams[team].pictures = {
-                    avatar: avatar,
-                    photos: photos
-                }
+            this.teams[team].pictures = {
+                avatar: avatar,
+                photos: photos
             }
         }
 
         // load in pit results
         let start_pits = Date.now()
         let files = Object.keys(localStorage)
-        if (this.load_pits)
-        {
-            // populate meta
-            this.load_config(PIT_MODE)
+        // populate meta
+        this.load_config(PIT_MODE)
 
-            // add pit results
-            let pit_files = files.filter(f => f.startsWith(`pit-${this.event_id}`))
-            for (let file of pit_files)
-            {
-                let pit = JSON.parse(localStorage.getItem(file))
-                this.teams[pit.meta_team.toString()].pit = pit
-            }
+        // add pit results
+        let pit_files = files.filter(f => f.startsWith(`pit-${this.event_id}`))
+        for (let file of pit_files)
+        {
+            let pit = JSON.parse(localStorage.getItem(file))
+            this.teams[pit.meta_team.toString()].pit = pit
         }
 
         // load in match results
         let start_results = Date.now()
-        if (this.load_results)
-        {
-            // populate meta
-            this.load_config(MATCH_MODE)
+        // populate meta
+        this.load_config(MATCH_MODE)
 
-            // add match results
-            let stats = cfg.smart_stats
-            let match_files = files.filter(f => f.startsWith(`match-${this.event_id}`))
-            for (let file of match_files)
+        // add match results
+        let stats = cfg.smart_stats
+        let match_files = files.filter(f => f.startsWith(`match-${this.event_id}`))
+        for (let file of match_files)
+        {
+            let match = JSON.parse(localStorage.getItem(file))
+            // add match key to pre-WR2 results
+            if (!match.hasOwnProperty('meta_match_key') && match.hasOwnProperty('meta_match') && match.hasOwnProperty('meta_event_id'))
             {
-                let match = JSON.parse(localStorage.getItem(file))
-                // add match key to pre-WR2 results
-                if (!match.hasOwnProperty('meta_match_key') && match.hasOwnProperty('meta_match') && match.hasOwnProperty('meta_event_id'))
-                {
-                    match.meta_match_key = `${match.meta_event_id}_qm${match.meta_match}`
-                }
-                if (!match.hasOwnProperty('meta_comp_level') && match.hasOwnProperty('meta_match_key'))
-                {
-                    match.meta_comp_level = 'qm'
-                }
-                if (!match.hasOwnProperty('meta_set_number') && match.hasOwnProperty('meta_match_key'))
-                {
-                    match.meta_set_number = 1
-                }
+                match.meta_match_key = `${match.meta_event_id}_qm${match.meta_match}`
+            }
+            if (!match.hasOwnProperty('meta_comp_level') && match.hasOwnProperty('meta_match_key'))
+            {
+                match.meta_comp_level = 'qm'
+            }
+            if (!match.hasOwnProperty('meta_set_number') && match.hasOwnProperty('meta_match_key'))
+            {
+                match.meta_set_number = 1
+            }
+            // add notes if available
+            if (files.includes(`note-${this.event_id}`))
+            {
+                let note = JSON.parse(localStorage.getItem(`note-${this.event_id}`))
+                match = Object.assign(note, match)
+            }
+            this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
+        }
+        // add remaining notes
+        let note_files = files.filter(f => f.startsWith(`note-${this.event_id}`))
+        for (let file of note_files)
+        {
+            let match = JSON.parse(localStorage.getItem(file))
+            if (!this.teams.hasOwnProperty(key))
+            {
                 this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
             }
         }
 
         // build in stats
         let start_stats = Date.now()
-        if (this.compute_stats)
+        let keys = Object.keys(this.meta).filter(k => k.startsWith('results.'))
+        for (let key of keys)
         {
-            let keys = Object.keys(this.meta).filter(k => k.startsWith('results.'))
-            for (let key of keys)
+            if (!this.meta[key].cycle)
             {
-                if (!this.meta[key].cycle)
+                // compute stats for each match results
+                let teams = Object.keys(this.teams)
+                for (let team of teams)
                 {
-                    // compute stats for each match results
-                    let teams = Object.keys(this.teams)
-                    for (let team of teams)
-                    {
-                        this.compute_stat(team, key)
-                    }
-
-                    // add stats to meta
-                    let k = key.replace('results.', 'stats.')
-                    this.meta[k] = this.meta[key]
+                    this.compute_stat(team, key)
                 }
+
+                // add stats to meta
+                let k = key.replace('results.', 'stats.')
+                this.meta[k] = this.meta[key]
             }
         }
 

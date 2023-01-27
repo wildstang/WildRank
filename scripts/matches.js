@@ -33,19 +33,15 @@ function init_page()
     if (first)
     {
         let avatar = ''
-        let button_txt = 'Take Match Notes'
         if (scout_mode == MATCH_MODE)
         {
             avatar = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">`
-            button_txt = 'Scout Match'
         }
 
         // add scouting position
-        let alliance = 'Red'
         let pos = 1 + parseInt(scout_pos)
         if (pos > dal.alliance_size)
         {
-            alliance = 'Blue'
             pos -= dal.alliance_size
         }
         contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
@@ -133,6 +129,27 @@ function open_match(match_num)
         }
 
         ws(team_num)
+    }
+    else if (scout_mode === NOTE_MODE)
+    {
+        let alliance = 'red'
+        let color = cfg.theme['red-alliance-color']
+        if (scout_pos >= red_teams.length)
+        {
+            alliance = 'blue'
+            color = cfg.theme['blue-alliance-color']
+        }
+
+        // populate team info
+        number_span.innerHTML = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
+        number_span.style.color = color
+        pos_span.style.color = color
+
+        // build buttons
+        let scout_button = new Button('scout_match', 'Take Notes')
+        let key = match_num.toLowerCase()
+        scout_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: false})`
+        buttons_container.innerHTML = scout_button.toString
     }
 }
 

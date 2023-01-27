@@ -20,8 +20,11 @@ class Config
         this.settings = {}
 
         // build empty game data structures
-        this.pit = []
-        this.match = []
+        for (let mode of MODES)
+        {
+            // pit, match, note
+            this[mode] = []
+        }
         this.smart_stats = []
         this.coach = []
         this.whiteboard = []
@@ -59,26 +62,31 @@ class Config
         }
 
         // load in game configs
-        this.pit = this.load_config(`${this.year}-pit`)
-        this.match = this.load_config(`${this.year}-match`)
+        for (let mode of MODES)
+        {
+            this[mode] = this.load_config(`${this.year}-${mode}`)
+        }
         this.smart_stats = this.load_config(`${this.year}-smart_stats`)
         this.coach = this.load_config(`${this.year}-coach`)
         this.whiteboard = this.load_config(`${this.year}-whiteboard`)
         this.version = this.load_config(`${this.year}-version`)
 
         // if any failed to load re-fetch them
-        if (fetch_on_fail < 2 && (this.pit === false || this.match === false || this.smart_stats === false ||
+        console.log(MODES.some(m => this[m] === false))
+        if (fetch_on_fail < 2 && (MODES.some(m => this[m] === false) || this.smart_stats === false ||
             this.coach === false || this.whiteboard === false) && this.year !== '')
         {
             this.fetch_game_config(true, on_load)
             return
         }
-        else if (this.pit === false && this.match === false && this.smart_stats === false &&
+        else if (MODES.every(m => this[m] === false) && this.smart_stats === false &&
             this.coach === false && this.whiteboard === false)
         {
             // if the game config was never found, fill in with empty config so the page loads
-            this.pit = []
-            this.match = []
+            for (let mode of MODES)
+            {
+                this[mode] = []
+            }
             this.smart_stats = []
             this.coach = []
             this.whiteboard = {}
@@ -361,7 +369,7 @@ class Config
     validate_game_configs()
     {
         return this.validate_version('version') && this.validate_coach('coach') && this.validate_whiteboard('whiteboard') &&
-            this.validate_smart_stats('smart_stats') && this.validate_mode('pit') && this.validate_mode('match')
+            this.validate_smart_stats('smart_stats') && MODES.every(m => this.validate_mode(m))
     }
 
     /**

@@ -8,6 +8,7 @@
 const MATCH_MODE = 'match'
 const PIT_MODE   = 'pit'
 const NOTE_MODE  = 'note'
+const MODES = [MATCH_MODE, PIT_MODE, NOTE_MODE]
 
 const EVENT_COOKIE = 'event_id'
 const EVENT_DEFAULT = '2022new'

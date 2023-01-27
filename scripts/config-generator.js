@@ -5,10 +5,9 @@
  * date:        2020-12-08
  */
 
-const MODES = ['Pit Scouting', 'Match Scouting']
 const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
-var config = [[], []]
+var config = Array(MODES.length).fill([])
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
@@ -33,7 +32,8 @@ function init_page()
  */
 function build_page()
 {
-    let mode = new Dropdown('new-element-mode', 'Mode:', MODES)
+    let mode_names = MODES.map(m => m.charAt(0).toUpperCase() + m.substring(1) + ' Scouting')
+    let mode = new Dropdown('new-element-mode', 'Mode:', mode_names)
     mode.on_change = 'populate_dropdowns()'
     let page = new Dropdown('new-element-page', 'Page:')
     page.on_change = 'populate_dropdowns()'
@@ -247,7 +247,7 @@ function create_element()
     // populate rest of input object
     if (page.value == 'New')
     {
-        let parent = mode ? 'match' : 'pit'
+        let parent = MODES[mode]
         input.id = create_id_from_name(parent, name)
         input.columns = []
         config[mode].push(input)
@@ -373,8 +373,8 @@ function create_element()
  * description: Loads in the current config.
  */
 function load_config()
-{
-    config = [cfg.pit, cfg.match]
+{   
+    config = MODES.map(m => cfg[m])
     build_page()
 }
 
@@ -386,8 +386,10 @@ function load_config()
  */
 function save_config()
 {
-    localStorage.setItem(`config-${cfg.year}-pit`, JSON.stringify(config[0]))
-    localStorage.setItem(`config-${cfg.year}-match`, JSON.stringify(config[1]))
+    for (let i in MODES)
+    {
+        localStorage.setItem(`config-${cfg.year}-${MODES[i]}`, JSON.stringify(config[i]))
+    }
     cfg.load_configs(2)
 
     alert('Scouting config updated')
@@ -421,12 +423,12 @@ function import_config(event)
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
         let newConfig = JSON.parse(readerEvent.target.result)
-        if (!newConfig.hasOwnProperty('pit') || !newConfig.hasOwnProperty('match'))
+        if (MODES.some(m => !newConfig.hasOwnProperty(m)))
         {
             alert('Invalid config!')
             return
         }
-        newConfig = [newConfig['pit'], newConfig['match']]
+        newConfig = MODES.map(m => newConfig[m])
         let merge = confirm('Press ok to merge configs, cancel to overwrite')
         if (merge)
         {
@@ -522,11 +524,13 @@ function download_config()
 {
     let contents = {
         version: `${user_id}-${new Date().toISOString().split('T')[0]}`,
-        pit: config[0],
-        match: config[1],
         smart_stats: cfg.smart_stats,
         coach: cfg.coach,
         whiteboard: cfg.whiteboard
+    }
+    for (let i in MODES)
+    {
+        contents[MODES[i]] = config[i]
     }
     let str = JSON.stringify(contents)
 
