@@ -1,5 +1,6 @@
 {
 	"version": "wr2-indev",
+	"note": [],
 	"pit": [{
 		"name": "Pit",
 		"id": "pit_pit",

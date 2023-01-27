@@ -1,6 +1,7 @@
 {
 	"version": "2017-defense-test",
 	"pit": [],
+	"note": [],
 	"match": [{
 		"name": "Auto",
 		"id": "match_auto",
