@@ -72,7 +72,6 @@ class Config
         this.version = this.load_config(`${this.year}-version`)
 
         // if any failed to load re-fetch them
-        console.log(MODES.some(m => this[m] === false))
         if (fetch_on_fail < 2 && (MODES.some(m => this[m] === false) || this.smart_stats === false ||
             this.coach === false || this.whiteboard === false) && this.year !== '')
         {

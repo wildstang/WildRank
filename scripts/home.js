@@ -17,7 +17,7 @@ const CONFIGS = {
         'Scout': ['matches']
     },
     'note': {
-        'Notes': ['pits']
+        'Notes': ['pits', 'notes']
     },
     'drive': {
         'Drive Team': ['coach', 'whiteboard'],
@@ -57,6 +57,7 @@ const BUTTONS = {
     'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
     'multipicklists':       { name: 'Multi Pick Lists',         limits: ['teams', 'admin'], configs: ['settings'] },
+    'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
     'picklists':            { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },

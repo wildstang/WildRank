@@ -31,7 +31,7 @@ function init_page()
     let right_col = new ColumnFrame('', '')
     page.add_column(right_col)
 
-    let type_form = new Select('type_form', 'Mode', ['Pit', 'Match'], 'Match')
+    let type_form = new Select('type_form', 'Mode', MODES.map(m => m.charAt(0).toUpperCase() + m.substring(1)), 'Match')
     type_form.on_change = 'hide_buttons()'
     left_col.add_input(type_form)
 
@@ -68,14 +68,15 @@ function init_page()
  */
 function hide_buttons()
 {
-    if (Select.get_selected_option('type_form') === 0)
+    let mode = MODES[Select.get_selected_option('type_form')]
+    if (mode === PIT_MODE)
     {
         document.getElementById('min_value_label').innerHTML = 'First Team'
         document.getElementById('max_value_label').innerHTML = 'Last Team'
         document.getElementById('min_value').value = 1
         document.getElementById('max_value').value = Math.max(...Object.keys(dal.teams))
     }
-    else
+    else if (mode === MATCH_MODE || mode == NOTE_MODE)
     {
         document.getElementById('min_value_label').innerHTML = 'First Match'
         document.getElementById('max_value_label').innerHTML = 'Last Match'
@@ -93,7 +94,7 @@ function hide_buttons()
 function create_results()
 {
     // load in appropriate config
-    let mode = [PIT_MODE, MATCH_MODE, NOTE_MODE][Select.get_selected_option('type_form')]
+    let mode = MODES[Select.get_selected_option('type_form')]
     let pos = document.getElementById('position').selectedIndex
 
     let min = parseInt(document.getElementById('min_value').value)
@@ -116,7 +117,7 @@ function create_results()
             alert('Invalid range')
         }
     }
-    else if (mode === MATCH_MODE)
+    else if (mode === MATCH_MODE || mode == NOTE_MODE)
     {
         // filter out and generate for each selected position in each selected match
         if (max >= min)
@@ -290,9 +291,9 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
 
     // get result name and save
     let file = `pit-${event_id}-${team_num}`
-    if (scout_mode === MATCH_MODE)
+    if (scout_mode === MATCH_MODE || scout_mode === NOTE_MODE)
     {
-        file = `match-${match_key}-${team_num}`
+        file = `${scout_mode}-${match_key}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
 }

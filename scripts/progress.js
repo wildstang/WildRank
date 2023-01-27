@@ -18,6 +18,9 @@ function init_page()
 
     let match_table = '<table><tr><td></td>'
     let pit_table = '<table><tr>'
+    let key = `<table><tr><th style="background-color: green">Complete</th><th style="background-color: yellowgreen">Match Only</th>
+                          <th style="background-color: yellow">Note Only</th><th style="background-color: orange">Unsure</th>
+                          <th style="background-color: red">Unscouted</th></tr></table>`
 
     // build match result table
     let matches = Object.keys(dal.matches)
@@ -38,16 +41,28 @@ function init_page()
             let alliance = team_key.substring(0, team_key.indexOf('_'))
             let color = 'red'
             let link = ''
-            if (dal.is_match_scouted(match, team))
+            let match_scouted = dal.is_match_scouted(match, team)
+            let note_scouted = dal.is_note_scouted(match, team)
+            if (match_scouted || note_scouted)
             {
                 if (dal.get_result_value(team, match, 'meta_unsure'))
                 {
-                    color = 'yellow'
+                    color = 'orange'
                     link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
                 }
-                else
+                else if (match_scouted && note_scouted)
                 {
                     color = 'green'
+                    link = open_page('results', {'file': `${match}-${team}`})
+                }
+                else if (match_scouted)
+                {
+                    color = 'yellowgreen'
+                    link = open_page('results', {'file': `${match}-${team}`})
+                }
+                else if (note_scouted)
+                {
+                    color = 'yellow'
                     link = open_page('results', {'file': `${match}-${team}`})
                 }
             }
@@ -101,7 +116,7 @@ function init_page()
 
     let match = new ColumnFrame('match_page', 'Match Progress')
     page.add_column(match)
-    let match_card = new Card('matches', match_table)
+    let match_card = new Card('matches', `${key}${match_table}`)
     match.add_input(match_card)
 
     document.body.innerHTML += page.toString

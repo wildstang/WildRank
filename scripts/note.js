@@ -237,6 +237,8 @@ function get_results_from_page()
                     break
             }
         }
+
+        localStorage.setItem(`${NOTE_MODE}-${match_num}-${team}`, JSON.stringify(results))
     }
 
     query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}

@@ -596,6 +596,7 @@ class DAL
         let start_results = Date.now()
         // populate meta
         this.load_config(MATCH_MODE)
+        this.load_config(NOTE_MODE)
 
         // add match results
         let stats = cfg.smart_stats
@@ -617,10 +618,16 @@ class DAL
                 match.meta_set_number = 1
             }
             // add notes if available
-            if (files.includes(`note-${this.event_id}`))
+            let note_file = file.replace(MATCH_MODE, NOTE_MODE)
+            if (files.includes(note_file))
             {
-                let note = JSON.parse(localStorage.getItem(`note-${this.event_id}`))
+                let note = JSON.parse(localStorage.getItem(note_file))
                 match = Object.assign(note, match)
+                match.meta_both_scouted = true
+            }
+            else
+            {
+                match.meta_both_scouted = false
             }
             this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
         }
@@ -629,9 +636,11 @@ class DAL
         for (let file of note_files)
         {
             let match = JSON.parse(localStorage.getItem(file))
-            if (!this.teams.hasOwnProperty(key))
+            let team = match.meta_team.toString()
+            if (!this.teams[team].results.some(m => m.meta_match_key === match.meta_match_key))
             {
-                this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
+                match.meta_both_scouted = false
+                this.teams[team].results.push(this.add_smart_stats(match, stats))
             }
         }
 
@@ -1236,7 +1245,7 @@ class DAL
     /**
      * function:    is_match_scouted
      * parameters:  match key, team number
-     * returns:     if the given teams pit is scouted
+     * returns:     if the match for the given team is scouted
      * description: Determines if a match for a given team number has been scouted.
      */
     is_match_scouted(match_id, team)
@@ -1246,7 +1255,39 @@ class DAL
         {
             match_key = `${this.event_id}_${match_key}`
         }
-        return this.teams.hasOwnProperty(team.toString()) && this.teams[team.toString()].results.filter(r => r.meta_match_key === match_key).length > 0
+        return this.teams.hasOwnProperty(team.toString()) && this.teams[team.toString()].results.some(r => r.meta_match_key === match_key && (r.meta_scout_mode === MATCH_MODE || r.meta_both_scouted))
+    }
+
+    /**
+     * function:    is_note_scouted
+     * parameters:  match key, team number
+     * returns:     if the match for the given team is note scouted
+     * description: Determines if a match for a given team number has been note scouted.
+     */
+    is_note_scouted(match_id, team)
+    {
+        let match_key = match_id.toLowerCase()
+        if (!match_key.startsWith(this.event_id))
+        {
+            match_key = `${this.event_id}_${match_key}`
+        }
+        return this.teams.hasOwnProperty(team.toString()) && this.teams[team.toString()].results.some(r => r.meta_match_key === match_key && (r.meta_scout_mode === NOTE_MODE || r.meta_both_scouted))
+    }
+
+    /**
+     * function:    is_both_scouted
+     * parameters:  match key, team number
+     * returns:     if the match for the given team is completely scouted
+     * description: Determines if a match for a given team number has been completely scouted.
+     */
+    is_both_scouted(match_id, team)
+    {
+        let match_key = match_id.toLowerCase()
+        if (!match_key.startsWith(this.event_id))
+        {
+            match_key = `${this.event_id}_${match_key}`
+        }
+        return this.teams.hasOwnProperty(team.toString()) && this.teams[team.toString()].results.some(r => r.meta_match_key === match_key && r.meta_both_scouted)
     }
 
     /**

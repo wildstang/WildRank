@@ -20,6 +20,7 @@ var BLANK_PAGES = {
     export: ['event'],
     'config-debug': ['event'],
     scout: ['event', 'user', 'position'],
+    note: ['event', 'user', 'position'],
         // type
         // match
         // team
@@ -39,6 +40,7 @@ var BLANK_PAGES = {
 
 var SELECTION_PAGES = {
     matches: ['event', 'user', 'position', MATCH_MODE],
+    notes: ['event', 'user', 'position', NOTE_MODE],
     pits: ['event', 'user', 'position', PIT_MODE],
     ranker: ['event'],
     sides: ['event'],
@@ -71,6 +73,10 @@ function open_page(page, params={})
     {
         file = 'selection'
         requirements = SELECTION_PAGES[page]
+        if (page === 'notes')
+        {
+            page = 'matches'
+        }
     }
     else
     {
@@ -130,6 +136,7 @@ function open_page(page, params={})
                 params.year = cfg.year
                 break
             case MATCH_MODE:
+            case NOTE_MODE:
             case PIT_MODE:
                 params.type = p
                 break
