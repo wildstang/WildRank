@@ -86,7 +86,8 @@ function check_for_last_page()
 {
     let carousel = document.getElementById('scouting-carousel')
     let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
-    if (carousel.scrollLeft >= final_page && document.getElementById('submit') === null)
+    let view_start = Math.ceil(carousel.scrollLeft)
+    if (view_start >= final_page && document.getElementById('submit') === null)
     {
         let submit = new Button('submit', 'Submit', 'get_results_from_page()')
         document.getElementById('submit_container').innerHTML = submit.toString
