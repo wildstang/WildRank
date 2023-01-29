@@ -1,6 +1,27 @@
 {
-	"version": "wr2-2023-fill-test",
-	"note": [],
+	"version": "wr2-rc1",
+	"note": [{
+		"name": "Notes",
+		"id": "note_notes",
+		"columns": [{
+			"name": "TEAM",
+			"id": "note_notes_team",
+			"cycle": false,
+			"inputs": [{
+				"name": "Rank",
+				"id": "note_notes_team_rank",
+				"type": "slider",
+				"options": [1, 3, 1],
+				"default": 1,
+				"negative": true
+			}, {
+				"name": "Notes",
+				"id": "note_notes_team_notes",
+				"type": "text",
+				"default": "none"
+			}]
+		}]
+	}],
 	"pit": [{
 		"name": "Pit",
 		"id": "pit_pit",
@@ -94,6 +115,12 @@
 			"id": "match_auto_position",
 			"cycle": false,
 			"inputs": [{
+				"name": "Starting Position",
+				"id": "match_auto_position_starting_position",
+				"type": "select",
+				"options": ["N/A", "LoadingZone", "ChargingStation", "CableProtector"],
+				"default": "N/A"
+			}, {
 				"name": "Moved",
 				"id": "match_auto_position_moved",
 				"type": "checkbox",
@@ -109,7 +136,7 @@
 				"name": "Charging Station",
 				"id": "match_auto_position_charging_station",
 				"type": "select",
-				"options": ["Failed", "NoAttempt", "Docked", "Staged"],
+				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
 				"default": "NoAttempt"
 			}]
 		}, {
@@ -121,7 +148,13 @@
 				"id": "match_auto_scoring_preload",
 				"type": "select",
 				"options": ["None", "Cone", "Cube"],
-				"default": ""
+				"default": "Cone"
+			}, {
+				"name": "Holding GP at End of Auto",
+				"id": "match_auto_scoring_holding_gp_at_end_of_auto",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
 			}, {
 				"name": "Cube Scoring",
 				"id": "match_auto_scoring_cube_scoring",
@@ -146,29 +179,49 @@
 			"id": "match_tele_cycling",
 			"cycle": true,
 			"inputs": [{
+				"name": "Game Piece",
+				"id": "match_tele_cycling_game_piece",
+				"type": "select",
+				"options": ["Cone", "Cube"],
+				"default": "Cone"
+			}, {
 				"name": "Piece Source",
 				"id": "match_tele_cycling_piece_source",
 				"type": "select",
 				"options": ["Substation", "LoadingZone", "OpenField", "Community"],
 				"default": ""
 			}, {
-				"name": "Game Piece",
-				"id": "match_tele_cycling_game_piece",
-				"type": "select",
-				"options": ["Cube", "Cone"],
-				"default": ""
-			}, {
-				"name": "Defended",
-				"id": "match_tele_cycling_defended",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}, {
 				"name": "Grid Row",
 				"id": "match_tele_cycling_grid_row",
 				"type": "select",
-				"options": ["Failed", "Bottom", "Middle", "Top"],
-				"default": ""
+				"options": ["Failed", "Floor", "Low", "Middle", "High"],
+				"default": "Floor"
+			}]
+		}, {
+			"name": "Driver",
+			"id": "match_tele_driver",
+			"cycle": false,
+			"inputs": [{
+				"name": "Seconds on Offense",
+				"id": "match_tele_driver_seconds_on_offense",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Seconds on Defense",
+				"id": "match_tele_driver_seconds_on_defense",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Driver Skill",
+				"id": "match_tele_driver_driver_skill",
+				"type": "slider",
+				"options": [1, 10, 1],
+				"default": 5,
+				"negative": false
 			}]
 		}, {
 			"name": "Post Match",
@@ -191,42 +244,6 @@
 				"id": "match_tele_post_match_notes",
 				"type": "text",
 				"default": "None"
-			}]
-		}, {
-			"name": "Driver",
-			"id": "match_tele_driver",
-			"cycle": false,
-			"inputs": [{
-				"name": "Defending opponent1",
-				"id": "match_tele_driver_defending_opponent1",
-				"type": "slider",
-				"options": [0, 100, 10],
-				"default": 0
-			}, {
-				"name": "Defending opponent2",
-				"id": "match_tele_driver_defending_opponent2",
-				"type": "slider",
-				"options": [0, 100, 10],
-				"default": 0
-			}, {
-				"name": "Defending opponent3",
-				"id": "match_tele_driver_defending_opponent3",
-				"type": "slider",
-				"options": [0, 100, 10],
-				"default": 0
-			}, {
-				"name": "Defensive Interactions",
-				"id": "match_tele_driver_defensive_interations",
-				"type": "multicounter",
-				"options": ["opponent1", "opponent2", "opponent3"],
-				"default": 0
-			}, {
-				"name": "Driver Skill",
-				"id": "match_tele_driver_driver_skill",
-				"type": "slider",
-				"options": [1, 5, 1],
-				"default": 3,
-				"negative": false
 			}]
 		}]
 	}],

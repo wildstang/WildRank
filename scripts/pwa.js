@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-2.0.0-indev'
+const CACHE_NAME = 'wildrank-2.0.0-rc1'
 const CACHE_LIST = [
     // html files
     '/',
@@ -40,6 +40,7 @@ const CACHE_LIST = [
     '/scripts/matches.js',
     '/scripts/mini-picklists.js',
     '/scripts/multipicklists.js',
+    '/scripts/notes.js',
     '/scripts/picklists-core.js',
     '/scripts/picklists.js',
     '/scripts/pits.js',
@@ -65,7 +66,7 @@ const CACHE_LIST = [
     '/scripts/whiteboard.js',
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
-    '/scripts/misc/2022-score-estimator.js',
+    //'/scripts/misc/2022-score-estimator.js',
     /* don't cache misc scripts that rely on tba
     '/scripts/misc/district-counter.js',
     '/scripts/misc/event-planner.js',
