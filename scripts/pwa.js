@@ -40,7 +40,7 @@ const CACHE_LIST = [
     '/scripts/matches.js',
     '/scripts/mini-picklists.js',
     '/scripts/multipicklists.js',
-    '/scripts/notes.js',
+    '/scripts/note.js',
     '/scripts/picklists-core.js',
     '/scripts/picklists.js',
     '/scripts/pits.js',
