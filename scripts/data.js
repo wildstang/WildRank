@@ -816,6 +816,10 @@ class DAL
                     let total = 0
                     for (let k of stat.keys)
                     {
+                        if (!result.hasOwnProperty(k))
+                        {
+                            break
+                        }
                         total += result[k]
                     }
                     result[id] = total
@@ -858,20 +862,26 @@ class DAL
                     }
                     break
                 case 'percent':
-                    result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
-                    if (isNaN(result[id]))
+                    if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
                     {
-                        result[id] = 0
+                        result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
+                        if (isNaN(result[id]))
+                        {
+                            result[id] = 0
+                        }
                     }
                     break
                 case 'ratio':
-                    if (result[stat.denominator] != 0)
+                    if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
                     {
-                        result[id] = result[stat.numerator] / result[stat.denominator]
-                    }
-                    else
-                    {
-                        result[id] = result[stat.numerator]
+                        if (result[stat.denominator] != 0)
+                        {
+                            result[id] = result[stat.numerator] / result[stat.denominator]
+                        }
+                        else
+                        {
+                            result[id] = result[stat.numerator]
+                        }
                     }
                     break
                 // exclusively for cycle
@@ -880,14 +890,18 @@ class DAL
                     let value = 0
                     let denominator = 0
                     let percent = typeof stat.denominator !== 'undefined'
-                    if (stat.cycle)
+                    if (stat.cycle && result.hasOwnProperty(stat.cycle))
                     {
                         for (let cycle of result[stat.cycle])
                         {
+                            if (typeof cycle === 'undefined')
+                            {
+                                break
+                            }
                             let passed = true
                             for (let key of Object.keys(stat.conditions))
                             {
-                                if (cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
+                                if (cycle.hasOwnProperty(key) && cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
                                 {
                                     passed = false
                                 }
@@ -898,11 +912,11 @@ class DAL
                                 {
                                     value++
                                 }
-                                else
+                                else if (cycle.hasOwnProperty(stat.sum))
                                 {
                                     value += cycle[stat.sum]
                                 }
-                                if (percent)
+                                if (percent && cycle.hasOwnProperty(stat.denominator))
                                 {
                                     denominator += cycle[stat.denominator]
                                 }
@@ -929,6 +943,10 @@ class DAL
                     let extreme = [stat.keys[0]]
                     for (let k of stat.keys)
                     {
+                        if (!result.hasOwnProperty(k))
+                        {
+                            break
+                        }
                         if (stat.type === 'min' && result[k] < result[extreme[0]])
                         {
                             extreme = [k]
@@ -945,36 +963,39 @@ class DAL
                     result[id] = extreme.map(k => this.get_name(k, '')).join(', ')
                     break
                 case 'filter':
-                    let val = result[stat.filter]
-                    let passes = false
-                    switch (stat.compare_type)
+                    if (result.hasOwnProperty(stat.filter) && result.hasOwnProperty(stat.key))
                     {
-                        case 0:
-                            passes = val > stat.value
-                            break
-                        case 1:
-                            passes = val >= stat.value
-                            break
-                        case 2:
-                            passes = val === stat.value
-                            break
-                        case 3:
-                            passes = val !== stat.value
-                            break
-                        case 4:
-                            passes = val <= stat.value
-                            break
-                        case 5:
-                            passes = val < stat.value
-                            break
-                    }
-                    if (passes)
-                    {
-                        result[id] = result[stat.key]
-                    }
-                    else
-                    {
-                        delete result[id]
+                        let val = result[stat.filter]
+                        let passes = false
+                        switch (stat.compare_type)
+                        {
+                            case 0:
+                                passes = val > stat.value
+                                break
+                            case 1:
+                                passes = val >= stat.value
+                                break
+                            case 2:
+                                passes = val === stat.value
+                                break
+                            case 3:
+                                passes = val !== stat.value
+                                break
+                            case 4:
+                                passes = val <= stat.value
+                                break
+                            case 5:
+                                passes = val < stat.value
+                                break
+                        }
+                        if (passes)
+                        {
+                            result[id] = result[stat.key]
+                        }
+                        else
+                        {
+                            delete result[id]
+                        }
                     }
                     break
             }
