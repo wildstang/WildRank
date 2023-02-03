@@ -23,6 +23,7 @@
 				"id": "match_tele_scoring_game_piece",
 				"type": "select",
 				"options": ["Hatch(Disk)", "Cargo(Ball)"],
+				"colors": ["grey", "orange"],
 				"default": "Hatch(Disk)"
 			}, {
 				"name": "Scoring Location",

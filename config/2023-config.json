@@ -183,6 +183,7 @@
 				"id": "match_tele_cycling_game_piece",
 				"type": "select",
 				"options": ["Cone", "Cube"],
+				"colors": ["#FFD700", "#9932CC"],
 				"default": "Cone"
 			}, {
 				"name": "Piece Source",

@@ -225,6 +225,20 @@ function build_page_from_config()
                         item = new Extended(id, name, default_val)
                         break
                 }
+
+                // allow selects to be colored, must be manually entered in config file
+                if (type.includes('select'))
+                {
+                    if (input.hasOwnProperty('colors') && input.colors.length === options.length)
+                    {
+                        let sheet = window.document.styleSheets[1]
+                        for (let i in options)
+                        {
+                            sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
+                        }
+                    }
+                }
+
                 col_frame.add_input(item)
             }
             if (cycle)
