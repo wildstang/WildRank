@@ -349,6 +349,90 @@ class Number extends Input
     }
 }
 
+// NOTE: this is a weird hybrid between the WR2 and WR3 input classes
+// much of this will be moved to Input/Element once WR3 development starts
+class Timer extends Input
+{
+    constructor(id, label)
+    {
+        super(id, label, 0)
+        this.on_incr = ''
+        this.on_decr = ''
+        this.start = -1
+        this.value = 0
+        this.last_touch = -1
+    }
+
+    on_click()
+    {
+        let duration = Date.now() - this.last_touch
+        if (this.last_touch < 0 || duration < 500)
+        {
+            if (this.start < 0)
+            {
+                this.start = Date.now()
+                let t = this
+                this.counter = setInterval(function () { t.update() }, 100);
+            }
+            else if (this.value === 0)
+            {
+                this.value = (Date.now() - this.start) / 1000
+                clearInterval(this.counter)
+            }
+            document.getElementById(this.id).innerHTML = parseFloat(this.value).toFixed(1)
+        }
+        else if (duration > 500)
+        {
+            this.on_right_click()
+        }
+    }
+
+    on_right_click()
+    {
+        if (typeof this.counter !== 'undefined')
+        {
+            clearInterval(this.counter)
+        }
+        this.start = -1
+        this.value = 0
+        document.getElementById(this.id).innerHTML = this.value
+        return false
+    }
+
+    on_touch()
+    {
+        this.last_touch = Date.now()
+    }
+
+    update()
+    {
+        let val = ((Date.now() - this.start) / 1000).toFixed(1)
+        document.getElementById(this.id).innerHTML = val
+    }
+
+    get()
+    {
+        let label = document.createElement('label')
+        label.innerHTML = this.label
+        let value = document.createElement('label')
+        value.id = this.id
+        value.className = 'wr_counter_count'
+        value.innerHTML = this.value
+
+        let timer = document.createElement('div')
+        timer.className = 'wr_counter'
+        timer.append(value)
+        timer.append(' ')
+        timer.append(label)
+        let t = this
+        timer.onclick = function () { t.on_click() }
+        timer.oncontextmenu = function () { return false }
+        timer.onauxclick = function () { return t.on_right_click() }
+        timer.ontouchstart = function () { t.on_touch() }
+        return timer
+    }
+}
+
 class Counter extends Input
 {
     constructor(id, label, def=0)

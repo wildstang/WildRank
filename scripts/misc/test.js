@@ -186,4 +186,7 @@ function init_page()
     others.add_input(alertslider)
 
     document.body.innerHTML += page.toString
+
+    let timer = new Timer('', 'Test Timer')
+    document.getElementById('counter_column').append(timer.get())
 }
