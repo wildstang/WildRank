@@ -1,5 +1,5 @@
 {
-	"version": "wr2-rc1",
+	"version": "wr2-bd215",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -15,6 +15,13 @@
 				"default": 1,
 				"negative": true
 			}, {
+				"name": "Number of Robots Attempting Charge Station",
+				"id": "note_notes_team_number_of_robots_attempting_charge_station",
+				"type": "slider",
+				"options": [0, 3, 1],
+				"default": 0,
+				"negative": false
+			}, {
 				"name": "Notes",
 				"id": "note_notes_team_notes",
 				"type": "text",
@@ -26,29 +33,61 @@
 		"name": "Pit",
 		"id": "pit_pit",
 		"columns": [{
+			"name": "Auto",
+			"id": "pit_pit_auto",
+			"cycle": false,
+			"inputs": [{
+				"name": "Has Auto At Starting Location",
+				"id": "pit_pit_auto_has_auto_at_starting_location",
+				"type": "multiselect",
+				"options": ["None", "LoadingZone(Top)", "ChargingStation(Middle)", "CableProtector(Bottom)"],
+				"default": "None"
+			}, {
+				"name": "Game Pieces Scored from Loading Zone Auto",
+				"id": "pit_pit_auto_game_pieces_scored_from_loading_zone_auto",
+				"type": "multicounter",
+				"negative": [false, false],
+				"options": ["Cones", "Cubes"],
+				"default": 0
+			}, {
+				"name": "Game Pieces Scored from Charging Station Auto",
+				"id": "pit_pit_auto_game_pieces_scored_from_charging_station_auto",
+				"type": "multicounter",
+				"negative": [false, false],
+				"options": ["Cones", "Cubes"],
+				"default": 0
+			}, {
+				"name": "Game Pieces Scored From Cable Protector Auto",
+				"id": "pit_pit_auto_game_pieces_scored_from_cable_protector_auto",
+				"type": "multicounter",
+				"negative": [false, false],
+				"options": ["Cones", "Cubes"],
+				"default": 0
+			}]
+		}, {
 			"name": "Body",
 			"id": "pit_pit_body",
 			"cycle": false,
 			"inputs": [{
-				"name": "Weight no Battery Bumpers",
-				"id": "pit_pit_body_weight_no_battery_bumpers",
+				"name": "Weight without Battery/Bumpers",
+				"id": "pit_pit_body_weight_without_batterybumpers",
 				"type": "slider",
-				"options": [30, 130, 5],
-				"default": 100,
+				"options": [50, 125, 1],
+				"default": 120,
 				"negative": false
 			}, {
-				"name": "Max Width",
-				"id": "pit_pit_body_max_width",
+				"name": "Longest Side Length",
+				"id": "pit_pit_body_longest_side_length",
 				"type": "number",
-				"options": [0, 120],
-				"default": 36,
+				"options": [0, 40],
+				"default": 30,
 				"negative": false
 			}, {
-				"name": "Min Width",
-				"id": "pit_pit_body_min_width",
+				"name": "Shortest Side Length",
+				"id": "pit_pit_body_shortest_side_length",
 				"type": "number",
-				"options": [0, 120],
-				"default": 36,
+				"options": [0, 40],
+				"default": 30,
 				"negative": false
 			}]
 		}, {
@@ -68,11 +107,11 @@
 				"default": false,
 				"negative": false
 			}, {
-				"name": "Max Grid Row",
-				"id": "pit_pit_game_pieces_max_grid_row",
-				"type": "select",
-				"options": ["None", "Bottom", "Middle", "Top"],
-				"default": ""
+				"name": "Grid Rows",
+				"id": "pit_pit_game_pieces_grid_rows",
+				"type": "multiselect",
+				"options": ["None", "Low", "Middle", "High"],
+				"default": "None"
 			}]
 		}, {
 			"name": "Other",
@@ -95,15 +134,14 @@
 				"name": "Build Quality",
 				"id": "pit_pit_other_build_quality",
 				"type": "slider",
-				"options": [1, 5, 1],
-				"default": 3,
+				"options": [1, 10, 1],
+				"default": 5,
 				"negative": false
 			}, {
-				"name": "Self Balancing",
-				"id": "pit_pit_other_self_balancing",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
+				"name": "Notes",
+				"id": "pit_pit_other_notes",
+				"type": "text",
+				"default": "N/A"
 			}]
 		}]
 	}],
@@ -111,22 +149,40 @@
 		"name": "Auto",
 		"id": "match_auto",
 		"columns": [{
+			"name": "Preload",
+			"id": "match_auto_preload",
+			"cycle": false,
+			"inputs": [{
+				"name": "Game Piece",
+				"id": "match_auto_preload_game_piece",
+				"type": "select",
+				"options": ["None", "Cone", "Cube"],
+		  		"colors": ["#1E90FF", "#FFD700", "#9932CC"],
+				"default": "None"
+			}]
+		}, {
+			"name": "Auto Cycling",
+			"id": "match_auto_auto_cycling",
+			"cycle": true,
+			"inputs": [{
+				"name": "Game Piece",
+				"id": "match_auto_auto_cycling_game_piece",
+				"type": "select",
+				"options": ["Cone", "Cube"],
+				"colors": ["#FFD700", "#9932CC"],
+				"default": "Cone"
+			}, {
+				"name": "Grid Row",
+				"id": "match_auto_auto_cycling_grid_row",
+				"type": "select",
+				"options": ["Failed", "Floor", "Low", "Middle", "High"],
+				"default": "Floor"
+			}]
+		}, {
 			"name": "Position",
 			"id": "match_auto_position",
 			"cycle": false,
 			"inputs": [{
-				"name": "Starting Position",
-				"id": "match_auto_position_starting_position",
-				"type": "select",
-				"options": ["N/A", "LoadingZone", "ChargingStation", "CableProtector"],
-				"default": "N/A"
-			}, {
-				"name": "Moved",
-				"id": "match_auto_position_moved",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}, {
 				"name": "Left Community",
 				"id": "match_auto_position_mobility_left_community",
 				"type": "checkbox",
@@ -138,37 +194,6 @@
 				"type": "select",
 				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
 				"default": "NoAttempt"
-			}]
-		}, {
-			"name": "Scoring",
-			"id": "match_auto_scoring",
-			"cycle": false,
-			"inputs": [{
-				"name": "Preload",
-				"id": "match_auto_scoring_preload",
-				"type": "select",
-				"options": ["None", "Cone", "Cube"],
-				"default": "Cone"
-			}, {
-				"name": "Holding GP at End of Auto",
-				"id": "match_auto_scoring_holding_gp_at_end_of_auto",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}, {
-				"name": "Cube Scoring",
-				"id": "match_auto_scoring_cube_scoring",
-				"type": "multicounter",
-				"negative": [true, false, false, false],
-				"options": ["Failed", "Bottom", "Middle", "High"],
-				"default": 0
-			}, {
-				"name": "Cone Scoring",
-				"id": "match_auto_scoring_cone_scoring",
-				"type": "multicounter",
-				"negative": [true, false, false, false],
-				"options": ["Failed", "Bottom", "Middle", "High"],
-				"default": 0
 			}]
 		}]
 	}, {
@@ -246,7 +271,7 @@
 				"type": "text",
 				"default": "None"
 			}]
-		}]
+		}]	
 	}],
 	"smart_stats": [],
 	"coach": [],
