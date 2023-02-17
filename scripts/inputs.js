@@ -162,7 +162,7 @@ class MultiButton extends Element
         this.on_clicks = on_clicks
         this.on_rights = []
         this.on_holds = []
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     add_option(option, on_click, on_secondary='')
@@ -434,7 +434,7 @@ class MultiCounter extends Input
     {
         super(id, label, def)
         this.options = options
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     add_option(option, def=0)
@@ -680,7 +680,7 @@ class Select extends OptionedInput
     constructor(id, label, options=[], def='')
     {
         super(id, label, options, def)
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     get html_options()
@@ -803,7 +803,7 @@ class MultiSelect extends Input
         this.options = options
         this.def = def
         this.on_change = ''
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     add_option(option)
@@ -1032,4 +1032,24 @@ function increment(id, right, on_increment='')
     {
         eval(on_increment)
     }
+}
+
+/**
+ * function:    calc_num_columns
+ * parameters:  options
+ * returns:     number of columns
+ * description: Determines the number of columns based on maximum option size.
+ */
+function calc_num_columns(options)
+{
+    let max = 0
+    for (let op of options)
+    {
+        if (op.length > max)
+        {
+            max = op.length
+        }
+    }
+
+    return Math.max(4 - Math.floor(max / 4), 1)
 }
