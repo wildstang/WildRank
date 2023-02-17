@@ -21,6 +21,7 @@ const selected = urlParams.get('file')
 function init_page()
 {
     contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
+                                <input type="checkbox" id="show_meta" onclick="build_result_list()">Show Metadata</input>
                                 <table id="results_tab"></table>`
     buttons_container.innerHTML = ''
 
@@ -119,6 +120,10 @@ function open_option(option)
     let alliances = dal.build_relative_alliances(team, match)
     let table = '<table><tr><th></th><th>Match Value</th></tr>'
     let keys = Object.keys(result)
+    if (!document.getElementById('show_meta').checked)
+    {
+        keys = keys.filter(k => !k.startsWith('meta_'))
+    }
     for (let key of keys)
     {
         let name = dal.fill_team_numbers(dal.get_name('stats.' + key, ''), alliances)
