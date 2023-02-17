@@ -1,5 +1,5 @@
 {
-	"version": "wr2-bd215",
+	"version": "wr2-rc2",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -250,8 +250,8 @@
 				"name": "Driver Skill",
 				"id": "match_tele_driver_driver_skill",
 				"type": "slider",
-				"options": [1, 10, 1],
-				"default": 5,
+				"options": [0, 10, 1],
+				"default": 0,
 				"negative": false
 			}]
 		}, {
