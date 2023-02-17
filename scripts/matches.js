@@ -89,17 +89,17 @@ function open_match(match_num)
     document.getElementById('match_num').innerHTML = dal.get_match_value(match_num, 'match_name')
     document.getElementById('match_time').innerHTML = dal.get_match_value(match_num, 'display_time')
 
+    let team_num = teams[scout_pos]
+    let alliance = 'red'
+    let color = cfg.theme['red-alliance-color']
+    if (scout_pos >= red_teams.length)
+    {
+        alliance = 'blue'
+        color = cfg.theme['blue-alliance-color']
+    }
+
     if (scout_mode === MATCH_MODE)
     {
-        let team_num = teams[scout_pos]
-        let alliance = 'red'
-        let color = cfg.theme['red-alliance-color']
-        if (scout_pos >= red_teams.length)
-        {
-            alliance = 'blue'
-            color = cfg.theme['blue-alliance-color']
-        }
-
         // populate team info
         document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
         document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
@@ -132,14 +132,6 @@ function open_match(match_num)
     }
     else if (scout_mode === NOTE_MODE)
     {
-        let alliance = 'red'
-        let color = cfg.theme['red-alliance-color']
-        if (scout_pos >= red_teams.length)
-        {
-            alliance = 'blue'
-            color = cfg.theme['blue-alliance-color']
-        }
-
         // populate team info
         number_span.innerHTML = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
         number_span.style.color = color
@@ -150,6 +142,16 @@ function open_match(match_num)
         let key = match_num.toLowerCase()
         scout_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: false})`
         buttons_container.innerHTML = scout_button.toString
+
+        if (dal.is_note_scouted(match_num, team_num))
+        {
+            if (can_edit(match_num, team_num))
+            {
+                let edit_button = new Button('edit_match', 'Edit Notes')
+                edit_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: true})`
+                buttons_container.innerHTML += edit_button.toString
+            }
+        }
     }
 }
 

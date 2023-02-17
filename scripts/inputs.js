@@ -1053,3 +1053,159 @@ function calc_num_columns(options)
 
     return Math.max(4 - Math.floor(max / 4), 1)
 }
+
+/**
+ * function:    build_column_from_config
+ * parameters:  column object, team number
+ * returns:     none
+ * description: Builds a column from the config file.
+ */
+function build_column_from_config(column, scout_mode, select_ids, edit=false, match='', team='', alliance_color='')
+{
+    let col_name = column.name
+    if (scout_mode === NOTE_MODE)
+    {
+        col_name = col_name.replace('TEAM', team).replace('ALLIANCE', alliance_color)
+    }
+    let col_frame = new ColumnFrame(column.id, col_name)
+
+    // iterate through input in the column
+    for (let input of column.inputs)
+    {
+        let name = input.name
+        let id = input.id
+        let type = input.type
+        let default_val = input.default
+        let options = input['options']
+
+        // map results to defaults in edit mode
+        if (edit)
+        {
+            switch (scout_mode)
+            {
+                case MATCH_MODE:
+                case NOTE_MODE:
+                    default_val = dal.get_result_value(team, match, id)
+                    if (type === 'dropdown' || type === 'select')
+                    {
+                        default_val = input['options'][default_val]
+                    }
+                    else if (type === 'multicounter' || type === 'multiselect')
+                    {
+                        default_val = input.options.map(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            return dal.get_result_value(team, match, name)
+                        })
+                    }
+                    break
+                case PIT_MODE:
+                    default_val = dal.get_value(team, `pit.${id}`)
+                    if (type == 'dropdown' || type == 'select')
+                    {
+                        default_val = input['options'][default_val]
+                    }
+                    else if (type == 'multicounter' || type === 'multiselect')
+                    {
+                        default_val = input.options.map(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            return dal.get_value(team, `pit.${name}`)
+                        })
+                    }
+                    break
+            }
+        }
+
+        if (scout_mode === MATCH_MODE)
+        {
+            // replace opponentsX with the team's opponent team numbers
+            if (options instanceof Array && options.length > 0)
+            {
+                options = options.map(op => dal.fill_team_numbers(op, alliances))
+            }
+            name = dal.fill_team_numbers(name, alliances)
+        }
+        else if (scout_mode === NOTE_MODE)
+        {
+            id = id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+        }
+
+        let item
+        // build each input from its template
+        switch (type)
+        {
+            case 'checkbox':
+                if (default_val)
+                {
+                    select_ids.push(`${id}-container`)
+                }
+                item = new Checkbox(id, name, default_val)
+                break
+            case 'counter':
+                item = new Counter(id, name, default_val)
+                break
+            case 'multicounter':
+                item = new MultiCounter(id, name, options, default_val)
+                break
+            case 'select':
+                item = new Select(id, name, options, default_val)
+                item.vertical = input.vertical
+                break
+            case 'multiselect':
+                let def = []
+                if (default_val instanceof Array)
+                {
+                    for (let i in default_val)
+                    {
+                        if (default_val[i])
+                        {
+                            def.push(options[parseInt(i)])
+                        }
+                    }
+                }
+                else if (default_val)
+                {
+                    default_val.split(',')
+                }
+                item = new MultiSelect(id, name, options, def)
+                item.vertical = input.vertical
+                break
+            case 'dropdown':
+                item = new Dropdown(id, name, options, default_val)
+                break
+            case 'string':
+                item = new Entry(id, name, default_val)
+                break
+            case 'number':
+                item = new Entry(id, name, default_val)
+                item.type = 'number'
+                item.bounds = options
+                break
+            case 'slider':
+                item = new Slider(id, name, default_val)
+                item.bounds = options
+                break
+            case 'text':
+                item = new Extended(id, name, default_val)
+                break
+        }
+
+        // allow selects to be colored, must be manually entered in config file
+        if (type.includes('select'))
+        {
+            if (input.hasOwnProperty('colors') && input.colors.length === options.length)
+            {
+                let sheet = window.document.styleSheets[1]
+                for (let i in options)
+                {
+                    sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
+                }
+            }
+        }
+
+        col_frame.add_input(item)
+    }
+
+    return col_frame
+}

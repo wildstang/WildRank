@@ -15,17 +15,22 @@
 				"default": 1,
 				"negative": true
 			}, {
-				"name": "Number of Robots Attempting Charge Station",
-				"id": "note_notes_team_number_of_robots_attempting_charge_station",
-				"type": "slider",
-				"options": [0, 3, 1],
-				"default": 0,
-				"negative": false
-			}, {
 				"name": "Notes",
 				"id": "note_notes_team_notes",
 				"type": "text",
 				"default": "none"
+			}]
+		}, {
+			"name": "ALLIANCE",
+			"id": "note_notes_alliance",
+			"cycle": false,
+			"inputs": [{
+				"name": "Number of Robots Attempting Charge Station",
+				"id": "note_notes_alliance_number_of_robots_attempting_charge_station",
+				"type": "slider",
+				"options": [0, 3, 1],
+				"default": 0,
+				"negative": false
 			}]
 		}]
 	}],

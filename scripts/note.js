@@ -16,6 +16,7 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var urlParams = new URLSearchParams(window.location.search)
 const match_num = urlParams.get('match')
 const alliance_color = urlParams.get('alliance')
+var edit = urlParams.get('edit') == 'true'
 
 /**
  * function:    init_page
@@ -44,7 +45,7 @@ function init_page()
  * function:    build_page_from_config
  * parameters:  none
  * returns:     none
- * description: Builds the page from the config file and the given mode.
+ * description: Builds the page from the config file.
  */
 function build_page_from_config()
 {
@@ -55,96 +56,15 @@ function build_page_from_config()
     // iterate through each column in the page
     for (let team of teams)
     {
-        let col_frame = new ColumnFrame(column.id, column.name.replace('TEAM', team))
-        // iterate through input in the column
-        for (let input of column.inputs)
-        {
-            let name = input.name
-            let id = input.id.replace('_team_', `_${team}_`)
-            let type = input.type
-            let default_val = input.default
-            let options = input['options']
-
-            let item
-            // build each input from its template
-            switch (type)
-            {
-                case 'checkbox':
-                    if (default_val)
-                    {
-                        select_ids.push(`${id}-container`)
-                    }
-                    item = new Checkbox(id, name, default_val)
-                    break
-                case 'counter':
-                    item = new Counter(id, name, default_val)
-                    break
-                case 'multicounter':
-                    item = new MultiCounter(id, name, options, default_val)
-                    break
-                case 'select':
-                    item = new Select(id, name, options, default_val)
-                    item.vertical = input.vertical
-                    break
-                case 'multiselect':
-                    let def = []
-                    if (default_val instanceof Array)
-                    {
-                        for (let i in default_val)
-                        {
-                            if (default_val[i])
-                            {
-                                def.push(options[parseInt(i)])
-                            }
-                        }
-                    }
-                    else if (default_val)
-                    {
-                        default_val.split(',')
-                    }
-                    item = new MultiSelect(id, name, options, def)
-                    item.vertical = input.vertical
-                    break
-                case 'dropdown':
-                    item = new Dropdown(id, name, options, default_val)
-                    break
-                case 'string':
-                    item = new Entry(id, name, default_val)
-                    break
-                case 'number':
-                    item = new Entry(id, name, default_val)
-                    item.type = 'number'
-                    item.bounds = options
-                    break
-                case 'slider':
-                    item = new Slider(id, name, default_val)
-                    item.bounds = options
-                    break
-                case 'text':
-                    item = new Extended(id, name, default_val)
-                    break
-            }
-
-            // allow selects to be colored, must be manually entered in config file
-            if (type.includes('select'))
-            {
-                if (input.hasOwnProperty('colors') && input.colors.length === options.length)
-                {
-                    let sheet = window.document.styleSheets[1]
-                    for (let i in options)
-                    {
-                        sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
-                    }
-                }
-            }
-
-            col_frame.add_input(item)
-        }
-        page_frame.add_column(col_frame)
+        page_frame.add_column(build_column_from_config(column, NOTE_MODE, select_ids, edit, match_num, team, alliance_color))
     }
-    let unsure = new Checkbox('unsure', `Unsure of Results`)
+    if (page.columns.length > 1)
+    {
+        page_frame.add_column(build_column_from_config(page.columns[1], NOTE_MODE, select_ids, edit, match_num, team, alliance_color))
+    }
+
     let submit = new Button('submit', 'Submit', 'get_results_from_page()')
-    let submit_page = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
+    let submit_page = new PageFrame('', '', [new ColumnFrame('', '', [submit])])
     document.body.innerHTML += page_frame.toString + submit_page.toString
 
     // mark each selected box as such
@@ -167,94 +87,111 @@ function get_results_from_page()
         return
     }
 
-    // get each result
     let page = cfg[NOTE_MODE][0]
     let column = page.columns[0]
+    let results = {}
+
+    let alliance_results = {}
+    if (page.columns.length > 1)
+    {
+        alliance_results = get_results_from_column(page.columns[1], '')
+    }
+
+    // scouter metadata
+    results['meta_note_scouter_id'] = parseInt(user_id)
+    results['meta_note_scout_time'] = Math.round(start / 1000)
+    results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
+
+    // scouting metadata
+    results['meta_scout_mode'] = NOTE_MODE
+    results['meta_note_position'] = parseInt(scout_pos)
+    results['meta_event_id'] = event_id
+    results['meta_match_key'] = match_num
+    results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
+    results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
+    results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
+    results['meta_alliance'] = alliance_color
+
     // iterate through each column in the page
     for (let team of teams)
     {
-        let results = {}
-    
-        // scouter metadata
-        results['meta_scouter_id'] = parseInt(user_id)
-        results['meta_scout_time'] = Math.round(start / 1000)
-        results['meta_scouting_duration'] = (Date.now() - start) / 1000
-        results['meta_unsure'] = document.getElementById('unsure').checked
-    
-        // scouting metadata
-        results['meta_scout_mode'] = NOTE_MODE
-        results['meta_position'] = parseInt(scout_pos)
-        results['meta_event_id'] = event_id
-        results['meta_match_key'] = match_num
-        results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
-        results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
-        results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
-        results['meta_alliance'] = alliance_color
-        results['meta_team'] = team
-
-        // iterate through input in the column
-        for (let input of column.inputs)
-        {
-            let id = input.id
-            let el_id = input.id.replace('_team_', `_${team}_`)
-            let type = input.type
-            let options = input.options
-
-            switch (type)
-            {
-                case 'checkbox':
-                    results[id] = document.getElementById(el_id).checked
-                    break
-                case 'counter':
-                    results[id] = parseInt(document.getElementById(el_id).innerHTML)
-                    break
-                case 'multicounter':
-                    for (let i in options)
-                    {
-                        let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                        let html_id = `${el_id}_${op_ids[i].toLowerCase().split().join('_')}`
-                        results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
-                    }
-                    break
-                case 'select':
-                    results[id] = -1
-                    let children = document.getElementById(el_id).getElementsByClassName('wr_select_option')
-                    let i = 0
-                    for (let option of children)
-                    {
-                        if (option.classList.contains('selected'))
-                        {
-                            results[id] = i
-                        }
-                        i++
-                    }
-                    break
-                case 'multiselect':
-                    for (let i in options)
-                    {
-                        let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                        results[name] = MultiSelect.get_selected_options(el_id).includes(parseInt(i))
-                    }
-                    break
-                case 'dropdown':
-                    results[id] = document.getElementById(el_id).selectedIndex
-                    break
-                case 'number':
-                    results[id] = parseInt(document.getElementById(el_id).value)
-                    break
-                case 'slider':
-                    results[id] = parseInt(document.getElementById(el_id).value)
-                    break
-                case 'string':
-                case 'text':
-                    results[id] = document.getElementById(el_id).value
-                    break
-            }
-        }
-
-        localStorage.setItem(`${NOTE_MODE}-${match_num}-${team}`, JSON.stringify(results))
+        team_results = get_results_from_column(column, team)
+        let result = Object.assign({'meta_team': team}, results, team_results, alliance_results)
+        localStorage.setItem(`${NOTE_MODE}-${match_num}-${team}`, JSON.stringify(result))
     }
 
     query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}
     window.location.href = build_url('selection', query)
+}
+
+/**
+ * function:    get_results_from_column
+ * parameters:  column object, team number
+ * returns:     none
+ * description: Accumulates the results from a column into a new object.
+ */
+function get_results_from_column(column, team)
+{
+    let results = {}
+    // iterate through input in the column
+    for (let input of column.inputs)
+    {
+        let id = input.id
+        let el_id = input.id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+        let type = input.type
+        let options = input.options
+
+        switch (type)
+        {
+            case 'checkbox':
+                results[id] = document.getElementById(el_id).checked
+                break
+            case 'counter':
+                results[id] = parseInt(document.getElementById(el_id).innerHTML)
+                break
+            case 'multicounter':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    let html_id = `${el_id}_${op_ids[i].toLowerCase().split().join('_')}`
+                    results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
+                }
+                break
+            case 'select':
+                results[id] = -1
+                let children = document.getElementById(el_id).getElementsByClassName('wr_select_option')
+                let i = 0
+                for (let option of children)
+                {
+                    if (option.classList.contains('selected'))
+                    {
+                        results[id] = i
+                    }
+                    i++
+                }
+                break
+            case 'multiselect':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    results[name] = MultiSelect.get_selected_options(el_id).includes(parseInt(i))
+                }
+                break
+            case 'dropdown':
+                results[id] = document.getElementById(el_id).selectedIndex
+                break
+            case 'number':
+                results[id] = parseInt(document.getElementById(el_id).value)
+                break
+            case 'slider':
+                results[id] = parseInt(document.getElementById(el_id).value)
+                break
+            case 'string':
+            case 'text':
+                results[id] = document.getElementById(el_id).value
+                break
+        }
+    }
+
+    return results
 }
