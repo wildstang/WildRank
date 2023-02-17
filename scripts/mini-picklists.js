@@ -58,7 +58,7 @@ function select_list(name='')
 function build_pick_lists(list_name='first_default', i=0)
 {
     // don't show picklists UI if there are no lists
-    if (list_name !== '')
+    if (Object.keys(dal.picklists).length > 0)
     {
         let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
         document.getElementById('pick_lists').innerHTML = lists_text
