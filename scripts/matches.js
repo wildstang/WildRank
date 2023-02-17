@@ -28,7 +28,7 @@ function init_page()
         scout_pos = cfg.get_position(user_id)
     }
 
-    let first = populate_matches(false, true, '', false, scout_pos)
+    let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
     add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
     if (first)
     {

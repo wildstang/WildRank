@@ -31,7 +31,7 @@ function check_teams(teams, match_teams)
  * 
  * Pages: Match Scout, Whiteboard, Match Summaries, Coach View
  */
-function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0)
+function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0, note=false)
 {
     let list = 'option_list'
     if (secondary)
@@ -65,7 +65,8 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             let scouted = 'not_scouted'
             let level = match.comp_level.toUpperCase()
             let teams = red_teams.concat(blue_teams)
-            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (dal.is_match_scouted(match_key, teams[scout_pos]) && level == 'QM')))
+            let is_scouted = (!note && dal.is_match_scouted(match_key, teams[scout_pos])) || (note && dal.is_note_scouted(match_key, teams[scout_pos]))
+            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_scouted && level == 'QM')))
             {
                 scouted = 'scouted'
                 first = ''
