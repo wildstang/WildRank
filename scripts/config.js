@@ -614,6 +614,10 @@ class Config
                                 {
                                     return result
                                 }
+                                else if (!input.options.includes(input.default))
+                                {
+                                    return Config.return_description(false, `default "${input.default}" not found in options`, description)
+                                }
                             case 'multiselect':
                             case 'multicounter':
                                 if (!input.hasOwnProperty('options') && Array.isArray(input.options))
@@ -646,7 +650,7 @@ class Config
                                 }
                                 break
                             default:
-                                return Config.return_description(false, 'Invalid type', description)
+                                return Config.return_description(false, `Invalid type "${input.type}"`, description)
                         }
                     }
                 }
