@@ -299,7 +299,7 @@ function check_cycles()
                     switch (type)
                     {
                         case 'select':
-                            if (Select.get_selected_option(id) != ops.indexOf(def))
+                            if (Select.get_selected_option(id) != ops.indexOf(def) && ops.indexOf(def) >= 0)
                             {
                                 return id
                             }

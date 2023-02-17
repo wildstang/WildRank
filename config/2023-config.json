@@ -220,7 +220,7 @@
 				"id": "match_tele_cycling_piece_source",
 				"type": "select",
 				"options": ["Substation", "LoadingZone", "OpenField", "Community"],
-				"default": ""
+				"default": "Substation"
 			}, {
 				"name": "Grid Row",
 				"id": "match_tele_cycling_grid_row",
