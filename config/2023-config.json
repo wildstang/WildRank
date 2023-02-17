@@ -127,7 +127,7 @@
 				"id": "pit_pit_other_drive_train",
 				"type": "dropdown",
 				"options": ["Tank", "Mecanum", "Swerve", "Other"],
-				"default": ""
+				"default": "Tank"
 			}, {
 				"name": "Drive Motor Count",
 				"id": "pit_pit_other_drive_motor_count",
