@@ -365,6 +365,15 @@ function import_zip_from_event(event)
  */
 async function import_zip(file)
 {
+    let method = Select.get_selected_option('method')
+    if (method !== 1 && !file.name.includes(dal.event_id))
+    {
+        if (!confirm(`Warning, zip does not contain "${dal.event_id}" in the name! Continue?`))
+        {
+            return
+        }
+    }
+
     // process each files details
     JSZip.loadAsync(file).then(function (zip)
     {
