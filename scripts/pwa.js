@@ -136,7 +136,7 @@ self.addEventListener('fetch', e => {
             let res = new Response(file, { statusText: 'OK', headers: headers })
             cache.put(e.request.url, res)
 
-            return Response.redirect('/index.html?page=transfer-raw', 303);
+            return Response.redirect('/index.html?page=transfer-raw&cache=true', 303);
         }
 
         // attempt to pull resource from cache

@@ -8,6 +8,9 @@
 const start = Date.now()
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
+var urlParams = new URLSearchParams(window.location.search)
+const fromCache = urlParams.get('cache') === 'true'
+
 include('libs/jszip.min')
 
 /**
@@ -60,6 +63,10 @@ async function init_page()
     {
         method.columns = 3
         method.add_option('Cache')
+        if (fromCache)
+        {
+            method.def = 'Cache'
+        }
         method.description = '<div id="file_name">File shared with WildRank from OS. Use "Cache" to import from this archive.</div>'
     }
     option_col.add_input(method)
