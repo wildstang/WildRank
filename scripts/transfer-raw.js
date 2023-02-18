@@ -81,6 +81,9 @@ async function init_page()
     let status_col = new ColumnFrame('', 'Data Status')
     page.add_column(status_col)
 
+    let event = new Number('event_id', 'Event', dal.event_id)
+    status_col.add_input(event)
+
     let event_data = new StatusTile('event_data', 'Event Data')
     status_col.add_input(event_data)
 
