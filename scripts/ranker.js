@@ -140,11 +140,11 @@ function update_params()
             {
                 cycle = document.getElementById('cycle').value
             }
-            cycle = cycle.replace('results.', '')
-            let counters = dal.get_result_keys(cycle, ['counter']).map(c => dal.get_name(c))
-            let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
+            let cycle_id = cycle.replace('results.', '')
+            let counters = dal.get_result_keys(cycle_id, ['counter']).map(c => dal.get_name(c))
+            let selects = dal.get_result_keys(cycle_id, ['dropdown', 'select'])
 
-            let cycle_filter = new Dropdown('cycle', 'Cycle', cycles)
+            let cycle_filter = new Dropdown('cycle', 'Cycle', cycles, cycle)
             cycle_filter.on_change = 'update_params()'
             cycle_filter.description = 'The ID of the cycle you would like to count.'
             let count = new Dropdown('count', 'Count', ['Count'].concat(counters))
