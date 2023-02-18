@@ -148,9 +148,12 @@
     text-align: center;
 }
 
-.wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_slider:hover {
-    background-color: var(--hover-color);
-    color: var(--hover-text-color);
+@media (hover: hover) {
+    /* this prevents hover from being show on touch screen devices at all, because it tends to linger */
+    .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_slider:hover, .color_text:hover {
+        background-color: var(--hover-color);
+        color: var(--hover-text-color);
+    }
 }
 
 .wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > *, .wr_slider > *, .wr_status > * {
