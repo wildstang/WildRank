@@ -353,6 +353,12 @@ function get_results_from_page()
             return
         }
     }
+    let iid = check_results()
+    if (iid)
+    {
+        alert(`There are unchanged defaults! (${iid})`)
+        return
+    }
     if (!confirm('Are you sure you want to submit?'))
     {
         return
@@ -479,6 +485,100 @@ function get_results_from_page()
         query = {'page': 'matches', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}
     }
     window.location.href = build_url('selection', query)
+}
+
+/**
+ * function:    check_results
+ * parameters:  none
+ * returns:     name of default value that has not changes
+ * description: Checks if all required values have changed from default.
+ */
+function check_results()
+{
+    // get each result
+    for (let page of cfg[scout_mode])
+    {
+        for (let column of page.columns)
+        {
+            // check if its a cycle column
+            if (!column.cycle)
+            {
+                for (let input of column.inputs)
+                {
+                    if (!input.disallow_default)
+                    {
+                        continue
+                    }
+
+                    let id = input.id
+                    let type = input.type
+                    let options = input.options
+                    let def = input.default
+
+                    let value = ''
+                    switch (type)
+                    {
+                        case 'checkbox':
+                            value = document.getElementById(id).checked
+                            break
+                        case 'counter':
+                            value = parseInt(document.getElementById(id).innerHTML)
+                            break
+                        case 'multicounter':
+                            value = []
+                            for (let i in options)
+                            {
+                                let html_id = `${id}_${op_ids[i].toLowerCase().split().join('_')}`
+                                value.push(parseInt(document.getElementById(`${html_id}-value`).innerHTML))
+                            }
+                            def = Array(value.length).fill(def)
+                            break
+                        case 'select':
+                            value = -1
+                            let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+                            let i = 0
+                            for (let option of children)
+                            {
+                                if (option.classList.contains('selected'))
+                                {
+                                    value = i
+                                }
+                                i++
+                            }
+                            value = options[value]
+                            break
+                        case 'multiselect':
+                            for (let i in options)
+                            {
+                                if (MultiSelect.get_selected_options(id).includes(parseInt(i)))
+                                {
+                                    value += options[i]
+                                }
+                            }
+                            break
+                        case 'dropdown':
+                            value = document.getElementById(id).selectedIndex
+                            break
+                        case 'number':
+                            value = parseInt(document.getElementById(id).value)
+                            break
+                        case 'slider':
+                            value = parseInt(document.getElementById(id).value)
+                            break
+                        case 'string':
+                        case 'text':
+                            value = document.getElementById(id).value
+                            break
+                    }
+                    
+                    if (value === def)
+                    {
+                        return id
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**

@@ -128,11 +128,13 @@ function populate_options()
     }
     else
     {
+        let colors
         switch (type)
         {
             case 'Checkbox':
                 ops.add_input(new Checkbox('new-element-default', 'Default'))
                 ops.add_input(new Checkbox('new-element-negative', 'Negative'))
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
             case 'Slider':
                 let incr = new Entry('new-element-incr', 'Increment', '1')
@@ -154,16 +156,19 @@ function populate_options()
                 def.description = 'The default value displayed in the box.'
                 ops.add_input(def)
                 ops.add_input(new Checkbox('new-element-negative', 'Negative'))
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
             case 'String':
                 let defs = new Entry('new-element-default', 'Default', '')
                 defs.description = 'The default text displayed in the box, must not be empty.'
                 ops.add_input(defs)
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
             case 'Text':
                 let defe = new Extended('new-element-default', 'Default', '')
                 defe.description = 'The default text displayed in the box, must not be empty.'
                 ops.add_input(defe)
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
             case 'Multicounter':
                 let neg = new Entry('new-element-negative', 'Negative')
@@ -176,16 +181,24 @@ function populate_options()
                 defm.type = 'number'
                 defm.description = 'The single default value for all counters.'
                 ops.add_input(defm)
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
             case 'Select':
             case 'Multiselect':
+                colors = new Entry('new-element-colors', 'Colors')
+                colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
             case 'Dropdown':
                 let sops = new Entry('new-element-options', 'Options')
                 sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
                 ops.add_input(sops)
+                if (typeof colors !== 'undefined')
+                {
+                    ops.add_input(colors)
+                }
                 let defo = new Entry('new-element-default', 'Default', '')
                 defo.description = 'The default selected option, must exactly match that option.'
                 ops.add_input(defo)
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
         }
     }
@@ -267,6 +280,10 @@ function create_element()
             let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
             input.id = create_id_from_name(parent, name)
             input.type = type.toLowerCase()
+            if (document.getElementById('new-element-no-default').checked)
+            {
+                input.disallow_default = true
+            }
             let ops = []
             switch (type)
             {
@@ -307,6 +324,7 @@ function create_element()
                     input.negative = parse_list(document.getElementById('new-element-negative').value).map(n => n.toLowerCase() === 'true')
                 case 'Select':
                 case 'Multiselect':
+                    input.colors = parse_list(document.getElementById('new-element-colors').value)
                 case 'Dropdown':
                     input.options = parse_list(document.getElementById('new-element-options').value)
                 case 'String':

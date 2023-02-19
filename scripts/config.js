@@ -619,10 +619,25 @@ class Config
                                     return Config.return_description(false, `default "${input.default}" not found in options`, description)
                                 }
                             case 'multiselect':
+                                if (!input.hasOwnProperty('options') && Array.isArray(input.options))
+                                {
+                                    return Config.return_description(false, '', description)
+                                }
+                                result = Config.check_properties(input, {'default': 'string'}, description)
+                                if (Config.failed(result))
+                                {
+                                    return result
+                                }
+                                break
                             case 'multicounter':
                                 if (!input.hasOwnProperty('options') && Array.isArray(input.options))
                                 {
                                     return Config.return_description(false, '', description)
+                                }
+                                result = Config.check_properties(input, {'default': 'number'}, description)
+                                if (Config.failed(result))
+                                {
+                                    return result
                                 }
                                 break
                             case 'checkbox':
