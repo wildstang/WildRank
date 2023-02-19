@@ -112,7 +112,7 @@ function build_page_from_config()
         for (let column of page.columns)
         {
             let cycle = column.cycle
-            let col_frame = build_column_from_config(column, scout_mode, select_ids, edit, match_num, team_num, alliance_color)
+            let col_frame = build_column_from_config(column, scout_mode, select_ids, edit, match_num, team_num, alliance_color, alliances)
             if (cycle)
             {
                 // create cycle counter, call update_cycle() on change
@@ -400,70 +400,7 @@ function get_results_from_page()
             }
             else
             {
-                for (let input of column.inputs)
-                {
-                    let id = input.id
-                    let type = input.type
-                    let options = input.options
-
-                    // replace opponentsX with the team's opponent team numbers
-                    let op_ids = options
-                    if (options instanceof Array && options.length > 0 && scout_mode === MATCH_MODE)
-                    {
-                        op_ids = options.map(op => dal.fill_team_numbers(op, alliances))
-                    }
-
-                    switch (type)
-                    {
-                        case 'checkbox':
-                            results[id] = document.getElementById(id).checked
-                            break
-                        case 'counter':
-                            results[id] = parseInt(document.getElementById(id).innerHTML)
-                            break
-                        case 'multicounter':
-                            for (let i in options)
-                            {
-                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                                let html_id = `${id}_${op_ids[i].toLowerCase().split().join('_')}`
-                                results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
-                            }
-                            break
-                        case 'select':
-                            results[id] = -1
-                            let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                            let i = 0
-                            for (let option of children)
-                            {
-                                if (option.classList.contains('selected'))
-                                {
-                                    results[id] = i
-                                }
-                                i++
-                            }
-                            break
-                        case 'multiselect':
-                            for (let i in options)
-                            {
-                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                                results[name] = MultiSelect.get_selected_options(id).includes(parseInt(i))
-                            }
-                            break
-                        case 'dropdown':
-                            results[id] = document.getElementById(id).selectedIndex
-                            break
-                        case 'number':
-                            results[id] = parseInt(document.getElementById(id).value)
-                            break
-                        case 'slider':
-                            results[id] = parseInt(document.getElementById(id).value)
-                            break
-                        case 'string':
-                        case 'text':
-                            results[id] = document.getElementById(id).value
-                            break
-                    }
-                }
+                Object.assign(results, get_results_from_column(column, scout_mode, '', '', alliances))
             }
         }
     }

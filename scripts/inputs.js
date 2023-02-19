@@ -1060,7 +1060,7 @@ function calc_num_columns(options)
  * returns:     none
  * description: Builds a column from the config file.
  */
-function build_column_from_config(column, scout_mode, select_ids, edit=false, match='', team='', alliance_color='')
+function build_column_from_config(column, scout_mode, select_ids, edit=false, match='', team='', alliance_color='', alliances={})
 {
     let col_name = column.name
     if (scout_mode === NOTE_MODE)
@@ -1208,4 +1208,87 @@ function build_column_from_config(column, scout_mode, select_ids, edit=false, ma
     }
 
     return col_frame
+}
+
+/**
+ * function:    get_results_from_column
+ * parameters:  column object, team number
+ * returns:     none
+ * description: Accumulates the results from a column into a new object.
+ */
+function get_results_from_column(column, scout_mode, team='', alliance_color='', alliances={})
+{
+    let results = {}
+    // iterate through input in the column
+    for (let input of column.inputs)
+    {
+        let id = input.id
+        let el_id = id
+        if (scout_mode === NOTE_MODE)
+        {
+            el_id = el_id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+        }
+        let type = input.type
+        let options = input.options
+
+        // replace opponentsX with the team's opponent team numbers
+        let op_ids = options
+        if (scout_mode === MATCH_MODE && options instanceof Array && options.length > 0)
+        {
+            op_ids = options.map(op => dal.fill_team_numbers(op, alliances))
+        }
+
+        switch (type)
+        {
+            case 'checkbox':
+                results[id] = document.getElementById(el_id).checked
+                break
+            case 'counter':
+                results[id] = parseInt(document.getElementById(el_id).innerHTML)
+                break
+            case 'multicounter':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    let html_id = `${el_id}_${op_ids[i].toLowerCase().split().join('_')}`
+                    results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
+                }
+                break
+            case 'select':
+                results[id] = -1
+                let children = document.getElementById(el_id).getElementsByClassName('wr_select_option')
+                let i = 0
+                for (let option of children)
+                {
+                    if (option.classList.contains('selected'))
+                    {
+                        results[id] = i
+                    }
+                    i++
+                }
+                break
+            case 'multiselect':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    results[name] = MultiSelect.get_selected_options(el_id).includes(parseInt(i))
+                }
+                break
+            case 'dropdown':
+                results[id] = document.getElementById(el_id).selectedIndex
+                break
+            case 'number':
+                results[id] = parseInt(document.getElementById(el_id).value)
+                break
+            case 'slider':
+                results[id] = parseInt(document.getElementById(el_id).value)
+                break
+            case 'string':
+            case 'text':
+                results[id] = document.getElementById(el_id).value
+                break
+        }
+    }
+
+    return results
 }

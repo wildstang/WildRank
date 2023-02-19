@@ -94,7 +94,7 @@ function get_results_from_page()
     let alliance_results = {}
     if (page.columns.length > 1)
     {
-        alliance_results = get_results_from_column(page.columns[1], '')
+        alliance_results = get_results_from_column(page.columns[1], NOTE_MODE, team, alliance_color)
     }
 
     // scouter metadata
@@ -115,83 +115,11 @@ function get_results_from_page()
     // iterate through each column in the page
     for (let team of teams)
     {
-        team_results = get_results_from_column(column, team)
+        team_results = get_results_from_column(column, NOTE_MODE, team, alliance_color)
         let result = Object.assign({'meta_team': team}, results, team_results, alliance_results)
         localStorage.setItem(`${NOTE_MODE}-${match_num}-${team}`, JSON.stringify(result))
     }
 
     query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}
     window.location.href = build_url('selection', query)
-}
-
-/**
- * function:    get_results_from_column
- * parameters:  column object, team number
- * returns:     none
- * description: Accumulates the results from a column into a new object.
- */
-function get_results_from_column(column, team)
-{
-    let results = {}
-    // iterate through input in the column
-    for (let input of column.inputs)
-    {
-        let id = input.id
-        let el_id = input.id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
-        let type = input.type
-        let options = input.options
-
-        switch (type)
-        {
-            case 'checkbox':
-                results[id] = document.getElementById(el_id).checked
-                break
-            case 'counter':
-                results[id] = parseInt(document.getElementById(el_id).innerHTML)
-                break
-            case 'multicounter':
-                for (let i in options)
-                {
-                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                    let html_id = `${el_id}_${op_ids[i].toLowerCase().split().join('_')}`
-                    results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
-                }
-                break
-            case 'select':
-                results[id] = -1
-                let children = document.getElementById(el_id).getElementsByClassName('wr_select_option')
-                let i = 0
-                for (let option of children)
-                {
-                    if (option.classList.contains('selected'))
-                    {
-                        results[id] = i
-                    }
-                    i++
-                }
-                break
-            case 'multiselect':
-                for (let i in options)
-                {
-                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                    results[name] = MultiSelect.get_selected_options(el_id).includes(parseInt(i))
-                }
-                break
-            case 'dropdown':
-                results[id] = document.getElementById(el_id).selectedIndex
-                break
-            case 'number':
-                results[id] = parseInt(document.getElementById(el_id).value)
-                break
-            case 'slider':
-                results[id] = parseInt(document.getElementById(el_id).value)
-                break
-            case 'string':
-            case 'text':
-                results[id] = document.getElementById(el_id).value
-                break
-        }
-    }
-
-    return results
 }
