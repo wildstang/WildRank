@@ -355,6 +355,12 @@ function get_results_from_page()
     let cid = check_cycles()
     if (cid)
     {
+        document.getElementById(cid).style['background-color'] = '#FFF2A8'
+        let container = document.getElementById(`${cid}_container`)
+        if (container !== null)
+        {
+            container.style['background-color'] = '#FFF2A8'
+        }
         if (confirm(`There are unsaved cycles (${cid})! Do you want to return?`))
         {
             return
@@ -363,6 +369,12 @@ function get_results_from_page()
     let iid = check_results()
     if (iid)
     {
+        document.getElementById(iid).style['background-color'] = '#FAA0A0'
+        let container = document.getElementById(`${iid}_container`)
+        if (container !== null)
+        {
+            container.style['background-color'] = '#FAA0A0'
+        }
         alert(`There are unchanged defaults! (${iid})`)
         return
     }
