@@ -75,6 +75,38 @@ function build_page_from_config()
 }
 
 /**
+ * function:    check_results
+ * parameters:  none
+ * returns:     name of default value that has not changes
+ * description: Checks if all required values have changed from default.
+ */
+function check_results()
+{
+    let page = cfg[NOTE_MODE][0]
+    let column = page.columns[0]
+
+    if (page.columns.length > 1)
+    {
+        let ret = check_column(page.columns[1], NOTE_MODE, team, alliance_color)
+        if (ret)
+        {
+            return ret
+        }
+    }
+
+    for (let team of teams)
+    {
+        let ret = check_column(column, NOTE_MODE, team, alliance_color)
+        if (ret)
+        {
+            return ret
+        }
+    }
+
+    return false
+}
+
+/**
  * function:    get_results_from_page
  * parameters:  none
  * returns:     none
@@ -82,6 +114,18 @@ function build_page_from_config()
  */
 function get_results_from_page()
 {
+    let iid = check_results()
+    if (iid)
+    {
+        document.getElementById(iid).style['background-color'] = '#FAA0A0'
+        let container = document.getElementById(`${iid}_container`)
+        if (container !== null)
+        {
+            container.style['background-color'] = '#FAA0A0'
+        }
+        alert(`There are unchanged defaults! (${iid})`)
+        return
+    }
     if (!confirm('Are you sure you want to submit?'))
     {
         return

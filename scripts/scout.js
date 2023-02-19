@@ -459,85 +459,15 @@ function check_results()
     {
         for (let column of page.columns)
         {
-            // check if its a cycle column
-            if (!column.cycle)
+            let ret = check_column(column, scout_mode)
+            if (ret)
             {
-                for (let input of column.inputs)
-                {
-                    if (!input.disallow_default)
-                    {
-                        continue
-                    }
-
-                    let id = input.id
-                    let type = input.type
-                    let options = input.options
-                    let def = input.default
-
-                    let value = ''
-                    switch (type)
-                    {
-                        case 'checkbox':
-                            value = document.getElementById(id).checked
-                            break
-                        case 'counter':
-                            value = parseInt(document.getElementById(id).innerHTML)
-                            break
-                        case 'multicounter':
-                            value = []
-                            for (let i in options)
-                            {
-                                let html_id = `${id}_${op_ids[i].toLowerCase().split().join('_')}`
-                                value.push(parseInt(document.getElementById(`${html_id}-value`).innerHTML))
-                            }
-                            def = Array(value.length).fill(def)
-                            break
-                        case 'select':
-                            value = -1
-                            let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                            let i = 0
-                            for (let option of children)
-                            {
-                                if (option.classList.contains('selected'))
-                                {
-                                    value = i
-                                }
-                                i++
-                            }
-                            value = options[value]
-                            break
-                        case 'multiselect':
-                            for (let i in options)
-                            {
-                                if (MultiSelect.get_selected_options(id).includes(parseInt(i)))
-                                {
-                                    value += options[i]
-                                }
-                            }
-                            break
-                        case 'dropdown':
-                            value = document.getElementById(id).selectedIndex
-                            break
-                        case 'number':
-                            value = parseInt(document.getElementById(id).value)
-                            break
-                        case 'slider':
-                            value = parseInt(document.getElementById(id).value)
-                            break
-                        case 'string':
-                        case 'text':
-                            value = document.getElementById(id).value
-                            break
-                    }
-                    
-                    if (value === def)
-                    {
-                        return id
-                    }
-                }
+                return ret
             }
         }
     }
+
+    return false
 }
 
 /**

@@ -1057,7 +1057,7 @@ function calc_num_columns(options)
 /**
  * function:    build_column_from_config
  * parameters:  column object, team number
- * returns:     none
+ * returns:     ColumnFrame
  * description: Builds a column from the config file.
  */
 function build_column_from_config(column, scout_mode, select_ids, edit=false, match='', team='', alliance_color='', alliances={})
@@ -1213,7 +1213,7 @@ function build_column_from_config(column, scout_mode, select_ids, edit=false, ma
 /**
  * function:    get_results_from_column
  * parameters:  column object, team number
- * returns:     none
+ * returns:     partial results object for the column
  * description: Accumulates the results from a column into a new object.
  */
 function get_results_from_column(column, scout_mode, team='', alliance_color='', alliances={})
@@ -1224,10 +1224,6 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
     {
         let id = input.id
         let el_id = id
-        if (scout_mode === NOTE_MODE)
-        {
-            el_id = el_id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
-        }
         let type = input.type
         let options = input.options
 
@@ -1236,6 +1232,10 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
         if (scout_mode === MATCH_MODE && options instanceof Array && options.length > 0)
         {
             op_ids = options.map(op => dal.fill_team_numbers(op, alliances))
+        }
+        else if (scout_mode === NOTE_MODE)
+        {
+            el_id = el_id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
         }
 
         switch (type)
@@ -1291,4 +1291,98 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
     }
 
     return results
+}
+
+/**
+ * function:    check_column
+ * parameters:  column object, scout_mode, team number, alliance color
+ * returns:     
+ * description: Determines if any disallowed defaults have changed.
+ */
+function check_column(column, scout_mode, team='', alliance_color='')
+{
+    // check if its a cycle column
+    if (!column.cycle)
+    {
+        for (let input of column.inputs)
+        {
+            if (!input.disallow_default)
+            {
+                continue
+            }
+
+            let id = input.id
+            let type = input.type
+            let options = input.options
+            let def = input.default
+
+            if (scout_mode === NOTE_MODE)
+            {
+                id = id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+            }
+
+            let value = ''
+            switch (type)
+            {
+                case 'checkbox':
+                    value = document.getElementById(id).checked
+                    break
+                case 'counter':
+                    value = parseInt(document.getElementById(id).innerHTML)
+                    break
+                case 'multicounter':
+                    value = []
+                    for (let i in options)
+                    {
+                        let html_id = `${id}_${op_ids[i].toLowerCase().split().join('_')}`
+                        value.push(parseInt(document.getElementById(`${html_id}-value`).innerHTML))
+                    }
+                    def = Array(value.length).fill(def)
+                    break
+                case 'select':
+                    value = -1
+                    let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+                    let i = 0
+                    for (let option of children)
+                    {
+                        if (option.classList.contains('selected'))
+                        {
+                            value = i
+                        }
+                        i++
+                    }
+                    value = options[value]
+                    break
+                case 'multiselect':
+                    for (let i in options)
+                    {
+                        if (MultiSelect.get_selected_options(id).includes(parseInt(i)))
+                        {
+                            value += options[i]
+                        }
+                    }
+                    break
+                case 'dropdown':
+                    value = document.getElementById(id).selectedIndex
+                    break
+                case 'number':
+                    value = parseInt(document.getElementById(id).value)
+                    break
+                case 'slider':
+                    value = parseInt(document.getElementById(id).value)
+                    break
+                case 'string':
+                case 'text':
+                    value = document.getElementById(id).value
+                    break
+            }
+            
+            if (value === def)
+            {
+                return id
+            }
+        }
+    }
+
+    return false
 }
