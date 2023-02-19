@@ -435,6 +435,11 @@ class DAL
                 type: 'string'
             }
         }
+        else
+        {
+            // attempt to get teams from matches
+            this.pull_teams_from_matches()
+        }
         
         // fail if there were no teams
         if (Object.keys(this.teams).length === 0)
@@ -690,10 +695,73 @@ class DAL
     }
 
     /**
+     * function:    pull_teams_from_matches
+     * parameters:  none
+     * returns:     none
+     * description: Build the teams data structure from match data.
+     */
+    pull_teams_from_matches()
+    {
+        // read in matches
+        let matches_str = localStorage.getItem(`matches-${this.event_id}`)
+        if (matches_str != null && matches_str != false)
+        {
+            let tba_matches = JSON.parse(matches_str)
+            
+            for (let match of tba_matches)
+            {
+                let match_teams = match.alliances.red.team_keys.map(k => k.substring(3)).concat(match.alliances.blue.team_keys.map(k => k.substring(3)))
+                for (let team of match_teams)
+                {
+                    if (!Object.keys(this.teams).includes(team))
+                    {
+                        this.teams[team] = {
+                            meta: {},
+                            rank: {},
+                            pit: {},
+                            stats: {},
+                            matches: [],
+                            results: [],
+                            pictures: {}
+                        }
+
+                        // add meta data
+                        this.teams[team].meta = {
+                            name: `Team #${team}`,
+                            city: 'Unknown',
+                            state_prov: 'Unknown',
+                            country: 'Unknown',
+                            color: cfg.theme['primary-color']
+                        }
+                    }
+                }
+            }
+        
+            // build meta of meta
+            this.meta['meta.name'] = {
+                name: 'Team Name',
+                type: 'string'
+            }
+            this.meta['meta.city'] = {
+                name: 'City',
+                type: 'string'
+            }
+            this.meta['meta.state_prov'] = {
+                name: 'State',
+                type: 'string'
+            }
+            this.meta['meta.country'] = {
+                name: 'Country',
+                type: 'string'
+            }
+        }
+    }
+
+    /**
      * function:    build_matches
      * parameters:  none
      * returns:     none
-     * description: Build the m tches data structure.
+     * description: Build the matches data structure.
      */
     build_matches()
     {
