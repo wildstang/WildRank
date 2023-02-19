@@ -8,6 +8,7 @@
 const start = Date.now()
 
 var cycles = {}
+var alliances = {}
 
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
@@ -140,8 +141,14 @@ function build_page_from_config()
         body += page_frame.toString  
     }
     body += '</div>'
-    let unsure = new Checkbox('unsure', `Unsure of Results`)
-    let page_frame = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', ['<span id="submit_container"></span>'])])
+
+    let page_frame = new PageFrame()
+    if (scout_mode === MATCH_MODE)
+    {
+        let unsure = new Checkbox('unsure', `Unsure of Results`)
+        page_frame.add_column(new ColumnFrame('', '', [unsure]))
+    }
+    page_frame.add_column(new ColumnFrame('', '', ['<span id="submit_container"></span>']))
     document.body.innerHTML += body + page_frame.toString
     check_for_last_page()
 
@@ -370,7 +377,10 @@ function get_results_from_page()
     results['meta_scouter_id'] = parseInt(user_id)
     results['meta_scout_time'] = Math.round(start / 1000)
     results['meta_scouting_duration'] = (Date.now() - start) / 1000
-    results['meta_unsure'] = document.getElementById('unsure').checked
+    if (scout_mode === MATCH_MODE)
+    {
+        results['meta_unsure'] = document.getElementById('unsure').checked
+    }
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode
