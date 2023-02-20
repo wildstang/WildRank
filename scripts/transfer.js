@@ -142,36 +142,52 @@ function preload_event()
             console.log(err)
         })
 
-    // fetch event rankings
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
-            {
-                data = data.rankings
-
-                // sort rankings objs by team number
-                let rankings = data.sort(function (a, b)
+        // fetch event rankings
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
                 {
-                    return b.rank < a.rank ? 1
-                            : b.rank > a.rank ? -1
-                            : 0;
-                })
-                // store rankings as JSON string in rankings-[event_id]
-                localStorage.setItem(`rankings-${event_id}`, JSON.stringify(rankings))
-            }
-            if (++count === 3)
-            {
-                alert('Preload complete!')
-                dal.build_teams()
-            }
-        })
-        .catch(err => {
-            alert('Error loading rankings!')
-            console.log(err)
-        })
+                    data = data.rankings
+    
+                    // sort rankings objs by team number
+                    let rankings = data.sort(function (a, b)
+                    {
+                        return b.rank < a.rank ? 1
+                                : b.rank > a.rank ? -1
+                                : 0;
+                    })
+                    // store rankings as JSON string in rankings-[event_id]
+                    localStorage.setItem(`rankings-${event_id}`, JSON.stringify(rankings))
+                }
+                if (++count === 3)
+                {
+                    alert('Preload complete!')
+                    dal.build_teams()
+                }
+            })
+            .catch(err => {
+                alert('Error loading rankings!')
+                console.log(err)
+            })
+
+        // fetch event data
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                if (data)
+                {
+                    // store event as JSON string
+                    localStorage.setItem(`event-${event_id}`, JSON.stringify(data))
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
 
     // fetch list of server pictures
     let server = parse_server_addr(document.location.href)

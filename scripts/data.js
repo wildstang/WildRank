@@ -21,6 +21,7 @@ class DAL
         this.teams = {}
         this.matches = {}
         this.picklists = {}
+        this.event = {}
     }
 
     /**
@@ -266,6 +267,14 @@ class DAL
                     {
                         return 1
                     }
+                    else if (a.meta_comp_level === 'ef')
+                    {
+                        return -1
+                    }
+                    else if (b.meta_comp_level === 'ef')
+                    {
+                        return 1
+                    }
                     else if (a.meta_comp_level === 'qf')
                     {
                         return -1
@@ -501,6 +510,14 @@ class DAL
             }
         }
 
+        // load in event
+        let start_event = Date.now()
+        let event_str = localStorage.getItem(`event-${this.event_id}`)
+        if (event_str != null && event_str != false)
+        {
+            this.event = JSON.parse(event_str)
+        }
+
         // load in matches
         let start_matches = Date.now()
         // add match data
@@ -669,6 +686,7 @@ class DAL
             }
         }
 
+        // load in picklists
         let start_lists = Date.now()
         let lists_str = localStorage.getItem(`picklists-${this.event_id}`)
         if (lists_str != null && lists_str != false)
@@ -681,7 +699,8 @@ class DAL
         if (debug)
         {
             console.log('Meta', start_rankings - start)
-            console.log('Rankings', start_matches - start_rankings)
+            console.log('Rankings', start_event - start_rankings)
+            console.log('Events', start_matches - start_event)
             console.log('Matches', start_pictures - start_matches)
             console.log('Pictures', start_pits - start_pictures)
             console.log('Pits', start_results - start_pits)
@@ -780,10 +799,74 @@ class DAL
                     match_name = `Q ${match.match_number}`
                     short_match_name = `${match.match_number}`
                 }
-                else if (match.comp_level === 'f')
+                // convert TBA structure to double-elim
+                else if (this.event.playoff_type === 10)
                 {
-                    match_name = `F ${match.match_number}`
-                    short_match_name = `F${match.match_number}`
+                    switch (match.comp_level)
+                    {
+                        case 'qm':
+                            match_name = `Q ${match.match_number}`
+                            short_match_name = `${match.match_number}`
+                            break
+                        case 'ef':
+                            if (match.set_number > 4)
+                            {
+                                match_name = `R2 ${match.set_number}`
+                                short_match_name = `P${match.set_number}`
+                            }
+                            else
+                            {
+                                match_name = `R1 ${match.set_number}`
+                                short_match_name = `P${match.set_number}`
+                            }
+                            break
+                        case 'qf':
+                            if (match.set_number === 1)
+                            {
+                                match_name = `R2 7`
+                                short_match_name = `P7`
+                            }
+                            else if (match.set_number === 2)
+                            {
+                                match_name = `R2 8`
+                                short_match_name = `P8`
+                            }
+                            else if (match.set_number === 3)
+                            {
+                                match_name = `R3 9`
+                                short_match_name = `P9`
+                            }
+                            else if (match.set_number === 4)
+                            {
+                                match_name = `R3 10`
+                                short_match_name = `P10`
+                            }
+                            break
+                        case 'sf':
+                            if (match.set_number === 1)
+                            {
+                                match_name = `R4 11`
+                                short_match_name = `P11`
+                            }
+                            else if (match.set_number === 2)
+                            {
+                                match_name = `R4 12`
+                                short_match_name = `P12`
+                            }
+                            break
+                        case 'f':
+                            if (match.set_number === 1)
+                            {
+                                match_name = `R5 13`
+                                short_match_name = `P13`
+                            }
+                            else if (match.set_number === 2)
+                            {
+                                match_name = `${match.comp_level.toUpperCase()} ${match.match_number}`
+                                short_match_name = `${match.comp_level.toUpperCase()}${match.match_number}`
+                            }
+                            break
+                    }
                 }
                 else
                 {
