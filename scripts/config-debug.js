@@ -45,12 +45,28 @@ function init_page()
     
     let pit_result = cfg.validate_mode('pit', true)
     pit.description = pit_result[1]
+    if (pit_result[2].length > 0)
+    {
+        pit.description += ` (${pit_result[2]})`
+    }
     let match_result = cfg.validate_mode('match', true)
     match.description = match_result[1]
+    if (match_result[2].length > 0)
+    {
+        match.description += ` (${match_result[2]})`
+    }
     let smart_stats_result = cfg.validate_smart_stats('smart_stats', true)
     smart_stats.description = smart_stats_result[1]
+    if (smart_stats_result[2].length > 0)
+    {
+        smart_stats.description += ` (${smart_stats_result[2]})`
+    }
     let coach_result = cfg.validate_coach('coach', true)
     coach.description = coach_result[1]
+    if (coach_result[2].length > 0)
+    {
+        coach.description += ` (${coach_result[2]})`
+    }
     let whiteboard_result = cfg.validate_whiteboard('whiteboard', true)
     whiteboard.description = whiteboard_result[1]
     let version_result = cfg.validate_version('version', true)
