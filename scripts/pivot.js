@@ -45,9 +45,14 @@ function init_page()
     if (stored_keys !== null)
     {
         selected_keys = JSON.parse(stored_keys)
-        for (let key of selected_keys)
+        for (let i in selected_keys)
         {
-            document.getElementById(`option_${key}`).classList.add('selected')
+            try {
+                document.getElementById(`option_${selected_keys[i]}`).classList.add('selected')
+            }
+            catch {
+                selected_keys.splice(i, 1)
+            }
         }
         build_table()
 
@@ -56,7 +61,12 @@ function init_page()
             let selected_types = JSON.parse(stored_types)
             for (let key in selected_types)
             {
-                document.getElementById(key).value = selected_types[key]
+                try {
+                    document.getElementById(key).value = selected_types[key]
+                }
+                catch {
+                    delete selected_types[key]
+                }
             }
         }
     }
