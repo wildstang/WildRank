@@ -8,6 +8,7 @@
 var BLANK_PAGES = {
     'config-generator': ['event', 'user'],
     'edit-coach': ['event'],
+    'edit-stats': ['event'],
     settings: ['event', 'user'],
     random: ['event', 'user'],
     'event-generator': ['event'],

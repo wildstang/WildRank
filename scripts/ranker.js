@@ -43,6 +43,10 @@ function init_page()
     let save_list = new Button('save_list', 'Save Rankings as Picklist', 'save_list()')
     button_col.add_input(save_list)
 
+    let edit_stats = new Button('edit_stats', 'Edit Stats')
+    edit_stats.link = `open_page('edit-stats')`
+    button_col.add_input(edit_stats)
+
     buttons_container.innerHTML = page.toString
     contents_card.style.display = 'none'
 
