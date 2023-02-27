@@ -1,5 +1,5 @@
 {
-	"version": "wr2-rc2",
+	"version": "wr2-rc4",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -162,7 +162,7 @@
 				"id": "match_auto_preload_game_piece",
 				"type": "select",
 				"options": ["None", "Cone", "Cube"],
-		  		"colors": ["#1E90FF", "#FFD700", "#9932CC"],
+				"colors": ["#1E90FF", "#FFD700", "#9932CC"],
 				"default": "None"
 			}]
 		}, {
@@ -180,8 +180,14 @@
 				"name": "Grid Row",
 				"id": "match_auto_auto_cycling_grid_row",
 				"type": "select",
-				"options": ["Failed", "Floor", "Low", "Middle", "High"],
+				"options": ["Floor", "Low", "Middle", "High"],
 				"default": "Floor"
+			}, {
+				"name": "Dropped",
+				"id": "match_auto_auto_cycling_dropped",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
 			}]
 		}, {
 			"name": "Position",
@@ -225,8 +231,14 @@
 				"name": "Grid Row",
 				"id": "match_tele_cycling_grid_row",
 				"type": "select",
-				"options": ["Failed", "Floor", "Low", "Middle", "High"],
+				"options": ["Floor", "Low", "Middle", "High"],
 				"default": "Floor"
+			}, {
+				"name": "Dropped",
+				"id": "match_tele_cycling_dropped",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
 			}]
 		}, {
 			"name": "Driver",
@@ -252,8 +264,7 @@
 				"type": "slider",
 				"options": [0, 10, 1],
 				"default": 0,
-				"negative": false,
-				"disallow_default": true
+				"negative": false
 			}]
 		}, {
 			"name": "Post Match",
@@ -269,8 +280,8 @@
 				"name": "State",
 				"id": "match_tele_post_match_state",
 				"type": "multiselect",
-				"options": ["BrokeDown", "LostComms", "Tipped"],
-				"negative": true,
+				"colors": [""],
+				"options": ["Tipped", "LostComms", "BrokeDown"],
 				"default": ""
 			}, {
 				"name": "Notes",
@@ -278,7 +289,7 @@
 				"type": "text",
 				"default": "None"
 			}]
-		}]	
+		}]
 	}],
 	"smart_stats": [],
 	"coach": [],
