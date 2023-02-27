@@ -264,7 +264,8 @@
 				"type": "slider",
 				"options": [0, 10, 1],
 				"default": 0,
-				"negative": false
+				"negative": false,
+				"disallow_default": true
 			}]
 		}, {
 			"name": "Post Match",
@@ -280,8 +281,8 @@
 				"name": "State",
 				"id": "match_tele_post_match_state",
 				"type": "multiselect",
-				"colors": [""],
 				"options": ["Tipped", "LostComms", "BrokeDown"],
+				"negative": true,
 				"default": ""
 			}, {
 				"name": "Notes",
