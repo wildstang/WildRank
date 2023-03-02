@@ -324,7 +324,10 @@ function create_element()
                     input.negative = parse_list(document.getElementById('new-element-negative').value).map(n => n.toLowerCase() === 'true')
                 case 'Select':
                 case 'Multiselect':
-                    input.colors = parse_list(document.getElementById('new-element-colors').value)
+                    if (type !== 'Multicounter')
+                    {
+                        input.colors = parse_list(document.getElementById('new-element-colors').value)
+                    }
                 case 'Dropdown':
                     input.options = parse_list(document.getElementById('new-element-options').value)
                 case 'String':
