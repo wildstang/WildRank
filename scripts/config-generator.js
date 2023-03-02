@@ -171,12 +171,12 @@ function populate_options()
                 ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
             case 'Multicounter':
-                let neg = new Entry('new-element-negative', 'Negative')
-                neg.description = 'A comma-separated list of true/false values for each counter.'
-                ops.add_input(neg)
                 let mops = new Entry('new-element-options', 'Options')
                 mops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
                 ops.add_input(mops)
+                let neg = new Entry('new-element-negative', 'Negative')
+                neg.description = 'A comma-separated list of true/false values for each counter.'
+                ops.add_input(neg)
                 let defm = new Entry('new-element-default', 'Default', '0')
                 defm.type = 'number'
                 defm.description = 'The single default value for all counters.'
@@ -346,6 +346,7 @@ function create_element()
             {
                 input.default = 'N/A'
             }
+            console.log(input)
             config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
         }
     }
