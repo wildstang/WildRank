@@ -566,6 +566,7 @@ class Config
      */
     static validate_mode_raw(c, description=false)
     {
+        let ids = []
         if (Array.isArray(c))
         {
             for (let page of c)
@@ -605,6 +606,12 @@ class Config
                         {
                             return result
                         }
+                        // check for overlapping IDs
+                        if (ids.includes(input.id))
+                        {
+                            return Config.return_description(false, `Repeat id "${input.id}"`, description, input.id)
+                        }
+                        ids.push(input.id)
                         switch (input.type)
                         {
                             case 'dropdown':
@@ -628,6 +635,16 @@ class Config
                                 {
                                     return result
                                 }
+                                // check for overlapping IDs
+                                for (let option of input.options)
+                                {
+                                    let id = `${input.id}_${option.toLowerCase()}`
+                                    if (ids.includes(id))
+                                    {
+                                        return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                    }
+                                    ids.push(id)
+                                }
                                 break
                             case 'multicounter':
                                 if (!input.hasOwnProperty('options') && Array.isArray(input.options))
@@ -638,6 +655,16 @@ class Config
                                 if (Config.failed(result))
                                 {
                                     return result
+                                }
+                                // check for overlapping IDs
+                                for (let option of input.options)
+                                {
+                                    let id = `${input.id}_${option.toLowerCase()}`
+                                    if (ids.includes(id))
+                                    {
+                                        return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                    }
+                                    ids.push(id)
                                 }
                                 break
                             case 'checkbox':
