@@ -1,5 +1,5 @@
 {
-	"version": "wr2-rc4",
+	"version": "wr2-final",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -112,11 +112,19 @@
 				"default": false,
 				"negative": false
 			}, {
-				"name": "Grid Rows",
-				"id": "pit_pit_game_pieces_grid_rows",
+				"name": "Grid Rows - Cone",
+				"id": "pit_pit_game_pieces_grid_rows_cone",
 				"type": "multiselect",
-				"options": ["None", "Low", "Middle", "High"],
-				"default": "None"
+				"colors": [""],
+				"options": ["Low", "Middle", "High"],
+				"default": ""
+			}, {
+				"name": "Grid Rows - Cube",
+				"id": "pit_pit_game_pieces_grid_rows_cube",
+				"type": "multiselect",
+				"colors": [""],
+				"options": ["Low", "Middle", "High"],
+				"default": ""
 			}]
 		}, {
 			"name": "Other",
