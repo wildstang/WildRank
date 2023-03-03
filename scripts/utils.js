@@ -642,3 +642,18 @@ function find_team_placeholders(text)
 {
     return [...text.matchAll(/(opponent|partner)([0-9])/g)]
 }
+
+/**
+ * function:    name_to_id
+ * parameters:  name string
+ * returns:     sanitized name as id
+ * description: Sanitizes an input name so it can be used for the ID.
+ */
+function create_id_from_name(name)
+{
+    return name.toLowerCase()
+               .replaceAll(/\(.*\)/g, '') // remove parenthesis
+               .replaceAll(/[- ]/g, '_')  // replace spaces and hyphens with underscores
+               .replaceAll(/__+/g, '_')   // prevent repeated underscores
+               .replaceAll(/\W+/g, '')    // remove any non-alphanumeric or underscore character
+}

@@ -336,7 +336,7 @@ function build_stat()
 {
     // build core stat object
     let name = document.getElementById('name').value
-    let id = name.toLowerCase().split(' ').join('_')
+    let id = create_id_from_name(name)
     let type = STAT_TYPES[Select.get_selected_option('type')]
     let stat = {
         name: name,
@@ -457,7 +457,7 @@ function build_stat()
 function calculate()
 {
     let name = document.getElementById('name').value
-    let id = name.toLowerCase().split(' ').join('_')
+    let id = create_id_from_name(name)
     let stat = build_stat()
     console.log(stat)
 

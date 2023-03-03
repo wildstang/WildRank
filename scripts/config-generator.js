@@ -214,11 +214,7 @@ function populate_options()
  */
 function create_id_from_name(parent, name)
 {
-    let id = name.toLowerCase()
-                 .replaceAll(/\(.*\)/g, '') // remove parenthesis
-                 .replaceAll(/[- ]/g, '_')  // replace spaces and hyphens with underscores
-                 .replaceAll(/__+/g, '_')   // prevent repeated underscores
-                 .replaceAll(/\W+/g, '')    // remove any non-alphanumeric or underscore character
+    let id = create_id_from_name(name)
 
     return `${parent}_${id}`
 }
