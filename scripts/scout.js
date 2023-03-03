@@ -405,10 +405,6 @@ function get_results_from_page()
         alert(`There are unchanged defaults! (${iid})`)
         return
     }
-    if (!confirm('Are you sure you want to submit?'))
-    {
-        return
-    }
     
     results = {}
 
@@ -445,13 +441,28 @@ function get_results_from_page()
             // check if its a cycle column
             if (column.cycle)
             {
-                results[column.id] = cycles[column.id]
+                let cs = cycles[column.id]
+                let val = cs.length - parseInt(document.getElementById(`${column.id}_cycles-value`).innerHTML)
+                if (val > 0)
+                {
+                    if (!confirm(`Are you sure you want to dispose of ${val} cycles (${column.id})`))
+                    {
+                        return
+                    }
+                    cs.splice(-val, val)
+                }
+                results[column.id] = cs
             }
             else
             {
                 Object.assign(results, get_results_from_column(column, scout_mode, '', '', alliances))
             }
         }
+    }
+
+    if (!confirm('Are you sure you want to submit?'))
+    {
+        return
     }
 
     // get result name
