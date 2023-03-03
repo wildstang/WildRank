@@ -901,7 +901,7 @@ class DAL
                 }
                 else if (match.time > 0)
                 {
-                    display_time = `${unix_to_match_time(match.time)}`
+                    display_time = `${unix_to_match_time(match.time)} (Scheduled)`
                 }
                 this.matches[match.key] = {
                     match_name: match_name,
@@ -1052,9 +1052,19 @@ class DAL
                             let passed = true
                             for (let key of Object.keys(stat.conditions))
                             {
-                                if (cycle.hasOwnProperty(key) && cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
+                                if (cycle.hasOwnProperty(key))
                                 {
-                                    passed = false
+                                    if (this.meta['results.' + key].type === 'checkbox')
+                                    {
+                                        if (stat.conditions[key] !== cycle[key])
+                                        {
+                                            passed = false
+                                        }
+                                    }
+                                    else if (cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
+                                    {
+                                        passed = false
+                                    }
                                 }
                             }
                             if (passed)

@@ -146,7 +146,7 @@ function update_params()
             }
             let cycle_id = cycle.replace('results.', '')
             let counters = dal.get_result_keys(cycle_id, ['counter']).map(c => dal.get_name(c))
-            let selects = dal.get_result_keys(cycle_id, ['dropdown', 'select'])
+            let selects = dal.get_result_keys(cycle_id, ['dropdown', 'select', 'checkbox'])
 
             let cycle_filter = new Dropdown('cycle', 'Cycle', cycles, cycle)
             cycle_filter.on_change = 'update_params()'
@@ -160,7 +160,12 @@ function update_params()
             html += cycle_filter.toString + count.toString + cycle_percent.toString
             for (let s of selects)
             {
-                let filter = new Dropdown(s, dal.get_name(s), [''].concat(dal.meta[s].options))
+                let options = dal.meta[s].options
+                if (dal.meta[s].type === 'checkbox')
+                {
+                    options = ['Yes', 'No']
+                }
+                let filter = new Dropdown(s, dal.get_name(s), [''].concat(options))
                 filter.on_change = 'calculate()'
                 filter.description = 'Optional, choose value of the above select to filter cycles by.'
                 html += filter.toString
@@ -377,13 +382,17 @@ function build_stat()
             let count = document.getElementById('count').selectedIndex
             let wdenominator = document.getElementById('denominator').selectedIndex
             let counters = dal.get_result_keys(cycle, ['counter'])
-            let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
+            let selects = dal.get_result_keys(cycle, ['dropdown', 'select', 'checkbox'])
             let vals = {}
             for (let s of selects)
             {
                 let val = document.getElementById(s).value
                 if (val)
                 {
+                    if (dal.meta[s].type === 'checkbox')
+                    {
+                        val = val === 'Yes'
+                    }
                     vals[s.replace('results.', '')] = val
                 }
             }
