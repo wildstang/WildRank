@@ -1525,7 +1525,21 @@ class DAL
                     }
                     else if (typeof meta !== 'undefined' && meta.cycle === true)
                     {
-                        return ''
+                        let string = ''
+                        for (let i in val)
+                        {
+                            if (i > 0)
+                            {
+                                string += '<br>'
+                            }
+                            let cycle = val[i]
+                            let keys = Object.keys(cycle)
+                            for (let key of keys)
+                            {
+                                string += `${this.get_name(`results.${key}`, '')}: ${cycle[key]}<br>`
+                            }
+                        }
+                        return string
                     }
                 }
                 return val
