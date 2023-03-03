@@ -134,6 +134,17 @@ function open_option(option)
                     case 'dropdown':
                         item = new Dropdown(id, name, options, options[default_val])
                         break
+                    case 'multicounter':
+                        item = new Multicounter(id, name, options)
+                        for (let op of options)
+                        {
+                            let op_id = `${id}_${op.toLowerCase().split().join('_')}`
+                            document.getElementById(`${op_id}-value`).innerHTML = c[op_id]
+                        }
+                        break
+                    case 'checkbox':
+                        item = new Checkbox(id, name, default_val)
+                        break
                     default:
                         continue
                 }
