@@ -337,7 +337,7 @@ function build_table(sort_by='', reverse=false)
         if (key.startsWith('stats.'))
         {
             let dropdown = new Dropdown(`select_${key}_${i}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
-            dropdown.on_click = `build_table('${sort_by}', ${reverse})`
+            dropdown.on_change = `build_table('${sort_by}', ${reverse})`
             dropdown.add_class('slim')
             dropdown.add_class('thin')
             fn = dropdown.toString
