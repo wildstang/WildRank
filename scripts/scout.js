@@ -247,6 +247,27 @@ function update_cycle(cycle, decrement)
                                 }
                             }
                             break
+                        case 'checkbox':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = document.getElementById(id).checked
+                                document.getElementById(id).checked = def
+                            }
+                            if (val < last)
+                            {
+                                document.getElementById(id).checked = cycles[cycle][val][id]
+                            }
+
+                            // highlight checkbox
+                            if (document.getElementById(id).checked)
+                            {
+                                document.getElementById(`${id}-container`).classList.add('selected')
+                            }
+                            else
+                            {
+                                document.getElementById(`${id}-container`).classList.remove('selected')
+                            }
+                            break
                         case 'counter':
                             if (!decrement)
                             {
@@ -325,6 +346,12 @@ function check_cycles()
                                 {
                                     return id
                                 }
+                            }
+                            break
+                        case 'checkbox':
+                            if (document.getElementById(id).checked != def)
+                            {
+                                return id
                             }
                             break
                         case 'counter':
