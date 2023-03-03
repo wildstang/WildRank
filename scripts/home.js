@@ -21,14 +21,13 @@ const CONFIGS = {
     },
     'drive': {
         'Drive Team': ['coach', 'whiteboard'],
-        'Transfer': ['transfer-raw', 'download_csv']
+        'Transfer': ['transfer-raw']
     },
     'analysis': {
         'Teams': ['ranker', 'sides', 'picklists', 'multipicklists', 'whiteboard'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
-        'Data': ['results', 'cycles', 'coach'],
-        'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events'],
-        'Transfer': ['transfer-raw', 'download_csv']
+        'Data': ['results', 'cycles', 'coach', 'transfer-raw'],
+        'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
         'Configuration': ['config-generator', 'settings', 'schedule-importer', 'scouter-scheduler', 'export'],
