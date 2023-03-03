@@ -21,7 +21,7 @@ const selected = urlParams.get('file')
 function init_page()
 {
     contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
-                                <input type="checkbox" id="show_meta" onclick="build_result_list()">Show Metadata</input>
+                                <input type="checkbox" id="show_meta" onclick="rebuild_result_list()">Show Metadata</input>
                                 <table id="results_tab"></table>`
     buttons_container.innerHTML = ''
 
@@ -74,6 +74,18 @@ function build_result_list()
     {
         open_option(first)
     }
+}
+
+/**
+ * function:    rebuild_team_list
+ * parameters:  none
+ * returns:     none
+ * description: Calls open_option with the current result.
+ */
+function rebuild_result_list()
+{
+    let op = document.getElementsByClassName('selected')[0]
+    open_option(op.id.replace('option_', ''))
 }
 
 /**
