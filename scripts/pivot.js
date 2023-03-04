@@ -328,11 +328,15 @@ function build_table(sort_by='', reverse=false)
         unique.unshift('')
 
         // build dropdown for filter
-        let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
-        filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
-        filter_dd.add_class('slim')
-        filter_dd.add_class('thin')
-        let filter_str = filter_dd.toString
+        let filter_str = ''
+        if (type !== 'Total')
+        {
+            let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
+            filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
+            filter_dd.add_class('slim')
+            filter_dd.add_class('thin')
+            filter_str = filter_dd.toString
+        }
 
         // build dropdown for those that have stats
         let fn = ''
@@ -394,7 +398,7 @@ function build_table(sort_by='', reverse=false)
                 max = 1.0
                 mean = 0.5
             }
-            if (val !== mean)
+            if (val !== mean && type !== 'total')
             {
                 let colors = [0,0,0,0]
 
