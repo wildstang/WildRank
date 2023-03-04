@@ -327,7 +327,7 @@ function build_table(sort_by='', reverse=false)
 
         // build dropdown for filter
         let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
-        filter_dd.on_click = `build_table('${sort_by}', ${reverse})`
+        filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
         filter_dd.add_class('slim')
         filter_dd.add_class('thin')
         let filter_str = filter_dd.toString
