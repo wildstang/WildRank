@@ -1,21 +1,15 @@
 /**
  * file:        random.js
- * description: Page for generating random match/pit/note results.
+ * description: Page for generating random match/pit results.
  *              Built for easy data generation for testing.
  * author:      Liam Fruzyna
  * date:        2021-09-06
  */
 
 // read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 
-const year = event_id.substr(0,4)
 const start = Date.now()
-
-var teams = []
-var matches = []
 
 /**
  * function:    init_page
@@ -29,45 +23,40 @@ function init_page()
     document.getElementById('header_info').innerHTML = 'Generate Results'
     
     // load in and count qualification matches
-    matches = JSON.parse(localStorage.getItem(get_event_matches_name(event_id)))
-        .filter(m => m.comp_level == 'qm')
-        .sort((a, b) => a.match_number - b.match_number)
-    let count = matches.length
+    let count = Object.keys(dal.matches).length
 
-    // load in and count teams
-    teams = JSON.parse(localStorage.getItem(get_event_teams_name(event_id))).map(t => t.team_number)
-    let last = Math.max(...teams)
+    let page = new PageFrame('', '')
+    let left_col = new ColumnFrame('', '')
+    page.add_column(left_col)
+    let right_col = new ColumnFrame('', '')
+    page.add_column(right_col)
 
-    // select default scouting position
-    let mode = 'Match'
-    if (scout_mode.toLowerCase() == PIT_MODE)
-    {
-        mode = 'Pit'
-    }
-    else if (scout_mode.toLowerCase() == NOTE_MODE)
-    {
-        mode = 'Note'
-    }
+    let type_form = new Select('type_form', 'Mode', MODES.map(m => m.charAt(0).toUpperCase() + m.substring(1)), 'Match')
+    type_form.on_change = 'hide_buttons()'
+    left_col.add_input(type_form)
+
+    let user_form = new Entry('user_id', 'School ID', user_id)
+    user_form.bounds = [100000, 999999]
+    user_form.type = 'number'
+    left_col.add_input(user_form)
+
+    let pos_form = new Dropdown('position', 'Position', ['All'].concat(Object.values(dal.get_team_keys())))
+    right_col.add_input(pos_form)
+
+    let min_value = new Entry('min_value', 'First Match', 1)
+    min_value.type = 'number'
+    right_col.add_input(min_value)
+
+    let max_value = new Entry('max_value', 'Last Match', count)
+    max_value.type = 'number'
+    right_col.add_input(max_value)
+
+    let generate = new Button('generate', 'Generate Results')
+    generate.on_click = 'create_results()'
+    right_col.add_input(generate)
 
     // build page
-    document.body.innerHTML += build_page_frame('', [
-        build_column_frame('', [
-            build_select('type_form', 'Mode:', ['Pit', 'Match', 'Note'], mode, 'hide_buttons()'),
-            build_num_entry('user_id', 'School ID:', user_id, [100000, 999999])
-        ]),
-        build_column_frame('', [
-            '<div id="match_ops">' +
-                build_dropdown('position', 'Position:', ['All'].concat(get_team_keys(event_id)), 'scout_pos') +
-                build_num_entry('min_match', 'First Match', 1, [1, count]) + 
-                build_num_entry('max_match', 'Last Match', count, [1, count]) +
-            '</div>',
-            '<div id="team_ops">' +
-                build_num_entry('min_team', 'First Team', 1, [1, last]) +
-                build_num_entry('max_team', 'Last Team', last, [1, last]) +
-            '</div>',
-            build_button('generate', 'Generate Results', 'create_results()')
-        ])
-    ])
+    document.body.innerHTML += page.toString
     hide_buttons()
 }
 
@@ -79,15 +68,20 @@ function init_page()
  */
 function hide_buttons()
 {
-    if (get_selected_option('type_form') == 0)
+    let mode = MODES[Select.get_selected_option('type_form')]
+    if (mode === PIT_MODE)
     {
-        document.getElementById('match_ops').style.display = 'none'
-        document.getElementById('team_ops').style.display = 'block'
+        document.getElementById('min_value_label').innerHTML = 'First Team'
+        document.getElementById('max_value_label').innerHTML = 'Last Team'
+        document.getElementById('min_value').value = 1
+        document.getElementById('max_value').value = Math.max(...Object.keys(dal.teams))
     }
-    else
+    else if (mode === MATCH_MODE || mode == NOTE_MODE)
     {
-        document.getElementById('match_ops').style.display = 'block'
-        document.getElementById('team_ops').style.display = 'none'
+        document.getElementById('min_value_label').innerHTML = 'First Match'
+        document.getElementById('max_value_label').innerHTML = 'Last Match'
+        document.getElementById('min_value').value = 1
+        document.getElementById('max_value').value = Math.max(...Object.values(dal.matches).map(m => m.match_number))
     }
 }
 
@@ -100,21 +94,21 @@ function hide_buttons()
 function create_results()
 {
     // load in appropriate config
-    let mode = [PIT_MODE, MATCH_MODE, NOTE_MODE][get_selected_option('type_form')]
+    let mode = MODES[Select.get_selected_option('type_form')]
     let pos = document.getElementById('position').selectedIndex
 
-    if (mode == PIT_MODE)
+    let min = parseInt(document.getElementById('min_value').value)
+    let max = parseInt(document.getElementById('max_value').value)
+    if (mode === PIT_MODE)
     {
-        let min = parseInt(document.getElementById('min_team').value)
-        let max = parseInt(document.getElementById('max_team').value)
-
         // filter out and generate for each selected team
         if (max >= min)
         {
+            let teams = Object.keys(dal.teams)
             let ts = teams.filter(t => t >= min && t <= max)
             for (let t of ts)
             {
-                create_random_result(mode, pos-1, -1, t)
+                create_random_result(mode, pos-1, -1, t, 'white')
             }
             alert(`${ts.length} pit results generated`)
         }
@@ -123,51 +117,26 @@ function create_results()
             alert('Invalid range')
         }
     }
-    else if (mode == MATCH_MODE)
+    else if (mode === MATCH_MODE || mode == NOTE_MODE)
     {
-        let min = parseInt(document.getElementById('min_match').value)
-        let max = parseInt(document.getElementById('max_match').value)
-
         // filter out and generate for each selected position in each selected match
         if (max >= min)
         {
-            for (let i = min; i <= max; i++)
+            let matches = Object.keys(dal.matches)
+            for (let match_key of matches)
             {
-                let fteams = matches[i-1].alliances.red.team_keys
-                    .concat(matches[i-1].alliances.blue.team_keys)
+                let fteams = Object.values(dal.get_match_teams(match_key))
                     .filter((t, j) => pos == 0 || pos == j - 1)
-                    .map(t => t.substr(3))
                 
-                for (let j in fteams)
+                if (dal.matches[match_key].match_number <= max && dal.matches[match_key].comp_level === 'qm')
                 {
-                    create_random_result(mode, pos == 0 ? j : pos-1, i, fteams[j])
+                    for (let j in fteams)
+                    {
+                        create_random_result(mode, pos == 0 ? j : pos-1, match_key, fteams[j], j < dal.alliance_size ? 'red' : 'blue')
+                    }
                 }
             }
             alert(`${max - min + 1} match results generated`)
-        }
-        else
-        {
-            alert('Invalid range')
-        }
-    }
-    else if (mode == NOTE_MODE)
-    {
-        let min = parseInt(document.getElementById('min_match').value)
-        let max = parseInt(document.getElementById('max_match').value)
-
-        // filter out and generate for each selected position in each selected match
-        if (max >= min)
-        {
-            for (let i = min; i <= max; i++)
-            {
-                let fteams = matches[i-1].alliances.red.team_keys
-                fteams = fteams.concat(matches[i-1].alliances.blue.team_keys)
-                    .filter((t, i) => pos == 0 || pos == i - 1)
-                    .map(t => t.substr(3))
-
-                generate_notes(pos == 0 ? i : pos-1, i, fteams)
-            }
-            alert(`${max - min + 1} match notes generated`)
         }
         else
         {
@@ -182,7 +151,7 @@ function create_results()
  * returns:     none
  * description: Generates and saves a new random result
  */
-function create_random_result(scout_mode, scout_pos, match_num, team_num)
+function create_random_result(scout_mode, scout_pos, match_key, team_num, alliance_color)
 {
     results = {}
 
@@ -199,13 +168,16 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
     // match metadata
     if (scout_mode != PIT_MODE)
     {
-        results['meta_match'] = parseInt(match_num)
+        results['meta_match_key'] = match_key
+        results['meta_comp_level'] = dal.get_match_value(match_key, 'comp_level')
+        results['meta_set_number'] = parseInt(dal.get_match_value(match_key, 'set_number'))
+        results['meta_match'] = dal.get_match_value(match_key, 'match_number')
+        results['meta_alliance'] = alliance_color
     }
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    let pages = get_scout_config(scout_mode, year).pages
-    for (let page of pages)
+    for (let page of cfg[scout_mode])
     {
         for (let column of page.columns)
         {
@@ -233,6 +205,10 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                         else if (type == 'counter')
                         {
                             c[id] = random_int()
+                        }
+                        else if (type == 'checkbox')
+                        {
+                            c[id] = random_bool()
                         }
                         else
                         {
@@ -267,6 +243,13 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
                             {
                                 let name = `${id}_${op.toLowerCase().split().join('_')}`
                                 results[name] = random_int()
+                            }
+                            break
+                        case 'multiselect':
+                            for (let op of options)
+                            {
+                                let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                results[name] = random_bool(1 - 0.5 / options.length)
                             }
                             break
                         case 'select':
@@ -307,48 +290,10 @@ function create_random_result(scout_mode, scout_pos, match_num, team_num)
     }
 
     // get result name and save
-    let file = get_pit_result(team_num, event_id)
-    if (scout_mode == MATCH_MODE)
+    let file = `pit-${event_id}-${team_num}`
+    if (scout_mode === MATCH_MODE || scout_mode === NOTE_MODE)
     {
-        file = get_match_result(match_num, team_num, event_id)
+        file = `${scout_mode}-${match_key}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
-}
-
-/**
- * function:    generate_nodes
- * parameters:  scouting position, match number, list of teams
- * returns:     none
- * description: Generates a "random" note for each given team in a match.
- *              Note: text isn't randomly generated so nothing is here.
- */
-function generate_notes(scout_pos, match_num, teams)
-{
-    results = {}
-
-    // scouter metadata
-    results['meta_scouter_id'] = parseInt(user_id)
-    results['meta_scout_time'] = Math.round(start / 1000)
-    results['meta_scouting_duration'] = (Date.now() - start) / 1000
-
-    // scouting metadata
-    results['meta_scout_mode'] = NOTE_MODE
-    results['meta_position'] = parseInt(scout_pos)
-    results['meta_event_id'] = event_id
-    results['meta_match'] = parseInt(match_num)
-
-    // save each individual team
-    for (let team of teams)
-    {
-        if (team)
-        {
-            results['meta_team'] = parseInt(team)
-            results['notes'] = 'This result was randomly generated'
-            if (results['notes'] != '')
-            {
-                file = get_note(team, match_num, event_id)
-                localStorage.setItem(file, JSON.stringify(results))
-            }
-        }
-    }
 }

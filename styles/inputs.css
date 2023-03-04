@@ -9,6 +9,10 @@
     :root {
         --input-width: 90vw;
     }
+
+    .photo-carousel {
+        max-width: 350px;
+    }
 }
 
 .page {
@@ -25,7 +29,7 @@
 
 .column {
     display: inline-block;
-    padding-right: var(--input-gap);
+    margin-right: var(--input-gap);
     text-align: left;
     vertical-align:top;
 }
@@ -65,7 +69,7 @@
     display: inline-block;
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text {
+.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
@@ -81,6 +85,16 @@
 
 .column_header {
     font-size: 18px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.page_color {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.column_color {
     background-color: var(--secondary-color);
     color: var(--primary-color);
 }
@@ -134,9 +148,12 @@
     text-align: center;
 }
 
-.wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_number:hover, .wr_text:hover, .wr_slider:hover {
-    background-color: var(--hover-color);
-    color: var(--hover-text-color);
+@media (hover: hover) {
+    /* this prevents hover from being show on touch screen devices at all, because it tends to linger */
+    .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_slider:hover, .color_text:hover {
+        background-color: var(--hover-color);
+        color: var(--hover-text-color);
+    }
 }
 
 .wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > *, .wr_slider > *, .wr_status > * {
@@ -147,8 +164,17 @@
     line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
 }
 
-.wr_counter_count {
+.wr_counter_count, .wr_number_num {
     font-size: 200%;
+}
+
+.wr_number {
+    overflow: hidden;
+}
+
+.wr_number_num {
+    font-size: 200%;
+    float: right;
 }
 
 .wr_select_option {
@@ -164,9 +190,9 @@
     display: block;
 }
 
-.wr_select_option.slim {
-    height: calc(var(--input-height)/2 - 2*var(--input-padding));
-    line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+.wr_select_option.slim, .wr_select.slim > .wr_select_option {
+    height: calc((var(--input-height) - 2*var(--input-padding))/2);
+    line-height: calc((var(--input-height) - 2*var(--input-padding))/2);
 }
 
 .wr_color, .wr_status {
@@ -184,6 +210,8 @@
     margin-top: 1px;
     border: none;
     font-size: 16px;
+    background-color: var(--foreground-color);
+    color: var(--foreground-text-color);
 }
 
 .status_text {
@@ -229,8 +257,7 @@
 }
 
 .cycle {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
+    background-color: #FF00FF22;
 }
 
 .red_box {
@@ -239,4 +266,75 @@
 
 .blue_box {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 255, 0.2), 0 6px 20px 0 rgba(0, 0, 255, 0.19);
+}
+
+.thin {
+    width: auto;
+    min-width: 0;
+}
+
+.photo-carousel, .scouting-carousel {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+}
+
+.photo-carousel > img, .scouting-carousel > .page {
+    scroll-snap-align: start;
+    white-space: normal;
+}
+
+.photo-carousel > img {
+    vertical-align: middle;
+    width: 100%;
+    max-height: 550px;
+    object-fit: cover;
+}
+
+.scouting-carousel > .page {
+    vertical-align: top;
+    width: 100%;
+    padding: 0;
+}
+
+.scouting-carousel > .page > .page_header {
+    margin-right: 0px;
+}
+
+.scouting-carousel > .page > .column {
+    margin-left: calc(var(--input-gap)/2);
+    margin-right: calc(var(--input-gap)/2);
+}
+
+.profile {
+    text-align: center;
+    padding: 0;
+}
+
+.wr_card h1 {
+    margin: 0;
+    background-color: gray;
+    padding: var(--input-padding);
+}
+
+.wr_card .card_body {
+    text-align: left;
+    padding: var(--input-padding);
+}
+
+.links {
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.selection_filter > .wr_button {
+    width: calc(299px - 2*var(--input-padding));
+    margin: 4px auto;
+}
+
+.selection_filter > .wr_dropdown {
+    width: 299px;
+    margin: 4px auto;
 }

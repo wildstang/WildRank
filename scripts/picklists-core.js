@@ -5,72 +5,70 @@
  * date:        2020-10-18
  */
 
-var lists = {}
-
 /**
  * function:    remove_team
- * parameters:  list name, team number
+ * parameters:  list name, team number, list position
  * returns:     none
  * description: Removes the clicked team from the containing list.
  */
-function remove_team(name, team)
+function remove_team(name, team, i=0)
 {
     if (team !== '')
     {
-        lists[name].splice(lists[name].indexOf(team), 1);
+        dal.picklists[name].splice(dal.picklists[name].indexOf(team), 1);
     }
     else if (confirm(`Are you sure you want to delete "${name}"`))
     {
-        delete lists[name]
+        delete dal.picklists[name]
     }
-    build_pick_lists(name)
+    build_pick_lists(name, i)
 }
 
 /**
  * function:    add_to
- * parameters:  list name, team number
+ * parameters:  list name, team number, list position
  * returns:     none
  * description: Adds the selected team to the selected list after the clicked team.
  */
-function add_to(name, after_team)
+function add_to(name, after_team, i=0)
 {
     let team_num = document.getElementById('team_num').innerHTML
     if (team_num == after_team)
     {
         return
     }
-    if (lists[name].includes(team_num))
+    if (dal.picklists[name].includes(team_num))
     {
         remove_team(name, team_num)
     }
     // insert team in list after clicked button (list name will return index of -1 so 0)
-    lists[name].splice(lists[name].indexOf(after_team)+1, 0, team_num)
-    build_pick_lists(name)
+    dal.picklists[name].splice(dal.picklists[name].indexOf(after_team)+1, 0, team_num)
+    build_pick_lists(name, i)
 }
 
 /**
  * function:    cross_out
- * parameters:  team number
+ * parameters:  list name, team number, list position
  * returns:     none
  * description: Toggles the selected team's crossed out status across all picklists.
  */
-function cross_out(name, team)
+function cross_out(name, team, i=0)
 {
-    if (!Object.keys(lists).includes('picked'))
+    if (!Object.keys(dal.picklists).includes('picked'))
     {
-        lists['picked'] = []
+        dal.picklists['picked'] = []
     }
     
-    if (lists['picked'].includes(team))
+    if (dal.picklists['picked'].includes(team))
     {
-        lists['picked'].splice(lists['picked'].indexOf(team), 1);
+        dal.picklists['picked'].splice(dal.picklists['picked'].indexOf(team), 1);
     }
     else
     {
-        lists['picked'].push(team)
+        dal.picklists['picked'].push(team)
     }
 
-    build_pick_lists(name)
+    build_pick_lists(name, i)
 }
 
 /**
@@ -82,15 +80,37 @@ function cross_out(name, team)
 function create_list()
 {
     let name = document.getElementById('pick_list_name').value
-    if (Object.keys(lists).includes(name))
+    if (Object.keys(dal.picklists).includes(name))
     {
         alert(`List "${name}" already exists!`)
     }
     else
     {
         // add empty array of list name
-        lists[name] = []
+        dal.picklists[name] = []
         build_pick_lists(name)
+    }
+}
+
+/**
+ * function:    rename_list
+ * parameters:  original list name, list position
+ * returns:     none
+ * description: Renames the current picklist.
+ */
+function rename_list(old_name, i=0)
+{
+    let new_name = document.getElementById(`new_name_${old_name}`).value
+    if (Object.keys(dal.picklists).includes(new_name))
+    {
+        alert(`List "${new_name}" already exists!`)
+    }
+    else
+    {
+        // add empty array of list name
+        dal.picklists[new_name] = dal.picklists[old_name]
+        delete dal.picklists[old_name]
+        build_pick_lists(new_name, i)
     }
 }
 
@@ -102,19 +122,13 @@ function create_list()
  */
 function setup_picklists()
 {
-    // load lists in from localStorage, and build lists
-    let name = get_event_pick_lists_name(event_id)
-    if (file_exists(name))
+    // remove empty lists on page load
+    let names = Object.keys(dal.picklists)
+    for (let list of names)
     {
-        lists = JSON.parse(localStorage.getItem(name))
-        // remove empty lists on page load
-        let names = Object.keys(lists)
-        for (let list of names)
+        if (dal.picklists[list].length == 0)
         {
-            if (lists[list].length == 0)
-            {
-                delete lists[list]
-            }
+            delete dal.picklists[list]
         }
     }
     build_pick_lists()

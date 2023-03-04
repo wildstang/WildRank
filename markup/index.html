@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="description" content="WildRank is a FIRST Robotics Competition scouting progressive web app developed by the WildStang Robotics Program.">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <title>WildRank</title>
+        <link rel="stylesheet" type="text/css" href="styles/style.css">
+        <link rel="stylesheet" type="text/css" href="styles/inputs.css">
+        <script src="scripts/keys.js"></script>
+        <script src="scripts/utils.js"></script>
+        <script src="scripts/config.js"></script>
+        <script src="scripts/data.js"></script>
+        <script src="scripts/links.js"></script>
+        <script src="scripts/inputs.js"></script>
+        <script src="scripts/init.js"></script>
+        <script src="scripts/blank.js"></script>
+        <link rel="manifest" href="manifest.webmanifest">
+        <meta name="theme-color" content="#000080"/>
+        <link rel="apple-touch-icon" href="/assets/icons/icon-192x192-maskable.png">
+    </head>
+    <body>
+        <div id="header">
+            <h1><a onclick="home(false)" oncontextmenu="home(true); return false" id="title">WildRank</a></h1>
+            <h2 id="header_info"></h2>
+        </div>
+    </body>
+    <script>
+        // this cannot be done in a head script because title has not been loaded in yet
+        // plus onload() is not fast enough, the original title can still be seen
+        // so instead we do it here at the end before the page is loaded, but after title is
+        let title = cfg.settings.title
+        if (typeof title !== 'undefined')
+        {
+            document.getElementById('title').innerHTML = cfg.settings.title
+        }
+    </script>
+</html>

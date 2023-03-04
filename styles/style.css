@@ -21,6 +21,7 @@
     --blue-alliance-color: #0074D9;
     --green-alliance-color: #2ECC40;
     --alt-table-color: #F2F2F2;
+    --highlight-color: #FFF2A8;
     --font: "mono"
 }
 
@@ -48,6 +49,9 @@ body {
     padding: var(--input-padding) 0;
     color: var(--primary-text-color);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;
 }
 
 @keyframes rainbow { 
@@ -73,4 +77,14 @@ tr:nth-child(even) {
     background-color: var(--foreground-color);
     position: sticky;
     top: 0;
+}
+
+#results_tab {
+    position: relative;
+}
+
+#pick_list_table {
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;
 }

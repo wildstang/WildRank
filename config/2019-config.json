@@ -1,0 +1,148 @@
+{
+	"version": "2019-defense-test",
+	"pit": [],
+	"note": [],
+	"match": [{
+		"name": "Auto",
+		"id": "match_auto",
+		"columns": [{
+			"name": "Nothing to Scout, Move to Tele",
+			"id": "match_auto_nothing_to_scout_move_to_tele",
+			"cycle": false,
+			"inputs": []
+		}]
+	}, {
+		"name": "Tele",
+		"id": "match_tele",
+		"columns": [{
+			"name": "Scoring",
+			"id": "match_tele_scoring",
+			"cycle": true,
+			"inputs": [{
+				"name": "Game Piece",
+				"id": "match_tele_scoring_game_piece",
+				"type": "select",
+				"options": ["Hatch(Disk)", "Cargo(Ball)"],
+				"colors": ["grey", "orange"],
+				"default": "Hatch(Disk)"
+			}, {
+				"name": "Scoring Location",
+				"id": "match_tele_scoring_scoring_location",
+				"type": "select",
+				"options": ["Rocket", "CargoShip"],
+				"default": "Rocket"
+			}, {
+				"name": "Number of Drops",
+				"id": "match_tele_scoring_number_of_drops",
+				"type": "counter",
+				"default": 0,
+				"negative": true
+			}]
+		}, {
+			"name": "Defense",
+			"id": "match_tele_defense",
+			"cycle": false,
+			"inputs": [{
+				"name": "Seconds Defending opponent1",
+				"id": "match_tele_defense_seconds_defending_opponent1",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Seconds Defending opponent2",
+				"id": "match_tele_defense_seconds_defending_opponent2",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Seconds Defending opponent3",
+				"id": "match_tele_defense_seconds_defending_opponent3",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Need Data Reviewed?",
+				"id": "match_tele_defense_need_data_reviewed",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}]
+		}, {
+			"name": "Post-Match",
+			"id": "match_tele_post_match",
+			"cycle": false,
+			"inputs": [{
+				"name": "Driver Skill",
+				"id": "match_tele_post_match_driver_skill",
+				"type": "slider",
+				"options": [1, 10, 1],
+				"default": 1,
+				"negative": false
+			}, {
+				"name": "Broke Down?",
+				"id": "match_tele_post_match_broke_down",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
+			}, {
+				"name": "Notes",
+				"id": "match_tele_post_match_notes",
+				"type": "text",
+				"default": "Type Notes Here"
+			}]
+		}]
+	}],
+	"smart_stats": [],
+	"coach": [],
+	"whiteboard": {
+		"red_0": {
+			"x": 615,
+			"y": 160,
+			"color": "#FF4136"
+		},
+		"red_1": {
+			"x": 615,
+			"y": 230,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 615,
+			"y": 300,
+			"color": "#FF4136"
+		},
+		"blue_0": {
+			"x": 85,
+			"y": 160,
+			"color": "#0074D9"
+		},
+		"blue_1": {
+			"x": 85,
+			"y": 230,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 85,
+			"y": 300,
+			"color": "#0074D9"
+		},
+		"game_pieces": [{
+			"name": "Cargo",
+			"image": "2019/cargo.png"
+		}, {
+			"name": "Hatch Panel",
+			"image": "2019/hatch_panel.png"
+		}],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 27,
+		"vertical_margin": 26,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}
+}

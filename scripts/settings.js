@@ -6,14 +6,6 @@
  *              2022-01-20
  */
 
-const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
-
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
-
-var meta = {}
-var keys = []
-
 /**
  * function:    init_page
  * parameters:  none
@@ -23,15 +15,15 @@ var keys = []
 function init_page()
 {
     document.getElementById('header_info').innerHTML = `Settings`
-    document.body.innerHTML += '<div id="body"></div>' + build_page_frame('', [
-        build_column_frame('', [build_button('', 'Download', 'download_config()')]),
-        build_column_frame('', [build_button('', 'Upload', 'upload_config()')]),
-        build_column_frame('', [build_button('', 'Apply', 'apply_config()')])
-    ])
 
-    // load in keys
-    meta = get_result_meta(MATCH_MODE, year)
-    keys = get_keys(meta)
+    let page = new PageFrame('', '', [
+        '<div id="body"></div>',
+        new ColumnFrame('', '', [new Button('', 'Download', 'download_config()')]),
+        new ColumnFrame('', '', [new Button('', 'Upload', 'upload_config()')]),
+        new ColumnFrame('', '', [new Button('', 'Apply', 'apply_config()')])
+    ])
+    
+    document.body.innerHTML += page.toString
 
     build_page()
 }
@@ -44,135 +36,94 @@ function init_page()
  */
 function build_page()
 {
-    document.getElementById('body').innerHTML = ''
-    
-    if (file_exists('config-settings'))
-    {
-        document.getElementById('body').innerHTML += build_page_frame('General', [build_column('settings')])
-    }
-    if (file_exists('config-defaults'))
-    {
-        document.getElementById('body').innerHTML += build_page_frame('Defaults', [build_column('defaults')])
-    }
-    if (file_exists('config-admins'))
-    {
-        let config = get_config('admins')
-        document.getElementById('body').innerHTML += build_page_frame('Admins', [build_column_frame('', [build_text_entry('admins', 'ID List', config.join(', '))])])
-    }
-    if (file_exists('config-coach-vals'))
-    {
-        let configs = get_config('coach-vals')
-        if (Object.keys(configs).includes(year))
-        {
-            let names = keys.map(k => meta[k].name)
-            let config = configs[year]
-            let inputs = []
-            let ckeys = Object.keys(config)
-            for (let i in ckeys)
-            {
-                let key = ckeys[i]
-                let val = config[key]
-                let name = val.key.length > 0 ? meta[val.key].name : ''
-                if (keys.includes(val.key) || val.key == '')
-                {
-                    let func = val.function
-                    func = func.substr(0, 1).toUpperCase() + func.substr(1)
-                    inputs.push(build_select(`fn_${i}`, 'Function', FUNCTIONS, func))
-                    inputs.push(build_dropdown(`key_${i}`, 'Key', [''].concat(names), name))
-                }
-            }
-            inputs.push(build_button('add_coach', 'New Value', 'add_coach()'))
-            document.getElementById('body').innerHTML += build_page_frame('Coach Values', [build_column_frame('', inputs)])
-        }
-    }
-    if (file_exists('config-smart-stats'))
-    {
-        let configs = get_config('smart-stats')
-        if (Object.keys(configs).includes(year))
-        {
-            let config = configs[year]
-            let buttons = []
-            for (let stat of config)
-            {
-                buttons.push(build_button(stat.id, `Remove "${stat.name}"`, `remove_smart_stat('${stat.id}')`))
-            }
-            document.getElementById('body').innerHTML += build_page_frame('Smart Stats', [build_column_frame('', buttons)])
-        }
-    }
+    let page = new PageFrame('', '', [
+        build_column('General', 'settings'),
+        build_column('Defaults', 'defaults'),
+        build_column('Users', 'users'),
+        build_column('Keys', 'keys'),
+        build_column('Theme', 'theme'),
+        build_column('Dark Theme', 'dark_theme')
+    ])
+
+    document.getElementById('body').innerHTML = page.toString
 }
 
 /**
  * function:    build_column
- * parameters:  config name
+ * parameters:  column name, config name
  * returns:     none
  * description: Builds a column for a generic array based config.
  */
-function build_column(file)
+function build_column(cfg_name, file)
 {
-    let config = get_config(file)
-    let inputs = []
+    let config = cfg[file]
+    let column = new ColumnFrame(`${file}-column`, cfg_name)
     let keys = Object.keys(config)
     for (let index in keys)
     {
         let key = keys[index]
-        let name = `${key.replace(/_/g, ' ').replace(/-/g, ' ')}:`
+        let name = `${key.replace(/_/g, ' ').replace(/-/g, ' ')}`
         let val = config[key]
         let id = `${file}-${key}`
-        if (key == 'time_format')
+        if (key === 'time_format')
         {
-            inputs.push(build_select(id, name, ['12', '24'], val.toString()))
+            let select = new Select(id, name, ['12', '24'], val.toString())
+            column.add_input(select)
         }
-        else if (typeof val == 'boolean')
+        else if (typeof val === 'boolean')
         {
-            inputs.push(build_select(id, name, ['true', 'false'], val.toString()))
+            let select = new Select(id, name, ['true', 'false'], val.toString())
+            column.add_input(select)
         }
-        else if (typeof val == 'number')
+        else if (typeof val === 'number')
         {
-            inputs.push(build_num_entry(id, name, val))
+            let entry = new Entry(id, name, val)
+            entry.type = 'number'
+            column.add_input(entry)
         }
-        else if (typeof val == 'string')
+        else if (typeof val === 'string')
         {
             if (key.endsWith('color') || (val.length > 0 && val.startsWith('#')))
             {
-                inputs.push(build_color_entry(id, name, val))
+                let entry = new Entry(id, name, val)
+                entry.show_color = true
+                column.add_input(entry)
+            }
+            else if (val.length > 32)
+            {
+                let entry = new Extended(id, name, val)
+                column.add_input(entry)
             }
             else
             {
-                inputs.push(build_str_entry(id, name, val))
+                let entry = new Entry(id, name, val)
+                column.add_input(entry)
+            }
+            if (key === 'tba' && val === '')
+            {
+                let button = new Button('tba_link', 'Get an API Key')
+                button.external_link = 'https://www.thebluealliance.com/account#submissions-accepted-count-row'
+                column.add_input(button)
             }
         }
+        else if (file === 'users')
+        {
+            let entry = new Extended(file, 'raw user config', JSON.stringify(config, null, 2))
+            column.add_input(entry)
+            break
+        }
+        else if (Array.isArray(val))
+        {
+            let entry = new Extended(id, name, val.join(', '))
+            column.add_input(entry)
+        }
+        else
+        {
+            let entry = new Extended(id, name, JSON.stringify(val, null, 2))
+            column.add_input(entry)
+        }
     }
-    return build_column_frame('', inputs)
-}
-
-/**
- * function:    add_coach
- * parameters:  none
- * returns:     none
- * description: Adds an empty coach value to the config.
- */
-function add_coach()
-{
-    let config = build_coach_config()
-    config[year].push({ function: 'mean', key: '' })
-    localStorage.setItem('config-coach-vals', JSON.stringify(config))
-
-    build_page()
-}
-
-/**
- * function:    remove_smart_stat
- * parameters:  stat id
- * returns:     none
- * description: Removes a smart stat from the current config by id.
- */
-function remove_smart_stat(id)
-{
-    let config = get_config('smart-stats')
-    config[year] = config[year].filter(s => s.id != id)
-    localStorage.setItem('config-smart-stats', JSON.stringify(config))
-
-    build_page()
+    return column
 }
 
 /**
@@ -183,60 +134,15 @@ function remove_smart_stat(id)
  */
 function apply_config()
 {
-    if (file_exists('config-settings'))
-    {
-        localStorage.setItem('config-settings', build_config('settings'))
-    }
-    if (file_exists('config-defaults'))
-    {
-        localStorage.setItem('config-defaults', build_config('defaults'))
-    }
-    if (file_exists('config-admins'))
-    {
-        let admins = document.getElementById('admins').value.replaceAll(' ', '').split(',').map(a => parseInt(a))
-        localStorage.setItem('config-admins', JSON.stringify(admins))
-    }
-    if (file_exists('config-coach-vals'))
-    {
-        let configs = build_coach_config()
-        localStorage.setItem('config-coach-vals', JSON.stringify(configs))
-    }
+    localStorage.setItem('config-settings', build_config('settings'))
+    localStorage.setItem('config-defaults', build_config('defaults'))
+    localStorage.setItem('config-users', build_config('users'))
+    localStorage.setItem('config-keys', build_config('keys'))
+    localStorage.setItem('config-theme', build_config('theme'))
+    localStorage.setItem('config-dark-theme', build_config('dark_theme'))
 
-    build_page()
+    cfg.load_configs(0, build_page)
     alert('Settings Applied')
-}
-
-/**
- * function:    build_coach_config
- * parameters:  none
- * returns:     coach config
- * description: Builds a coach config object.
- */
-function build_coach_config()
-{
-    let configs = get_config('coach-vals')
-    if (Object.keys(configs).includes(year))
-    {
-        let config = []
-        for (let i in configs[year])
-        {
-            let func = get_selected_option(`fn_${i}`)
-            let idx = document.getElementById(`key_${i}`).selectedIndex
-            if (idx > 0)
-            {
-                config.push({
-                    function: FUNCTIONS[func].toLowerCase(),
-                    key: keys[idx-1]
-                })
-            }
-        }
-        configs[year] = config
-    }
-    else
-    {
-        configs[year] = []
-    }
-    return configs
 }
 
 /**
@@ -247,7 +153,7 @@ function build_coach_config()
  */
 function build_config(file)
 {
-    let config = get_config(file)
+    let config = cfg[file]
     let keys = Object.keys(config)
     for (let index in keys)
     {
@@ -256,24 +162,37 @@ function build_config(file)
         if (document.getElementById(id))
         {
             let val = config[key]
-            let new_val = ''
-            if (key == 'time_format')
+            let new_val = val
+            if (key === 'time_format')
             {
-                new_val = get_selected_option(id) == 0 ? 12 : 24
+                new_val = Select.get_selected_option(id) == 0 ? 12 : 24
             }
-            else if (typeof val == 'boolean')
+            else if (typeof val === 'boolean')
             {
-                new_val = get_selected_option(id) == 0
+                new_val = Select.get_selected_option(id) == 0
             }
-            else if (typeof val == 'number')
+            else if (typeof val === 'number')
             {
                 new_val = parseInt(document.getElementById(id).value)
             }
-            else if (typeof val == 'string')
+            else if (typeof val === 'string')
             {
                 new_val = document.getElementById(id).value
             }
+            else if (Array.isArray(val))
+            {
+                new_val = document.getElementById(id).value.split(',').map(v => parseInt(v.trim()))
+            }
+            else
+            {
+                new_val = JSON.parse(document.getElementById(id).value)
+            }
             config[key] = new_val
+        }
+        else if (document.getElementById(file))
+        {
+            config = JSON.parse(document.getElementById(file).value)
+            break
         }
     }
     return JSON.stringify(config)
@@ -307,11 +226,12 @@ function import_config(event)
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
         let newConfig = JSON.parse(readerEvent.target.result)
-        for (let key of Object.keys(newConfig))
+        let keys = Object.keys(newConfig)
+        for (let key of keys)
         {
             localStorage.setItem(`config-${key}`, JSON.stringify(newConfig[key]))
         }
-        build_page()
+        cfg.load_configs(0, build_page)
     }
 }
 
@@ -329,14 +249,14 @@ function download_config()
     {
         if (file.startsWith('config-') && !file.startsWith('config-2'))
         {
-            contents[file.substr(7)] = JSON.parse(localStorage.getItem(file))
+            contents[file.substring(7)] = JSON.parse(localStorage.getItem(file))
         }
     }
     let str = JSON.stringify(contents)
 
     let element = document.createElement('a')
     element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
-    element.setAttribute('download', `config.json`)
+    element.setAttribute('download', `settings-config.json`)
 
     element.style.display = 'none'
     document.body.appendChild(element)

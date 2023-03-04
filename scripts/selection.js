@@ -5,20 +5,6 @@
  * date:        2020-03-08
  */
 
-var urlParams = new URLSearchParams(window.location.search)
-const page = urlParams.get('page')
-
-if (page != 'picklists')
-{
-    script = document.createElement('script')
-    script.src = `scripts/mini-picklists.js`
-    document.head.appendChild(script)
-}
-
-script = document.createElement('script')
-script.src = `scripts/${page}.js`
-document.head.appendChild(script)
-
 // respond to keyboard inputs
 document.onkeydown = function(e)
 {
@@ -51,12 +37,6 @@ document.onkeydown = function(e)
             }
         }
     }
-}
-
-// register service workers
-if ('serviceWorker' in navigator)
-{
-    navigator.serviceWorker.register('pwa.js')
 }
 
 /**
@@ -183,7 +163,7 @@ function toggle_menu(primary_list=true)
     }
 
     // rescale whiteboard
-    if (document.getElementById('whiteboard'))
+    if (document.getElementById('whiteboard') || document.getElementById('canvas'))
     {
         init_canvas()
     }
@@ -201,6 +181,9 @@ function enable_secondary_list()
     document.getElementById('secondary_menu_toggle').style.display = 'block'
 }
 
+var contents_card
+var buttons_container
+
 window.addEventListener('load', function()
 {
     // fix for selection pages being cut off by notch/home bar
@@ -214,5 +197,10 @@ window.addEventListener('load', function()
         document.body.style.height = "97%"
     }
 
-    init_page(document.getElementById('contents_card'), document.getElementById('buttons_container'))
+    // save elements of body
+    contents_card = document.getElementById('contents_card')
+    buttons_container = document.getElementById('buttons_container')
+
+    // load in configs
+    create_config()
 })

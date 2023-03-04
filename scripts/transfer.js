@@ -23,96 +23,124 @@ function preload_event()
 
     if (!TBA_KEY)
     {
-        alert('No API key found for TBA!')
+        let file = cfg.keys
+        if (file != null)
+        {
+            if (cfg.keys.hasOwnProperty('tba'))
+            {
+                TBA_KEY = cfg.keys.tba
+            }
+        }
+        if (!TBA_KEY)
+        {
+            alert('No API key found for TBA!')
+            return
+        }
     }
-    else
-    {
-        let count = 0
-        // fetch simple event matches
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
-            .then(response => {
-                if (response.status == 401) {
-                    alert('Invalid API Key Suspected')
-                }
-                return response.json()
-            })
-            .then(data => {
-                if (data.length > 0)
+    
+    let count = 0
+    // fetch simple event matches
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        .then(response => {
+            if (response.status == 401) {
+                alert('Invalid API Key Suspected')
+            }
+            return response.json()
+        })
+        .then(data => {
+            if (data.length > 0)
+            {
+                // sort match objs by match number
+                let matches = data.sort(function (a, b)
                 {
-                    // sort match objs by match number
-                    let matches = data.sort(function (a, b)
-                    {
-                        return b.match_number < a.match_number ? 1
-                                : b.match_number > a.match_number ? -1
-                                : 0
-                    })
+                    return b.match_number < a.match_number ? 1
+                            : b.match_number > a.match_number ? -1
+                            : 0
+                })
 
-                    // store matches as JSON string in matches-[event-id]
-                    localStorage.setItem(get_event_matches_name(event_id), JSON.stringify(matches))
-                    process_files()
-                    if (++count === 3)
-                    {
-                        alert('Preload complete!')
-                    }
-                }
-                else
+                // store matches as JSON string in matches-[event-id]
+                localStorage.setItem(`matches-${event_id}`, JSON.stringify(matches))
+                process_files()
+                if (++count === 3)
                 {
-                    alert('No matches received!')
+                    alert('Preload complete!')
+                    dal.build_teams()
                 }
-            })
-            .catch(err => {
-                alert('Error loading matches!')
-                console.log(err)
-            })
+            }
+            else
+            {
+                alert('No matches received!')
+            }
+        })
+        .catch(err => {
+            alert('Error loading matches!')
+            console.log(err)
+        })
 
-        // fetch simple event teams
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
-                if (data.length > 0)
+    // fetch simple event teams
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            if (data.length > 0)
+            {
+                // sort team objs by team number
+                let teams = data.sort(function (a, b)
                 {
-                    // sort team objs by team number
-                    let teams = data.sort(function (a, b)
-                    {
-                        return b.team_number < a.team_number ? 1
-                            : b.team_number > a.team_number ? -1
-                                : 0;
-                    })
-                    // store teams as JSON string in teams-[event_id]
-                    localStorage.setItem(get_event_teams_name(event_id), JSON.stringify(teams))
-                    process_files()
+                    return b.team_number < a.team_number ? 1
+                        : b.team_number > a.team_number ? -1
+                            : 0;
+                })
+                // store teams as JSON string in teams-[event_id]
+                localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
+                process_files()
 
-                    // fetch team's avatar for whiteboard
-                    for (let team of teams)
-                    {
-                        let year = get_event().substr(0, 4)
-                        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
-                            .then(response => {
-                                return response.json()
-                            })
-                            .then(data => {
-                                localStorage.setItem(get_team_avatar_name(team.team_number, year), data[0].details.base64Image)
-                            })
-                            .catch(err => {
-                                console.log(`Error loading avatar: ${err}!`)
-                            })
-                    }
-                    if (++count === 3)
-                    {
-                        alert('Preload complete!')
-                    }
-                }
-                else
+                // fetch team's avatar for whiteboard
+                for (let team of teams)
                 {
-                    alert('No teams received!')
+                    let year = get_event().substr(0, 4)
+                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(data => {
+                            for (let m of data)
+                            {
+                                switch (m.type)
+                                {
+                                    case 'avatar':
+                                        localStorage.setItem(`avatar-${year}-${team.team_number}`, m.details.base64Image)
+                                        break
+                                    case 'cdphotothread':
+                                    case 'imgur':
+                                    // NOTE: instagram does things weird
+                                    //case 'instagram-image':
+                                    case 'onshape':
+                                        dal.add_photo(team.team_number, m.direct_url)
+                                        break
+
+                                }
+                            }
+                        })
+                        .catch(err => {
+                        })
                 }
-            })
-            .catch(err => {
-                alert('Error loading teams!')
-                console.log(err)
-            })
+                if (++count === 3)
+                {
+                    alert('Preload complete!')
+                    dal.build_teams()
+                }
+            }
+            else
+            {
+                alert('No teams received!')
+            }
+        })
+        .catch(err => {
+            alert('Error loading teams!')
+            console.log(err)
+        })
 
         // fetch event rankings
         fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
@@ -123,7 +151,7 @@ function preload_event()
                 if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
                 {
                     data = data.rankings
-
+    
                     // sort rankings objs by team number
                     let rankings = data.sort(function (a, b)
                     {
@@ -132,18 +160,57 @@ function preload_event()
                                 : 0;
                     })
                     // store rankings as JSON string in rankings-[event_id]
-                    localStorage.setItem(get_event_rankings_name(event_id), JSON.stringify(rankings))
+                    localStorage.setItem(`rankings-${event_id}`, JSON.stringify(rankings))
                 }
                 if (++count === 3)
                 {
                     alert('Preload complete!')
+                    dal.build_teams()
                 }
             })
             .catch(err => {
                 alert('Error loading rankings!')
                 console.log(err)
             })
-    }
+
+        // fetch event data
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                if (data)
+                {
+                    // store event as JSON string
+                    localStorage.setItem(`event-${event_id}`, JSON.stringify(data))
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
+    // fetch list of server pictures
+    let server = parse_server_addr(document.location.href)
+    fetch(`${server}/listPics`)
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            // add each picture to config
+            let teams = Object.keys(data)
+            for (let team of teams)
+            {
+                let pics = data[team]
+                for (let i in pics)
+                {
+                    dal.add_photo(team, `${server}/uploads/${pics[i]}`, i === 0)
+                }
+            }
+        })
+        .catch(err => {
+            alert('Error loading pictures!')
+            console.log(err)
+        })
 }
 
 /**
@@ -171,9 +238,9 @@ function download_csv()
  * function:    reset
  * parameters:  none
  * returns:     none
- * description: Reset local storage.
+ * description: Reset the entire app.
  */
-function reset()
+async function reset()
 {
     if (confirm('Delete all configuration, results, and other app data?'))
     {
@@ -191,13 +258,33 @@ function reset()
         }
 
         // clear offline pages
-        caches.keys().then(keyList => {
-            let ret = Promise.all(keyList.map(key => {
-                return caches.delete(key)
-            }))
-            location.reload()
-            return ret
-        })
+        let keys = await caches.keys()
+        for (let key of keys)
+        {
+            caches.delete(key)
+        }
+
+        window_open('/', '_self')
+    }
+}
+
+/**
+ * function:    reset_cache
+ * parameters:  none
+ * returns:     none
+ * description: Reset app cache.
+ */
+async function reset_cache()
+{
+    if (confirm('Delete all cache data?'))
+    {
+        let keys = await caches.keys()
+        for (let key of keys)
+        {
+            caches.delete(key)
+        }
+
+        window_open('/', '_self')
     }
 }
 
@@ -214,6 +301,8 @@ function reset_storage()
         // clear storage
         localStorage.clear()
     }
+
+    window_open('/', '_self')
 }
 
 /**
@@ -232,6 +321,44 @@ function reset_results()
         {
             localStorage.removeItem(file)
         }
+    }
+}
+
+/**
+ * function:    reset_config
+ * parameters:  none
+ * returns:     none
+ * description: Reset settings files.
+ */
+async function reset_config()
+{
+    if (confirm('Reset all settings and configuration?'))
+    {
+        // search all caches for "-config.json" files and delete them
+        let keys = await caches.keys()
+        for (let key of keys)
+        {
+            let cache = await caches.open(key)
+            let files = await cache.keys()
+            for (let file of files)
+            {
+                if (file.url.endsWith('-config.json'))
+                {
+                    cache.delete(file)
+                    console.log('removed', key)
+                }
+            }
+        }
+
+        // search localStorage for "config-" files and delete them
+        let files = Object.keys(localStorage).filter(f => f.startsWith(`config-`))
+        for (let file of files)
+        {
+            localStorage.removeItem(file)
+            console.log('removed', file)
+        }
+
+        window_open('/', '_self')
     }
 }
 

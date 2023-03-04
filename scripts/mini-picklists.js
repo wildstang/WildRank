@@ -5,6 +5,8 @@
  * date:        2020-10-05
  */
 
+include('picklists-core')
+
 /**
  * function:    select_list
  * parameters:  selected list name
@@ -16,22 +18,32 @@ function select_list(name='')
     // use first list name if dropdown isn't created
     if (name == '')
     {
-        name = document.getElementById('list_names') == null ? Object.keys(lists)[0] : document.getElementById('list_names').value
+        name = document.getElementById('list_names') == null ? Object.keys(dal.picklists)[0] : document.getElementById('list_names').value
     }
     // create new dropdown with current selection as default
-    let list_text = `<tr><td>${build_dropdown('list_names', '', Object.keys(lists), default_op=name, onchange='select_list()', 'slim')}</td>`
-    if (Object.keys(lists).includes(name))
+    let dropdown = new Dropdown('list_names', '', Object.keys(dal.picklists), name)
+    dropdown.on_click = 'select_list()'
+    dropdown.add_class('slim')
+    let list_text = `<tr><td>${dropdown.toString}</td>`
+    if (Object.keys(dal.picklists).includes(name))
     {
-        list_text += `<td>${build_button('', 'Add to Top', `add_to('${name}', '')`, `remove_team('${name}', '')`, 'pick_item slim')}</td>`
-        for (let team of lists[name])
+        let top = new Button('', 'Add to Top', `add_to('${name}', '')`)
+        top.on_secondary = `remove_team('${name}', '')`
+        top.add_class('pick_item')
+        top.add_class('slim')
+        list_text += `<td>${top.toString}</td>`
+        for (let team of dal.picklists[name])
         {
             let classes = 'pick_item slim'
-            if (lists['picked'] && lists['picked'].includes(team))
+            if (dal.picklists['picked'] && dal.picklists['picked'].includes(team))
             {
                 classes += ' crossed_out'
             }
             // add team button
-            list_text += `<td>${build_button('', team, `add_to('${name}', '${team}')`, `remove_team('${name}', '${team}')`, classes)}</td>`
+            let entry = new Button('', team, `add_to('${name}', '${team}')`)
+            entry.on_secondary = `remove_team('${name}', '${team}')`
+            entry.add_class(classes)
+            list_text += `<td>${entry.toString}</td>`
         }
     }
     document.getElementById('teams').innerHTML = `${list_text}</tr>`
@@ -39,17 +51,25 @@ function select_list(name='')
 
 /**
  * function:    build_pick_lists
- * parameters:  selected list name
+ * parameters:  selected list name, list number
  * returns:     none
  * description: Builds HTML elements of all pick lists with buttons.
  */
-function build_pick_lists(list_name='')
+function build_pick_lists(list_name='first_default', i=0)
 {
-    let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
-    document.getElementById('pick_lists').innerHTML = lists_text
+    // don't show picklists UI if there are no lists
+    if (Object.keys(dal.picklists).length > 0)
+    {
+        let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
+        document.getElementById('pick_lists').innerHTML = lists_text
 
-    select_list(list_name)
+        if (list_name === 'first_default')
+        {
+            list_name = ''
+        }
+        select_list(list_name)
 
-    // save to localStorage
-    localStorage.setItem(get_event_pick_lists_name(event_id), JSON.stringify(lists))
+        // save to localStorage
+        dal.save_picklists()
+    }
 }

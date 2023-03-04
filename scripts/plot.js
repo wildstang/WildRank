@@ -7,11 +7,6 @@
 
 const COLORS = ['black', 'blue', 'red', 'purple', 'orange', 'green']
 
-var meta = {}
-var results = []
-var teams = []
-var lists = {}
-
 var pwidth
 var pheight
 
@@ -21,38 +16,19 @@ var pheight
  * returns:     none
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
-function init_page(contents_card, buttons_container)
+function init_page()
 {
-    contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
+    contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = ''
-
-    meta = get_result_meta(type, year)
-
-    // load all event teams from localStorage
-    let file_name = get_event_teams_name(event_id)
-    if (file_exists(file_name))
-    {
-        results = get_results(prefix, year)
-        
-        teams = JSON.parse(localStorage.getItem(file_name)).map(team => team.team_number)
-                    .filter(team => Object.keys(get_team_results(results, team)).length > 0)
-        
-        file_name = get_event_pick_lists_name(event_id)
-        if (file_exists(file_name))
-        {
-            lists = JSON.parse(localStorage.getItem(file_name))
-
-            // add select button above secondary list
-            add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(lists)), 'filter_teams()', false)
-        }
     
-        // load keys from localStorage and build list
-        let first = populate_keys(meta, results, teams, true)
-        if (first)
-        {
-            open_option(first)
-            init_canvas()
-        }
+    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
+
+    // load keys from localStorage and build list
+    let first = populate_keys(dal, true)
+    if (first)
+    {
+        open_option(first)
+        init_canvas()
     }
 }
 
@@ -158,6 +134,7 @@ function build_plot()
 {
     let key = get_selected_keys()[0]
     let selected_teams = ['avg'].concat(get_secondary_selected_keys())
+    document.getElementById('plot_title').innerHTML = dal.get_name(key)
 
     // build table of values
     let plots = {}
@@ -165,16 +142,15 @@ function build_plot()
     let matches = 0
     let totals = []
     let counts = []
+    let teams = Object.keys(dal.teams)
     for (let team of teams)
     {
         plots[team] = []
-        let res = get_team_results(results, team)
-        let keys = Object.keys(res)
-        keys = keys.sort((a,b) => res[a].meta_match - res[b].meta_match)
+        let keys = dal.get_result_names([team])
         for (let i in keys)
         {
-            let k = keys[i]
-            let val = res[k][key]
+            let match_key = keys[i].split('-')[0]
+            let val = dal.get_result_value(team, match_key, key)
             plots[team].push(val)
 
             if (val > max)
@@ -223,6 +199,10 @@ function build_plot()
             let team = selected_teams[j]
             ctx.beginPath()
             let color = COLORS[j % COLORS.length]
+            if (team !== 'avg')
+            {
+                color = dal.get_value(team, 'meta.color')
+            }
             ctx.fillStyle = color
             
             // points

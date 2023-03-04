@@ -8,12 +8,10 @@
 const start = Date.now()
 
 var cycles = {}
-var config = {}
+var alliances = {}
 
 // read parameters from URL
 const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const year = event_id.substr(0,4)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 
@@ -23,8 +21,6 @@ const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
 const generate = urlParams.get('generate')
 var edit = urlParams.get('edit') == 'true'
-var results = {}
-var meta = {}
 
 /**
  * function:    init_page
@@ -34,29 +30,25 @@ var meta = {}
  */
 function init_page()
 {
-    config = get_scout_config(scout_mode, year)
-    meta = get_result_meta(scout_mode, year)
-
+    // check if result exists to be edited
     if (edit)
     {
-        let file = ''
         switch (scout_mode)
         {
             case MATCH_MODE:
-                file = get_match_result(match_num, team_num, event_id)
+                edit = dal.is_match_scouted(match_num, team_num)
                 break
             case PIT_MODE:
-                file = get_pit_result(team_num, event_id)
+                edit = dal.is_pit_scouted(team_num)
+                break
+            default:
+                console.log('Invalid mode')
+                edit = false
                 break
         }
-        edit = file_exists(file)
-        if (edit)
+        if (!edit)
         {
-            results = JSON.parse(localStorage.getItem(file))
-        }
-        else
-        {
-            console.log(`Existing result, ${file}, could not be found`)
+            console.log(`Existing result, could not be found`)
         }
     }
 
@@ -67,24 +59,43 @@ function init_page()
             document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
-            let format = get_teams_format(event_id)
             let pos = 1 + parseInt(scout_pos)
-            if (pos > format.red)
+            if (pos > dal.alliance_size)
             {
-                pos -= format.red
+                pos -= dal.alliance_size
             }
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${match_num}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+            document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+
+            alliances = dal.build_relative_alliances(team_num, match_num)
             break
     }
     ws(team_num)
-    build_page_from_config(scout_mode)
-    if (generate == 'random' && get_config('settings').allow_random)
+    build_page_from_config()
+    if ((generate === 'random' && cfg.settings.allow_random) || generate === 'force')
     {
         generate_results()
     }
 }
 
-/** 
+/**
+ * function:    check_for_last_page
+ * parameters:  none
+ * returns:     none
+ * description: If on the last page, add the submit button.
+ */
+function check_for_last_page()
+{
+    let carousel = document.getElementById('scouting-carousel')
+    let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
+    let view_start = Math.ceil(carousel.scrollLeft)
+    if (view_start >= final_page && document.getElementById('submit') === null)
+    {
+        let submit = new Button('submit', 'Submit', 'get_results_from_page()')
+        document.getElementById('submit_container').innerHTML = submit.toString
+    }
+}
+
+/**
  * function:    build_page_from_config
  * parameters:  none
  * returns:     none
@@ -92,117 +103,54 @@ function init_page()
  */
 function build_page_from_config()
 {
-    var select_ids = []
+    let select_ids = []
     // iterate through each page in the mode
-    for (let page of config.pages)
+    let body = '<div id="scouting-carousel" class="scouting-carousel" onscroll="check_for_last_page()">'
+    for (let page of cfg[scout_mode])
     {
-        var page_name = page.name
-        columns = []
+        let page_frame = new PageFrame(page.id, page.name)
         // iterate through each column in the page
         for (let column of page.columns)
         {
-            var col_name = column.name
             let cycle = column.cycle
-            items = []
-            // iterate through input in the column
-            for (let input of column.inputs)
-            {
-                var name = input.name
-                var id = input.id
-                var type = input.type
-                var default_val = input.default
-                let options = input['options']
-
-                // map results to defaults in edit mode
-                if (edit)
-                {
-                    default_val = results[id]
-                    if (type == 'dropdown' || type == 'select')
-                    {
-                        default_val = input['options'][default_val]
-                    }
-                    else if (type == 'multicounter')
-                    {
-                        default_val = input.options.map(function (op)
-                        {
-                            let name = `${id}_${op.toLowerCase().split().join('_')}`
-                            return results[name]
-                        })
-                    }
-                }
-
-                var item = ''
-                // build each input from its template
-                switch (type)
-                {
-                    case 'checkbox':
-                        if (default_val)
-                        {
-                            select_ids.push(`${id}-container`)
-                        }
-                        item = build_checkbox(id, name, default_val)
-                        break
-                    case 'counter':
-                        item = build_counter(id, name, default_val)
-                        break
-                    case 'multicounter':
-                        item = build_multi_counter(id, name, options, default_val)
-                        break
-                    case 'select':
-                        item = build_select(id, name, options, default_val, '', input.vertical)
-                        break
-                    case 'dropdown':
-                        item = build_dropdown(id, name, options, default_val)
-                        break
-                    case 'string':
-                        item = build_str_entry(id, name, default_val)
-                        break
-                    case 'number':
-                        item = build_num_entry(id, name, default_val, options)
-                        break
-                    case 'slider':
-                        let step = 1
-                        if (options.length > 2)
-                        {
-                            step = options[2]
-                        }
-                        item = build_slider(id, name, options[0], options[1], step, default_val)
-                        break
-                    case 'text':
-                        item = build_text_entry(id, name, default_val)
-                        break
-                }
-                items.push(item)
-            }
+            let col_frame = build_column_from_config(column, scout_mode, select_ids, edit, match_num, team_num, alliance_color, alliances)
             if (cycle)
             {
                 // create cycle counter, call update_cycle() on change
-                let onincrement = ''
-                let ondecrement = ''
+                let cycler = new Cycler(`${column.id}_cycles`, 'Cycles')
                 if (cycle)
                 {
-                    onincrement = `update_cycle('${column.id}', false)`
-                    ondecrement = `update_cycle('${column.id}', true)`
+                    cycler.on_increment = `update_cycle('${column.id}', false)`
+                    cycler.on_decrement = `update_cycle('${column.id}', true)`
                 }
-                items.push(build_counter(`${column.id}_cycles`, 'Cycles', 0, onincrement, ondecrement))
+                col_frame.add_input(cycler)
 
                 // create and populate (if editing) cycle arrays
                 if (edit)
                 {
-                    cycles[column.id] = results[column.id]
+                    cycles[column.id] = dal.get_result_value(team_num, match_num, column.id)
                 }
                 else
                 {
                     cycles[column.id] = []
                 }
+                col_frame.add_class('cycle')
             }
-            columns.push(build_column_frame(col_name, items, cycle ? 'cycle' : ''))
+            page_frame.add_column(col_frame)
         }
-        document.body.innerHTML += build_page_frame(page_name, columns)
-        
+        body += page_frame.toString  
     }
-    // replace placeholders in template and add to screen
-    document.body.innerHTML += build_button(`submit_${scout_mode}`, 'Submit', 'get_results_from_page()')
+    body += '</div>'
+
+    let page_frame = new PageFrame()
+    if (scout_mode === MATCH_MODE)
+    {
+        let unsure = new Checkbox('unsure', `Unsure of Results`)
+        page_frame.add_column(new ColumnFrame('', '', [unsure]))
+    }
+    page_frame.add_column(new ColumnFrame('', '', ['<span id="submit_container"></span>']))
+    document.body.innerHTML += body + page_frame.toString
+    check_for_last_page()
 
     // mark each selected box as such
     for (let id of select_ids)
@@ -220,7 +168,7 @@ function build_page_from_config()
     }
 }
 
-/** 
+/**
  * function:    update_cycle
  * parameters:  cycle name, if cycle was decremented
  * returns:     none
@@ -229,14 +177,14 @@ function build_page_from_config()
 function update_cycle(cycle, decrement)
 {
     // get selected and total number of cycles
-    let cycles_id = `${cycle}_cycles`
+    let cycles_id = `${cycle}_cycles-value`
     let val = parseInt(document.getElementById(cycles_id).innerHTML)
     let last = cycles[cycle].length
 
     let cycle_result = {}
 
     // iterate through each column in the page
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -257,19 +205,27 @@ function update_cycle(cycle, decrement)
                         case 'select':
                             if (!decrement)
                             {
-                                cycle_result[id] = get_selected_option(id)
-                                select_option(id, ops.indexOf(def))
+                                cycle_result[id] = Select.get_selected_option(id)
+                                let op = ops.indexOf(def)
+                                if (op >= 0)
+                                {
+                                    Select.select_option(id, op)
+                                }
                             }
                             if (val < last)
                             {
-                                select_option(id, cycles[cycle][val][id])
+                                Select.select_option(id, cycles[cycle][val][id])
                             }
                             break
                         case 'dropdown':
                             if (!decrement)
                             {
                                 cycle_result[id] = document.getElementById(id).selectedIndex
-                                document.getElementById(id).selectedIndex = ops.indexOf(def)
+                                let op = ops.indexOf(def)
+                                if (op >= 0)
+                                {
+                                    document.getElementById(id).selectedIndex = op
+                                }
                             }
                             if (val < last)
                             {
@@ -289,6 +245,27 @@ function update_cycle(cycle, decrement)
                                 {
                                     document.getElementById(`${op_id}-value`).innerHTML = cycles[cycle][val][op_id]
                                 }
+                            }
+                            break
+                        case 'checkbox':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = document.getElementById(id).checked
+                                document.getElementById(id).checked = def
+                            }
+                            if (val < last)
+                            {
+                                document.getElementById(id).checked = cycles[cycle][val][id]
+                            }
+
+                            // highlight checkbox
+                            if (document.getElementById(id).checked)
+                            {
+                                document.getElementById(`${id}-container`).classList.add('selected')
+                            }
+                            else
+                            {
+                                document.getElementById(`${id}-container`).classList.remove('selected')
                             }
                             break
                         case 'counter':
@@ -322,7 +299,7 @@ function update_cycle(cycle, decrement)
     }
 }
 
-/** 
+/**
  * function:    check_cycles
  * parameters:  none
  * returns:     False is all cycles are saved, unsaved id otherwise.
@@ -331,7 +308,7 @@ function update_cycle(cycle, decrement)
 function check_cycles()
 {
     // iterate through each column in the page
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -350,7 +327,7 @@ function check_cycles()
                     switch (type)
                     {
                         case 'select':
-                            if (get_selected_option(id) != ops.indexOf(def))
+                            if (Select.get_selected_option(id) != ops.indexOf(def) && ops.indexOf(def) >= 0)
                             {
                                 return id
                             }
@@ -369,6 +346,12 @@ function check_cycles()
                                 {
                                     return id
                                 }
+                            }
+                            break
+                        case 'checkbox':
+                            if (document.getElementById(id).checked != def)
+                            {
+                                return id
                             }
                             break
                         case 'counter':
@@ -399,13 +382,27 @@ function get_results_from_page()
     let cid = check_cycles()
     if (cid)
     {
+        document.getElementById(cid).style['background-color'] = '#FFF2A8'
+        let container = document.getElementById(`${cid}_container`)
+        if (container !== null)
+        {
+            container.style['background-color'] = '#FFF2A8'
+        }
         if (confirm(`There are unsaved cycles (${cid})! Do you want to return?`))
         {
             return
         }
     }
-    if (!confirm('Are you sure you want to submit?'))
+    let iid = check_results()
+    if (iid)
     {
+        document.getElementById(iid).style['background-color'] = '#FAA0A0'
+        let container = document.getElementById(`${iid}_container`)
+        if (container !== null)
+        {
+            container.style['background-color'] = '#FAA0A0'
+        }
+        alert(`There are unchanged defaults! (${iid})`)
         return
     }
     
@@ -415,6 +412,10 @@ function get_results_from_page()
     results['meta_scouter_id'] = parseInt(user_id)
     results['meta_scout_time'] = Math.round(start / 1000)
     results['meta_scouting_duration'] = (Date.now() - start) / 1000
+    if (scout_mode === MATCH_MODE)
+    {
+        results['meta_unsure'] = document.getElementById('unsure').checked
+    }
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode
@@ -424,80 +425,51 @@ function get_results_from_page()
     // match metadata
     if (scout_mode != PIT_MODE)
     {
-        results['meta_match'] = parseInt(match_num)
+        results['meta_match_key'] = match_num
+        results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
+        results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
+        results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
+        results['meta_alliance'] = alliance_color
     }
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         for (let column of page.columns)
         {
             // check if its a cycle column
             if (column.cycle)
             {
-                results[column.id] = cycles[column.id]
+                let cs = cycles[column.id]
+                let val = cs.length - parseInt(document.getElementById(`${column.id}_cycles-value`).innerHTML)
+                if (val > 0)
+                {
+                    if (!confirm(`Are you sure you want to dispose of ${val} cycles (${column.id})`))
+                    {
+                        return
+                    }
+                    cs.splice(-val, val)
+                }
+                results[column.id] = cs
             }
             else
             {
-                for (let input of column.inputs)
-                {
-                    let id = input.id
-                    let type = input.type
-                    let options = input.options
-
-                    switch (type)
-                    {
-                        case 'checkbox':
-                            results[id] = document.getElementById(id).checked
-                            break
-                        case 'counter':
-                            results[id] = parseInt(document.getElementById(id).innerHTML)
-                            break
-                        case 'multicounter':
-                            for (let op of options)
-                            {
-                                let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                results[name] = parseInt(document.getElementById(`${name}-value`).innerHTML)
-                            }
-                            break
-                        case 'select':
-                            results[id] = -1
-                            let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-                            let i = 0
-                            for (let option of children)
-                            {
-                                if (option.classList.contains('selected'))
-                                {
-                                    results[id] = i
-                                }
-                                i++
-                            }
-                            break
-                        case 'dropdown':
-                            results[id] = document.getElementById(id).selectedIndex
-                            break
-                        case 'number':
-                            results[id] = parseInt(document.getElementById(id).value)
-                            break
-                        case 'slider':
-                            results[id] = parseInt(document.getElementById(id).value)
-                            break
-                        case 'string':
-                        case 'text':
-                            results[id] = document.getElementById(id).value
-                            break
-                    }
-                }
+                Object.assign(results, get_results_from_column(column, scout_mode, '', '', alliances))
             }
         }
     }
 
-    // get result name
-    let file = get_pit_result(team_num, event_id)
-    if (scout_mode == MATCH_MODE)
+    if (!confirm('Are you sure you want to submit?'))
     {
-        file = get_match_result(match_num, team_num, event_id)
+        return
+    }
+
+    // get result name
+    let file = `pit-${event_id}-${team_num}`
+    if (scout_mode === MATCH_MODE)
+    {
+        file = `match-${match_num}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
     
@@ -513,6 +485,30 @@ function get_results_from_page()
 }
 
 /**
+ * function:    check_results
+ * parameters:  none
+ * returns:     name of default value that has not changes
+ * description: Checks if all required values have changed from default.
+ */
+function check_results()
+{
+    // get each result
+    for (let page of cfg[scout_mode])
+    {
+        for (let column of page.columns)
+        {
+            let ret = check_column(column, scout_mode)
+            if (ret)
+            {
+                return ret
+            }
+        }
+    }
+
+    return false
+}
+
+/**
  * function:    generate_results
  * parameters:  none
  * returns:     none
@@ -520,7 +516,7 @@ function get_results_from_page()
  */
 function generate_results()
 {
-    for (let page of config.pages)
+    for (let page of cfg[scout_mode])
     {
         for (let column of page.columns)
         {
@@ -583,7 +579,10 @@ function generate_results()
                             }
                             break
                         case 'select':
-                            select_option(id, random_int(0, options.length - 1))
+                            Select.select_option(id, random_int(0, options.length - 1))
+                            break
+                        case 'multiselect':
+                            MultiSelect.select_option(id, random_int(0, options.length - 1))
                             break
                         case 'dropdown':
                             document.getElementById(id).selectedIndex = random_int(0, options.length - 1)

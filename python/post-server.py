@@ -1,14 +1,13 @@
 import socketserver, http.server, logging, base64, zipfile, re, json, os
-from os import listdir, environ, mkdir, rename, remove
-from os.path import isfile, join, exists
-from shutil import copyfile
+from os import listdir, environ, rename, remove, symlink
+from os.path import isfile, join, exists, basename
 from base64 import b64decode
 from datetime import datetime as dt
 from os import path
 
 PORT = 80
 UPLOAD_PATH = 'uploads/'
-VALID_PATHS = ['/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/pwa.js', '/selection.html', '/?']
+VALID_PATHS = ['/assets', '/config', '/scripts', '/styles', '/uploads', '/favicon.ico', '/index.html', '/manifest.webmanifest', '/pwa.js', '/selection.html', '/?']
 
 TBA_KEY = environ.get('TBA_KEY')
 
@@ -151,16 +150,17 @@ class ServerHandler(http.server.SimpleHTTPRequestHandler):
         res_str = json.dumps(response)
         self.wfile.write(res_str.encode('utf-8'))
 
-# make config if not exists
-if not exists('config'):
-    mkdir('config')
+def link(file):
+    name = basename(file)
+    if not exists(file):
+        symlink(file, name)
 
-# setup config if not
-for f in listdir('assets'):
-    aFile = join('assets', f)
-    cFile = join('config', f)
-    if not isfile(cFile):
-        copyfile(aFile, cFile)
+# link files
+link('markup/index.html')
+link('markup/selection.html')
+link('config/manifest.webmanifest')
+link('scripts/pwa.js')
+link('assets/icons/favicon.ico')
 
 start = dt.now()
 try:

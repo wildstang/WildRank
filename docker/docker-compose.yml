@@ -6,7 +6,8 @@ services:
     image: ghcr.io/wildstang/wildrank
     container_name: wildrank
     environment:
-      - TBA_KEY=[TBA_KEY]
+      - WR_WORKERS=[NUM_WORKERS]
+      - PASSWORD=[SERVER_PASSWORD]
     volumes:
       - ./config:/config
       - ./uploads:/uploads

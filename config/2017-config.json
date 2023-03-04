@@ -1,0 +1,124 @@
+{
+	"version": "2017-defense-test",
+	"pit": [],
+	"note": [],
+	"match": [{
+		"name": "Auto",
+		"id": "match_auto",
+		"columns": [{
+			"name": "No Need to Scout Auto, Move to Tele",
+			"id": "match_auto_no_need_to_scout_auto_move_to_tele",
+			"cycle": false,
+			"inputs": []
+		}]
+	}, {
+		"name": "Tele",
+		"id": "match_tele",
+		"columns": [{
+			"name": "Gear Scoring",
+			"id": "match_tele_gear_scoring",
+			"cycle": true,
+			"inputs": [{
+				"name": "Pickup Location",
+				"id": "match_tele_gear_scoring_pickup_location",
+				"type": "select",
+				"options": ["LoadingZone", "OpenField", "ScoringZone"],
+				"default": "LoadingZone"
+			}, {
+				"name": "Drops Before Scoring",
+				"id": "match_tele_gear_scoring_drops_before_scoring",
+				"type": "counter",
+				"default": 0,
+				"negative": true
+			}]
+		}, {
+			"name": "Defense",
+			"id": "match_tele_defense",
+			"cycle": false,
+			"inputs": [{
+				"name": "Seconds Defending opponent1",
+				"id": "match_tele_defense_seconds_defending_opponent1",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Seconds Defending opponent2",
+				"id": "match_tele_defense_seconds_defending_opponent2",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}, {
+				"name": "Seconds Defending opponent3",
+				"id": "match_tele_defense_seconds_defending_opponent3",
+				"type": "slider",
+				"options": [0, 135, 5],
+				"default": 0,
+				"negative": false
+			}]
+		}, {
+			"name": "Post Match",
+			"id": "match_tele_post_match",
+			"cycle": false,
+			"inputs": [{
+				"name": "Driver Skill",
+				"id": "match_tele_post_match_driver_skill",
+				"type": "slider",
+				"options": [1, 10, 1],
+				"default": 5,
+				"negative": false
+			}, {
+				"name": "Broke Down?",
+				"id": "match_tele_post_match_broke_down",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
+			}]
+		}]
+	}],
+	"smart_stats": [],
+	"coach": [],
+	"whiteboard": {
+		"red_0": {
+			"x": 615,
+			"y": 160,
+			"color": "#FF4136"
+		},
+		"red_1": {
+			"x": 615,
+			"y": 230,
+			"color": "#FF4136"
+		},
+		"red_2": {
+			"x": 615,
+			"y": 300,
+			"color": "#FF4136"
+		},
+		"blue_0": {
+			"x": 85,
+			"y": 160,
+			"color": "#0074D9"
+		},
+		"blue_1": {
+			"x": 85,
+			"y": 230,
+			"color": "#0074D9"
+		},
+		"blue_2": {
+			"x": 85,
+			"y": 300,
+			"color": "#0074D9"
+		},
+		"game_pieces": [],
+		"draw_color": "#FFFFFF",
+		"field_width": 750,
+		"field_height": 400,
+		"magnet_size": 50,
+		"line_width": 3,
+		"horizontal_margin": 27,
+		"vertical_margin": 26,
+		"field_height_ft": 27,
+		"field_height_px": 347
+	}
+}

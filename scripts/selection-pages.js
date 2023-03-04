@@ -5,11 +5,6 @@
  * date:        2021-11-05
  */
 
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-const type = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const prefix = `${type}-${event_id}-`
-const year = event_id.substr(0,4)
-
 /**
  * function:    check_teams
  * parameters:  desired list of teams, teams to check
@@ -20,10 +15,6 @@ function check_teams(teams, match_teams)
 {
     for (let team of match_teams)
     {
-        if (typeof team === 'string' && team.startsWith('frc'))
-        {
-            team = team.substring(3)
-        }
         if (teams.includes(team))
         {
             return true
@@ -38,9 +29,9 @@ function check_teams(teams, match_teams)
  * returns:     default selection
  * description: Populates the left options list with matches.
  * 
- * Pages: Match/Note Scout, Whiteboard, Match Summaries, Coach View
+ * Pages: Match Scout, Whiteboard, Match Summaries, Coach View
  */
-function populate_matches(finals=true, complete=true, team_filter='', secondary=false)
+function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0, note=false)
 {
     let list = 'option_list'
     if (secondary)
@@ -49,78 +40,63 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
         list = 'secondary_option_list'
     }
     document.getElementById(list).innerHTML = ''
-    if (!Array.isArray(team_filter))
-    {
-        team_filter = `frc${team_filter}`
-    }
     
-    let file_name = get_event_matches_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let matches = Object.keys(dal.matches)
+    let first = ''
+    let first_avail = ''
+    matches.sort((a, b) => dal.matches[a].scheduled_time - dal.matches[b].scheduled_time)
+
+    // determine if event has been completed outside of WildRank
+    let completes = matches.map(m => dal.matches[m].winner !== null)
+    let completeTBA = completes.every(Boolean)
+
+    // iterate through each match obj
+    for (let match_key of matches)
     {
-        let matches = JSON.parse(localStorage.getItem(file_name))
-        let first = ''
-        let first_avail = ''
-        matches.sort((a, b) => a.time - b.time)
-
-        // determine if event has been completed outside of WildRank
-        let completes = matches.map(m => m.alliances.red.score && m.alliances.red.score >= 0)
-        let completeTBA = completes.every(Boolean)
-
-        // iterate through each match obj
-        for (let match of matches)
+        let match = dal.matches[match_key]
+        let number = match.match_number
+        let red_teams = match.red_alliance
+        let blue_teams = match.blue_alliance
+        if ((match.comp_level == 'qm' || finals) &&
+            (Array.isArray(team_filter) || (team_filter == '' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
+            (!Array.isArray(team_filter) || (team_filter.length == 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
         {
-            let number = match.match_number
-            let red_teams = match.alliances.red.team_keys
-            let blue_teams = match.alliances.blue.team_keys
-            if ((match.comp_level == 'qm' || finals) &&
-                (Array.isArray(team_filter) || (team_filter == 'frc' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
-                (!Array.isArray(team_filter) || (team_filter.length == 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
+            // grey out previously scouted matches/teams
+            let scouted = 'not_scouted'
+            let level = match.comp_level.toUpperCase()
+            let teams = red_teams.concat(blue_teams)
+            let is_scouted = (!note && dal.is_match_scouted(match_key, teams[scout_pos])) || (note && dal.is_note_scouted(match_key, teams[scout_pos]))
+            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_scouted && level == 'QM')))
             {
-                // grey out previously scouted matches/teams
-                let scouted = 'not_scouted'
-                let level = match.comp_level.replace('qm', '').toUpperCase()
-                if (complete && ((!completeTBA && match.alliances.red.score && match.alliances.red.score >= 0) || (is_match_scouted(event_id, number) && level == '')))
-                {
-                    scouted = 'scouted'
-                    first = ''
-                }
-                else if (first === '')
-                {
-                    first = number
-                }
-                if (level && level !== 'F')
-                {
-                    level += match.set_number
-                }
-                if (first_avail === '')
-                {
-                    first_avail = number
-                }
-    
-                document.getElementById(list).innerHTML += build_match_option(`${level}${number}`, red_teams, blue_teams, scouted, `${level}${number}`)
+                scouted = 'scouted'
+                first = ''
             }
+            else if (first === '')
+            {
+                first = match_key
+            }
+            if (first_avail === '')
+            {
+                first_avail = match_key
+            }
+
+            // build match name
+            let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
+            option.add_class(scouted)
+            document.getElementById(list).innerHTML += option.toString
         }
-        // default to first match if no first was selected
-        if (first === '' && first_avail !== '')
-        {
-            first = first_avail
-        }
-        else if (first == '' && matches.length > 0)
-        {
-            first = matches[0].match_number
-        }
-        
-        if (first !== '')
-        {
-            scroll_to(list, `match_${first}`)
-        }
-        return first
     }
-    else
+    // default to first match if no first was selected
+    if (first === '' && first_avail !== '')
     {
-        alert('No matches found')
-        return false
+        first = first_avail
     }
+    
+    if (first !== '')
+    {
+        scroll_to(list, `match_option_${first}`)
+    }
+    return first
 }
 
 /**
@@ -136,111 +112,145 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let teams = Object.keys(dal.teams)
+    let first = ''
+    let second = ''
+
+    // iterate through team objs
+    for (let number of teams)
     {
-        let teams = JSON.parse(localStorage.getItem(file_name))
-        let first = ''
-        let second = ''
-
-        // iterate through team objs
-        for (let team of teams)
+        let name = dal.get_value(number, 'meta.name')
+        // determine if the team has already been scouted
+        let scouted = 'not_scouted'
+        if (complete && dal.is_pit_scouted(number))
         {
-            let number = team.team_number
-            let name = team.nickname
-            // determine if the team has already been scouted
-            let scouted = 'not_scouted'
-            if (complete && file_exists(get_pit_result(number, event_id)))
-            {
-                first = ''
-                scouted = 'scouted'
-            }
-            else if (first == '')
-            {
-                first = number
-            }
-            else if (second == '')
-            {
-                second = number
-            }
-            
-            // replace placeholders in template and add to screen
-            document.getElementById('option_list').innerHTML += build_desc_option(number, scouted, '', name)
-            if (secondary)
-            {
-                document.getElementById('secondary_option_list').innerHTML += build_desc_option(number, scouted, '', name, '', false)
-            }
+            first = ''
+            scouted = 'scouted'
         }
-
-        if (minipicklist)
+        else if (first == '')
         {
-            setup_picklists()
+            first = number
         }
-
-        if (first == '' && teams.length > 0)
+        else if (second == '')
         {
-            first = teams[0].team_number
+            second = number
         }
-        if (second == '' && teams.length > 1)
+        
+        // replace placeholders in template and add to screen
+        let op = new DescriptiveOption(number, number, name)
+        op.add_class(scouted)
+        document.getElementById('option_list').innerHTML += op.toString
+        if (secondary)
         {
-            second = teams[1].team_number
+            op.primary_list = false
+            document.getElementById('secondary_option_list').innerHTML += op.toString
         }
-
-        if (first !== '')
-        {
-            scroll_to('option_list', `option_${first}`)
-            if (secondary && second !== '')
-            {
-                enable_secondary_list()
-                scroll_to('secondary_option_list', `soption_${first}`)
-                return [first, second]
-            }
-        }
-
-        return first
     }
-    else
+
+    if (minipicklist)
     {
-        alert('No teams found')
-        return false
+        setup_picklists()
     }
+
+    if (first == '' && teams.length > 0)
+    {
+        first = teams[0]
+    }
+    if (second == '' && teams.length > 1)
+    {
+        second = teams[1]
+    }
+
+    if (first !== '')
+    {
+        scroll_to('option_list', `option_${first}`)
+        if (secondary && second !== '')
+        {
+            enable_secondary_list()
+            scroll_to('secondary_option_list', `soption_${first}`)
+            return [first, second]
+        }
+    }
+
+    return first
 }
 
 /**
  * function:    populate_keys
- * parameters:  result metadata, results, teams, include discrete keys
+ * parameters:  data abstraction layer, use results only, exclude strings
  * returns:     default selection
  * description: Populates the left options list with keys and the right with teams.
  * 
  * Pages: Pivot Table, Distributions
  */
-function populate_keys(meta, results, teams, use_discrete=true)
+function populate_keys(dal, results_only=false, exclude_strings=false)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    if (Object.keys(results).length > 0)
+    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
+    if (keys.length > 0)
     {
-        let keys = get_keys(meta).filter(function (key)
-        {
-            let type = meta[key].type
-            return !key.startsWith('meta_') && type != 'cycle' && type != 'string' && type != 'text' && (use_discrete || (type != 'checkbox' && type != 'dropdown' && type != 'select'))
-        })
-        
         // add pick list selector at top
-        let ops = Object.keys(lists)
+        let ops = Object.keys(dal.picklists)
         ops.unshift('None')
         
         // iterate through result keys
         for (let key of keys)
         {
-            document.getElementById('option_list').innerHTML += build_option(key, '', meta[key].name, 'font-size:10px')
+            let op = new Option(key, dal.meta[key].name)
+            op.style = 'font-size:10px'
+            document.getElementById('option_list').innerHTML += op.toString
         }
         
         // add second option list of teams
+        let teams = Object.keys(dal.teams)
         for (let team of teams)
         {
-            document.getElementById('secondary_option_list').innerHTML += build_option(team, '', '', '', false)
+            let name = dal.get_value(team, 'meta.name')
+            let op = new DescriptiveOption(team, team, name)
+            op.primary_list = false
+            document.getElementById('secondary_option_list').innerHTML += op.toString
+        }
+
+        enable_secondary_list()
+        return keys[0]
+    }
+    else
+    {
+        alert('No results found')
+        return false
+    }
+}
+
+/**
+ * function:    populate_dual_keys
+ * parameters:  data abstraction layer, use results only, exclude strings
+ * returns:     default selection
+ * description: Populates the left and right options lists with keys.
+ * 
+ * Pages: Scatter
+ */
+function populate_dual_keys(dal, results_only=false, exclude_strings=false)
+{
+    document.getElementById('option_list').innerHTML = ''
+    document.getElementById('secondary_option_list').innerHTML = ''
+
+    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
+    if (keys.length > 0)
+    {
+        // add pick list selector at top
+        let ops = Object.keys(dal.picklists)
+        ops.unshift('None')
+        
+        // iterate through result keys
+        for (let key of keys)
+        {
+            let op = new Option(key, dal.meta[key].name)
+            op.style = 'font-size:10px'
+            document.getElementById('option_list').innerHTML += op.toString
+            op.primary_list = false
+            document.getElementById('secondary_option_list').innerHTML += op.toString
         }
 
         enable_secondary_list()
@@ -255,18 +265,18 @@ function populate_keys(meta, results, teams, use_discrete=true)
 
 /**
  * function:    populate_other
- * parameters:  options
+ * parameters:  options, associated ids
  * returns:     default selection
  * description: Populates the left options list with a given list of options.
  * 
  * Pages: User Profiles, Results, Team Rankings
  */
-function populate_other(options)
+function populate_other(options, classes={})
 {
     document.getElementById('option_list').innerHTML = ''
 
     // determine if passed list or array
-    let names = []
+    let names
     if (typeof options === 'object' && !Array.isArray(options) && options !== null)
     {
         names = options
@@ -276,6 +286,7 @@ function populate_other(options)
     {
         let first = ''
         // iterate through each match obj
+        let option_list = ''
         for (let op of options)
         {
             if (first == '')
@@ -284,11 +295,20 @@ function populate_other(options)
             }
     
             // replace placeholders in template and add to screen
-            let name = names ? names[op] : op
-            document.getElementById('option_list').innerHTML += build_option(op, '', name)
+            let name = typeof names !== 'undefined' ? names[op] : op
+            let option = new Option(op, name)
+            if (classes.hasOwnProperty(op) && classes[op] !== '')
+            {
+                option.add_class(classes[op])
+            }
+            option_list += option.toString
         }
+        document.getElementById('option_list').innerHTML = option_list
         
-        scroll_to('option_list', `option_${first}`)
+        if (first !== '')
+        {
+            scroll_to('option_list', `option_${first}`)
+        }
         return first
     }
     return false
@@ -322,9 +342,9 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true)
     {
         id = 'secondary_filter'
     }
-    document.getElementById(id).innerHTML = build_dropdown(filter_id, '', options, options[0], func)
-    document.getElementById(filter_id).style.margin = '4px auto'
-    document.getElementById(filter_id).style.width = `${300}px`
+    let dropdown = new Dropdown(filter_id, '', options)
+    dropdown.on_change = func
+    document.getElementById(id).innerHTML = dropdown.toString
 }
 
 /**
@@ -340,7 +360,6 @@ function add_button_filter(filter_id, text, func, primary_list=true)
     {
         id = 'secondary_filter'
     }
-    document.getElementById(id).innerHTML += build_button(filter_id, text, func)
-    document.getElementById(`${filter_id}-container`).style.margin = '4px auto'
-    document.getElementById(`${filter_id}-container`).style.width = `${300}px`
+    let button = new Button(filter_id, text, func)
+    document.getElementById(id).innerHTML += button.toString
 }

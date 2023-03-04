@@ -10,24 +10,27 @@
         <link rel="stylesheet" type="text/css" href="styles/selection.css">
         <script src="scripts/keys.js"></script>
         <script src="scripts/utils.js"></script>
-        <script src="scripts/inputs.js"></script>
         <script src="scripts/config.js"></script>
+        <script src="scripts/data.js"></script>
+        <script src="scripts/links.js"></script>
+        <script src="scripts/inputs.js"></script>
+        <script src="scripts/init.js"></script>
         <script src="scripts/selection.js"></script>
-        <script src="scripts/picklists-core.js"></script>
         <script src="scripts/selection-pages.js"></script>
         <link rel="manifest" href="manifest.webmanifest">
         <meta name="theme-color" content="#000080"/>
-        <link rel="apple-touch-icon" href="/config/icon-192x192.png">
+        <link rel="apple-touch-icon" href="/assets/icons/icon-192x192-maskable.png">
+        <meta name="robots" content="noindex">
     </head>
     <body>
         <div id="header">
-            <img id="menu_toggle" src="config/menu-white-18dp.svg" onclick="toggle_menu()" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu()')">
-            <h1><a href="index.html?page=home" id="title">WildRank</a></h1>
-            <img id="secondary_menu_toggle" src="config/menu-white-18dp.svg" onclick="toggle_menu(false)" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu(false)')">
+            <img id="menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu()" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu()')">
+            <h1><a onclick="home(false)" oncontextmenu="home(true); return false" id="title">WildRank</a></h1>
+            <img id="secondary_menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu(false)" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu(false)')">
         </div>
         <div id="body">
             <div id="left">
-                <div id="filter"></div>
+                <div id="filter" class="selection_filter"></div>
                 <div id="option_list"></div>
             </div>
             <div id="center">
@@ -38,9 +41,19 @@
                 <div id="pick_lists"></div>
             </div>
             <div id="right">
-                <div id="secondary_filter"></div>
+                <div id="secondary_filter" class="selection_filter"></div>
                 <div id="secondary_option_list"></div>
             </div>
         </div>
     </body>
+    <script>
+        // this cannot be done in a head script because title has not been loaded in yet
+        // plus onload() is not fast enough, the original title can still be seen
+        // so instead we do it here at the end before the page is loaded, but after title is
+        let title = cfg.settings.title
+        if (typeof title !== 'undefined')
+        {
+            document.getElementById('title').innerHTML = cfg.settings.title
+        }
+    </script>
 </html>

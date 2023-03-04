@@ -5,11 +5,6 @@
  * date:        2022-02-03
  */
 
-// read parameters from URL
-const event_id = get_parameter(EVENT_COOKIE, EVENT_DEFAULT)
-
-const year = event_id.substr(0,4)
-const start = Date.now()
 
 /**
  * function:    init_page
@@ -19,17 +14,36 @@ const start = Date.now()
  */
 function init_page()
 {
-    document.body.innerHTML += build_page_frame('', [build_card('', '<div id="summary">Loading data....</div><table id="table" style="text-align: left"><tr><th>Event</th><th>Key</th><th>Start Date</th><th>Team Count</th><th>Teams</th></tr></table>')])
-    let file_name = get_event_teams_name(event_id)
-    if (localStorage.getItem(file_name) != null)
+    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: left"><tr><th>Event</th><th>Key</th><th>Start Date</th><th>Team Count</th><th>Teams</th></tr></table>')
+    document.body.innerHTML += new PageFrame('', '', [card]).toString
+
+    let teams = Object.keys(dal.teams)
+    if (teams.length > 0)
     {
         let firsts = []
         let events = {}
         let team_count = 0
-        let teams = JSON.parse(localStorage.getItem(file_name))
+
+        if (!TBA_KEY)
+        {
+            let file = cfg.keys
+            if (file != null)
+            {
+                if (cfg.keys.hasOwnProperty('tba'))
+                {
+                    TBA_KEY = cfg.keys.tba
+                }
+            }
+            if (!TBA_KEY)
+            {
+                alert('No API key found for TBA!')
+                return
+            }
+        }
+        
         for (let team of teams)
         {
-            fetch(`https://www.thebluealliance.com/api/v3/team/${team.key}/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/events/${cfg.year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                 .then(response => {
                     if (response.status == 401) {
                         alert('Invalid API Key Suspected')
@@ -47,7 +61,7 @@ function init_page()
                             events[e].name = d.name
                             events[e].start = d.start_date
                         }
-                        events[e].teams[team.team_number] = {
+                        events[e].teams[team] = {
                             award: '',
                             label: ''
                         }
@@ -58,9 +72,9 @@ function init_page()
                     }
 
                     // add team to list if the current event is their first
-                    if (event_id.endsWith(earliest))
+                    if (dal.event_id.endsWith(earliest))
                     {
-                        firsts.push(team.key.substring(3))
+                        firsts.push(team)
                     }
 
                     // if all team events have been collected get event data
@@ -70,7 +84,7 @@ function init_page()
                         let received = 0
                         for (let e of keys)
                         {
-                            fetch(`https://www.thebluealliance.com/api/v3/event/${year}${e}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                            fetch(`https://www.thebluealliance.com/api/v3/event/${cfg.year}${e}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                                 .then(response => {
                                     if (response.status == 401)
                                     {
@@ -138,19 +152,19 @@ function init_page()
                                         {
                                             let event = events[r]
                                             let keys = Object.keys(event.teams)
-                                            if (!event_id.endsWith(r))
+                                            if (!dal.event_id.endsWith(r))
                                             {
                                                 // sort teams and add row
                                                 keys.sort((a, b) => parseInt(a) - parseInt(b))
                                                 let teams = keys.map(t => `<span style="${event.teams[t].award}">${t}${event.teams[t].label}</span>`).join(', ')
-                                                document.getElementById('table').innerHTML += `<tr><td>${event.name}</td><td>${year}${r}</td><td>${event.start.replaceAll(`${year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
+                                                document.getElementById('table').innerHTML += `<tr><td>${event.name}</td><td>${cfg.year}${r}</td><td>${event.start.replaceAll(`${cfg.year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
                                             }
                                             else
                                             {
                                                 // add simple row for current event and update summary
                                                 firsts.sort((a, b) => parseInt(a) - parseInt(b))
                                                 let teams = firsts.join(', ')
-                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${event_id}</td><td>${event.start.replaceAll(`${year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
+                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${dal.event_id}</td><td>${event.start.replaceAll(`${cfg.year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
                                                 document.getElementById('summary').innerHTML = `Of the ${keys.length} teams attending the ${event.name}...`
                                             }
                                         }
@@ -166,5 +180,9 @@ function init_page()
                     console.log(`Error fetching team, ${err}`)
                 })
         }
+    }
+    else
+    {
+        document.getElementById('summary').innerHTML = 'No teams found'
     }
 }

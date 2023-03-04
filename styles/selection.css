@@ -136,6 +136,10 @@ body {
     color: var(--inactive-text-color);
 }
 
+.highlighted {
+    background-color: var(--highlight-color);
+}
+
 .selected {
     background-color: var(--active-color);
     color: var(--active-text-color);
@@ -190,4 +194,13 @@ body {
 #secondary_menu_toggle {
     display: none;
     right: 0;
+}
+
+#pick_list_table td, th {
+    text-align: center;
+    padding: 16px;
+}
+
+#pick_list_table .team_cell {
+    text-align: right;
 }

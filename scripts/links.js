@@ -1,264 +1,150 @@
 /**
- * file:        links.js
+ * file:        new-links.js
  * description: Contains link opening functions for the index of the web app.
  * author:      Liam Fruzyna
- * date:        2021-05-24
+ * date:        2022-09-26
  */
 
-/**
- * function:    scout
- * parameters:  none
- * returns:     none
- * description: Start match scouting mode.
- */
-function scout()
-{
-    let query = {'page': 'matches', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
-    return build_url('selection', query)
+var BLANK_PAGES = {
+    'config-generator': ['event', 'user'],
+    'edit-coach': ['event'],
+    'edit-stats': ['event'],
+    settings: ['event', 'user'],
+    random: ['event', 'user'],
+    'event-generator': ['event'],
+    'schedule-importer': ['event'],
+    'transfer-raw': ['event', 'user'],
+    progress: ['event'],
+    events: ['event'],
+    cache: [],
+    about: [],
+    export: ['event'],
+    'config-debug': ['event'],
+    scout: ['event', 'user', 'position'],
+    note: ['event', 'user', 'position'],
+        // type
+        // match
+        // team
+        // alliance
+        // edit
+    'scouter-scheduler': [],
+    'misc/2022-score-estimator': [],
+    'misc/2023-score-estimator': [],
+    'misc/match-counter': [],
+    'misc/score-counter': [],
+    'misc/revival-counter': [],
+    'misc/team-profile': [],
+    'misc/test': [],
+    'misc/district-counter': ['year'],
+    'misc/international-counter': ['year'],
+    'misc/event-planner': ['year']
 }
 
-/**
- * function:    pit_scout
- * parameters:  none
- * returns:     none
- * description: Start pit scouting mode.
- */
-function pit_scout()
-{
-    let query = {'page': 'pits', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
-    return build_url('selection', query)
+var SELECTION_PAGES = {
+    matches: ['event', 'user', 'position', MATCH_MODE],
+    notes: ['event', 'user', 'position', NOTE_MODE],
+    pits: ['event', 'user', 'position', PIT_MODE],
+    ranker: ['event'],
+    sides: ['event'],
+    picklists: ['event'],
+    multipicklists: ['event'],
+    whiteboard: ['event'],
+    cycles: ['event'],
+    teams: ['event', 'user'],
+    'match-overview': ['event', 'user'],
+    users: ['event', 'user'],
+    pivot: ['event', 'user'],
+    distro: ['event', 'user'],
+    plot: ['event', 'user'],
+    scatter: ['event', 'user'],
+    coach: ['event', 'user'],
+    results: ['event'], // file
+    cycles: ['event'] // file
 }
 
-/**
- * function:    note_scout
- * parameters:  none
- * returns:     none
- * description: Start note scouting mode.
- */
-function note_scout()
+function open_page(page, params={})
 {
-    let query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()}
-    return build_url('selection', query)
-}
+    let file = ''
+    let requirements = []
+    if (page in BLANK_PAGES)
+    {
+        file = 'index'
+        requirements = BLANK_PAGES[page]
+    }
+    else if (page in SELECTION_PAGES)
+    {
+        file = 'selection'
+        requirements = SELECTION_PAGES[page]
+        if (page === 'notes')
+        {
+            page = 'matches'
+        }
+    }
+    else
+    {
+        return ''
+    }
+    params.page = page
 
-/**
- * function:    open_ranker
- * parameters:  none
- * returns:     none
- * description: Open the team ranker interface.
- */
-function open_ranker()
-{
-    return build_url('selection', {'page': 'ranker', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_sides
- * parameters:  none
- * returns:     none
- * description: Open the side-by-side comparison interface.
- */
-function open_sides()
-{
-    return build_url('selection', {'page': 'sides', [TYPE_COOKIE]: get_selected_type(), [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_picks
- * parameters:  none
- * returns:     none
- * description: Open the pick list interface.
- */
-function open_picks()
-{
-    return build_url('selection', {'page': 'picklists', [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_whiteboard
- * parameters:  none
- * returns:     none
- * description: Open the virtual whiteboard.
- */
-function open_whiteboard()
-{
-    return build_url('selection', {'page': 'whiteboard', [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_advanced
- * parameters:  none
- * returns:     none
- * description: Open the advanced stats page.
- */
-function open_advanced()
-{
-    return build_url('selection', {'page': 'advanced', [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_results
- * parameters:  none
- * returns:     none
- * description: Open the results of the selected scouting mode.
- */
-function open_results()
-{
-    return build_url('selection', {'page': 'results', 'type': get_selected_type(), [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_teams
- * parameters:  none
- * returns:     none
- * description: Open the team overview.
- */
-function open_teams()
-{
-    return build_url('selection', {'page': 'teams', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_matches
- * parameters:  none
- * returns:     none
- * description: Open the match overview.
- */
-function open_matches()
-{
-    return build_url('selection', {'page': 'match-overview', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_users
- * parameters:  none
- * returns:     none
- * description: Open the user overview.
- */
-function open_users()
-{
-    return build_url('selection', {'page': 'users', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_pivot
- * parameters:  none
- * returns:     none
- * description: Open the pivot table page.
- */
-function open_pivot()
-{
-    return build_url('selection', {'page': 'pivot', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_distro
- * parameters:  none
- * returns:     none
- * description: Open the distribution plot page.
- */
-function open_distro()
-{
-    return build_url('selection', {'page': 'distro', 'type': get_selected_type(), [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_plot
- * parameters:  none
- * returns:     none
- * description: Open the plot page.
- */
-function open_plot()
-{
-    return build_url('selection', {'page': 'plot', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_config
- * parameters:  none
- * returns:     none
- * description: Open the config generator.
- */
-function open_config()
-{
-    return build_url('index', {'page': 'config-generator', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_coach
- * parameters:  none
- * returns:     none
- * description: Open the drive coach view page.
- */
-function open_coach()
-{
-    return build_url('selection', {'page': 'coach', 'type': MATCH_MODE, [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_settings
- * parameters:  none
- * returns:     none
- * description: Open the settings editor.
- */
-function open_settings()
-{
-    return build_url('index', {'page': 'settings', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_random
- * parameters:  none
- * returns:     none
- * description: Open the generate random results page.
- */
-function open_random()
-{
-    return build_url('index', {'page': 'random', [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user(), [TYPE_COOKIE]: get_selected_type()})
-}
-
-/**
- * function:    open_event_gen
- * parameters:  none
- * returns:     none
- * description: Open the generate random results page.
- */
-function open_event_gen()
-{
-    return build_url('index', {'page': 'event-generator', [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_transfer
- * parameters:  none
- * returns:     none
- * description: Open the raw data transfer page.
- */
-function open_transfer()
-{
-    return build_url('index', {'page': 'transfer-raw', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
- * function:    open_progress
- * parameters:  none
- * returns:     none
- * description: Open the scouting progress page.
- */
-function open_progress()
-{
-    return build_url('index', {'page': 'progress', [EVENT_COOKIE]: get_event()})
-}
-
-/**
- * function:    open_events
- * parameters:  none
- * returns:     none
- * description: Open the events page.
- */
-function open_events()
-{
-    return build_url('index', {'page': 'events', [EVENT_COOKIE]: get_event()})
+    for (let p of requirements)
+    {
+        let home = false
+        let index = false
+        if (window.location.pathname.includes('page=home'))
+        {
+            home = true
+        }
+        else if (window.location.pathname.includes('page=index'))
+        {
+            index = true
+        }
+        switch (p)
+        {
+            case 'event':
+                if (index)
+                {
+                    params[EVENT_COOKIE] = document.getElementById('event_id').value
+                }
+                else if (home)
+                {
+                    params[EVENT_COOKIE] = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+                }
+                else
+                {
+                    params[EVENT_COOKIE] = dal.event_id
+                }
+                break
+            case 'position':
+                if (index)
+                {
+                    params[POSITION_COOKIE] = document.getElementById('position').value
+                }
+                else
+                {
+                    params[POSITION_COOKIE] = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
+                }
+                break
+            case 'user':
+                if (index)
+                {
+                    params[USER_COOKIE] = document.getElementById('user_id').value
+                }
+                else
+                {
+                    params[USER_COOKIE] = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+                }
+                break
+            case 'year':
+                params.year = cfg.year
+                break
+            case MATCH_MODE:
+            case NOTE_MODE:
+            case PIT_MODE:
+                params.type = p
+                break
+        }
+    }
+    return build_url(file, params)
 }
 
 /**
@@ -271,4 +157,58 @@ function sign_out()
 {
     set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
     return 'index.html'
+}
+
+/**
+ * keyboard shortcuts
+ */
+document.onkeydown = function (e)
+{
+    let page = ''
+    if (e.altKey && e.key === 's')
+    {
+        page = open_page('matches')
+    }
+    else if (e.altKey && e.key === 't')
+    {
+        page = open_page('pits')
+    }
+    else if (e.altKey && e.key === 'c')
+    {
+        page = open_page('coach')
+    }
+    else if (e.altKey && e.key === 'r')
+    {
+        page = open_page('results')
+    }
+    else if (e.altKey && e.key === 'p')
+    {
+        page = open_page('pivot')
+    }
+    else if (e.altKey && e.key === 'l')
+    {
+        page = open_page('picklists')
+    }
+
+    if (page !== '')
+    {
+        window_open(page, '_self')
+    }
+    else if (e.altKey && e.key === 'd')
+    {
+        if (get_cookie(THEME_COOKIE, THEME_DEFAULT) === 'dark')
+        {
+            set_cookie(THEME_COOKIE, THEME_DEFAULT)
+        }
+        else
+        {
+            set_cookie(THEME_COOKIE, 'dark')
+        }
+        apply_theme()
+    }
+    else
+    {
+        return
+    }
+    return false
 }

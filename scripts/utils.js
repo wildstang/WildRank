@@ -8,9 +8,10 @@
 const MATCH_MODE = 'match'
 const PIT_MODE   = 'pit'
 const NOTE_MODE  = 'note'
+const MODES = [MATCH_MODE, PIT_MODE, NOTE_MODE]
 
 const EVENT_COOKIE = 'event_id'
-const EVENT_DEFAULT = '2020ilch'
+const EVENT_DEFAULT = '2022new'
 const USER_COOKIE = 'user_id'
 const USER_DEFAULT = '120001'
 const TYPE_COOKIE = 'type'
@@ -21,9 +22,11 @@ const UPLOAD_COOKIE = 'upload_url'
 const UPLOAD_DEFAULT = 'http://localhost:80'
 const TBA_AUTH_KEY = 'X-TBA-Auth-Key'
 const THEME_COOKIE = 'theme'
-const THEME_DEFAULT = 'light'
+const THEME_DEFAULT = 'auto'
 const ROLE_COOKIE = 'role'
 const ROLE_DEFAULT = 'index'
+const OFFLINE_COOKIE = 'offline'
+const OFFLINE_DEFAULT = 'on'
 
 /**
  * function:    window_open
@@ -123,76 +126,11 @@ function get_cookie(cname, dvalue)
             return c.substring(name.length, c.length);
         }
     }
-    set_cookie(cname, dvalue)
+    if (typeof dvalue !== 'undefined')
+    {
+        set_cookie(cname, dvalue)
+    }
     return dvalue;
-}
-
-/**
- * function:    get_team_results
- * parameters:  results to filter, team number
- * returns:     list of results for team
- * description: Get all results for the current team.
- */
-function get_team_results(results, team)
-{
-    let files = Object.keys(results)
-    let team_results = {}
-    for (let file of files)
-    {
-        let parts = file.split('-')
-        let number = parseInt(parts[parts.length - 1])
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && number == team)
-        {
-            team_results[file] = results[file]
-        }
-    }
-    return team_results
-}
-
-/**
- * function:    get_match_results
- * parameters:  results to filter, match number
- * returns:     list of results for match
- * description: Get all results for the current match.
- */
-function get_match_results(results, match)
-{
-    let files = Object.keys(results)
-    let match_results = {}
-    for (let file of files)
-    {
-        let parts = file.split('-')
-        let number = parseInt(parts[parts.length - 2])
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && number == match)
-        {
-            match_results[file] = results[file]
-        }
-    }
-    return match_results
-}
-
-/**
- * function:    get_scouter_results
- * parameters:  results to filter, scouter id
- * returns:     list of results from a scouter
- * description: Get all results from the given scouter.
- */
-function get_scouter_results(results, user)
-{
-    let files = Object.keys(results)
-    let user_results = {}
-    for (let file of files)
-    {
-        let id = results[file]['meta_scouter_id']
-        // determine files which start with the desired type
-        if (file.startsWith(prefix) && id == user)
-        {
-            user_results[file] = results[file]
-        }
-    }
-    return user_results
 }
 
 /**
@@ -222,7 +160,8 @@ function std_dev(values)
     {
         return 0
     }
-    return Math.sqrt(values.map(x => Math.pow(x - mean(values), 2)).reduce((a, b) => a + b) / values.length)
+    let avg = mean(values)
+    return Math.sqrt(values.map(x => Math.pow(x - avg, 2)).reduce((a, b) => a + b) / values.length)
 }
 
 /**
@@ -233,7 +172,7 @@ function std_dev(values)
  */
 function median(values)
 {
-    let sorted = values.sort()
+    let sorted = values.sort((a,b ) => a - b)
     return sorted[Math.floor(sorted.length / 2)]
 }
 
@@ -383,354 +322,6 @@ function scroll_to(container, goal)
 }
 
 /**
- * function:    get_results
- * parameters:  file prefix, event year
- * returns:     object of results
- * description: Gets all results which start with the given prefix.
- */
-function get_results(prefix, year)
-{
-    let results = {}
-    let files = Object.keys(localStorage)
-    for (let file of files)
-    {
-        // determine files which start with the desired type
-        if (file.startsWith(prefix))
-        {
-            let res = JSON.parse(localStorage.getItem(file))
-            if (prefix.startsWith(MATCH_MODE))
-            {
-                res = add_smart_stats(res, year)
-            }
-            results[file] = res
-        }
-    }
-    return results
-}
-
-/**
- * function:    get_match
- * parameters:  match number, current event, competition leve, set number
- * returns:     match object
- * description: Gets the match object from event data.
- */
-function get_match(match_num, event, comp_level='qm', set_num=1)
-{
-    let matches = JSON.parse(localStorage.getItem(get_event_matches_name(event)))
-    if (matches && matches.length > 0)
-    {
-        let results = matches.filter(match => match.match_number == match_num && match.comp_level == comp_level && match.set_number == set_num)
-        if (results && results.length > 0)
-        {
-            return results[0]
-        }
-    }
-    return null
-}
-
-/**
- * function:    get_match
- * parameters:  match name, current event
- * returns:     match object
- * description: Gets the match object from event data.
- */
-function parse_match(match_name, event)
-{
-    let match_num = match_name
-    let level = 'qm'
-    let set_num = 1
-    if (isNaN(match_num))
-    {
-        if (match_num[0] == 'F')
-        {
-            level = 'f'
-            match_num = match_num.substr(1)
-        }
-        else
-        {
-            level = match_num.substr(0, 2).toLowerCase()
-            set_num = match_num[2]
-            match_num = match_num[3]
-        }
-    }
-    return get_match(match_num, event, level, set_num)
-}
-
-/**
- * function:    get_team
- * parameters:  team number, current event
- * returns:     team object
- * description: Gets the team object from event data.
- */
-function get_team(team_num, event)
-{
-    let teams = JSON.parse(localStorage.getItem(get_event_teams_name(event)))
-    if (teams && teams.length > 0)
-    {
-        let results = teams.filter(team => team.team_number == team_num)
-        if (results && results.length > 0)
-        {
-            return results[0]
-        }
-    }
-    return null
-}
-
-/**
- * function:    get_team_name
- * parameters:  team number, current event
- * returns:     team name
- * description: Gets the team name from the team number.
- */
-function get_team_name(team_num, event)
-{
-    let team = get_team(team_num, event)
-    if (team)
-    {
-        return team.nickname
-    }
-    return 'team not found'
-}
-
-/**
- * function:    get_team_location
- * parameters:  team number, current event
- * returns:     team location
- * description: Gets the team location from the team number.
- */
-function get_team_location(team_num, event)
-{
-    let team = get_team(team_num, event)
-    if (team)
-    {
-        return `${team.city}, ${team.state_prov}, ${team.country}`
-    }
-    return 'team not found'
-}
-
-/**
- * function:    get_team_rankings
- * parameters:  team number, current event
- * returns:     team rankings object
- * description: Gets the team rankings from the team number.
- */
-function get_team_rankings(team_num, event)
-{
-    let rankings = JSON.parse(localStorage.getItem(get_event_rankings_name(event)))
-    if (rankings && rankings.length > 0)
-    {
-        let results = rankings.filter(rank => rank.team_key == `frc${team_num}`)
-        if (results && results.length > 0)
-        {
-            return results[0]
-        }
-    }
-    return null
-}
-
-/**
- * function:    is_match_scouted
- * parameters:  current event, match number
- * returns:     true if there are any results for the given match
- * description: Determines if a given event-match has any results available.
- */
-function is_match_scouted(event, match)
-{
-    return Object.keys(localStorage).filter(f => f.startsWith(get_match_result(match, '', event))).length > 0
-}
-
-/**
- * function:    get_avatar
- * parameters:  team number, year to choose
- * returns:     source of team avatar
- * description: Fetches the team's avatar string from localStorage and return that or the dozer image if it can't be found.
- */
-function get_avatar(team_num, year)
-{
-    let b64img = localStorage.getItem(get_team_avatar_name(team_num, year))
-    if (b64img == null || b64img == 'undefined')
-    {
-        return 'config/dozer.png'
-    }
-    return `data:image/png;base64,${b64img}`
-}
-
-/**
- * function:    get_match_teams
- * parameters:  match number, event id
- * returns:     all teams in match
- * description: Returns all teams in the match with their alliances.
- */
-function get_match_teams(match_num, event_id, comp_level='qm', set_num=1)
-{
-    let match = get_match(match_num, event_id, comp_level, set_num)
-    return extract_match_teams(match)
-}
-
-/**
- * function:    extract_match_teams
- * parameters:  match
- * returns:     all teams in match
- * description: Returns all teams in the match with their alliances.
- */
-function extract_match_teams(match)
-{
-    let teams = {}
-    let red_teams = match.alliances.red.team_keys
-    let blue_teams = match.alliances.blue.team_keys
-    for (let t in red_teams)
-    {
-        teams[`red${parseInt(t)+1}`] = red_teams[t].substr(3)
-    }
-    for (let t in blue_teams)
-    {
-        teams[`blue${parseInt(t)+1}`] = blue_teams[t].substr(3)
-    }
-    return teams
-}
-
-/**
- * function:    notes_taken
- * parameters:  match number, event id
- * returns:     if notes have been taken
- * description: Determines if any notes have been take for a given match.
- */
-function notes_taken(match_num, event_id, comp_level='qm', set_num=1)
-{
-    let teams = Object.values(get_match_teams(match_num, event_id, comp_level, set_num))
-    for (let i = 0; i < teams.length; ++i)
-    {
-        if (file_exists(get_note(teams[i], match_num, event_id)))
-        {
-            return true
-        }
-    }
-    return false
-}
-
-/**
- * function:    get_event_matches_name
- * parameters:  event id
- * returns:     event matches filename
- * description: Fetches the event's matches filename from localStorage.
- */
-function get_event_matches_name(event_id)
-{
-    return `matches-${event_id}`
-}
-
-/**
- * function:    get_event_teams_name
- * parameters:  event id
- * returns:     event teams filename
- * description: Fetches the event's teams filename from localStorage.
- */
-function get_event_teams_name(event_id)
-{
-    return `teams-${event_id}`
-}
-
-/**
- * function:    get_event_rankings_name
- * parameters:  event id
- * returns:     event rankings filename
- * description: Fetches the event's rankings filename from localStorage.
- */
-function get_event_rankings_name(event_id)
-{
-    return `rankings-${event_id}`
-}
-
-/**
- * function:    get_event_zebra_name
- * parameters:  event id
- * returns:     event zebra data filename
- * description: Fetches the filename for an event's zebra from localStorage.
- */
-function get_event_zebra_name(event_id)
-{
-    return `zebra-${event_id}`
-}
-
-/**
- * function:    get_team_avatar_name
- * parameters:  team number, year
- * returns:     team avatar filename
- * description: Fetches the team's avatar filename from localStorage.
- */
-function get_team_avatar_name(team_num, year)
-{
-    return `avatar-${year}-${team_num}`
-}
-
-/**
- * function:    get_team_image_name
- * parameters:  team number, event, full resolution image
- * returns:     team image filename
- * description: Fetches the team's image filename from localStorage.
- */
-function get_team_image_name(team_num, event, full_res=false)
-{
-    return `image-${event}-${team_num}${full_res ? '-full' : ''}`
-}
-
-/**
- * function:    get_pit_result
- * parameters:  team number, event id
- * returns:     pit result filename
- * description: Fetches the filename for a teams pit result from localStorage.
- */
-function get_pit_result(team_num, event_id)
-{
-    return `${PIT_MODE}-${event_id}-${team_num}`
-}
-
-/**
- * function:    get_match_result
- * parameters:  match number, team number, event id
- * returns:     team match result filename
- * description: Fetches the filename for a team's match result from localStorage.
- */
-function get_match_result(match_num, team_num, event_id)
-{
-    return `${MATCH_MODE}-${event_id}-${match_num}-${team_num}`
-}
-
-/**
- * function:    get_note
- * parameters:  team number, match number, event id
- * returns:     team notes filename
- * description: Fetches the filename for a team's notes from localStorage.
- */
-function get_note(team_num, match_num, event_id)
-{
-    return `${NOTE_MODE}-${event_id}-${match_num}-${team_num}`
-}
-
-/**
- * function:    get_event_pick_lists_name
- * parameters:  event id
- * returns:     event pick lists filename
- * description: Fetches the filename for an event's pick lists from localStorage.
- */
-function get_event_pick_lists_name(event_id)
-{
-    return `picklists-${event_id}`
-}
-
-/**
- * function:    file_exists
- * parameters:  filename
- * returns:     if the file exists in localStorage
- * description: Determines if the given filename exists in localStorage.
- */
-function file_exists(filename)
-{
-    let val = localStorage.getItem(filename)
-    return val != null && val != false
-}
-
-/**
  * function:    ws
  * parameters:  team number
  * returns:     none
@@ -746,296 +337,14 @@ function ws(team_num)
     }
     else
     {
-        document.getElementById('header').style.background = get_config('theme')['primary-color']
+        let color = cfg.theme['primary-color']
+        if (cfg.settings.use_team_color)
+        {
+            color = dal.get_value(team_num, 'meta.color')
+        }
+        document.getElementById('header').style.background = color
         document.getElementById('header').style['background-size'] = ''
         document.getElementById('header').style.animation = ''
-    }
-}
-
-/**
- * function:    add_smart_stats
- * parameters:  match result, event year
- * returns:     the result with smart stats added
- * description: Add the smart stats to a given match result.
- */
-function add_smart_stats(result, year)
-{
-    let stats = get_config('smart-stats')[year]
-    return add_given_smart_stats(result, stats)
-}
-
-function add_given_smart_stats(result, stats)
-{
-    let md = get_result_meta(MATCH_MODE, result['meta_event_id'].substr(0,4))
-    
-    for (let stat of stats)
-    {
-        let id = stat.id
-        switch (stat.type)
-        {
-            case 'sum':
-                let total = 0
-                for (let k of stat.keys)
-                {
-                    total += result[k]
-                }
-                result[id] = total
-                break
-            case 'percent':
-                result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
-                if (isNaN(result[id]))
-                {
-                    result[id] = 0
-                }
-                break
-            case 'ratio':
-                if (result[stat.denominator] != 0)
-                {
-                    result[id] = result[stat.numerator] / result[stat.denominator]
-                }
-                else
-                {
-                    result[id] = result[stat.numerator]
-                }
-                break
-            // exclusively for cycle
-            case 'where':
-                let count = typeof stat.sum === 'undefined' || !stat.sum
-                let value = 0
-                let denominator = 0
-                let percent = typeof stat.denominator !== 'undefined'
-                for (let cycle of result[stat.cycle])
-                {
-                    let passed = true
-                    for (let key of Object.keys(stat.conditions))
-                    {
-                        if (cycle[key] != md[key].options.indexOf(stat.conditions[key]))
-                        {
-                            passed = false
-                        }
-                    }
-                    if (passed)
-                    {
-                        if (count)
-                        {
-                            value++
-                        }
-                        else
-                        {
-                            value += cycle[stat.sum]
-                        }
-                        if (percent)
-                        {
-                            denominator += cycle[stat.denominator]
-                        }
-                    }
-                }
-
-                // store smart stat
-                if (percent)
-                {
-                    result[id] = value / (value + denominator)
-                    if (isNaN(result[id]))
-                    {
-                        result[id] = 0
-                    }
-                }
-                else
-                {
-                    result[id] = value
-                }
-                break
-        }
-    }
-    return result
-}
-
-/**
- * function:    avg_results
- * parameters:  results container, column to sum, type of input, type of ordering, options for input
- * returns:     average of all results
- * description: Average all the results for a given column.
- */
-function avg_results(results, key, type, sort_type, options=[], min_max=false)
-{
-    let values = []
-    let keys = Object.keys(results)
-    for (let name of keys)
-    {
-        if (!isNaN(results[name][key]))
-        {
-            values.push(results[name][key])
-        }
-    }
-
-    // calculate where and percent smart stats differently
-    let stats = get_config('smart-stats')[year]
-    let matches = stats.filter(s => s.id == key)
-    if (matches.length == 1)
-    {
-        let stat = matches[0]
-        let values = []
-        let raw_values = []
-        if (stat.type == 'where' && typeof stat.denominator !== 'undefined')
-        {
-            let cycles = Object.values(results).map(result => result[stat.cycle])
-    
-            // store off separated data set for min/max
-            if (min_max)
-            {
-                for (let cycle of cycles)
-                {
-                    let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
-                    result[stat.cycle] = cycle
-                    raw_values.push(add_given_smart_stats(result, [stat])[key])
-                }
-            }
-
-            // reduce to one array when averaging
-            if (sort_type == 0)
-            {
-                cycles = [cycles.flat()]
-            }
-            
-            for (let cycle of cycles)
-            {
-                let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
-                result[stat.cycle] = cycle
-                values.push(add_given_smart_stats(result, [stat])[key])
-            }
-
-            if (sort_type == 5)
-            {
-                sort_type = 0
-            }
-        }
-        else if (stat.type == 'percent')
-        {
-            let numerators = Object.values(results).map(result => result[stat.numerator])
-            let denominators = Object.values(results).map(result => result[stat.denominator])
-    
-            // store off separated data set for min/max
-            if (min_max)
-            {
-                for (let i in numerators)
-                {
-                    let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
-                    result[stat.numerator] = numerators[i]
-                    result[stat.denominator] = denominators[i]
-                    raw_values.push(add_given_smart_stats(result, [stat])[key])
-                }
-            }
-    
-            // reduce to one array when averaging
-            if (sort_type == 0)
-            {
-                numerators = [numerators.reduce((partialSum, a) => partialSum + a, 0)]
-                denominators = [denominators.reduce((partialSum, a) => partialSum + a, 0)]
-            }
-
-            for (let i in numerators)
-            {
-                let result = {'meta_event_id': Object.values(results)[0].meta_event_id}
-                result[stat.numerator] = numerators[i]
-                result[stat.denominator] = denominators[i]
-                values.push(add_given_smart_stats(result, [stat])[key])
-            }
-
-            if (sort_type == 5)
-            {
-                sort_type = 0
-            }
-        }
-
-        // special case to better min/max when going over a single large set
-        if (values.length == 1)
-        {
-            let avg = values[0]
-            if (min_max)
-            {
-                avg = [avg, avg_values(raw_values, 3), avg_values(raw_values, 4)]
-            }
-            return avg
-        }
-        else if (values.length > 0)
-        {
-            let avg = avg_values(values, sort_type)
-            if (min_max)
-            {
-                avg = [avg, avg_values(values, 3), avg_values(values, 4)]
-            }
-            return avg
-        }
-    }
-
-    switch (type)
-    {
-        // compute mode for non-numerics
-        case 'checkbox':
-        case 'select':
-        case 'dropdown':
-        case 'unknown':
-            if (options.length > 0)
-            {
-                let counts = {}
-                for (let i in options)
-                {
-                    counts[options[i]] = values.filter(val => val == i).length
-                }
-                return counts
-            }
-            return mode(values)
-        // don't attempt to use strings
-        case 'string':
-        case 'text':
-        case 'cycle':
-            return '---'
-        // compute average for numbers
-        case 'counter':
-        case 'multicounter':
-        case 'number':
-        default:
-            let avg = avg_values(values, sort_type)
-            if (min_max)
-            {
-                avg = [avg, avg_values(values, 3), avg_values(values, 4)]
-            }
-            return avg
-    }
-}
-
-/**
- * function:    avg_values
- * parameters:  list of values, type of ordering
- * returns:     average of all provided values
- * description: Average all the given values.
- */
-function avg_values(values, sort_type)
-{
-    switch (sort_type)
-    {
-        // median
-        case 1:
-            return median(values)
-        // mode
-        case 2:
-            return mode(values)
-        // min
-        case 3:
-            return Math.min(... values)
-        // max
-        case 4:
-            return Math.max(... values)
-        // total
-        case 5:
-            return values.reduce((a, b) => a + b, 0)
-        // std dev
-        case 6:
-            return std_dev(values)
-        // mean
-        case 0:
-        default:
-            return mean(values)
     }
 }
 
@@ -1060,7 +369,7 @@ function unix_to_match_time(unix_time)
     }
     let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
     let part = ''
-    if (get_config('settings').time_format == 12)
+    if (cfg.settings.time_format === 12)
     {
         if (hours > 12)
         {
@@ -1073,76 +382,6 @@ function unix_to_match_time(unix_time)
         }
     }
     return `${day} ${hours}:${mins} ${part}`
-}
-
-/**
- * function:    get_teams_format
- * parameters:  event id
- * returns:     object containing number of teams
- * description: Counts the number of teams for each alliance at an event.
- */
-function get_teams_format(event_id)
-{
-    let format = {}
-    let matches_file = localStorage.getItem(get_event_matches_name(event_id))
-    if (matches_file != null)
-    {
-        let matches = JSON.parse(matches_file)
-        if (matches && matches.length > 0)
-        {
-            let m = matches[0]
-            format = {
-                red:    m.alliances.red.team_keys.length,
-                blue:   m.alliances.blue.team_keys.length
-            }
-            format.total = format.red + format.blue
-        }
-    }
-    return format
-}
-
-/**
- * function:    get_team_keys
- * parameters:  event id
- * returns:     list of team position keys
- * description: Builds a list of team position keys for an event.
- */
-function get_team_keys(event_id)
-{
-    let keys = []
-    let teams = get_teams_format(event_id)
-    if (teams.red && teams.blue)
-    {
-        for (let i = 1; i <= teams.red; i++)
-        {
-            keys.push(`Red ${i}`)
-        }
-        for (let i = 1; i <= teams.blue; i++)
-        {
-            keys.push(`Blue ${i}`)
-        }
-    }
-    return keys
-}
-
-/**
- * function:    count_results
- * parameters:  event id, scouting type
- * returns:     number of results
- * description: Determines how many results of a given type and event exist.
- */
-function count_results(event_id, type)
-{
-    let count = 0
-    let files = Object.keys(localStorage)
-    for (let file of files)
-    {
-        if (file.startsWith(`${type}-${event_id}-`))
-        {
-            ++count
-        }
-    }
-    return count
 }
 
 /**
@@ -1210,4 +449,211 @@ function check_server(server, notify=true)
         }
         return false
     }
+}
+
+/**
+ * function:    link
+ * parameters:  stylesheet name
+ * returns:     none
+ * description: Includes a stylesheet by name.
+ */
+function link(name)
+{
+    let s = document.createElement('link')
+    s.rel = 'stylesheet'
+    s.type = 'text/css'
+    if (name.startsWith('https://'))
+    {
+        s.href = name
+        s.crossOrigin = ''
+    }
+    else
+    {
+        s.href = `scripts/${name}.js`
+    }
+    document.head.appendChild(s)
+}
+
+/**
+ * function:    include
+ * parameters:  script name
+ * returns:     none
+ * description: Includes a script by name.
+ */
+function include(name)
+{
+    let s = document.createElement('script')
+    if (name.startsWith('https://'))
+    {
+        s.src = name
+        s.crossOrigin = ''
+    }
+    else
+    {
+        s.src = `scripts/${name}.js`
+    }
+    document.head.appendChild(s)
+}
+
+/**
+ * function:    apply_theme
+ * parameters:  none
+ * returns:     none
+ * description: Applys the current theme to page.
+ */
+function apply_theme()
+{
+    // read title from config
+    document.title = cfg.settings.title
+    if (document.getElementById('title') !== null)
+    {
+        document.getElementById('title').innerHTML = cfg.settings.title
+    }
+
+    let theme = cfg.theme
+    let theme_name = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    if (theme_name === 'auto')
+    {
+        theme_name = 'light'
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        {
+            theme_name = 'dark'
+        }
+    }
+    if (theme_name === 'dark')
+    {
+        theme = cfg.dark_theme
+    }
+    let keys = Object.keys(theme)
+    for (let key of keys)
+    {
+        document.documentElement.style.setProperty(`--${key}`, theme[key])
+    }
+}
+
+/**
+ * function:    to_hex
+ * parameters:  integer
+ * returns:     none
+ * description: Converts a given value to a 2 byte hex string.
+ */
+function to_hex(value)
+{
+    let hex = value.toString(16)
+    if (hex.length < 2)
+    {
+        hex = '0' + hex
+    }
+    return hex
+}
+
+/**
+ * function:    hash
+ * parameters:  string to hash
+ * returns:     hashed string
+ * description: Produces a hash from any given string.
+ *              Based on this SO answer: https://stackoverflow.com/a/52171480
+ */
+function hash(str)
+{
+    let h1 = 0x00000000
+    let h2 = 0x00000000
+    for (let i = 0, ch; i < str.length; i++)
+    {
+        ch = str.charCodeAt(i)
+        h1 = Math.imul(h1 ^ ch, 2654435761)
+        h2 = Math.imul(h2 ^ ch, 1597334677)
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909)
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909)
+    let hash = 4294967296 * (2097151 & h2) + (h1>>>0)
+    return hash.toString(16)
+}
+
+/**
+ * function:    cache_file
+ * parameters:  file URL location, response body (like blob)
+ * returns:     none
+ * description: Adds a given file to the current cache
+ */
+async function cache_file(url, file)
+{
+    // get latest cache
+    let current = 'default'
+    let names = await caches.keys()
+    if (names.length > 0)
+    {
+        current = names[0]
+    }
+    let cache = await caches.open(current)
+
+    // TODO override res.url and res.type
+    // set content type by file extension
+    let headers = new Headers()
+    headers.append('Content-Length', file.size)
+    switch (url.substring(url.lastIndexOf('.') + 1))
+    {
+        case 'js':
+            headers.append('Content-Type', 'application/javascript')
+            break
+        case 'html':
+            headers.append('Content-Type', 'text/html; charset=utf-8')
+            break
+        case 'css':
+            headers.append('Content-Type', 'text/css; charset=utf-8')
+            break
+        case 'ico':
+            headers.append('Content-Type', 'image/x-icon')
+            break
+        case 'png':
+            headers.append('Content-Type', 'image/png')
+            break
+        case 'jpg':
+            headers.append('Content-Type', 'image/jpeg')
+            break
+        case 'svg':
+            headers.append('Content-Type', 'image/svg+xml')
+            break
+        case 'json':
+            headers.append('Content-Type', 'application/json')
+            break
+        case 'webmanifest':
+            headers.append('Content-Type', 'application/manifest')
+            break
+        case 'zip':
+            headers.append('Content-Type', 'application/zip')
+            break
+        default:
+            return
+    }
+
+    // build response and add to cache
+    let res = new Response(file, { statusText: 'OK', headers: headers })
+    cache.put(new URL(url), res)
+} 
+
+/**
+ * function:    find_team_placeholders
+ * parameters:  text to search
+ * returns:     list of results
+ * description: Finds placeholder text in a string for a opponent or partner team.
+ */
+function find_team_placeholders(text)
+{
+    return [...text.matchAll(/(opponent|partner)([0-9])/g)]
+}
+
+/**
+ * function:    name_to_id
+ * parameters:  name string
+ * returns:     sanitized name as id
+ * description: Sanitizes an input name so it can be used for the ID.
+ */
+function create_id_from_name(name)
+{
+    return name.toLowerCase()
+               .replaceAll(/\(.*\)/g, '') // remove parenthesis
+               .replaceAll(/[- ]/g, '_')  // replace spaces and hyphens with underscores
+               .replaceAll(/__+/g, '_')   // prevent repeated underscores
+               .replaceAll(/\W+/g, '')    // remove any non-alphanumeric or underscore character
 }

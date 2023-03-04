@@ -9,45 +9,7 @@
  * PAGE INIT
  */
 
-let s = document.createElement('script')
-s.src = `scripts/validation.js`
-document.head.appendChild(s)
-s = document.createElement('script')
-s.src = `scripts/transfer.js`
-document.head.appendChild(s)
-
-// generate page
-const PAGE_FRAME = build_page_frame('', [
-    build_column_frame('Options', [
-        build_str_entry('event_id', 'Event ID:', '', 'text', 'process_files()'),
-        build_dropdown('position', 'Position:', []),
-        build_num_entry('user_id', 'School ID:', '', [100000, 999999]),
-        build_select('theme_switch', 'Theme:', ['Light', 'Dark'], 'Light', 'switch_theme()')
-    ]),
-    build_column_frame('Role', [
-        build_link_button('scout', 'Scouter', `check_press('scout')`),
-        build_link_button('note', 'Note Taker', `check_press('note')`),
-        build_link_button('drive', 'Drive Team', `check_press('drive')`),
-        build_link_button('analysis', 'Analyst', `check_press('analysis')`),
-        build_link_button('admin', 'Administrator', `check_press('admin')`)
-    ]),
-    build_column_frame('Status', [
-        build_button('preload_event', 'Preload Event', `save_options(); preload_event()`),
-        build_link_button('transfer', 'Transfer Raw Data', `open_transfer()`),
-        build_status_tile('server_type', 'POST Server'),
-        build_status_tile('event_data', 'Event Data'),
-        build_status_tile('config_valid', 'Config'),
-        build_status_tile('scout_config_valid', 'Scout Config')
-    ]),
-    build_column_frame('Data', [
-        build_counter('teams', 'Event Teams', 0, 'increment("teams", false)', 'increment("teams", true)'),
-        build_counter('matches', 'Event Matches', 0, 'increment("matches", false)', 'increment("matches", true)'),
-        build_counter('pit_results', 'Pit Results', 0, 'increment("pit_results", false)', 'increment("pit_results", true)'),
-        build_counter('match_results', 'Match Results', 0, 'increment("match_results", false)', 'increment("match_results", true)'),
-        build_link_button('about', 'About WildRank', `open_about()`),
-        '<div id="install-container"></div>'
-    ])
-])
+include('transfer')
 
 var install
 
@@ -59,41 +21,131 @@ var install
  */
 function init_page()
 {
-    document.body.innerHTML += PAGE_FRAME
-    let configs = Object.keys(localStorage).filter(file => file.startsWith('config-')).length
-    if (configs >= 10)
+    let user_page = new PageFrame('scouter', 'Scouter')
+    let data_page = new PageFrame('data', 'Data')
+
+    let options = new ColumnFrame('options', 'Options')
+    user_page.add_column(options)
+
+    let user_id = new Entry('user_id', 'School ID', 111112)
+    user_id.on_text_change = 'check_id()'
+    user_id.type = 'number'
+    user_id.bounds = [100000, 999999]
+    user_id.def = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+    user_id.description = ' '
+    options.add_input(user_id)
+
+    let position = new Dropdown('position', 'Position')
+    for (let i = 1; i <= dal.alliance_size * 2; i++)
     {
-        on_config()
+        let color = 'Red'
+        let pos = i
+        if (i > dal.alliance_size)
+        {
+            color = 'Blue'
+            pos = i - dal.alliance_size
+        }
+        position.add_option(`${color} ${pos}`)
     }
-    else
-    {
-        fetch_config(on_config)
-    }
+    position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
+    options.add_input(position)
+
+    let theme = new Select('theme_switch', 'Theme')
+    theme.on_change = 'switch_theme()'
+    theme.add_option('Light')
+    theme.add_option('Dark')
+    theme.add_option('Auto')
+    theme.columns = 3
+    theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    options.add_input(theme)
+    
+    options.add_input('<div id="install-container"></div>')
+
+    let roles = new ColumnFrame('roles', 'Role')
+    user_page.add_column(roles)
+
+    let scout = new Button('scout', 'Scouter')
+    scout.link = `check_press('scout')`
+    roles.add_input(scout)
+
+    let note = new Button('note', 'Note Taker')
+    note.link = `check_press('note')`
+    roles.add_input(note)
+
+    let drive = new Button('drive', 'Drive Team')
+    drive.link = `check_press('drive')`
+    roles.add_input(drive)
+
+    let analyst = new Button('analyst', 'Analyst')
+    analyst.link = `check_press('analysis')`
+    roles.add_input(analyst)
+
+    let admin = new Button('admin', 'Administrator')
+    admin.link = `check_press('admin')`
+    roles.add_input(admin)
+
+    let status = new ColumnFrame('status', 'Event')
+    data_page.add_column(status)
+
+    let event_id = new Entry('event_id', 'Event ID')
+    event_id.on_text_change = 'process_files()'
+    event_id.def = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    status.add_input(event_id)
+
+    let event_data = new StatusTile('event_data', 'Event Data')
+    status.add_input(event_data)
+
+    let teams = new Number('teams', 'Event Teams')
+    status.add_input(teams)
+
+    let matches = new Number('matches', 'Event Matches')
+    status.add_input(matches)
+
+    let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
+    status.add_input(preload)
+
+    let data = new ColumnFrame('data', 'Results')
+    data_page.add_column(data)
+
+    let transfer = new Button('transfer', 'Transfer Data')
+    transfer.link = `open_link('transfer-raw')`
+    data.add_input(transfer)
+
+    let version = new Number('config_version', 'cfg')
+    data.add_input(version)
+
+    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
+    data.add_input(scout_config_valid)
+
+    let config_valid = new StatusTile('config_valid', 'Settings')
+    data.add_input(config_valid)
+
+    let pit_results = new Number('pit_results', 'Pit Results')
+    data.add_input(pit_results)
+
+    let match_results = new Number('match_results', 'Match Results')
+    data.add_input(match_results)
+
+    let about = new Button('about', 'About WildRank')
+    about.link = `open_link('about')`
+    data.add_input(about)
+
+    document.body.innerHTML += user_page.toString + data_page.toString
+
+    let button = new Button('reset', 'Reset Cache', 'reset_cache()')
+    document.getElementById('install-container').innerHTML = button.toString
+
+    check_id()
+    apply_theme()
+    process_files()
 
     // add install button if PWA is not installed
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault()
         install = e
-        document.getElementById('install-container').innerHTML = build_button('install', 'Install WildRank', 'install_app()')
+        let button = new Button('install', `Install ${cfg.settings.title}`, 'install_app()')
+        document.getElementById('install-container').innerHTML = button.toString
     })
-}
-
-/**
- * function:    on_config
- * parameters:  none
- * returns:     none
- * description: Fetch defaults, populate inputs with defaults, and apply theme.
- */
-function on_config()
-{
-    let defaults = get_config('defaults')
-    document.getElementById('event_id').value = get_cookie(EVENT_COOKIE, defaults.event_id)
-    document.getElementById('user_id').value = get_cookie(USER_COOKIE, defaults.user_id)
-
-    let theme = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-    select_option('theme_switch', theme == 'light' ? 0 : 1)
-    apply_theme()
-    process_files()
 }
 
 /**
@@ -122,59 +174,42 @@ function install_app()
  */
 function process_files()
 {
-    count_teams()
-
-    // get all files in localStorage
-    let files = Object.keys(localStorage)
-    let teams = 0
-    let matches = 0
-    let pit_results = 0
-    let match_results = 0
     let event = get_event()
+    dal = new DAL(event)
+    dal.build_teams()
 
-    if (file_exists(`matches-${event}`))
-    {
-        matches = JSON.parse(localStorage.getItem(`matches-${event}`)).length
-    }
-    if (file_exists(`teams-${event}`))
-    {
-        teams = JSON.parse(localStorage.getItem(`teams-${event}`)).length
-    }
-    for (let file of files)
-    {
-        let parts = file.split('-')
-        if (parts[1] == event)
-        {
-            if (parts[0] == MATCH_MODE)
-            {
-                match_results++
-            }
-            else if (parts[0] == PIT_MODE)
-            {
-                pit_results++
-            }
-        }
-    }
+    // count results
+    let matches = dal.get_results([], false).length
+    let pits = dal.get_pits([], false).length
 
-    document.getElementById('teams').innerHTML = teams
-    document.getElementById('matches').innerHTML = matches
-    document.getElementById('pit_results').innerHTML = pit_results
-    document.getElementById('match_results').innerHTML = match_results
+    // update counters
+    document.getElementById('config_version').innerHTML = cfg.version
+    document.getElementById('teams').innerHTML = Object.keys(dal.teams).length
+    document.getElementById('matches').innerHTML = Object.keys(dal.matches).length
+    document.getElementById('pit_results').innerHTML = pits
+    document.getElementById('match_results').innerHTML = matches
 
     // update statuses
-    set_status('event_data', check_event())
-    set_status('server_type', check_server(get_upload_addr(), false))
-    let year = get_event().substr(0, 4)
-    set_status('scout_config_valid', validate_scout_config(get_config(`${year}-match`)) && validate_scout_config(get_config(`${year}-pit`)))
-    set_status('config_valid', validate_settings_config(get_config('settings')) &&
-        validate_settings_config(get_config('settings')) &&
-        validate_defaults_config(get_config('defaults')) &&
-        validate_coach_config(get_config('coach-vals'), year) &&
-        validate_smart_config(get_config('smart-stats'), year) &&
-        validate_wb_config(get_config('whiteboard')) &&
-        validate_admin_config(get_config('admins')) &&
-        validate_theme_config(get_config('theme')) &&
-        validate_theme_config(get_config('dark-theme')))
+    StatusTile.set_status('event_data', check_event())
+    //StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
+    StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
+    StatusTile.set_status('config_valid', cfg.validate_settings_configs())
+
+    // rebuild position options
+    let position = new Dropdown('position', 'Position')
+    for (let i = 1; i <= dal.alliance_size * 2; i++)
+    {
+        let color = 'Red'
+        let pos = i
+        if (i > dal.alliance_size)
+        {
+            color = 'Blue'
+            pos = i - dal.alliance_size
+        }
+        position.add_option(`${color} ${pos}`)
+    }
+    position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
+    document.getElementById('position').innerHTML = position.html_options
 }
 
 /**
@@ -185,9 +220,8 @@ function process_files()
  */
 function check_event()
 {
-    let event = get_event()
-    let teams = file_exists(get_event_teams_name(event))
-    let matches = file_exists(get_event_matches_name(event))
+    let teams = Object.keys(dal.teams).length > 0
+    let matches = Object.keys(dal.matches).length > 0
     if (teams && matches)
     {
         return 1
@@ -203,26 +237,32 @@ function check_event()
 }
 
 /**
- * function:    count_teams
+ * function:    check_id
  * parameters:  none
  * returns:     none
- * description: Counts teams in competition format.
+ * description: Checks to see if the user has a preset scouting position.
  */
-function count_teams()
+function check_id()
 {
-    let options = ''
-    let teams = get_team_keys(get_event())
-    for (let t of teams)
+    let id = get_user()
+    let pos = cfg.get_position(id)
+    let name = cfg.get_name(id)
+    let admin = cfg.is_admin(id)
+
+    if (pos > -1)
     {
-        options += build_dropdown_op(t, '')
+        document.getElementById('position').selectedIndex = pos
     }
-    document.getElementById('position').innerHTML = options
-    let def = get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-    if (def < 0)
+
+    document.getElementById('user_id_desc').innerHTML = ''
+    if (name !== id)
     {
-        def = 0
+        document.getElementById('user_id_desc').innerHTML += name + ' '
     }
-    document.getElementById('position').selectedIndex = def
+    if (admin)
+    {
+        document.getElementById('user_id_desc').innerHTML += '(Admin)'
+    }
 }
 
 /**
@@ -246,7 +286,19 @@ function save_options()
  */
 function switch_theme()
 {
-    let theme = get_selected_option('theme_switch') == 0 ? 'light' : 'dark'
+    let theme = 'auto'
+    switch (Select.get_selected_option('theme_switch'))
+    {
+        case 0:
+            theme = 'light'
+            break
+        case 1:
+            theme = 'dark'
+            break
+        case 2:
+        default:
+            theme = 'auto'
+    }
     if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
     {
         set_cookie(THEME_COOKIE, theme)
@@ -273,8 +325,7 @@ function has_event()
  */
 function has_teams()
 {
-    let event = get_event()
-    return file_exists(get_event_teams_name(event))
+    return Object.keys(dal.teams).length > 0
 }
 
 /**
@@ -285,8 +336,7 @@ function has_teams()
  */
 function has_matches()
 {
-    let event = get_event()
-    return file_exists(get_event_matches_name(event))
+    return Object.keys(dal.matches).length > 0
 }
  
 /**
@@ -302,15 +352,31 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id != 'scout' && !is_admin(user))
+    if (id !== 'scout' && !cfg.is_admin(user))
     {
         return 'Missing admin privileges'
     }
-    if (id != 'admin' && !has_teams())
+    if (id === 'scout' && !has_matches())
+    {
+        return 'Missing match data'
+    }
+    if (id !== 'admin' && !has_teams())
     {
         return 'Missing event data'
     }
     return false
+}
+
+/**
+ * function:    open_link
+ * parameters:  page
+ * returns:     none
+ * description: Saves options then creates link for page.
+ */
+function open_link(page)
+{
+    save_options()
+    return open_page(page)
 }
 
 /**
@@ -337,29 +403,6 @@ function check_press(id)
 }
 
 /**
- * function:    open_about
- * parameters:  none
- * returns:     none
- * description: Open the about page.
- */
-function open_about()
-{
-    return build_url('index', {'page': 'about'})
-}
-
-/**
- * function:    open_transfer
- * parameters:  none
- * returns:     none
- * description: Open the raw data transfer page.
- */
-function open_transfer()
-{
-    save_options()
-    return build_url('index', {'page': 'transfer-raw', [EVENT_COOKIE]: get_event(), [USER_COOKIE]: get_user()})
-}
-
-/**
  * INPUT VALUE FUNCTIONS
  */
 
@@ -371,7 +414,7 @@ function open_transfer()
  */
 function get_event()
 {
-    return document.getElementById('event_id').value
+    return document.getElementById('event_id').value.toLowerCase()
 }
 
 /**

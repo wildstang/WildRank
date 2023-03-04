@@ -5,20 +5,6 @@
  * date:        2020-12-18
  */
 
-// generate page
-const PAGE_FRAME = build_page_frame('', [
-    build_column_frame('About', [
-        build_card('server', 'Server: Unknown'),
-        build_card('version', 'Git: Nope', true),
-        build_card('release', 'Release: Nope', true),
-        build_card('description', 'WildRank is a FIRST Robotics Competition scouting web app and a spiritual successor to <a href="https://github.com/wildstang/wildrank-android">WildRank Android</a>. It was developed to be a progressive web app supporting full offline functionality on most modern devices.', true)
-    ]),
-    build_column_frame('Get WildRank', [
-        build_link_button('source', 'Source', `'https://github.com/WildStang/WildRank'`),
-        build_link_button('demo', 'Web Demo', `'/'`),
-        build_link_button('wildstang', 'WildStang', `'https://wildstang.org'`)    ]),
-])
-
 /**
  * function:    init_page
  * parameters:  none
@@ -30,7 +16,47 @@ function init_page()
     // set header
     document.getElementById('header_info').innerHTML = 'About'
 
-    document.body.innerHTML += PAGE_FRAME
+    // generate page
+    let page = new PageFrame()
+    let about_col = new ColumnFrame('', 'Application')
+    page.add_column(about_col)
+
+    let server = new Card('server', 'Server: Unknown')
+    server.space_after = false
+    server.limitWidth = true
+    about_col.add_input(server)
+
+    let version = new Card('version', 'Git: Nope')
+    version.space_after = false
+    version.limitWidth = true
+    about_col.add_input(version)
+
+    let release = new Card('release', 'Release: Nope')
+    release.limitWidth = true
+    release.space_after = false
+    about_col.add_input(release)
+
+    let config = new Card('config', 'Config: Nope')
+    config.limitWidth = true
+    config.space_after = false
+    about_col.add_input(config)
+
+    let get_col = new ColumnFrame('', 'Links')
+    page.add_column(get_col)
+
+    let source = new Button('source', 'GitHub')
+    source.external_link = `https://github.com/WildStang/WildRank`
+    get_col.add_input(source)
+
+    let demo = new Button('demo', 'Public Demo')
+    demo.external_link = `https://wildrank.app`
+    get_col.add_input(demo)
+
+    let wildstang = new Button('wildstang', 'WildStang Program')
+    wildstang.external_link = `https://wildstang.org`
+    get_col.add_input(wildstang)
+
+    document.body.innerHTML += page.toString
 
     try
     {
@@ -71,6 +97,10 @@ function init_page()
                 release = release[0]
                 document.getElementById('release').innerHTML = release.substring(0, release.length)
             }
+        }
+        if (cfg.version)
+        {
+            document.getElementById('config').innerHTML = `Config: ${cfg.version}`
         }
     }
     catch (e)
