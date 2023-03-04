@@ -82,3 +82,9 @@ tr:nth-child(even) {
 #results_tab {
     position: relative;
 }
+
+#pick_list_table {
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;
+}
