@@ -1592,6 +1592,12 @@ class DAL
             // map to option if available
             else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
             {
+                // don't map when an option was sent as the step
+                let options = this.meta[id].options.map(op => op.toLowerCase())
+                if (options.includes(stat))
+                {
+                    return val.toFixed(2)
+                }
                 return this.meta[id].options[val]
             }
             // map numbers to 2 decimal places if they are at least that
@@ -1630,6 +1636,12 @@ class DAL
             // map to option if available
             else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
             {
+                // don't map when an option was sent as the step
+                let options = this.meta[id].options.map(op => op.toLowerCase())
+                if (options.includes(stat))
+                {
+                    return val.toFixed(2)
+                }
                 return this.meta[id].options[val]
             }
             // map numbers to 2 decimal places if they are at least that
@@ -1753,6 +1765,14 @@ class DAL
                     this.teams[team].stats[`${key}.high`]   = options.length
                     this.teams[team].stats[`${key}.total`]  = total_op
                     this.teams[team].stats[`${key}.stddev`] = '---'
+                    if (this.meta[`results.${key}`].type === 'select' || this.meta[`results.${key}`].type === 'dropdown')
+                    {
+                        let total = Object.values(counts).reduce((a, b) => a + b)
+                        for (let i in options)
+                        {
+                            this.teams[team].stats[`${key}.${options[i].toLowerCase()}`] = counts[i] / total
+                        }
+                    }
                 }
                 break
             // don't attempt to use strings
@@ -1863,6 +1883,14 @@ class DAL
                             global_stats[`${id}.high`]   = options.length
                             global_stats[`${id}.total`]  = total_op
                             global_stats[`${id}.stddev`] = '---'
+                            if (this.meta[id.replace('stats.', 'results.')].type === 'select' || this.meta[id.replace('stats.', 'results.')].type === 'dropdown')
+                            {
+                                let total = Object.values(counts).reduce((a, b) => a + b)
+                                for (let i in options)
+                                {
+                                    global_stats[`${id}.${options[i].toLowerCase()}`] = counts[i] / total
+                                }
+                            }
                         }
                         break
                     // don't attempt to use strings

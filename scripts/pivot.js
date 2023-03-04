@@ -13,6 +13,8 @@ let selected_keys = []
 let last_sort = ''
 let last_reverse = false
 
+const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -255,7 +257,7 @@ function build_table(sort_by='', reverse=false)
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
     // build table headers
-    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})">Team Number</th>`
+    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number</th>`
     let types = '<tr><td></td>'
     let filters = '<tr><td></td>'
     let totals = '<tr><td></td>'
@@ -264,7 +266,7 @@ function build_table(sort_by='', reverse=false)
         let key = selected[i]
 
         // add key names
-        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"  onclick="build_table('${key}', ${key == sort_by && !reverse})">${dal.get_name(key, '')}</th>`
+        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"  onclick="build_table('${key}', ${key == sort_by && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false">${dal.get_name(key, '')}</th>`
 
         // determine previously selected stat
         let type = 'Mean'
@@ -336,7 +338,12 @@ function build_table(sort_by='', reverse=false)
         let fn = ''
         if (key.startsWith('stats.'))
         {
-            let dropdown = new Dropdown(`select_${key}_${i}`, '', ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total'], type)
+            let stats = STATS
+            if (t === 'select' || t === 'dropdown')
+            {
+                stats = stats.concat(dal.meta[key].options)
+            }
+            let dropdown = new Dropdown(`select_${key}_${i}`, '', stats, type)
             dropdown.on_change = `build_table('${sort_by}', ${reverse})`
             dropdown.add_class('slim')
             dropdown.add_class('thin')
@@ -344,7 +351,7 @@ function build_table(sort_by='', reverse=false)
         }
 
         // build a select for less/greater than if a number
-        if (t === 'number' || t === 'counter' || t === 'slider')
+        if (t === 'number' || t === 'counter' || t === 'slider' || !STATS.includes(type))
         {
             let ltgt = new Select(`ltgt_${key}_${i}`, '', ['Less', 'Greater'], ['Less', 'Greater'][ltgt_def])
             ltgt.on_change = `build_table('${sort_by}', ${reverse})`
@@ -381,6 +388,12 @@ function build_table(sort_by='', reverse=false)
             let min = dal.get_global_value(global_stats, key, 'min')
             let max = dal.get_global_value(global_stats, key, 'max')
             let mean = dal.get_global_value(global_stats, key, 'mean')
+            if (!STATS.includes(type))
+            {
+                min = 0
+                max = 1.0
+                mean = 0.5
+            }
             if (val !== mean)
             {
                 let colors = [0,0,0,0]
