@@ -196,5 +196,48 @@ function parse_val(val)
     {
         val = val ? 'Yes' : ''
     }
+    else if (typeof val === 'object' && cfg.year === '2023')
+    {
+        if (Array.isArray(val))
+        {
+            let table = '<table>'
+            for (let row of val)
+            {
+                table += `<tr><td>${row.row}</td><td>${row.nodes.join(', ')}</td></tr>`
+            }
+            table += '</table>'
+            val = table
+        }
+        else
+        {
+            let table = '<table>'
+            let rows = Object.keys(val)
+            for (let r of rows)
+            {
+                table += `<tr><th>${r}</th>`
+                let row = val[r]
+                for (let p of row)
+                {
+                    let color = ''
+                    if (p === 'Cube')
+                    {
+                        color = 'purple'
+                    }
+                    else if (p === 'Cone')
+                    {
+                        color = 'yellow'
+                    }
+                    table += `<td style="background-color: ${color}">${p.replace('None', '')}</td>`
+                }
+                table += '</tr>'
+            }
+            table += '</table>'
+            val = table
+        }
+    }
+    else if (typeof val === 'object')
+    {
+        val = JSON.stringify(val, 1)
+    }
     return val
 }
