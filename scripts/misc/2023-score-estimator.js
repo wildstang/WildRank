@@ -36,7 +36,7 @@ function init_page()
     red_col.add_input(new Number('red_final_score', 'Red Score', 0))
 
     // build blue score column
-    let blue_col = new ColumnFrame('', 'Red Alliance')
+    let blue_col = new ColumnFrame('', 'Blue Alliance')
     let blue_base = new Entry('blue_base_score', 'Base Score', 0)
     blue_base.type = 'number'
     blue_col.add_input(blue_base)
