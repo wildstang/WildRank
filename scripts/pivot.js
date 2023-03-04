@@ -329,7 +329,7 @@ function build_table(sort_by='', reverse=false)
 
         // build dropdown for filter
         let filter_str = ''
-        if (type !== 'Total')
+        if (type !== 'Total' || (t !== 'select' || t === 'dropdown'))
         {
             let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
             filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
@@ -398,7 +398,8 @@ function build_table(sort_by='', reverse=false)
                 max = 1.0
                 mean = 0.5
             }
-            if (val !== mean && type !== 'total')
+            let t = dal.meta[key].type 
+            if (val !== mean && (type !== 'total' || (t !== 'select' || t === 'dropdown')))
             {
                 let colors = [0,0,0,0]
 
