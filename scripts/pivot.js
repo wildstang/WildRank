@@ -266,7 +266,7 @@ function build_table(sort_by='', reverse=false)
         let key = selected[i]
 
         // add key names
-        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"  onclick="build_table('${key}', ${key == sort_by && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false">${dal.get_name(key, '')}</th>`
+        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"  onclick="build_table('${key}', ${key == sort_by && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false" ontouchstart="touch_button(false)" ontouchend="touch_button('alt_option(\\'${key}\\')')">${dal.get_name(key, '')}</th>`
 
         // determine previously selected stat
         let type = 'Mean'
