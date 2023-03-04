@@ -36,7 +36,7 @@ const CONFIGS = {
     },
     'extras': {
         'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile', 'misc/revival-counter'],
-        'Game Specific': ['misc/2022-score-estimator']
+        'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator']
     }
 }
 
@@ -83,6 +83,7 @@ const BUTTONS = {
     'scouter-scheduler':    { name: 'Scouter Scheduler',        limits: ['admin'], configs: [] },
     'misc/match-counter':   { name: 'Match Counter',            limits: ['admin'], configs: [] },
     'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: ['admin'], configs: [] },
+    'misc/2023-score-estimator':    { name: '2023 Score Estimator',     limits: ['admin'], configs: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: ['admin'], configs: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: ['admin'], configs: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: ['admin'], configs: [] },

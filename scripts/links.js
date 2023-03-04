@@ -29,6 +29,7 @@ var BLANK_PAGES = {
         // edit
     'scouter-scheduler': [],
     'misc/2022-score-estimator': [],
+    'misc/2023-score-estimator': [],
     'misc/match-counter': [],
     'misc/score-counter': [],
     'misc/revival-counter': [],

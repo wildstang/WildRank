@@ -68,6 +68,7 @@ const CACHE_LIST = [
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
     //'/scripts/misc/2022-score-estimator.js',
+    '/scripts/misc/2023-score-estimator.js',
     /* don't cache misc scripts that rely on tba
     '/scripts/misc/district-counter.js',
     '/scripts/misc/event-planner.js',
