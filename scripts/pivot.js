@@ -319,13 +319,30 @@ function build_table(sort_by='', reverse=false)
         let t = dal.meta[key].type
         if (t === 'number' || t === 'counter' || t === 'slider')
         {
-            unique.sort((a, b) => parseFloat(a) - parseFloat(b))
+            unique = unique.map(v => v.toString())
+            unique.sort(function (a, b)
+            {
+                let af = parseFloat(a)
+                let bf = parseFloat(b)
+                if (isNaN(af))
+                {
+                    return -1
+                }
+                if (isNaN(bf))
+                {
+                    return 1
+                }
+                return af - bf
+            })
         }
         else
         {
             unique.sort()
         }
-        unique.unshift('')
+        if (!unique.includes(''))
+        {
+            unique.unshift('')
+        }
 
         // build dropdown for filter
         let filter_str = ''
