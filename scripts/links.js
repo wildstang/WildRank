@@ -46,7 +46,6 @@ var SELECTION_PAGES = {
     pits: ['event', 'user', 'position', PIT_MODE],
     ranker: ['event'],
     sides: ['event'],
-    picklists: ['event'],
     multipicklists: ['event'],
     whiteboard: ['event'],
     cycles: ['event'],
