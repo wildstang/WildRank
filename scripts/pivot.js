@@ -476,6 +476,7 @@ function save_picklist()
     }
     dal.picklists[name] = teams
     dal.save_picklists()
+    alert(`${name} Created`)
 }
 
 /**
