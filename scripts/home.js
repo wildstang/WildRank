@@ -24,7 +24,7 @@ const CONFIGS = {
         'Transfer': ['transfer-raw']
     },
     'analysis': {
-        'Teams': ['ranker', 'sides', 'picklists', 'multipicklists', 'whiteboard'],
+        'Teams': ['ranker', 'sides', 'multipicklists', 'whiteboard'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
         'Data': ['results', 'cycles', 'coach', 'transfer-raw'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
@@ -58,7 +58,6 @@ const BUTTONS = {
     'multipicklists':       { name: 'Multi Pick Lists',         limits: ['teams', 'admin'], configs: ['settings'] },
     'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
-    'picklists':            { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },
     'pivot':                { name: 'Pivot Table',              limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'plot':                 { name: 'Plotter',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },

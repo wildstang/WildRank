@@ -208,7 +208,7 @@
 				"default": false,
 				"negative": false
 			}, {
-				"name": "Charging Station",
+				"name": "Auto Charging Station",
 				"id": "match_auto_position_charging_station",
 				"type": "select",
 				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],

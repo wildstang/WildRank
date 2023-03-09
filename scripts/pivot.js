@@ -456,7 +456,56 @@ function build_table(sort_by='', reverse=false)
  */
 function save_picklist()
 {
+    // get selected keys on either side
+    let selected = get_selected_keys()
     let teams = get_sorted_teams(last_sort, last_reverse)
+
+    for (let i in selected)
+    {
+        let key = selected[i]
+
+        // determine previously selected stat
+        let type = 'Mean'
+        if (document.getElementById(`select_${key}_${i}`))
+        {
+            type = document.getElementById(`select_${key}_${i}`).value
+        }
+
+        // determine previously selected filter
+        let filter = ''
+        if (document.getElementById(`filter_${key}_${i}`))
+        {
+            filter = document.getElementById(`filter_${key}_${i}`).value
+        }
+
+        // determine previously less/greater
+        let ltgt_def = ''
+        if (document.getElementById(`ltgt_${key}_${i}`))
+        {
+            ltgt_def = Select.get_selected_option(`ltgt_${key}_${i}`)
+        }
+
+        // make array of teams that don't match filter
+        let remove_teams = []
+        for (let team of teams)
+        {
+            let val = dal.get_value(team, key, type)
+            let mapped_val = dal.get_value(team, key, type, true)
+            if (filter !== '' && ((ltgt_def === 0 && val >= parseFloat(filter)) ||
+                (ltgt_def === 1 && val <= parseFloat(filter)) ||
+                (ltgt_def === '' && filter !== mapped_val)))
+            {
+                remove_teams.push(team)
+            }
+        }
+
+        // remove teams that does match
+        for (let team of remove_teams)
+        {
+            teams.splice(teams.indexOf(team), 1)
+        }
+    }
+
     let name = ''
     if (last_sort === '')
     {
@@ -476,6 +525,7 @@ function save_picklist()
     }
     dal.picklists[name] = teams
     dal.save_picklists()
+    alert(`${name} Created`)
 }
 
 /**
