@@ -212,7 +212,7 @@ function populate_options()
  * returns:     sanitized name
  * description: Sanitizes an input name so it can be used for the ID.
  */
-function create_id_from_name(parent, name)
+function create_full_id_from_name(parent, name)
 {
     let id = create_id_from_name(name)
 
@@ -257,7 +257,7 @@ function create_element()
     if (page.value == 'New')
     {
         let parent = MODES[mode]
-        input.id = create_id_from_name(parent, name)
+        input.id = create_full_id_from_name(parent, name)
         input.columns = []
         config[mode].push(input)
     }
@@ -266,7 +266,7 @@ function create_element()
         if (column.value == 'New')
         {
             let parent = config[mode][page.selectedIndex].id
-            input.id = create_id_from_name(parent, name)
+            input.id = create_full_id_from_name(parent, name)
             input.cycle = document.getElementById('new-element-cycle').checked
             input.inputs = []
             config[mode][page.selectedIndex].columns.push(input)
@@ -274,7 +274,7 @@ function create_element()
         else
         {
             let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
-            input.id = create_id_from_name(parent, name)
+            input.id = create_full_id_from_name(parent, name)
             input.type = type.toLowerCase()
             if (document.getElementById('new-element-no-default').checked)
             {
