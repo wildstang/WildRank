@@ -123,12 +123,14 @@ function build_table(alliance, teams)
 {
     let images = []
     let table = '<table><tr><td></td>'
+    let names = '<tr><td></td>'
     for (let team of teams)
     {
         images += dal.get_photo_carousel(team, '400px')
         table += `<th>${team}</th>`
+        names += `<th>${dal.get_value(team, 'meta.name')}</th>`
     }
-    table += '</tr>'
+    table += `</tr>${names}</tr>`
     for (let v of cfg.coach)
     {
         table += `<tr><th>${dal.get_name(v.key, v.function)}</th>`
