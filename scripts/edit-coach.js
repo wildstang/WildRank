@@ -29,7 +29,7 @@ function init_page()
 function build_buttons()
 {
     let select = new Select('new_function', 'New Function', FUNCTIONS)
-    let dropdown = new Dropdown('new_key', 'New Key', dal.get_keys(true, true, false, false).map(k => dal.get_name(k, '')))
+    let dropdown = new Dropdown('new_key', 'New Key', dal.get_keys(true, true, true, true).map(k => dal.get_name(k, '')))
     let button = new Button('add_coach', 'Add Coach Value', 'create()')
 
     let column = new ColumnFrame('del_col', 'Delete Coach Value')
@@ -51,7 +51,7 @@ function build_buttons()
  */
 function create()
 {
-    let keys = dal.get_keys(true, true, false, false)
+    let keys = dal.get_keys(true, true, true, true)
     let func = FUNCTIONS[Select.get_selected_option('new_function')].toLowerCase()
     let key = keys[document.getElementById('new_key').selectedIndex]
 
