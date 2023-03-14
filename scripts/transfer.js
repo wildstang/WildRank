@@ -62,7 +62,7 @@ function preload_event()
 
                 // store matches as JSON string in matches-[event-id]
                 localStorage.setItem(`matches-${event_id}`, JSON.stringify(matches))
-                handler.on_complete()
+                process_files()
                 if (++count === 3)
                 {
                     alert('Preload complete!')
@@ -96,7 +96,7 @@ function preload_event()
                 })
                 // store teams as JSON string in teams-[event_id]
                 localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
-                handler.on_complete()
+                process_files()
 
                 // fetch team's avatar for whiteboard
                 for (let team of teams)
