@@ -7,6 +7,7 @@
  */
 
 include('picklists-core')
+include('transfer')
 
 /**
  * function:    init_page
@@ -38,7 +39,8 @@ function init_page()
         let card = new Card('table_card', '')
         let new_list = new Button('new_list', 'Add to New List', 'new_list()')
         let remove = new Checkbox('remove_teams', 'Remove Teams')
-        let column = new ColumnFrame('', '', [new_list, card, remove])
+        let export_button = new Button('export', 'Export Lists', 'export_picklists()')
+        let column = new ColumnFrame('', '', [new_list, card, remove, export_button])
         buttons_container.innerHTML = new PageFrame('page', '', [column]).toString
         
         build_pick_lists()
@@ -183,4 +185,18 @@ function build_pick_lists(highlight='', list_num=0, rename='')
     
     // save to localStorage
     dal.save_picklists()
+}
+
+/**
+ * function:    export_picklists
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for picklists.
+ */
+function export_picklists()
+{
+    let handler = new ZipHandler()
+    handler.picklists = true
+    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.export_zip()
 }

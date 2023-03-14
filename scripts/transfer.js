@@ -5,6 +5,8 @@
  * date:        2021-05-24
  */
 
+include('libs/jszip.min')
+
 /**
  * BUTTON RESPONSES
  */
@@ -60,7 +62,7 @@ function preload_event()
 
                 // store matches as JSON string in matches-[event-id]
                 localStorage.setItem(`matches-${event_id}`, JSON.stringify(matches))
-                process_files()
+                handler.on_complete()
                 if (++count === 3)
                 {
                     alert('Preload complete!')
@@ -94,7 +96,7 @@ function preload_event()
                 })
                 // store teams as JSON string in teams-[event_id]
                 localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
-                process_files()
+                handler.on_complete()
 
                 // fetch team's avatar for whiteboard
                 for (let team of teams)
@@ -494,4 +496,428 @@ function export_spreadsheet(event_id)
         lines.push(values.join())
     }
     return lines.join('\n').replace(/,NaN/g, ',')
+}
+
+class ZipHandler
+{
+    constructor()
+    {
+        this.event = false
+        this.match = false
+        this.pit = false
+        this.note = false
+        this.config = false
+        this.smart_stats = false
+        this.coach = false
+        this.settings = false
+        this.avatars = false
+        this.picklists = false
+        this.whiteboard = false
+        this.pictures = false
+        this.on_update = this.do_nothing
+        this.on_complete = this.do_nothing
+        this.server = ''
+        this.user = ''
+    }
+
+    do_nothing(a='', b='') {}
+
+    /**
+     * function:    get_zip_name
+     * paramters:   none
+     * returns:     zip file name
+     * description: Generates a zip name.
+     */
+    get_zip_name()
+    {
+        // start name with user ID if available
+        let name = ''
+        if (this.user !== '')
+        {
+            name = `${this.user}-`
+        }
+
+        // add event ID
+        name += event_id
+
+        // add a suffix based on what is exported
+        let suffix = ''
+        let results = this.match || this.pit || this.note
+        let config = this.event || this.config || this.smart_stats || this.coach || this.settings || this.avatars || this.whiteboard
+        if ((results || this.pictures) && !config)
+        {
+            if (this.match && !this.pit && !this.note && !this.pictures)
+            {
+                suffix = 'matches'
+            }
+            else if (this.note && !this.match && !this.pit && !this.pictures)
+            {
+                suffix = 'notes'
+            }
+            else if (this.pictures && !this.match && !this.pit && !this.note)
+            {
+                suffix = 'pictures'
+            }
+            else if ((this.pit || this.pictures) && !this.match && !this.note)
+            {
+                suffix = 'pits'
+            }
+            else
+            {
+                suffix = 'results'
+            }
+        }
+        else if (config && !results)
+        {
+            suffix = 'config'
+        }
+        else if (!config && !results && this.picklists)
+        {
+            suffix = 'picklists'
+        }
+        else
+        {
+            suffix = 'export'
+        }
+
+        return `${name}-${suffix}.zip`
+    }
+
+    /**
+     * function:    import_zip_from_file
+     * paramters:   none
+     * returns:     none
+     * description: Creates a file prompt to upload a zip of JSON results.
+     */
+    import_zip_from_file()
+    {
+        var input = document.createElement('input')
+        input.type = 'file'
+        input.accept = 'application/zip'
+        input.addEventListener('change', event => this.import_zip(event.target.files[0]))
+        input.click()
+    }
+
+    /**
+     * function:    import_zip_from_server
+     * paramters:   none
+     * returns:     none
+     * description: Request a zip of JSON results from the server.
+     */
+    import_zip_from_server()
+    {
+        if (check_server(this.server))
+        {
+            fetch(`${this.server}/getZip`)
+                .then(transfer => {
+                    return transfer.blob();
+                })
+                .then(bytes => {
+                    this.import_zip(bytes)
+                })
+                .catch(err => {
+                    alert('Error requesting results')
+                    console.log(err)
+                })
+        }
+    }
+
+    /**
+     * function:    import_zip_from_cache
+     * paramters:   cache name
+     * returns:     none
+     * description: Import a zip stored in CacheStorage.
+     */
+    async import_zip_from_cache(cache_name)
+    {
+        let cache = await caches.open(cache_name)
+        let r = await cache.match('/import')
+        if (r)
+        {
+            this.import_zip(r.blob())
+            cache.delete('/import')
+        }
+        else
+        {
+            alert('No cached file available!')
+        }
+    }
+
+    /**
+     * function:    import_zip
+     * paramters:   response containing zip file
+     * returns:     none
+     * description: Extracts a zip archive containing all JSON results.
+     */
+    async import_zip(file)
+    {
+        if (file.hasOwnProperty('name') && !file.name.includes(dal.event_id))
+        {
+            if (!confirm(`Warning, zip does not contain "${dal.event_id}" in the name! Continue?`))
+            {
+                return
+            }
+        }
+        let handler = this
+
+        // process each files details
+        JSZip.loadAsync(file).then(function (zip)
+        {
+            let files = Object.keys(zip.files)
+            let complete = 0
+
+            if (files.length == 0)
+            {
+                alert('No files found!')
+            }
+
+            for (let name of files)
+            {
+                let parts = name.split('.')
+                let n = parts[0]
+
+                // skip directories
+                if (name.endsWith('/'))
+                {
+                    // update progress bar
+                    handler.on_update(++complete, files.length)
+
+                    if (complete === files.length)
+                    {
+                        alert('Import Complete')
+                    }
+                    continue
+                }
+
+                // get blob of file
+                zip.file(name).async('blob').then(function (content)
+                {
+                    // import pictures to cache
+                    if (name.endsWith('.jpg') || name.endsWith('.png'))
+                    {
+                        if (handler.pictures)
+                        {
+                            // adjust url
+                            let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
+                            if (!url.startsWith('http'))
+                            {
+                                let server = handler.server
+                                if (!server.endsWith('/'))
+                                {
+                                    server += '/'
+                                }
+                                url = server + url
+                                let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
+                                dal.add_photo(team, url)
+                                cache_file(url, content)
+                            }
+                        }
+                        
+                        // update progress bar
+                        handler.on_update(++complete, files.length)
+
+                        if (complete === files.length)
+                        {
+                            handler.on_complete()
+                            alert('Import Complete')
+                        }
+                    }
+                    else if (name.endsWith('.json'))
+                    {
+                        // import everything else as strings to localStorage
+                        content.text().then(function (text) {
+                            // determine which files to use
+                            if ((n.includes(dal.event_id) &&
+                                ((handler.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
+                                (handler.match && n.startsWith(`${MATCH_MODE}-`) ||
+                                (handler.pit && n.startsWith(`${PIT_MODE}-`) ||
+                                (handler.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
+                                (handler.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === 'config-version')) ||
+                                (handler.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
+                                (handler.coach && n === `config-${cfg.year}-coach`) ||
+                                (handler.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
+                                (handler.avatars && n.startsWith('avatar-')) ||
+                                (handler.picklists && n.startsWith('picklists-')) ||
+                                (handler.whiteboard && n === `config-${cfg.year}-whiteboard`))
+                            {
+                                let write = true
+                                let existing = localStorage.getItem(n)
+                                if (existing !== null)
+                                {
+                                    if (existing !== text && !n.startsWith('avatar-'))
+                                    {
+                                        write = confirm(`"${n}" already exists, overwrite?`)
+                                    }
+                                    else
+                                    {
+                                        write = false
+                                    }
+                                }
+                                if (write)
+                                {
+                                    console.log(`Importing ${n}`)
+                                    localStorage.setItem(n, text)
+                                }
+                            }
+                            
+                            // update progress bar
+                            handler.on_update(++complete, files.length)
+
+                            if (complete === files.length)
+                            {
+                                handler.on_complete()
+                                alert('Import Complete')
+                            }
+                        })
+                    }
+                    else
+                    {
+                        // update progress bar
+                        handler.on_update(++complete, files.length)
+
+                        if (complete === files.length)
+                        {
+                            handler.on_complete()
+                            alert('Import Complete')
+                        }
+                    }
+                })
+            }
+        })
+    }
+
+    /**
+     * function:    export_zip
+     * paramters:   none
+     * returns:     none
+     * description: Creates and downloads a zip archive containing all localStorage files.
+     */
+    async export_zip(op=0)
+    {
+        let zip = JSZip()
+        let handler = this
+
+        // determine which files to use
+        let files = Object.keys(localStorage).filter(function(file)
+        {
+            return (file.includes(dal.event_id) &&
+                ((handler.event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
+                (handler.match && file.startsWith(`${MATCH_MODE}-`)) ||
+                (handler.pit && file.startsWith(`${PIT_MODE}-`)) ||
+                (handler.note && file.startsWith(`${NOTE_MODE}-`)))) ||
+                (handler.config && (MODES.some(m => file === `config-${cfg.year}-${m}`) || file === 'config-version')) ||
+                (handler.smart_stats && file === `config-${cfg.year}-smart_stats`) ||
+                (handler.coach && file === `config-${cfg.year}-coach`) ||
+                (handler.settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
+                (handler.avatars && file.startsWith('avatar-')) ||
+                (handler.picklists && file.startsWith('picklists-')) ||
+                (handler.whiteboard && file === `config-${cfg.year}-whiteboard`)
+        })
+        let num_uploads = files.length
+
+        // add each file to the zip
+        for (let i in files)
+        {
+            let file = files[i]
+            let name = file + '.json'
+            let base64 = false
+            let data = localStorage.getItem(file)
+            zip.file(name, data, { base64: base64 })
+
+            // update progress bar
+            handler.on_update(i, files.length + 1)
+        }
+
+        // export pictures from cache
+        let names = await caches.keys()
+        if (names.length > 0 && handler.pictures)
+        {
+            let cache = await caches.open(names[0])
+            let keys = await cache.keys()
+            
+            // add each file in the cache to the table
+            for (let key of keys)
+            {
+                // add up all bytes in file
+                let response = await cache.match(key)
+
+                // create row
+                let file = response.url
+                if (file === '')
+                {
+                    file = key.url
+                }
+                
+                // check for pictures and don't put in directory if belonging to server (like server does)
+                if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${handler.server}/assets/`))
+                {
+                    if (file.startsWith(`${handler.server}/uploads/`))
+                    {
+                        file = file.replace(`${handler.server}/uploads/`, '')
+                    }
+                    zip.file(file, response.blob())
+                    num_uploads++
+                }
+            }
+        }
+
+        // download zip
+        zip.generateAsync({ type: 'blob' })
+            .then(function(blob)
+            {
+                if (op === 0)
+                {
+                    let element = document.createElement('a')
+                    element.href = window.URL.createObjectURL(blob)
+                    element.download = handler.get_zip_name()
+        
+                    element.style.display = 'none'
+                    document.body.appendChild(element)
+        
+                    element.click()
+        
+                    document.body.removeChild(element)
+                }
+                else if (op === 1) // upload
+                {
+                    if (check_server(handler.server))
+                    {                    
+                        // post string to server
+                        let formData = new FormData()
+                        formData.append('upload', blob)
+                        fetch(`${handler.server}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success && result.count === num_uploads)
+                                {
+                                    alert('Upload successful!')
+                                }
+                                else if (result.count === -1)
+                                {
+                                    alert('Incorrect password!')
+                                }
+                                else if (result.count === -2)
+                                {
+                                    alert('Failed to extract archive!')
+                                }
+                                else
+                                {
+                                    alert('Unknown server error!')
+                                }
+                            })
+                            .catch(e => {
+                                alert('Error uploading!')
+                                console.error(e)
+                            })
+                    }
+                }
+                else if (op === 2)
+                {
+                    alert('Invalid export type')
+                }
+
+                // update progress bar for zip complete
+                handler.on_update(files.length + 1, files.length + 1)
+            })
+    }
 }

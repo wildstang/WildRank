@@ -107,8 +107,7 @@ function init_page()
     let data = new ColumnFrame('data', 'Results')
     data_page.add_column(data)
 
-    let transfer = new Button('transfer', 'Transfer Data')
-    transfer.link = `open_link('transfer-raw')`
+    let transfer = new Button('transfer', 'Import Config', 'import_config()')
     data.add_input(transfer)
 
     let version = new Number('config_version', 'cfg')
@@ -400,6 +399,26 @@ function check_press(id)
         set_cookie(ROLE_COOKIE, id)
         return build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
     }
+}
+
+/**
+ * function:    import_config
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip import process for configs and pictures.
+ */
+function import_config()
+{
+    let handler = new ZipHandler()
+    handler.event       = true
+    handler.config      = true
+    handler.smart_stats = true
+    handler.coach       = true
+    handler.settings    = true
+    handler.pictures    = true
+    handler.on_complete = process_files
+    handler.server      = get_upload_addr()
+    handler.import_zip_from_file()
 }
 
 /**

@@ -26,11 +26,11 @@ const CONFIGS = {
     'analysis': {
         'Teams': ['ranker', 'sides', 'multipicklists', 'whiteboard'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
-        'Data': ['results', 'cycles', 'coach', 'transfer-raw'],
+        'Data': ['results', 'cycles', 'coach', 'transfer-raw', 'import_results'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
-        'Configuration': ['config-generator', 'settings', 'schedule-importer', 'scouter-scheduler', 'export'],
+        'Configuration': ['config-generator', 'settings', 'schedule-importer', 'scouter-scheduler', 'export', 'export_config'],
         'Debugging': ['config-debug', 'event-generator', 'cache', 'random', 'open_extras'],
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_config']
     },
@@ -77,6 +77,8 @@ const BUTTONS = {
     'sides':                { name: 'Side-by-Side',             limits: ['teams', 'admin', 'any'], configs: ['settings'] },
     'teams':                { name: 'Team Profiles',            limits: ['teams', 'admin'], configs: ['settings'] },
     'transfer-raw':         { name: 'Transfer Raw Data',        limits: [], configs: [] },
+    'import_results':       { name: 'Import All Results',       limits: [], configs: [] },
+    'export_config':        { name: 'Export Config',            limits: [], configs: [] },
     'users':                { name: 'User Profiles',            limits: ['admin', 'any'], configs: [] },
     'whiteboard':           { name: 'Whiteboard',               limits: ['matches', 'admin'], configs: ['whiteboard', 'settings'] },
     'scouter-scheduler':    { name: 'Scouter Scheduler',        limits: ['admin'], configs: [] },
@@ -127,7 +129,7 @@ function init_page()
         for (let key of columns[col])
         {
             let button = new Button(key, BUTTONS[key].name, `check_press('${key}', ${key})`)
-            if (key !== 'download_csv' && col !== 'Reset' && key !== 'open_extras')
+            if (!key.includes('_') && col !== 'Reset')
             {
                 button.link = `check_press('${key}')`
             }
@@ -337,4 +339,40 @@ function get_position()
 function open_extras()
 {
     return build_url('index', {'page': 'home', 'role': 'extras'})
+}
+
+/**
+ * function:    import_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip import process for results.
+ */
+function import_results()
+{
+    let handler = new ZipHandler()
+    handler.match     = true
+    handler.note      = true
+    handler.pit       = true
+    handler.pictures  = true
+    handler.picklists = true
+    handler.import_zip_from_file()
+}
+
+/**
+ * function:    export_config
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for config.
+ */
+function export_config()
+{
+    let handler = new ZipHandler()
+    handler.event       = true
+    handler.config      = true
+    handler.smart_stats = true
+    handler.coach       = true
+    handler.settings    = true
+    handler.pictures    = true
+    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.export_zip()
 }

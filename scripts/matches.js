@@ -13,6 +13,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var generate = ''
 
+include('transfer')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -29,7 +31,7 @@ function init_page()
     }
 
     let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
-    add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
+    add_button_filter('transfer', `Export ${scout_mode} Results`, `export_results()`, true)
     if (first)
     {
         let avatar = ''
@@ -164,4 +166,19 @@ function open_match(match_num)
 function can_edit(match_num, team_num)
 {
     return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === parseInt(user_id) || cfg.is_admin(user_id)
+}
+
+/**
+ * function:    expport_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for this page type's results.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.match = scout_mode === MATCH_MODE
+    handler.note = scout_mode === NOTE_MODE
+    handler.user = user_id
+    handler.export_zip()
 }
