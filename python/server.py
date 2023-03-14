@@ -212,7 +212,7 @@ def build_zip(event_id='', event_data=True, results=True, scout_configs=True, sm
                 ((pictures and (f.endswith('.png') or f.endswith('.jpg'))) or \
                     (f.endswith('.json') and ( \
                         (event_data and event_id in f and (f.startswith('teams-') or f.startswith('matches-') or f.startswith('rankings-'))) or \
-                        (results and event_id in f and (f.startswith('match-') or f.startswith('pit-'))) or \
+                        (results and event_id in f and (f.startswith('match-') or f.startswith('pit-') or f.startswith('note-'))) or \
                         (scout_configs and (f.startswith(f'config-{year}') and (f.endswith('-pit') or f.endswith('-match')))) or \
                         (smart_stats and (f.startswith(f'config-{year}') and f.endswith('-smart_stats'))) or \
                         (coach_config and (f.startswith(f'config-{year}') and f.endswith('-coach'))) or \
