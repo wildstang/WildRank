@@ -20,19 +20,22 @@ const CONFIGS = {
         'Notes': ['pits', 'notes']
     },
     'drive': {
-        'Drive Team': ['coach', 'whiteboard'],
-        'Transfer': ['transfer-raw']
+        'Drive Team': ['import_results', 'coach', 'whiteboard']
     },
     'analysis': {
-        'Teams': ['ranker', 'sides', 'multipicklists', 'whiteboard'],
+        'Teams': ['ranker', 'sides', 'multipicklists'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
-        'Data': ['results', 'cycles', 'coach', 'transfer-raw', 'import_results'],
+        'Results': ['import_results', 'results', 'cycles'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
-        'Configuration': ['config-generator', 'settings', 'schedule-importer', 'scouter-scheduler', 'export', 'export_config'],
-        'Debugging': ['config-debug', 'event-generator', 'cache', 'random', 'open_extras'],
+        'Configuration': ['settings', 'config-generator', 'config-debug', 'export', 'export_config'],
+        'Schedule': ['schedule-importer', 'event-generator', 'scouter-scheduler', 'random', 'open_extras'],
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_config']
+    },
+    'advanced': {
+        'Management': ['settings', 'transfer-raw', 'progress', 'config-debug', 'cache'],
+        'Reset': ['reset_cache', 'reset_storage', 'reset_config']
     },
     'extras': {
         'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile', 'misc/revival-counter'],
@@ -55,7 +58,7 @@ const BUTTONS = {
     'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
-    'multipicklists':       { name: 'Multi Pick Lists',         limits: ['teams', 'admin'], configs: ['settings'] },
+    'multipicklists':       { name: 'Pick Lists',         limits: ['teams', 'admin'], configs: ['settings'] },
     'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },

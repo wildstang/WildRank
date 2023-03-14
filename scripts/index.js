@@ -80,6 +80,10 @@ function init_page()
     analyst.link = `check_press('analysis')`
     roles.add_input(analyst)
 
+    let advanced = new Button('advanced', 'Advanced')
+    advanced.link = `check_press('advanced')`
+    roles.add_input(advanced)
+
     let admin = new Button('admin', 'Administrator')
     admin.link = `check_press('admin')`
     roles.add_input(admin)
@@ -104,11 +108,11 @@ function init_page()
     let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
     status.add_input(preload)
 
+    let transfer = new Button('transfer', 'Import Config', 'import_config()')
+    status.add_input(transfer)
+
     let data = new ColumnFrame('data', 'Results')
     data_page.add_column(data)
-
-    let transfer = new Button('transfer', 'Import Config', 'import_config()')
-    data.add_input(transfer)
 
     let version = new Number('config_version', 'cfg')
     data.add_input(version)
@@ -130,9 +134,6 @@ function init_page()
     data.add_input(about)
 
     document.body.innerHTML += user_page.toString + data_page.toString
-
-    let button = new Button('reset', 'Reset Cache', 'reset_cache()')
-    document.getElementById('install-container').innerHTML = button.toString
 
     check_id()
     apply_theme()
@@ -351,7 +352,7 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id !== 'scout' && !cfg.is_admin(user))
+    if ((id === 'drive' || id === 'analysis' || id === 'admin') && !cfg.is_admin(user))
     {
         return 'Missing admin privileges'
     }
