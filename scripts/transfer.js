@@ -732,7 +732,7 @@ class ZipHandler
                                 (handler.match && n.startsWith(`${MATCH_MODE}-`) ||
                                 (handler.pit && n.startsWith(`${PIT_MODE}-`) ||
                                 (handler.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
-                                (handler.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === 'config-version')) ||
+                                (handler.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === `config-${cfg.year}-version`)) ||
                                 (handler.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
                                 (handler.coach && n === `config-${cfg.year}-coach`) ||
                                 (handler.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
@@ -805,7 +805,7 @@ class ZipHandler
                 (handler.match && file.startsWith(`${MATCH_MODE}-`)) ||
                 (handler.pit && file.startsWith(`${PIT_MODE}-`)) ||
                 (handler.note && file.startsWith(`${NOTE_MODE}-`)))) ||
-                (handler.config && (MODES.some(m => file === `config-${cfg.year}-${m}`) || file === 'config-version')) ||
+                (handler.config && (MODES.some(m => file === `config-${cfg.year}-${m}`) || file === `config-${cfg.year}-version`)) ||
                 (handler.smart_stats && file === `config-${cfg.year}-smart_stats`) ||
                 (handler.coach && file === `config-${cfg.year}-coach`) ||
                 (handler.settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
