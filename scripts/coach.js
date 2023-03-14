@@ -110,7 +110,7 @@ function open_match(match_key)
     {
         stats += `<tr><th>${dal.get_name(v.key, v.function)}</th><td>${dal.get_global_value(red_global, v.key, v.function, true)}</td><td>${dal.get_global_value(blue_global, v.key, v.function, true)}</td></tr>`
     }
-    document.getElementById('alliance_stats').innerHTML = stats
+    //document.getElementById('alliance_stats').innerHTML = stats
 }
 
 /**
