@@ -531,23 +531,29 @@ class DAL
             let match = this.matches[match_key]
             for (let team of match.red_alliance)
             {
-                this.teams[team].matches.push({
-                    key: match_key,
-                    comp_level: match.comp_level,
-                    set_number: match.set_number,
-                    match_number: match.match_number,
-                    alliance: 'red'
-                })
+                if (Object.keys(this.teams).includes(team))
+                {
+                    this.teams[team].matches.push({
+                        key: match_key,
+                        comp_level: match.comp_level,
+                        set_number: match.set_number,
+                        match_number: match.match_number,
+                        alliance: 'red'
+                    })
+                }
             }
             for (let team of match.blue_alliance)
             {
-                this.teams[team].matches.push({
-                    key: match_key,
-                    comp_level: match.comp_level,
-                    set_number: match.set_number,
-                    match_number: match.match_number,
-                    alliance: 'blue'
-                })
+                if (Object.keys(this.teams).includes(team))
+                {
+                    this.teams[team].matches.push({
+                        key: match_key,
+                        comp_level: match.comp_level,
+                        set_number: match.set_number,
+                        match_number: match.match_number,
+                        alliance: 'blue'
+                    })
+                }
             }
         }
 
@@ -611,7 +617,11 @@ class DAL
         for (let file of pit_files)
         {
             let pit = JSON.parse(localStorage.getItem(file))
-            this.teams[pit.meta_team.toString()].pit = pit
+            let team = pit.meta_team.toString()
+            if (teams.includes(team))
+            {
+                this.teams[team].pit = pit
+            }
         }
 
         // load in match results
@@ -651,7 +661,11 @@ class DAL
             {
                 match.meta_both_scouted = false
             }
-            this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
+            let team = match.meta_team.toString()
+            if (teams.includes(team))
+            {
+                this.teams[team].results.push(this.add_smart_stats(match, stats))
+            }
         }
         // add remaining notes
         let note_files = files.filter(f => f.startsWith(`note-${this.event_id}`))
@@ -659,10 +673,13 @@ class DAL
         {
             let match = JSON.parse(localStorage.getItem(file))
             let team = match.meta_team.toString()
-            if (!this.teams[team].results.some(m => m.meta_match_key === match.meta_match_key))
+            if (teams.includes(team))
             {
-                match.meta_both_scouted = false
-                this.teams[team].results.push(this.add_smart_stats(match, stats))
+                if (!this.teams[team].results.some(m => m.meta_match_key === match.meta_match_key))
+                {
+                    match.meta_both_scouted = false
+                    this.teams[team].results.push(this.add_smart_stats(match, stats))
+                }
             }
         }
 
