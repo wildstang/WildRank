@@ -56,7 +56,7 @@ function init_page()
     switch (scout_mode)
     {
         case PIT_MODE:
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
+            document.getElementById('header_info').innerHTML = `<span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
             let pos = 1 + parseInt(scout_pos)
@@ -64,7 +64,7 @@ function init_page()
             {
                 pos -= dal.alliance_size
             }
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+            document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
 
             alliances = dal.build_relative_alliances(team_num, match_num)
             break

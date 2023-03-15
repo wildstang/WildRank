@@ -813,7 +813,7 @@ class DAL
                 let short_match_name = ''
                 if (match.comp_level === 'qm')
                 {
-                    match_name = `Q ${match.match_number}`
+                    match_name = `Qual ${match.match_number}`
                     short_match_name = `${match.match_number}`
                 }
                 // convert TBA structure to double-elim
@@ -821,67 +821,31 @@ class DAL
                 {
                     switch (match.comp_level)
                     {
-                        case 'qm':
-                            match_name = `Q ${match.match_number}`
-                            short_match_name = `${match.match_number}`
-                            break
-                        case 'ef':
-                            if (match.set_number > 4)
-                            {
-                                match_name = `R2 ${match.set_number}`
-                                short_match_name = `P${match.set_number}`
-                            }
-                            else
-                            {
-                                match_name = `R1 ${match.set_number}`
-                                short_match_name = `P${match.set_number}`
-                            }
-                            break
-                        case 'qf':
-                            if (match.set_number === 1)
-                            {
-                                match_name = `R2 7`
-                                short_match_name = `P7`
-                            }
-                            else if (match.set_number === 2)
-                            {
-                                match_name = `R2 8`
-                                short_match_name = `P8`
-                            }
-                            else if (match.set_number === 3)
-                            {
-                                match_name = `R3 9`
-                                short_match_name = `P9`
-                            }
-                            else if (match.set_number === 4)
-                            {
-                                match_name = `R3 10`
-                                short_match_name = `P10`
-                            }
-                            break
                         case 'sf':
-                            if (match.set_number === 1)
+                            let round = 1
+                            let match_num = match.set_number
+                            if (match_num > 4 && match_num <= 8)
                             {
-                                match_name = `R4 11`
-                                short_match_name = `P11`
+                                round = 2
                             }
-                            else if (match.set_number === 2)
+                            else if (match_num === 9 || match_num === 10)
                             {
-                                match_name = `R4 12`
-                                short_match_name = `P12`
+                                round = 3
                             }
+                            else if (match_num === 11 || match_num === 12)
+                            {
+                                round = 4
+                            }
+                            else if (match_num === 13)
+                            {
+                                round = 5
+                            }
+                            match_name = `Round ${round} Match ${match_num}`
+                            short_match_name = `M${match_num}`
                             break
                         case 'f':
-                            if (match.set_number === 1)
-                            {
-                                match_name = `R5 13`
-                                short_match_name = `P13`
-                            }
-                            else if (match.set_number === 2)
-                            {
-                                match_name = `${match.comp_level.toUpperCase()} ${match.match_number}`
-                                short_match_name = `${match.comp_level.toUpperCase()}${match.match_number}`
-                            }
+                            match_name = `Final ${match.match_number}`
+                            short_match_name = `F${match.match_number}`
                             break
                     }
                 }

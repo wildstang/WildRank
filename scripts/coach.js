@@ -22,7 +22,7 @@ function init_page()
 
     if (first)
     {
-        contents_card.innerHTML = `<h2>Match <span id="match_key">No Match Selected</span></h2>
+        contents_card.innerHTML = `<h2><span id="match_key">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <table id="alliance_stats"></table>`
 

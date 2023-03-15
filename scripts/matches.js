@@ -46,7 +46,7 @@ function init_page()
         {
             pos -= dal.alliance_size
         }
-        contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
+        contents_card.innerHTML = `<h2><span id="match_num">No Match Selected</span></h2>
                                     Time: <span id="match_time"></span><br><br>
                                     ${avatar}
                                     <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span> <span id="position">(${pos})</span></h2>
