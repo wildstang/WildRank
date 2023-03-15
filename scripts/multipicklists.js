@@ -181,7 +181,14 @@ function build_pick_lists(highlight='', list_num=0, rename='')
     document.getElementById('table_card').innerHTML = table
 
     // add secondary list for picklist matches
+    let prev_right = 'flex'
+    let right = document.getElementById('right')
+    if (right !== null && right.style.display)
+    {
+        prev_right = right.style.display
+    }
     populate_matches(false, true, match_filter, true)
+    right.style.display = prev_right
     
     // save to localStorage
     dal.save_picklists()
