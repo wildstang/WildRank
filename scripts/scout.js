@@ -143,11 +143,8 @@ function build_page_from_config()
     body += '</div>'
 
     let page_frame = new PageFrame()
-    if (scout_mode === MATCH_MODE)
-    {
-        let unsure = new Checkbox('unsure', `Unsure of Results`)
-        page_frame.add_column(new ColumnFrame('', '', [unsure]))
-    }
+    let unsure = new Checkbox('unsure', `Unsure of Results`)
+    page_frame.add_column(new ColumnFrame('', '', [unsure]))
     page_frame.add_column(new ColumnFrame('', '', ['<span id="submit_container"></span>']))
     document.body.innerHTML += body + page_frame.toString
     check_for_last_page()
@@ -415,6 +412,10 @@ function get_results_from_page()
     if (scout_mode === MATCH_MODE)
     {
         results['meta_unsure'] = document.getElementById('unsure').checked
+    }
+    else if (scout_mode === PIT_MODE)
+    {
+        results['meta_pit_unsure'] = document.getElementById('unsure').checked
     }
 
     // scouting metadata
