@@ -1657,13 +1657,18 @@ class DAL
             return
         }
 
-        let keys = Object.keys(results)
         let key = id.replace('results.', '')
-        for (let name of keys)
+        for (let i in results)
         {
-            if (!isNaN(results[name][key]))
+            let result = results[i][key]
+            if (!isNaN(result))
             {
-                values.push(results[name][key])
+                values.push(result)
+            }
+            else if (typeof result === 'string' && result.length > 4)
+            {
+                let match_key = results[i].meta_match_key
+                values.push(`<b>${this.matches[match_key].short_match_name}:</b> ${result}`)
             }
         }
         values = values.filter(v => v !== '')
@@ -1768,7 +1773,14 @@ class DAL
                 this.teams[team].stats[`${key}.max`]    = '---'
                 this.teams[team].stats[`${key}.low`]    = '---'
                 this.teams[team].stats[`${key}.high`]   = '---'
-                this.teams[team].stats[`${key}.total`]  = '---'
+                if (meta.type !== 'cycle')
+                {
+                    this.teams[team].stats[`${key}.total`] = values.join('<br>')
+                }
+                else
+                {
+                    this.teams[team].stats[`${key}.total`] = '---'
+                }
                 this.teams[team].stats[`${key}.stddev`] = '---'
                 break
             case 'counter':
