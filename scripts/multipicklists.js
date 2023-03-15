@@ -144,7 +144,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                 }
                 if (rename === list)
                 {
-                    table += `<td class="${classes}"><input id="new_name_${list}" type="text" value="${list}" onchange="rename_list('${list}')"></input></td>`
+                    table += `<td class="${classes}" oncontextmenu="remove_list('${list}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('remove_list(\\\'${list}\\\')')"><input id="new_name_${list}" type="text" value="${list}" onchange="rename_list('${list}')"></input></td>`
                 }
                 else
                 {
@@ -192,6 +192,21 @@ function build_pick_lists(highlight='', list_num=0, rename='')
     
     // save to localStorage
     dal.save_picklists()
+}
+
+/**
+ * function:    remove_list
+ * parameters:  list name
+ * returns:     none
+ * description: Removes a given list and rebuilds the page.
+ */
+function remove_list(list)
+{
+    if (confirm(`Delete "${list}"?`))
+    {
+        delete dal.picklists[list]
+        build_pick_lists()
+    }
 }
 
 /**
