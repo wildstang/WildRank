@@ -431,6 +431,7 @@ function get_results_from_page()
         results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
         results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
         results['meta_alliance'] = alliance_color
+        results['meta_ignore'] = false
     }
     results['meta_team'] = parseInt(team_num)
 

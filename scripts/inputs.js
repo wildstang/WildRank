@@ -302,7 +302,7 @@ class Checkbox extends Input
             this.classes.push('selected')
         }
         return `${this.html_description}<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}'); ${this.on_click}">
-                <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" name="${this.label}" ${this.def ? 'checked' : ''}>
+                <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" ${this.def ? 'checked' : ''}>
                 <label for="${this.id}" onclick="this.parentNode.click()">${this.label}</label>
             </div>`
     }

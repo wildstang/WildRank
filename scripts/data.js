@@ -1650,7 +1650,7 @@ class DAL
     {
         // build list of raw values
         let values = []
-        let results = this.teams[team].results
+        let results = this.teams[team].results.filter(r => r.meta_ignore !== true)
 
         if (results.length === 0)
         {
