@@ -354,7 +354,7 @@ class Config
         let c = this[config]
         if (typeof c === 'object')
         {
-            return Config.check_properties(c, {'allow_random': 'boolean', 'time_format': 'number', 'title': 'string', 'use_images': 'boolean'}, description)
+            return Config.check_properties(c, {'title': 'string', 'team_number': 'number', 'time_format': 'number', 'use_images': 'boolean', 'use_team_color': 'boolean', 'allow_random': 'boolean', 'use_offline': 'boolean'}, description)
         }
         return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }

@@ -18,7 +18,7 @@ function init_page()
     let first = populate_matches()
     let teams = Object.keys(dal.teams)
     teams.unshift('')
-    add_dropdown_filter('team_filter', teams, 'hide_matches()')
+    add_dropdown_filter('team_filter', teams, 'hide_matches()', true, cfg.settings.team_number.toString())
 
     if (first)
     {
@@ -26,7 +26,7 @@ function init_page()
                                     <h3 id="time"></h3>
                                     <table id="alliance_stats"></table>`
 
-        open_match(first)
+        hide_matches()
     }
     else
     {
