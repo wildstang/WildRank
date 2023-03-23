@@ -514,6 +514,7 @@ class ZipHandler
         this.picklists = false
         this.whiteboard = false
         this.pictures = false
+        this.always_overwrite = false
         this.on_update = this.do_nothing
         this.on_complete = this.do_nothing
         this.server = ''
@@ -753,7 +754,7 @@ class ZipHandler
                                 {
                                     if (existing !== text && !n.startsWith('avatar-'))
                                     {
-                                        write = confirm(`"${n}" already exists, overwrite?`)
+                                        write = handler.always_overwrite || confirm(`"${n}" already exists, overwrite?`)
                                     }
                                     else
                                     {
