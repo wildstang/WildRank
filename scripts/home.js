@@ -34,7 +34,7 @@ const CONFIGS = {
         'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_config']
     },
     'advanced': {
-        'Management': ['settings', 'transfer-raw', 'progress', 'config-debug', 'cache'],
+        'Management': ['settings', 'transfer-raw', 'progress', 'config-debug', 'cache', 'storage'],
         'Reset': ['reset_cache', 'reset_storage', 'reset_config']
     },
     'extras': {
@@ -45,10 +45,10 @@ const CONFIGS = {
 
 // requirements for each button
 const BUTTONS = {
-    'cache':                { name: 'Cache Manager',            limits: ['admin'], configs: [] },
+    'cache':                { name: 'Cache Manager',            limits: [], configs: [] },
     'clear_events':         { name: 'Clear Other Events',       limits: ['admin'], configs: [] },
     'coach':                { name: 'Coach View',               limits: ['event', 'admin', 'results'], configs: ['settings', 'coach'] },
-    'config-debug':         { name: 'Config Debugger',          limits: ['admin'], configs: [] },
+    'config-debug':         { name: 'Config Debugger',          limits: [], configs: [] },
     'config-generator':     { name: 'Config Builder',           limits: ['admin'], configs: [] },
     'cycles':               { name: 'Cycles',                   limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'distro':               { name: 'Distributions',            limits: ['teams', 'admin', 'any'], configs: ['settings'] },
@@ -58,14 +58,14 @@ const BUTTONS = {
     'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
-    'multipicklists':       { name: 'Pick Lists',         limits: ['teams', 'admin'], configs: ['settings'] },
+    'multipicklists':       { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
     'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },
     'pivot':                { name: 'Pivot Table',              limits: ['teams', 'admin', 'any'], configs: ['settings'] },
     'plot':                 { name: 'Plotter',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'preload_event':        { name: 'Preload Event',            limits: [], configs: [] },
-    'progress':             { name: 'Scouting Progress',        limits: ['teams', 'admin'], configs: [] },
+    'progress':             { name: 'Scouting Progress',        limits: ['teams'], configs: [] },
     'random':               { name: 'Random Result Generator',  limits: ['admin'], configs: ['settings'] },
     'ranker':               { name: 'Stat Builder',             limits: ['teams', 'admin', 'any'], configs: ['settings'] },
     'reset':                { name: 'Reset App',                limits: ['admin'], configs: [] },
@@ -76,8 +76,9 @@ const BUTTONS = {
     'results':              { name: 'Results',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'scatter':              { name: 'Scatter',                  limits: ['teams', 'admin', 'any'], configs: ['settings'] },
     'schedule-importer':    { name: 'Schedule Importer',        limits: ['admin'], configs: [] },
-    'settings':             { name: 'Settings Editor',          limits: ['admin'], configs: ['settings'] },
+    'settings':             { name: 'Settings Editor',          limits: [], configs: ['settings'] },
     'sides':                { name: 'Side-by-Side',             limits: ['teams', 'admin', 'any'], configs: ['settings'] },
+    'storage':              { name: 'Storage Manager',          limits: [], configs: [] },
     'teams':                { name: 'Team Profiles',            limits: ['teams', 'admin'], configs: ['settings'] },
     'transfer-raw':         { name: 'Transfer Raw Data',        limits: [], configs: [] },
     'import_results':       { name: 'Import All Results',       limits: [], configs: [] },
