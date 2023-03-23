@@ -360,7 +360,7 @@ function is_blocked(id)
     {
         return 'Missing match data'
     }
-    if (id !== 'admin' && !has_teams())
+    if (id !== 'admin' && id !== 'advanced' && !has_teams())
     {
         return 'Missing event data'
     }
