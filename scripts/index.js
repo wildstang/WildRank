@@ -417,6 +417,7 @@ function import_config()
     handler.coach       = true
     handler.settings    = true
     handler.pictures    = true
+    handler.always_overwrite = true
     handler.on_complete = process_files
     handler.server      = get_upload_addr()
     handler.import_zip_from_file()
