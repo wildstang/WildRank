@@ -1,6 +1,6 @@
 /**
  * file:        cache.js
- * description: Page for managing the applications cache
+ * description: Page for managing the application's cache
  * author:      Liam Fruzyna
  * date:        2022-06-28
  */
@@ -28,7 +28,7 @@ function init_page()
  * function:    populate_page
  * parameters:  none
  * returns:     none
- * description: Populates the page with cache info and button.
+ * description: Populates the page with cache info and buttond.
  */
 async function populate_page()
 {
@@ -49,7 +49,7 @@ async function populate_page()
     {
         let cache = await caches.open(name)
         let keys = await cache.keys()
-        let table = `<table><tr><th>${name}</th><td>${keys.length} files</td><td>CACHE_HASH</td></tr>`
+        let table = `<table><tr><th>${name}</th><td>${keys.length} files</td><td>CACHE_HASH</td><td></td></tr>`
         let cache_str = ''
         
         // add each file in the cache to the table
@@ -90,7 +90,7 @@ async function populate_page()
             {
                 file = file.replace(server, '')
             }
-            table += `<tr><td>${file}</td><td>${format_bytes(bytes)}</td><td>${hash(str)}</td></tr>`
+            table += `<tr><td>${file}</td><td>${format_bytes(bytes)}</td><td>${hash(str)}</td><td><a onclick="delete_file('${name}', '${file}')">delete</a></td></tr>`
             cache_str += str
         }
         text += table.replace('CACHE_HASH', hash(cache_str)) + '</table>'
@@ -102,7 +102,7 @@ async function populate_page()
         text = 'No caches found'
     }
 
-    let card = new Card('', text)
+    let card = new Card('table', text)
     document.getElementById('body').innerHTML = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col]).toString
 }
 
@@ -136,6 +136,20 @@ function format_bytes(length)
 function purge_cache(name)
 {
     caches.delete(name)
+    populate_page()
+}
+
+/**
+ * function:    delete_file
+ * parameters:  cache name, file name
+ * returns:     none
+ * description: Deletes a given file from the cache.
+ */
+async function delete_file(cache_name, file_name)
+{
+    let c = await caches.open(cache_name)
+    let server = parse_server_addr(document.location.href)
+    c.delete(new URL(`${server}${file_name}`))
     populate_page()
 }
 
