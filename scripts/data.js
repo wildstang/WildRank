@@ -1668,7 +1668,14 @@ class DAL
             else if (typeof result === 'string' && result.length > 4)
             {
                 let match_key = results[i].meta_match_key
-                values.push(`<b>${this.matches[match_key].short_match_name}:</b> ${result}`)
+                if (this.matches.hasOwnProperty(match_key))
+                {
+                    values.push(`<b>${this.matches[match_key].short_match_name}:</b> ${result}`)
+                }
+                else
+                {
+                    values.push(`<b>${match_key}:</b> ${result}`)
+                }
             }
         }
         values = values.filter(v => v !== '')
