@@ -673,8 +673,15 @@ class ZipHandler
 
             for (let name of files)
             {
-                let parts = name.split('.')
-                let n = parts[0]
+                let n = name.substring(0, name.indexOf('.'))
+                if (n.includes('/'))
+                {
+                    n = n.substring(n.indexOf('/') + 1)
+                }
+                if (n.includes('\\'))
+                {
+                    n = n.substring(n.indexOf('\\') + 1)
+                }
 
                 // skip directories
                 if (name.endsWith('/'))
