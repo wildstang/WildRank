@@ -1,5 +1,5 @@
 {
-	"version": "230322",
+	"version": "wr-2.2.0",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -52,6 +52,30 @@
 				"negative": false
 			}]
 		}, {
+			"name": "Drive",
+			"id": "pit_pit_drive",
+			"cycle": false,
+			"inputs": [{
+				"name": "Drive Type",
+				"id": "pit_pit_drive_drive_type",
+				"type": "dropdown",
+				"options": ["Tank", "Mecanum", "Swerve", "Other"],
+				"default": "Tank"
+			}, {
+				"name": "Drive Motor Count",
+				"id": "pit_pit_drive_drive_motor_count",
+				"type": "slider",
+				"options": [2, 12, 1],
+				"default": 4,
+				"negative": false
+			}, {
+				"name": "Drive Motor Type",
+				"id": "pit_pit_drive_drive_motor_type",
+				"type": "dropdown",
+				"options": ["Neo", "Falcon", "Other"],
+				"default": "Neo"
+			}]
+		}, {
 			"name": "Game Pieces",
 			"id": "pit_pit_game_pieces",
 			"cycle": false,
@@ -87,19 +111,6 @@
 			"id": "pit_pit_other",
 			"cycle": false,
 			"inputs": [{
-				"name": "Drive Train",
-				"id": "pit_pit_other_drive_train",
-				"type": "dropdown",
-				"options": ["Tank", "Mecanum", "Swerve", "Other"],
-				"default": "Tank"
-			}, {
-				"name": "Drive Motor Count",
-				"id": "pit_pit_other_drive_motor_count",
-				"type": "slider",
-				"options": [2, 12, 1],
-				"default": 4,
-				"negative": false
-			}, {
 				"name": "Build Quality",
 				"id": "pit_pit_other_build_quality",
 				"type": "slider",
@@ -141,11 +152,16 @@
 				"colors": [""],
 				"options": ["Low", "Middle", "High", "Thrown"],
 				"default": "High"
-			}, {
-				"name": "Dropped",
-				"id": "match_auto_auto_cycling_dropped",
-				"type": "checkbox",
-				"default": false,
+			}]
+		}, {
+			"name": "Misc",
+			"id": "match_auto_misc",
+			"cycle": false,
+			"inputs": [{
+				"name": "Auto Dropped",
+				"id": "match_auto_misc_auto_dropped",
+				"type": "counter",
+				"default": 0,
 				"negative": true
 			}]
 		}, {
@@ -181,18 +197,18 @@
 				"colors": [""],
 				"options": ["Low", "Middle", "High", "Thrown"],
 				"default": "High"
-			}, {
-				"name": "Dropped",
-				"id": "match_tele_cycling_dropped",
-				"type": "checkbox",
-				"default": false,
-				"negative": true
 			}]
 		}, {
 			"name": "Driver",
 			"id": "match_tele_driver",
 			"cycle": false,
 			"inputs": [{
+				"name": "Tele Dropped",
+				"id": "match_tele_driver_tele_dropped",
+				"type": "counter",
+				"default": 0,
+				"negative": true
+			}, {
 				"name": "Percent of Time on Offense",
 				"id": "match_tele_driver_percent_offense",
 				"type": "slider",
