@@ -595,7 +595,7 @@ class ZipHandler
         var input = document.createElement('input')
         input.type = 'file'
         input.accept = 'application/zip'
-        input.addEventListener('change', event => this.import_zip(event.target.files[0]))
+        input.addEventListener('change', e => this.import_zip(e.target.files[0]))
         input.click()
     }
 
@@ -659,139 +659,114 @@ class ZipHandler
                 return
             }
         }
-        let handler = this
 
         // process each files details
-        JSZip.loadAsync(file).then(function (zip)
-        {
-            let files = Object.keys(zip.files)
-            let complete = 0
+        let zip = await JSZip.loadAsync(file)
+        let files = Object.keys(zip.files)
+        let complete = 0
 
-            if (files.length == 0)
+        if (files.length == 0)
+        {
+            alert('No files found!')
+        }
+
+        for (let name of files)
+        {
+            // get name used in localStorage
+            let n = name.substring(0, name.indexOf('.'))
+            if (n.includes('/'))
             {
-                alert('No files found!')
+                n = n.substring(n.indexOf('/') + 1)
+            }
+            if (n.includes('\\'))
+            {
+                n = n.substring(n.indexOf('\\') + 1)
             }
 
-            for (let name of files)
+            // skip directories
+            if (!name.endsWith('/'))
             {
-                let n = name.substring(0, name.indexOf('.'))
-                if (n.includes('/'))
+                // get blob of file
+                let content = await zip.file(name).async('blob')
+                // import pictures to cache
+                if (name.endsWith('.jpg') || name.endsWith('.png'))
                 {
-                    n = n.substring(n.indexOf('/') + 1)
-                }
-                if (n.includes('\\'))
-                {
-                    n = n.substring(n.indexOf('\\') + 1)
-                }
-
-                // skip directories
-                if (name.endsWith('/'))
-                {
+                    if (this.pictures)
+                    {
+                        // adjust url
+                        let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
+                        if (!url.startsWith('http'))
+                        {
+                            let server = this.server
+                            if (!server.endsWith('/'))
+                            {
+                                server += '/'
+                            }
+                            url = server + url
+                            let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
+                            dal.add_photo(team, url)
+                            cache_file(url, content)
+                        }
+                    }
+                    
                     // update progress bar
-                    handler.on_update(++complete, files.length)
+                    this.on_update(++complete, files.length)
 
                     if (complete === files.length)
                     {
+                        this.on_complete()
                         alert('Import Complete')
                     }
-                    continue
                 }
-
-                // get blob of file
-                zip.file(name).async('blob').then(function (content)
+                else if (name.endsWith('.json'))
                 {
-                    // import pictures to cache
-                    if (name.endsWith('.jpg') || name.endsWith('.png'))
+                    // import everything else as strings to localStorage
+                    // determine which files to use
+                    if ((n.includes(dal.event_id) &&
+                        ((this.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
+                        (this.match && n.startsWith(`${MATCH_MODE}-`) ||
+                        (this.pit && n.startsWith(`${PIT_MODE}-`) ||
+                        (this.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
+                        (this.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === `config-${cfg.year}-version`)) ||
+                        (this.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
+                        (this.coach && n === `config-${cfg.year}-coach`) ||
+                        (this.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
+                        (this.avatars && n.startsWith('avatar-')) ||
+                        (this.picklists && n.startsWith('picklists-')) ||
+                        (this.whiteboard && n === `config-${cfg.year}-whiteboard`))
                     {
-                        if (handler.pictures)
+                        let text = await content.text()
+                        let write = true
+                        let existing = localStorage.getItem(n)
+                        if (existing !== null)
                         {
-                            // adjust url
-                            let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
-                            if (!url.startsWith('http'))
+                            if (existing !== text && !n.startsWith('avatar-'))
                             {
-                                let server = handler.server
-                                if (!server.endsWith('/'))
-                                {
-                                    server += '/'
-                                }
-                                url = server + url
-                                let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
-                                dal.add_photo(team, url)
-                                cache_file(url, content)
+                                write = this.always_overwrite || confirm(`"${n}" already exists, overwrite?`)
+                            }
+                            else
+                            {
+                                write = false
                             }
                         }
-                        
-                        // update progress bar
-                        handler.on_update(++complete, files.length)
-
-                        if (complete === files.length)
+                        if (write)
                         {
-                            handler.on_complete()
-                            alert('Import Complete')
+                            console.log(`Importing ${n}`)
+                            localStorage.setItem(n, text)
                         }
                     }
-                    else if (name.endsWith('.json'))
-                    {
-                        // import everything else as strings to localStorage
-                        content.text().then(function (text) {
-                            // determine which files to use
-                            if ((n.includes(dal.event_id) &&
-                                ((handler.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
-                                (handler.match && n.startsWith(`${MATCH_MODE}-`) ||
-                                (handler.pit && n.startsWith(`${PIT_MODE}-`) ||
-                                (handler.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
-                                (handler.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === `config-${cfg.year}-version`)) ||
-                                (handler.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
-                                (handler.coach && n === `config-${cfg.year}-coach`) ||
-                                (handler.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
-                                (handler.avatars && n.startsWith('avatar-')) ||
-                                (handler.picklists && n.startsWith('picklists-')) ||
-                                (handler.whiteboard && n === `config-${cfg.year}-whiteboard`))
-                            {
-                                let write = true
-                                let existing = localStorage.getItem(n)
-                                if (existing !== null)
-                                {
-                                    if (existing !== text && !n.startsWith('avatar-'))
-                                    {
-                                        write = handler.always_overwrite || confirm(`"${n}" already exists, overwrite?`)
-                                    }
-                                    else
-                                    {
-                                        write = false
-                                    }
-                                }
-                                if (write)
-                                {
-                                    console.log(`Importing ${n}`)
-                                    localStorage.setItem(n, text)
-                                }
-                            }
-                            
-                            // update progress bar
-                            handler.on_update(++complete, files.length)
-
-                            if (complete === files.length)
-                            {
-                                handler.on_complete()
-                                alert('Import Complete')
-                            }
-                        })
-                    }
-                    else
-                    {
-                        // update progress bar
-                        handler.on_update(++complete, files.length)
-
-                        if (complete === files.length)
-                        {
-                            handler.on_complete()
-                            alert('Import Complete')
-                        }
-                    }
-                })
+                }
             }
-        })
+
+            // update progress bar
+            this.on_update(++complete, files.length)
+
+            if (complete === files.length)
+            {
+                this.on_complete()
+                alert('Import Complete')
+            }
+        }
     }
 
     /**
@@ -803,9 +778,9 @@ class ZipHandler
     async export_zip(op=0)
     {
         let zip = JSZip()
-        let handler = this
 
         // determine which files to use
+        let handler = this
         let files = Object.keys(localStorage).filter(function(file)
         {
             return (file.includes(dal.event_id) &&
@@ -833,12 +808,12 @@ class ZipHandler
             zip.file(name, data, { base64: base64 })
 
             // update progress bar
-            handler.on_update(i, files.length + 1)
+            this.on_update(i, files.length + 1)
         }
 
         // export pictures from cache
         let names = await caches.keys()
-        if (names.length > 0 && handler.pictures)
+        if (names.length > 0 && this.pictures)
         {
             let cache = await caches.open(names[0])
             let keys = await cache.keys()
@@ -857,11 +832,11 @@ class ZipHandler
                 }
                 
                 // check for pictures and don't put in directory if belonging to server (like server does)
-                if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${handler.server}/assets/`))
+                if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${this.server}/assets/`))
                 {
-                    if (file.startsWith(`${handler.server}/uploads/`))
+                    if (file.startsWith(`${this.server}/uploads/`))
                     {
-                        file = file.replace(`${handler.server}/uploads/`, '')
+                        file = file.replace(`${this.server}/uploads/`, '')
                     }
                     zip.file(file, response.blob())
                     num_uploads++
@@ -870,62 +845,59 @@ class ZipHandler
         }
 
         // download zip
-        zip.generateAsync({ type: 'blob' })
-            .then(function(blob)
-            {
-                if (op === 0)
-                {
-                    let element = document.createElement('a')
-                    element.href = window.URL.createObjectURL(blob)
-                    element.download = handler.get_zip_name()
-        
-                    element.style.display = 'none'
-                    document.body.appendChild(element)
-        
-                    element.click()
-        
-                    document.body.removeChild(element)
-                }
-                else if (op === 1) // upload
-                {
-                    if (check_server(handler.server))
-                    {                    
-                        // post string to server
-                        let formData = new FormData()
-                        formData.append('upload', blob)
-                        fetch(`${handler.server}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
-                            .then(response => response.json())
-                            .then(result => {
-                                if (result.success && result.count === num_uploads)
-                                {
-                                    alert('Upload successful!')
-                                }
-                                else if (result.count === -1)
-                                {
-                                    alert('Incorrect password!')
-                                }
-                                else if (result.count === -2)
-                                {
-                                    alert('Failed to extract archive!')
-                                }
-                                else
-                                {
-                                    alert('Unknown server error!')
-                                }
-                            })
-                            .catch(e => {
-                                alert('Error uploading!')
-                                console.error(e)
-                            })
-                    }
-                }
-                else if (op === 2)
-                {
-                    alert('Invalid export type')
-                }
+        let blob = await zip.generateAsync({ type: 'blob' })
+        if (op === 0)
+        {
+            let element = document.createElement('a')
+            element.href = window.URL.createObjectURL(blob)
+            element.download = this.get_zip_name()
 
-                // update progress bar for zip complete
-                handler.on_update(files.length + 1, files.length + 1)
-            })
+            element.style.display = 'none'
+            document.body.appendChild(element)
+
+            element.click()
+
+            document.body.removeChild(element)
+        }
+        else if (op === 1) // upload
+        {
+            if (check_server(this.server))
+            {                    
+                // post string to server
+                let formData = new FormData()
+                formData.append('upload', blob)
+                fetch(`${this.server}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success && result.count === num_uploads)
+                        {
+                            alert('Upload successful!')
+                        }
+                        else if (result.count === -1)
+                        {
+                            alert('Incorrect password!')
+                        }
+                        else if (result.count === -2)
+                        {
+                            alert('Failed to extract archive!')
+                        }
+                        else
+                        {
+                            alert('Unknown server error!')
+                        }
+                    })
+                    .catch(e => {
+                        alert('Error uploading!')
+                        console.error(e)
+                    })
+            }
+        }
+        else if (op === 2)
+        {
+            alert('Invalid export type')
+        }
+
+        // update progress bar for zip complete
+        this.on_update(files.length + 1, files.length + 1)
     }
 }
