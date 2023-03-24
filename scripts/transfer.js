@@ -592,10 +592,18 @@ class ZipHandler
      */
     import_zip_from_file()
     {
-        var input = document.createElement('input')
+        let input = document.createElement('input')
         input.type = 'file'
         input.accept = 'application/zip'
-        input.addEventListener('change', e => this.import_zip(e.target.files[0]))
+        input.multiple = true
+        let handler = this
+        input.addEventListener('change', function (event)
+        {
+            for (let file of event.target.files)
+            {
+                handler.import_zip(file)
+            }
+        })
         input.click()
     }
 
