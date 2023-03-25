@@ -719,12 +719,6 @@ class ZipHandler
                     
                     // update progress bar
                     this.on_update(++complete, files.length)
-
-                    if (complete === files.length)
-                    {
-                        this.on_complete()
-                        alert('Import Complete')
-                    }
                 }
                 else if (name.endsWith('.json'))
                 {
@@ -773,6 +767,8 @@ class ZipHandler
             {
                 this.on_complete()
                 alert('Import Complete')
+                dal = new DAL(event_id)
+                dal.build_teams()
             }
         }
     }
