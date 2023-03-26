@@ -729,7 +729,11 @@ class ZipHandler
                             url = server + url
                             let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
                             dal.add_photo(team, url)
-                            cache_file(url, content)
+
+                            if (typeof caches !== 'undefined')
+                            {
+                                cache_file(url, content)
+                            }
                         }
                     }
                     
