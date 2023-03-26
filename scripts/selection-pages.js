@@ -126,6 +126,10 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         {
             first = ''
             scouted = 'scouted'
+            if (dal.get_value(number, 'pit.meta_pit_unsure'))
+            {
+                scouted = 'highlighted'
+            }
         }
         else if (first == '')
         {
@@ -335,14 +339,14 @@ function select_none()
  * returns:     none
  * description: Builds a dropdown in a given filter box.
  */
-function add_dropdown_filter(filter_id, options, func, primary_list=true)
+function add_dropdown_filter(filter_id, options, func, primary_list=true, default_selection='')
 {
     let id = 'filter'
     if (!primary_list)
     {
         id = 'secondary_filter'
     }
-    let dropdown = new Dropdown(filter_id, '', options)
+    let dropdown = new Dropdown(filter_id, '', options, default_selection)
     dropdown.on_change = func
     document.getElementById(id).innerHTML = dropdown.toString
 }

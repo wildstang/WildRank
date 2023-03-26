@@ -18,15 +18,20 @@ function init_page()
     let first = populate_matches()
     let teams = Object.keys(dal.teams)
     teams.unshift('')
-    add_dropdown_filter('team_filter', teams, 'hide_matches()')
+    let default_filter = ''
+    if (cfg.settings.hasOwnProperty('team_number'))
+    {
+        default_filter = cfg.settings.team_number.toString()
+    }
+    add_dropdown_filter('team_filter', teams, 'hide_matches()', true, default_filter)
 
     if (first)
     {
-        contents_card.innerHTML = `<h2>Match <span id="match_key">No Match Selected</span></h2>
+        contents_card.innerHTML = `<h2><span id="match_key">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <table id="alliance_stats"></table>`
 
-        open_match(first)
+        hide_matches()
     }
     else
     {
@@ -110,7 +115,7 @@ function open_match(match_key)
     {
         stats += `<tr><th>${dal.get_name(v.key, v.function)}</th><td>${dal.get_global_value(red_global, v.key, v.function, true)}</td><td>${dal.get_global_value(blue_global, v.key, v.function, true)}</td></tr>`
     }
-    document.getElementById('alliance_stats').innerHTML = stats
+    //document.getElementById('alliance_stats').innerHTML = stats
 }
 
 /**
@@ -123,12 +128,14 @@ function build_table(alliance, teams)
 {
     let images = []
     let table = '<table><tr><td></td>'
+    let names = '<tr><td></td>'
     for (let team of teams)
     {
         images += dal.get_photo_carousel(team, '400px')
-        table += `<th>${team}</th>`
+        table += `<th ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</th>`
+        names += `<th>${dal.get_value(team, 'meta.name')}</th>`
     }
-    table += '</tr>'
+    table += `</tr>${names}</tr>`
     for (let v of cfg.coach)
     {
         table += `<tr><th>${dal.get_name(v.key, v.function)}</th>`

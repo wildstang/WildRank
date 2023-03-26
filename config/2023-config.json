@@ -1,5 +1,5 @@
 {
-	"version": "wr2.1.0",
+	"version": "wr-2.2.0",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -20,62 +20,18 @@
 				"type": "text",
 				"default": "none"
 			}]
-		}, {
-			"name": "ALLIANCE",
-			"id": "note_notes_alliance",
-			"cycle": false,
-			"inputs": [{
-				"name": "Number of Robots Attempting Charge Station",
-				"id": "note_notes_alliance_number_of_robots_attempting_charge_station",
-				"type": "slider",
-				"options": [0, 3, 1],
-				"default": 0,
-				"negative": false
-			}]
 		}]
 	}],
 	"pit": [{
 		"name": "Pit",
 		"id": "pit_pit",
 		"columns": [{
-			"name": "Auto",
-			"id": "pit_pit_auto",
-			"cycle": false,
-			"inputs": [{
-				"name": "Has Auto At Starting Location",
-				"id": "pit_pit_auto_has_auto_at_starting_location",
-				"type": "multiselect",
-				"options": ["None", "LoadingZone(Top)", "ChargingStation(Middle)", "CableProtector(Bottom)"],
-				"default": "None"
-			}, {
-				"name": "Game Pieces Scored from Loading Zone Auto",
-				"id": "pit_pit_auto_game_pieces_scored_from_loading_zone_auto",
-				"type": "multicounter",
-				"negative": [false, false],
-				"options": ["Cones", "Cubes"],
-				"default": 0
-			}, {
-				"name": "Game Pieces Scored from Charging Station Auto",
-				"id": "pit_pit_auto_game_pieces_scored_from_charging_station_auto",
-				"type": "multicounter",
-				"negative": [false, false],
-				"options": ["Cones", "Cubes"],
-				"default": 0
-			}, {
-				"name": "Game Pieces Scored From Cable Protector Auto",
-				"id": "pit_pit_auto_game_pieces_scored_from_cable_protector_auto",
-				"type": "multicounter",
-				"negative": [false, false],
-				"options": ["Cones", "Cubes"],
-				"default": 0
-			}]
-		}, {
 			"name": "Body",
 			"id": "pit_pit_body",
 			"cycle": false,
 			"inputs": [{
 				"name": "Weight without Battery/Bumpers",
-				"id": "pit_pit_body_weight_without_batterybumpers",
+				"id": "pit_pit_body_weight",
 				"type": "slider",
 				"options": [50, 125, 1],
 				"default": 120,
@@ -94,6 +50,30 @@
 				"options": [0, 40],
 				"default": 30,
 				"negative": false
+			}]
+		}, {
+			"name": "Drive",
+			"id": "pit_pit_drive",
+			"cycle": false,
+			"inputs": [{
+				"name": "Drive Type",
+				"id": "pit_pit_drive_drive_type",
+				"type": "dropdown",
+				"options": ["Tank", "Mecanum", "Swerve", "Other"],
+				"default": "Tank"
+			}, {
+				"name": "Drive Motor Count",
+				"id": "pit_pit_drive_drive_motor_count",
+				"type": "slider",
+				"options": [2, 12, 1],
+				"default": 4,
+				"negative": false
+			}, {
+				"name": "Drive Motor Type",
+				"id": "pit_pit_drive_drive_motor_type",
+				"type": "dropdown",
+				"options": ["Neo", "Falcon", "Other"],
+				"default": "Neo"
 			}]
 		}, {
 			"name": "Game Pieces",
@@ -131,19 +111,6 @@
 			"id": "pit_pit_other",
 			"cycle": false,
 			"inputs": [{
-				"name": "Drive Train",
-				"id": "pit_pit_other_drive_train",
-				"type": "dropdown",
-				"options": ["Tank", "Mecanum", "Swerve", "Other"],
-				"default": "Tank"
-			}, {
-				"name": "Drive Motor Count",
-				"id": "pit_pit_other_drive_motor_count",
-				"type": "slider",
-				"options": [2, 12, 1],
-				"default": 4,
-				"negative": false
-			}, {
 				"name": "Build Quality",
 				"id": "pit_pit_other_build_quality",
 				"type": "slider",
@@ -155,6 +122,12 @@
 				"id": "pit_pit_other_notes",
 				"type": "text",
 				"default": "N/A"
+			}, {
+				"name": "Does Driver Station Laptop Go To Sleep When Closed?",
+				"id": "pit_pit_other_sleep",
+				"type": "checkbox",
+				"default": false,
+				"negative": true
 			}]
 		}]
 	}],
@@ -162,18 +135,6 @@
 		"name": "Auto",
 		"id": "match_auto",
 		"columns": [{
-			"name": "Preload",
-			"id": "match_auto_preload",
-			"cycle": false,
-			"inputs": [{
-				"name": "Game Piece",
-				"id": "match_auto_preload_game_piece",
-				"type": "select",
-				"options": ["None", "Cone", "Cube"],
-				"colors": ["#1E90FF", "#FFD700", "#9932CC"],
-				"default": "None"
-			}]
-		}, {
 			"name": "Auto Cycling",
 			"id": "match_auto_auto_cycling",
 			"cycle": true,
@@ -188,13 +149,19 @@
 				"name": "Grid Row",
 				"id": "match_auto_auto_cycling_grid_row",
 				"type": "select",
-				"options": ["Floor", "Low", "Middle", "High"],
-				"default": "Floor"
-			}, {
-				"name": "Dropped",
-				"id": "match_auto_auto_cycling_dropped",
-				"type": "checkbox",
-				"default": false,
+				"colors": [""],
+				"options": ["Low", "Middle", "High", "Thrown"],
+				"default": "High"
+			}]
+		}, {
+			"name": "Misc",
+			"id": "match_auto_misc",
+			"cycle": false,
+			"inputs": [{
+				"name": "Auto Dropped",
+				"id": "match_auto_misc_auto_dropped",
+				"type": "counter",
+				"default": 0,
 				"negative": true
 			}]
 		}, {
@@ -202,12 +169,6 @@
 			"id": "match_auto_position",
 			"cycle": false,
 			"inputs": [{
-				"name": "Left Community",
-				"id": "match_auto_position_mobility_left_community",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}, {
 				"name": "Auto Charging Station",
 				"id": "match_auto_position_charging_station",
 				"type": "select",
@@ -230,40 +191,35 @@
 				"colors": ["#FFD700", "#9932CC"],
 				"default": "Cone"
 			}, {
-				"name": "Piece Source",
-				"id": "match_tele_cycling_piece_source",
-				"type": "select",
-				"options": ["Substation", "LoadingZone", "OpenField", "Community"],
-				"default": "Substation"
-			}, {
 				"name": "Grid Row",
 				"id": "match_tele_cycling_grid_row",
 				"type": "select",
-				"options": ["Floor", "Low", "Middle", "High"],
-				"default": "Floor"
-			}, {
-				"name": "Dropped",
-				"id": "match_tele_cycling_dropped",
-				"type": "checkbox",
-				"default": false,
-				"negative": true
+				"colors": [""],
+				"options": ["Low", "Middle", "High", "Thrown"],
+				"default": "High"
 			}]
 		}, {
 			"name": "Driver",
 			"id": "match_tele_driver",
 			"cycle": false,
 			"inputs": [{
-				"name": "Seconds on Offense",
-				"id": "match_tele_driver_seconds_on_offense",
+				"name": "Tele Dropped",
+				"id": "match_tele_driver_tele_dropped",
+				"type": "counter",
+				"default": 0,
+				"negative": true
+			}, {
+				"name": "Percent of Time on Offense",
+				"id": "match_tele_driver_percent_offense",
 				"type": "slider",
-				"options": [0, 135, 5],
+				"options": [0, 100, 20],
 				"default": 0,
 				"negative": false
 			}, {
-				"name": "Seconds on Defense",
-				"id": "match_tele_driver_seconds_on_defense",
+				"name": "Percent of Time on Defense",
+				"id": "match_tele_driver_percent_defense",
 				"type": "slider",
-				"options": [0, 135, 5],
+				"options": [0, 100, 20],
 				"default": 0,
 				"negative": false
 			}, {
@@ -289,7 +245,8 @@
 				"name": "State",
 				"id": "match_tele_post_match_state",
 				"type": "multiselect",
-				"options": ["Tipped", "LostComms", "BrokeDown"],
+				"colors": [""],
+				"options": ["Tipped", "BrokeDown"],
 				"negative": true,
 				"default": ""
 			}, {

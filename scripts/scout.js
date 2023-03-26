@@ -56,7 +56,7 @@ function init_page()
     switch (scout_mode)
     {
         case PIT_MODE:
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
+            document.getElementById('header_info').innerHTML = `<span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
             break
         case MATCH_MODE:
             let pos = 1 + parseInt(scout_pos)
@@ -64,7 +64,7 @@ function init_page()
             {
                 pos -= dal.alliance_size
             }
-            document.getElementById('header_info').innerHTML = `Match: <span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+            document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
 
             alliances = dal.build_relative_alliances(team_num, match_num)
             break
@@ -143,11 +143,8 @@ function build_page_from_config()
     body += '</div>'
 
     let page_frame = new PageFrame()
-    if (scout_mode === MATCH_MODE)
-    {
-        let unsure = new Checkbox('unsure', `Unsure of Results`)
-        page_frame.add_column(new ColumnFrame('', '', [unsure]))
-    }
+    let unsure = new Checkbox('unsure', `Unsure of Results`)
+    page_frame.add_column(new ColumnFrame('', '', [unsure]))
     page_frame.add_column(new ColumnFrame('', '', ['<span id="submit_container"></span>']))
     document.body.innerHTML += body + page_frame.toString
     check_for_last_page()
@@ -416,6 +413,10 @@ function get_results_from_page()
     {
         results['meta_unsure'] = document.getElementById('unsure').checked
     }
+    else if (scout_mode === PIT_MODE)
+    {
+        results['meta_pit_unsure'] = document.getElementById('unsure').checked
+    }
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode
@@ -430,6 +431,7 @@ function get_results_from_page()
         results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
         results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
         results['meta_alliance'] = alliance_color
+        results['meta_ignore'] = false
     }
     results['meta_team'] = parseInt(team_num)
 

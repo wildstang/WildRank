@@ -25,7 +25,7 @@ function init_page()
     {
         let extra_toggle = new Button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()')
         extra_toggle.add_class('slim')
-        contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
+        contents_card.innerHTML = `<h2><span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <h3 id="result"></h3>
                                     ${extra_toggle.toString}

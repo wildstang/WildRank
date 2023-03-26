@@ -7,6 +7,7 @@
  */
 
 include('picklists-core')
+include('transfer')
 
 /**
  * function:    init_page
@@ -38,7 +39,8 @@ function init_page()
         let card = new Card('table_card', '')
         let new_list = new Button('new_list', 'Add to New List', 'new_list()')
         let remove = new Checkbox('remove_teams', 'Remove Teams')
-        let column = new ColumnFrame('', '', [new_list, card, remove])
+        let export_button = new Button('export', 'Export Lists', 'export_picklists()')
+        let column = new ColumnFrame('', '', [new_list, card, remove, export_button])
         buttons_container.innerHTML = new PageFrame('page', '', [column]).toString
         
         build_pick_lists()
@@ -142,7 +144,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                 }
                 if (rename === list)
                 {
-                    table += `<td class="${classes}"><input id="new_name_${list}" type="text" value="${list}" onchange="rename_list('${list}')"></input></td>`
+                    table += `<td class="${classes}" oncontextmenu="remove_list('${list}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('remove_list(\\\'${list}\\\')')"><input id="new_name_${list}" type="text" value="${list}" onchange="rename_list('${list}')"></input></td>`
                 }
                 else
                 {
@@ -179,8 +181,44 @@ function build_pick_lists(highlight='', list_num=0, rename='')
     document.getElementById('table_card').innerHTML = table
 
     // add secondary list for picklist matches
+    let prev_right = 'flex'
+    let right = document.getElementById('right')
+    if (right !== null && right.style.display)
+    {
+        prev_right = right.style.display
+    }
     populate_matches(false, true, match_filter, true)
+    right.style.display = prev_right
     
     // save to localStorage
     dal.save_picklists()
+}
+
+/**
+ * function:    remove_list
+ * parameters:  list name
+ * returns:     none
+ * description: Removes a given list and rebuilds the page.
+ */
+function remove_list(list)
+{
+    if (confirm(`Delete "${list}"?`))
+    {
+        delete dal.picklists[list]
+        build_pick_lists()
+    }
+}
+
+/**
+ * function:    export_picklists
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for picklists.
+ */
+function export_picklists()
+{
+    let handler = new ZipHandler()
+    handler.picklists = true
+    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.export_zip()
 }

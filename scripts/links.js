@@ -17,6 +17,7 @@ var BLANK_PAGES = {
     progress: ['event'],
     events: ['event'],
     cache: [],
+    storage: [],
     about: [],
     export: ['event'],
     'config-debug': ['event'],

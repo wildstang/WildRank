@@ -12,6 +12,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var generate = ''
 var streaming = false
 
+include('transfer')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -21,7 +23,7 @@ var streaming = false
 function init_page()
 {
     let first = populate_teams(false, true)
-    add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
+    add_button_filter('transfer', 'Export Pit Results', `export_results()`, true)
     if (first)
     {
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
@@ -214,4 +216,19 @@ function open_result(file)
 function start_scouting(team_num, edit)
 {
     return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit, 'generate': generate })
+}
+
+/**
+ * function:    export_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for pit results and pictures.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.pit = true
+    handler.pictures = true
+    handler.user = user_id
+    handler.export_zip()
 }

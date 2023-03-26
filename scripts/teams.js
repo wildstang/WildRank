@@ -28,7 +28,7 @@ function init_page()
                                     <h3 id="ranking"></h3>
                                     <center><span id="photos"></span></center>
                                     <div id="stats_tab"></div>`
-        buttons_container.innerHTML = '<div id="matches"></div>'
+        buttons_container.innerHTML = '<span id="clear_container"></span><div id="matches"></div>'
         
         open_option(first)
     }
@@ -59,6 +59,10 @@ function open_option(team_num)
 
     // populate ranking
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team_num)
+
+    let clear_ignore = new Button('clear_ignore', 'Clear Ignores')
+    clear_ignore.on_click = `clear_ignores('${team_num}')`
+    document.getElementById('clear_container').innerHTML = clear_ignore.toString
 
     // pull pit results
     let pit_button = ''
@@ -134,6 +138,10 @@ function open_option(team_num)
             {
                 match_link = new Button(`result_${match_key}`, `Match ${match_num} Results`)
                 match_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
+                ignore = new Checkbox(`ignore_${match_key}`, `Ignore Match ${match_num}`, dal.get_result_value(team_num, match_key, 'meta_ignore'))
+                ignore.on_click = `ignore_match('${match_key}', '${team_num}')`
+                ignore.add_class('slim')
+                cards.push(ignore)
             }
             cards.push(match_link)
             cards.push(new Card(`card_${match_key}`, `<center>${time}</center>`))
@@ -153,4 +161,38 @@ function open_option(team_num)
     document.getElementById('matches').innerHTML = page.toString
 
     ws(team_num)
+}
+
+/**
+ * function:    ignore_match
+ * parameters:  match key, team number
+ * returns:     none
+ * description: Toggles the meta_ignore key for the result.
+ */
+function ignore_match(match_key, team_num)
+{
+    let checked = document.getElementById(`ignore_${match_key}`).checked
+    let file = `match-${match_key}-${team_num}`
+    let result = JSON.parse(localStorage.getItem(file))
+    result.meta_ignore = checked
+    localStorage.setItem(file, JSON.stringify(result))
+}
+
+/**
+ * function:    clear_ignores
+ * parameters:  team number
+ * returns:     none
+ * description: Sets every result's meta_ignore to false.
+ */
+function clear_ignores(team_num)
+{
+    let results = dal.teams[team_num].results
+    for (let result of results)
+    {
+        let match_key = result.meta_match_key
+        let file = `match-${match_key}-${team_num}`
+        result.meta_ignore = false
+        localStorage.setItem(file, JSON.stringify(result))
+    }
+    open_option(team_num)
 }

@@ -1,6 +1,7 @@
 {
 	"settings": {
 		"title": "WildRank",
+		"team_number": 111,
 		"time_format": 12,
 		"use_images": true,
 		"use_team_color": true,

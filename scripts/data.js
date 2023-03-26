@@ -531,23 +531,29 @@ class DAL
             let match = this.matches[match_key]
             for (let team of match.red_alliance)
             {
-                this.teams[team].matches.push({
-                    key: match_key,
-                    comp_level: match.comp_level,
-                    set_number: match.set_number,
-                    match_number: match.match_number,
-                    alliance: 'red'
-                })
+                if (Object.keys(this.teams).includes(team))
+                {
+                    this.teams[team].matches.push({
+                        key: match_key,
+                        comp_level: match.comp_level,
+                        set_number: match.set_number,
+                        match_number: match.match_number,
+                        alliance: 'red'
+                    })
+                }
             }
             for (let team of match.blue_alliance)
             {
-                this.teams[team].matches.push({
-                    key: match_key,
-                    comp_level: match.comp_level,
-                    set_number: match.set_number,
-                    match_number: match.match_number,
-                    alliance: 'blue'
-                })
+                if (Object.keys(this.teams).includes(team))
+                {
+                    this.teams[team].matches.push({
+                        key: match_key,
+                        comp_level: match.comp_level,
+                        set_number: match.set_number,
+                        match_number: match.match_number,
+                        alliance: 'blue'
+                    })
+                }
             }
         }
 
@@ -611,7 +617,11 @@ class DAL
         for (let file of pit_files)
         {
             let pit = JSON.parse(localStorage.getItem(file))
-            this.teams[pit.meta_team.toString()].pit = pit
+            let team = pit.meta_team.toString()
+            if (teams.includes(team))
+            {
+                this.teams[team].pit = pit
+            }
         }
 
         // load in match results
@@ -651,7 +661,11 @@ class DAL
             {
                 match.meta_both_scouted = false
             }
-            this.teams[match.meta_team.toString()].results.push(this.add_smart_stats(match, stats))
+            let team = match.meta_team.toString()
+            if (teams.includes(team))
+            {
+                this.teams[team].results.push(this.add_smart_stats(match, stats))
+            }
         }
         // add remaining notes
         let note_files = files.filter(f => f.startsWith(`note-${this.event_id}`))
@@ -659,10 +673,13 @@ class DAL
         {
             let match = JSON.parse(localStorage.getItem(file))
             let team = match.meta_team.toString()
-            if (!this.teams[team].results.some(m => m.meta_match_key === match.meta_match_key))
+            if (teams.includes(team))
             {
-                match.meta_both_scouted = false
-                this.teams[team].results.push(this.add_smart_stats(match, stats))
+                if (!this.teams[team].results.some(m => m.meta_match_key === match.meta_match_key))
+                {
+                    match.meta_both_scouted = false
+                    this.teams[team].results.push(this.add_smart_stats(match, stats))
+                }
             }
         }
 
@@ -796,7 +813,7 @@ class DAL
                 let short_match_name = ''
                 if (match.comp_level === 'qm')
                 {
-                    match_name = `Q ${match.match_number}`
+                    match_name = `Qual ${match.match_number}`
                     short_match_name = `${match.match_number}`
                 }
                 // convert TBA structure to double-elim
@@ -804,67 +821,31 @@ class DAL
                 {
                     switch (match.comp_level)
                     {
-                        case 'qm':
-                            match_name = `Q ${match.match_number}`
-                            short_match_name = `${match.match_number}`
-                            break
-                        case 'ef':
-                            if (match.set_number > 4)
-                            {
-                                match_name = `R2 ${match.set_number}`
-                                short_match_name = `P${match.set_number}`
-                            }
-                            else
-                            {
-                                match_name = `R1 ${match.set_number}`
-                                short_match_name = `P${match.set_number}`
-                            }
-                            break
-                        case 'qf':
-                            if (match.set_number === 1)
-                            {
-                                match_name = `R2 7`
-                                short_match_name = `P7`
-                            }
-                            else if (match.set_number === 2)
-                            {
-                                match_name = `R2 8`
-                                short_match_name = `P8`
-                            }
-                            else if (match.set_number === 3)
-                            {
-                                match_name = `R3 9`
-                                short_match_name = `P9`
-                            }
-                            else if (match.set_number === 4)
-                            {
-                                match_name = `R3 10`
-                                short_match_name = `P10`
-                            }
-                            break
                         case 'sf':
-                            if (match.set_number === 1)
+                            let round = 1
+                            let match_num = match.set_number
+                            if (match_num > 4 && match_num <= 8)
                             {
-                                match_name = `R4 11`
-                                short_match_name = `P11`
+                                round = 2
                             }
-                            else if (match.set_number === 2)
+                            else if (match_num === 9 || match_num === 10)
                             {
-                                match_name = `R4 12`
-                                short_match_name = `P12`
+                                round = 3
                             }
+                            else if (match_num === 11 || match_num === 12)
+                            {
+                                round = 4
+                            }
+                            else if (match_num === 13)
+                            {
+                                round = 5
+                            }
+                            match_name = `Round ${round} Match ${match_num}`
+                            short_match_name = `M${match_num}`
                             break
                         case 'f':
-                            if (match.set_number === 1)
-                            {
-                                match_name = `R5 13`
-                                short_match_name = `P13`
-                            }
-                            else if (match.set_number === 2)
-                            {
-                                match_name = `${match.comp_level.toUpperCase()} ${match.match_number}`
-                                short_match_name = `${match.comp_level.toUpperCase()}${match.match_number}`
-                            }
+                            match_name = `Final ${match.match_number}`
+                            short_match_name = `F${match.match_number}`
                             break
                     }
                 }
@@ -1473,6 +1454,24 @@ class DAL
     }
 
     /**
+     * function:    is_unsure
+     * parameters:  team number
+     * returns:     if any match results are unsure
+     * description: Determines if any match results for a given team are unsure.
+     */
+    is_unsure(team)
+    {
+        for (let match of dal.teams[team].results)
+        {
+            if (match.meta_unsure)
+            {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
      * function:    get_match_value
      * parameters:  match id, value id
      * returns:     requested value
@@ -1669,20 +1668,32 @@ class DAL
     {
         // build list of raw values
         let values = []
-        let results = this.teams[team].results
+        let results = this.teams[team].results.filter(r => r.meta_ignore !== true)
 
         if (results.length === 0)
         {
             return
         }
 
-        let keys = Object.keys(results)
         let key = id.replace('results.', '')
-        for (let name of keys)
+        for (let i in results)
         {
-            if (!isNaN(results[name][key]))
+            let result = results[i][key]
+            if (!isNaN(result))
             {
-                values.push(results[name][key])
+                values.push(result)
+            }
+            else if (typeof result === 'string' && result.length > 4)
+            {
+                let match_key = results[i].meta_match_key
+                if (this.matches.hasOwnProperty(match_key))
+                {
+                    values.push(`<b>${this.matches[match_key].short_match_name}:</b> ${result}`)
+                }
+                else
+                {
+                    values.push(`<b>${match_key}:</b> ${result}`)
+                }
             }
         }
         values = values.filter(v => v !== '')
@@ -1787,7 +1798,14 @@ class DAL
                 this.teams[team].stats[`${key}.max`]    = '---'
                 this.teams[team].stats[`${key}.low`]    = '---'
                 this.teams[team].stats[`${key}.high`]   = '---'
-                this.teams[team].stats[`${key}.total`]  = '---'
+                if (meta.type !== 'cycle')
+                {
+                    this.teams[team].stats[`${key}.total`] = values.join('<br>')
+                }
+                else
+                {
+                    this.teams[team].stats[`${key}.total`] = '---'
+                }
                 this.teams[team].stats[`${key}.stddev`] = '---'
                 break
             case 'counter':
