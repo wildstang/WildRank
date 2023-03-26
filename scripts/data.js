@@ -1454,6 +1454,24 @@ class DAL
     }
 
     /**
+     * function:    is_unsure
+     * parameters:  team number
+     * returns:     if any match results are unsure
+     * description: Determines if any match results for a given team are unsure.
+     */
+    is_unsure(team)
+    {
+        for (let match of dal.teams[team].results)
+        {
+            if (match.meta_unsure)
+            {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
      * function:    get_match_value
      * parameters:  match id, value id
      * returns:     requested value

@@ -755,7 +755,12 @@ function init_page()
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
 
     let first = populate_matches()
-    add_dropdown_filter('team_filter', [''].concat(Object.keys(dal.teams)), 'hide_matches()', true, cfg.settings.team_number.toString())
+    let default_filter = ''
+    if (cfg.settings.hasOwnProperty('team_number'))
+    {
+        default_filter = cfg.settings.team_number.toString()
+    }
+    add_dropdown_filter('team_filter', [''].concat(Object.keys(dal.teams)), 'hide_matches()', true, default_filter)
     if (first)
     {
         let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')

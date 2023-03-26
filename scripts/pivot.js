@@ -391,7 +391,7 @@ function build_table(sort_by='', reverse=false)
     // build team rows
     for (let team of filter_teams)
     {
-        table += `<tr><td>${team}</td>`
+        table += `<tr><td ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</td>`
         for (let i in selected)
         {
             let key = selected[i]

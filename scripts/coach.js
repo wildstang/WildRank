@@ -18,7 +18,12 @@ function init_page()
     let first = populate_matches()
     let teams = Object.keys(dal.teams)
     teams.unshift('')
-    add_dropdown_filter('team_filter', teams, 'hide_matches()', true, cfg.settings.team_number.toString())
+    let default_filter = ''
+    if (cfg.settings.hasOwnProperty('team_number'))
+    {
+        default_filter = cfg.settings.team_number.toString()
+    }
+    add_dropdown_filter('team_filter', teams, 'hide_matches()', true, default_filter)
 
     if (first)
     {
@@ -127,7 +132,7 @@ function build_table(alliance, teams)
     for (let team of teams)
     {
         images += dal.get_photo_carousel(team, '400px')
-        table += `<th>${team}</th>`
+        table += `<th ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</th>`
         names += `<th>${dal.get_value(team, 'meta.name')}</th>`
     }
     table += `</tr>${names}</tr>`
