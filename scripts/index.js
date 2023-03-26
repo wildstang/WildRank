@@ -108,7 +108,7 @@ function init_page()
     let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
     status.add_input(preload)
 
-    let transfer = new Button('transfer', 'Import Config', 'import_config()')
+    let transfer = new Button('transfer', 'Import Config', 'save_options(); import_config()')
     status.add_input(transfer)
 
     let data = new ColumnFrame('data', 'Results')
