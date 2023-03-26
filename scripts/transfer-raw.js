@@ -49,14 +49,18 @@ async function init_page()
     option_col.add_input(server_type)
 
     // get latest cache
+    let r = false
     let current = 'default'
-    let names = await caches.keys()
-    if (names.length > 0)
+    if (typeof caches !== 'undefined')
     {
-        current = names[0]
+        let names = await caches.keys()
+        if (names.length > 0)
+        {
+            current = names[0]
+        }
+        let cache = await caches.open(current)
+        r = await cache.match('/import')
     }
-    let cache = await caches.open(current)
-    let r = await cache.match('/import')
 
     let method = new Select('method', 'Source', ['Local', 'Server'], 'Local')
     if (r)

@@ -260,10 +260,16 @@ async function reset()
         }
 
         // clear offline pages
-        let keys = await caches.keys()
-        for (let key of keys)
+        if (typeof caches !== 'undefined')
         {
-            caches.delete(key)
+            if (typeof caches !== 'undefined')
+            {
+                let keys = await caches.keys()
+                for (let key of keys)
+                {
+                    caches.delete(key)
+                }
+            }
         }
 
         window_open('/', '_self')
@@ -278,15 +284,22 @@ async function reset()
  */
 async function reset_cache()
 {
-    if (confirm('Delete all cache data?'))
+    if (typeof caches !== 'undefined')
     {
-        let keys = await caches.keys()
-        for (let key of keys)
+        if (confirm('Delete all cache data?'))
         {
-            caches.delete(key)
-        }
+            let keys = await caches.keys()
+            for (let key of keys)
+            {
+                caches.delete(key)
+            }
 
-        window_open('/', '_self')
+            window_open('/', '_self')
+        }
+    }
+    else
+    {
+        alert('Caches not available via this connection. (Must be encrypted or localhost)')
     }
 }
 
@@ -302,9 +315,9 @@ function reset_storage()
     {
         // clear storage
         localStorage.clear()
-    }
 
-    window_open('/', '_self')
+        window_open('/', '_self')
+    }
 }
 
 /**
@@ -318,7 +331,7 @@ function reset_results()
     if (confirm('Delete all results?'))
     {
         // remove all match and pit results
-        let files = Object.keys(localStorage).filter(f => f.startsWith(`match-`) || f.startsWith(`pit-`))
+        let files = Object.keys(localStorage).filter(f => f.startsWith(`match-`) || f.startsWith(`note-`) || f.startsWith(`pit-`))
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -336,18 +349,21 @@ async function reset_config()
 {
     if (confirm('Reset all settings and configuration?'))
     {
-        // search all caches for "-config.json" files and delete them
-        let keys = await caches.keys()
-        for (let key of keys)
+        if (typeof caches !== 'undefined')
         {
-            let cache = await caches.open(key)
-            let files = await cache.keys()
-            for (let file of files)
+            // search all caches for "-config.json" files and delete them
+            let keys = await caches.keys()
+            for (let key of keys)
             {
-                if (file.url.endsWith('-config.json'))
+                let cache = await caches.open(key)
+                let files = await cache.keys()
+                for (let file of files)
                 {
-                    cache.delete(file)
-                    console.log('removed', key)
+                    if (file.url.endsWith('-config.json'))
+                    {
+                        cache.delete(file)
+                        console.log('removed', key)
+                    }
                 }
             }
         }
@@ -816,34 +832,37 @@ class ZipHandler
         }
 
         // export pictures from cache
-        let names = await caches.keys()
-        if (names.length > 0 && this.pictures)
+        if (typeof caches !== 'undefined')
         {
-            let cache = await caches.open(names[0])
-            let keys = await cache.keys()
-            
-            // add each file in the cache to the table
-            for (let key of keys)
+            let names = await caches.keys()
+            if (names.length > 0 && this.pictures)
             {
-                // add up all bytes in file
-                let response = await cache.match(key)
-
-                // create row
-                let file = response.url
-                if (file === '')
-                {
-                    file = key.url
-                }
+                let cache = await caches.open(names[0])
+                let keys = await cache.keys()
                 
-                // check for pictures and don't put in directory if belonging to server (like server does)
-                if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${this.server}/assets/`))
+                // add each file in the cache to the table
+                for (let key of keys)
                 {
-                    if (file.startsWith(`${this.server}/uploads/`))
+                    // add up all bytes in file
+                    let response = await cache.match(key)
+
+                    // create row
+                    let file = response.url
+                    if (file === '')
                     {
-                        file = file.replace(`${this.server}/uploads/`, '')
+                        file = key.url
                     }
-                    zip.file(file, response.blob())
-                    num_uploads++
+                    
+                    // check for pictures and don't put in directory if belonging to server (like server does)
+                    if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${this.server}/assets/`))
+                    {
+                        if (file.startsWith(`${this.server}/uploads/`))
+                        {
+                            file = file.replace(`${this.server}/uploads/`, '')
+                        }
+                        zip.file(file, response.blob())
+                        num_uploads++
+                    }
                 }
             }
         }
