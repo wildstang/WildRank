@@ -21,7 +21,14 @@ function init_page()
     document.getElementById('header_info').innerHTML = 'Cache Manager' 
     document.body.innerHTML += `<div id="body"></div>`
 
-    populate_page()
+    if (typeof caches !== 'undefined')
+    {
+        populate_page()
+    }
+    else
+    {
+        alert('Caches not available via this connection. (Must be encrypted or localhost)')
+    }
 }
 
 /**
