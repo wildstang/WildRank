@@ -113,6 +113,30 @@ function init_page()
         return
     }
 
+    let title = role
+    switch (role)
+    {
+        case 'scout':
+            title = 'Scouter'
+            break
+        case 'note':
+            title = 'Note Taker'
+            break
+        case 'drive':
+            title = 'Drive Team'
+            break
+        case 'analysis':
+            title = 'Analyst'
+            break
+        case 'advanced':
+            title = 'Advanced'
+            break
+        case 'admin':
+            title = 'Administrator'
+            break
+    }
+    document.getElementById('header_info').innerHTML = title
+
     // redirect if there is only 1 option on the page
     let columns = CONFIGS[role]
     if (Object.keys(columns).length === 1)
