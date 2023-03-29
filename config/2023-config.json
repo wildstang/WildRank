@@ -1,5 +1,5 @@
 {
-	"version": "wr-2.2.0",
+	"version": "wr-2.2.1",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -86,6 +86,12 @@
 				"default": false,
 				"negative": false
 			}, {
+				"name": "Handle Tipped Cones",
+				"id": "pit_pit_game_pieces_handle_tipped_cones",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
 				"name": "Handle Cubes",
 				"id": "pit_pit_game_pieces_handle_cubes",
 				"type": "checkbox",
@@ -123,11 +129,11 @@
 				"type": "text",
 				"default": "N/A"
 			}, {
-				"name": "Does Driver Station Laptop Go To Sleep When Closed?",
-				"id": "pit_pit_other_sleep",
+				"name": "Sleep Mode Disabled?",
+				"id": "pit_pit_other_sleep_mode_disabled",
 				"type": "checkbox",
 				"default": false,
-				"negative": true
+				"negative": false
 			}]
 		}]
 	}],
@@ -169,11 +175,19 @@
 			"id": "match_auto_position",
 			"cycle": false,
 			"inputs": [{
+				"name": "Mobility Bonus",
+				"id": "match_auto_position_mobility_bonus",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
+			}, {
 				"name": "Auto Charging Station",
-				"id": "match_auto_position_charging_station",
+				"id": "match_auto_position_auto_charging_station",
 				"type": "select",
-				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
-				"default": "NoAttempt"
+				"disallow_default": true,
+				"colors": [""],
+				"options": ["Default", "NoAttempt", "Failed", "Docked", "Engaged"],
+				"default": "Default"
 			}]
 		}]
 	}, {
@@ -239,8 +253,10 @@
 				"name": "Charging Station",
 				"id": "match_tele_post_match_charging_station",
 				"type": "select",
-				"options": ["Failed", "NoAttempt", "Docked", "Engaged"],
-				"default": "NoAttempt"
+				"disallow_default": true,
+				"colors": [""],
+				"options": ["Default", "NoAttempt", "Parked", "Failed", "Docked", "Engaged"],
+				"default": "Default"
 			}, {
 				"name": "State",
 				"id": "match_tele_post_match_state",
