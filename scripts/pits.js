@@ -162,13 +162,9 @@ function capture(team_num)
                         }
                         else if (result.name === 'Invalid password')
                         {
-                            cache_image(addr, team_num, data)
                             alert('Invalid password!')
                         }
-                        else
-                        {
-                            cache_image(addr, team_num, data)
-                        }
+                        cache_image(addr, team_num, data)
                     })
                     .catch(e => {
                         cache_image(addr, team_num, data)
@@ -260,5 +256,6 @@ function export_results()
     handler.pit = true
     handler.pictures = true
     handler.user = user_id
+    handler.server = parse_server_addr(document.location.href)
     handler.export_zip()
 }

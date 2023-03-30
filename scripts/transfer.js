@@ -881,15 +881,16 @@ class ZipHandler
                     {
                         file = key.url
                     }
-                    
+
                     // check for pictures and don't put in directory if belonging to server (like server does)
                     if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${this.server}/assets/`))
                     {
+                        // put locally captured pictures in a cache directory
                         if (file.startsWith(`${this.server}/uploads/`))
                         {
-                            file = file.replace(`${this.server}/uploads/`, '')
+                            file = file.replace(`${this.server}/uploads/`, 'cache/')
                         }
-                        zip.file(file, response.blob())
+                        zip.file(file.replace('://', '/').replace(':', '.'), response.blob())
                         num_uploads++
                     }
                 }
