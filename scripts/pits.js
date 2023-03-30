@@ -102,7 +102,13 @@ function open_option(team_num)
     {
         let edit = new Button('edit_result', 'Edit Results')
         edit.link = `start_scouting('${team_num}', true)`
-        result_buttons.innerHTML += edit.toString
+        edit.add_class('slim')
+
+        let renumber = new Button('renumber', 'Renumber Result')
+        renumber.link = `renumber_pit('${team_num}')`
+        renumber.add_class('slim')
+
+        result_buttons.innerHTML += edit.toString + renumber.toString
     }
 
     // update capture button for new team
@@ -185,7 +191,6 @@ function capture(team_num)
  */
 function cache_image(server, team_num, base64)
 {
-    console.log(base64)
     fetch(base64)
     .then(response => response.blob())
     .then(blob => {
@@ -216,6 +221,31 @@ function open_result(file)
 function start_scouting(team_num, edit)
 {
     return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit, 'generate': generate })
+}
+
+/**
+ * function:    renumber_pit
+ * parameters:  existing team number
+ * returns:     none
+ * description: Prompts to renumber a pit result.
+ */
+function renumber_pit(team_num)
+{
+    let input = prompt('New team number')
+    if (input !== null)
+    {
+        let new_num = parseInt(input)
+        let pit = localStorage.getItem(`${PIT_MODE}-${event_id}-${team_num}`)
+        if (pit !== null)
+        {
+            let jpit = JSON.parse(pit)
+            jpit.meta_team = new_num
+            localStorage.setItem(`${PIT_MODE}-${event_id}-${new_num}`, JSON.stringify(jpit))
+            localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
+
+            location.reload()
+        }
+    }
 }
 
 /**
