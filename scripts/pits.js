@@ -144,7 +144,7 @@ function capture(team_num)
 
         // upload image
         let addr = parse_server_addr(document.location.href)
-        if (check_server(addr))
+        if (check_server(addr, notify=false))
         {
             canvas.toBlob(function (blob)
             {
