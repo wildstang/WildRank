@@ -760,6 +760,8 @@ class ZipHandler
                         let text = await content.text()
                         let write = true
                         let existing = localStorage.getItem(n)
+
+                        // prompt if file should be overriden
                         if (existing !== null)
                         {
                             if (existing !== text && !n.startsWith('avatar-'))
@@ -771,6 +773,29 @@ class ZipHandler
                                 write = false
                             }
                         }
+
+                        // ignore and alert if a result file name doesn't match its metadata
+                        if (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`))
+                        {
+                            let name_team = parseInt(n.split('-')[2])
+                            let meta_team = JSON.parse(text).meta_team
+                            if (name_team !== meta_team)
+                            {
+                                alert(`Team number mismatch on ${n}`)
+                                write = false
+                            }
+                        }
+                        if (n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`))
+                        {
+                            let name_match = n.split('-')[1]
+                            let meta_match = JSON.parse(text).meta_match_key
+                            if (name_match !== meta_match)
+                            {
+                                alert(`Match key mismatch on ${n}`)
+                                write = false
+                            }
+                        }
+
                         if (write)
                         {
                             console.log(`Importing ${n}`)
