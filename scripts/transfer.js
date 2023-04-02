@@ -775,24 +775,31 @@ class ZipHandler
                         }
 
                         // ignore and alert if a result file name doesn't match its metadata
-                        if (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`))
+                        if (write && (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`)))
                         {
-                            let name_team = parseInt(n.split('-')[2])
-                            let meta_team = JSON.parse(text).meta_team
-                            if (name_team !== meta_team)
+                            let parts = n.split('-')
+                            let name_team = parseInt(parts[2])
+                            let result = JSON.parse(text)
+                            if (name_team !== result.meta_team)
                             {
                                 alert(`Team number mismatch on ${n}`)
                                 write = false
                             }
-                        }
-                        if (n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`))
-                        {
-                            let name_match = n.split('-')[1]
-                            let meta_match = JSON.parse(text).meta_match_key
-                            if (name_match !== meta_match)
+
+                            if (!n.startsWith(`${PIT_MODE}-`))
                             {
-                                alert(`Match key mismatch on ${n}`)
-                                write = false
+                                let meta_match = JSON.parse(text).meta_match_key
+                                if (parts[1] !== meta_match)
+                                {
+                                    alert(`Match key mismatch on ${n}`)
+                                    write = false
+                                }
+                            }
+
+                            // warn if reported config version does not match
+                            if (write && result.hasOwnProperty('meta_config_version') && result.meta_config_version !== cfg.version)
+                            {
+                                alert(`Config version mismatch on ${n}`)
                             }
                         }
 

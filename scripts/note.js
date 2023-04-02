@@ -145,6 +145,7 @@ function get_results_from_page()
     results['meta_note_scouter_id'] = parseInt(user_id)
     results['meta_note_scout_time'] = Math.round(start / 1000)
     results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
+    results['meta_config_version'] = cfg.version
 
     // scouting metadata
     results['meta_scout_mode'] = NOTE_MODE
