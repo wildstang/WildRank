@@ -54,6 +54,12 @@ body {
     -webkit-user-select: none;
 }
 
+#header h1, #header h2
+{
+    margin: 0;
+    display: inline-block
+}
+
 @keyframes rainbow { 
     0%{background-position:0% 82%}
     50%{background-position:100% 19%}
