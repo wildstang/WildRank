@@ -38,7 +38,8 @@ var BLANK_PAGES = {
     'misc/test': [],
     'misc/district-counter': ['year'],
     'misc/international-counter': ['year'],
-    'misc/event-planner': ['year']
+    'misc/event-planner': ['year'],
+    'misc/max-score': ['year']
 }
 
 var SELECTION_PAGES = {
