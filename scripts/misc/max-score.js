@@ -67,17 +67,15 @@ function process_year(year)
                     })
                     .then(matches => {
                         // find the highest score at the event
-                        let max_event = 0
                         let max_match
                         for (let match of matches)
                         {
                             if (match.score_breakdown !== null)
                             {
-                                let score = match.alliances.red.score + match.alliances.blue.score
-                                score -= match.score_breakdown.red.foulPoints + match.score_breakdown.blue.foulPoints
-                                if (score > max_event)
+                                match.score = match.alliances.red.score + match.alliances.blue.score
+                                match.score -= match.score_breakdown.red.foulPoints + match.score_breakdown.blue.foulPoints
+                                if (typeof max_match === 'undefined' || match.score > max_match.score)
                                 {
-                                    max_event = score
                                     max_match = match
                                 }
                             }
@@ -92,29 +90,27 @@ function process_year(year)
                         // wait for every event to be counted
                         if (++count === events.length)
                         {
-                            let overall_max = 0
-                            let max_event = ''
+                            // sort maxes and find highest
+                            maxes.sort((a, b) => b.score - a.score)
+                            let highest = maxes[0]
+                            let highest_ev = events.filter(e => e.key == highest.event_key)[0]
+
+                            // create an HTML table of scores
                             let table = ''
                             for (let match of maxes)
                             {
-                                // find the match's event
                                 let ev = events.filter(e => e.key == match.event_key)[0]
-
-                                // search for the highest overall score
-                                let score = match.alliances.red.score - match.score_breakdown.red.foulPoints + match.alliances.blue.score - match.score_breakdown.blue.foulPoints
-                                if (score > overall_max)
-                                {
-                                    overall_max = score
-                                    max_event = ev.name
-                                }
-
-                                // add a row to the table
-                                table += `<tr><td>${ev.name}</td><td>${match.key.replace(`${match.event_key}_`, '')}</td><td>${match.alliances.red.team_keys.join('<br>').replaceAll('frc', '')}</td><td>${match.alliances.red.score - match.score_breakdown.red.foulPoints}</td><td>${match.alliances.blue.team_keys.join('<br>').replaceAll('frc', '')}</td><td>${match.alliances.red.score - match.score_breakdown.red.foulPoints}</td><td>${score}</td></td>`
+                                let match_key = match.key.replace(`${match.event_key}_`, '')
+                                let red_teams = match.alliances.red.team_keys.join('<br>').replaceAll('frc', '')
+                                let red_share = match.alliances.red.score - match.score_breakdown.red.foulPoints
+                                let blue_teams = match.alliances.blue.team_keys.join('<br>').replaceAll('frc', '')
+                                let blue_share = match.alliances.blue.score - match.score_breakdown.blue.foulPoints
+                                table += `<tr><td>${ev.name}</td><td>${match_key}</td><td>${red_teams}</td><td>${red_share}</td><td>${blue_teams}</td><td>${blue_share}</td><td>${match.score}</td></td>`
                             }
 
                             // populate summary and table
                             document.getElementById('table').innerHTML += table
-                            document.getElementById('summary').innerHTML = `The max score for ${year} is <b>${overall_max}</b> at ${max_event}.`
+                            document.getElementById('summary').innerHTML = `The max score for ${year} is <b>${highest.score}</b> at ${highest_ev.name}.`
                         }
                     })
                     .catch(err => {
