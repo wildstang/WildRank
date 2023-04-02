@@ -102,7 +102,13 @@ function open_option(team_num)
     {
         let edit = new Button('edit_result', 'Edit Results')
         edit.link = `start_scouting('${team_num}', true)`
-        result_buttons.innerHTML += edit.toString
+        edit.add_class('slim')
+
+        let renumber = new Button('renumber', 'Renumber Result')
+        renumber.link = `renumber_pit('${team_num}')`
+        renumber.add_class('slim')
+
+        result_buttons.innerHTML += edit.toString + renumber.toString
     }
 
     // update capture button for new team
@@ -138,7 +144,7 @@ function capture(team_num)
 
         // upload image
         let addr = parse_server_addr(document.location.href)
-        if (check_server(addr))
+        if (check_server(addr, notify=false))
         {
             canvas.toBlob(function (blob)
             {
@@ -156,13 +162,9 @@ function capture(team_num)
                         }
                         else if (result.name === 'Invalid password')
                         {
-                            cache_image(addr, team_num, data)
                             alert('Invalid password!')
                         }
-                        else
-                        {
-                            cache_image(addr, team_num, data)
-                        }
+                        cache_image(addr, team_num, data)
                     })
                     .catch(e => {
                         cache_image(addr, team_num, data)
@@ -185,7 +187,6 @@ function capture(team_num)
  */
 function cache_image(server, team_num, base64)
 {
-    console.log(base64)
     fetch(base64)
     .then(response => response.blob())
     .then(blob => {
@@ -219,6 +220,31 @@ function start_scouting(team_num, edit)
 }
 
 /**
+ * function:    renumber_pit
+ * parameters:  existing team number
+ * returns:     none
+ * description: Prompts to renumber a pit result.
+ */
+function renumber_pit(team_num)
+{
+    let input = prompt('New team number')
+    if (input !== null)
+    {
+        let new_num = parseInt(input)
+        let pit = localStorage.getItem(`${PIT_MODE}-${event_id}-${team_num}`)
+        if (pit !== null)
+        {
+            let jpit = JSON.parse(pit)
+            jpit.meta_team = new_num
+            localStorage.setItem(`${PIT_MODE}-${event_id}-${new_num}`, JSON.stringify(jpit))
+            localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
+
+            location.reload()
+        }
+    }
+}
+
+/**
  * function:    export_results
  * parameters:  none
  * returns:     none
@@ -230,5 +256,6 @@ function export_results()
     handler.pit = true
     handler.pictures = true
     handler.user = user_id
+    handler.server = parse_server_addr(document.location.href)
     handler.export_zip()
 }
