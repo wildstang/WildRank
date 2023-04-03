@@ -131,13 +131,13 @@ function open_option(user_id)
         let actual = dal.get_match_value(match.meta_match_key, 'started_time')
         if (typeof actual === 'number')
         {
-            delays.push(actual - match.meta_scout_time)
+            delays.push(actual - match.meta_note_scout_time)
         }
         else
         {
             delays.push(0)
         }
-        time_table += `<tr onclick="window_open('${open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`})}', '_self')"><td><a>${dal.get_match_value(match.meta_match_key, 'short_match_name')}</a></td><td>${match.meta_alliance}</td><td>${match.meta_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_scouting_duration.toFixed()}s</td></tr>`
+        time_table += `<tr onclick="window_open('${open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`})}', '_self')"><td><a>${dal.get_match_value(match.meta_match_key, 'short_match_name')}</a></td><td>${match.meta_alliance}</td><td>${match.meta_note_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_note_scouting_duration.toFixed()}s</td></tr>`
     }
     time_table += `<tr><th>Averages</th><td>${mean(delays).toFixed()}s</td><td>${mean(durations).toFixed()}s</td></tr></table>`
 
