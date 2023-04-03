@@ -89,6 +89,10 @@ function filter_teams()
     {
         filter_by(dal.picklists[list], false)
     }
+    else
+    {
+        select_all(false)
+    }
 
     build_table()
 }
