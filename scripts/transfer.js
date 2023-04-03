@@ -780,7 +780,8 @@ class ZipHandler
                             let parts = n.split('-')
                             let name_team = parseInt(parts[2])
                             let result = JSON.parse(text)
-                            if (name_team !== result.meta_team)
+                            let result_team = parseInt(result.meta_team)
+                            if (name_team !== result_team)
                             {
                                 alert(`Team number mismatch on ${n}`)
                                 write = false
