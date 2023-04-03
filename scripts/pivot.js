@@ -13,7 +13,7 @@ let selected_keys = []
 let last_sort = ''
 let last_reverse = false
 
-const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
+const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
 
 /**
  * function:    init_page
