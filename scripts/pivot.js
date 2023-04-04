@@ -8,6 +8,8 @@
 
 const SESSION_KEYS_KEY = 'pivot-selected-keys'
 const SESSION_TYPES_KEY = 'pivot-selected-types'
+const SESSION_SORT_KEY = 'pivot-sort-key'
+const SESSION_REVERSE_KEY = 'pivot-reverse-key'
 
 let selected_keys = []
 let last_sort = ''
@@ -44,6 +46,8 @@ function init_page()
     // select keys from sessionStorage
     let stored_keys = sessionStorage.getItem(SESSION_KEYS_KEY)
     let stored_types = sessionStorage.getItem(SESSION_TYPES_KEY)
+    last_sort = sessionStorage.getItem(SESSION_SORT_KEY)
+    last_reverse = sessionStorage.getItem(SESSION_REVERSE_KEY) == 'true'
     if (stored_keys !== null)
     {
         selected_keys = JSON.parse(stored_keys)
@@ -56,7 +60,7 @@ function init_page()
                 selected_keys.splice(i, 1)
             }
         }
-        build_table()
+        build_table(last_sort, last_reverse)
 
         if (stored_types !== null)
         {
@@ -73,7 +77,7 @@ function init_page()
         }
     }
 
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -94,7 +98,7 @@ function filter_teams()
         select_all(false)
     }
 
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -145,7 +149,7 @@ function open_option(key)
     // save selection to sessionStorage
     sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
 
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -167,7 +171,7 @@ function alt_option(key)
         // save selection to sessionStorage
         sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
     
-        build_table()
+        build_table(last_sort, last_reverse)
     }
 }
 
@@ -191,7 +195,7 @@ function open_secondary_option(key)
     }
 
     select_none()
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -240,6 +244,9 @@ function get_sorted_teams(sort_by='', reverse=false)
 
     last_sort = sort_by
     last_reverse = reverse
+
+    sessionStorage.setItem(SESSION_SORT_KEY, last_sort)
+    sessionStorage.setItem(SESSION_REVERSE_KEY, last_reverse)
 
     return filter_teams
 }
@@ -760,5 +767,5 @@ function drop_handler(e)
     // save selection to sessionStorage
     sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
 
-    build_table()
+    build_table(last_sort, last_reverse)
 }
