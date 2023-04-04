@@ -169,7 +169,7 @@ function can_edit(match_num, team_num)
 }
 
 /**
- * function:    expport_results
+ * function:    export_results
  * parameters:  none
  * returns:     none
  * description: Starts the zip export process for this page type's results.

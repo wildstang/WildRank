@@ -5,6 +5,8 @@
  * date:        2022-01-31
  */
 
+include('transfer')
+
 /**
  * function:    init_page
  * parameters:  none
@@ -113,6 +115,8 @@ function init_page()
     page.add_column(pit)
     let pit_card = new Card('pits', pit_table)
     pit.add_input(pit_card)
+    let export_all = new Button('export', 'Export All Results', 'export_results()')
+    pit.add_input(export_all)
 
     let match = new ColumnFrame('match_page', 'Match Progress')
     page.add_column(match)
@@ -120,4 +124,21 @@ function init_page()
     match.add_input(match_card)
 
     document.body.innerHTML += page.toString
+}
+
+/**
+ * function:    export_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for results.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.match     = true
+    handler.note      = true
+    handler.pit       = true
+    handler.pictures  = true
+    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.export_zip()
 }
