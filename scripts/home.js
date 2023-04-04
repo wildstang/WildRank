@@ -25,7 +25,7 @@ const CONFIGS = {
     'analysis': {
         'Teams': ['ranker', 'sides', 'multipicklists'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
-        'Results': ['import_results', 'results', 'cycles'],
+        'Results': ['import_results', 'results', 'cycles', 'export_results'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
@@ -58,6 +58,7 @@ const BUTTONS = {
     'event-generator':      { name: 'Event Generator',          limits: ['admin'], configs: [] },
     'events':               { name: 'Other Events',             limits: ['teams', 'admin'], configs: [] },
     'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
+    'export_results':       { name: 'Export All Results',       limits: ['admin'], configs: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
     'multipicklists':       { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
@@ -387,6 +388,23 @@ function import_results()
     handler.pictures  = true
     handler.picklists = true
     handler.import_zip_from_file()
+}
+
+/**
+ * function:    export_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for results.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.match     = true
+    handler.note      = true
+    handler.pit       = true
+    handler.pictures  = true
+    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.export_zip()
 }
 
 /**
