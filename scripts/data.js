@@ -636,6 +636,8 @@ class DAL
         for (let file of match_files)
         {
             let match = JSON.parse(localStorage.getItem(file))
+            let team = match.meta_team.toString()
+
             // add match key to pre-WR2 results
             if (!match.hasOwnProperty('meta_match_key') && match.hasOwnProperty('meta_match') && match.hasOwnProperty('meta_event_id'))
             {
@@ -649,6 +651,7 @@ class DAL
             {
                 match.meta_set_number = 1
             }
+
             // add notes if available
             let note_file = file.replace(MATCH_MODE, NOTE_MODE)
             if (files.includes(note_file))
@@ -661,9 +664,54 @@ class DAL
             {
                 match.meta_both_scouted = false
             }
-            let team = match.meta_team.toString()
+
+            // only add team if it is in the team list
             if (teams.includes(team))
             {
+                // add TBA data to results
+                // TODO: do this the "right" way be adding it as a separate section and supporting that
+                if (this.matches.hasOwnProperty(match.meta_match_key))
+                {
+                    let match_info = this.matches[match.meta_match_key]
+                    if (match_info.hasOwnProperty('red_score') && match_info.red_score >= 0 &&
+                        match_info.hasOwnProperty('blue_score') && match_info.blue_score >= 0)
+                    {
+                        if (match_info.blue_alliance.includes(team))
+                        {
+                            match.meta_score = match_info.blue_score
+                            match.meta_opp_score = match_info.red_score
+                            if (match_info.score_breakdown !== null)
+                            {
+                                for (let key in match_info.score_breakdown.blue)
+                                {
+                                    match[`meta_${key.toLowerCase()}`] = match_info.score_breakdown.blue[key]
+                                }
+                                for (let key in match_info.score_breakdown.red)
+                                {
+                                    match[`meta_opp_${key.toLowerCase()}`] = match_info.score_breakdown.red[key]
+                                }
+                            }
+                        }
+                        else if (match_info.red_alliance.includes(team))
+                        {
+                            match.meta_score = match_info.red_score
+                            match.meta_opp_score = match_info.blue_score
+                            if (match_info.score_breakdown !== null)
+                            {
+                                for (let key in match_info.score_breakdown.red)
+                                {
+                                    match[`meta_${key.toLowerCase()}`] = match_info.score_breakdown.red[key]
+                                }
+                                for (let key in match_info.score_breakdown.blue)
+                                {
+                                    match[`meta_opp_${key.toLowerCase()}`] = match_info.score_breakdown.blue[key]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // add smart stats, then add to results
                 this.teams[team].results.push(this.add_smart_stats(match, stats))
             }
         }
@@ -1847,7 +1895,7 @@ class DAL
                     values.push(this.get_value(team, id, stat))
                 }
                 values = values.filter(v => v !== '')
-        
+
                 switch (this.meta[id].type)
                 {
                     case 'checkbox':
@@ -1864,7 +1912,7 @@ class DAL
                             {
                                 counts[i] = values.filter(val => val == i).length
                             }
-        
+
                             // compute stats
                             let min_op = ''
                             let max_op = ''
@@ -1890,7 +1938,7 @@ class DAL
                                 min_op = min_op == 'true'
                                 max_op = max_op == 'true'
                             }
-                            
+
                             // build data structure
                             global_stats[`${id}.mean`]   = mode_op
                             global_stats[`${id}.median`] = median_op
