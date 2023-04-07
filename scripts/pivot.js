@@ -237,10 +237,11 @@ function get_sorted_teams(sort_by='', reverse=false)
     let filter_teams = get_secondary_selected_keys()
 
     // sort teams based on parameters
+    // TODO: sort by the non-first duplicate column
     let type = 'mean'
-    if (document.getElementById(`select_${sort_by}`))
+    if (document.getElementById(`select_${sort_by}_0`))
     {
-        type = document.getElementById(`select_${sort_by}`).value.toLowerCase()
+        type = document.getElementById(`select_${sort_by}_0`).value.toLowerCase()
     }
     filter_teams.sort((a,b) => dal.get_value(b, sort_by, type) - dal.get_value(a, sort_by, type))
     if (reverse)
