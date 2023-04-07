@@ -276,9 +276,9 @@ function build_table(sort_by='', reverse=false)
 
     // build table headers
     let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number</th>`
-    let types = '<tr><td></td>'
-    let filters = '<tr><td></td>'
-    let totals = '<tr><td></td>'
+    let types = '<tr><th>Sort By</th>'
+    let filters = '<tr><th>Filter By</th>'
+    let totals = '<tr><th>Total</th>'
     for (let i in selected)
     {
         let key = selected[i]
