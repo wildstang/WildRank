@@ -902,27 +902,11 @@ class DAL
                     match_name = `${match.comp_level.toUpperCase()} ${match.set_number}-${match.match_number}`
                     short_match_name = `${match.comp_level.toUpperCase()}${match.set_number}${match.match_number}`
                 }
+
                 let display_time = ''
-                let score_str = ''
-                let complete = false
                 if (match.actual_time > 0)
                 {
                     display_time = `${unix_to_match_time(match.actual_time)}`
-                    if (match.winning_alliance !== '' && match.alliances.red.score !== '' && match.alliances.blue.score !== '')
-                    {
-                        complete = true
-                        let winner = match.winning_alliance
-                        let red_score = match.alliances.red.score
-                        let blue_score =  match.alliances.blue.score
-                        if (winner === 'red')
-                        {
-                            score_str = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
-                        }
-                        else
-                        {
-                            score_str = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
-                        }
-                    }
                 }
                 else if (match.predicted_time > 0)
                 {
@@ -931,6 +915,28 @@ class DAL
                 else if (match.time > 0)
                 {
                     display_time = `${unix_to_match_time(match.time)} (Scheduled)`
+                }
+
+                let score_str = ''
+                let complete = false
+                let winner = match.winning_alliance
+                if (match.alliances.red.score !== '' && match.alliances.blue.score !== '')
+                {
+                    complete = true
+                    if (winner === '')
+                    {
+                        winner = 'tie'
+                    }
+                    let red_score = match.alliances.red.score
+                    let blue_score =  match.alliances.blue.score
+                    if (winner === 'red')
+                    {
+                        score_str = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
+                    }
+                    else
+                    {
+                        score_str = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
+                    }
                 }
                 this.matches[match.key] = {
                     match_name: match_name,
@@ -950,7 +956,7 @@ class DAL
                     score_str: score_str,
                     videos: match.videos,
                     score_breakdown: match.score_breakdown,
-                    winner: match.winning_alliance
+                    winner: winner
                 }
                 if (this.matches[match.key].red_alliance.length > this.max_alliance_size)
                 {
