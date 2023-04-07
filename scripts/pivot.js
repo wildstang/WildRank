@@ -48,6 +48,12 @@ function init_page()
     let stored_types = sessionStorage.getItem(SESSION_TYPES_KEY)
     last_sort = sessionStorage.getItem(SESSION_SORT_KEY)
     last_reverse = sessionStorage.getItem(SESSION_REVERSE_KEY) == 'true'
+
+    if (last_sort === null)
+    {
+        last_sort = ''
+    }
+
     if (stored_keys !== null)
     {
         selected_keys = JSON.parse(stored_keys)
