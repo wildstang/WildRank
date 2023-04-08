@@ -920,7 +920,7 @@ class DAL
                 let score_str = ''
                 let complete = false
                 let winner = match.winning_alliance
-                if (match.alliances.red.score !== '' && match.alliances.blue.score !== '')
+                if (match.alliances.red.score !== '' && match.alliances.blue.score !== '' && match.alliances.red.score >= 0 && match.alliances.blue.score >= 0)
                 {
                     complete = true
                     if (winner === '')
