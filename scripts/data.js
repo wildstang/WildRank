@@ -1370,24 +1370,45 @@ class DAL
 
     /**
      * function:    get_photo_carousel
-     * parameters:  team number
+     * parameters:  team numbers
      * returns:     a carousel of images
      * description: Builds a carousel of a team's images.
      */
-    get_photo_carousel(team_num, width='500px')
+    get_photo_carousel(team_nums, width='500px')
     {
-        if (cfg.settings.use_images && this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        if (cfg.settings.use_images)
         {
-            let html = `<div id="${team_num}-carousel" style="width: ${width}" class="photo-carousel">`
-            let pics = this.teams[team_num].pictures.photos
-            if (pics.length > 0)
+            // if a single team string was given, put it in an array
+            if (!Array.isArray(team_nums))
             {
-                for (let pic of pics)
+                team_nums = [team_nums]
+            }
+
+            // add each team picture to the carousel
+            let added = false
+            let html = `<div id="carousel" style="width: ${width}" class="photo-carousel">`
+            for (let team_num of team_nums)
+            {
+                // don't add the team if it has no pictures
+                if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
                 {
-                    html += `<img src="${pic}">`
+                    let pics = this.teams[team_num].pictures.photos
+                    if (pics.length > 0)
+                    {
+                        added = true
+                        for (let pic of pics)
+                        {
+                            html += `<img src="${pic}">`
+                        }
+                    }
                 }
             }
-            return `<center>${html}</div></center>`
+
+            // return the carousel if any pictures were added
+            if (added)
+            {
+                return `<center>${html}</div></center>`
+            }
         }
         return ''
     }
