@@ -26,7 +26,7 @@ function init_page()
     else if (first)
     {
         // build template
-        contents_card.innerHTML = `<h2 id="next_match"></h2><h3 id="alliance"></h3><div id="partners"></div><br>vs<h3 id="opp_alliance"></h3><div id="opponents"></div>`
+        contents_card.innerHTML = `<h2 id="next_match"></h2><h4 id="bracket"></h4><h3 id="alliance"></h3><div id="partners"></div><br>vs<h3 id="opp_alliance"></h3><div id="opponents"></div>`
         let card = new Card('table', '')
         let edit = new Button('edit_coach', 'Edit Values')
         edit.link = `open_page('edit-coach')`
@@ -68,6 +68,7 @@ function open_option(team)
 
     // find the templates
     let title = document.getElementById('next_match')
+    let bracket = document.getElementById('bracket')
     let alliance_box = document.getElementById('alliance')
     let partner_box = document.getElementById('partners')
     let opp_section = document.getElementById('opp_alliance')
@@ -78,6 +79,7 @@ function open_option(team)
     if (team_matches.length === 0)
     {
         title.innerHTML = 'Team Eliminated'
+        bracket.innerHTML = ''
         alliance_box.innerHTML = ''
         partner_box.innerHTML = ''
         opp_section.innerHTML = ''
@@ -87,6 +89,7 @@ function open_option(team)
     else if (team_matches[0].comp_level === 'qm')
     {
         title.innerHTML = 'Elims not yet started'
+        bracket.innerHTML = ''
         alliance_box.innerHTML = ''
         partner_box.innerHTML = ''
         opp_section.innerHTML = ''
@@ -113,6 +116,21 @@ function open_option(team)
         alliance_box.innerHTML = `${alliance} Alliance`
         alliance_box.style.color = alliance
         partner_box.innerHTML = partners.join(', ')
+
+        // determine bracket
+        let num = parseInt(match.short_match_name.substring(1))
+        if (match.short_match_name.startsWith('F'))
+        {
+            bracket.innerHTML = 'Finals'
+        }
+        else if (num < 5 || num === 7 || num === 8 || num === 12)
+        {
+            bracket.innerHTML = 'Upper Bracket'
+        }
+        else
+        {
+            bracket.innerHTML = 'Lower Bracket'
+        }
 
         if (opponents.length > 0 && !opponents.includes('0'))
         {
@@ -169,8 +187,10 @@ function open_option(team)
 
             // populate with opponent match
             opp_section.innerHTML = `Determined by ${winner ? 'WINNER' : 'LOSER'} of ${opp_match.match_name}`
-            opp_teams.innerHTML += `<table><tr style="color: red">${opp_match.red_alliance.map(t => `<td>${t}</td>`).join('')}</tr>
-                                             <tr style="color: blue">${opp_match.blue_alliance.map(t => `<td>${t}</td>`).join('')}</tr></table>`
+            opp_section.style.color = 'black'
+            opp_teams.innerHTML = `<table style="margin-left: auto; margin-right: auto">
+                                        <tr style="color: red">${opp_match.red_alliance.map(t => `<td>${t}</td>`).join('')}</tr>
+                                        <tr style="color: blue">${opp_match.blue_alliance.map(t => `<td>${t}</td>`).join('')}</tr></table>`
 
             build_table('red', opp_match.red_alliance)
             build_table('blue', opp_match.blue_alliance)
