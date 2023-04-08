@@ -18,6 +18,7 @@ const CACHE_LIST = [
     // scripts
     '/scripts/about.js',
     '/scripts/blank.js',
+    '/scripts/bracket.js',
     '/scripts/cache.js',
     '/scripts/coach.js',
     '/scripts/config-debug.js',

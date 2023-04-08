@@ -20,7 +20,7 @@ const CONFIGS = {
         'Notes': ['pits', 'notes']
     },
     'drive': {
-        'Drive Team': ['import_results', 'coach', 'whiteboard']
+        'Drive Team': ['import_results', 'coach', 'whiteboard', 'bracket']
     },
     'analysis': {
         'Teams': ['ranker', 'sides', 'multipicklists'],
@@ -47,6 +47,7 @@ const CONFIGS = {
 
 // requirements for each button
 const BUTTONS = {
+    'bracket':              { name: 'Double Elims',             limits: ['event', 'admin'], configs: ['settings', 'coach'] },
     'cache':                { name: 'Cache Manager',            limits: [], configs: [] },
     'clear_events':         { name: 'Clear Other Events',       limits: ['admin'], configs: [] },
     'coach':                { name: 'Coach View',               limits: ['event', 'admin', 'results'], configs: ['settings', 'coach'] },

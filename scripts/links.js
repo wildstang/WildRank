@@ -59,6 +59,7 @@ var SELECTION_PAGES = {
     plot: ['event', 'user'],
     scatter: ['event', 'user'],
     coach: ['event', 'user'],
+    bracket: ['event', 'user'],
     results: ['event'], // file
     cycles: ['event'] // file
 }
