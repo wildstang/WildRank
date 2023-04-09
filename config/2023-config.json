@@ -1,5 +1,5 @@
 {
-	"version": "wr-2.2.1",
+	"version": "wr-230408",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -8,6 +8,18 @@
 			"id": "note_notes_team",
 			"cycle": false,
 			"inputs": [{
+				"name": "AS Auto Drops",
+				"id": "note_notes_team_auto_drops",
+				"type": "counter",
+				"default": 0,
+				"negative": true
+			}, {
+				"name": "AS Missed Auto Intakes",
+				"id": "note_notes_team_missed_auto_intakes",
+				"type": "counter",
+				"default": 0,
+				"negative": true
+			}, {
 				"name": "Rank",
 				"id": "note_notes_team_rank",
 				"type": "slider",
@@ -80,23 +92,19 @@
 			"id": "pit_pit_game_pieces",
 			"cycle": false,
 			"inputs": [{
-				"name": "Handle Cones",
-				"id": "pit_pit_game_pieces_handle_cones",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
+				"name": "Preferred Cone Pickup",
+				"id": "pit_pit_game_pieces_preferred_cone_pickup",
+				"type": "select",
+				"colors": [""],
+				"options": ["None", "Double", "Single", "Floor"],
+				"default": "None"
 			}, {
-				"name": "Handle Tipped Cones",
-				"id": "pit_pit_game_pieces_handle_tipped_cones",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}, {
-				"name": "Handle Cubes",
-				"id": "pit_pit_game_pieces_handle_cubes",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
+				"name": "Preferred Cube Pickup",
+				"id": "pit_pit_game_pieces_preferred_cube_pickup",
+				"type": "select",
+				"colors": [""],
+				"options": ["None", "Double", "Single", "Floor"],
+				"default": "None"
 			}, {
 				"name": "Grid Rows - Cone",
 				"id": "pit_pit_game_pieces_grid_rows_cone",
@@ -113,27 +121,45 @@
 				"default": ""
 			}]
 		}, {
+			"name": "Auto",
+			"id": "pit_pit_auto",
+			"cycle": false,
+			"inputs": [{
+				"name": "Starting Positions With Engage",
+				"id": "pit_pit_auto_starting_positions_with_engage",
+				"type": "multiselect",
+				"colors": [""],
+				"options": ["LoadingZone", "ChargeStation", "BumpSide"],
+				"default": ""
+			}, {
+				"name": "GP Scored From Starting Position With Engage",
+				"id": "pit_pit_auto_gp_scored_from_starting_position_with_engage",
+				"type": "multicounter",
+				"negative": [false, false, false],
+				"options": ["LoadingZone", "ChargeStation", "BumpSide"],
+				"default": 0
+			}, {
+				"name": "GP Scored From Starting Position No Engage",
+				"id": "pit_pit_auto_gp_scored_from_starting_position_no_engage",
+				"type": "multicounter",
+				"negative": [false, false, false],
+				"options": ["LoadingZone", "ChargeStation", "BumpSide"],
+				"default": 0
+			}]
+		}, {
 			"name": "Other",
 			"id": "pit_pit_other",
 			"cycle": false,
 			"inputs": [{
-				"name": "Build Quality",
-				"id": "pit_pit_other_build_quality",
-				"type": "slider",
-				"options": [1, 10, 1],
-				"default": 5,
-				"negative": false
+				"name": "Changes From Last Event?",
+				"id": "pit_pit_other_changes_from_last_event",
+				"type": "text",
+				"default": "N/A"
 			}, {
 				"name": "Notes",
 				"id": "pit_pit_other_notes",
 				"type": "text",
 				"default": "N/A"
-			}, {
-				"name": "Sleep Mode Disabled?",
-				"id": "pit_pit_other_sleep_mode_disabled",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
 			}]
 		}]
 	}],
@@ -141,48 +167,40 @@
 		"name": "Auto",
 		"id": "match_auto",
 		"columns": [{
-			"name": "Auto Cycling",
-			"id": "match_auto_auto_cycling",
+			"name": "Auto",
+			"id": "match_auto_auto",
 			"cycle": true,
 			"inputs": [{
-				"name": "Game Piece",
-				"id": "match_auto_auto_cycling_game_piece",
+				"name": "Starting Location",
+				"id": "match_auto_auto_starting_location",
 				"type": "select",
-				"options": ["Cone", "Cube"],
-				"colors": ["#FFD700", "#9932CC"],
-				"default": "Cone"
-			}, {
-				"name": "Grid Row",
-				"id": "match_auto_auto_cycling_grid_row",
-				"type": "select",
+				"disallow_default": true,
 				"colors": [""],
-				"options": ["Low", "Middle", "High", "Thrown"],
-				"default": "High"
-			}]
-		}, {
-			"name": "Misc",
-			"id": "match_auto_misc",
-			"cycle": false,
-			"inputs": [{
-				"name": "Auto Dropped",
-				"id": "match_auto_misc_auto_dropped",
-				"type": "counter",
-				"default": 0,
-				"negative": true
-			}]
-		}, {
-			"name": "Position",
-			"id": "match_auto_position",
-			"cycle": false,
-			"inputs": [{
+				"options": ["Default", "LoadingZone", "CS", "BumpSide"],
+				"default": "Default"
+			}, {
 				"name": "Mobility Bonus",
-				"id": "match_auto_position_mobility_bonus",
+				"id": "match_auto_auto_mobility_bonus",
 				"type": "checkbox",
 				"default": false,
 				"negative": false
 			}, {
-				"name": "Auto Charging Station",
-				"id": "match_auto_position_auto_charging_station",
+				"name": "Auto Scores",
+				"id": "match_auto_auto_auto_scores",
+				"type": "multicounter",
+				"negative": [false, false, false, false, false],
+				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes", "Low"],
+				"default": 0
+			}, {
+				"name": "Auto Misses",
+				"id": "match_auto_auto_auto_misses",
+				"type": "multicounter",
+				"negative": [true, true],
+				"options": ["DroppedScores", "MissedIntakes"],
+				"default": 0
+			}, {
+				"name": "Auto Charge Station",
+				"id": "match_auto_auto_auto_charge_station",
 				"type": "select",
 				"disallow_default": true,
 				"colors": [""],
@@ -194,56 +212,22 @@
 		"name": "Tele",
 		"id": "match_tele",
 		"columns": [{
-			"name": "Cycling",
-			"id": "match_tele_cycling",
-			"cycle": true,
-			"inputs": [{
-				"name": "Game Piece",
-				"id": "match_tele_cycling_game_piece",
-				"type": "select",
-				"options": ["Cone", "Cube"],
-				"colors": ["#FFD700", "#9932CC"],
-				"default": "Cone"
-			}, {
-				"name": "Grid Row",
-				"id": "match_tele_cycling_grid_row",
-				"type": "select",
-				"colors": [""],
-				"options": ["Low", "Middle", "High", "Thrown"],
-				"default": "High"
-			}]
-		}, {
-			"name": "Driver",
-			"id": "match_tele_driver",
+			"name": "Scoring",
+			"id": "match_tele_scoring",
 			"cycle": false,
 			"inputs": [{
-				"name": "Tele Dropped",
-				"id": "match_tele_driver_tele_dropped",
+				"name": "Tele Scoring",
+				"id": "match_tele_scoring_tele_scoring",
+				"type": "multicounter",
+				"negative": [false, false, false, false, false],
+				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes", "Low"],
+				"default": 0
+			}, {
+				"name": "Tele Drops",
+				"id": "match_tele_scoring_tele_drops",
 				"type": "counter",
 				"default": 0,
 				"negative": true
-			}, {
-				"name": "Percent of Time on Offense",
-				"id": "match_tele_driver_percent_offense",
-				"type": "slider",
-				"options": [0, 100, 20],
-				"default": 0,
-				"negative": false
-			}, {
-				"name": "Percent of Time on Defense",
-				"id": "match_tele_driver_percent_defense",
-				"type": "slider",
-				"options": [0, 100, 20],
-				"default": 0,
-				"negative": false
-			}, {
-				"name": "Driver Skill",
-				"id": "match_tele_driver_driver_skill",
-				"type": "slider",
-				"options": [0, 10, 1],
-				"default": 0,
-				"negative": false,
-				"disallow_default": true
 			}]
 		}, {
 			"name": "Post Match",
