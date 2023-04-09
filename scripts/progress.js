@@ -115,6 +115,10 @@ function init_page()
     page.add_column(pit)
     let pit_card = new Card('pits', pit_table)
     pit.add_input(pit_card)
+    
+    let import_all = new Button('import', 'Import All Results', 'import_results()')
+    pit.add_input(import_all)
+    
     let export_all = new Button('export', 'Export All Results', 'export_results()')
     pit.add_input(export_all)
 
@@ -124,6 +128,25 @@ function init_page()
     match.add_input(match_card)
 
     document.body.innerHTML += page.toString
+}
+
+/**
+ * function:    import_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip import process for results.
+ */
+function import_results()
+{
+    // allow page reload to be run on complete
+    const callback = window.location.reload.bind(window.location)
+
+    let handler = new ZipHandler()
+    handler.match     = true
+    handler.note      = true
+    handler.pit       = true
+    handler.on_complete = callback
+    handler.import_zip_from_file()
 }
 
 /**
