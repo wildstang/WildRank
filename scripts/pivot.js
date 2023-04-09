@@ -34,7 +34,7 @@ function init_page()
     
     // add pick list filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
-    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true)
+    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true, 'Stats')
 
     // add select button above secondary list
     add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
@@ -88,6 +88,7 @@ function init_page()
     }
 
     build_table(last_sort, last_reverse)
+    filter_stats()
 }
 
 /**
