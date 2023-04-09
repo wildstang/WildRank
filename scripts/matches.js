@@ -23,6 +23,9 @@ include('transfer')
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Match Select'
+
     // override scouting position with that from config
     // TODO: determine if this is actually desired
     if (cfg.get_position(user_id) > -1)

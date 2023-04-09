@@ -17,7 +17,7 @@ const start = Date.now()
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Generate Event'
+    document.getElementById('header_info').innerHTML = 'Import Schedule'
 
     let col = new ColumnFrame()
     let setup_page = new PageFrame('', 'Setup', [col])

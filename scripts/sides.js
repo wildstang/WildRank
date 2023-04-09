@@ -19,6 +19,9 @@ var selectedB = ''
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Side By'
+
     let type_form = new Select('type_form', 'Sort numeric resuts by', SORT_OPTIONS, 'Mean')
     type_form.on_change = 'open_both_teams()'
 

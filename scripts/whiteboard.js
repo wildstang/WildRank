@@ -751,6 +751,9 @@ function mouse_up(evt)
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Whiteboard'
+
     // fill in page template
     contents_card.innerHTML = '<canvas id="whiteboard"></canvas>'
 

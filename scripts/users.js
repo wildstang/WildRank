@@ -16,6 +16,9 @@ var users = {}
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'User Profiles'
+
     let matches = dal.get_results([], false)
     let pits = dal.get_pits([], false)
     if (matches.length > 0 || pits.length > 0)

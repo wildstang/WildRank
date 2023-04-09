@@ -14,6 +14,9 @@
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Other Events'
+
     let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: left"><tr><th>Event</th><th>Key</th><th>Start Date</th><th>Team Count</th><th>Teams</th></tr></table>')
     document.body.innerHTML += new PageFrame('', '', [card]).toString
 

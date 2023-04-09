@@ -16,6 +16,9 @@ const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'Std Dev']
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Edit Coach'
+
     document.body.innerHTML += `<div id="buttons_container"></div>`
     build_buttons()
 }

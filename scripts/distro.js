@@ -12,6 +12,9 @@ let pwidth, pheight = 0
 
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Distributions'
+
     contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="canvas"></canvas>'
 
     let max_bins = new Entry('max_bins', 'Max bins', 5)

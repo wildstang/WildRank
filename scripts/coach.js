@@ -60,6 +60,9 @@ function hide_matches()
  */
 function open_match(match_key)
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Coach'
+
     // select option
     deselect_all()
     document.getElementById(`match_option_${match_key}`).classList.add('selected')

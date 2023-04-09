@@ -16,6 +16,9 @@ include('transfer')
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Double Elims'
+
     // build page
     first = populate_teams(false)
 
@@ -227,6 +230,29 @@ function build_table(alliance, teams)
     table += '</table>'
     let header = `<center><h2 style="color: ${alliance}">${alliance[0].toUpperCase()}${alliance.substring(1)} Alliance</h2></center>`
     document.getElementById(`table`).innerHTML += header + images + table
+}
+
+
+/**
+ * function:    add_match
+ * parameters:  none
+ * returns:     none
+ * description: Adds a new match with the given parameters to the match file.
+ */
+function add_alliance(match_key, alliance, teams)
+{
+    // get raw matches
+    let file_name = `matches-${event_id}`
+    let file = localStorage.getItem(file_name)
+    let matches = JSON.parse(file)
+
+    // add alliance
+    teams = teams.map(t => `frc${t}`)
+    matches.filter(m => m.key === match_key)[0].alliances[alliance].team_keys = teams
+
+    // write to file and load
+    localStorage.setItem(file_name, JSON.stringify(matches))
+    process_files()
 }
 
 /**

@@ -17,6 +17,9 @@ include('transfer')
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Picklists'
+
     let first = populate_teams(false)
     if (first)
     {

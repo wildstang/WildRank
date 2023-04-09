@@ -16,6 +16,9 @@ var pheight
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Scatter'
+
     contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
     buttons_container.innerHTML = ''
 

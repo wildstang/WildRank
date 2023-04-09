@@ -14,6 +14,9 @@
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Match Overview'
+
     let first = populate_matches(true, false)
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)

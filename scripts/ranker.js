@@ -17,6 +17,9 @@ const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter']
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Stat Builder'
+
     // build picklist filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'update_params()', true)
 

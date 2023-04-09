@@ -22,7 +22,7 @@ include('transfer')
 async function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Raw Data Zip Transfer'
+    document.getElementById('header_info').innerHTML = 'Raw Data Transfer'
 
     let page = new PageFrame()
     let check_col = new ColumnFrame('', 'Data to Transfer')

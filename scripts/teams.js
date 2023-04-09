@@ -19,6 +19,9 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Team Profiles'
+
     let first = populate_teams()
     if (first)
     {

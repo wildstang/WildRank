@@ -20,6 +20,9 @@ const selected = urlParams.get('file')
  */
 function init_page()
 {
+    // set header
+    document.getElementById('header_info').innerHTML = 'Cycles'
+
     contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
                                 <table id="results_tab"></table>`
     buttons_container.innerHTML = ''
