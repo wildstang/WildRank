@@ -499,7 +499,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
                     colors = [256, 0, 0, (mean - val) / (mean - min) / 2]
                 }
 
-                if (dal.meta[key].negative === true)
+                if (dal.meta[key].negative === true || type === 'stddev')
                 {
                     colors = [colors[1], colors[0], colors[2], colors[3]]
                 }

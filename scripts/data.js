@@ -83,7 +83,7 @@ class DAL
                         }
                         if (type === 'checkbox')
                         {
-                            ops = [false, true]
+                            ops = ['No', 'Yes']
                         }
                         if (typeof ops === 'undefined')
                         {
@@ -113,7 +113,7 @@ class DAL
                                     name: `${name} ${ops[i]}`,
                                     type: 'checkbox',
                                     negative: neg[i],
-                                    options: [],
+                                    options: ['No', 'Yes'],
                                     options_index: [],
                                     cycle: cycle
                                 }
@@ -1664,7 +1664,8 @@ class DAL
                 return ''
             }
             // map to option if available
-            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
+            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length &&
+                    (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select') && stat !== 'stddev')
             {
                 // don't map when an option was sent as the step
                 let options = this.meta[id].options.map(op => op.toLowerCase())
@@ -1708,7 +1709,8 @@ class DAL
                 return ''
             }
             // map to option if available
-            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
+            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length &&
+                    (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select') && stat !== 'stddev')
             {
                 // don't map when an option was sent as the step
                 let options = this.meta[id].options.map(op => op.toLowerCase())
@@ -1834,12 +1836,6 @@ class DAL
                             max_op = parseInt(op)
                         }
                     }
-                    // convert checkbox values to booleans
-                    if (meta.type === 'checkbox')
-                    {
-                        min_op = min_op == 'true'
-                        max_op = max_op == 'true'
-                    }
                     
                     // build data structure
                     this.teams[team].stats[`${key}.mean`]   = mode_op
@@ -1850,7 +1846,7 @@ class DAL
                     this.teams[team].stats[`${key}.low`]    = 0
                     this.teams[team].stats[`${key}.high`]   = options.length
                     this.teams[team].stats[`${key}.total`]  = total_op
-                    this.teams[team].stats[`${key}.stddev`] = '---'
+                    this.teams[team].stats[`${key}.stddev`] = std_dev(values)
                     if (this.meta[`results.${key}`].type === 'select' || this.meta[`results.${key}`].type === 'dropdown')
                     {
                         let total = Object.values(counts).reduce((a, b) => a + b)
@@ -1959,12 +1955,6 @@ class DAL
                                     max_op = parseInt(op)
                                 }
                             }
-                            // convert checkbox values to booleans
-                            if (this.meta[id].type === 'checkbox')
-                            {
-                                min_op = min_op == 'true'
-                                max_op = max_op == 'true'
-                            }
 
                             // build data structure
                             global_stats[`${id}.mean`]   = mode_op
@@ -1975,7 +1965,7 @@ class DAL
                             global_stats[`${id}.low`]    = 0
                             global_stats[`${id}.high`]   = options.length
                             global_stats[`${id}.total`]  = total_op
-                            global_stats[`${id}.stddev`] = '---'
+                            global_stats[`${id}.stddev`] = std_dev(values)
                             if (this.meta[id.replace('stats.', 'results.')].type === 'select' || this.meta[id.replace('stats.', 'results.')].type === 'dropdown')
                             {
                                 let total = Object.values(counts).reduce((a, b) => a + b)

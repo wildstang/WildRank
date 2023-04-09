@@ -591,7 +591,7 @@ function generate_results()
                             document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
                             break
                         case 'number':
-                        case 'silder':
+                        case 'slider':
                             let min = 0
                             let max = 10
                             if (options.length == 2)
