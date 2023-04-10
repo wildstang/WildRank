@@ -38,7 +38,8 @@ var BLANK_PAGES = {
     'misc/test': [],
     'misc/district-counter': ['year'],
     'misc/international-counter': ['year'],
-    'misc/event-planner': ['year']
+    'misc/event-planner': ['year'],
+    'misc/max-score': ['year']
 }
 
 var SELECTION_PAGES = {
@@ -58,6 +59,7 @@ var SELECTION_PAGES = {
     plot: ['event', 'user'],
     scatter: ['event', 'user'],
     coach: ['event', 'user'],
+    bracket: ['event', 'user'],
     results: ['event'], // file
     cycles: ['event'] // file
 }

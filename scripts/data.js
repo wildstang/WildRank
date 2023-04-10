@@ -83,7 +83,7 @@ class DAL
                         }
                         if (type === 'checkbox')
                         {
-                            ops = [false, true]
+                            ops = ['No', 'Yes']
                         }
                         if (typeof ops === 'undefined')
                         {
@@ -113,7 +113,7 @@ class DAL
                                     name: `${name} ${ops[i]}`,
                                     type: 'checkbox',
                                     negative: neg[i],
-                                    options: [],
+                                    options: ['No', 'Yes'],
                                     options_index: [],
                                     cycle: cycle
                                 }
@@ -636,6 +636,8 @@ class DAL
         for (let file of match_files)
         {
             let match = JSON.parse(localStorage.getItem(file))
+            let team = match.meta_team.toString()
+
             // add match key to pre-WR2 results
             if (!match.hasOwnProperty('meta_match_key') && match.hasOwnProperty('meta_match') && match.hasOwnProperty('meta_event_id'))
             {
@@ -649,6 +651,7 @@ class DAL
             {
                 match.meta_set_number = 1
             }
+
             // add notes if available
             let note_file = file.replace(MATCH_MODE, NOTE_MODE)
             if (files.includes(note_file))
@@ -661,9 +664,54 @@ class DAL
             {
                 match.meta_both_scouted = false
             }
-            let team = match.meta_team.toString()
+
+            // only add team if it is in the team list
             if (teams.includes(team))
             {
+                // add TBA data to results
+                // TODO: do this the "right" way be adding it as a separate section and supporting that
+                if (this.matches.hasOwnProperty(match.meta_match_key))
+                {
+                    let match_info = this.matches[match.meta_match_key]
+                    if (match_info.hasOwnProperty('red_score') && match_info.red_score >= 0 &&
+                        match_info.hasOwnProperty('blue_score') && match_info.blue_score >= 0)
+                    {
+                        if (match_info.blue_alliance.includes(team))
+                        {
+                            match.meta_score = match_info.blue_score
+                            match.meta_opp_score = match_info.red_score
+                            if (match_info.score_breakdown !== null)
+                            {
+                                for (let key in match_info.score_breakdown.blue)
+                                {
+                                    match[`meta_${key.toLowerCase()}`] = match_info.score_breakdown.blue[key]
+                                }
+                                for (let key in match_info.score_breakdown.red)
+                                {
+                                    match[`meta_opp_${key.toLowerCase()}`] = match_info.score_breakdown.red[key]
+                                }
+                            }
+                        }
+                        else if (match_info.red_alliance.includes(team))
+                        {
+                            match.meta_score = match_info.red_score
+                            match.meta_opp_score = match_info.blue_score
+                            if (match_info.score_breakdown !== null)
+                            {
+                                for (let key in match_info.score_breakdown.red)
+                                {
+                                    match[`meta_${key.toLowerCase()}`] = match_info.score_breakdown.red[key]
+                                }
+                                for (let key in match_info.score_breakdown.blue)
+                                {
+                                    match[`meta_opp_${key.toLowerCase()}`] = match_info.score_breakdown.blue[key]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // add smart stats, then add to results
                 this.teams[team].results.push(this.add_smart_stats(match, stats))
             }
         }
@@ -854,27 +902,11 @@ class DAL
                     match_name = `${match.comp_level.toUpperCase()} ${match.set_number}-${match.match_number}`
                     short_match_name = `${match.comp_level.toUpperCase()}${match.set_number}${match.match_number}`
                 }
+
                 let display_time = ''
-                let score_str = ''
-                let complete = false
                 if (match.actual_time > 0)
                 {
                     display_time = `${unix_to_match_time(match.actual_time)}`
-                    if (match.winning_alliance !== '' && match.alliances.red.score !== '' && match.alliances.blue.score !== '')
-                    {
-                        complete = true
-                        let winner = match.winning_alliance
-                        let red_score = match.alliances.red.score
-                        let blue_score =  match.alliances.blue.score
-                        if (winner === 'red')
-                        {
-                            score_str = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
-                        }
-                        else
-                        {
-                            score_str = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
-                        }
-                    }
                 }
                 else if (match.predicted_time > 0)
                 {
@@ -883,6 +915,28 @@ class DAL
                 else if (match.time > 0)
                 {
                     display_time = `${unix_to_match_time(match.time)} (Scheduled)`
+                }
+
+                let score_str = ''
+                let complete = false
+                let winner = match.winning_alliance
+                if (match.alliances.red.score !== '' && match.alliances.blue.score !== '' && match.alliances.red.score >= 0 && match.alliances.blue.score >= 0)
+                {
+                    complete = true
+                    if (winner === '')
+                    {
+                        winner = 'tie'
+                    }
+                    let red_score = match.alliances.red.score
+                    let blue_score =  match.alliances.blue.score
+                    if (winner === 'red')
+                    {
+                        score_str = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
+                    }
+                    else
+                    {
+                        score_str = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
+                    }
                 }
                 this.matches[match.key] = {
                     match_name: match_name,
@@ -902,7 +956,7 @@ class DAL
                     score_str: score_str,
                     videos: match.videos,
                     score_breakdown: match.score_breakdown,
-                    winner: match.winning_alliance
+                    winner: winner
                 }
                 if (this.matches[match.key].red_alliance.length > this.max_alliance_size)
                 {
@@ -1316,24 +1370,45 @@ class DAL
 
     /**
      * function:    get_photo_carousel
-     * parameters:  team number
+     * parameters:  team numbers
      * returns:     a carousel of images
      * description: Builds a carousel of a team's images.
      */
-    get_photo_carousel(team_num, width='500px')
+    get_photo_carousel(team_nums, width='500px')
     {
-        if (cfg.settings.use_images && this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        if (cfg.settings.use_images)
         {
-            let html = `<div id="${team_num}-carousel" style="width: ${width}" class="photo-carousel">`
-            let pics = this.teams[team_num].pictures.photos
-            if (pics.length > 0)
+            // if a single team string was given, put it in an array
+            if (!Array.isArray(team_nums))
             {
-                for (let pic of pics)
+                team_nums = [team_nums]
+            }
+
+            // add each team picture to the carousel
+            let added = false
+            let html = `<div id="carousel" style="width: ${width}" class="photo-carousel">`
+            for (let team_num of team_nums)
+            {
+                // don't add the team if it has no pictures
+                if (this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
                 {
-                    html += `<img src="${pic}">`
+                    let pics = this.teams[team_num].pictures.photos
+                    if (pics.length > 0)
+                    {
+                        added = true
+                        for (let pic of pics)
+                        {
+                            html += `<img src="${pic}">`
+                        }
+                    }
                 }
             }
-            return `<center>${html}</div></center>`
+
+            // return the carousel if any pictures were added
+            if (added)
+            {
+                return `<center>${html}</div></center>`
+            }
         }
         return ''
     }
@@ -1589,7 +1664,8 @@ class DAL
                 return ''
             }
             // map to option if available
-            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
+            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length &&
+                    (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select') && stat !== 'stddev')
             {
                 // don't map when an option was sent as the step
                 let options = this.meta[id].options.map(op => op.toLowerCase())
@@ -1633,7 +1709,8 @@ class DAL
                 return ''
             }
             // map to option if available
-            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length && (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select'))
+            else if (map && typeof val === 'number' && this.meta[id].options && val < this.meta[id].options.length &&
+                    (this.meta[id].type === 'dropdown' || this.meta[id].type === 'select') && stat !== 'stddev')
             {
                 // don't map when an option was sent as the step
                 let options = this.meta[id].options.map(op => op.toLowerCase())
@@ -1759,12 +1836,6 @@ class DAL
                             max_op = parseInt(op)
                         }
                     }
-                    // convert checkbox values to booleans
-                    if (meta.type === 'checkbox')
-                    {
-                        min_op = min_op == 'true'
-                        max_op = max_op == 'true'
-                    }
                     
                     // build data structure
                     this.teams[team].stats[`${key}.mean`]   = mode_op
@@ -1775,7 +1846,7 @@ class DAL
                     this.teams[team].stats[`${key}.low`]    = 0
                     this.teams[team].stats[`${key}.high`]   = options.length
                     this.teams[team].stats[`${key}.total`]  = total_op
-                    this.teams[team].stats[`${key}.stddev`] = '---'
+                    this.teams[team].stats[`${key}.stddev`] = std_dev(values)
                     if (this.meta[`results.${key}`].type === 'select' || this.meta[`results.${key}`].type === 'dropdown')
                     {
                         let total = Object.values(counts).reduce((a, b) => a + b)
@@ -1847,7 +1918,7 @@ class DAL
                     values.push(this.get_value(team, id, stat))
                 }
                 values = values.filter(v => v !== '')
-        
+
                 switch (this.meta[id].type)
                 {
                     case 'checkbox':
@@ -1864,7 +1935,7 @@ class DAL
                             {
                                 counts[i] = values.filter(val => val == i).length
                             }
-        
+
                             // compute stats
                             let min_op = ''
                             let max_op = ''
@@ -1884,13 +1955,7 @@ class DAL
                                     max_op = parseInt(op)
                                 }
                             }
-                            // convert checkbox values to booleans
-                            if (this.meta[id].type === 'checkbox')
-                            {
-                                min_op = min_op == 'true'
-                                max_op = max_op == 'true'
-                            }
-                            
+
                             // build data structure
                             global_stats[`${id}.mean`]   = mode_op
                             global_stats[`${id}.median`] = median_op
@@ -1900,7 +1965,7 @@ class DAL
                             global_stats[`${id}.low`]    = 0
                             global_stats[`${id}.high`]   = options.length
                             global_stats[`${id}.total`]  = total_op
-                            global_stats[`${id}.stddev`] = '---'
+                            global_stats[`${id}.stddev`] = std_dev(values)
                             if (this.meta[id.replace('stats.', 'results.')].type === 'select' || this.meta[id.replace('stats.', 'results.')].type === 'dropdown')
                             {
                                 let total = Object.values(counts).reduce((a, b) => a + b)

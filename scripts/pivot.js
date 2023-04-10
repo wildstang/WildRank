@@ -8,12 +8,14 @@
 
 const SESSION_KEYS_KEY = 'pivot-selected-keys'
 const SESSION_TYPES_KEY = 'pivot-selected-types'
+const SESSION_SORT_KEY = 'pivot-sort-idx'
+const SESSION_REVERSE_KEY = 'pivot-reverse-key'
 
 let selected_keys = []
-let last_sort = ''
+let last_sort = 0
 let last_reverse = false
 
-const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
+const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
 
 /**
  * function:    init_page
@@ -32,7 +34,7 @@ function init_page()
     
     // add pick list filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
-    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true)
+    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true, 'Stats')
 
     // add select button above secondary list
     add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
@@ -44,6 +46,18 @@ function init_page()
     // select keys from sessionStorage
     let stored_keys = sessionStorage.getItem(SESSION_KEYS_KEY)
     let stored_types = sessionStorage.getItem(SESSION_TYPES_KEY)
+    last_sort = sessionStorage.getItem(SESSION_SORT_KEY)
+    last_reverse = sessionStorage.getItem(SESSION_REVERSE_KEY) == 'true'
+
+    if (last_sort === null)
+    {
+        last_sort = 0
+    }
+    else
+    {
+        last_sort = parseInt(last_sort)
+    }
+
     if (stored_keys !== null)
     {
         selected_keys = JSON.parse(stored_keys)
@@ -56,7 +70,7 @@ function init_page()
                 selected_keys.splice(i, 1)
             }
         }
-        build_table()
+        build_table(last_sort, last_reverse)
 
         if (stored_types !== null)
         {
@@ -73,7 +87,8 @@ function init_page()
         }
     }
 
-    build_table()
+    build_table(last_sort, last_reverse)
+    filter_stats()
 }
 
 /**
@@ -89,8 +104,12 @@ function filter_teams()
     {
         filter_by(dal.picklists[list], false)
     }
+    else
+    {
+        select_all(false)
+    }
 
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -141,7 +160,7 @@ function open_option(key)
     // save selection to sessionStorage
     sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
 
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -163,7 +182,7 @@ function alt_option(key)
         // save selection to sessionStorage
         sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
     
-        build_table()
+        build_table(last_sort, last_reverse)
     }
 }
 
@@ -187,7 +206,7 @@ function open_secondary_option(key)
     }
 
     select_none()
-    build_table()
+    build_table(last_sort, last_reverse)
 }
 
 /**
@@ -218,26 +237,62 @@ function get_secondary_selected_keys()
  * returns:     array of selected and sorted teams
  * description: Builds an array of the currently selected teams then sorts.
  */
-function get_sorted_teams(sort_by='', reverse=false)
+function get_sorted_teams(sort_by=0, type='mean', reverse=false)
 {
     let filter_teams = get_secondary_selected_keys()
 
-    // sort teams based on parameters
-    let type = 'mean'
-    if (document.getElementById(`select_${sort_by}`))
+    let key = selected_keys[sort_by]
+    if (typeof key === 'undefined')
     {
-        type = document.getElementById(`select_${sort_by}`).value.toLowerCase()
+        key = ''
     }
-    filter_teams.sort((a,b) => dal.get_value(b, sort_by, type) - dal.get_value(a, sort_by, type))
+    filter_teams.sort((a,b) => dal.get_value(b, key, type) - dal.get_value(a, key, type))
     if (reverse)
     {
         filter_teams.reverse()
     }
 
-    last_sort = sort_by
-    last_reverse = reverse
-
     return filter_teams
+}
+
+/**
+ * function:    get_previous_pos
+ * parameters:  current position, position that was moved, position it was moved to
+ * returns:     position before move
+ * description: Determines where the position was previously.
+ */
+function get_previous_pos(idx, moved_idx, placed_idx)
+{
+    let prev_idx = idx
+    if (idx === placed_idx)
+    {
+        prev_idx = moved_idx
+    }
+    else if (idx > placed_idx && idx <= moved_idx)
+    {
+        prev_idx--
+    }
+    else if (idx >= moved_idx && idx < placed_idx)
+    {
+        prev_idx++
+    }
+    return prev_idx
+}
+
+/**
+ * function:    get_selected_type
+ * parameters:  sort position
+ * returns:     selected type
+ * description: Returns the stat select on a column.
+ */
+function get_selected_type(idx=0)
+{
+    let type = 'mean'
+    if (document.getElementById(`select_${idx}`))
+    {
+        type = document.getElementById(`select_${idx}`).value.toLowerCase()
+    }
+    return type
 }
 
 /**
@@ -246,48 +301,64 @@ function get_sorted_teams(sort_by='', reverse=false)
  * returns:     none
  * description: Completes the center info pane with the selected options.
  */
-function build_table(sort_by='', reverse=false)
+function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
 {
     // get selected keys on either side
     let selected = get_selected_keys()
-    let filter_teams = get_sorted_teams(sort_by, reverse)
+
+    // sort teams based on parameters
+    let pos = get_previous_pos(sort_by, moved_idx, placed_idx)
+    let filter_teams = get_sorted_teams(sort_by, get_selected_type(pos), reverse)
+
     let selected_types = {}
+
+    // update stored sort
+    last_sort = sort_by
+    last_reverse = reverse
+    sessionStorage.setItem(SESSION_SORT_KEY, last_sort)
+    sessionStorage.setItem(SESSION_REVERSE_KEY, last_reverse)
 
     // compute totals
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
     // build table headers
     let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number</th>`
-    let types = '<tr><td></td>'
-    let filters = '<tr><td></td>'
-    let totals = '<tr><td></td>'
+    let types = '<tr><th>Stat</th>'
+    let filters = `<tr><th>Filter</th>`
+    let totals = '<tr><th>Total</th>'
     for (let i in selected)
     {
         let key = selected[i]
 
         // add key names
-        table += `<th id="${key}" draggable="true" ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"  onclick="build_table('${key}', ${key == sort_by && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false" ontouchstart="touch_button(false)" ontouchend="touch_button('alt_option(\\'${key}\\')')">${dal.get_name(key, '')}</th>`
+        table += `<th id="header_${i}" draggable="true"
+            ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"
+            onclick="build_table(${i}, ${key == selected_keys[sort_by] && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false"
+            ontouchstart="touch_button(false)" ontouchend="touch_button('alt_option(\\'${key}\\')')">${dal.get_name(key, '')}</th>`
+
+        // determine column to pull existing stat and filter values from
+        let from_idx = get_previous_pos(parseInt(i), moved_idx, placed_idx)
 
         // determine previously selected stat
         let type = 'Mean'
-        if (document.getElementById(`select_${key}_${i}`))
+        if (document.getElementById(`select_${from_idx}`))
         {
-            type = document.getElementById(`select_${key}_${i}`).value
-            selected_types[`select_${key}_${i}`] = type
+            type = document.getElementById(`select_${from_idx}`).value
+            selected_types[`select_${i}`] = type
         }
 
         // determine previously selected filter
         let filter = ''
-        if (document.getElementById(`filter_${key}_${i}`))
+        if (document.getElementById(`filter_${from_idx}`))
         {
-            filter = document.getElementById(`filter_${key}_${i}`).value
+            filter = document.getElementById(`filter_${from_idx}`).value
         }
 
         // determine previously less/greater
         let ltgt_def = ''
-        if (document.getElementById(`ltgt_${key}_${i}`))
+        if (document.getElementById(`ltgt_${from_idx}`))
         {
-            ltgt_def = Select.get_selected_option(`ltgt_${key}_${i}`)
+            ltgt_def = Select.get_selected_option(`ltgt_${from_idx}`)
         }
 
         // find unique values and make array of teams that don't match filter
@@ -348,7 +419,7 @@ function build_table(sort_by='', reverse=false)
         let filter_str = ''
         if (type !== 'Total' || (t !== 'select' || t === 'dropdown'))
         {
-            let filter_dd = new Dropdown(`filter_${key}_${i}`, '', unique, filter)
+            let filter_dd = new Dropdown(`filter_${i}`, '', unique, filter)
             filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
             filter_dd.add_class('slim')
             filter_dd.add_class('thin')
@@ -364,7 +435,7 @@ function build_table(sort_by='', reverse=false)
             {
                 stats = stats.concat(dal.meta[key].options)
             }
-            let dropdown = new Dropdown(`select_${key}_${i}`, '', stats, type)
+            let dropdown = new Dropdown(`select_${i}`, '', stats, type)
             dropdown.on_change = `build_table('${sort_by}', ${reverse})`
             dropdown.add_class('slim')
             dropdown.add_class('thin')
@@ -374,7 +445,7 @@ function build_table(sort_by='', reverse=false)
         // build a select for less/greater than if a number
         if (t === 'number' || t === 'counter' || t === 'slider' || !STATS.includes(type))
         {
-            let ltgt = new Select(`ltgt_${key}_${i}`, '', ['Less', 'Greater'], ['Less', 'Greater'][ltgt_def])
+            let ltgt = new Select(`ltgt_${i}`, '', ['Less', 'Greater'], ['Less', 'Greater'][ltgt_def])
             ltgt.on_change = `build_table('${sort_by}', ${reverse})`
             ltgt.add_class('slim')
             ltgt.add_class('thin')
@@ -398,9 +469,9 @@ function build_table(sort_by='', reverse=false)
 
             // determine previously selected stat
             let type = 'mean'
-            if (document.getElementById(`select_${key}_${i}`))
+            if (document.getElementById(`select_${i}`))
             {
-                type = document.getElementById(`select_${key}_${i}`).value.toLowerCase()
+                type = selected_types[`select_${i}`].toLowerCase()
             }
 
             // compute color
@@ -429,7 +500,7 @@ function build_table(sort_by='', reverse=false)
                     colors = [256, 0, 0, (mean - val) / (mean - min) / 2]
                 }
 
-                if (dal.meta[key].negative === true)
+                if (dal.meta[key].negative === true || type === 'stddev')
                 {
                     colors = [colors[1], colors[0], colors[2], colors[3]]
                 }
@@ -458,7 +529,7 @@ function save_picklist()
 {
     // get selected keys on either side
     let selected = get_selected_keys()
-    let teams = get_sorted_teams(last_sort, last_reverse)
+    let teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
 
     for (let i in selected)
     {
@@ -466,23 +537,23 @@ function save_picklist()
 
         // determine previously selected stat
         let type = 'Mean'
-        if (document.getElementById(`select_${key}_${i}`))
+        if (document.getElementById(`select_${i}`))
         {
-            type = document.getElementById(`select_${key}_${i}`).value
+            type = document.getElementById(`select_${i}`).value
         }
 
         // determine previously selected filter
         let filter = ''
-        if (document.getElementById(`filter_${key}_${i}`))
+        if (document.getElementById(`filter_${i}`))
         {
-            filter = document.getElementById(`filter_${key}_${i}`).value
+            filter = document.getElementById(`filter_${i}`).value
         }
 
         // determine previously less/greater
         let ltgt_def = ''
-        if (document.getElementById(`ltgt_${key}_${i}`))
+        if (document.getElementById(`ltgt_${i}`))
         {
-            ltgt_def = Select.get_selected_option(`ltgt_${key}_${i}`)
+            ltgt_def = Select.get_selected_option(`ltgt_${i}`)
         }
 
         // make array of teams that don't match filter
@@ -507,13 +578,13 @@ function save_picklist()
     }
 
     let name = ''
-    if (last_sort === '')
+    if (last_sort === 0)
     {
         name = 'Team Number'
     }
     else
     {
-        name = dal.get_name(last_sort)
+        name = dal.get_name(selected_keys[last_sort])
     }
     if (last_reverse)
     {
@@ -538,7 +609,7 @@ function export_csv()
 {
     // get selected keys on either side
     let selected = get_selected_keys()
-    let filter_teams = get_sorted_teams(last_sort, last_reverse)
+    let filter_teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
 
     // compute totals
     let global_stats = dal.compute_global_stats(selected, filter_teams)
@@ -551,9 +622,9 @@ function export_csv()
         
         // determine previously selected stat
         let type = 'Mean'
-        if (document.getElementById(`select_${key}_${i}`))
+        if (document.getElementById(`select_${i}`))
         {
-            type = document.getElementById(`select_${key}_${i}`).value
+            type = document.getElementById(`select_${i}`).value
         }
 
         // add key names and totals
@@ -579,9 +650,9 @@ function export_csv()
 
             // determine previously selected stat
             let type = 'mean'
-            if (document.getElementById(`select_${key}_${i}`))
+            if (document.getElementById(`select_${i}`))
             {
-                type = document.getElementById(`select_${key}_${i}`).value.toLowerCase()
+                type = document.getElementById(`select_${i}`).value.toLowerCase()
             }
 
             // add cell
@@ -661,9 +732,9 @@ function import_keys(event)
                 {
                     let key = keys[i].substring(1, keys[i].length - 1)
                     let type = types[i].substring(1, types[i].length - 1)
-                    if (document.getElementById(`select_${key}_${i-1}`))
+                    if (document.getElementById(`select_${i-1}`))
                     {
-                        document.getElementById(`select_${key}_${i-1}`).value = type
+                        document.getElementById(`select_${i-1}`).value = type
                     }
                 }
             }
@@ -730,31 +801,41 @@ function drop_handler(e)
     let dropped_on = e.target.id
     let dragging = e.dataTransfer.getData("text")
 
-    // select true key if a discrete input
-    if (!selected_keys.includes(dropped_on))
-    {
-        for (let key of selected_keys)
-        {
-            if (dropped_on.startsWith(key))
-            {
-                dropped_on = key
-                if (dragging.startsWith(key))
-                {
-                    return
-                }
-            }
-        }
-    }
-    
-    // remove dragged key
-    selected_keys = selected_keys.filter(s => s != dragging)
+    // determine what was moved
+    let old_idx = parseInt(dragging.split('_')[1])
+    let key = selected_keys.splice(old_idx, 1)[0]
 
-    // insert dragged key
-    let index = dropped_on == 'team' ? 0 : selected_keys.indexOf(dropped_on) + 1
-    selected_keys.splice(index, 0, dragging)
+    // determine which column index to move to
+    if (dropped_on === 'team')
+    {
+        i = 0
+    }
+    else
+    {
+        i = parseInt(dropped_on.split('_')[1]) + 1
+    }
+    if (i > old_idx)
+    {
+        i -= 1
+    }
+    selected_keys.splice(i, 0, key)
+
+    // update sorted column index
+    if (last_sort === old_idx)
+    {
+        last_sort = i
+    }
+    else if (last_sort > old_idx && last_sort <= i)
+    {
+        last_sort -= 1
+    }
+    else if (last_sort < old_idx && last_sort >= i)
+    {
+        last_sort += 1
+    }
 
     // save selection to sessionStorage
     sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
 
-    build_table()
+    build_table(last_sort, last_reverse, old_idx, i)
 }

@@ -409,6 +409,7 @@ function get_results_from_page()
     results['meta_scouter_id'] = parseInt(user_id)
     results['meta_scout_time'] = Math.round(start / 1000)
     results['meta_scouting_duration'] = (Date.now() - start) / 1000
+    results['meta_config_version'] = cfg.version
     if (scout_mode === MATCH_MODE)
     {
         results['meta_unsure'] = document.getElementById('unsure').checked
@@ -590,7 +591,7 @@ function generate_results()
                             document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
                             break
                         case 'number':
-                        case 'silder':
+                        case 'slider':
                             let min = 0
                             let max = 10
                             if (options.length == 2)

@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-2.2.1'
+const CACHE_NAME = 'wildrank-2.3.0'
 const CACHE_LIST = [
     // html files
     '/',
@@ -18,6 +18,7 @@ const CACHE_LIST = [
     // scripts
     '/scripts/about.js',
     '/scripts/blank.js',
+    '/scripts/bracket.js',
     '/scripts/cache.js',
     '/scripts/coach.js',
     '/scripts/config-debug.js',

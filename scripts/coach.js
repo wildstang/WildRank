@@ -146,6 +146,6 @@ function build_table(alliance, teams)
         table += '</tr>'
     }
     table += '</table>'
-    let header = `<center><h2>${alliance[0].toUpperCase()}${alliance.substring(1)} Alliance</h2></center>`
+    let header = `<center><h2 style="color: ${alliance}">${alliance[0].toUpperCase()}${alliance.substring(1)} Alliance</h2></center>`
     document.getElementById(`${alliance}_details`).innerHTML = header + images + table
 }

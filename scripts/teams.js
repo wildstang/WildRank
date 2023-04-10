@@ -126,7 +126,16 @@ function open_option(team_num)
             if (dal.get_match_value(match_key, 'complete'))
             {
                 let winner = dal.get_match_value(match_key, 'winner')
-                let result = `<b>${winner === alliance ? 'W' : 'L'}</b><br>${dal.get_match_value(match_key, 'score_str')}`
+                let win = 'L'
+                if (winner === alliance)
+                {
+                    win = 'W'
+                }
+                else if (winner === 'tie')
+                {
+                    win = 'T'
+                }
+                let result = `<b>${win}</b><br>${dal.get_match_value(match_key, 'score_str')}`
                 time += `<br>${result}`
             }
 

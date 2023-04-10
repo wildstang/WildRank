@@ -20,12 +20,12 @@ const CONFIGS = {
         'Notes': ['pits', 'notes']
     },
     'drive': {
-        'Drive Team': ['import_results', 'coach', 'whiteboard']
+        'Drive Team': ['import_results', 'coach', 'whiteboard', 'bracket']
     },
     'analysis': {
         'Teams': ['ranker', 'sides', 'multipicklists'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
-        'Results': ['import_results', 'results', 'cycles'],
+        'Results': ['import_results', 'results', 'cycles', 'export_results'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
@@ -38,13 +38,16 @@ const CONFIGS = {
         'Reset': ['reset_cache', 'reset_storage', 'reset_config']
     },
     'extras': {
-        'Generic': ['misc/test', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/event-planner', 'misc/team-profile', 'misc/revival-counter'],
+        'Debug': ['misc/test'],
+        'Team': ['misc/event-planner', 'misc/team-profile'],
+        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score'],
         'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator']
     }
 }
 
 // requirements for each button
 const BUTTONS = {
+    'bracket':              { name: 'Double Elims',             limits: ['event', 'admin'], configs: ['settings', 'coach'] },
     'cache':                { name: 'Cache Manager',            limits: [], configs: [] },
     'clear_events':         { name: 'Clear Other Events',       limits: ['admin'], configs: [] },
     'coach':                { name: 'Coach View',               limits: ['event', 'admin', 'results'], configs: ['settings', 'coach'] },
@@ -56,6 +59,7 @@ const BUTTONS = {
     'event-generator':      { name: 'Event Generator',          limits: ['admin'], configs: [] },
     'events':               { name: 'Other Events',             limits: ['teams', 'admin'], configs: [] },
     'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
+    'export_results':       { name: 'Export All Results',       limits: ['admin'], configs: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['event', 'admin'], configs: ['settings'] },
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
     'multipicklists':       { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
@@ -92,6 +96,7 @@ const BUTTONS = {
     'misc/district-counter':        { name: 'District Counter',         limits: ['admin'], configs: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: ['admin'], configs: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: ['admin'], configs: [] },
+    'misc/max-score':               { name: 'Max Score',                limits: ['admin'], configs: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: ['admin'], configs: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: ['admin'], configs: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: ['admin'], configs: [] },
@@ -384,6 +389,23 @@ function import_results()
     handler.pictures  = true
     handler.picklists = true
     handler.import_zip_from_file()
+}
+
+/**
+ * function:    export_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for results.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.match     = true
+    handler.note      = true
+    handler.pit       = true
+    handler.pictures  = true
+    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.export_zip()
 }
 
 /**

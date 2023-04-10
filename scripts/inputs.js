@@ -86,6 +86,7 @@ class ColumnFrame extends Element
     {
         super(id, label)
         this.inputs = inputs
+        this.max = 0
     }
 
     add_input(input)
@@ -100,10 +101,29 @@ class ColumnFrame extends Element
 
     get toString()
     {
-        return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
-                ${this.header}
-                ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
-            </div>`
+        if (this.max > 0 && this.inputs.length > this.max)
+        {
+            let cols = []
+            for (let i = 0; i < Math.ceil(this.inputs.length / this.max); i++)
+            {
+                let col = `<div id="${this.id}_${i}" class="column ${this.classes.join(' ')}">${this.header}`
+                for (let j = i * this.max; j < (i + 1) * this.max && j < this.inputs.length; j++)
+                {
+                    let input = this.inputs[j]
+                    col += typeof input === 'string' ? input : input.toString
+                }
+                col += '</div>'
+                cols.push(col)
+            }
+            return cols.join('')
+        }
+        else
+        {
+            return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
+                    ${this.header}
+                    ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
+                </div>`
+        }
     }
 }
 
@@ -1068,6 +1088,10 @@ function build_column_from_config(column, scout_mode, select_ids, edit=false, ma
         col_name = col_name.replace('TEAM', team).replace('ALLIANCE', alliance_color)
     }
     let col_frame = new ColumnFrame(column.id, col_name)
+    if (column.id === 'match_auto_auto')
+    {
+        col_frame.max = 3
+    }
 
     // iterate through input in the column
     for (let input of column.inputs)

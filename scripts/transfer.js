@@ -760,6 +760,8 @@ class ZipHandler
                         let text = await content.text()
                         let write = true
                         let existing = localStorage.getItem(n)
+
+                        // prompt if file should be overriden
                         if (existing !== null)
                         {
                             if (existing !== text && !n.startsWith('avatar-'))
@@ -771,6 +773,37 @@ class ZipHandler
                                 write = false
                             }
                         }
+
+                        // ignore and alert if a result file name doesn't match its metadata
+                        if (write && (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`)))
+                        {
+                            let parts = n.split('-')
+                            let name_team = parseInt(parts[2])
+                            let result = JSON.parse(text)
+                            let result_team = parseInt(result.meta_team)
+                            if (name_team !== result_team)
+                            {
+                                alert(`Team number mismatch on ${n}`)
+                                write = false
+                            }
+
+                            if (!n.startsWith(`${PIT_MODE}-`))
+                            {
+                                let meta_match = JSON.parse(text).meta_match_key
+                                if (parts[1] !== meta_match)
+                                {
+                                    alert(`Match key mismatch on ${n}`)
+                                    write = false
+                                }
+                            }
+
+                            // warn if reported config version does not match
+                            if (write && result.hasOwnProperty('meta_config_version') && result.meta_config_version !== cfg.version)
+                            {
+                                alert(`Config version mismatch on ${n}`)
+                            }
+                        }
+
                         if (write)
                         {
                             console.log(`Importing ${n}`)
@@ -856,15 +889,16 @@ class ZipHandler
                     {
                         file = key.url
                     }
-                    
+
                     // check for pictures and don't put in directory if belonging to server (like server does)
                     if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${this.server}/assets/`))
                     {
+                        // put locally captured pictures in a cache directory
                         if (file.startsWith(`${this.server}/uploads/`))
                         {
-                            file = file.replace(`${this.server}/uploads/`, '')
+                            file = file.replace(`${this.server}/uploads/`, 'cache/')
                         }
-                        zip.file(file, response.blob())
+                        zip.file(file.replace('://', '/').replace(':', '.'), response.blob())
                         num_uploads++
                     }
                 }

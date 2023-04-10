@@ -57,9 +57,13 @@ function init_canvas()
 function filter_teams()
 {
     let list = document.getElementById('picklist_filter').value
-    if (Object.keys(lists).includes(list))
+    if (Object.keys(dal.picklists).includes(list))
     {
-        filter_by(lists[list], false)
+        filter_by(dal.picklists[list], false)
+    }
+    else
+    {
+        deselect_all(false)
     }
 
     init_canvas()

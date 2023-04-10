@@ -117,24 +117,26 @@ function toggle_select(primary_list=true)
  */
 function filter_by(filter, primary_list=true)
 {
-    let id = 'option_list'
+    let start = 'option_'
     if (!primary_list)
     {
-        id = 'secondary_option_list'
+        start = 'soption_'
     }
-    let options = document.getElementById(id).children
-    for (let i = 0; i < options.length; ++i)
+    deselect_all(primary_list)
+    for (let f of filter)
     {
-        if (filter.includes(options[i].innerText))
+        let op = start + f
+        let element = document.getElementById(op)
+        if (element !== null)
         {
-            if (!options[i].classList.contains('selected'))
+            if (!element.classList.contains('selected'))
             {
-                options[i].classList.add('selected')
+                element.classList.add('selected')
             }
-        }
-        else
-        {
-            options[i].classList.remove('selected')
+            else
+            {
+                element.classList.remove('selected')
+            }
         }
     }
 }
