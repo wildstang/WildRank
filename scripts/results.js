@@ -110,6 +110,15 @@ function open_option(option)
     let team = parts[1].trim()
     let result = dal.teams[team].results.filter(r => r.meta_match_key === match)[0]
 
+    // highlight config mismatches with red text
+    let version = dal.get_result_value(team, match, 'meta_config_version', true)
+    let color = 'black'
+    if (version !== '' && version !== cfg.version)
+    {
+        color = 'red'
+    }
+    document.getElementById('result_name').style.color = color
+
     // setup header
     document.getElementById('avatar').src = dal.get_value(team, 'pictures.avatar')
     document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
