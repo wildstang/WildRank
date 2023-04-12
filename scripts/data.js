@@ -1593,7 +1593,16 @@ class DAL
                 if (map)
                 {
                     // map to option if available
-                    if (typeof meta !== 'undefined' && typeof val === 'number' && meta.options && val < meta.options.length && (meta.type === 'dropdown' || meta.type === 'select'))
+                    if ((id === 'meta_scouter_id' || id === 'meta_note_scouter_id') && map)
+                    {
+                        let name = cfg.get_name(val)
+                        if (name === 'Unknown User')
+                        {
+                            name = val
+                        }
+                        return name
+                    }
+                    else if (typeof meta !== 'undefined' && typeof val === 'number' && meta.options && val < meta.options.length && (meta.type === 'dropdown' || meta.type === 'select'))
                     {
                         return meta.options[val]
                     }

@@ -116,7 +116,7 @@ function open_option(option)
     document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
 
-    // build a list of opponents to prepare for replacing opponentX in names
+    // build a list of opponents to prepare for replacing opponentX in names TODO?
     let red = dal.matches[match].red_alliance
     let blue = dal.matches[match].blue_alliance
     let opponents = []
