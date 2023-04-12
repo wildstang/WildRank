@@ -13,10 +13,12 @@
  */
 function init_page()
 {
-    let event = new Entry('event', 'Event ID')
+    let event = new Entry('event', 'Event ID', event_id)
+    let entry_col = new ColumnFrame('', '', [event])
     let run = new Button('run', 'Run', 'process_event()')
+    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
     let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
-    document.body.innerHTML += new PageFrame('', '', [event, run, card]).toString
+    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
 }
 
 /**

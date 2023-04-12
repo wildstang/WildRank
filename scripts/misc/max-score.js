@@ -13,22 +13,27 @@
  */
 function init_page()
 {
-    let summary = '<div id="summary">Loading data....</div>'
-    let table = '<table id="table" style="text-align: right"><tr><th>Event</th><th>Match</th><th>Red Alliance</th><th>Red Score</th><th>Blue Alliance</th><th>Blue Score</th><th>Combined Score</th></tr></table>'
-    let card = new Card('card', summary + table)
-    document.body.innerHTML += new PageFrame('', '', [card]).toString
-
-    process_year(cfg.year)
+    let year = new Entry('year', 'Year', cfg.year)
+    year.type = 'number'
+    let entry_col = new ColumnFrame('', '', [year])
+    let run = new Button('run', 'Run', 'process_year()')
+    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
+    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
+    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
 }
 
 /**
  * function:    process_year
- * parameters:  year to add to table
+ * parameters:  none
  * returns:     none
  * description: Counts the highest scores for the given year.
  */
-function process_year(year)
+function process_year()
 {
+    let year = document.getElementById('year').value
+    document.getElementById('summary').innerHTML = 'Loading data....'
+    document.getElementById('table').innerHTML = '<tr><th>Event</th><th>Match</th><th>Red Alliance</th><th>Red Score</th><th>Blue Alliance</th><th>Blue Score</th><th>Combined Score</th></tr>'
+
     if (!TBA_KEY)
     {
         let file = cfg.keys
