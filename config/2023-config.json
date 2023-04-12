@@ -1,5 +1,5 @@
 {
-	"version": "wr-2.3.0",
+	"version": "wr-230412",
 	"note": [{
 		"name": "Notes",
 		"id": "note_notes",
@@ -8,18 +8,6 @@
 			"id": "note_notes_team",
 			"cycle": false,
 			"inputs": [{
-				"name": "AS Auto Drops",
-				"id": "note_notes_team_auto_drops",
-				"type": "counter",
-				"default": 0,
-				"negative": true
-			}, {
-				"name": "AS Missed Auto Intakes",
-				"id": "note_notes_team_missed_auto_intakes",
-				"type": "counter",
-				"default": 0,
-				"negative": true
-			}, {
 				"name": "Rank",
 				"id": "note_notes_team_rank",
 				"type": "slider",
@@ -31,6 +19,17 @@
 				"id": "note_notes_team_notes",
 				"type": "text",
 				"default": "none"
+			}]
+		}, {
+			"name": "ALLIANCE",
+			"id": "note_notes_alliance",
+			"cycle": false,
+			"inputs": [{
+				"name": "Max Grid with Supercharge?",
+				"id": "note_notes_alliance_max_grid_with_supercharge",
+				"type": "checkbox",
+				"default": false,
+				"negative": false
 			}]
 		}]
 	}],
@@ -106,18 +105,11 @@
 				"options": ["None", "Double", "Single", "Floor"],
 				"default": "None"
 			}, {
-				"name": "Grid Rows - Cone",
-				"id": "pit_pit_game_pieces_grid_rows_cone",
+				"name": "Can Supercharge",
+				"id": "pit_pit_game_pieces_can_supercharge",
 				"type": "multiselect",
 				"colors": [""],
-				"options": ["Low", "Middle", "High"],
-				"default": ""
-			}, {
-				"name": "Grid Rows - Cube",
-				"id": "pit_pit_game_pieces_grid_rows_cube",
-				"type": "multiselect",
-				"colors": [""],
-				"options": ["Low", "Middle", "High"],
+				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes"],
 				"default": ""
 			}]
 		}, {
@@ -125,8 +117,8 @@
 			"id": "pit_pit_auto",
 			"cycle": false,
 			"inputs": [{
-				"name": "Starting Positions With Engage",
-				"id": "pit_pit_auto_starting_positions_with_engage",
+				"name": "Starting Positions with Mobility and Engage",
+				"id": "pit_pit_auto_starting_positions_with_mobility_and_engage",
 				"type": "multiselect",
 				"colors": [""],
 				"options": ["LoadingZone", "ChargeStation", "BumpSide"],
@@ -219,8 +211,8 @@
 				"name": "Tele Scoring",
 				"id": "match_tele_scoring_tele_scoring",
 				"type": "multicounter",
-				"negative": [false, false, false, false, false],
-				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes", "Low"],
+				"negative": [false, false, false, false, false, false],
+				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes", "Low", "BumpIn"],
 				"default": 0
 			}, {
 				"name": "Tele Drops",
