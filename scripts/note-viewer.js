@@ -99,11 +99,11 @@ function filter_notes()
 
             // get all results
             let results = dal.teams[team].results
+            results.sort((a, b) => a.meta_scout_time - b.meta_scout_time)
             if (dal.is_pit_scouted(team))
             {
                 results = [dal.teams[team].pit].concat(results)
             }
-            results.push()
             for (let result of results)
             {
                 // only look at pit notes from the filtered scouter
