@@ -244,11 +244,11 @@ class Config
 
     /**
      * function:    get_name
-     * parameters:  user id
+     * parameters:  user id, return "Unknown User"
      * returns:     the users name or id number
      * description: Returns a users name or ID number if name is not provided.
      */
-    get_name(id)
+    get_name(id, allow_unknown=true)
     {
         if (cfg.users.hasOwnProperty(id))
         {
@@ -256,12 +256,15 @@ class Config
             {
                 return cfg.users[id].name
             }
-            else
-            {
-                return id
-            }
         }
-        return 'Unknown User'
+        if (allow_unknown)
+        {
+            return 'Unknown User'
+        }
+        else
+        {
+            return id
+        }
     }
 
     /**

@@ -1595,12 +1595,7 @@ class DAL
                     // map to option if available
                     if ((id === 'meta_scouter_id' || id === 'meta_note_scouter_id') && map)
                     {
-                        let name = cfg.get_name(val)
-                        if (name === 'Unknown User')
-                        {
-                            name = val
-                        }
-                        return name
+                        return cfg.get_name(val, false)
                     }
                     else if (typeof meta !== 'undefined' && typeof val === 'number' && meta.options && val < meta.options.length && (meta.type === 'dropdown' || meta.type === 'select'))
                     {
