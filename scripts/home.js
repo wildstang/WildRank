@@ -25,7 +25,7 @@ const CONFIGS = {
     'analysis': {
         'Teams': ['ranker', 'sides', 'multipicklists'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
-        'Results': ['import_results', 'results', 'cycles', 'export_results'],
+        'Results': ['import_results', 'results', 'cycles', 'note-viewer', 'export_results'],
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
@@ -64,6 +64,7 @@ const BUTTONS = {
     'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
     'multipicklists':       { name: 'Pick Lists',               limits: ['teams', 'admin'], configs: ['settings'] },
     'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
+    'note-viewer':          { name: 'Note Viewer',              limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },
     'pivot':                { name: 'Pivot Table',              limits: ['teams', 'admin', 'any'], configs: ['settings'] },

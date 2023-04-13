@@ -28,6 +28,7 @@ var BLANK_PAGES = {
         // team
         // alliance
         // edit
+    'note-viewer': ['event'],
     'scouter-scheduler': [],
     'misc/2022-score-estimator': [],
     'misc/2023-rp': [],
