@@ -234,6 +234,7 @@ class Card extends Element
     {
         super(id, label)
         this.limitWidth = false
+        this.custom_width = 0
         this.space_after = true
     }
 
@@ -244,7 +245,16 @@ class Card extends Element
         {
             suffix = ''
         }
-        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${this.limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${this.label}</div>${suffix}`
+        let style = ''
+        if (this.limitWidth)
+        {
+            style = ' style="width: calc(var(--input-width) - 2*var(--input-padding));"'
+        }
+        else if (this.custom_width > 0)
+        {
+            style = ` style="width: calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding));"`
+        }
+        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${style}>${this.label}</div>${suffix}`
     }
 }
 
