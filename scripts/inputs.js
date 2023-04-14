@@ -1098,6 +1098,7 @@ function build_column_from_config(column, scout_mode, select_ids, edit=false, ma
         col_name = col_name.replace('TEAM', team).replace('ALLIANCE', alliance_color)
     }
     let col_frame = new ColumnFrame(column.id, col_name)
+    // TODO: explore doing this intelligently
     if (column.id === 'match_auto_auto')
     {
         col_frame.max = 3

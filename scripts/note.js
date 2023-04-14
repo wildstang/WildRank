@@ -114,6 +114,24 @@ function check_results()
  */
 function get_results_from_page()
 {
+    // hack to prevent 2 teams from being assigned the same ranking
+    // TODO: explore doing this automatically
+    let rankings = []
+    for (let team of teams)
+    {
+        let rank_slider = document.getElementById(`note_notes_${team}_rank`)
+        if (rank_slider !== null)
+        {
+            rankings.push(rank_slider.value)
+        }
+    }
+    let unique_ranks = [... new Set(rankings)].length
+    if (unique_ranks < 3 && unique_ranks > 0)
+    {
+        alert('All 3 rankings must be unique values')
+        return
+    }
+
     let iid = check_results()
     if (iid)
     {
