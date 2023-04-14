@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-2.3.0'
+const CACHE_NAME = 'wildrank-2.3.1'
 const CACHE_LIST = [
     // html files
     '/',
@@ -43,6 +43,7 @@ const CACHE_LIST = [
     '/scripts/mini-picklists.js',
     '/scripts/multipicklists.js',
     '/scripts/note.js',
+    '/scripts/note-viewer.js',
     '/scripts/picklists-core.js',
     '/scripts/pits.js',
     '/scripts/pivot.js',
