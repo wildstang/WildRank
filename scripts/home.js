@@ -39,7 +39,7 @@ const CONFIGS = {
     },
     'extras': {
         'Debug': ['misc/test'],
-        'Team': ['misc/event-planner', 'misc/team-profile'],
+        'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners'],
         'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score'],
         'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2023-rp']
     }
@@ -99,10 +99,11 @@ const BUTTONS = {
     'misc/event-planner':           { name: 'Event Planner',            limits: ['admin'], configs: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: ['admin'], configs: [] },
     'misc/max-score':               { name: 'Max Score',                limits: ['admin'], configs: [] },
+    'misc/revival-counter':         { name: 'Revival Counter',          limits: ['admin'], configs: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: ['admin'], configs: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: ['admin'], configs: [] },
-    'misc/revival-counter':         { name: 'Revival Counter',          limits: ['admin'], configs: [] },
-    'misc/test':                    { name: 'Input Tester',             limits: ['admin'], configs: [] }
+    'misc/test':                    { name: 'Input Tester',             limits: ['admin'], configs: [] },
+    'misc/top-partners':            { name: 'Top Partners',             limits: ['admin'], configs: [] }
 }
 
 /**

@@ -41,7 +41,8 @@ var BLANK_PAGES = {
     'misc/district-counter': ['year'],
     'misc/international-counter': ['year'],
     'misc/event-planner': ['year'],
-    'misc/max-score': ['year']
+    'misc/max-score': ['year'],
+    'misc/top-partners': []
 }
 
 var SELECTION_PAGES = {
