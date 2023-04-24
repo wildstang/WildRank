@@ -24,7 +24,7 @@ function init_page()
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
 
     // load keys from localStorage and build list
-    let first = populate_keys(dal, true)
+    let first = populate_keys(dal, true, true)
     if (first)
     {
         open_option(first)
@@ -171,6 +171,16 @@ function build_plot()
             totals[i] += val
             counts[i]++
         }
+    }
+
+    // round to a reasonable number
+    if (max <= 5)
+    {
+        max = Math.ceil(max)
+    }
+    else
+    {
+        max = Math.ceil(max / 5) * 5
     }
 
     // calculate averages
