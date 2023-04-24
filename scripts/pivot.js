@@ -324,11 +324,11 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     // determine if sort is by team number
     let sort_char = ''
     let sort_team = (sort_by === 0 && selected_keys.length === 0) || sort_by === '' || isNaN(sort_by)
-    if (sort_team && reverse)
+    if (sort_team && !reverse)
     {
         sort_char = ' &#9650'
     }
-    else if (sort_team && !reverse)
+    else if (sort_team && reverse)
     {
         sort_char = ' &#9660'
     }
