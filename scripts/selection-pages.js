@@ -192,7 +192,7 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
+    let keys = dal.get_keys(true, !results_only, !results_only, !results_only, [], !exclude_strings)
     if (keys.length > 0)
     {
         // add pick list selector at top

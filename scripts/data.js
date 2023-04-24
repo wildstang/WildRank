@@ -173,7 +173,7 @@ class DAL
      * returns:     none
      * description: Return a list of all single team keys, with filters.
      */
-    get_keys(include_stats=true, include_pit=true, include_ranking=true, include_meta=true, types=[])
+    get_keys(include_stats=true, include_pit=true, include_ranking=true, include_meta=true, types=[], include_strings=true)
     {
         let keys = Object.keys(this.meta).filter(k => !k.startsWith('results.'))
         if (!include_stats)
@@ -195,6 +195,10 @@ class DAL
         if (types.length > 0)
         {
             keys = keys.filter(k => types.includes(this.meta[k].type))
+        }
+        if (!include_strings)
+        {
+            keys = keys.filter(k => this.meta[k].type !== 'string' && this.meta[k].type !== 'text')
         }
         return keys
     }
