@@ -321,20 +321,41 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     // compute totals
     let global_stats = dal.compute_global_stats(selected, filter_teams)
 
+    // determine if sort is by team number
+    let sort_char = ''
+    let sort_team = (sort_by === 0 && selected_keys.length === 0) || sort_by === '' || isNaN(sort_by)
+    if (sort_team && reverse)
+    {
+        sort_char = ' &#9650'
+    }
+    else if (sort_team && !reverse)
+    {
+        sort_char = ' &#9660'
+    }
+
     // build table headers
-    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number</th>`
+    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number${sort_char}</th>`
     let types = '<tr><th>Stat</th>'
     let filters = `<tr><th>Filter</th>`
     let totals = '<tr><th>Total</th>'
     for (let i in selected)
     {
         let key = selected[i]
+        let sort_char = ''
+        if (key == selected_keys[sort_by] && reverse)
+        {
+            sort_char = ' &#9650'
+        }
+        else if (key == selected_keys[sort_by] && !reverse)
+        {
+            sort_char = ' &#9660'
+        }
 
         // add key names
         table += `<th id="header_${i}" draggable="true"
             ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"
             onclick="build_table(${i}, ${key == selected_keys[sort_by] && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false"
-            ontouchstart="touch_button(false)" ontouchend="touch_button('alt_option(\\'${key}\\')')">${dal.get_name(key, '')}</th>`
+            ontouchstart="touch_button(false)" ontouchend="touch_button('alt_option(\\'${key}\\')')">${dal.get_name(key, '')}${sort_char}</th>`
 
         // determine column to pull existing stat and filter values from
         let from_idx = get_previous_pos(parseInt(i), moved_idx, placed_idx)
