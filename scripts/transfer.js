@@ -760,13 +760,24 @@ class ZipHandler
                         let text = await content.text()
                         let write = true
                         let existing = localStorage.getItem(n)
+                        let new_json = JSON.parse(text)
+                        let existing_json = JSON.parse(existing)
 
                         // prompt if file should be overriden
                         if (existing !== null)
                         {
                             if (existing !== text && !n.startsWith('avatar-'))
                             {
-                                write = this.always_overwrite || confirm(`"${n}" already exists, overwrite?`)
+                                let extra = ''
+                                if (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`))
+                                {
+                                    extra = ` New result is ${new_json.meta_scout_time - existing_json.meta_scout_time}s newer.`
+                                }
+                                else if (n.startsWith(`${NOTE_MODE}-`))
+                                {
+                                    extra = ` New result is ${new_json.meta_note_scout_time - existing_json.meta_note_scout_time}s newer.`
+                                }
+                                write = this.always_overwrite || confirm(`"${n}" already exists, overwrite?${extra}`)
                             }
                             else
                             {
@@ -779,8 +790,7 @@ class ZipHandler
                         {
                             let parts = n.split('-')
                             let name_team = parseInt(parts[2])
-                            let result = JSON.parse(text)
-                            let result_team = parseInt(result.meta_team)
+                            let result_team = parseInt(new_json.meta_team)
                             if (name_team !== result_team)
                             {
                                 alert(`Team number mismatch on ${n}`)
@@ -789,7 +799,7 @@ class ZipHandler
 
                             if (!n.startsWith(`${PIT_MODE}-`))
                             {
-                                let meta_match = JSON.parse(text).meta_match_key
+                                let meta_match = new_json.meta_match_key
                                 if (parts[1] !== meta_match)
                                 {
                                     alert(`Match key mismatch on ${n}`)
@@ -798,7 +808,7 @@ class ZipHandler
                             }
 
                             // warn if reported config version does not match
-                            if (write && result.hasOwnProperty('meta_config_version') && result.meta_config_version !== cfg.version)
+                            if (write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== cfg.version)
                             {
                                 alert(`Config version mismatch on ${n}`)
                             }
