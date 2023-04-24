@@ -334,10 +334,10 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     }
 
     // build table headers
-    let table = `<table><tr class="sticky_header"><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number${sort_char}</th>`
-    let types = '<tr><th>Stat</th>'
-    let filters = `<tr><th>Filter</th>`
-    let totals = '<tr><th>Total</th>'
+    let table = `<table><tr class="sticky_header"><td></td><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number${sort_char}</th>`
+    let types = '<tr><td></td><th>Stat</th>'
+    let filters = `<tr><td></td><th>Filter</th>`
+    let totals = '<tr><td></td><th>Total</th>'
     for (let i in selected)
     {
         let key = selected[i]
@@ -481,9 +481,10 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     table += `</tr>${types}</tr>${filters}</tr>${totals}</tr>`
 
     // build team rows
-    for (let team of filter_teams)
+    for (let idx in filter_teams)
     {
-        table += `<tr><td ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</td>`
+        let team = filter_teams[idx]
+        table += `<tr><td>${parseInt(idx)+1}</td><td ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</td>`
         for (let i in selected)
         {
             let key = selected[i]
