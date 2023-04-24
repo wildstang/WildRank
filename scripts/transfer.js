@@ -700,11 +700,11 @@ class ZipHandler
             let n = name.substring(0, name.indexOf('.'))
             if (n.includes('/'))
             {
-                n = n.substring(n.indexOf('/') + 1)
+                n = n.substring(n.lastIndexOf('/') + 1)
             }
             if (n.includes('\\'))
             {
-                n = n.substring(n.indexOf('\\') + 1)
+                n = n.substring(n.lastIndexOf('\\') + 1)
             }
 
             // skip directories
