@@ -753,7 +753,6 @@ class ZipHandler
                         (this.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
                         (this.coach && n === `config-${cfg.year}-coach`) ||
                         (this.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
-                        (this.avatars && n.startsWith('avatar-')) ||
                         (this.picklists && n.startsWith('picklists-')) ||
                         (this.whiteboard && n === `config-${cfg.year}-whiteboard`))
                     {
@@ -766,7 +765,7 @@ class ZipHandler
                         // prompt if file should be overriden
                         if (existing !== null)
                         {
-                            if (existing !== text && !n.startsWith('avatar-'))
+                            if (existing !== text)
                             {
                                 let extra = ''
                                 if (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`))
@@ -811,6 +810,31 @@ class ZipHandler
                             if (write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== cfg.version)
                             {
                                 alert(`Config version mismatch on ${n}`)
+                            }
+                        }
+
+                        if (write)
+                        {
+                            console.log(`Importing ${n}`)
+                            localStorage.setItem(n, text)
+                        }
+                    }
+                    else if (this.avatars && n.startsWith('avatar-'))
+                    {
+                        let text = await content.text()
+                        let write = true
+                        let existing = localStorage.getItem(n)
+
+                        // prompt if file should be overriden
+                        if (existing !== null)
+                        {
+                            if (existing !== text)
+                            {
+                                write = true
+                            }
+                            else
+                            {
+                                write = false
                             }
                         }
 
@@ -872,6 +896,10 @@ class ZipHandler
             let name = file + '.json'
             let base64 = false
             let data = localStorage.getItem(file)
+            if (file.startsWith('avatar-'))
+            {
+                name = `avatars/${name}`
+            }
             zip.file(name, data, { base64: base64 })
 
             // update progress bar
