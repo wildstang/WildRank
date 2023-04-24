@@ -140,7 +140,10 @@ function capture(team_num)
 
         // place image in carousel
         let carousel = document.getElementById(`${team_num}-carousel`)
-        carousel.innerHTML = `<img src="${data}">` + carousel.innerHTML
+        if (carousel !== null)
+        {
+            carousel.innerHTML += `<img src="${data}">` + carousel.innerHTML
+        }
 
         // upload image
         let addr = parse_server_addr(document.location.href)
@@ -194,6 +197,7 @@ function cache_image(server, team_num, base64)
         let url = `${server}/uploads/${team_num}-${Math.floor(899 * Math.random() + 100)}.png`
         dal.add_photo(team_num, url, true)
         cache_file(url, blob)
+        open_option(team_num)
     })
 }
 
