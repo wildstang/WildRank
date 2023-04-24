@@ -119,15 +119,32 @@ function open_match(match_num)
     
         if (dal.is_match_scouted(match_num, team_num))
         {
+            let page = new PageFrame()
+
+            let result_button = new Button('view_result', 'View Result')
+            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
+            result_button.add_class('slim')
+            page.add_column(new ColumnFrame('', '', [result_button]))
+
             if (can_edit(match_num, team_num))
             {
                 let edit_button = new Button('edit_match', 'Edit Match')
                 edit_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: true})`
-                buttons_container.innerHTML += edit_button.toString
+                edit_button.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [edit_button]))
+
+                let renumber = new Button('renumber', 'Renumber Result')
+                renumber.link = `renumber_result('${key}', '${team_num}')`
+                renumber.add_class('slim')
+                //page.add_column(new ColumnFrame('', '', [renumber]))
+        
+                let del = new Button('delete', 'Delete Result')
+                del.link = `delete_result('${key}', '${team_num}')`
+                del.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [del]))
             }
-            let result_button = new Button('view_result', 'View Result')
-            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
-            buttons_container.innerHTML += result_button.toString
+
+            buttons_container.innerHTML += page.toString
         }
 
         ws(team_num)
@@ -147,12 +164,32 @@ function open_match(match_num)
 
         if (dal.is_note_scouted(match_num, team_num))
         {
+            let page = new PageFrame()
+
+            let result_button = new Button('view_result', 'View Result')
+            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
+            result_button.add_class('slim')
+            page.add_column(new ColumnFrame('', '', [result_button]))
+
             if (can_edit(match_num, team_num))
             {
                 let edit_button = new Button('edit_match', 'Edit Notes')
                 edit_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: true})`
-                buttons_container.innerHTML += edit_button.toString
+                edit_button.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [edit_button]))
+
+                let renumber = new Button('renumber', 'Renumber Result')
+                renumber.link = `renumber_result('${key}', '${team_num}')`
+                renumber.add_class('slim')
+                //page.add_column(new ColumnFrame('', '', [renumber]))
+        
+                let del = new Button('delete', 'Delete Result')
+                del.link = `delete_result('${key}', '${team_num}')`
+                del.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [del]))
             }
+
+            buttons_container.innerHTML += page.toString
         }
     }
 }
@@ -166,6 +203,21 @@ function open_match(match_num)
 function can_edit(match_num, team_num)
 {
     return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === parseInt(user_id) || cfg.is_admin(user_id)
+}
+
+/**
+ * function:    delete_result
+ * parameters:  existing match, team number
+ * returns:     none
+ * description: Prompts to delete a pit result.
+ */
+function delete_result(match_key, team_num)
+{
+    if (confirm(`Are you sure you want to delete ${match_key} ${team_num}?`))
+    {
+        localStorage.removeItem(`${scout_mode}-${match_key}-${team_num}`)
+        location.reload()
+    }
 }
 
 /**

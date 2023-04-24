@@ -100,15 +100,24 @@ function open_option(team_num)
     result_buttons.innerHTML = scout.toString
     if (dal.is_pit_scouted(team_num))
     {
-        let edit = new Button('edit_result', 'Edit Results')
+        let page = new PageFrame()
+
+        let edit = new Button('edit_result', 'Edit Result')
         edit.link = `start_scouting('${team_num}', true)`
         edit.add_class('slim')
+        page.add_column(new ColumnFrame('', '', [edit]))
 
         let renumber = new Button('renumber', 'Renumber Result')
         renumber.link = `renumber_pit('${team_num}')`
         renumber.add_class('slim')
+        page.add_column(new ColumnFrame('', '', [renumber]))
 
-        result_buttons.innerHTML += edit.toString + renumber.toString
+        let del = new Button('delete', 'Delete Result')
+        del.link = `delete_pit('${team_num}')`
+        del.add_class('slim')
+        page.add_column(new ColumnFrame('', '', [del]))
+
+        result_buttons.innerHTML += page.toString
     }
 
     // update capture button for new team
@@ -245,6 +254,21 @@ function renumber_pit(team_num)
 
             location.reload()
         }
+    }
+}
+
+/**
+ * function:    delete_pit
+ * parameters:  existing team number
+ * returns:     none
+ * description: Prompts to delete a pit result.
+ */
+function delete_pit(team_num)
+{
+    if (confirm(`Are you sure you want to delete ${team_num}?`))
+    {
+        localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
+        location.reload()
     }
 }
 
