@@ -64,7 +64,8 @@ function init_page()
             {
                 pos -= dal.alliance_size
             }
-            document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${team_num} (${pos})</span>`
+            let style = `color: ${alliance_color}; background-color: rgba(0, 0, 0, 0.33); box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.33)`
+            document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="${style}">${team_num} (${pos})</span>`
 
             alliances = dal.build_relative_alliances(team_num, match_num)
             break

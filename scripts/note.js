@@ -36,7 +36,8 @@ function init_page()
     }
 
     // build the page from config for the desired mode
-    document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="color: ${alliance_color}">${teams.join(', ')}</span>`
+    let style = `color: ${alliance_color}; background-color: rgba(0, 0, 0, 0.33); box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.33)`
+    document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="${style}">${teams.join(', ')}</span>`
 
     build_page_from_config()
 }
