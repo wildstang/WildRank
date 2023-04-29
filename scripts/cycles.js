@@ -97,7 +97,7 @@ function open_option(option)
 
     // setup header
     document.getElementById('avatar').src = dal.get_value(team, 'pictures.avatar')
-    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, Match ${dal.get_match_value(match, 'match_name')}`
+    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
     document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
 
@@ -133,6 +133,17 @@ function open_option(option)
                         break
                     case 'dropdown':
                         item = new Dropdown(id, name, options, options[default_val])
+                        break
+                    case 'multicounter':
+                        item = new Multicounter(id, name, options)
+                        for (let op of options)
+                        {
+                            let op_id = `${id}_${op.toLowerCase().split().join('_')}`
+                            document.getElementById(`${op_id}-value`).innerHTML = c[op_id]
+                        }
+                        break
+                    case 'checkbox':
+                        item = new Checkbox(id, name, default_val)
                         break
                     default:
                         continue

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <title>WildRank Updater</title>
+    </head>
+    <body>
+        <div id="header">
+            <h1>WildRank Updater</h1>
+        </div>
+        <input type="submit" onclick="update()" value="Update">
+        <table id="missing"></table>
+        <table id="files"></table>
+    </body>
+    <script>
+        const CACHE_LIST = [
+            // html files
+            '/',
+            '/index.html',
+            '/selection.html',
+            // styles
+            '/styles/style.css',
+            '/styles/inputs.css',
+            '/styles/selection.css',
+            // scripts
+            '/scripts/about.js',
+            '/scripts/blank.js',
+            '/scripts/bracket.js',
+            '/scripts/cache.js',
+            '/scripts/coach.js',
+            '/scripts/config-debug.js',
+            '/scripts/config-generator.js',
+            '/scripts/config.js',
+            '/scripts/cycles.js',
+            '/scripts/data.js',
+            '/scripts/distro.js',
+            '/scripts/edit-coach.js',
+            '/scripts/edit-stats.js',
+            '/scripts/event-generator.js',
+            '/scripts/events.js',
+            '/scripts/export.js',
+            '/scripts/home.js',
+            '/scripts/index.js',
+            '/scripts/init.js',
+            '/scripts/inputs.js',
+            '/scripts/keys.js',
+            '/scripts/links.js',
+            '/scripts/match-overview.js',
+            '/scripts/matches.js',
+            '/scripts/mini-picklists.js',
+            '/scripts/multipicklists.js',
+            '/scripts/note.js',
+            '/scripts/note-viewer.js',
+            '/scripts/picklists-core.js',
+            '/scripts/pits.js',
+            '/scripts/pivot.js',
+            '/scripts/plot.js',
+            '/scripts/progress.js',
+            '/scripts/random.js',
+            '/scripts/ranker.js',
+            '/scripts/results.js',
+            '/scripts/scatter.js',
+            '/scripts/schedule-importer.js',
+            '/scripts/scout.js',
+            '/scripts/scouter-scheduler.js',
+            '/scripts/selection-pages.js',
+            '/scripts/selection.js',
+            '/scripts/settings.js',
+            '/scripts/sides.js',
+            '/scripts/storage.js',
+            '/scripts/teams.js',
+            '/scripts/transfer-raw.js',
+            '/scripts/transfer.js',
+            '/scripts/users.js',
+            '/scripts/utils.js',
+            '/scripts/whiteboard.js',
+            '/scripts/libs/jszip.min.js',
+            '/scripts/libs/Vibrant.min.js',
+            //'/scripts/misc/2022-score-estimator.js',
+            '/scripts/misc/2023-score-estimator.js',
+            /* don't cache misc scripts that rely on tba
+            '/scripts/misc/district-counter.js',
+            '/scripts/misc/event-planner.js',
+            '/scripts/misc/international-counter.js',
+            '/scripts/misc/match-counter.js',
+            '/scripts/misc/revival-counter.js',
+            '/scripts/misc/score-counter.js',
+            '/scripts/misc/team-profile.js',*/
+            '/scripts/misc/test.js',
+            // assets
+            '/assets/2023/cone.png',
+            '/assets/2023/cube.png',
+            '/assets/2023/field-2023.png',
+            /* icons should be cached when pwa is installed
+            '/assets/icons/icon-192x192-maskable.png',
+            '/assets/icons/icon-192x192.png',
+            '/assets/icons/icon-256x256-maskable.png',
+            '/assets/icons/icon-256x256.png',
+            '/assets/icons/icon-384x384-maskable.png',
+            '/assets/icons/icon-384x384.png',
+            '/assets/icons/icon-512x512-maskable.png',
+            '/assets/icons/icon-512x512.png',*/
+            '/assets/clipboard-edit-outline.png',
+            '/assets/dozer.png',
+            '/assets/menu-white-18dp.svg',
+            // configs
+            '/config/2023-config.json',
+            '/config/settings-config.json',
+            // other files
+            '/favicon.ico',
+            '/manifest.webmanifest',
+            //'/pwa.js',
+            '/about'
+        ]
+
+        /**
+         * function:    parse_server_addr
+         * parameters:  URL
+         * returns:     The web server's address
+         * description: Removes the path from the end of a URL.
+         */
+        function parse_server_addr(addr)
+        {
+            let slash = addr.indexOf('/', 8)
+            let dot = addr.lastIndexOf('.')
+            if (slash > -1 && dot > 0 && slash < dot)
+            {
+                addr = addr.substr(0, addr.lastIndexOf('/'))
+            }
+            if (addr.endsWith('/'))
+            {
+                addr = addr.substr(0, addr.length - 1)
+            }
+            if (addr.includes('?'))
+            {
+                addr = addr.substr(0, addr.indexOf('?'))
+            }
+            return addr
+        }
+
+        /**
+         * function:    update
+         * parameters:  none
+         * returns:     none
+         * description: Attempts to pull all files into the cache.
+         */
+        async function update()
+        {
+            let names = await caches.keys()
+            let name = 'default'
+            if (names.length > 0)
+            {
+                name = names[0]
+            }
+            let cache = await caches.open(name)
+            cache.addAll(CACHE_LIST)
+        }
+
+        /**
+         * function:    delete_file
+         * parameters:  cache name, file name
+         * returns:     none
+         * description: Deletes a given file from the cache.
+         */
+        async function delete_file(cache_name, file_name)
+        {
+            let c = await caches.open(cache_name)
+            let server = parse_server_addr(document.location.href)
+            c.delete(new URL(`${server}${file_name}`))
+        }
+
+        /**
+         * function:    update_status
+         * parameters:  none
+         * returns:     none
+         * description: Builds the content of the page.
+         */
+        async function update_status()
+        {
+            let text = ''
+            let missing = [...CACHE_LIST]
+            let names = await caches.keys()
+            let server = parse_server_addr(document.location.href)
+            for (let name of names)
+            {
+                let cache = await caches.open(name)
+                let keys = await cache.keys()
+                let table = `<table><tr><th>${name}</th><td>${keys.length} files</td></tr>`
+                let cache_str = ''
+                
+                // add each file in the cache to the table
+                for (let key of keys)
+                {
+                    // add up all bytes in file
+                    let response = await cache.match(key)
+                    let reader = response.body.getReader()
+                    let full = false
+                    let bytes = 0
+                    let str = ''
+                    while (!full)
+                    {
+                        await reader.read().then(({done, value}) =>
+                        {
+                            if (!done)
+                            {
+                                bytes += value.length
+                                for (let c of value)
+                                {
+                                    str += String.fromCharCode(c)
+                                }
+                            }
+                            else
+                            {
+                                full = true
+                            }
+                        })
+                    }
+
+                    // create row
+                    let file = response.url
+                    if (file === '')
+                    {
+                        file = key.url
+                    }
+                    if (file.startsWith(server))
+                    {
+                        file = file.replace(server, '')
+                    }
+                    if (missing.includes(file))
+                    {
+                        missing.splice(missing.indexOf(file), 1)
+                    }
+                    table += `<tr><td>${file}</td><td><a onclick="delete_file('${name}', '${file}')">delete</a></td></tr>`
+                    cache_str += str
+                }
+                text += table + '</table>'
+            }
+            document.getElementById('files').innerHTML = text
+
+            let missing_tab = missing.map(f => `<tr><td>${f}</td><td></td></tr>`)
+            text = missing_tab.join('')
+            if (missing_tab.length > 0)
+            {
+                text = `<tr><th>Missing Files</th><td>${missing_tab.length} Files</td></tr>${text}`
+            }
+            document.getElementById('missing').innerHTML = text
+        }
+
+        // update the page once per second
+        setInterval(update_status, 1000)
+    </script>
+</html>

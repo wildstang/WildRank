@@ -19,12 +19,14 @@ var pheight
 function init_page()
 {
     contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
-    buttons_container.innerHTML = ''
+    let key_card = new Card('', `Max Value: <b id='max'></b><table id='key'></table>`)
+    key_card.limitWidth = true
+    buttons_container.innerHTML = key_card.toString
     
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
 
     // load keys from localStorage and build list
-    let first = populate_keys(dal, true)
+    let first = populate_keys(dal, true, true)
     if (first)
     {
         open_option(first)
@@ -57,9 +59,13 @@ function init_canvas()
 function filter_teams()
 {
     let list = document.getElementById('picklist_filter').value
-    if (Object.keys(lists).includes(list))
+    if (Object.keys(dal.picklists).includes(list))
     {
-        filter_by(lists[list], false)
+        filter_by(dal.picklists[list], false)
+    }
+    else
+    {
+        deselect_all(false)
     }
 
     init_canvas()
@@ -136,6 +142,20 @@ function build_plot()
     let selected_teams = ['avg'].concat(get_secondary_selected_keys())
     document.getElementById('plot_title').innerHTML = dal.get_name(key)
 
+    // build key
+    let color_key = document.getElementById('key')
+    color_key.innerHTML = `<tr><th>Color</th><th>Value</th></tr>`
+    for (let i in selected_teams)
+    {
+        let team = selected_teams[i]
+        let color = COLORS[i % COLORS.length]
+        if (team !== 'avg' && cfg.settings.use_team_color)
+        {
+            color = dal.get_value(team, 'meta.color')
+        }
+        color_key.innerHTML += `<tr><td style="background-color: ${color}"> </td><td>${team}</td></tr>`
+    }
+
     // build table of values
     let plots = {}
     let max = 0
@@ -169,6 +189,29 @@ function build_plot()
         }
     }
 
+    // round to a reasonable number
+    document.getElementById('max').innerHTML = max
+    if (max <= 2)
+    {
+        max = Math.ceil(max)
+    }
+    else if (max <= 2.5)
+    {
+        max = 2.5
+    }
+    else if (max <= 3.33)
+    {
+        max = 3.33
+    }
+    else if (max <= 5)
+    {
+        max = 5
+    }
+    else
+    {
+        max = Math.ceil(max / 10) * 10
+    }
+
     // calculate averages
     plots['avg'] = []
     for (let i = 0; i < matches; i++)
@@ -199,7 +242,7 @@ function build_plot()
             let team = selected_teams[j]
             ctx.beginPath()
             let color = COLORS[j % COLORS.length]
-            if (team !== 'avg')
+            if (team !== 'avg' && cfg.settings.use_team_color)
             {
                 color = dal.get_value(team, 'meta.color')
             }
@@ -246,7 +289,7 @@ function build_plot()
     {
         let val = i * max / 10
         let y = pheight - bottom_margin - val * (pheight - 50) / max
-        ctx.fillText(val, 5, y + font_size)
+        ctx.fillText(val.toFixed(1), 5, y + font_size)
         ctx.fillRect(0, y, pwidth, 1)
     }
     ctx.fill()

@@ -74,7 +74,7 @@ function init_page()
     }
 
     // setup map
-    map = L.map('map');
+    map = L.map('map')
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 15,
         attribution: '© OpenStreetMap'

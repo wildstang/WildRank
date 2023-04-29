@@ -49,6 +49,7 @@ function init_canvas()
     canvas.height = pheight
     canvas.onclick = find_bin
     canvas.ontouchend = find_bin
+    build_plot()
 }
 
 /**
@@ -146,6 +147,11 @@ function get_secondary_selected_keys()
 function build_plot()
 {
     let keys = get_selected_keys()
+    if (keys.length === 0)
+    {
+        return
+    }
+
     let key = keys[0]
     let highlights = get_secondary_selected_keys()
     let teams = Object.keys(dal.teams)
@@ -194,7 +200,10 @@ function build_plot()
         {
             bin = num_bins - 1
         }
-        bins[bin].push(team)
+        if (bin >= 0)
+        {
+            bins[bin].push(team)
+        }
     }
 
     // determine the largest bin
@@ -218,6 +227,10 @@ function build_plot()
     for (let team of highlights)
     {
         let val = dal.get_value(team, key, func)
+        if (val === '')
+        {
+            continue
+        }
         if (typeof val === 'boolean')
         {
             val = val ? 1 : 0

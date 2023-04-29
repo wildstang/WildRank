@@ -43,6 +43,10 @@ function init_page()
     let save_list = new Button('save_list', 'Save Rankings as Picklist', 'save_list()')
     button_col.add_input(save_list)
 
+    let edit_stats = new Button('edit_stats', 'Edit Stats')
+    edit_stats.link = `open_page('edit-stats')`
+    button_col.add_input(edit_stats)
+
     buttons_container.innerHTML = page.toString
     contents_card.style.display = 'none'
 
@@ -140,11 +144,11 @@ function update_params()
             {
                 cycle = document.getElementById('cycle').value
             }
-            cycle = cycle.replace('results.', '')
-            let counters = dal.get_result_keys(cycle, ['counter']).map(c => dal.get_name(c))
-            let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
+            let cycle_id = cycle.replace('results.', '')
+            let counters = dal.get_result_keys(cycle_id, ['counter']).map(c => dal.get_name(c))
+            let selects = dal.get_result_keys(cycle_id, ['dropdown', 'select', 'checkbox'])
 
-            let cycle_filter = new Dropdown('cycle', 'Cycle', cycles)
+            let cycle_filter = new Dropdown('cycle', 'Cycle', cycles, cycle)
             cycle_filter.on_change = 'update_params()'
             cycle_filter.description = 'The ID of the cycle you would like to count.'
             let count = new Dropdown('count', 'Count', ['Count'].concat(counters))
@@ -156,7 +160,12 @@ function update_params()
             html += cycle_filter.toString + count.toString + cycle_percent.toString
             for (let s of selects)
             {
-                let filter = new Dropdown(s, dal.get_name(s), [''].concat(dal.meta[s].options))
+                let options = dal.meta[s].options
+                if (dal.meta[s].type === 'checkbox')
+                {
+                    options = ['Yes', 'No']
+                }
+                let filter = new Dropdown(s, dal.get_name(s), [''].concat(options))
                 filter.on_change = 'calculate()'
                 filter.description = 'Optional, choose value of the above select to filter cycles by.'
                 html += filter.toString
@@ -327,7 +336,7 @@ function build_stat()
 {
     // build core stat object
     let name = document.getElementById('name').value
-    let id = name.toLowerCase().split(' ').join('_')
+    let id = create_id_from_name(name)
     let type = STAT_TYPES[Select.get_selected_option('type')]
     let stat = {
         name: name,
@@ -373,13 +382,17 @@ function build_stat()
             let count = document.getElementById('count').selectedIndex
             let wdenominator = document.getElementById('denominator').selectedIndex
             let counters = dal.get_result_keys(cycle, ['counter'])
-            let selects = dal.get_result_keys(cycle, ['dropdown', 'select'])
+            let selects = dal.get_result_keys(cycle, ['dropdown', 'select', 'checkbox'])
             let vals = {}
             for (let s of selects)
             {
                 let val = document.getElementById(s).value
                 if (val)
                 {
+                    if (dal.meta[s].type === 'checkbox')
+                    {
+                        val = val === 'Yes'
+                    }
                     vals[s.replace('results.', '')] = val
                 }
             }
@@ -444,7 +457,7 @@ function build_stat()
 function calculate()
 {
     let name = document.getElementById('name').value
-    let id = name.toLowerCase().split(' ').join('_')
+    let id = create_id_from_name(name)
     let stat = build_stat()
     console.log(stat)
 

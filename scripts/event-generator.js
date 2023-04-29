@@ -318,8 +318,9 @@ function add_match()
         red_teams.push(`frc${document.getElementById(`red_${pos}`).value}`)
         blue_teams.push(`frc${document.getElementById(`blue_${pos}`).value}`)
     }
+    let time = Date.now() / 1000
     matches.push({
-        actual_time: 0,
+        actual_time: time,
         alliances: {
             blue: {
                 dq_team_keys: [],
@@ -336,12 +337,11 @@ function add_match()
         event_key: event_id,
         key: `${event_id}_qm${match_number}`,
         match_number: match_number,
-        predicted_time: 1294765871,
+        predicted_time: time,
         set_number: 1,
-        time: 1294765871
+        time: time
     })
     localStorage.setItem(file_name, JSON.stringify(matches))
-    alert(`Create match ${event_id} qm${match_number}`)
 
     dal.build_matches()
     populate_matches()

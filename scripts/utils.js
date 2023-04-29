@@ -19,7 +19,7 @@ const TYPE_DEFAULT = MATCH_MODE
 const POSITION_COOKIE = 'position'
 const POSITION_DEFAULT = 0
 const UPLOAD_COOKIE = 'upload_url'
-const UPLOAD_DEFAULT = 'http://localhost:80'
+const UPLOAD_DEFAULT = 'http://localhost:8000'
 const TBA_AUTH_KEY = 'X-TBA-Auth-Key'
 const THEME_COOKIE = 'theme'
 const THEME_DEFAULT = 'auto'
@@ -641,4 +641,19 @@ async function cache_file(url, file)
 function find_team_placeholders(text)
 {
     return [...text.matchAll(/(opponent|partner)([0-9])/g)]
+}
+
+/**
+ * function:    name_to_id
+ * parameters:  name string
+ * returns:     sanitized name as id
+ * description: Sanitizes an input name so it can be used for the ID.
+ */
+function create_id_from_name(name)
+{
+    return name.toLowerCase()
+               .replaceAll(/\(.*\)/g, '') // remove parenthesis
+               .replaceAll(/[- ]/g, '_')  // replace spaces and hyphens with underscores
+               .replaceAll(/__+/g, '_')   // prevent repeated underscores
+               .replaceAll(/\W+/g, '')    // remove any non-alphanumeric or underscore character
 }

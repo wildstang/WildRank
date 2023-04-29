@@ -148,9 +148,12 @@
     text-align: center;
 }
 
-.wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_slider:hover {
-    background-color: var(--hover-color);
-    color: var(--hover-text-color);
+@media (hover: hover) {
+    /* this prevents hover from being show on touch screen devices at all, because it tends to linger */
+    .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_slider:hover, .color_text:hover {
+        background-color: var(--hover-color);
+        color: var(--hover-text-color);
+    }
 }
 
 .wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > *, .wr_slider > *, .wr_status > * {
@@ -187,9 +190,9 @@
     display: block;
 }
 
-.wr_select_option.slim {
-    height: calc(var(--input-height)/2 - 2*var(--input-padding));
-    line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+.wr_select_option.slim, .wr_select.slim > .wr_select_option {
+    height: calc((var(--input-height) - 2*var(--input-padding))/2);
+    line-height: calc((var(--input-height) - 2*var(--input-padding))/2);
 }
 
 .wr_color, .wr_status {

@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-2.0.0-rc1'
+const CACHE_NAME = 'wildrank-2.3.1'
 const CACHE_LIST = [
     // html files
     '/',
@@ -18,6 +18,7 @@ const CACHE_LIST = [
     // scripts
     '/scripts/about.js',
     '/scripts/blank.js',
+    '/scripts/bracket.js',
     '/scripts/cache.js',
     '/scripts/coach.js',
     '/scripts/config-debug.js',
@@ -27,6 +28,7 @@ const CACHE_LIST = [
     '/scripts/data.js',
     '/scripts/distro.js',
     '/scripts/edit-coach.js',
+    '/scripts/edit-stats.js',
     '/scripts/event-generator.js',
     '/scripts/events.js',
     '/scripts/export.js',
@@ -41,8 +43,8 @@ const CACHE_LIST = [
     '/scripts/mini-picklists.js',
     '/scripts/multipicklists.js',
     '/scripts/note.js',
+    '/scripts/note-viewer.js',
     '/scripts/picklists-core.js',
-    '/scripts/picklists.js',
     '/scripts/pits.js',
     '/scripts/pivot.js',
     '/scripts/plot.js',
@@ -58,6 +60,7 @@ const CACHE_LIST = [
     '/scripts/selection.js',
     '/scripts/settings.js',
     '/scripts/sides.js',
+    '/scripts/storage.js',
     '/scripts/teams.js',
     '/scripts/transfer-raw.js',
     '/scripts/transfer.js',
@@ -67,6 +70,7 @@ const CACHE_LIST = [
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
     //'/scripts/misc/2022-score-estimator.js',
+    '/scripts/misc/2023-score-estimator.js',
     /* don't cache misc scripts that rely on tba
     '/scripts/misc/district-counter.js',
     '/scripts/misc/event-planner.js',
@@ -97,7 +101,7 @@ const CACHE_LIST = [
     '/config/settings-config.json',
     // other files
     '/favicon.ico',
-    //'/manifest.webmanifest',
+    '/manifest.webmanifest',
     //'/pwa.js',
     '/about'
 ]
@@ -136,7 +140,7 @@ self.addEventListener('fetch', e => {
             let res = new Response(file, { statusText: 'OK', headers: headers })
             cache.put(e.request.url, res)
 
-            return Response.redirect('/index.html?page=transfer-raw', 303);
+            return Response.redirect('/index.html?page=transfer-raw&cache=true', 303);
         }
 
         // attempt to pull resource from cache

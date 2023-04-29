@@ -86,6 +86,7 @@ class ColumnFrame extends Element
     {
         super(id, label)
         this.inputs = inputs
+        this.max = 0
     }
 
     add_input(input)
@@ -100,10 +101,29 @@ class ColumnFrame extends Element
 
     get toString()
     {
-        return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
-                ${this.header}
-                ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
-            </div>`
+        if (this.max > 0 && this.inputs.length > this.max)
+        {
+            let cols = []
+            for (let i = 0; i < Math.ceil(this.inputs.length / this.max); i++)
+            {
+                let col = `<div id="${this.id}_${i}" class="column ${this.classes.join(' ')}">${this.header}`
+                for (let j = i * this.max; j < (i + 1) * this.max && j < this.inputs.length; j++)
+                {
+                    let input = this.inputs[j]
+                    col += typeof input === 'string' ? input : input.toString
+                }
+                col += '</div>'
+                cols.push(col)
+            }
+            return cols.join('')
+        }
+        else
+        {
+            return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
+                    ${this.header}
+                    ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
+                </div>`
+        }
     }
 }
 
@@ -162,7 +182,7 @@ class MultiButton extends Element
         this.on_clicks = on_clicks
         this.on_rights = []
         this.on_holds = []
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     add_option(option, on_click, on_secondary='')
@@ -214,6 +234,7 @@ class Card extends Element
     {
         super(id, label)
         this.limitWidth = false
+        this.custom_width = 0
         this.space_after = true
     }
 
@@ -224,7 +245,16 @@ class Card extends Element
         {
             suffix = ''
         }
-        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${this.limitWidth ? ' style="width: calc(var(--input-width) - 2*var(--input-padding));"' : ''}>${this.label}</div>${suffix}`
+        let style = ''
+        if (this.limitWidth)
+        {
+            style = ' style="width: calc(var(--input-width) - 2*var(--input-padding));"'
+        }
+        else if (this.custom_width > 0)
+        {
+            style = ` style="width: calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding));"`
+        }
+        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${style}>${this.label}</div>${suffix}`
     }
 }
 
@@ -302,7 +332,7 @@ class Checkbox extends Input
             this.classes.push('selected')
         }
         return `${this.html_description}<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}'); ${this.on_click}">
-                <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" name="${this.label}" ${this.def ? 'checked' : ''}>
+                <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" ${this.def ? 'checked' : ''}>
                 <label for="${this.id}" onclick="this.parentNode.click()">${this.label}</label>
             </div>`
     }
@@ -518,7 +548,7 @@ class MultiCounter extends Input
     {
         super(id, label, def)
         this.options = options
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     add_option(option, def=0)
@@ -764,7 +794,7 @@ class Select extends OptionedInput
     constructor(id, label, options=[], def='')
     {
         super(id, label, options, def)
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     get html_options()
@@ -887,7 +917,7 @@ class MultiSelect extends Input
         this.options = options
         this.def = def
         this.on_change = ''
-        this.columns = 2
+        this.columns = calc_num_columns(options)
     }
 
     add_option(option)
@@ -1116,4 +1146,362 @@ function increment(id, right, on_increment='')
     {
         eval(on_increment)
     }
+}
+
+/**
+ * function:    calc_num_columns
+ * parameters:  options
+ * returns:     number of columns
+ * description: Determines the number of columns based on maximum option size.
+ */
+function calc_num_columns(options)
+{
+    let max = 0
+    for (let op of options)
+    {
+        if (op.length > max)
+        {
+            max = op.length
+        }
+    }
+
+    return Math.max(4 - Math.floor(max / 4), 1)
+}
+
+/**
+ * function:    build_column_from_config
+ * parameters:  column object, team number
+ * returns:     ColumnFrame
+ * description: Builds a column from the config file.
+ */
+function build_column_from_config(column, scout_mode, select_ids, edit=false, match='', team='', alliance_color='', alliances={})
+{
+    let col_name = column.name
+    if (scout_mode === NOTE_MODE)
+    {
+        col_name = col_name.replace('TEAM', team).replace('ALLIANCE', alliance_color)
+    }
+    let col_frame = new ColumnFrame(column.id, col_name)
+    // TODO: explore doing this intelligently
+    if (column.id === 'match_auto_auto')
+    {
+        col_frame.max = 3
+    }
+
+    // iterate through input in the column
+    for (let input of column.inputs)
+    {
+        let name = input.name
+        let id = input.id
+        let type = input.type
+        let default_val = input.default
+        let options = input['options']
+
+        // map results to defaults in edit mode
+        if (edit)
+        {
+            switch (scout_mode)
+            {
+                case MATCH_MODE:
+                case NOTE_MODE:
+                    default_val = dal.get_result_value(team, match, id)
+                    if (type === 'dropdown' || type === 'select')
+                    {
+                        default_val = input['options'][default_val]
+                    }
+                    else if (type === 'multicounter' || type === 'multiselect')
+                    {
+                        default_val = input.options.map(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            return dal.get_result_value(team, match, name)
+                        })
+                    }
+                    break
+                case PIT_MODE:
+                    default_val = dal.get_value(team, `pit.${id}`)
+                    if (type == 'dropdown' || type == 'select')
+                    {
+                        default_val = input['options'][default_val]
+                    }
+                    else if (type == 'multicounter' || type === 'multiselect')
+                    {
+                        default_val = input.options.map(function (op)
+                        {
+                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            return dal.get_value(team, `pit.${name}`)
+                        })
+                    }
+                    break
+            }
+        }
+
+        if (scout_mode === MATCH_MODE)
+        {
+            // replace opponentsX with the team's opponent team numbers
+            if (options instanceof Array && options.length > 0)
+            {
+                options = options.map(op => dal.fill_team_numbers(op, alliances))
+            }
+            name = dal.fill_team_numbers(name, alliances)
+        }
+        else if (scout_mode === NOTE_MODE)
+        {
+            id = id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+        }
+
+        let item
+        // build each input from its template
+        switch (type)
+        {
+            case 'checkbox':
+                if (default_val)
+                {
+                    select_ids.push(`${id}-container`)
+                }
+                item = new Checkbox(id, name, default_val)
+                break
+            case 'counter':
+                item = new Counter(id, name, default_val)
+                break
+            case 'multicounter':
+                item = new MultiCounter(id, name, options, default_val)
+                break
+            case 'select':
+                item = new Select(id, name, options, default_val)
+                item.vertical = input.vertical
+                break
+            case 'multiselect':
+                let def = []
+                if (default_val instanceof Array)
+                {
+                    for (let i in default_val)
+                    {
+                        if (default_val[i])
+                        {
+                            def.push(options[parseInt(i)])
+                        }
+                    }
+                }
+                else if (default_val)
+                {
+                    default_val.split(',')
+                }
+                item = new MultiSelect(id, name, options, def)
+                item.vertical = input.vertical
+                break
+            case 'dropdown':
+                item = new Dropdown(id, name, options, default_val)
+                break
+            case 'string':
+                item = new Entry(id, name, default_val)
+                break
+            case 'number':
+                item = new Entry(id, name, default_val)
+                item.type = 'number'
+                item.bounds = options
+                break
+            case 'slider':
+                item = new Slider(id, name, default_val)
+                item.bounds = options
+                break
+            case 'text':
+                item = new Extended(id, name, default_val)
+                break
+        }
+
+        // allow selects to be colored, must be manually entered in config file
+        if (type.includes('select'))
+        {
+            if (input.hasOwnProperty('colors') && input.colors.length === options.length)
+            {
+                let sheet = window.document.styleSheets[1]
+                for (let i in options)
+                {
+                    sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
+                }
+            }
+        }
+
+        col_frame.add_input(item)
+    }
+
+    return col_frame
+}
+
+/**
+ * function:    get_results_from_column
+ * parameters:  column object, team number
+ * returns:     partial results object for the column
+ * description: Accumulates the results from a column into a new object.
+ */
+function get_results_from_column(column, scout_mode, team='', alliance_color='', alliances={})
+{
+    let results = {}
+    // iterate through input in the column
+    for (let input of column.inputs)
+    {
+        let id = input.id
+        let el_id = id
+        let type = input.type
+        let options = input.options
+
+        // replace opponentsX with the team's opponent team numbers
+        let op_ids = options
+        if (scout_mode === MATCH_MODE && options instanceof Array && options.length > 0)
+        {
+            op_ids = options.map(op => dal.fill_team_numbers(op, alliances))
+        }
+        else if (scout_mode === NOTE_MODE)
+        {
+            el_id = el_id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+        }
+
+        switch (type)
+        {
+            case 'checkbox':
+                results[id] = document.getElementById(el_id).checked
+                break
+            case 'counter':
+                results[id] = parseInt(document.getElementById(el_id).innerHTML)
+                break
+            case 'multicounter':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    let html_id = `${el_id}_${op_ids[i].toLowerCase().split().join('_')}`
+                    results[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
+                }
+                break
+            case 'select':
+                results[id] = -1
+                let children = document.getElementById(el_id).getElementsByClassName('wr_select_option')
+                let i = 0
+                for (let option of children)
+                {
+                    if (option.classList.contains('selected'))
+                    {
+                        results[id] = i
+                    }
+                    i++
+                }
+                break
+            case 'multiselect':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    results[name] = MultiSelect.get_selected_options(el_id).includes(parseInt(i))
+                }
+                break
+            case 'dropdown':
+                results[id] = document.getElementById(el_id).selectedIndex
+                break
+            case 'number':
+                results[id] = parseInt(document.getElementById(el_id).value)
+                break
+            case 'slider':
+                results[id] = parseInt(document.getElementById(el_id).value)
+                break
+            case 'string':
+            case 'text':
+                results[id] = document.getElementById(el_id).value
+                break
+        }
+    }
+
+    return results
+}
+
+/**
+ * function:    check_column
+ * parameters:  column object, scout_mode, team number, alliance color
+ * returns:     
+ * description: Determines if any disallowed defaults have changed.
+ */
+function check_column(column, scout_mode, team='', alliance_color='')
+{
+    // check if its a cycle column
+    if (!column.cycle)
+    {
+        for (let input of column.inputs)
+        {
+            if (!input.disallow_default)
+            {
+                continue
+            }
+
+            let id = input.id
+            let type = input.type
+            let options = input.options
+            let def = input.default
+
+            if (scout_mode === NOTE_MODE)
+            {
+                id = id.replace('_team_', `_${team}_`).replace('_alliance_', `_${alliance_color}_`)
+            }
+
+            let value = ''
+            switch (type)
+            {
+                case 'checkbox':
+                    value = document.getElementById(id).checked
+                    break
+                case 'counter':
+                    value = parseInt(document.getElementById(id).innerHTML)
+                    break
+                case 'multicounter':
+                    value = []
+                    for (let i in options)
+                    {
+                        let html_id = `${id}_${op_ids[i].toLowerCase().split().join('_')}`
+                        value.push(parseInt(document.getElementById(`${html_id}-value`).innerHTML))
+                    }
+                    def = Array(value.length).fill(def)
+                    break
+                case 'select':
+                    value = -1
+                    let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+                    let i = 0
+                    for (let option of children)
+                    {
+                        if (option.classList.contains('selected'))
+                        {
+                            value = i
+                        }
+                        i++
+                    }
+                    value = options[value]
+                    break
+                case 'multiselect':
+                    for (let i in options)
+                    {
+                        if (MultiSelect.get_selected_options(id).includes(parseInt(i)))
+                        {
+                            value += options[i]
+                        }
+                    }
+                    break
+                case 'dropdown':
+                    value = document.getElementById(id).selectedIndex
+                    break
+                case 'number':
+                    value = parseInt(document.getElementById(id).value)
+                    break
+                case 'slider':
+                    value = parseInt(document.getElementById(id).value)
+                    break
+                case 'string':
+                case 'text':
+                    value = document.getElementById(id).value
+                    break
+            }
+            
+            if (value === def)
+            {
+                return id
+            }
+        }
+    }
+
+    return false
 }

@@ -1,6 +1,7 @@
 {
 	"settings": {
 		"title": "WildRank",
+		"team_number": 111,
 		"time_format": 12,
 		"use_images": true,
 		"use_team_color": true,
@@ -8,7 +9,7 @@
 		"use_offline": true
 	},
 	"defaults": {
-		"event_id": "2023ilch",
+		"event_id": "2023arpky",
 		"upload_url": "http://localhost",
 		"user_id": 111112
 	},

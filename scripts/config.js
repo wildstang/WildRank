@@ -215,7 +215,7 @@ class Config
      * returns:     either the boolean result or an array of the result and its description
      * description: Variably returns a description with a result
      */
-    static return_description(result, description, return_description)
+    static return_description(result, description, return_description, id='')
     {
         if (description !== '')
         {
@@ -223,7 +223,7 @@ class Config
         }
         if (return_description)
         {
-            return [result, description]
+            return [result, description, id]
         }
         else
         {
@@ -244,11 +244,11 @@ class Config
 
     /**
      * function:    get_name
-     * parameters:  user id
+     * parameters:  user id, return "Unknown User"
      * returns:     the users name or id number
      * description: Returns a users name or ID number if name is not provided.
      */
-    get_name(id)
+    get_name(id, allow_unknown=true)
     {
         if (cfg.users.hasOwnProperty(id))
         {
@@ -256,12 +256,15 @@ class Config
             {
                 return cfg.users[id].name
             }
-            else
-            {
-                return id
-            }
         }
-        return 'Unknown User'
+        if (allow_unknown)
+        {
+            return 'Unknown User'
+        }
+        else
+        {
+            return id
+        }
     }
 
     /**
@@ -322,9 +325,9 @@ class Config
         let c = this[config]
         if (typeof c === 'object')
         {
-            return true
+            return [true, '', description]
         }
-        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
+        return Config.return_description(typeof c !== 'object', `should be an object, but found ${typeof c}`, description)
     }
 
     /**
@@ -354,7 +357,7 @@ class Config
         let c = this[config]
         if (typeof c === 'object')
         {
-            return Config.check_properties(c, {'allow_random': 'boolean', 'time_format': 'number', 'title': 'string', 'use_images': 'boolean'}, description)
+            return Config.check_properties(c, {'title': 'string', 'team_number': 'number', 'time_format': 'number', 'use_images': 'boolean', 'use_team_color': 'boolean', 'allow_random': 'boolean', 'use_offline': 'boolean'}, description)
         }
         return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
     }
@@ -401,18 +404,18 @@ class Config
             let keys = dal.get_keys()
             for (let coach of c)
             {
-                let result = Config.check_properties(coach, {'function': 'string', 'key': 'string'})
+                let result = Config.check_properties(coach, {'function': 'string', 'key': 'string'}, coach.key)
                 if (Config.failed(result))
                 {
                     return result
                 }
                 if (!['mean', 'median', 'mode', 'min', 'max', 'total'].includes(coach.function))
                 {
-                    return Config.return_description(false, `invalid function ${coach.function}`, description)
+                    return Config.return_description(false, `invalid function ${coach.function}`, description, coach.key)
                 }
                 if (!keys.includes(coach.key))
                 {
-                    return Config.return_description(false, `key ${coach.key} does not exist`, description)
+                    return Config.return_description(false, `key ${coach.key} does not exist`, description, coach.key)
                 }
             }
             return Config.return_description(true, '', description)
@@ -459,7 +462,7 @@ class Config
         {
             for (let stat of c)
             {
-                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string'}, description)
+                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string'}, description, stat.id)
                 if (Config.failed(result))
                 {
                     return result
@@ -469,23 +472,23 @@ class Config
                     case 'sum':
                         if (!stat.hasOwnProperty('keys'))
                         {
-                            return Config.return_description(false, `stat missing property keys`, description)
+                            return Config.return_description(false, `stat missing property keys`, description, stat.id)
                         }
                         if (!Array.isArray(stat.keys))
                         {
-                            return Config.return_description(false, `stat property keys should be an array`, description)
+                            return Config.return_description(false, `stat property keys should be an array`, description, stat.id)
                         }
                         break
                     case 'percent':
                     case 'ratio':
-                        result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, description)
+                        result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, description, stat.id)
                         if (Config.failed(result))
                         {
                             return result
                         }
                         break
                     case 'where':
-                        result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, description)
+                        result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, description, stat.id)
                         if (Config.failed(result))
                         {
                             return result
@@ -493,7 +496,7 @@ class Config
                         let keys = dal.get_result_keys(true, ['cycle'])
                         if (!keys.includes(`results.${stat.cycle}`))
                         {
-                            return Config.return_description(false, `cycle ${stat.cycle} for where does not exist`, description)
+                            return Config.return_description(false, `cycle ${stat.cycle} for where does not exist`, description, stat.id)
                         }
                         keys = dal.get_result_keys(stat.cycle)
                         let conditions = Object.keys(stat.conditions)
@@ -501,11 +504,11 @@ class Config
                         {
                             if (!keys.includes(`results.${key}`))
                             {
-                                return Config.return_description(false, `condition ${key} for where does not exist`, description)
+                                return Config.return_description(false, `condition ${key} for where does not exist`, description, stat.id)
                             }
                             if (!dal.meta[`results.${key}`].options.includes(stat.conditions[key]))
                             {
-                                return Config.return_description(false, `condition ${key} does not have option ${stat.conditions[key]} for where`, description)
+                                return Config.return_description(false, `condition ${key} does not have option ${stat.conditions[key]} for where`, description, stat.id)
                             }
                         }
                         break
@@ -513,33 +516,33 @@ class Config
                     case 'max':
                         if (!stat.hasOwnProperty('keys'))
                         {
-                            return Config.return_description(false, `stat missing property keys`, description)
+                            return Config.return_description(false, `stat missing property keys`, description, stat.id)
                         }
                         if (!Array.isArray(stat.keys))
                         {
-                            return Config.return_description(false, `stat property keys should be an array`, description)
+                            return Config.return_description(false, `stat property keys should be an array`, description, stat.id)
                         }
                         break
                     case 'math':
-                        result = Config.check_properties(stat, {'math': 'string'}, description)
+                        result = Config.check_properties(stat, {'math': 'string'}, description, stat.id)
                         if (Config.failed(result))
                         {
                             return result
                         }
                         break
                     case 'filter':
-                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, description)
+                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, description, stat.id)
                         if (Config.failed(result))
                         {
                             return result
                         }
                         if (!stat.hasOwnProperty('value'))
                         {
-                            return Config.return_description(false, `stat missing property value`, description)
+                            return Config.return_description(false, `stat missing property value`, description, stat.id)
                         }
                         break
                     default:
-                        return Config.return_description(false, `Unknown type, ${stat.type}`, description)
+                        return Config.return_description(false, `Unknown type, ${stat.type}`, description, stat.id)
                 }
             }
             return Config.return_description(true, '', description)
@@ -566,63 +569,109 @@ class Config
      */
     static validate_mode_raw(c, description=false)
     {
+        let ids = []
         if (Array.isArray(c))
         {
             for (let page of c)
             {
-                let result = Config.check_properties(page, {'name': 'string', 'id': 'string'}, description)
+                let result = Config.check_properties(page, {'name': 'string', 'id': 'string'}, description, page.id)
                 if (Config.failed(result))
                 {
                     return result
                 }
                 if (!page.hasOwnProperty('columns'))
                 {
-                    return Config.return_description(false, `page missing property columns`, description)
+                    return Config.return_description(false, `page missing property columns`, description, page.id)
                 }
                 if (!Array.isArray(page.columns))
                 {
-                    return Config.return_description(false, `page property columns should be an array`, description)
+                    return Config.return_description(false, `page property columns should be an array`, description, page.id)
                 }
                 for (let column of page.columns)
                 {
-                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, description)
+                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, description, page.id)
                     if (Config.failed(result))
                     {
                         return result
                     }
                     if (!column.hasOwnProperty('inputs'))
                     {
-                        return Config.return_description(false, `column missing property inputs`, description)
+                        return Config.return_description(false, `column missing property inputs`, description, column.id)
                     }
                     if (!Array.isArray(column.inputs))
                     {
-                        return Config.return_description(false, `column property inputs should be an array`, description)
+                        return Config.return_description(false, `column property inputs should be an array`, description, column.id)
                     }
                     for (let input of column.inputs)
                     {
-                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, description)
+                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, description, input.id)
                         if (Config.failed(result))
                         {
                             return result
                         }
+                        // check for overlapping IDs
+                        if (ids.includes(input.id))
+                        {
+                            return Config.return_description(false, `Repeat id "${input.id}"`, description, input.id)
+                        }
+                        ids.push(input.id)
                         switch (input.type)
                         {
                             case 'dropdown':
                             case 'select':
-                                result = Config.check_properties(input, {'default': 'string'}, description)
+                                result = Config.check_properties(input, {'default': 'string'}, description, input.id)
                                 if (Config.failed(result))
                                 {
                                     return result
                                 }
+                                else if (!input.options.includes(input.default))
+                                {
+                                    return Config.return_description(false, `default "${input.default}" not found in options`, description, input.id)
+                                }
                             case 'multiselect':
+                                if (!input.hasOwnProperty('options') && Array.isArray(input.options))
+                                {
+                                    return Config.return_description(false, '', description, input.id)
+                                }
+                                result = Config.check_properties(input, {'default': 'string'}, description, input.id)
+                                if (Config.failed(result))
+                                {
+                                    return result
+                                }
+                                // check for overlapping IDs
+                                for (let option of input.options)
+                                {
+                                    let id = `${input.id}_${option.toLowerCase()}`
+                                    if (ids.includes(id))
+                                    {
+                                        return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                    }
+                                    ids.push(id)
+                                }
+                                break
                             case 'multicounter':
                                 if (!input.hasOwnProperty('options') && Array.isArray(input.options))
                                 {
-                                    return Config.return_description(false, '', description)
+                                    return Config.return_description(false, '', description, input.id)
+                                }
+                                result = Config.check_properties(input, {'default': 'number'}, description, input.id)
+                                if (Config.failed(result))
+                                {
+                                    return result
+                                }
+                                // check for overlapping IDs
+                                for (let option of input.options)
+                                {
+                                    let id = `${input.id}_${option.toLowerCase()}`
+                                    if (ids.includes(id))
+                                    {
+                                        return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                    }
+                                    ids.push(id)
                                 }
                                 break
                             case 'checkbox':
-                                result = Config.check_properties(input, {'default': 'boolean'}, description)
+                                result = Config.check_properties(input, {'default': 'boolean'}, description, input.id)
                                 if (Config.failed(result))
                                 {
                                     return result
@@ -630,7 +679,7 @@ class Config
                                 break
                             case 'string':
                             case 'text':
-                                result = Config.check_properties(input, {'default': 'string'}, description)
+                                result = Config.check_properties(input, {'default': 'string'}, description, input.id)
                                 if (Config.failed(result))
                                 {
                                     return result
@@ -639,14 +688,14 @@ class Config
                             case 'number':
                             case 'slider':
                             case 'counter':
-                                result = Config.check_properties(input, {'default': 'number'}, description)
+                                result = Config.check_properties(input, {'default': 'number'}, description, input.id)
                                 if (Config.failed(result))
                                 {
                                     return result
                                 }
                                 break
                             default:
-                                return Config.return_description(false, 'Invalid type', description)
+                                return Config.return_description(false, `Invalid type "${input.type}"`, description, input.id)
                         }
                     }
                 }
@@ -662,7 +711,7 @@ class Config
      * returns:     property exists and is of valid type
      * description: Confirms a given property exists in a given object and has a value of a given type.
      */
-    static check_properties(object, types, description=false)
+    static check_properties(object, types, description=false, id='')
     {
         let keys = Object.keys(types)
         let fails = []
@@ -680,7 +729,7 @@ class Config
         }
         if (fails.length > 0)
         {
-            return Config.return_description(false, fails.join('; '), description)
+            return Config.return_description(false, fails.join('; '), description, id)
         }
         return Config.return_description(true, '', description)
     }

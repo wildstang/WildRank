@@ -16,27 +16,27 @@ const REGIONAL = 0
  */
 function init_page()
 {
-    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: right"><tr><th>Regional</th><th>Location</th><th>Total Teams</th><th>International Teams</th><th>Percent International</th></tr></table>')
-    document.body.innerHTML += new PageFrame('', '', [card]).toString
-
-    // read year from URL or use current year
-    let urlParams = new URLSearchParams(window.location.search)
-    let year = urlParams.get('year')
-    if (year === null)
-    {
-        year = cfg.year
-    }
-    process_year(year)
+    let year = new Entry('year', 'Year', cfg.year)
+    year.type = 'number'
+    let entry_col = new ColumnFrame('', '', [year])
+    let run = new Button('run', 'Run', 'process_year()')
+    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
+    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
+    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
 }
 
 /**
  * function:    process_year
- * parameters:  year to build the table for
+ * parameters:  none
  * returns:     none
  * description: Counts the number of district teams at each regional.
  */
-function process_year(year)
+function process_year()
 {
+    let year = document.getElementById('year').value
+    document.getElementById('summary').innerHTML = 'Loading data....'
+    document.getElementById('table').innerHTML = '<tr><th>Regional</th><th>Location</th><th>Total Teams</th><th>International Teams</th><th>Percent International</th></tr></table>'
+
     if (!TBA_KEY)
     {
         let file = cfg.keys

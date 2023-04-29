@@ -80,6 +80,10 @@ function init_page()
     analyst.link = `check_press('analysis')`
     roles.add_input(analyst)
 
+    let advanced = new Button('advanced', 'Advanced')
+    advanced.link = `check_press('advanced')`
+    roles.add_input(advanced)
+
     let admin = new Button('admin', 'Administrator')
     admin.link = `check_press('admin')`
     roles.add_input(admin)
@@ -104,12 +108,11 @@ function init_page()
     let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
     status.add_input(preload)
 
+    let transfer = new Button('transfer', 'Import Config', 'save_options(); import_config()')
+    status.add_input(transfer)
+
     let data = new ColumnFrame('data', 'Results')
     data_page.add_column(data)
-
-    let transfer = new Button('transfer', 'Transfer Data')
-    transfer.link = `open_link('transfer-raw')`
-    data.add_input(transfer)
 
     let version = new Number('config_version', 'cfg')
     data.add_input(version)
@@ -131,9 +134,6 @@ function init_page()
     data.add_input(about)
 
     document.body.innerHTML += user_page.toString + data_page.toString
-
-    let button = new Button('reset', 'Reset Cache', 'reset_cache()')
-    document.getElementById('install-container').innerHTML = button.toString
 
     check_id()
     apply_theme()
@@ -352,7 +352,7 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if (id !== 'scout' && !cfg.is_admin(user))
+    if ((id === 'drive' || id === 'analysis' || id === 'admin') && !cfg.is_admin(user))
     {
         return 'Missing admin privileges'
     }
@@ -360,7 +360,7 @@ function is_blocked(id)
     {
         return 'Missing match data'
     }
-    if (id !== 'admin' && !has_teams())
+    if (id !== 'admin' && id !== 'advanced' && !has_teams())
     {
         return 'Missing event data'
     }
@@ -400,6 +400,30 @@ function check_press(id)
         set_cookie(ROLE_COOKIE, id)
         return build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
     }
+}
+
+/**
+ * function:    import_config
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip import process for configs and pictures.
+ */
+function import_config()
+{
+    // allow page reload to be run on complete
+    const callback = window.location.reload.bind(window.location)
+
+    let handler = new ZipHandler()
+    handler.event       = true
+    handler.config      = true
+    handler.smart_stats = true
+    handler.coach       = true
+    handler.settings    = true
+    handler.pictures    = true
+    handler.always_overwrite = true
+    handler.on_complete = callback
+    handler.server      = get_upload_addr()
+    handler.import_zip_from_file()
 }
 
 /**

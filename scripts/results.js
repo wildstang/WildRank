@@ -21,6 +21,7 @@ const selected = urlParams.get('file')
 function init_page()
 {
     contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
+                                <input type="checkbox" id="show_meta" onclick="rebuild_result_list()">Show Metadata</input>
                                 <table id="results_tab"></table>`
     buttons_container.innerHTML = ''
 
@@ -76,6 +77,18 @@ function build_result_list()
 }
 
 /**
+ * function:    rebuild_team_list
+ * parameters:  none
+ * returns:     none
+ * description: Calls open_option with the current result.
+ */
+function rebuild_result_list()
+{
+    let op = document.getElementsByClassName('selected')[0]
+    open_option(op.id.replace('option_', ''))
+}
+
+/**
  * function:    open_option
  * parameters:  selected option
  * returns:     none
@@ -97,13 +110,22 @@ function open_option(option)
     let team = parts[1].trim()
     let result = dal.teams[team].results.filter(r => r.meta_match_key === match)[0]
 
+    // highlight config mismatches with red text
+    let version = dal.get_result_value(team, match, 'meta_config_version', true)
+    let color = 'black'
+    if (version !== '' && version !== cfg.version)
+    {
+        color = 'red'
+    }
+    document.getElementById('result_name').style.color = color
+
     // setup header
     document.getElementById('avatar').src = dal.get_value(team, 'pictures.avatar')
-    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, Match ${dal.get_match_value(match, 'match_name')}`
+    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
     document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
 
-    // build a list of opponents to prepare for replacing opponentX in names
+    // build a list of opponents to prepare for replacing opponentX in names TODO?
     let red = dal.matches[match].red_alliance
     let blue = dal.matches[match].blue_alliance
     let opponents = []
@@ -119,6 +141,10 @@ function open_option(option)
     let alliances = dal.build_relative_alliances(team, match)
     let table = '<table><tr><th></th><th>Match Value</th></tr>'
     let keys = Object.keys(result)
+    if (!document.getElementById('show_meta').checked)
+    {
+        keys = keys.filter(k => !k.startsWith('meta_'))
+    }
     for (let key of keys)
     {
         let name = dal.fill_team_numbers(dal.get_name('stats.' + key, ''), alliances)

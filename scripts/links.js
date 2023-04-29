@@ -8,6 +8,7 @@
 var BLANK_PAGES = {
     'config-generator': ['event', 'user'],
     'edit-coach': ['event'],
+    'edit-stats': ['event'],
     settings: ['event', 'user'],
     random: ['event', 'user'],
     'event-generator': ['event'],
@@ -16,6 +17,7 @@ var BLANK_PAGES = {
     progress: ['event'],
     events: ['event'],
     cache: [],
+    storage: [],
     about: [],
     export: ['event'],
     'config-debug': ['event'],
@@ -26,8 +28,11 @@ var BLANK_PAGES = {
         // team
         // alliance
         // edit
+    'note-viewer': ['event'],
     'scouter-scheduler': [],
     'misc/2022-score-estimator': [],
+    'misc/2023-rp': [],
+    'misc/2023-score-estimator': [],
     'misc/match-counter': [],
     'misc/score-counter': [],
     'misc/revival-counter': [],
@@ -35,7 +40,9 @@ var BLANK_PAGES = {
     'misc/test': [],
     'misc/district-counter': ['year'],
     'misc/international-counter': ['year'],
-    'misc/event-planner': ['year']
+    'misc/event-planner': ['year'],
+    'misc/max-score': ['year'],
+    'misc/top-partners': []
 }
 
 var SELECTION_PAGES = {
@@ -44,7 +51,6 @@ var SELECTION_PAGES = {
     pits: ['event', 'user', 'position', PIT_MODE],
     ranker: ['event'],
     sides: ['event'],
-    picklists: ['event'],
     multipicklists: ['event'],
     whiteboard: ['event'],
     cycles: ['event'],
@@ -56,6 +62,7 @@ var SELECTION_PAGES = {
     plot: ['event', 'user'],
     scatter: ['event', 'user'],
     coach: ['event', 'user'],
+    bracket: ['event', 'user'],
     results: ['event'], // file
     cycles: ['event'] // file
 }

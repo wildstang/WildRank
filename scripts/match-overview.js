@@ -25,7 +25,7 @@ function init_page()
     {
         let extra_toggle = new Button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()')
         extra_toggle.add_class('slim')
-        contents_card.innerHTML = `<h2>Match <span id="match_num">No Match Selected</span></h2>
+        contents_card.innerHTML = `<h2><span id="match_num">No Match Selected</span></h2>
                                     <h3 id="time"></h3>
                                     <h3 id="result"></h3>
                                     ${extra_toggle.toString}
@@ -195,6 +195,49 @@ function parse_val(val)
     else if (typeof val === 'boolean')
     {
         val = val ? 'Yes' : ''
+    }
+    else if (typeof val === 'object' && cfg.year === '2023')
+    {
+        if (Array.isArray(val))
+        {
+            let table = '<table>'
+            for (let row of val)
+            {
+                table += `<tr><td>${row.row}</td><td>${row.nodes.join(', ')}</td></tr>`
+            }
+            table += '</table>'
+            val = table
+        }
+        else
+        {
+            let table = '<table>'
+            let rows = Object.keys(val)
+            for (let r of rows)
+            {
+                table += `<tr><th>${r}</th>`
+                let row = val[r]
+                for (let p of row)
+                {
+                    let color = ''
+                    if (p === 'Cube')
+                    {
+                        color = 'purple'
+                    }
+                    else if (p === 'Cone')
+                    {
+                        color = 'yellow'
+                    }
+                    table += `<td style="background-color: ${color}">${p.replace('None', '')}</td>`
+                }
+                table += '</tr>'
+            }
+            table += '</table>'
+            val = table
+        }
+    }
+    else if (typeof val === 'object')
+    {
+        val = JSON.stringify(val, 1)
     }
     return val
 }

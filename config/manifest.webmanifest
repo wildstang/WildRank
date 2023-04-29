@@ -94,6 +94,15 @@
                 "type": "image/png",
                 "sizes": "96x96"
             }]
+        },
+        {
+            "name": "Note Scout",
+            "url": "/selection.html?page=matches&type=note",
+            "icons": [{
+                "src": "/assets/clipboard-edit-outline.png",
+                "type": "image/png",
+                "sizes": "96x96"
+            }]
         }
     ]
 }

@@ -8,7 +8,10 @@
 const start = Date.now()
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-include('libs/jszip.min')
+var urlParams = new URLSearchParams(window.location.search)
+const fromCache = urlParams.get('cache') === 'true'
+
+include('transfer')
 
 /**
  * function:    init_page
@@ -46,26 +49,34 @@ async function init_page()
     option_col.add_input(server_type)
 
     // get latest cache
+    let r = false
     let current = 'default'
-    let names = await caches.keys()
-    if (names.length > 0)
+    if (typeof caches !== 'undefined')
     {
-        current = names[0]
+        let names = await caches.keys()
+        if (names.length > 0)
+        {
+            current = names[0]
+        }
+        let cache = await caches.open(current)
+        r = await cache.match('/import')
     }
-    let cache = await caches.open(current)
-    let r = await cache.match('/import')
 
     let method = new Select('method', 'Source', ['Local', 'Server'], 'Local')
     if (r)
     {
         method.columns = 3
         method.add_option('Cache')
+        if (fromCache)
+        {
+            method.def = 'Cache'
+        }
         method.description = '<div id="file_name">File shared with WildRank from OS. Use "Cache" to import from this archive.</div>'
     }
     option_col.add_input(method)
 
     let direction = new MultiButton('direction', 'Direction')
-    direction.add_option('Import', `get_zip('${current}')`)
+    direction.add_option('Import', `import_zip('${current}')`)
     direction.add_option('Export', 'export_zip()')
     option_col.add_input(direction)
 
@@ -73,6 +84,9 @@ async function init_page()
 
     let status_col = new ColumnFrame('', 'Data Status')
     page.add_column(status_col)
+
+    let event = new Number('event_id', 'Event', dal.event_id)
+    status_col.add_input(event)
 
     let event_data = new StatusTile('event_data', 'Event Data')
     status_col.add_input(event_data)
@@ -102,398 +116,85 @@ async function init_page()
     process_files()
 }
 
-/**
- * function:    export_zip
- * paramters:   none
- * returns:     none
- * description: Creates and downloads a zip archive containing all localStorage files.
- */
-async function export_zip()
-{
-    let use_event       = document.getElementById('event').checked
-    let use_results     = document.getElementById('results').checked
-    let use_config      = document.getElementById('config').checked
-    let use_smart_stats = document.getElementById('smart-stats').checked
-    let use_coach       = document.getElementById('coach').checked
-    let use_settings    = document.getElementById('settings').checked
-    let use_avatars     = document.getElementById('avatars').checked
-    let use_picklists   = document.getElementById('picklists').checked
-    let use_whiteboard  = document.getElementById('whiteboard').checked
-    let use_pictures    = document.getElementById('pictures').checked
-    
-    let zip = JSZip()
-
-    // determine which files to use
-    let files = Object.keys(localStorage).filter(function(file)
-    {
-        return (file.includes(dal.event_id) &&
-            ((use_event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
-            (use_results && MODES.some(m => file.startsWith(`${m}-`))))) ||
-            (use_config && MODES.some(m => file === `config-${cfg.year}-${m}`)) ||
-            (use_smart_stats && file === `config-${cfg.year}-smart_stats`) ||
-            (use_coach && file === `config-${cfg.year}-coach`) ||
-            (use_settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
-            (use_avatars && file.startsWith('avatar-')) ||
-            (use_picklists && file.startsWith('picklists-')) ||
-            (use_whiteboard && file === `config-${cfg.year}-whiteboard`)
-    })
-    let num_uploads = files.length
-
-    // add each file to the zip
-    for (let i in files)
-    {
-        let file = files[i]
-        let name = file + '.json'
-        let base64 = false
-        let data = localStorage.getItem(file)
-        zip.file(name, data, { base64: base64 })
-
-        // update progress bar
-        document.getElementById('progress').innerHTML = `${i}/${files.length + 1}`
-        document.getElementById('progress').value = i
-        document.getElementById('progress').max = files.length + 1   
-    }
-
-    // export pictures from cache
-    let names = await caches.keys()
-    if (names.length > 0 && use_pictures)
-    {
-        let server = get_upload_addr()
-        let cache = await caches.open(names[0])
-        let keys = await cache.keys()
-        
-        // add each file in the cache to the table
-        for (let key of keys)
-        {
-            // add up all bytes in file
-            let response = await cache.match(key)
-
-            // create row
-            let file = response.url
-            if (file === '')
-            {
-                file = key.url
-            }
-            
-            // check for pictures and don't put in directory if belonging to server (like server does)
-            if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${server}/assets/`))
-            {
-                if (file.startsWith(`${server}/uploads/`))
-                {
-                    file = file.replace(`${server}/uploads/`, '')
-                }
-                zip.file(file, response.blob())
-                num_uploads++
-            }
-        }
-    }
-
-    // download zip
-    zip.generateAsync({ type: 'blob' })
-        .then(function(blob)
-        {
-            let op = Select.get_selected_option('method')
-            if (op === 0)
-            {
-                let element = document.createElement('a')
-                element.href = window.URL.createObjectURL(blob)
-                element.download = `${user_id}-${dal.event_id}-export.zip`
-    
-                element.style.display = 'none'
-                document.body.appendChild(element)
-    
-                element.click()
-    
-                document.body.removeChild(element)
-            }
-            else if (op === 1) // upload
-            {
-                let addr = document.getElementById('server').value
-                if (check_server(addr))
-                {                    
-                    // post string to server
-                    let formData = new FormData()
-                    formData.append('upload', blob)
-                    fetch(`${addr}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.success && result.count === num_uploads)
-                            {
-                                alert('Upload successful!')
-                            }
-                            else if (result.count === -1)
-                            {
-                                alert('Incorrect password!')
-                            }
-                            else if (result.count === -2)
-                            {
-                                alert('Failed to extract archive!')
-                            }
-                            else
-                            {
-                                alert('Unknown server error!')
-                            }
-                        })
-                        .catch(e => {
-                            alert('Error uploading!')
-                            console.error(e)
-                        })
-                }
-            }
-            else if (op === 2)
-            {
-                alert('Cannot export to cache.')
-            }
-
-            // update progress bar for zip complete
-            document.getElementById('progress').innerHTML = `${files.length + 1}/${files.length + 1}`
-            document.getElementById('progress').value = files.length + 1
-            document.getElementById('progress').max = files.length + 1
-        })
-}
-
-/**
- * function:    get_zip
- * paramters:   optional cache name
- * returns:     none
- * description: Calls the appropriate import zip function based on the selected method.
- */
-function get_zip(cache_name='')
-{
-    let op = Select.get_selected_option('method')
-    if (op === 0)
-    {
-        import_zip_from_file()
-    }
-    else if (op === 1)
-    {
-        import_zip_from_server()
-    }
-    else if (op === 2)
-    {
-        import_zip_from_cache(cache_name)
-    }
-}
-
-/**
- * function:    import_zip_from_file
- * paramters:   none
- * returns:     none
- * description: Creates a file prompt to upload a zip of JSON results.
- */
-function import_zip_from_file()
-{
-    var input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'application/zip'
-    input.onchange = import_zip_from_event
-    input.click()
-}
-
-/**
- * function:    import_zip_from_server
- * paramters:   none
- * returns:     none
- * description: Request a zip of JSON results from the server.
- */
-function import_zip_from_server()
-{
-    let addr = document.getElementById('server').value
-    if (check_server(addr))
-    {
-        fetch(`${addr}/getZip`)
-            .then(transfer => {
-                return transfer.blob();
-            })
-            .then(bytes => {
-                import_zip(bytes)
-            })
-            .catch(err => {
-                alert('Error requesting results')
-                console.log(err)
-            })
-    }
-}
-
-/**
- * function:    import_zip_from_cache
- * paramters:   cache name
- * returns:     none
- * description: Import a zip stored in CacheStorage.
- */
-async function import_zip_from_cache(cache_name)
-{
-    let cache = await caches.open(cache_name)
-    let r = await cache.match('/import')
-    if (r)
-    {
-        import_zip(r.blob())
-        cache.delete('/import')
-    }
-    else
-    {
-        alert('No cached file available!')
-    }
-}
-
-/**
- * function:    import_zip_from_event
- * paramters:   response containing zip file
- * returns:     none
- * description: Extracts a zip archive containing all JSON results.
- */
-function import_zip_from_event(event)
-{
-    import_zip(event.target.files[0])
-}
 
 /**
  * function:    import_zip
- * paramters:   response containing zip file
+ * parameters:  none
  * returns:     none
- * description: Extracts a zip archive containing all JSON results.
+ * description: Starts the zip import process for selected types.
  */
-async function import_zip(file)
+async function import_zip(cache)
 {
-    // process each files details
-    JSZip.loadAsync(file).then(function (zip)
+    let handler = new ZipHandler()
+    handler.event       = document.getElementById('event').checked
+    handler.match       = document.getElementById('results').checked
+    handler.note        = document.getElementById('results').checked
+    handler.pit         = document.getElementById('results').checked
+    handler.config      = document.getElementById('config').checked
+    handler.smart_stats = document.getElementById('smart-stats').checked
+    handler.coach       = document.getElementById('coach').checked
+    handler.settings    = document.getElementById('settings').checked
+    handler.avatars     = document.getElementById('avatars').checked
+    handler.picklists   = document.getElementById('picklists').checked
+    handler.whiteboard  = document.getElementById('whiteboard').checked
+    handler.pictures    = document.getElementById('pictures').checked
+    handler.on_update   = update_progress
+    handler.on_complete = process_files
+    handler.server      = get_upload_addr()
+
+    let op = Select.get_selected_option('method')
+    if (op === 0)
     {
-        let use_event       = document.getElementById('event').checked
-        let use_results     = document.getElementById('results').checked
-        let use_config      = document.getElementById('config').checked
-        let use_smart_stats = document.getElementById('smart-stats').checked
-        let use_coach       = document.getElementById('coach').checked
-        let use_settings    = document.getElementById('settings').checked
-        let use_avatars     = document.getElementById('avatars').checked
-        let use_picklists   = document.getElementById('picklists').checked
-        let use_whiteboard  = document.getElementById('whiteboard').checked
-        let use_pictures    = document.getElementById('pictures').checked
+        handler.import_zip_from_file()
+    }
+    else if (op === 1)
+    {
+        handler.import_zip_from_server()
+    }
+    else if (op === 2)
+    {
+        handler.import_zip_from_cache(cache)
+    }
+}
 
-        let server = get_upload_addr() + '/uploads/'
+/**
+ * function:    export_zip
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for selected types.
+ */
+function export_zip()
+{
+    let handler = new ZipHandler()
+    handler.event       = document.getElementById('event').checked
+    handler.match       = document.getElementById('results').checked
+    handler.note        = document.getElementById('results').checked
+    handler.pit         = document.getElementById('results').checked
+    handler.config      = document.getElementById('config').checked
+    handler.smart_stats = document.getElementById('smart-stats').checked
+    handler.coach       = document.getElementById('coach').checked
+    handler.settings    = document.getElementById('settings').checked
+    handler.avatars     = document.getElementById('avatars').checked
+    handler.picklists   = document.getElementById('picklists').checked
+    handler.whiteboard  = document.getElementById('whiteboard').checked
+    handler.pictures    = document.getElementById('pictures').checked
+    handler.on_update   = update_progress
+    handler.on_complete = process_files
+    handler.server      = get_upload_addr()
+    handler.user        = user_id
 
-        let files = Object.keys(zip.files)
-        let complete = 0
+    handler.export_zip(Select.get_selected_option('method'))
+}
 
-        if (files.length == 0)
-        {
-            alert('No files found!')
-        }
-
-        for (let name of files)
-        {
-            let parts = name.split('.')
-            let n = parts[0]
-
-            // skip directories
-            if (name.endsWith('/'))
-            {
-                // update progress bar
-                document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
-                document.getElementById('progress').value = complete
-                document.getElementById('progress').max = files.length
-
-                if (complete === files.length)
-                {
-                    alert('Import Complete')
-                }
-                continue
-            }
-
-            // get blob of file
-            zip.file(name).async('blob').then(function (content)
-            {
-                // import pictures to cache
-                if (name.endsWith('.jpg') || name.endsWith('.png'))
-                {
-                    if (use_pictures)
-                    {
-                        // adjust url
-                        let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
-                        if (!url.startsWith('http'))
-                        {
-                            url = server + url
-                            let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
-                            dal.add_photo(team, url)
-                        }
-
-                        cache_file(url, content)
-                    }
-                    
-                    // update progress bar
-                    document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
-                    document.getElementById('progress').value = complete
-                    document.getElementById('progress').max = files.length
-
-                    if (complete === files.length)
-                    {
-                        process_files()
-                        alert('Import Complete')
-                    }
-                }
-                else if (name.endsWith('.json'))
-                {
-                    // import everything else as strings to localStorage
-                    content.text().then(function (text) {
-                        // determine which files to use
-                        if ((n.includes(dal.event_id) &&
-                            ((use_event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
-                            (use_results && MODES.some(m => n.startsWith(`${m}-`))))) ||
-                            (use_config && MODES.some(m => n === `config-${cfg.year}-${m}`)) ||
-                            (use_smart_stats && n === `config-${cfg.year}-smart_stats`) ||
-                            (use_coach && n === `config-${cfg.year}-coach`) ||
-                            (use_settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
-                            (use_avatars && n.startsWith('avatar-')) ||
-                            (use_picklists && n.startsWith('picklists-')) ||
-                            (use_whiteboard && n === `config-${cfg.year}-whiteboard`))
-                        {
-                            let write = true
-                            let existing = localStorage.getItem(n)
-                            if (existing !== null)
-                            {
-                                if (existing !== text && !n.startsWith('avatar-'))
-                                {
-                                    write = confirm(`"${n}" already exists, overwrite?`)
-                                }
-                                else
-                                {
-                                    write = false
-                                }
-                            }
-                            if (write)
-                            {
-                                console.log(`Importing ${n}`)
-                                localStorage.setItem(n, text)
-                            }
-                        }
-                        
-                        // update progress bar
-                        document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
-                        document.getElementById('progress').value = complete
-                        document.getElementById('progress').max = files.length
-
-                        if (complete === files.length)
-                        {
-                            process_files()
-                            alert('Import Complete')
-                        }
-                    })
-                }
-                else
-                {
-                    // update progress bar
-                    document.getElementById('progress').innerHTML = `${++complete}/${files.length}`
-                    document.getElementById('progress').value = complete
-                    document.getElementById('progress').max = files.length
-
-                    if (complete === files.length)
-                    {
-                        process_files()
-                        alert('Import Complete')
-                    }
-                }
-            })
-        }
-    })
+function update_progress(complete, total)
+{
+    let progress = document.getElementById('progress')
+    if (progress !== null)
+    {
+        progress.innerHTML = `${complete}/${total}`
+        progress.value = complete
+        progress.max = total
+    }
 }
 
 /**

@@ -31,7 +31,7 @@ function check_teams(teams, match_teams)
  * 
  * Pages: Match Scout, Whiteboard, Match Summaries, Coach View
  */
-function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0)
+function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0, note=false)
 {
     let list = 'option_list'
     if (secondary)
@@ -65,7 +65,8 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             let scouted = 'not_scouted'
             let level = match.comp_level.toUpperCase()
             let teams = red_teams.concat(blue_teams)
-            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (dal.is_match_scouted(match_key, teams[scout_pos]) && level == 'QM')))
+            let is_scouted = (!note && dal.is_match_scouted(match_key, teams[scout_pos])) || (note && dal.is_note_scouted(match_key, teams[scout_pos]))
+            if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_scouted && level == 'QM')))
             {
                 scouted = 'scouted'
                 first = ''
@@ -125,6 +126,10 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         {
             first = ''
             scouted = 'scouted'
+            if (dal.get_value(number, 'pit.meta_pit_unsure'))
+            {
+                scouted = 'highlighted'
+            }
         }
         else if (first == '')
         {
@@ -187,7 +192,7 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
+    let keys = dal.get_keys(true, !results_only, !results_only, !results_only, [], !exclude_strings)
     if (keys.length > 0)
     {
         // add pick list selector at top
@@ -334,14 +339,14 @@ function select_none()
  * returns:     none
  * description: Builds a dropdown in a given filter box.
  */
-function add_dropdown_filter(filter_id, options, func, primary_list=true)
+function add_dropdown_filter(filter_id, options, func, primary_list=true, default_selection='')
 {
     let id = 'filter'
     if (!primary_list)
     {
         id = 'secondary_filter'
     }
-    let dropdown = new Dropdown(filter_id, '', options)
+    let dropdown = new Dropdown(filter_id, '', options, default_selection)
     dropdown.on_change = func
     document.getElementById(id).innerHTML = dropdown.toString
 }

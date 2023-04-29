@@ -54,6 +54,12 @@ body {
     -webkit-user-select: none;
 }
 
+#header h1, #header h2
+{
+    margin: 0;
+    display: inline-block
+}
+
 @keyframes rainbow { 
     0%{background-position:0% 82%}
     50%{background-position:100% 19%}
@@ -81,4 +87,10 @@ tr:nth-child(even) {
 
 #results_tab {
     position: relative;
+}
+
+#pick_list_table {
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;
 }

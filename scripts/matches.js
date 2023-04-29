@@ -13,6 +13,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var generate = ''
 
+include('transfer')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -28,8 +30,8 @@ function init_page()
         scout_pos = cfg.get_position(user_id)
     }
 
-    let first = populate_matches(false, true, '', false, scout_pos)
-    add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
+    let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
+    add_button_filter('transfer', `Export ${scout_mode} Results`, `export_results()`, true)
     if (first)
     {
         let avatar = ''
@@ -44,7 +46,7 @@ function init_page()
         {
             pos -= dal.alliance_size
         }
-        contents_card.innerHTML = `<h2>Match: <span id="match_num">No Match Selected</span></h2>
+        contents_card.innerHTML = `<h2><span id="match_num">No Match Selected</span></h2>
                                     Time: <span id="match_time"></span><br><br>
                                     ${avatar}
                                     <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span> <span id="position">(${pos})</span></h2>
@@ -89,17 +91,17 @@ function open_match(match_num)
     document.getElementById('match_num').innerHTML = dal.get_match_value(match_num, 'match_name')
     document.getElementById('match_time').innerHTML = dal.get_match_value(match_num, 'display_time')
 
+    let team_num = teams[scout_pos]
+    let alliance = 'red'
+    let color = cfg.theme['red-alliance-color']
+    if (scout_pos >= red_teams.length)
+    {
+        alliance = 'blue'
+        color = cfg.theme['blue-alliance-color']
+    }
+
     if (scout_mode === MATCH_MODE)
     {
-        let team_num = teams[scout_pos]
-        let alliance = 'red'
-        let color = cfg.theme['red-alliance-color']
-        if (scout_pos >= red_teams.length)
-        {
-            alliance = 'blue'
-            color = cfg.theme['blue-alliance-color']
-        }
-
         // populate team info
         document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
         document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
@@ -117,29 +119,38 @@ function open_match(match_num)
     
         if (dal.is_match_scouted(match_num, team_num))
         {
+            let page = new PageFrame()
+
+            let result_button = new Button('view_result', 'View Result')
+            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
+            result_button.add_class('slim')
+            page.add_column(new ColumnFrame('', '', [result_button]))
+
             if (can_edit(match_num, team_num))
             {
                 let edit_button = new Button('edit_match', 'Edit Match')
                 edit_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: true})`
-                buttons_container.innerHTML += edit_button.toString
+                edit_button.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [edit_button]))
+
+                let renumber = new Button('renumber', 'Renumber Result')
+                renumber.link = `renumber_result('${key}', '${team_num}')`
+                renumber.add_class('slim')
+                //page.add_column(new ColumnFrame('', '', [renumber]))
+        
+                let del = new Button('delete', 'Delete Result')
+                del.link = `delete_result('${key}', '${team_num}')`
+                del.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [del]))
             }
-            let result_button = new Button('view_result', 'View Result')
-            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
-            buttons_container.innerHTML += result_button.toString
+
+            buttons_container.innerHTML += page.toString
         }
 
         ws(team_num)
     }
     else if (scout_mode === NOTE_MODE)
     {
-        let alliance = 'red'
-        let color = cfg.theme['red-alliance-color']
-        if (scout_pos >= red_teams.length)
-        {
-            alliance = 'blue'
-            color = cfg.theme['blue-alliance-color']
-        }
-
         // populate team info
         number_span.innerHTML = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
         number_span.style.color = color
@@ -150,6 +161,36 @@ function open_match(match_num)
         let key = match_num.toLowerCase()
         scout_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: false})`
         buttons_container.innerHTML = scout_button.toString
+
+        if (dal.is_note_scouted(match_num, team_num))
+        {
+            let page = new PageFrame()
+
+            let result_button = new Button('view_result', 'View Result')
+            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
+            result_button.add_class('slim')
+            page.add_column(new ColumnFrame('', '', [result_button]))
+
+            if (can_edit(match_num, team_num))
+            {
+                let edit_button = new Button('edit_match', 'Edit Notes')
+                edit_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: true})`
+                edit_button.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [edit_button]))
+
+                let renumber = new Button('renumber', 'Renumber Result')
+                renumber.link = `renumber_result('${key}', '${team_num}')`
+                renumber.add_class('slim')
+                //page.add_column(new ColumnFrame('', '', [renumber]))
+        
+                let del = new Button('delete', 'Delete Result')
+                del.link = `delete_result('${key}', '${team_num}')`
+                del.add_class('slim')
+                page.add_column(new ColumnFrame('', '', [del]))
+            }
+
+            buttons_container.innerHTML += page.toString
+        }
     }
 }
 
@@ -161,5 +202,35 @@ function open_match(match_num)
  */
 function can_edit(match_num, team_num)
 {
-    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === user_id || cfg.is_admin(user_id)
+    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === parseInt(user_id) || cfg.is_admin(user_id)
+}
+
+/**
+ * function:    delete_result
+ * parameters:  existing match, team number
+ * returns:     none
+ * description: Prompts to delete a pit result.
+ */
+function delete_result(match_key, team_num)
+{
+    if (confirm(`Are you sure you want to delete ${match_key} ${team_num}?`))
+    {
+        localStorage.removeItem(`${scout_mode}-${match_key}-${team_num}`)
+        location.reload()
+    }
+}
+
+/**
+ * function:    export_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for this page type's results.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.match = scout_mode === MATCH_MODE
+    handler.note = scout_mode === NOTE_MODE
+    handler.user = user_id
+    handler.export_zip()
 }

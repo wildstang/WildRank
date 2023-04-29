@@ -12,6 +12,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var generate = ''
 var streaming = false
 
+include('transfer')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -21,7 +23,7 @@ var streaming = false
 function init_page()
 {
     let first = populate_teams(false, true)
-    add_button_filter('transfer', 'Transfer Data', `window_open('${open_page('transfer-raw')}', '_self')`, true)
+    add_button_filter('transfer', 'Export Pit Results', `export_results()`, true)
     if (first)
     {
         contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
@@ -98,9 +100,24 @@ function open_option(team_num)
     result_buttons.innerHTML = scout.toString
     if (dal.is_pit_scouted(team_num))
     {
-        let edit = new Button('edit_result', 'Edit Results')
+        let page = new PageFrame()
+
+        let edit = new Button('edit_result', 'Edit Result')
         edit.link = `start_scouting('${team_num}', true)`
-        result_buttons.innerHTML += edit.toString
+        edit.add_class('slim')
+        page.add_column(new ColumnFrame('', '', [edit]))
+
+        let renumber = new Button('renumber', 'Renumber Result')
+        renumber.link = `renumber_pit('${team_num}')`
+        renumber.add_class('slim')
+        page.add_column(new ColumnFrame('', '', [renumber]))
+
+        let del = new Button('delete', 'Delete Result')
+        del.link = `delete_pit('${team_num}')`
+        del.add_class('slim')
+        page.add_column(new ColumnFrame('', '', [del]))
+
+        result_buttons.innerHTML += page.toString
     }
 
     // update capture button for new team
@@ -132,11 +149,14 @@ function capture(team_num)
 
         // place image in carousel
         let carousel = document.getElementById(`${team_num}-carousel`)
-        carousel.innerHTML = `<img src="${data}">` + carousel.innerHTML
+        if (carousel !== null)
+        {
+            carousel.innerHTML += `<img src="${data}">` + carousel.innerHTML
+        }
 
         // upload image
         let addr = parse_server_addr(document.location.href)
-        if (check_server(addr))
+        if (check_server(addr, notify=false))
         {
             canvas.toBlob(function (blob)
             {
@@ -154,13 +174,9 @@ function capture(team_num)
                         }
                         else if (result.name === 'Invalid password')
                         {
-                            cache_image(addr, team_num, data)
                             alert('Invalid password!')
                         }
-                        else
-                        {
-                            cache_image(addr, team_num, data)
-                        }
+                        cache_image(addr, team_num, data)
                     })
                     .catch(e => {
                         cache_image(addr, team_num, data)
@@ -183,7 +199,6 @@ function capture(team_num)
  */
 function cache_image(server, team_num, base64)
 {
-    console.log(base64)
     fetch(base64)
     .then(response => response.blob())
     .then(blob => {
@@ -191,6 +206,7 @@ function cache_image(server, team_num, base64)
         let url = `${server}/uploads/${team_num}-${Math.floor(899 * Math.random() + 100)}.png`
         dal.add_photo(team_num, url, true)
         cache_file(url, blob)
+        open_option(team_num)
     })
 }
 
@@ -214,4 +230,60 @@ function open_result(file)
 function start_scouting(team_num, edit)
 {
     return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit, 'generate': generate })
+}
+
+/**
+ * function:    renumber_pit
+ * parameters:  existing team number
+ * returns:     none
+ * description: Prompts to renumber a pit result.
+ */
+function renumber_pit(team_num)
+{
+    let input = prompt('New team number')
+    if (input !== null)
+    {
+        let new_num = parseInt(input)
+        let pit = localStorage.getItem(`${PIT_MODE}-${event_id}-${team_num}`)
+        if (pit !== null)
+        {
+            let jpit = JSON.parse(pit)
+            jpit.meta_team = new_num
+            localStorage.setItem(`${PIT_MODE}-${event_id}-${new_num}`, JSON.stringify(jpit))
+            localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
+
+            location.reload()
+        }
+    }
+}
+
+/**
+ * function:    delete_pit
+ * parameters:  existing team number
+ * returns:     none
+ * description: Prompts to delete a pit result.
+ */
+function delete_pit(team_num)
+{
+    if (confirm(`Are you sure you want to delete ${team_num}?`))
+    {
+        localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
+        location.reload()
+    }
+}
+
+/**
+ * function:    export_results
+ * parameters:  none
+ * returns:     none
+ * description: Starts the zip export process for pit results and pictures.
+ */
+function export_results()
+{
+    let handler = new ZipHandler()
+    handler.pit = true
+    handler.pictures = true
+    handler.user = user_id
+    handler.server = parse_server_addr(document.location.href)
+    handler.export_zip()
 }
