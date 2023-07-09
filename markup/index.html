@@ -25,6 +25,7 @@
             <h1><a onclick="home(false)" oncontextmenu="home(true); return false" id="title">WildRank</a></h1>
             <h2 id="header_info"></h2>
         </div>
+        <div id="body"></div>
     </body>
     <script>
         // this cannot be done in a head script because title has not been loaded in yet
@@ -33,7 +34,7 @@
         let title = cfg.settings.title
         if (typeof title !== 'undefined')
         {
-            document.getElementById('title').innerHTML = cfg.settings.title
+            document.getElementById('title').innerText = cfg.settings.title
         }
     </script>
 </html>

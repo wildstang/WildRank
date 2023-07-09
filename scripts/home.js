@@ -185,7 +185,7 @@ function init_page()
     sign_out.link = 'sign_out()'
     column.add_input(sign_out)
 
-    document.body.innerHTML += page.toString + sign_out_page.toString
+    document.getElementById('body').replaceChildren(page.element, sign_out_page.element)
 }
 
 /**

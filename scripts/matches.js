@@ -13,6 +13,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var generate = ''
 
+var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, photo_el
+
 include('transfer')
 
 /**
@@ -23,6 +25,9 @@ include('transfer')
  */
 function init_page()
 {
+    contents_card.replaceChildren()
+    buttons_container.replaceChildren()
+
     // override scouting position with that from config
     // TODO: determine if this is actually desired
     if (cfg.get_position(user_id) > -1)
@@ -34,10 +39,20 @@ function init_page()
     add_button_filter('transfer', `Export ${scout_mode} Results`, `export_results()`, true)
     if (first)
     {
-        let avatar = ''
+        match_num_el = document.createElement('h2')
+        match_num_el.id = 'match_num'
+        match_time_el = document.createElement('span')
+        match_time_el.id = 'match_time'
+        contents_card.append(match_num_el, 'Time: ', match_time_el, br(), br())
+        
         if (scout_mode == MATCH_MODE)
         {
-            avatar = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">`
+            avatar_el = document.createElement('img')
+            avatar_el.id = 'avatar'
+            avatar_el.onclick = (event) => generate = 'random'
+            avatar_el.ontouchstart = (event) => touch_button(false)
+            avatar_el.ontouchend = (event) => touch_button('generate="random"', true)
+            contents_card.append(avatar_el)
         }
 
         // add scouting position
@@ -46,29 +61,42 @@ function init_page()
         {
             pos -= dal.alliance_size
         }
-        contents_card.innerHTML = `<h2><span id="match_num">No Match Selected</span></h2>
-                                    Time: <span id="match_time"></span><br><br>
-                                    ${avatar}
-                                    <h2><span id="team_scouting">No Match Selected</span> <span id="team_name"></span> <span id="position">(${pos})</span></h2>
-                                    <span id="photos"></span>`
-        
-        buttons_container.innerHTML = ''
 
-        open_match(first)
+        let team = document.createElement('h2')
+        team_num_el = document.createElement('span')
+        team_num_el.id = 'team_scouting'
+        team_num_el.textContent = 'No Match Selected'
+        team_name_el = document.createElement('span')
+        team_name_el.id = 'team_name'
+        team_pos_el = document.createElement('span')
+        team_pos_el.id = 'position'
+        team_pos_el.textContent = `(${pos})`
+        team.append(team_num_el, ' ', team_name_el, ' ', team_pos_el)
+        contents_card.append(team)
+
+        photos_el = document.createElement('span')
+        photos_el.id = 'photos'
+        contents_card.append(photos_el)
+
+        open_option(first)
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
+        let header = document.createElement('h2')
+        header.textContent = 'No Match Data Found'
+        let details = document.createElement('span')
+        details.textContent = 'Please preload event'
+        contents_card.append(header, details)
     }
 }
 
 /**
- * function:    open_match
+ * function:    open_option
  * parameters:  match number
  * returns:     none
  * description: Completes right info pane for a given match number.
  */
-function open_match(match_num)
+function open_option(match_num)
 {
     // clear previous selection
     deselect_all()
@@ -76,20 +104,17 @@ function open_match(match_num)
     {
         document.getElementById('open_result_container').remove()
     }
-
-    let red_teams = dal.get_match_value(match_num, 'red_alliance')
-    let teams = red_teams.concat(dal.get_match_value(match_num, 'blue_alliance'))
-
-    let number_span = document.getElementById('team_scouting')
-    let name_span = document.getElementById('team_name')
-    let pos_span = document.getElementById('position')
+    buttons_container.replaceChildren()
 
     // select option
     document.getElementById(`match_option_${match_num}`).classList.add('selected')
 
+    let red_teams = dal.get_match_value(match_num, 'red_alliance')
+    let teams = red_teams.concat(dal.get_match_value(match_num, 'blue_alliance'))
+
     // place match number and team to scout on card
-    document.getElementById('match_num').innerHTML = dal.get_match_value(match_num, 'match_name')
-    document.getElementById('match_time').innerHTML = dal.get_match_value(match_num, 'display_time')
+    match_num_el.innerHTML = dal.get_match_value(match_num, 'match_name')
+    match_time_el.innerHTML = dal.get_match_value(match_num, 'display_time')
 
     let team_num = teams[scout_pos]
     let alliance = 'red'
@@ -103,19 +128,19 @@ function open_match(match_num)
     if (scout_mode === MATCH_MODE)
     {
         // populate team info
-        document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
-        document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
-        number_span.innerHTML = team_num
-        name_span.innerHTML = dal.get_value(team_num, 'meta.name')
-        number_span.style.color = color
-        name_span.style.color = color
-        pos_span.style.color = color
+        avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
+        photos_el.innerHTML = dal.get_photo_carousel(team_num)
+        team_num_el.innerHTML = team_num
+        team_name_el.innerHTML = dal.get_value(team_num, 'meta.name')
+        team_num_el.style.color = color
+        team_name_el.style.color = color
+        team_pos_el.style.color = color
 
         // build buttons
         let scout_button = new Button('scout_match', 'Scout Match')
         let key = match_num.toLowerCase()
         scout_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
-        buttons_container.innerHTML = scout_button.toString
+        buttons_container.append(scout_button.element)
     
         if (dal.is_match_scouted(match_num, team_num))
         {
@@ -144,7 +169,7 @@ function open_match(match_num)
                 page.add_column(new ColumnFrame('', '', [del]))
             }
 
-            buttons_container.innerHTML += page.toString
+            buttons_container.append(page.element)
         }
 
         ws(team_num)
@@ -152,15 +177,15 @@ function open_match(match_num)
     else if (scout_mode === NOTE_MODE)
     {
         // populate team info
-        number_span.innerHTML = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
-        number_span.style.color = color
-        pos_span.style.color = color
+        team_num_el.innerHTML = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
+        team_name_el.style.color = color
+        team_pos_el.style.color = color
 
         // build buttons
         let scout_button = new Button('scout_match', 'Take Notes')
         let key = match_num.toLowerCase()
         scout_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: false})`
-        buttons_container.innerHTML = scout_button.toString
+        buttons_container.append(scout_button.element)
 
         if (dal.is_note_scouted(match_num, team_num))
         {
@@ -189,7 +214,7 @@ function open_match(match_num)
                 page.add_column(new ColumnFrame('', '', [del]))
             }
 
-            buttons_container.innerHTML += page.toString
+            buttons_container.append(page.element)
         }
     }
 }

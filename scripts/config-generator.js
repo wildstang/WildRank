@@ -20,7 +20,9 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 function init_page()
 {
     document.getElementById('header_info').innerHTML = `Config Generator`
-    document.body.innerHTML += '<div id="add-item"></div>'
+    let add = document.createElement('div')
+    add.id = 'add-item'
+    document.getElementById('body').replaceChildren(add)
     load_config()
 }
 
@@ -44,18 +46,22 @@ function build_page()
     let name = new Entry('new-element-name', 'Name:')
     name.description = 'A brief description of the input visible to the user.'
 
-    document.getElementById('add-item').innerHTML = new PageFrame('', 'Add to...', [
+    let preview = document.createElement('span')
+    preview.id = 'preview'
+    let options = document.createElement('div')
+    options.id = 'options'
+    document.getElementById('add-item').replaceChildren(new PageFrame('', 'Add to...', [
             new ColumnFrame('', '', [mode, page, column, type]),
             new ColumnFrame('', '', [name]),
-            new ColumnFrame('', '', ['<div id="options"></div>'])
-        ]).toString +
-        '<span id="preview"></span>' +
+            new ColumnFrame('', '', [options])
+        ]).element,
+        preview,
         new PageFrame('', '', [
             new ColumnFrame('', '', [new Button('new-element-reset', 'Reset Config', 'reset_config()')]),
             new ColumnFrame('', '', [new Button('new-element-download', 'Download Config', 'download_config()')]),
             new ColumnFrame('', '', [new Button('new-element-upload', 'Upload Config', 'upload_config()')]),
             new ColumnFrame('', '', [new Button('new-element-apply', 'Apply Config', 'save_config()')])
-        ]).toString
+        ]).element)
 
     populate_dropdowns()
 }
@@ -78,27 +84,27 @@ function populate_dropdowns()
     document.getElementById('new-element-name').value = ''
 
     let page_dd = new Dropdown('new-element-page', 'Page:', config[mode].map(p => p.name).concat(['New']), page.value)
-    page.innerHTML = page_dd.html_options
+    page.replaceChildren(...page_dd.option_elements)
 
     // set other dropdown value appropriately
     if (page.value == 'New')
     {
-        column.innerHTML = ''
-        type.innerHTML = ''
+        column.replaceChildren()
+        type.replaceChildren()
     }
     else
     {
         let column_dd = new Dropdown('new-element-column', 'Column:', config[mode][page.selectedIndex].columns.map(c => c.name).concat(['New']), column.value)
-        column.innerHTML = column_dd.html_options
+        column.replaceChildren(...column_dd.option_elements)
 
         if (column.value == 'New')
         {
-            type.innerHTML = ''
+            type.replaceChildren()
         }
         else
         {
             let type_dd = new Dropdown('new-element-type', 'Type:', INPUTS, type)
-            type.innerHTML = type_dd.html_options
+            type.replaceChildren(...type_dd.option_elements)
         }
     }
 
@@ -203,7 +209,7 @@ function populate_options()
         }
     }
     ops.add_input(new Button('new-element-submit', 'Add', 'create_element()'))
-    options.innerHTML = ops.toString
+    options.replaceChildren(ops.element)
 }
 
 /**
@@ -588,10 +594,11 @@ function build_page_from_config()
             if (selected_page != page_name)
             {
                 let button = new MultiButton(`${page.id}_edit`, '')
-                button.add_option('&#9664;', `shift('${page.id}', 'up')`)
+                button.add_option('◀', `shift('${page.id}', 'up')`)
                 button.add_option('X', `shift('${page.id}', 'rm')`)
-                button.add_option('&#9654;', `shift('${page.id}', 'down')`)
-                button.add_class('slim page_color')
+                button.add_option('▶', `shift('${page.id}', 'down')`)
+                button.add_class('slim')
+                button.add_class('page_color')
                 button.columns = 3
                 page_frame.add_column(button)
             }
@@ -609,10 +616,11 @@ function build_page_from_config()
                     if (selected_col != col_name)
                     {
                         let button = new MultiButton(`${column.id}_edit`, '')
-                        button.add_option('&#9664;', `shift('${column.id}', 'up')`)
+                        button.add_option('◀', `shift('${column.id}', 'up')`)
                         button.add_option('X', `shift('${column.id}', 'rm')`)
-                        button.add_option('&#9654;', `shift('${column.id}', 'down')`)
-                        button.add_class('slim column_color')
+                        button.add_option('▶', `shift('${column.id}', 'down')`)
+                        button.add_class('slim')
+                        button.add_class('column_color')
                         button.columns = 3
                         column_frame.add_input(button)
                     }
@@ -624,7 +632,7 @@ function build_page_from_config()
                         let type = input.type
                         let default_val = input.default
                         let options = input['options']
-        
+
                         let item = ''
                         // build each input from its template
                         switch (type)
@@ -681,9 +689,9 @@ function build_page_from_config()
                         column_frame.add_input(item)
                         
                         let button = new MultiButton(`${id}_edit`, '')
-                        button.add_option('&#9650;', `shift('${id}', 'up')`)
+                        button.add_option('◀', `shift('${id}', 'up')`)
                         button.add_option('X', `shift('${id}', 'rm')`)
-                        button.add_option('&#9660;', `shift('${id}', 'down')`)
+                        button.add_option('▶', `shift('${id}', 'down')`)
                         button.add_class('slim')
                         button.columns = 3
                         column_frame.add_input(button)
@@ -696,7 +704,7 @@ function build_page_from_config()
             }
         }
     }
-    document.getElementById('preview').innerHTML = pages.map(p => p.toString).join('')
+    document.getElementById('preview').replaceChildren(...pages.map(p => p.element))
 
     // mark each selected box as such
     for (let id of select_ids)

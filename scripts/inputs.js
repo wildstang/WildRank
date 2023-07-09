@@ -2,7 +2,7 @@
  * file:        new-inputs.js
  * description: Contains classes to build HTML string for UI elements in app.
  * author:      Liam Fruzyna
- * date:        2022-05-05
+ * date:        2023-04-29
  */
 
 class Element
@@ -18,6 +18,7 @@ class Element
             this.id = label.toLowerCase().replaceAll(/ /g, '_')
         }
         this.label = label
+        this.description = '' 
         this.classes = []
     }
 
@@ -26,29 +27,43 @@ class Element
         this.classes.push(style_class)
     }
 
-    set default(def)
+    get element()
     {
-        this.def = def
+        return document.createElement('div')
     }
 
-    get toString()
+    get label_element()
     {
+        if (this.label)
+        {
+            let label = document.createElement('h4')
+            label.className = 'input_label'
+            label.id = `${this.id}_label`
+            label.append(this.label)
+            return label
+        }
         return ''
     }
 
-    get html_label()
-    {
-        return this.label !== '' ? `<h4 class="input_label" id="${this.id}_label">${this.label}</h4>` : ''
-    }
-
-    get html_description()
+    get description_element()
     { 
-        return this.description ? `<small class="wr_description" id="${this.id}_desc">${this.description}</small>` : ''
+        if (this.description)
+        {
+            let description = document.createElement('small')
+            description.className = 'wr_description'
+            description.id = `${this.id}_desc`
+            description.append(this.description)
+            return description
+        }
+        return ''
     }
     
     get header()
     {
-        return this.html_label + this.html_description
+        let header = document.createElement('span')
+        header.append(this.label_element)
+        header.append(this.description_element)
+        return header
     }
 }
 
@@ -66,17 +81,42 @@ class PageFrame extends Element
         this.columns.push(column)
     }
 
-    get html_label()
+    get label_element()
     {
-        return this.label !== '' ? `<h2 class="page_header" id="${this.id}_label">${this.label}</h2>` : ''
+        if (this.label)
+        {
+            let label = document.createElement('h2')
+            label.className = 'page_header'
+            label.id = `${this.id}_label`
+            label.append(this.label)
+            return label
+        }
+        return ''
     }
 
-    get toString()
+    get element()
     {
-        return `<div id="${this.id}" class="page ${this.top_margin ? '' : 'no_top_margin'}">
-                ${this.header}
-                ${this.columns.map(i => typeof i === 'string' ? i : i.toString).join('')}
-            </div>`
+        let page = document.createElement('div')
+        page.id = this.id
+        page.className = 'page'
+        if (!this.top_margin)
+        {
+            page.classList.add('no_top_margin')
+        }
+        page.classList.add(...this.classes)
+        page.append(this.label_element)
+        for (let c of this.columns)
+        {
+            if (c instanceof Element)
+            {
+                page.append(c.element)
+            }
+            else
+            {
+                page.append(c)
+            }
+        }
+        return page
     }
 }
 
@@ -94,36 +134,67 @@ class ColumnFrame extends Element
         this.inputs.push(input)
     }
 
-    get html_label()
+    get label_element()
     {
-        return this.label !== '' ? `<h2 class="column_header" id="${this.id}_label">${this.label}</h2>` : ''
+        if (this.label)
+        {
+            let label = document.createElement('h2')
+            label.className = 'column_header'
+            label.id = `${this.id}_label`
+            label.append(this.label)
+            return label
+        }
+        return ''
     }
 
-    get toString()
+    get element()
     {
         if (this.max > 0 && this.inputs.length > this.max)
         {
-            let cols = []
+            let cols = document.createElement('span')
             for (let i = 0; i < Math.ceil(this.inputs.length / this.max); i++)
             {
-                let col = `<div id="${this.id}_${i}" class="column ${this.classes.join(' ')}">${this.header}`
+                let col = document.createElement('div')
+                col.id = `${this.id}_${i}`
+                col.className = 'column'
+                col.classList.add(...this.classes)
+                col.append(this.label_element)
                 for (let j = i * this.max; j < (i + 1) * this.max && j < this.inputs.length; j++)
                 {
                     let input = this.inputs[j]
-                    col += typeof input === 'string' ? input : input.toString
+                    col.append(input instanceof Element ? input.element : input)
                 }
-                col += '</div>'
-                cols.push(col)
+                cols.append(col)
             }
-            return cols.join('')
+            return cols
         }
         else
         {
-            return `<div id="${this.id}" class="column ${this.classes.join(' ')}">
-                    ${this.header}
-                    ${this.inputs.map(i => typeof i === 'string' ? i : i.toString).join('')}
-                </div>`
+            let col = document.createElement('div')
+            col.id = this.id
+            col.className = 'column'
+            col.classList.add(...this.classes)
+            col.append(this.label_element)
+            for (let i of this.inputs)
+            {
+                col.append(i instanceof Element ? i.element : i)
+            }
+            return col
         }
+    }
+}
+
+class Input extends Element
+{
+    constructor(id, label, value='')
+    {
+        super(id, label)
+        this.value = value
+    }
+
+    set default(value)
+    {
+        this.value = value
     }
 }
 
@@ -152,79 +223,70 @@ class Button extends Element
 
     set on_secondary(on_secondary)
     {
-        this.on_right = on_secondary.length > 0 ? on_secondary + '; return false' : ''
-        this.on_hold = on_secondary.replace(/'/g, '\\\'')
+        this.on_right = on_secondary
+        this.on_hold = on_secondary
     }
 
-    get toString()
+    get element()
     {
-        let actions = ''
+        let label = document.createElement('label')
+        label.id = this.id
+        label.append(this.label)
+
+        let button = document.createElement('div')
+        button.id = `${this.id}-container`
+        button.className = 'wr_button'
+        button.classList.add(...this.classes)
+        button.append(label)
         if (this.on_click)
         {
-            actions += `onclick="${this.on_click}"`
+            button.onclick = (event) => eval(this.on_click)
         }
         if (this.on_hold || this.on_right)
         {
-            actions += `oncontextmenu="return false" onauxclick="${this.on_right}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.on_hold}')"`
+            button.oncontextmenu = (event) => false
+            button.onauxclick = (event) => {
+                eval(this.on_right)
+                return false
+            }
+            button.ontouchstart = (event) => eval(touch_button(false))
+            button.ontouchend = (event) => eval(touch_button(`${this.on_hold}`))
         }
-        return `${this.html_description}<div id="${this.id}-container" class="wr_button ${this.classes.join(' ')}" ${actions}>
-                <label id="${this.id}">${this.label}</label>
-            </div>`
+
+        let container = document.createElement('span')
+        container.append(this.description_element)
+        container.append(button)
+        return container
     }
 }
 
-class MultiButton extends Element
+class Number extends Input
 {
-    constructor(id, label, options=[], on_clicks=[])
+    constructor(id, label, value=0)
     {
-        super(id, label)
-        this.options = options
-        this.on_clicks = on_clicks
-        this.on_rights = []
-        this.on_holds = []
-        this.columns = calc_num_columns(options)
+        super(id, label, value)
     }
 
-    add_option(option, on_click, on_secondary='')
+    get element()
     {
-        this.options.push(option)
-        this.on_clicks.push(on_click)
-        this.on_rights.push(on_secondary.length > 0 ? on_secondary + '; return false' : '')
-        this.on_holds.push(on_secondary.replace(/'/g, '\\\''))
-    }
+        let label = document.createElement('label')
+        label.append(this.label)
 
-    get html_options()
-    {
-        let options = ''
-        let rows = ['']
-        for (let i in this.options)
-        {
-            let op_name = this.options[i]
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
-            {
-                rows.push('')
-            }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${this.classes.join(' ')}" id="${this.id}-${i}" onclick="${this.on_clicks[i]}" oncontextmenu="return false" onauxclick="${this.on_rights[i]}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${this.on_holds[i]}')">
-                    <label>${op_name}</label>
-                </span>`
-        }
-        for (let row of rows)
-        {
-            if (rows.length > 1)
-            {
-                options += `<div style="display: table-row">${row}</div>`
-            }
-            else
-            {
-                options += row
-            }
-        }
-        return options
-    }
+        let value = document.createElement('label')
+        value.className = 'wr_number_num'
+        value.id = this.id
+        value.append(this.value)
 
-    get toString()
-    {
-        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+        let number = document.createElement('div')
+        number.className = 'wr_number'
+        number.classList.add(...this.classes)
+        number.append(label)
+        number.append(value)
+
+        let container = document.createElement('span')
+        container.append(this.description_element)
+        container.append(number)
+        return container
     }
 }
 
@@ -238,23 +300,33 @@ class Card extends Element
         this.space_after = true
     }
 
-    get toString()
+    get element()
     {
-        let suffix = '<br>'
-        if (!this.space_after)
-        {
-            suffix = ''
-        }
-        let style = ''
+        let label = document.createElement('label')
+        label.append(this.label)
+
+        let card = document.createElement('div')
+        card.id = this.id
+        card.className = 'wr_card'
+        card.classList.add(...this.classes)
+        card.append(label)
+
         if (this.limitWidth)
         {
-            style = ' style="width: calc(var(--input-width) - 2*var(--input-padding));"'
+            card.style.width = 'calc(var(--input-width) - 2*var(--input-padding))'
         }
         else if (this.custom_width > 0)
         {
-            style = ` style="width: calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding));"`
+            card.style.width = `calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding))`
         }
-        return `<div class="wr_card ${this.classes.join(' ')}" id="${this.id}"${style}>${this.label}</div>${suffix}`
+
+        let container = document.createElement('span')
+        container.append(card)
+        if (this.space_after)
+        {
+            container.append(document.createElement('br'))
+        }
+        return container
     }
 }
 
@@ -266,9 +338,27 @@ class StatusTile extends Element
         this.color = color
     }
 
-    get toString()
+    get element()
     {
-        return `<div class="wr_status"><label class="status_text">${this.label}</label><span class="color_box" id="${this.id}" style="background-color: ${this.color}"></span></div>${this.html_description}`
+        let label = document.createElement('label')
+        label.className = 'status_text'
+        label.append(this.label)
+
+        let status = document.createElement('label')
+        status.id = this.id
+        status.className = 'color_box'
+        status.style.backgroundColor = this.color
+
+        let tile = document.createElement('div')
+        tile.className = 'wr_status'
+        tile.classList.add(...this.classes)
+        tile.append(label)
+        tile.append(status)
+
+        let container = document.createElement('span')
+        container.append(tile)
+        container.append(this.description_element)
+        return container
     }
 
     set status(status)
@@ -308,33 +398,48 @@ class StatusTile extends Element
     }
 }
 
-class Input extends Element
-{
-    constructor(id, label, def='')
-    {
-        super(id, label)
-        this.def = def
-    }
-}
-
 class Checkbox extends Input
 {
-    constructor(id, label, def=false)
+    constructor(id, label, value=false)
     {
-        super(id, label, def)
+        super(id, label, value)
         this.on_click = ''
     }
 
-    get toString()
+    get element()
     {
-        if (this.def)
+        if (this.value)
         {
             this.classes.push('selected')
         }
-        return `${this.html_description}<div id="${this.id}-container" class="wr_checkbox ${this.classes.join(' ')}" onclick="Checkbox.check('${this.id}'); ${this.on_click}">
-                <input type="checkbox" onclick="this.parentNode.click()" id="${this.id}" ${this.def ? 'checked' : ''}>
-                <label for="${this.id}" onclick="this.parentNode.click()">${this.label}</label>
-            </div>`
+
+        let box = document.createElement('input')
+        box.id = this.id
+        box.type = 'checkbox'
+        box.checked = this.value
+
+        let label = document.createElement('label')
+        label.for = this.id
+        label.append(this.label)
+
+        let checkbox = document.createElement('div')
+        checkbox.id = `${this.id}-container`
+        checkbox.className = 'wr_checkbox'
+        checkbox.classList.add(...this.classes)
+        checkbox.onclick = (event) => {
+            Checkbox.check(this.id)
+            eval(this.on_click)
+        }
+        checkbox.append(box)
+        checkbox.append(' ')
+        checkbox.append(label)
+
+        box.onclick = (event) => checkbox.click()
+
+        let container = document.createElement('span')
+        container.append(this.description_element)
+        container.append(checkbox)
+        return container
     }
 
     check()
@@ -363,24 +468,6 @@ class Checkbox extends Input
     }
 }
 
-class Number extends Input
-{
-    constructor(id, label, def=0)
-    {
-        super(id, label, def)
-    }
-
-    get toString()
-    {
-        return `${this.html_description}<div class="wr_number ${this.classes.join(' ')}">
-                <label>${this.label}</label>
-                <label class="wr_number_num" id="${this.id}">${this.def}</label>
-            </div>`
-    }
-}
-
-// NOTE: this is a weird hybrid between the WR2 and WR3 input classes
-// much of this will be moved to Input/Element once WR3 development starts
 class Timer extends Input
 {
     constructor(id, label)
@@ -440,176 +527,59 @@ class Timer extends Input
         document.getElementById(this.id).innerHTML = val
     }
 
-    get()
+    get element()
     {
         let label = document.createElement('label')
-        label.innerHTML = this.label
+        label.append(this.label)
+
         let value = document.createElement('label')
         value.id = this.id
         value.className = 'wr_counter_count'
-        value.innerHTML = this.value
+        value.append(this.value)
 
         let timer = document.createElement('div')
         timer.className = 'wr_counter'
+        timer.classList.add(...this.classes)
         timer.append(value)
         timer.append(' ')
         timer.append(label)
-        let t = this
-        timer.onclick = function () { t.on_click() }
-        timer.oncontextmenu = function () { return false }
-        timer.onauxclick = function () { return t.on_right_click() }
-        timer.ontouchstart = function () { t.on_touch() }
+        timer.onclick = (event) => this.on_click()
+        timer.oncontextmenu = (event) => false
+        timer.onauxclick = (event) => this.on_right_click()
+        timer.ontouchstart = (event) => this.on_touch()
         return timer
     }
 }
 
-class Counter extends Input
+class Extended extends Input
 {
-    constructor(id, label, def=0)
+    constructor(id, label, value='')
     {
-        super(id, label, def)
-        this.on_incr = ''
-        this.on_decr = ''
+        super(id, label, value)
+        this.on_text_change = ''
     }
 
-    set on_increment(on_increment)
+    get element()
     {
-        this.on_incr = on_increment.replace(/'/g, '\\\'')
-    }
+        let text = document.createElement('textarea')
+        text.id = this.id
+        text.className = 'wr_text'
+        text.classList.add(...this.classes)
+        text.onkeyup = (event) => eval(this.on_text_change)
+        text.append(this.value)
 
-    set on_decrement(on_decrement)
-    {
-        this.on_decr = on_decrement.replace(/'/g, '\\\'')
-    }
-
-    get toString()
-    {
-        return `${this.html_description}<div class="wr_counter ${this.classes.join(' ')}" onclick="increment('${this.id}', false, '${this.on_incr}')" oncontextmenu="return false" onauxclick="increment('${this.id}', true, '${this.on_decr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}\\', true, \\'${this.on_decr.replace(/'/g, '\\\\\'')}\\')')">
-                <label class="wr_counter_count" id="${this.id}">${this.def}</label>
-                <label>${this.label}</label>
-            </div>`
-    }
-}
-
-class Cycler extends Counter
-{
-    static on_increment(id)
-    {
-        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
-        let max = parseInt(document.getElementById(`${id}-max`).innerHTML)
-        if (val >= max)
-        {
-            document.getElementById(`${id}-max`).innerHTML = val
-            document.getElementById(`${id}-label`).innerHTML = 'Save Cycle'
-        }
-        else
-        {
-            document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
-        }
-        document.getElementById(`${id}-back`).style.display = 'table-cell'
-        document.getElementById(`${id}-back`).innerHTML = 'Last'
-    }
-
-    static on_decrement(id)
-    {
-        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
-        if (val > 0)
-        {
-            document.getElementById(`${id}-back`).style.display = 'table-cell'
-            document.getElementById(`${id}-back`).innerHTML = 'Last'
-        }
-        else
-        {
-            document.getElementById(`${id}-back`).style.display = 'none'
-            document.getElementById(`${id}-back`).innerHTML = ''
-        }
-        document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
-    }
-
-    get toString()
-    {
-        let on_incr = `${this.on_incr}; Cycler.on_increment(\\'${this.id}\\')`
-        let on_decr = `${this.on_decr}; Cycler.on_decrement(\\'${this.id}\\')`
-        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">
-                <span class="wr_select_option" id="${this.id}-back" onclick="increment('${this.id}-value', true, '${on_decr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', true, '${on_decr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', true, \\'${on_decr.replace(/'/g, '\\\\\'')}\\')')\" style="display: none"></span>
-                <span class="wr_select_option" id="${this.id}-count">
-                    <label class="wr_counter_count" id="${this.id}-value">${this.def}</label> <label id="${this.id}-max" style="display: none">${this.def}</label>
-                </span>
-                <span class="wr_select_option" id="${this.id}-save" onclick="increment('${this.id}-value', false, '${on_incr}')" oncontextmenu="return false" onauxclick="increment('${this.id}-value', false, '${on_incr}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${this.id}-value\\', false, \\'${on_incr.replace(/'/g, '\\\\\'')}\\')')\">
-                    <b id="${this.id}-label">Save Cycle</b>
-                </span>
-            </div>`
-    }
-}
-
-class MultiCounter extends Input
-{
-    constructor(id, label, options=[], def=0)
-    {
-        super(id, label, def)
-        this.options = options
-        this.columns = calc_num_columns(options)
-    }
-
-    add_option(option, def=0)
-    {
-        this.options.push(option)
-        if (Array.isArray(this.def) && this.def.length == this.options.length)
-        {
-            this.def.push(def)
-        }
-    }
-
-    get html_options()
-    {
-        let options = ''
-        let rows = ['']
-        for (let i in this.options)
-        {
-            let op_name = this.options[i]
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
-            {
-                rows.push('')
-            }
-            let dval = this.def
-            if (Array.isArray(this.def) && this.def.length == this.options.length)
-            {
-                dval = this.def[i]
-            }
-            else if (Array.isArray(this.def))
-            {
-                dval = this.def[0]
-            }
-            let name = `${this.id}_${op_name.toLowerCase().split().join('_')}`
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''}" id="${name}" onclick="increment('${name}-value', false)" oncontextmenu="return false" onauxclick="increment('${name}-value', true); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('increment(\\'${name}-value\\', true)')\">
-                    <label class="wr_counter_count" id="${name}-value">${dval}</label> ${op_name}
-                </span>`
-        }
-        for (let row of rows)
-        {
-            if (rows.length > 1)
-            {
-                options += `<div style="display: table-row">${row}</div>`
-            }
-            else
-            {
-                options += row
-            }
-        }
-        return options
-    }
-
-    get toString()
-    {
-        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
+        let container = document.createElement('span')
+        container.append(this.header)
+        container.append(text)
+        return container
     }
 }
 
 class Entry extends Input
 {
-    constructor(id, label, def='')
+    constructor(id, label, value='')
     {
-        super(id, label, def)
+        super(id, label, value)
         this.type = 'text'
         this.on_text_change = ''
         this.show_color = false
@@ -629,29 +599,70 @@ class Entry extends Input
         {
             this.incr = bounds[2]
         }
+        if (this.value < this.min)
+        {
+            this.value = this.min
+        }
     }
 
-    get bounds()
+    get element()
     {
-        return this.type === 'number' ? `${this.min || this.min === 0 ? `min="${this.min}"` : ''} ${this.max ? `max="${this.max}"` : ''} ${this.incr ? `step="${this.incr}"` : ''}` : ''
-    }
-
-    get toString()
-    {
-        let prefix = ''
-        let postfix = ''
         if (this.show_color)
         {
             this.add_class('color_text')
             this.on_text_change = `Entry.update_color('${this.id}')`
-            prefix = '<div class="wr_color">'
-            postfix = `<span class="color_box" id="${this.id}_color" style="background-color: ${this.def}"></span></div>`
+            if (!this.value)
+            {
+                this.value = '#'
+            }
         }
         else
         {
             this.add_class('wr_string')
         }
-        return `${this.header}${prefix}<input class="${this.classes.join(' ')}" type="${this.type}" id="${this.id}" value="${this.def}" onKeyUp="${this.on_text_change}" ${this.bounds}>${postfix}`
+
+        let input = document.createElement('input')
+        input.id = this.id
+        input.type = this.type
+        input.value = this.value
+        input.classList.add(...this.classes)
+        input.onkeyup = (event) => eval(this.on_text_change)
+        if (this.type === 'number')
+        {
+            if (this.min || this.min === 0)
+            {
+                input.min = this.min
+            }
+            if (this.max || this.max === 0)
+            {
+                input.max = this.max
+            }
+            if (this.incr || this.incr === 0)
+            {
+                input.step = this.incr
+            }
+        }
+
+        let container = document.createElement('span')
+        container.append(this.header)
+        if (this.show_color)
+        {
+            let color = document.createElement('span')
+            color.id = `${this.id}_color`
+            color.className = 'color_box'
+            color.style.backgroundColor = this.value
+
+            let color_container = document.createElement('div')
+            color_container.className = 'wr_color'
+            color_container.appendChild(input)
+            color_container.appendChild(color)
+            container.append(color_container)
+        }
+        else
+        {
+            container.append(input)
+        }
+        return container
     }
 
     update_color()
@@ -668,32 +679,142 @@ class Entry extends Input
     static update_color(id)
     {
         let color = document.getElementById(id).value
-        if (color.startsWith('#') && color.length == 7)
+        if (color.startsWith('#') && color.length === 7)
         {
             document.getElementById(`${id}_color`).style.backgroundColor = color
+        }
+        else if (!color.startsWith('#'))
+        {
+            document.getElementById(id).value = `#${color}`
         }
     }
 }
 
-class Extended extends Input
+class MultiInput extends Input
 {
-    constructor(id, label, def='')
+    constructor(id, label, options=[], value='')
     {
-        super(id, label, def)
-        this.on_text_change = ''
+        super(id, label, value)
+        this.options = options
+        this.columns = MultiInput.calc_num_columns(options)
     }
 
-    get toString()
+    get element()
     {
-        return `${this.header}<textarea class="wr_text" id="${this.id}" onKeyUp="${this.on_text_change}">${this.def}</textarea>`
+        if (this.vertical)
+        {
+            this.add_class('vertical')
+        }
+
+        let select = document.createElement('div')
+        select.id = this.id
+        select.className = 'wr_select'
+        select.classList.add(...this.classes)
+        select.append(...this.option_elements)
+
+        let container = document.createElement('span')
+        container.append(this.header)
+        container.append(select)
+        return container
+    }
+
+    /**
+     * function:    calc_num_columns
+     * parameters:  options
+     * returns:     number of columns
+     * description: Determines the number of columns based on maximum option size.
+     */
+    static calc_num_columns(options)
+    {
+        let max = 0
+        for (let op of options)
+        {
+            if (op.length > max)
+            {
+                max = op.length
+            }
+        }
+
+        return Math.max(4 - Math.floor(max / 4), 1)
+    }
+}
+
+class MultiButton extends MultiInput
+{
+    constructor(id, label, options=[], on_clicks=[])
+    {
+        super(id, label, options)
+        this.on_clicks = on_clicks
+        this.on_rights = []
+        this.on_holds = []
+    }
+
+    add_option(option, on_click, on_secondary='')
+    {
+        this.options.push(option)
+        this.on_clicks.push(on_click)
+        this.on_rights.push(on_secondary.length > 0 ? on_secondary + '; return false' : '')
+        this.on_holds.push(on_secondary.replace(/'/g, '\\\''))
+        this.columns = MultiInput.calc_num_columns(this.options)
+    }
+
+    get option_elements()
+    {
+        let rows = [[]]
+        for (let i in this.options)
+        {
+            let op_name = this.options[i]
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            {
+                rows.push([])
+            }
+
+            let label = document.createElement('label')
+            label.append(op_name)
+
+            let option = document.createElement('span')
+            option.id = `${this.id}-${i}`
+            option.className = 'wr_select_option'
+            option.classList.add(...this.classes)
+            option.onclick = (event) => eval(this.on_clicks[i])
+            option.oncontextmenu = (event) => false
+            option.onauxclick = (event) => {
+                eval(this.on_rights[i])
+                return false
+            }
+            option.ontouchstart = (event) => touch_button(false)
+            option.ontouchend = (event) => touch_button(`'${this.on_holds[i]}'`)
+            option.append(label)
+            rows[rows.length - 1].push(option)
+        }
+
+        let options = []
+        if (rows.length > 1)
+        {
+            for (let row of rows)
+            {
+                let container = document.createElement('div')
+                container.style.display = 'table-row'
+                for (let op of row)
+                {
+                    container.append(op)
+                }
+                options.push(container)
+            }
+        }
+        else
+        {
+            options = rows[0]
+        }
+        return options
     }
 }
 
 class Slider extends Entry
 {
-    constructor(id, label, def=0)
+    constructor(id, label, value=0)
     {
-        super(id, label, def)
+        super(id, label, value)
         this.min = 1
         this.max = 10
         this.incr = 1
@@ -701,14 +822,61 @@ class Slider extends Entry
         this.on_change = ''
     }
 
-    get html_label()
+    get label_element()
     {
-        return this.label !== '' ? `<h4 class="input_label" id="${this.id}_label">${this.label} - <span id="${this.id}_value">${this.def}</span></h4>` : ''
+        if (this.label)
+        {
+            let count = document.createElement('span')
+            count.id = `${this.id}_value`
+            count.append(this.value)
+
+            let header = document.createElement('h4')
+            header.id = `${this.id}_label`
+            header.append(`${this.label} - `)
+            header.append(count)
+            return header
+        }
+        return ''
     }
 
-    get toString()
+    get element()
     {
-        return `${this.header}<div id="${this.id}_container" class="wr_slider ${this.classes.join(' ')}"><input id="${this.id}" type="range" class="wr_slider_range" value="${this.def}" oninput="Slider.update_slider_text('${this.id}'); ${this.on_change}" ${this.bounds}></div>`
+        let label = document.createElement('label')
+        label.id = this.id
+        label.append(this.label)
+
+        let slider = document.createElement('input')
+        slider.id = this.id
+        slider.type = 'range'
+        slider.className = 'wr_slider_range'
+        slider.value = this.value
+        slider.oninput = (event) => {
+            Slider.update_slider_text(this.id)
+            eval(this.on_change)
+        }
+        if (this.min || this.min === 0)
+        {
+            slider.min = this.min
+        }
+        if (this.max || this.max === 0)
+        {
+            slider.max = this.max
+        }
+        if (this.incr || this.incr === 0)
+        {
+            slider.step = this.incr
+        }
+
+        let box = document.createElement('div')
+        box.id = `${this.id}_container`
+        box.className = 'wr_slider'
+        box.classList.add(...this.classes)
+        box.append(slider)
+
+        let container = document.createElement('span')
+        container.append(this.header)
+        container.append(box)
+        return container
     }
 
     set slider(value)
@@ -762,19 +930,242 @@ class Slider extends Entry
     }
 }
 
-class OptionedInput extends Input
+class Counter extends Input
 {
-    constructor(id, label, options=[], def='')
+    constructor(id, label, value=0)
     {
-        super(id, label, def)
-        this.options = options
-        if (options.length > 0 && !options.includes(def))
+        super(id, label, value)
+        this.on_increment = ''
+        this.on_decrement = ''
+    }
+
+    get element()
+    {
+        let label = document.createElement('label')
+        label.append(this.label)
+
+        let value = document.createElement('label')
+        value.id = this.id
+        value.className = 'wr_counter_count'
+        value.append(this.value)
+
+        let number = document.createElement('div')
+        number.className = 'wr_counter'
+        number.classList.add(...this.classes)
+        number.onclick = (event) => increment(this.id, false, this.on_increment)
+        number.oncontextmenu = (event) => false
+        number.onauxclick = (event) => {
+            increment(this.id, true, this.on_decrement)
+            return false
+        }
+        number.ontouchstart = (event) => touch_button(false)
+        number.ontouchend = (event) => touch_button(`increment('${this.id}', true, '${this.on_decrement.replace(/'/g, '\\\'')}')`)
+        number.append(value)
+        number.append(' ')
+        number.append(label)
+
+        let container = document.createElement('span')
+        container.append(this.description_element)
+        container.append(number)
+        return container
+    }
+}
+
+class Cycler extends Counter
+{
+    static on_increment(id)
+    {
+        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
+        let max = parseInt(document.getElementById(`${id}-max`).innerHTML)
+        if (val >= max)
         {
-            this.def = options[0]
+            document.getElementById(`${id}-max`).innerHTML = val
+            document.getElementById(`${id}-label`).innerHTML = 'Save Cycle'
         }
         else
         {
-            this.def = def
+            document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
+        }
+        document.getElementById(`${id}-back`).style.display = 'table-cell'
+        document.getElementById(`${id}-back`).innerHTML = 'Last'
+    }
+
+    static on_decrement(id)
+    {
+        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
+        if (val > 0)
+        {
+            document.getElementById(`${id}-back`).style.display = 'table-cell'
+            document.getElementById(`${id}-back`).innerHTML = 'Last'
+        }
+        else
+        {
+            document.getElementById(`${id}-back`).style.display = 'none'
+            document.getElementById(`${id}-back`).innerHTML = ''
+        }
+        document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
+    }
+
+    get element()
+    {
+        let on_incr = `${this.on_increment}; Cycler.on_increment('${this.id}')`
+        let on_decr = `${this.on_increment}; Cycler.on_decrement('${this.id}')`
+
+        let back = document.createElement('span')
+        back.id = `${this.id}-back`
+        back.className = 'wr_select_option'
+        back.style.display = 'none'
+        back.onclick = (event) => increment(`${this.id}-value`, true, on_decr)
+        back.oncontextmenu = (event) => false
+        back.onauxclick = (event) => {
+            increment(`${this.id}-value`, true, on_decr)
+            return false
+        }
+        back.ontouchstart = (event) => touch_button(false)
+        back.ontouchend = (event) => touch_button(`increment('${this.id}-value', true, '${on_decr}')`)
+
+        let value = document.createElement('label')
+        value.id = `${this.id}-value`
+        value.className = 'wr_counter_count'
+        value.append(this.value)
+
+        let max = document.createElement('label')
+        max.id = `${this.id}-max`
+        max.className = 'wr_counter_count'
+        max.style.display = 'none'
+        max.append(this.value)
+
+        let count = document.createElement('span')
+        count.id = `${this.id}-count`
+        count.className = 'wr_select_option'
+        count.append(value)
+        count.append(max)
+
+        let save_text = document.createElement('b')
+        save_text.id = `${this.id}-label`
+        save_text.append('Save Cycle')
+
+        let save = document.createElement('span')
+        save.id = `${this.id}-save`
+        save.className = 'wr_select_option'
+        save.onclick = (event) => increment(`${this.id}-value`, false, on_incr)
+        save.oncontextmenu = (event) => false
+        save.onauxclick = (event) => {
+            increment(`${this.id}-value`, false, on_incr)
+            return false
+        }
+        save.ontouchstart = (event) => touch_button(false)
+        save.ontouchend = (event) => touch_button(`increment('${this.id}-value', false, '${on_incr}')`)
+        save.append(save_text)
+
+        let cycler = document.createElement('div')
+        cycler.id = this.id
+        cycler.className = 'wr_select'
+        cycler.classList.add(...this.classes)
+        cycler.append(back, count, save)
+
+        let container = document.createElement('span')
+        container.append(this.description_element)
+        container.append(cycler)
+        return container
+    }
+}
+
+class MultiCounter extends MultiInput
+{
+    constructor(id, label, options=[], value=0)
+    {
+        super(id, label, options, value)
+    }
+
+    add_option(option, value=0)
+    {
+        if (Array.isArray(this.value) && this.value.length === this.options.length)
+        {
+            this.value.push(value)
+        }
+        this.options.push(option)
+        this.columns = MultiInput.calc_num_columns(options)
+    }
+
+    get option_elements()
+    {
+        let rows = [[]]
+        for (let i in this.options)
+        {
+            let op_name = this.options[i]
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            {
+                rows.push([])
+            }
+
+            let dval = this.value
+            if (Array.isArray(this.value) && this.value.length == this.options.length)
+            {
+                dval = this.value[i]
+            }
+            else if (Array.isArray(this.value))
+            {
+                dval = this.value[0]
+            }
+
+            let name = `${this.id}_${op_name.toLowerCase().split().join('_')}`
+            let value = document.createElement('label')
+            value.id = `${name}-value`
+            value.className = 'wr_counter_count'
+            value.append(dval)
+
+            let label = document.createElement('label')
+            label.append(op_name)
+
+            let option = document.createElement('span')
+            option.id = `${this.id}-${i}`
+            option.className = 'wr_select_option'
+            option.classList.add(...this.classes)
+            option.onclick = (event) => increment(`${name}-value`, false)
+            option.oncontextmenu = (event) => false
+            option.onauxclick = (event) => {
+                increment(`${name}-value`, true)
+                return false
+            }
+            option.ontouchstart = (event) => touch_button(false)
+            option.ontouchend = (event) => touch_button(`increment('${name}-value', true)`)
+            option.append(value)
+            option.append(' ')
+            option.append(label)
+            rows[rows.length - 1].push(option)
+        }
+
+        let options = []
+        if (rows.length > 1)
+        {
+            for (let row of rows)
+            {
+                let container = document.createElement('div')
+                container.style.display = 'table-row'
+                for (let op of row)
+                {
+                    container.append(op)
+                }
+                options.push(container)
+            }
+        }
+        else
+        {
+            options = rows[0]
+        }
+        return options
+    }
+}
+
+class OptionedInput extends MultiInput
+{
+    constructor(id, label, options=[], value='')
+    {
+        super(id, label, options, value)
+        if (options.length > 0 && !options.includes(value))
+        {
+            this.value = options[0]
         }
         this.on_change = ''
     }
@@ -783,52 +1174,69 @@ class OptionedInput extends Input
     {
         if (this.options.length === 0)
         {
-            this.def = option
+            this.value = option
         }
         this.options.push(option)
+        MultiInput.calc_num_columns(this.options)
     }
 }
 
 class Select extends OptionedInput
 {
-    constructor(id, label, options=[], def='')
+    constructor(id, label, options=[], value='')
     {
-        super(id, label, options, def)
-        this.columns = calc_num_columns(options)
+        super(id, label, options, value)
     }
 
-    get html_options()
+    get option_elements()
     {
-        let options = ''
-        let rows = ['']
-        for (let index in this.options)
+        let rows = [[]]
+        for (let i in this.options)
         {
-            let op_name = this.options[index]
-            if (this.options.length >= this.columns && !this.vertical && index % this.columns == 0 && index != 0)
+            let op_name = this.options[i]
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
-                rows.push('')
+                rows.push([])
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${op_name.toLowerCase() === this.def.toLowerCase() ? 'selected' : ''}" id="${this.id}-${index}" onclick="Select.select_option('${this.id}', '${index}'); ${this.on_change}">
-                    <label>${op_name}</label>
-                </span>`
+
+            let label = document.createElement('label')
+            label.append(op_name)
+
+            let option = document.createElement('span')
+            option.id = `${this.id}-${i}`
+            option.className = 'wr_select_option'
+            if (op_name.toLowerCase() === this.value.toLowerCase())
+            {
+                option.classList.add('selected')
+            }
+            option.classList.add(...this.classes)
+            option.onclick = (event) => {
+                Select.select_option(this.id, i)
+                eval(this.on_change)
+            }
+            option.append(label)
+            rows[rows.length - 1].push(option)
         }
-        for (let row of rows)
+
+        let options = []
+        if (rows.length > 1)
         {
-            if (rows.length > 1)
+            for (let row of rows)
             {
-                options += `<div style="display: table-row">${row}</div>`
+                let container = document.createElement('div')
+                container.style.display = 'table-row'
+                for (let op of row)
+                {
+                    container.append(op)
+                }
+                options.push(container)
             }
-            else
-            {
-                options += row
-            }
+        }
+        else
+        {
+            options = rows[0]
         }
         return options
-    }
-
-    get toString()
-    {
-        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
     }
 
     get selected_option()
@@ -888,79 +1296,113 @@ class Select extends OptionedInput
 
 class Dropdown extends OptionedInput
 {
-    constructor(id, label, options=[], def='')
+    constructor(id, label, options=[], value='')
     {
-        super(id, label, options, def)
+        super(id, label, options, value)
     }
 
-    get html_options()
+    get option_elements()
     {
-        let options = ''
+        let options = []
         for (let op_name of this.options)
         {
-            options += `<option class="wr_dropdown_op" value="${op_name}" ${op_name === this.def ? 'selected' : ''}>${op_name}</option>`
+            let option = document.createElement('option')
+            option.id = this.id
+            option.className = 'wr_dropdown_op'
+            if (op_name.toLowerCase() === this.value.toLowerCase())
+            {
+                option.selected = true
+            }
+            option.value = op_name
+            option.append(op_name)
+            options.push(option)
         }
         return options
     }
 
-    get toString()
+    get element()
     {
-        return `${this.header}<select class="wr_dropdown ${this.classes.join(' ')}" id="${this.id}" onchange="${this.on_change}">${this.html_options}</select>`
+        let select = document.createElement('select')
+        select.id = this.id
+        select.className = 'wr_dropdown'
+        select.classList.add(...this.classes)
+        select.onchange = (event) => eval(this.on_change)
+        select.append(...this.option_elements)
+
+        let container = document.createElement('span')
+        container.append(this.header)
+        container.append(select)
+        return container
     }
 }
 
-class MultiSelect extends Input
+class MultiSelect extends MultiInput
 {
-    constructor(id, label, options=[], def=[])
+    constructor(id, label, options=[], value=[])
     {
-        super(id, label, def)
-        this.options = options
-        this.def = def
+        super(id, label, options, value)
         this.on_change = ''
-        this.columns = calc_num_columns(options)
     }
 
     add_option(option)
     {
         if (this.options.length === 0)
         {
-            this.def = option
+            this.value = option
         }
         this.options.push(option)
+        this.columns = MultiInput.calc_num_columns(options)
     }
 
-    get html_options()
+    get option_elements()
     {
-        let options = ''
-        let rows = ['']
-        for (let index in this.options)
+        let rows = [[]]
+        for (let i in this.options)
         {
-            let op_name = this.options[index]
-            if (this.options.length >= this.columns && !this.vertical && index % this.columns == 0 && index != 0)
+            let op_name = this.options[i]
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
-                rows.push('')
+                rows.push([])
             }
-            rows[rows.length - 1] += `<span class="wr_select_option ${this.vertical ? 'vertical' : ''} ${this.def.includes(op_name) ? 'selected' : ''}" id="${this.id}-${index}" onclick="MultiSelect.select_option('${this.id}', '${index}'); ${this.on_change}">
-                    <label>${op_name}</label>
-                </span>`
+
+            let label = document.createElement('label')
+            label.append(op_name)
+
+            let option = document.createElement('span')
+            option.id = `${this.id}-${i}`
+            option.className = 'wr_select_option'
+            if (this.value.includes(op_name))
+            {
+                option.classList.add('selected')
+            }
+            option.classList.add(...this.classes)
+            option.onclick = (event) => {
+                MultiSelect.select_option(this.id, i)
+                eval(this.on_change)
+            }
+            option.append(label)
+            rows[rows.length - 1].push(option)
         }
-        for (let row of rows)
+
+        let options = []
+        if (rows.length > 1)
         {
-            if (rows.length > 1)
+            for (let row of rows)
             {
-                options += `<div style="display: table-row">${row}</div>`
+                let container = document.createElement('div')
+                container.style.display = 'table-row'
+                for (let op of row)
+                {
+                    container.append(op)
+                }
+                options.push(container)
             }
-            else
-            {
-                options += row
-            }
+        }
+        else
+        {
+            options = rows[0]
         }
         return options
-    }
-
-    get toString()
-    {
-        return `${this.header}<div class="wr_select ${this.classes.join(' ')}" id="${this.id}">${this.html_options}</div>`
     }
 
     get selected_options()
@@ -1021,25 +1463,51 @@ class Option extends Element
         super(id, label)
         this.primary_list = true
         this.selected = ''
-        this.style = ''
+        this.type = 'pit_option'
     }
 
-    get toString()
+    get label_element()
     {
-        // use modified id and function if secondary list
-        let id = `option_${this.id}`
-        let on_click = `open_option('${this.id}')`
-        let on_secondary = `alt_option('${this.id}')`
-        if (!this.primary_list)
+        let label = document.createElement('span')
+        label.className = 'long_option_val'
+        label.append(this.label)
+        return [label]
+    }
+
+    get element()
+    {
+        let option = document.createElement('div')
+        if (this.primary_list)
         {
-            id = `soption_${this.id}`
-            on_click = `open_secondary_option('${this.id}')`
-            on_secondary = `alt_secondary_option(\\'${this.id}\\')`
+            option.id = `${this.type}_${this.id}`
+            option.onclick = (event) => open_option(this.id)
+            option.onauxclick = (event) => {
+                touch_button(`alt_option('${this.id}')`)
+                return false
+            }
+            option.ontouchend = (event) => touch_button(`alt_option('${this.id}')`)
         }
-        let actions = `oncontextmenu="return false" onauxclick="${on_secondary}; return false" ontouchstart="touch_button(false)" ontouchend="touch_button('${on_secondary}')"`
-        return `<div id="${id}" class="pit_option ${this.selected} ${this.classes}" onclick="${on_click}" ${actions} style="${this.style}">
-                    <span class="long_option_val">${this.label}</span>
-                </div>`
+        else
+        {
+            option.id = `soption_${this.id}`
+            option.onclick = (event) => open_secondary_option(this.id)
+            option.onauxclick = (event) => {
+                touch_button(`alt_secondary_option('${this.id}')`)
+                return false
+            }
+            option.ontouchend = (event) => touch_button(`alt_secondary_option('${this.id}')`)
+        }
+        option.oncontextmenu = (event) => false
+        option.ontouchstart = (event) => touch_button(false)
+        option.className = this.type
+        option.classList.add(...this.classes)
+        if (this.selected)
+        {
+            option.classList.add(this.selected)
+        }
+        option.append(...this.label_element)
+        // TODO: style
+        return option
     }
 }
 
@@ -1051,20 +1519,17 @@ class DescriptiveOption extends Option
         this.description = description
     }
 
-    get toString()
+    get label_element()
     {
-        // use modified id and function if secondary list
-        let id = `option_${this.id}`
-        let on_click = `open_option('${this.id}')`
-        if (!this.primary_list)
-        {
-            id = `soption_${this.id}`
-            on_click = `open_secondary_option('${this.id}')`
-        }
-        return `<div id="${id}" class="pit_option ${this.selected} ${this.classes}" onclick="${on_click}" style="${this.style}">
-                    <span class="long_option_number">${this.label}</span><br>
-                    <span class="long_option_description">${this.description}</span>
-                </div>`
+        let label = document.createElement('span')
+        label.className = 'long_option_number'
+        label.append(this.label)
+
+        let description = document.createElement('span')
+        description.className = 'long_option_description'
+        description.append(this.description)
+
+        return [label, document.createElement('br'), description]
     }
 }
 
@@ -1075,26 +1540,35 @@ class MatchOption extends Option
         super(id, label)
         this.red_teams = red_teams
         this.blue_teams = blue_teams
+        this.type = 'match_option'
     }
 
-    get toString()
+    get label_element()
     {
-        // use modified id and function if secondary list
-        let id = `option_${this.id}`
-        let on_click = `open_match('${this.id}')`
-        if (!this.primary_list)
-        {
-            id = `soption_${this.id}`
-            on_click = `open_secondary_option('${this.id}')`
-        }
-        return `<div id="match_${id}" class="match_option ${this.selected} ${this.classes.join(' ')}" onclick="${on_click}">
-                    <span class="option_number">${this.label}</span>
-                    <span>
-                        <div class="alliance red">${this.red_teams.join(' ')}</div>
-                        <div class="alliance blue">${this.blue_teams.join(' ')}</div>
-                    </span>
-                </div>`
+        let label = document.createElement('span')
+        label.className = 'option_number'
+        label.append(this.label)
+
+        let red = document.createElement('div')
+        red.className = 'alliance red'
+        red.append(this.red_teams.join(' '))
+
+        let blue = document.createElement('div')
+        blue.className = 'alliance blue'
+        blue.append(this.blue_teams.join(' '))
+
+        let teams = document.createElement('span')
+        teams.append(red, blue)
+
+        return [label, teams]
     }
+}
+
+function insert_header_cell(row, value)
+{
+    let th = document.createElement('td').append(document.createTextNode(value))
+    row.append(th)
+    return th
 }
 
 /**
@@ -1148,24 +1622,9 @@ function increment(id, right, on_increment='')
     }
 }
 
-/**
- * function:    calc_num_columns
- * parameters:  options
- * returns:     number of columns
- * description: Determines the number of columns based on maximum option size.
- */
-function calc_num_columns(options)
+function br()
 {
-    let max = 0
-    for (let op of options)
-    {
-        if (op.length > max)
-        {
-            max = op.length
-        }
-    }
-
-    return Math.max(4 - Math.floor(max / 4), 1)
+    return document.createElement('br')
 }
 
 /**

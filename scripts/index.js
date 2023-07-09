@@ -31,7 +31,7 @@ function init_page()
     user_id.on_text_change = 'check_id()'
     user_id.type = 'number'
     user_id.bounds = [100000, 999999]
-    user_id.def = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+    user_id.value = get_cookie(USER_COOKIE, cfg.defaults.user_id)
     user_id.description = ' '
     options.add_input(user_id)
 
@@ -47,19 +47,18 @@ function init_page()
         }
         position.add_option(`${color} ${pos}`)
     }
-    position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
+    position.value = position.options[get_cookie(POSITION_COOKIE, 0)]
     options.add_input(position)
 
-    let theme = new Select('theme_switch', 'Theme')
+    let theme = new Select('theme_switch', 'Theme', ['Light', 'Dark', 'Auto'])
     theme.on_change = 'switch_theme()'
-    theme.add_option('Light')
-    theme.add_option('Dark')
-    theme.add_option('Auto')
     theme.columns = 3
-    theme.def = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    theme.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     options.add_input(theme)
-    
-    options.add_input('<div id="install-container"></div>')
+
+    let install = document.createElement('div')
+    install.id = 'install-container'
+    options.add_input(install)
 
     let roles = new ColumnFrame('roles', 'Role')
     user_page.add_column(roles)
@@ -93,7 +92,7 @@ function init_page()
 
     let event_id = new Entry('event_id', 'Event ID')
     event_id.on_text_change = 'process_files()'
-    event_id.def = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    event_id.value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
     status.add_input(event_id)
 
     let event_data = new StatusTile('event_data', 'Event Data')
@@ -133,7 +132,7 @@ function init_page()
     about.link = `open_link('about')`
     data.add_input(about)
 
-    document.body.innerHTML += user_page.toString + data_page.toString
+    document.getElementById('body').replaceChildren(user_page.element, data_page.element)
 
     check_id()
     apply_theme()
@@ -144,7 +143,7 @@ function init_page()
         e.preventDefault()
         install = e
         let button = new Button('install', `Install ${cfg.settings.title}`, 'install_app()')
-        document.getElementById('install-container').innerHTML = button.toString
+        document.getElementById('install-container').replaceChildren(button.element)
     })
 }
 
@@ -209,7 +208,7 @@ function process_files()
         position.add_option(`${color} ${pos}`)
     }
     position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
-    document.getElementById('position').innerHTML = position.html_options
+    document.getElementById('position').replaceChildren(...position.option_elements)
 }
 
 /**

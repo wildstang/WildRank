@@ -52,11 +52,17 @@ function init_page()
         }
     }
 
+    let match_box = document.createElement('span')
+    let team_box = document.createElement('span')
+    document.getElementById('header_info').append(match_box, ' - Scouting: ', team_box)
+
     // build the page from config for the desired mode
     switch (scout_mode)
     {
         case PIT_MODE:
-            document.getElementById('header_info').innerHTML = `<span id="match">Pit</span> - Scouting: <span id="team" style="color: white">${team_num}</span>`
+            match_box.innerText = 'Pit'
+            team_box.innerText = team_num
+            team_box.style.color = 'white'
             break
         case MATCH_MODE:
             let pos = 1 + parseInt(scout_pos)
@@ -64,8 +70,11 @@ function init_page()
             {
                 pos -= dal.alliance_size
             }
-            let style = `color: ${alliance_color}; background-color: rgba(0, 0, 0, 0.33); box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.33)`
-            document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="${style}">${team_num} (${pos})</span>`
+            match_box.innerText = dal.get_match_value(match_num, 'match_name')
+            team_box.innerText = `${team_num} (${pos})`
+            team_box.style.color = alliance_color
+            team_box.style.backgroundColor = 'rgba(0, 0, 0, 0.33)'
+            team_box.style.boxShadow = '0 0 4px 4px rgba(0, 0, 0, 0.33)'
 
             alliances = dal.build_relative_alliances(team_num, match_num)
             break
@@ -92,7 +101,7 @@ function check_for_last_page()
     if (view_start >= final_page && document.getElementById('submit') === null)
     {
         let submit = new Button('submit', 'Submit', 'get_results_from_page()')
-        document.getElementById('submit_container').innerHTML = submit.toString
+        document.getElementById('submit_container').append(submit.element)
     }
 }
 
@@ -106,7 +115,10 @@ function build_page_from_config()
 {
     let select_ids = []
     // iterate through each page in the mode
-    let body = '<div id="scouting-carousel" class="scouting-carousel" onscroll="check_for_last_page()">'
+    let body = document.createElement('div')
+    body.id = 'scouting-carousel'
+    body.className = 'scouting-carousel'
+    body.onscroll = check_for_last_page
     for (let page of cfg[scout_mode])
     {
         let page_frame = new PageFrame(page.id, page.name)
@@ -139,15 +151,14 @@ function build_page_from_config()
             }
             page_frame.add_column(col_frame)
         }
-        body += page_frame.toString  
+        body.append(page_frame.element)
     }
-    body += '</div>'
 
-    let page_frame = new PageFrame()
     let unsure = new Checkbox('unsure', `Unsure of Results`)
-    page_frame.add_column(new ColumnFrame('', '', [unsure]))
-    page_frame.add_column(new ColumnFrame('', '', ['<span id="submit_container"></span>']))
-    document.body.innerHTML += body + page_frame.toString
+    let submit = document.createElement('span')
+    submit.id = 'submit_container'
+    let page_options = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
+    document.getElementById('body').replaceChildren(body, page_options.element)
     check_for_last_page()
 
     // mark each selected box as such

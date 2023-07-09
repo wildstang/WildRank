@@ -22,7 +22,7 @@ include('transfer')
 async function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Raw Data Zip Transfer'
+    document.getElementById('header_info').innerText = 'Raw Data Zip Transfer'
 
     let page = new PageFrame()
     let check_col = new ColumnFrame('', 'Data to Transfer')
@@ -80,7 +80,12 @@ async function init_page()
     direction.add_option('Export', 'export_zip()')
     option_col.add_input(direction)
 
-    option_col.add_input('<progress id="progress" class="wr_progress" value="0" max="100"></progress>')
+    let progress = document.createElement('progress')
+    progress.id = 'progress'
+    progress.className = 'wr_progress'
+    progress.value = 0
+    progress.max = 100
+    option_col.add_input(progress)
 
     let status_col = new ColumnFrame('', 'Data Status')
     page.add_column(status_col)
@@ -112,7 +117,7 @@ async function init_page()
     let match_results = new Number('match_results', 'Match Results')
     status_col.add_input(match_results)
 
-    document.body.innerHTML += page.toString
+    document.getElementById('body').replaceChildren(page.element)
     process_files()
 }
 

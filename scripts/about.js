@@ -14,7 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'About'
+    document.getElementById('header_info').innerText = 'About'
 
     // generate page
     let page = new PageFrame()
@@ -56,7 +56,7 @@ function init_page()
     wildstang.external_link = `https://wildstang.org`
     get_col.add_input(wildstang)
 
-    document.body.innerHTML += page.toString
+    document.getElementById('body').replaceChildren(page.element)
 
     try
     {
@@ -71,11 +71,11 @@ function init_page()
         {
             let words = req.responseText.split(' ')
             let server = words[words.indexOf('POST') - 1]
-            document.getElementById('server').innerHTML = `Server: ${server} POST`
+            document.getElementById('server').innerText = `Server: ${server} POST`
         }
         else
         {
-            document.getElementById('server').innerHTML = 'Server: Generic'
+            document.getElementById('server').innerText = 'Server: Generic'
         }
 
         // add git commit and link
@@ -100,7 +100,7 @@ function init_page()
         }
         if (cfg.version)
         {
-            document.getElementById('config').innerHTML = `Config: ${cfg.version}`
+            document.getElementById('config').innerText = `Config: ${cfg.version}`
         }
     }
     catch (e)

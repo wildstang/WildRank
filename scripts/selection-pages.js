@@ -83,7 +83,7 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             // build match name
             let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
             option.add_class(scouted)
-            document.getElementById(list).innerHTML += option.toString
+            document.getElementById(list).append(option.element)
         }
     }
     // default to first match if no first was selected
@@ -143,11 +143,11 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         // replace placeholders in template and add to screen
         let op = new DescriptiveOption(number, number, name)
         op.add_class(scouted)
-        document.getElementById('option_list').innerHTML += op.toString
+        document.getElementById('option_list').append(op.element)
         if (secondary)
         {
             op.primary_list = false
-            document.getElementById('secondary_option_list').innerHTML += op.toString
+            document.getElementById('secondary_option_list').append(op.element)
         }
     }
 
@@ -204,7 +204,7 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
         {
             let op = new Option(key, dal.meta[key].name)
             op.style = 'font-size:10px'
-            document.getElementById('option_list').innerHTML += op.toString
+            document.getElementById('option_list').append(op.element)
         }
         
         // add second option list of teams
@@ -214,7 +214,7 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
             let name = dal.get_value(team, 'meta.name')
             let op = new DescriptiveOption(team, team, name)
             op.primary_list = false
-            document.getElementById('secondary_option_list').innerHTML += op.toString
+            document.getElementById('secondary_option_list').append(op.element)
         }
 
         enable_secondary_list()
@@ -252,9 +252,9 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
         {
             let op = new Option(key, dal.meta[key].name)
             op.style = 'font-size:10px'
-            document.getElementById('option_list').innerHTML += op.toString
+            document.getElementById('option_list').append(op.element)
             op.primary_list = false
-            document.getElementById('secondary_option_list').innerHTML += op.toString
+            document.getElementById('secondary_option_list').append(op.element)
         }
 
         enable_secondary_list()
@@ -307,7 +307,7 @@ function populate_other(options, classes={})
             }
             option_list += option.toString
         }
-        document.getElementById('option_list').innerHTML = option_list
+        document.getElementById('option_list').append(...option_list)
         
         if (first !== '')
         {
@@ -348,7 +348,7 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true, defaul
     }
     let dropdown = new Dropdown(filter_id, '', options, default_selection)
     dropdown.on_change = func
-    document.getElementById(id).innerHTML = dropdown.toString
+    document.getElementById(id).append(dropdown.element)
 }
 
 /**
@@ -365,5 +365,5 @@ function add_button_filter(filter_id, text, func, primary_list=true)
         id = 'secondary_filter'
     }
     let button = new Button(filter_id, text, func)
-    document.getElementById(id).innerHTML += button.toString
+    document.getElementById(id).append(button.element)
 }

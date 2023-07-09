@@ -16,14 +16,15 @@ function init_page()
 {
     document.getElementById('header_info').innerHTML = `Settings`
 
-    let page = new PageFrame('', '', [
-        '<div id="body"></div>',
+    let options = document.createElement('div')
+    options.id = 'options'
+    let page = new PageFrame('', '', [options,
         new ColumnFrame('', '', [new Button('', 'Download', 'download_config()')]),
         new ColumnFrame('', '', [new Button('', 'Upload', 'upload_config()')]),
         new ColumnFrame('', '', [new Button('', 'Apply', 'apply_config()')])
     ])
     
-    document.body.innerHTML += page.toString
+    document.getElementById('body').replaceChildren(page.element)
 
     build_page()
 }
@@ -45,7 +46,7 @@ function build_page()
         build_column('Dark Theme', 'dark_theme')
     ])
 
-    document.getElementById('body').innerHTML = page.toString
+    document.getElementById('options').replaceChildren(page.element)
 }
 
 /**
