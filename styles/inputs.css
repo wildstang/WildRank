@@ -328,13 +328,3 @@
     display: flex;
     justify-content: space-between;
 }
-
-.selection_filter > .wr_button {
-    width: calc(299px - 2*var(--input-padding));
-    margin: 4px auto;
-}
-
-.selection_filter > .wr_dropdown {
-    width: 299px;
-    margin: 4px auto;
-}

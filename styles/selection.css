@@ -204,3 +204,13 @@ body {
 #pick_list_table .team_cell {
     text-align: right;
 }
+
+.selection_filter > span > .wr_button {
+    width: calc(299px - 2*var(--input-padding));
+    margin: 4px auto;
+}
+
+.selection_filter > span > .wr_dropdown {
+    width: 299px;
+    margin: 4px auto;
+}
