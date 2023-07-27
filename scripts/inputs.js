@@ -1190,6 +1190,11 @@ class Select extends OptionedInput
 
     get option_elements()
     {
+        if (typeof this.value === 'undefined')
+        {
+            this.value = ''
+        }
+
         let rows = [[]]
         for (let i in this.options)
         {
@@ -1303,6 +1308,11 @@ class Dropdown extends OptionedInput
 
     get option_elements()
     {
+        if (typeof this.value === 'undefined')
+        {
+            this.value = ''
+        }
+
         let options = []
         for (let op_name of this.options)
         {
