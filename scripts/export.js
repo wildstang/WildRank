@@ -40,7 +40,8 @@ function init_page()
     let password = new Entry('password', 'Server Password')
     let submit = new Button('submit', 'Export', 'submit()')
 
-    document.body.innerHTML += new PageFrame('', '', [check_col, new ColumnFrame('', '', [from, to, password, submit])]).toString
+    let page = new PageFrame('', '', [check_col, new ColumnFrame('', '', [from, to, password, submit])]).element
+    document.getElementById('body').replaceChildren(page)
 }
 
 /**

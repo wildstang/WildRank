@@ -52,11 +52,13 @@ function init_page()
     let generate_button = new Button('generate_teams', 'Generate Teams', 'generate_teams()')
     col.add_input(generate_button)
 
-    let match_page = new PageFrame('match', 'Match <span id="number"></span>')
-    match_page.add_column('<div id="match_col"></div>')
+    let match_col = document.createElement('div')
+    match_col.id = 'match_col'
+    let match_page = new PageFrame('match', 'Match')
+    match_page.add_column(match_col)
 
     // build page
-    document.body.innerHTML += team_page.toString + match_page.toString
+    document.getElementById('body').replaceChildren(team_page.element, match_page.element)
 
     populate_matches()
 }
@@ -76,7 +78,7 @@ function populate_matches()
         dal = new DAL(event_id)
         teams = dal.build_teams()
     }
-    let cols = ''
+    let cols = []
     let alliance_teams = parseInt(document.getElementById('alliance_teams').value)
     if (teams.length > 0)
     {
@@ -95,9 +97,9 @@ function populate_matches()
         let add_match = new Button('add_match', 'Add Match', 'add_match()')
         red_col.add_input(add_match)
 
-        cols = blue_col.toString + red_col.toString
+        cols = [blue_col.element, red_col.element]
     }
-    document.getElementById('match_col').innerHTML = cols
+    document.getElementById('match_col').replaceChildren(...cols)
 }
 
 /**
@@ -113,7 +115,7 @@ function generate_match_teams(num_teams, distribute=true)
     let teams = Object.keys(dal.teams)
 
     let match_num = Object.keys(dal.matches).length // technically last match number
-    document.getElementById('number').innerHTML = match_num + 1
+    document.getElementById('match_label').innerText = `Match ${match_num + 1}`
 
     // prepopulate unavailable teams with those in last few matches
     // this prevents an uneven distribution of matches

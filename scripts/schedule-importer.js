@@ -47,7 +47,7 @@ function init_page()
     matches_col.add_input(schedule)
 
     // build page
-    document.body.innerHTML += setup_page.toString + matches_page.toString
+    document.getElementById('body').replaceChildren(setup_page.element, matches_page.element)
 }
 
 /**

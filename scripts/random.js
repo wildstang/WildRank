@@ -56,7 +56,7 @@ function init_page()
     right_col.add_input(generate)
 
     // build page
-    document.body.innerHTML += page.toString
+    document.getElementById('body').append(page.element)
     hide_buttons()
 }
 
@@ -71,15 +71,15 @@ function hide_buttons()
     let mode = MODES[Select.get_selected_option('type_form')]
     if (mode === PIT_MODE)
     {
-        document.getElementById('min_value_label').innerHTML = 'First Team'
-        document.getElementById('max_value_label').innerHTML = 'Last Team'
+        document.getElementById('min_value_label').innerText = 'First Team'
+        document.getElementById('max_value_label').innerText = 'Last Team'
         document.getElementById('min_value').value = 1
         document.getElementById('max_value').value = Math.max(...Object.keys(dal.teams))
     }
     else if (mode === MATCH_MODE || mode == NOTE_MODE)
     {
-        document.getElementById('min_value_label').innerHTML = 'First Match'
-        document.getElementById('max_value_label').innerHTML = 'Last Match'
+        document.getElementById('min_value_label').innerText = 'First Match'
+        document.getElementById('max_value_label').innerText = 'Last Match'
         document.getElementById('min_value').value = 1
         document.getElementById('max_value').value = Math.max(...Object.values(dal.matches).map(m => m.match_number))
     }

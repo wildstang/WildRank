@@ -72,7 +72,8 @@ function init_page()
     let version_result = cfg.validate_version('version', true)
     version.description = version_result[1]
 
-    document.body.innerHTML += new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]), new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, smart_stats, coach, whiteboard, version])]).toString
+    let page = new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]), new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, smart_stats, coach, whiteboard, version])]).element
+    document.getElementById('body').replaceChildren(page)
     
     keys.status = keys_result[0]
     defaults.status = defaults_result[0]
