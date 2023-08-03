@@ -14,8 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Storage Manager' 
-    document.body.innerHTML += `<div id="body"></div>`
+    document.getElementById('header_info').innerHTML = 'Storage Manager'
 
     populate_page()
 }
@@ -32,7 +31,16 @@ function populate_page()
     button_col.add_input(new Button('transfer', 'Transfer Data', 'cache_pics()'))
 
     let keys = Object.keys(localStorage).sort()
-    let table = `<table><tr><th>File</th><td>${keys.length} files</td><td>STORAGE_HASH</td><td></td></tr>`
+
+    let table = document.createElement('table')
+    let header = table.insertRow()
+
+    let file_header = document.createElement('th')
+    file_header.innerText = 'File'
+    header.appendChild(file_header)
+
+    header.insertCell().innerHTML = `${keys.length} files`
+
     let cache_str = ''
     
     // add each file in the cache to the table
@@ -41,13 +49,23 @@ function populate_page()
         let val = localStorage.getItem(key)
 
         // create row
-        table += `<tr><td>${key}</td><td>${format_bytes(val.length)}</td><td>${hash(val)}</td><td><a onclick="delete_file('${key}')">delete</a></td></tr>`
+        let row = table.insertRow()
+        row.insertCell().innerText = key
+        row.insertCell().innerText = format_bytes(val.length)
+        row.insertCell().innerText = hash(val)
+
+        let del = document.createElement('a')
+        del.onclick = () => delete_file(key)
+        del.innerText = 'delete'
+        row.insertCell().appendChild(del)
+
         cache_str += val
     }
-    table = table.replace('STORAGE_HASH', hash(cache_str)) + '</table>'
+    header.insertCell().innerText = hash(cache_str)
 
     let card = new Card('table', table)
-    document.getElementById('body').innerHTML = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col]).toString
+    let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
+    document.getElementById('body').replaceChildren(page.element)
 }
 
 /**

@@ -18,8 +18,7 @@ let current = 'default'
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Cache Manager' 
-    document.body.innerHTML += `<div id="body"></div>`
+    document.getElementById('header_info').innerHTML = 'Cache Manager'
 
     if (typeof caches !== 'undefined')
     {
@@ -46,17 +45,32 @@ async function populate_page()
     button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
 
     // make a table for each cache
-    let text = ''
     let names = await caches.keys()
     if (names.length > 0)
     {
         current = names[0]
     }
+    else
+    {
+        let card = new Card('table', 'No caches found')
+        let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
+        document.getElementById('body').replaceChildren(page.element)
+    }
+
     for (let name of names)
     {
         let cache = await caches.open(name)
         let keys = await cache.keys()
-        let table = `<table><tr><th>${name}</th><td>${keys.length} files</td><td>CACHE_HASH</td><td></td></tr>`
+
+        let table = document.createElement('table')
+        let header = table.insertRow()
+    
+        let name_header = document.createElement('th')
+        name_header.innerText = name
+        header.appendChild(name_header)
+    
+        header.insertCell().innerHTML = `${keys.length} files`
+
         let cache_str = ''
         
         // add each file in the cache to the table
@@ -97,20 +111,26 @@ async function populate_page()
             {
                 file = file.replace(server, '')
             }
-            table += `<tr><td>${file}</td><td>${format_bytes(bytes)}</td><td>${hash(str)}</td><td><a onclick="delete_file('${name}', '${file}')">delete</a></td></tr>`
+            let row = table.insertRow()
+            row.insertCell().innerText = file
+            row.insertCell().innerText = format_bytes(bytes)
+            row.insertCell().innerText = hash(str)
+    
+            let del = document.createElement('a')
+            del.onclick = () => delete_file(name, file)
+            del.innerText = 'delete'
+            row.insertCell().appendChild(del)
+
             cache_str += str
         }
-        text += table.replace('CACHE_HASH', hash(cache_str)) + '</table>'
+        header.insertCell().innerText = hash(cache_str)
+
+        let card = new Card('table', table)
+        let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
+        document.getElementById('body').replaceChildren(page.element)
+
         button_col.add_input(new Button(`purge_${name}`, `Purge ${name}`, `purge_cache('${name}')`))
     }
-
-    if (text === '')
-    {
-        text = 'No caches found'
-    }
-
-    let card = new Card('table', text)
-    document.getElementById('body').innerHTML = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col]).toString
 }
 
 /**
