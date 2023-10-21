@@ -1380,6 +1380,7 @@ class DAL
      */
     get_photo_carousel(team_nums, width='500px')
     {
+        let center = document.createElement('center')
         if (cfg.settings.use_images)
         {
             // if a single team string was given, put it in an array
@@ -1390,7 +1391,11 @@ class DAL
 
             // add each team picture to the carousel
             let added = false
-            let html = `<div id="carousel" style="width: ${width}" class="photo-carousel">`
+            let carousel = document.createElement('div')
+            carousel.id = carousel
+            carousel.style.width = width
+            carousel.class = 'photo-carousel'
+
             for (let team_num of team_nums)
             {
                 // don't add the team if it has no pictures
@@ -1402,7 +1407,9 @@ class DAL
                         added = true
                         for (let pic of pics)
                         {
-                            html += `<img src="${pic}">`
+                            let image = document.createElement('img')
+                            image.src = pic
+                            carousel.append(image)
                         }
                     }
                 }
@@ -1411,10 +1418,10 @@ class DAL
             // return the carousel if any pictures were added
             if (added)
             {
-                return `<center>${html}</div></center>`
+                center.append(carousel)
             }
         }
-        return ''
+        return center
     }
 
     /**

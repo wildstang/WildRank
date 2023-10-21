@@ -113,8 +113,8 @@ function open_option(match_num)
     let teams = red_teams.concat(dal.get_match_value(match_num, 'blue_alliance'))
 
     // place match number and team to scout on card
-    match_num_el.innerHTML = dal.get_match_value(match_num, 'match_name')
-    match_time_el.innerHTML = dal.get_match_value(match_num, 'display_time')
+    match_num_el.innerText = dal.get_match_value(match_num, 'match_name')
+    match_time_el.innerText = dal.get_match_value(match_num, 'display_time')
 
     let team_num = teams[scout_pos]
     let alliance = 'red'
@@ -129,9 +129,9 @@ function open_option(match_num)
     {
         // populate team info
         avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
-        photos_el.innerHTML = dal.get_photo_carousel(team_num)
-        team_num_el.innerHTML = team_num
-        team_name_el.innerHTML = dal.get_value(team_num, 'meta.name')
+        photos_el.replaceChildren(dal.get_photo_carousel(team_num))
+        team_num_el.innerText = team_num
+        team_name_el.innerText = dal.get_value(team_num, 'meta.name')
         team_num_el.style.color = color
         team_name_el.style.color = color
         team_pos_el.style.color = color
@@ -177,7 +177,7 @@ function open_option(match_num)
     else if (scout_mode === NOTE_MODE)
     {
         // populate team info
-        team_num_el.innerHTML = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
+        team_num_el.innerText = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
         team_name_el.style.color = color
         team_pos_el.style.color = color
 

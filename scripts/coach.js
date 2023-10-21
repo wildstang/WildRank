@@ -27,15 +27,32 @@ function init_page()
 
     if (first)
     {
-        contents_card.innerHTML = `<h2><span id="match_key">No Match Selected</span></h2>
-                                    <h3 id="time"></h3>
-                                    <table id="alliance_stats"></table>`
+        let match = document.createElement('span')
+        match.id = 'match_key'
+        match.innerText = 'No Match Selected'
+
+        let header = document.createElement('h2')
+        header.append(match)
+
+        let time = document.createElement('h3')
+        time.id = 'time'
+
+        let table = document.createElement('table')
+        table.id = 'alliance_stats'
+
+        contents_card.append(header, time, table)
 
         hide_matches()
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
+        let header = document.createElement('h2')
+        header.innerText = "No Match Data Found"
+
+        let description = document.createElement('span')
+        description.innerText = "Please preload event."
+
+        contents_card.append(header, description)
     }
 }
 
@@ -49,7 +66,7 @@ function hide_matches()
 {
     let team = document.getElementById('team_filter').value
     let first = populate_matches(true, true, team)
-    open_match(first)
+    open_option(first)
 }
 
 /**
@@ -58,7 +75,7 @@ function hide_matches()
  * returns:     none
  * description: Completes right info pane for a given match number.
  */
-function open_match(match_key)
+function open_option(match_key)
 {
     // select option
     deselect_all()
@@ -70,7 +87,7 @@ function open_match(match_key)
     let blue_teams = Object.keys(match_teams).filter(k => k.startsWith('blue')).map(k => match_teams[k])
 
     // place match number and team to scout on pane
-    document.getElementById('match_key').innerHTML = dal.get_match_value(match_key, 'match_name')
+    document.getElementById('match_key').innerText = dal.get_match_value(match_key, 'match_name')
 
     // place match time
     let actual = dal.get_match_value(match_key, 'started_time')
@@ -78,11 +95,11 @@ function open_match(match_key)
     let time = dal.get_match_value(match_key, 'scheduled_time')
     if (actual > 0)
     {
-        time.innerHTML = unix_to_match_time(actual)
+        time.innerText = unix_to_match_time(actual)
     }
     else if (predicted > 0)
     {
-        time.innerHTML = `${unix_to_match_time(predicted)} (Projected)`
+        time.innerText = `${unix_to_match_time(predicted)} (Projected)`
     }
 
     let red_col = new ColumnFrame('red_alliance', '')
@@ -101,7 +118,8 @@ function open_match(match_key)
     edit.link = `open_page('edit-coach')`
 
     // build template
-    buttons_container.innerHTML = page.toString + edit.toString
+    buttons_container.replaceChildren(page.element)
+    buttons_container.append(edit.element)
 
     // populate cards with tables
     build_table('red', red_teams)
@@ -127,25 +145,54 @@ function open_match(match_key)
 function build_table(alliance, teams)
 {
     let images = []
-    let table = '<table><tr><td></td>'
-    let names = '<tr><td></td>'
+
+    let table = document.createElement('table')
+
+    let teams_header = table.insertRow()
+    teams_header.insertCell()
+    let names = table.insertRow()
+    names.insertCell()
+    table.append(teams_header, names)
+
     for (let team of teams)
     {
-        images += dal.get_photo_carousel(team, '400px')
-        table += `<th ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</th>`
-        names += `<th>${dal.get_value(team, 'meta.name')}</th>`
+        images.push(dal.get_photo_carousel(team, '400px'))
+
+        let team_header = document.createElement('th')
+        team_header.innerText = team
+        if (dal.is_unsure(team))
+        {
+            team_header.style.add_class('highlighted')
+        }
+        teams_header.append(team_header)
+
+        let name = document.createElement('th')
+        name.innerText = dal.get_value(team, 'meta.name')
+        names.append(name)
     }
-    table += `</tr>${names}</tr>`
+
     for (let v of cfg.coach)
     {
-        table += `<tr><th>${dal.get_name(v.key, v.function)}</th>`
+        let row = table.insertRow()
+        table.append(row)
+
+        let key = document.createElement('th')
+        key.innerText = dal.get_name(v.key, v.function)
+        row.append(key)
+
         for (let team of teams)
         {
-            table += `<td>${dal.get_value(team, v.key, v.function, true)}</td>`
+            row.insertCell().innerText = dal.get_value(team, v.key, v.function, true)
         }
-        table += '</tr>'
     }
-    table += '</table>'
-    let header = `<center><h2 style="color: ${alliance}">${alliance[0].toUpperCase()}${alliance.substring(1)} Alliance</h2></center>`
-    document.getElementById(`${alliance}_details`).innerHTML = header + images + table
+
+    let header = document.createElement('h2')
+    header.innerText = `${alliance[0].toUpperCase()}${alliance.substring(1)} Alliance`
+    header.style.color = alliance
+
+    let center = document.createElement('center')
+    center.append(header)
+
+    document.getElementById(`${alliance}_details`).replaceChildren(center)
+    document.getElementById(`${alliance}_details`).append(...images, table)
 }
