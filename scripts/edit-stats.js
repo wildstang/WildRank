@@ -13,7 +13,9 @@
  */
 function init_page()
 {
-    document.body.innerHTML += `<div id="buttons_container"></div>`
+    let container = document.createElement('div')
+    container.id = 'buttons_container'
+    document.body.append(container)
     build_buttons()
 }
 
@@ -33,7 +35,7 @@ function build_buttons()
     }
 
     // build template
-    document.getElementById('buttons_container').innerHTML = new PageFrame('page', '', [column]).toString
+    document.getElementById('buttons_container').replaceChildren(new PageFrame('page', '', [column]).element)
 }
 
 /**

@@ -1480,7 +1480,9 @@ class Option extends Element
     {
         let label = document.createElement('span')
         label.className = 'long_option_val'
-        label.append(this.label)
+        // TODO: switch to innerHTML/Text where applicable instead of append
+        // innerHTML so character entities like &nbsp; will encode
+        label.innerHTML = this.label
         return [label]
     }
 

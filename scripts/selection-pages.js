@@ -277,8 +277,6 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
  */
 function populate_other(options, classes={})
 {
-    document.getElementById('option_list').innerHTML = ''
-
     // determine if passed list or array
     let names
     if (typeof options === 'object' && !Array.isArray(options) && options !== null)
@@ -290,7 +288,7 @@ function populate_other(options, classes={})
     {
         let first = ''
         // iterate through each match obj
-        let option_list = ''
+        let option_list = []
         for (let op of options)
         {
             if (first == '')
@@ -305,9 +303,9 @@ function populate_other(options, classes={})
             {
                 option.add_class(classes[op])
             }
-            option_list += option.toString
+            option_list.push(option.element)
         }
-        document.getElementById('option_list').append(...option_list)
+        document.getElementById('option_list').replaceChildren(...option_list)
         
         if (first !== '')
         {

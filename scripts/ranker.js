@@ -32,7 +32,9 @@ function init_page()
     type.on_change = 'update_params()'
     builder_col.add_input(type)
 
-    builder_col.add_input('<div id="params"></div>')
+    let params = document.createElement('div')
+    params.id = 'params'
+    builder_col.add_input(params)
 
     let button_col = new ColumnFrame('', 'Save')
     page.add_column(button_col)
@@ -47,7 +49,7 @@ function init_page()
     edit_stats.link = `open_page('edit-stats')`
     button_col.add_input(edit_stats)
 
-    buttons_container.innerHTML = page.toString
+    buttons_container.replaceChildren(page.element)
     contents_card.style.display = 'none'
 
     // build dynamic components
@@ -65,7 +67,7 @@ function update_params()
     let type = STAT_TYPES[Select.get_selected_option('type')]
 
     // add appropriate inputs for the selected type
-    let html = ''
+    let page = new PageFrame()
     let keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
     let constants = dal.get_keys(false, true, true, true, ['number'])
     switch (type)
@@ -73,7 +75,8 @@ function update_params()
         case 'Sum':
             let left = new ColumnFrame()
             let right = new ColumnFrame()
-            let page = new PageFrame('', '', [left, right])
+            page.add_column(left)
+            page.add_column(right)
             for (let i in keys)
             {
                 let cb = new Checkbox(keys[i], dal.get_name(keys[i]), false)
@@ -88,7 +91,6 @@ function update_params()
                     right.add_input(cb)
                 }
             }
-            html += page.toString
             break
         case 'Math':
             let math = new Extended('math', 'Math Function')
@@ -113,11 +115,9 @@ function update_params()
             }
             let negative = new Checkbox('negative', 'Negative')
             negative.on_click = 'calculate()'
-            html += new PageFrame('', '', [
-                new ColumnFrame('', '', [math]),
-                new ColumnFrame('', '', [operators]),
-                new ColumnFrame('', '', [keys_dropdown, constants_dropdown, negative]),
-            ]).toString
+            page.add_column(new ColumnFrame('', '', [math]))
+            page.add_column(new ColumnFrame('', '', [operators]))
+            page.add_column(new ColumnFrame('', '', [keys_dropdown, constants_dropdown, negative]))
             break
         case 'Percent':
             keys = keys.map(k => dal.get_name(k))
@@ -127,7 +127,7 @@ function update_params()
             let remain = new Dropdown('denominator', 'Remaining Value', keys)
             remain.on_change = 'calculate()'
             remain.description = 'The remaining value used to complete the percentage.'
-            html += percent.toString + remain.toString
+            page.add_column(new ColumnFrame('', '', [percent, remain]))
             break
         case 'Ratio':
             keys = keys.map(k => dal.get_name(k))
@@ -135,7 +135,7 @@ function update_params()
             numerator.on_change = 'calculate()'
             let denominator = new Dropdown('denominator', 'Denominator', keys)
             denominator.on_change = 'calculate()'
-            html += numerator.toString + denominator.toString
+            page.add_column(new ColumnFrame('', '', [numerator, denominator]))
             break
         case 'Where':
             let cycles = dal.get_result_keys(true, ['cycle'])//.map(c => dal.meta[c].name)
@@ -157,7 +157,7 @@ function update_params()
             let cycle_percent = new Dropdown('denominator', 'Percent: Remaining Value', [''].concat(counters))
             cycle_percent.on_change = 'calculate()'
             cycle_percent.description = 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.'
-            html += cycle_filter.toString + count.toString + cycle_percent.toString
+            let column = new ColumnFrame('', '', [cycle_filter, count, cycle_percent])
             for (let s of selects)
             {
                 let options = dal.meta[s].options
@@ -168,8 +168,9 @@ function update_params()
                 let filter = new Dropdown(s, dal.get_name(s), [''].concat(options))
                 filter.on_change = 'calculate()'
                 filter.description = 'Optional, choose value of the above select to filter cycles by.'
-                html += filter.toString
+                column.add_input(filter)
             }
+            page.add_column(column)
             break
         case 'Min/Max':
             let keylist = new Extended('keys', 'Keys')
@@ -183,7 +184,7 @@ function update_params()
             keys = keys.map(k => dal.get_name(k))
             let select = new Select('minmax', 'Min/Max', ['Min', 'Max'])
             select.on_change = 'calculate()'
-            html += keylist.toString + key.toString + select.toString
+            page.add_column(new ColumnFrame('', '', [keylist, key, select]))
             break
         case 'Filter':
             keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
@@ -193,10 +194,12 @@ function update_params()
             let filter = new Dropdown('filter_by', 'Filter By', keys)
             filter.on_change = 'update_filter()'
 
-            html += stat.toString + filter.toString + `<span id="filter_ops"></span>`
+            let filter_ops = document.createElement('span')
+            filter_ops.id = 'filter_ops'
+            page.add_column(new ColumnFrame('', '', [stat, filter, filter_ops]))
             break
     }
-    document.getElementById('params').innerHTML = html
+    document.getElementById('params').replaceChildren(page.element)
 
     if (type === 'Filter')
     {
@@ -322,7 +325,7 @@ function update_filter()
     }
     comparitors.on_change = 'calculate()'
 
-    document.getElementById('filter_ops').innerHTML = comparitors.toString + value.toString
+    document.getElementById('filter_ops').replaceChildren(comparitors.element, value.element)
     calculate()
 }
 
@@ -521,7 +524,11 @@ function calculate()
         {
             i = `&nbsp;${i}`
         }
-        if (t < 100)
+        if (t < 10)
+        {
+            t = `&nbsp;&nbsp;&nbsp;${t}`
+        }
+        else if (t < 100)
         {
             t = `&nbsp;&nbsp;${t}`
         }
