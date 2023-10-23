@@ -162,7 +162,7 @@ function build_table(alliance, teams)
         team_header.innerText = team
         if (dal.is_unsure(team))
         {
-            team_header.style.add_class('highlighted')
+            team_header.classList.add('highlighted')
         }
         teams_header.append(team_header)
 

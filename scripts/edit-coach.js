@@ -16,7 +16,9 @@ const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'Std Dev']
  */
 function init_page()
 {
-    document.body.innerHTML += `<div id="buttons_container"></div>`
+    let container = document.createElement('div')
+    container.id = 'buttons_container'
+    document.body.replaceChildren(container)
     build_buttons()
 }
 
@@ -40,7 +42,8 @@ function build_buttons()
     }
 
     // build template
-    document.getElementById('buttons_container').innerHTML = new PageFrame('page', '', [new ColumnFrame('new_col', 'New Coach Value', [select, dropdown, button]), column]).toString
+    let page = new PageFrame('page', '', [new ColumnFrame('new_col', 'New Coach Value', [select, dropdown, button]), column])
+    document.getElementById('buttons_container').replaceChildren(page.element)
 }
 
 /**
