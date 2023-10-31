@@ -1324,7 +1324,7 @@ class Dropdown extends OptionedInput
                 option.selected = true
             }
             option.value = op_name
-            option.append(op_name)
+            option.innerText = op_name
             options.push(option)
         }
         return options

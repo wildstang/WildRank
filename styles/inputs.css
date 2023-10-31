@@ -110,7 +110,8 @@
 }
 
 .wr_checkbox.slim, .wr_counter.slim, .wr_button.slim, .wr_string.slim, .wr_number.slim {
-    min-height: calc(var(--input-height)/2 - 2*var(--input-padding));
+    height: auto;
+    min-height: auto;
 }
 
 .wr_button.pick_item, .wr_slim_button.pick_item {
@@ -122,8 +123,19 @@
     height: var(--input-height);
 }
 
-.wr_dropdown.slim {
-    height: var(--input-height)/2;
+.wr_dropdown.slim, .wr_select.slim {
+    height: calc(22px + 2*var(--input-padding) + var(--border-radius));
+}
+
+.wr_dropdown.label {
+    height: auto;
+    padding: calc(var(--input-padding)/2);
+    margin: 0 auto 0;
+    box-shadow: none;
+}
+
+.no_input_gap {
+    margin: 0 auto 0;
 }
 
 .wr_text {
@@ -137,10 +149,6 @@
     display: table;
     table-layout: fixed;
     padding: 0px;
-}
-
-.wr_select.slim {
-    height: var(--input-height)/2;
 }
 
 .wr_button {
@@ -158,10 +166,6 @@
 
 .wr_button > *, .wr_checkbox > *, .wr_counter > *, .wr_dropdown > *, .wr_string > *, .wr_number > *, .wr_text > *, .wr_slider > *, .wr_status > * {
     line-height: calc(var(--input-height) - 2*var(--input-padding));
-}
-
-.wr_button.slim > *, .wr_checkbox.slim > *, .wr_counter.slim > *, .wr_dropdown.slim > *, .wr_string.slim > *, .wr_number.slim > *, .wr_text.slim > * {
-    line-height: calc(var(--input-height)/2 - 2*var(--input-padding));
 }
 
 .wr_counter_count, .wr_number_num {

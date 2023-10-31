@@ -29,8 +29,10 @@ function init_page()
     let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
     let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
 
-    contents_card.innerHTML = '<table id="results_tab"></table>'
-    buttons_container.innerHTML = picklist_button.toString + export_button.toString + import_button.toString
+    let table = document.createElement('table')
+    table.id = 'results_tab'
+    contents_card.replaceChildren(table)
+    buttons_container.replaceChildren(picklist_button.element, export_button.element, import_button.element)
     
     // add pick list filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
@@ -64,7 +66,7 @@ function init_page()
         for (let i in selected_keys)
         {
             try {
-                document.getElementById(`option_${selected_keys[i]}`).classList.add('selected')
+                document.getElementById(`pit_option_${selected_keys[i]}`).classList.add('selected')
             }
             catch {
                 selected_keys.splice(i, 1)
@@ -124,7 +126,7 @@ function filter_stats()
     let keys = dal.get_keys()
     for (let k of keys)
     {
-        let element = document.getElementById(`option_${k}`)
+        let element = document.getElementById(`pit_option_${k}`)
         if (filter !== 'all' && !k.startsWith(filter) && !element.classList.contains('selected'))
         {
             element.style.display = 'none'
@@ -145,15 +147,15 @@ function filter_stats()
 function open_option(key)
 {
     list_name = "Team Number"
-    // select team button 
-    if (document.getElementById(`option_${key}`).classList.contains('selected'))
+    // select team button
+    if (document.getElementById(`pit_option_${key}`).classList.contains('selected'))
     {
-        document.getElementById(`option_${key}`).classList.remove('selected')
+        document.getElementById(`pit_option_${key}`).classList.remove('selected')
         selected_keys = selected_keys.filter(s => s != key)
     }
     else
     {
-        document.getElementById(`option_${key}`).classList.add('selected')
+        document.getElementById(`pit_option_${key}`).classList.add('selected')
         selected_keys.push(key)
     }
 
@@ -181,7 +183,7 @@ function alt_option(key)
 
         // save selection to sessionStorage
         sessionStorage.setItem(SESSION_KEYS_KEY, JSON.stringify(get_selected_keys()))
-    
+
         build_table(last_sort, last_reverse)
     }
 }
@@ -246,7 +248,22 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
     {
         key = ''
     }
-    filter_teams.sort((a,b) => dal.get_value(b, key, type) - dal.get_value(a, key, type))
+
+    let t = ''
+    if (key in dal.meta)
+    {
+        t = dal.meta[key].type
+    }
+
+    if (t === 'string' || t === 'text')
+    {
+        filter_teams.sort((a,b) => dal.get_value(a, key, type).localeCompare(dal.get_value(b, key, type)))
+    }
+    else
+    {
+        filter_teams.sort((a,b) => dal.get_value(b, key, type) - dal.get_value(a, key, type))
+    }
+
     if (reverse)
     {
         filter_teams.reverse()
@@ -264,17 +281,20 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
 function get_previous_pos(idx, moved_idx, placed_idx)
 {
     let prev_idx = idx
-    if (idx === placed_idx)
+    if (moved_idx !== -1 && placed_idx !== -1)
     {
-        prev_idx = moved_idx
-    }
-    else if (idx > placed_idx && idx <= moved_idx)
-    {
-        prev_idx--
-    }
-    else if (idx >= moved_idx && idx < placed_idx)
-    {
-        prev_idx++
+        if (idx === placed_idx)
+        {
+            prev_idx = moved_idx
+        }
+        else if (idx > placed_idx && idx <= moved_idx)
+        {
+            prev_idx--
+        }
+        else if (idx >= moved_idx && idx < placed_idx)
+        {
+            prev_idx++
+        }
     }
     return prev_idx
 }
@@ -313,7 +333,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     let selected_types = {}
 
     // update stored sort
-    last_sort = sort_by
+    last_sort = parseInt(sort_by)
     last_reverse = reverse
     sessionStorage.setItem(SESSION_SORT_KEY, last_sort)
     sessionStorage.setItem(SESSION_REVERSE_KEY, last_reverse)
@@ -334,10 +354,32 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     }
 
     // build table headers
-    let table = `<table><tr class="sticky_header"><td></td><th id="team" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)" onclick="build_table('', ${!reverse})"">Team Number${sort_char}</th>`
-    let types = '<tr><td></td><th>Stat</th>'
-    let filters = `<tr><td></td><th>Filter</th>`
-    let totals = '<tr><td></td><th>Total</th>'
+    let table = document.createElement('table')
+
+    let keys_row = table.insertRow()
+    keys_row.classList.add('sticky_header')
+    keys_row.insertCell()
+    let team_header = document.createElement('th')
+    team_header.id = 'team'
+    team_header.ondragover = dragover_handler
+    team_header.ondragenter = dragenter_handler
+    team_header.ondrop = drop_handler
+    team_header.onclick = (event) => build_table('', !reverse)
+    team_header.innerHTML = `Team Number${sort_char}`
+    keys_row.append(team_header)
+
+    let filters_row = table.insertRow()
+    filters_row.insertCell()
+    let filter_header = document.createElement('th')
+    filter_header.innerText = 'Filter if'
+    filters_row.append(filter_header)
+
+    let totals_row = table.insertRow()
+    totals_row.insertCell()
+    let total_header = document.createElement('th')
+    total_header.innerText = 'All Teams'
+    totals_row.append(total_header)
+
     for (let i in selected)
     {
         let key = selected[i]
@@ -352,10 +394,19 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         }
 
         // add key names
-        table += `<th id="header_${i}" draggable="true"
-            ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)" ondragenter="dragenter_handler(event)" ondrop="drop_handler(event)"
-            onclick="build_table(${i}, ${key == selected_keys[sort_by] && !reverse})" onauxclick="alt_option('${key}')" oncontextmenu="return false"
-            ontouchstart="touch_button(false)" ontouchend="touch_button('alt_option(\\'${key}\\')')">${dal.get_name(key, '')}${sort_char}</th>`
+        let col_header = document.createElement('th')
+        col_header.id = `header_${i}`
+        col_header.draggable = true
+        col_header.ondragstart = dragstart_handler
+        col_header.ondragover = dragover_handler
+        col_header.ondragenter = dragenter_handler
+        col_header.ondrop = drop_handler
+        col_header.onclick = (event) => build_table(i, key == selected_keys[sort_by] && !reverse)
+        col_header.onauxclick = (event) => alt_option(key)
+        col_header.oncontextmenu = (event) => false
+        col_header.ontouchstart = (event) => touch_button(false)
+        col_header.ontouchend = (event) => touch_button(`alt_option('${key}')`)
+        keys_row.append(col_header)
 
         // determine column to pull existing stat and filter values from
         let from_idx = get_previous_pos(parseInt(i), moved_idx, placed_idx)
@@ -436,19 +487,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             unique.unshift('')
         }
 
-        // build dropdown for filter
-        let filter_str = ''
-        if (type !== 'Total' || (t !== 'select' || t === 'dropdown'))
-        {
-            let filter_dd = new Dropdown(`filter_${i}`, '', unique, filter)
-            filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
-            filter_dd.add_class('slim')
-            filter_dd.add_class('thin')
-            filter_str = filter_dd.toString
-        }
-
         // build dropdown for those that have stats
-        let fn = ''
         if (key.startsWith('stats.'))
         {
             let stats = STATS
@@ -458,40 +497,63 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             }
             let dropdown = new Dropdown(`select_${i}`, '', stats, type)
             dropdown.on_change = `build_table('${sort_by}', ${reverse})`
-            dropdown.add_class('slim')
+            dropdown.add_class('label')
             dropdown.add_class('thin')
-            fn = dropdown.toString
+            col_header.append(dropdown.element)
         }
 
+        let col_key = document.createElement('span')
+        col_key.innerHTML = `${dal.get_name(key, '')}${sort_char}`
+        col_header.append(col_key)
+
+        // build dropdown for filter
+        let numeric = t === 'number' || t === 'counter' || t === 'slider' || !STATS.includes(type)
+        let filter_el = []
         // build a select for less/greater than if a number
-        if (t === 'number' || t === 'counter' || t === 'slider' || !STATS.includes(type))
+        if (numeric)
         {
-            let ltgt = new Select(`ltgt_${i}`, '', ['Less', 'Greater'], ['Less', 'Greater'][ltgt_def])
+            let ltgt = new Select(`ltgt_${i}`, '', ['<', '>'], ['<', '>'][ltgt_def])
             ltgt.on_change = `build_table('${sort_by}', ${reverse})`
             ltgt.add_class('slim')
             ltgt.add_class('thin')
-            filter_str = ltgt.toString + filter_str
+            ltgt.add_class('no_input_gap')
+            filter_el.push(new ColumnFrame('', '', [ltgt]).element)
+        }
+        if (type !== 'Total')
+        {
+            let filter_dd = new Dropdown(`filter_${i}`, '', unique, filter)
+            filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
+            filter_dd.add_class('slim')
+            filter_dd.add_class('thin')
+            filter_dd.add_class('no_input_gap')
+            filter_el.push(new ColumnFrame('', '', [filter_dd]).element)
         }
 
         // build cells
-        types += `<td>${fn}</td>`
-        filters += `<td>${filter_str}</td>`
-        totals += `<td>${dal.get_global_value(global_stats, key, type.toLowerCase(), true)}</td>`
+        filters_row.insertCell().append(...filter_el)
+        totals_row.insertCell().innerText = dal.get_global_value(global_stats, key, type.toLowerCase(), true)
     }
-    table += `</tr>${types}</tr>${filters}</tr>${totals}</tr>`
 
     // build team rows
     for (let idx in filter_teams)
     {
         let team = filter_teams[idx]
-        table += `<tr><td>${parseInt(idx)+1}</td><td ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</td>`
+        let row = table.insertRow()
+        row.insertCell().innerText = parseInt(idx) + 1
+        let team_num = row.insertCell()
+        team_num.innerText = team
+        if (dal.is_unsure(team))
+        {
+            team_num.classList.append('highlighted')
+        }
+
         for (let i in selected)
         {
             let key = selected[i]
 
             // determine previously selected stat
             let type = 'mean'
-            if (document.getElementById(`select_${i}`))
+            if (`select_${i}` in selected_types)
             {
                 type = selected_types[`select_${i}`].toLowerCase()
             }
@@ -526,17 +588,17 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
                 {
                     colors = [colors[1], colors[0], colors[2], colors[3]]
                 }
-                color = `style="background-color: rgba(${colors.join(',')}"`
+                color = `rgba(${colors.join(',')}`
             }
 
             // build cell
-            table += `<td ${color}>${dal.get_value(team, key, type, true)}</td>`
+            let cell = row.insertCell()
+            cell.style.background_color = color
+            cell.innerText = dal.get_value(team, key, type, true)
         }
-        table += '</tr>'
     }
-    table += '</table>'
 
-    document.getElementById('results_tab').innerHTML = table
+    document.getElementById('results_tab').replaceChildren(table)
 
     sessionStorage.setItem(SESSION_TYPES_KEY, JSON.stringify(selected_types))
 }
@@ -741,7 +803,7 @@ function import_keys(event)
                 if (i > 0)
                 {
                     let key = keys[i].substring(1, keys[i].length - 1)
-                    document.getElementById(`option_${key}`).classList.add('selected')
+                    document.getElementById(`pit_option_${key}`).classList.add('selected')
                     selected_keys.push(key)
                 }
             }
@@ -822,6 +884,10 @@ function drop_handler(e)
     e.preventDefault()
     let dropped_on = e.target.id
     let dragging = e.dataTransfer.getData("text")
+    if (dropped_on === '')
+    {
+        dropped_on = e.target.parentElement.id
+    }
 
     // determine what was moved
     let old_idx = parseInt(dragging.split('_')[1])
