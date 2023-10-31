@@ -701,11 +701,6 @@ class MultiInput extends Input
 
     get element()
     {
-        if (this.vertical)
-        {
-            this.add_class('vertical')
-        }
-
         let select = document.createElement('div')
         select.id = this.id
         select.className = 'wr_select'
@@ -776,6 +771,10 @@ class MultiButton extends MultiInput
             option.id = `${this.id}-${i}`
             option.className = 'wr_select_option'
             option.classList.add(...this.classes)
+            if (this.vertical)
+            {
+                option.classList.add('vertical')
+            }
             option.onclick = (event) => eval(this.on_clicks[i])
             option.oncontextmenu = (event) => false
             option.onauxclick = (event) => {
@@ -1085,7 +1084,7 @@ class MultiCounter extends MultiInput
             this.value.push(value)
         }
         this.options.push(option)
-        this.columns = MultiInput.calc_num_columns(options)
+        this.columns = MultiInput.calc_num_columns(this.options)
     }
 
     get option_elements()
@@ -1122,6 +1121,10 @@ class MultiCounter extends MultiInput
             option.id = `${this.id}-${i}`
             option.className = 'wr_select_option'
             option.classList.add(...this.classes)
+            if (this.vertical)
+            {
+                option.classList.add('vertical')
+            }
             option.onclick = (event) => increment(`${name}-value`, false)
             option.oncontextmenu = (event) => false
             option.onauxclick = (event) => {
@@ -1215,6 +1218,10 @@ class Select extends OptionedInput
                 option.classList.add('selected')
             }
             option.classList.add(...this.classes)
+            if (this.vertical)
+            {
+                option.classList.add('vertical')
+            }
             option.onclick = (event) => {
                 Select.select_option(this.id, i)
                 eval(this.on_change)
@@ -1384,6 +1391,10 @@ class MultiSelect extends MultiInput
             if (this.value.includes(op_name))
             {
                 option.classList.add('selected')
+            }
+            if (this.vertical)
+            {
+                option.classList.add('vertical')
             }
             option.classList.add(...this.classes)
             option.onclick = (event) => {
