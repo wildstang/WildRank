@@ -14,7 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Test Page'
+    document.getElementById('header_info').innerText = 'Test Page'
 
     let page = new PageFrame('', 'Test Page')
     let buttons = new ColumnFrame('', 'Button Column')
@@ -170,7 +170,6 @@ function init_page()
     alertdropdown.on_change = `alert('Select')`
     dropdowns.add_input(alertdropdown)
 
-
     let others = new ColumnFrame('', 'Other Column')
     page.add_column(others)
 
@@ -185,7 +184,7 @@ function init_page()
     alertslider.on_change = `alert('Slid')`
     others.add_input(alertslider)
 
-    document.body.innerHTML += page.toString
+    document.body.append(page.element)
 
     let timer = new Timer('', 'Test Timer')
     document.getElementById('counter_column').append(timer.get())
