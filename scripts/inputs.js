@@ -1591,6 +1591,19 @@ class MatchOption extends Option
  * Aux Funcs
  */
 
+/**
+ * function:    create_header
+ * parameters:  label text
+ * returns:     HTML th
+ * description: Creates a header element with a given label.
+ */
+function create_header(label)
+{
+    let th = document.createElement('th')
+    th.innerText = label
+    return th
+}
+
 var last_touch = -1
 
 /**

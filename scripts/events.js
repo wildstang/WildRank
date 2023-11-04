@@ -5,7 +5,6 @@
  * date:        2022-02-03
  */
 
-
 /**
  * function:    init_page
  * parameters:  none
@@ -14,8 +13,18 @@
  */
 function init_page()
 {
-    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: left"><tr><th>Event</th><th>Key</th><th>Start Date</th><th>Team Count</th><th>Teams</th></tr></table>')
-    document.body.innerHTML += new PageFrame('', '', [card]).toString
+    let contents = document.createElement('span')
+    let summary = document.createElement('div')
+    summary.innerText = 'Loading data...'
+    let table = document.createElement('table')
+    table.style.textAlign = 'left'
+    contents.append(summary, table)
+
+    let header = table.insertRow()
+    header.append(create_header('Event'), create_header('Key'), create_header('Start Date'), create_header('Team Count'), create_header('Teams'))
+
+    let card = new Card('card', contents)
+    document.body.append(new PageFrame('', '', [card]).element)
 
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)
@@ -107,11 +116,11 @@ function init_page()
                                                     {
                                                         if (award.award_type == 1)
                                                         {
-                                                            events[e].teams[team].award = 'background-color: #0f4bcb; color: #ffffff'
+                                                            events[e].teams[team].award = 'winner'
                                                         }
                                                         else
                                                         {
-                                                            events[e].teams[team].award = 'background-color: #ff4136; color: #ffffff'
+                                                            events[e].teams[team].award = 'finalist'
                                                         }
                                                         switch (parseInt(i))
                                                         {
@@ -134,7 +143,7 @@ function init_page()
                                                     let team = award.recipient_list[i].team_key.substr(3)
                                                     if (Object.keys(events[e].teams).includes(team) && events[e].teams[team].award == '')
                                                     {
-                                                        events[e].teams[team].award = 'background-color: #c0c0c0; color: #000000'
+                                                        events[e].teams[team].award = 'ei'
                                                     }
                                                 }
                                         }
@@ -152,20 +161,44 @@ function init_page()
                                         {
                                             let event = events[r]
                                             let keys = Object.keys(event.teams)
-                                            if (!dal.event_id.endsWith(r))
+                                            let row = table.insertRow()
+                                            if (dal.event_id.endsWith(r))
                                             {
-                                                // sort teams and add row
-                                                keys.sort((a, b) => parseInt(a) - parseInt(b))
-                                                let teams = keys.map(t => `<span style="${event.teams[t].award}">${t}${event.teams[t].label}</span>`).join(', ')
-                                                document.getElementById('table').innerHTML += `<tr><td>${event.name}</td><td>${cfg.year}${r}</td><td>${event.start.replaceAll(`${cfg.year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
+                                                row.style.backgroundColor = 'gray'
+                                                keys = firsts
+                                                summary.innerText = `Of the ${keys.length} teams attending the ${event.name}...`
                                             }
-                                            else
+                                            // sort teams and add row
+                                            keys.sort((a, b) => parseInt(a) - parseInt(b))
+                                            row.insertCell().innerText = event.name
+                                            row.insertCell().innerText = r
+                                            row.insertCell().innerText = event.start.replaceAll(`${cfg.year}-`, '')
+                                            row.insertCell().innerText = keys.length
+                                            let teams = row.insertCell()
+                                            for (let t of keys)
                                             {
-                                                // add simple row for current event and update summary
-                                                firsts.sort((a, b) => parseInt(a) - parseInt(b))
-                                                let teams = firsts.join(', ')
-                                                document.getElementById('table').innerHTML += `<tr style="background-color: gray"><td>${event.name}</td><td>${dal.event_id}</td><td>${event.start.replaceAll(`${cfg.year}-`, '')}</td><td>${keys.length}</td><td>${teams}</td></tr>`
-                                                document.getElementById('summary').innerHTML = `Of the ${keys.length} teams attending the ${event.name}...`
+                                                let span = document.createElement('span')
+                                                if (event.teams[t].award === 'winner')
+                                                {
+                                                    span.style.backgroundColor = '#0f4bcb'
+                                                    span.style.color = '#ffffff'
+                                                }
+                                                else if (event.teams[t].award === 'finalist')
+                                                {
+                                                    span.style.backgroundColor = '#ff4136'
+                                                    span.style.color = '#ffffff'
+                                                }
+                                                else if (event.teams[t].award === 'ei')
+                                                {
+                                                    span.style.backgroundColor = '#c0c0c0'
+                                                    span.style.color = '#000000'
+                                                }
+                                                span.innerText = `${t}${event.teams[t].label}`
+                                                teams.append(span)
+                                                if (keys.indexOf(t) !== keys.length - 1)
+                                                {
+                                                    teams.append(', ')
+                                                }
                                             }
                                         }
                                     }
@@ -183,6 +216,6 @@ function init_page()
     }
     else
     {
-        document.getElementById('summary').innerHTML = 'No teams found'
+        summary.innerText = 'No teams found'
     }
 }
