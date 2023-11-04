@@ -12,6 +12,8 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
+var avatar, result_name, loc, rank, results_tab
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -20,10 +22,24 @@ const selected = urlParams.get('file')
  */
 function init_page()
 {
-    contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
-                                <input type="checkbox" id="show_meta" onclick="rebuild_result_list()">Show Metadata</input>
-                                <table id="results_tab"></table>`
-    buttons_container.innerHTML = ''
+    let title = document.createElement('div')
+    avatar = document.createElement('img')
+    avatar.id = 'avatar'
+    result_name = document.createElement('h2')
+    loc = document.createElement('h3')
+    rank = document.createElement('h3')
+    title.append(avatar, ' ', result_name, loc, rank)
+
+    let label = document.createElement('label')
+    let show_meta = document.createElement('input')
+    show_meta.type = 'checkbox'
+    show_meta.id = 'show_meta'
+    show_meta.onclick = (event) => rebuild_result_list()
+    label.append(show_meta, 'Show Metadata')
+
+    results_tab = document.createElement('table')
+    results_tab.id = 'results_tab'
+    contents_card.replaceChildren(title, label, results_tab)
 
     // add filter for teams
     let avail_teams = Object.keys(dal.teams)
@@ -58,12 +74,13 @@ function build_result_list()
         if (((selected === '' || selected === null) || `${match}-${result.meta_team}` === selected) &&
             (filter === 'All' || team.toString() === filter))
         {
-            let spaces = 4 - team.length
+            let spaces = 4 - team.toString().length
+            let disp_team = team
             for (let i = 0; i < spaces; i++)
             {
-                team = `&nbsp;${team}`
+                disp_team = `&nbsp;${disp_team}`
             }
-            options[`${match}-${team}`] = `${dal.get_match_value(match, 'short_match_name')} ${team}`
+            options[`${match}-${team}`] = `${dal.get_match_value(match, 'short_match_name')} ${disp_team}`
             classes[`${match}-${team}`] = dal.get_result_value(team, match, 'meta_unsure') ? 'highlighted' : ''
         }
     }
@@ -85,7 +102,7 @@ function build_result_list()
 function rebuild_result_list()
 {
     let op = document.getElementsByClassName('selected')[0]
-    open_option(op.id.replace('option_', ''))
+    open_option(op.id.replace('pit_option_', ''))
 }
 
 /**
@@ -96,13 +113,9 @@ function rebuild_result_list()
  */
 function open_option(option)
 {
-    // remove &nbsp; from string, which is automatically done when put in HTML
-    // so basically only for the automatically opened first option
-    option = option.replace(/&nbsp;/g, '\xa0')
-
     // select the new option
     deselect_all()
-    document.getElementById(`option_${option}`).classList.add('selected')
+    document.getElementById(`pit_option_${option}`).classList.add('selected')
 
     // pull match and team out
     let parts = option.split('-')
@@ -117,13 +130,13 @@ function open_option(option)
     {
         color = 'red'
     }
-    document.getElementById('result_name').style.color = color
+    result_name.style.color = color
 
     // setup header
-    document.getElementById('avatar').src = dal.get_value(team, 'pictures.avatar')
-    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
-    document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
-    document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
+    avatar.src = dal.get_value(team, 'pictures.avatar')
+    result_name.innerText = `${team}: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
+    loc.innerText = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
+    rank.innerText = dal.get_rank_str(team)
 
     // build a list of opponents to prepare for replacing opponentX in names TODO?
     let red = dal.matches[match].red_alliance
@@ -139,7 +152,8 @@ function open_option(option)
     }
 
     let alliances = dal.build_relative_alliances(team, match)
-    let table = '<table><tr><th></th><th>Match Value</th></tr>'
+    results_tab.replaceChildren()
+    results_tab.insertRow().append(document.createElement('th'), create_header('Match Value'))
     let keys = Object.keys(result)
     if (!document.getElementById('show_meta').checked)
     {
@@ -148,8 +162,8 @@ function open_option(option)
     for (let key of keys)
     {
         let name = dal.fill_team_numbers(dal.get_name('stats.' + key, ''), alliances)
-        table += `<tr><th>${name}</th><td>${dal.get_result_value(team, match, key, true)}</td></tr>`
+        let row = results_tab.insertRow()
+        row.append(create_header(name))
+        row.insertCell().innerHTML = dal.get_result_value(team, match, key, true)
     }
-    table += '</table>'
-    document.getElementById('results_tab').innerHTML = table
 }

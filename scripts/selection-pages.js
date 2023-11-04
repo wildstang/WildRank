@@ -167,7 +167,7 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
 
     if (first !== '')
     {
-        scroll_to('option_list', `option_${first}`)
+        scroll_to('option_list', `pit_option_${first}`)
         if (secondary && second !== '')
         {
             enable_secondary_list()
@@ -295,7 +295,7 @@ function populate_other(options, classes={})
             {
                 first = op
             }
-    
+
             // replace placeholders in template and add to screen
             let name = typeof names !== 'undefined' ? names[op] : op
             let option = new Option(op, name)
@@ -306,10 +306,10 @@ function populate_other(options, classes={})
             option_list.push(option.element)
         }
         document.getElementById('option_list').replaceChildren(...option_list)
-        
+
         if (first !== '')
         {
-            scroll_to('option_list', `option_${first}`)
+            scroll_to('option_list', `pit_option_${first}`)
         }
         return first
     }
