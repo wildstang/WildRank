@@ -8,6 +8,20 @@
 include('transfer')
 
 /**
+ * function:    build_key
+ * parameters:  color string, label string
+ * returns:     th element
+ * description: Builds a header cell with a given background color and label.
+ */
+function build_key(color, label)
+{
+    let k = document.createElement('th')
+    k.style.backgroundColor = color
+    k.innerText = label
+    return k
+}
+
+/**
  * function:    init_page
  * parameters:  none
  * returns:     none
@@ -16,27 +30,38 @@ include('transfer')
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Scouting Progress'
+    document.getElementById('header_info').innerText = 'Scouting Progress'
 
     let match_table = document.createElement('table')
-    let pit_table = '<table><tr>'
-    let key = `<table><tr><th style="background-color: green">Complete</th><th style="background-color: yellowgreen">Match Only</th>
-                          <th style="background-color: yellow">Note Only</th><th style="background-color: orange">Unsure</th>
-                          <th style="background-color: red">Unscouted</th></tr></table>`
+    let pit_table = document.createElement('table')
+
+    let key = document.createElement('table')
+    let key_row = key.insertRow()
+    key_row.append(build_key('green', 'Complete'))
+    key_row.append(build_key('yellowgreen', 'Match Only'))
+    key_row.append(build_key('yellow', 'Note Only'))
+    key_row.append(build_key('orange', 'Unsure'))
+    key_row.append(build_key('red', 'Unscouted'))
 
     // build match result table
     let matches = Object.keys(dal.matches)
     matches.sort((a, b) => dal.get_match_value(a, 'scheduled_time') - dal.get_match_value(b, 'scheduled_time'))
     let keys = Object.values(dal.get_team_keys(event_id))
     let header_row = match_table.insertRow()
-    for (let key of keys)
+    header_row.insertCell()
+    for (let k of keys)
     {
-        insert_header_cell(header_row, key)
+        let th = document.createElement('th')
+        th.innerText = k
+        header_row.append(th)
     }
     for (let match of matches)
     {
         let row = match_table.insertRow()
-        insert_header_cell(row, dal.get_match_value(match, 'short_match_name'))
+        let th = document.createElement('th')
+        th.innerText = dal.get_match_value(match, 'short_match_name')
+        row.append(th)
+
         let teams = dal.get_match_teams(match)
         for (let team_key of Object.keys(teams))
         {
@@ -74,6 +99,7 @@ function init_page()
                 color = 'red'
                 link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: false})
             }
+
             let td = row.insertCell()
             td.innerText = team
             td.style.backgroundColor = color
@@ -84,15 +110,12 @@ function init_page()
     // build pit result table
     let teams = Object.keys(dal.teams)
     teams.sort((a, b) => a.team_number - b.team_number)
+    let pit_row
     for (let i in teams)
     {
         if (i % 7 == 0)
         {
-            if (i != 0)
-            {
-                pit_table += '</tr>'
-            }
-            pit_table += '<tr>'
+            pit_row = pit_table.insertRow()
         }
         let color = 'red'
         let link = ''
@@ -106,9 +129,12 @@ function init_page()
             color = 'red'
             link = open_page('scout', {type: PIT_MODE, team: teams[i], edit: false})
         }
-        pit_table += `<td style="background-color: ${color}" onclick="window_open('${link}', '_self')">${teams[i]}</td>`
+
+        let td = pit_row.insertCell()
+        td.style.backgroundColor = color
+        td.onclick = (event) => window_open(link, '_self')
+        td.innerText = teams[i]
     }
-    pit_table += '</tr></table>'
 
     // add both tables to the page in cards
     let page = new PageFrame('', '')
@@ -126,7 +152,9 @@ function init_page()
 
     let match = new ColumnFrame('match_page', 'Match Progress')
     page.add_column(match)
-    let match_card = new Card('matches', `${key}`)
+    let match_content = document.createElement('span')
+    match_content.append(key, match_table)
+    let match_card = new Card('matches', match_content)
     match.add_input(match_card)
 
     document.getElementById('body').replaceChildren(page.element)

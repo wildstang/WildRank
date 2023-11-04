@@ -1587,13 +1587,6 @@ class MatchOption extends Option
     }
 }
 
-function insert_header_cell(row, value)
-{
-    let th = document.createElement('td').append(document.createTextNode(value))
-    row.append(th)
-    return th
-}
-
 /**
  * Aux Funcs
  */
