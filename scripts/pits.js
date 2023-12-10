@@ -12,6 +12,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var generate = ''
 var streaming = false
 
+var avatar_el, team_num_el, team_name_el, photos_el, buttons_el, preview_el, capture_el
+
 include('transfer')
 
 /**
@@ -26,28 +28,40 @@ function init_page()
     add_button_filter('transfer', 'Export Pit Results', `export_results()`, true)
     if (first)
     {
-        contents_card.innerHTML = `<img id="avatar" onclick="generate='random'" ontouchstart="touch_button(false)" ontouchend="touch_button('generate=\\'random\\', true)')">
-            <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
-            <span id="photos"></span>`
-        buttons_container.innerHTML = `<div id="view_result"></div>
-            <div id="camera-container" style="display: none">
-                <video id="camera-preview">Video stream not available.</video>
-                <span id="capture-button"></span>
-            </div>`
+        avatar_el = document.createElement('img')
+        avatar_el.onclick = (event) => generate = 'random'
+        avatar_el.ontouchstart = (event) => touch_button(false)
+        avatar_el.ontouchend = (event) => touch_button('generate="random"', true)
+
+        team_el = document.createElement('h2')
+        team_num_el = document.createElement('span')
+        team_name_el = document.createElement('span')
+        team_el.append(team_num_el, ' ', team_name_el)
+
+        photos_el = document.createElement('span')
+        contents_card.append(avatar_el, team_el, photos_el)
+
+        let camera_el = document.createElement('div')
+        camera_el.style.display = 'none'
+        preview_el = document.createElement('video')
+        preview_el.innerText = 'Video stream not available.'
+        capture_el = document.createElement('span')
+        camera_el.append(preview_el, capture_el)
+
+        buttons_el = document.createElement('div')
+        buttons_container.append(buttons_el, camera_el)
         
         open_option(first)
 
         // setup camera feed
         if (cfg.settings.use_images && navigator.mediaDevices)
-        {
-            let video = document.getElementById('camera-preview')
-    
+        {    
             // get video stream
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
                 .then(function(stream)
                 {
-                    video.srcObject = stream
-                    video.play()
+                    preview_el.srcObject = stream
+                    preview_el.play()
                 })
                 .catch(function(err)
                 {
@@ -55,24 +69,28 @@ function init_page()
                 })
     
             // initialize camera dimensions, when available
-            video.addEventListener('canplay', function(e)
+            preview_el.addEventListener('canplay', function(e)
             {
                 if (!streaming)
                 {
                     // apply dimensions
-                    video.setAttribute('width', video.videoWidth)
-                    video.setAttribute('height', video.videoHeight)
+                    preview_el.setAttribute('width', preview_el.videoWidth)
+                    preview_el.setAttribute('height', preview_el.videoHeight)
                     streaming = true
 
                     // show camera when available
-                    document.getElementById('camera-container').style.display = 'block'
+                    camera_el.style.display = 'block'
                 }
             }, false)
         }
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
+        let header = document.createElement('h2')
+        header.textContent = 'No Team Data Found'
+        let details = document.createElement('span')
+        details.textContent = 'Please preload event'
+        contents_card.append(header, details)
     }
 }
 
@@ -87,17 +105,16 @@ function open_option(team_num)
     deselect_all()
 
     // fill team info
-    document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
-    document.getElementById('team_num').innerHTML = team_num
-    document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
-    document.getElementById(`option_${team_num}`).classList.add('selected')
-    document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
+    avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
+    team_num_el.innerText = team_num
+    team_name_el.innerText = dal.get_value(team_num, 'meta.name')
+    document.getElementById(`pit_option_${team_num}`).classList.add('selected')
+    photos_el.replaceChildren(dal.get_photo_carousel(team_num))
     
     // show edit/view result buttons
-    let result_buttons = document.getElementById('view_result')
     let scout = new Button('scout_pit', 'Scout Pit!')
     scout.link = `start_scouting('${team_num}', false)`
-    result_buttons.innerHTML = scout.toString
+    buttons_el.replaceChildren(scout.element)
     if (dal.is_pit_scouted(team_num))
     {
         let page = new PageFrame()
@@ -117,13 +134,13 @@ function open_option(team_num)
         del.add_class('slim')
         page.add_column(new ColumnFrame('', '', [del]))
 
-        result_buttons.innerHTML += page.toString
+        buttons_el.append(page.element)
     }
 
     // update capture button for new team
     let capture = new Button('capture', 'Capture', `capture('${team_num}')`)
     capture.add_class('slim')
-    document.getElementById('capture-button').innerHTML = capture.toString
+    capture_el.replaceChildren(capture.element)
 
     ws(team_num)
 }
@@ -136,15 +153,14 @@ function open_option(team_num)
  */
 function capture(team_num)
 {
-    let video = document.getElementById('camera-preview')
     let canvas = document.createElement('canvas')
     let context = canvas.getContext('2d')
     if (streaming)
     {
         // get image
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight)
+        canvas.width = preview_el.videoWidth
+        canvas.height = preview_el.videoHeight
+        context.drawImage(preview_el, 0, 0, preview_el.videoWidth, preview_el.videoHeight)
         let data = canvas.toDataURL('image/png')
 
         // place image in carousel
