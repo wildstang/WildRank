@@ -40,15 +40,12 @@ function init_page()
     if (first)
     {
         match_num_el = document.createElement('h2')
-        match_num_el.id = 'match_num'
         match_time_el = document.createElement('span')
-        match_time_el.id = 'match_time'
         contents_card.append(match_num_el, 'Time: ', match_time_el, br(), br())
         
         if (scout_mode == MATCH_MODE)
         {
             avatar_el = document.createElement('img')
-            avatar_el.id = 'avatar'
             avatar_el.onclick = (event) => generate = 'random'
             avatar_el.ontouchstart = (event) => touch_button(false)
             avatar_el.ontouchend = (event) => touch_button('generate="random"', true)
@@ -64,18 +61,14 @@ function init_page()
 
         let team = document.createElement('h2')
         team_num_el = document.createElement('span')
-        team_num_el.id = 'team_scouting'
         team_num_el.textContent = 'No Match Selected'
         team_name_el = document.createElement('span')
-        team_name_el.id = 'team_name'
         team_pos_el = document.createElement('span')
-        team_pos_el.id = 'position'
         team_pos_el.textContent = `(${pos})`
         team.append(team_num_el, ' ', team_name_el, ' ', team_pos_el)
         contents_card.append(team)
 
         photos_el = document.createElement('span')
-        photos_el.id = 'photos'
         contents_card.append(photos_el)
 
         open_option(first)
