@@ -846,6 +846,37 @@ class DAL
     }
 
     /**
+     * function:    generate_score
+     * parameters:  match key
+     * returns:     Score element
+     * description: Generates HTML elements to display the score of a given match.
+     */
+    generate_score(match_key)
+    {
+        let span = document.createElement('span')
+        let red = dal.get_match_value(match_key, 'red_score')
+        let blue = dal.get_match_value(match_key, 'blue_score')
+        if (red !== '' && blue !== '' && red >= 0 && blue >= 0)
+        {
+            let red_score = document.createElement('span')
+            red_score.innerText = red
+            red_score.className = 'red'
+            let blue_score =  document.createElement('span')
+            blue_score.innerText = blue
+            blue_score.className = 'blue'
+            if (dal.get_match_value(match_key, 'winner') === 'red')
+            {
+                span.append(red_score, ' - ', blue_score)
+            }
+            else
+            {
+                span.append(blue_score, ' - ', red_score)
+            }
+        }
+        return span
+    }
+
+    /**
      * function:    build_matches
      * parameters:  none
      * returns:     none
@@ -930,16 +961,6 @@ class DAL
                     if (winner === '')
                     {
                         winner = 'tie'
-                    }
-                    let red_score = match.alliances.red.score
-                    let blue_score =  match.alliances.blue.score
-                    if (winner === 'red')
-                    {
-                        score_str = `<span class="red">${red_score}</span> - <span class="blue">${blue_score}</span>`
-                    }
-                    else
-                    {
-                        score_str = `<span class="blue">${blue_score}</span> - <span class="red">${red_score}</span>`
                     }
                 }
                 this.matches[match.key] = {
