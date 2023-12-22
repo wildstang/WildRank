@@ -154,7 +154,7 @@ function open_option(user_id)
         row.insertCell().innerText = match.meta_alliance
         row.insertCell().innerText = match.meta_note_position
         row.insertCell().innerText = `${delays[delays.length - 1]}s`
-        row.insertCell().innerHTML = `${match.meta_scouting_duration.toFixed()}s`
+        row.insertCell().innerHTML = `${match.meta_note_scouting_duration.toFixed()}s`
     }
     row = time_table.insertRow()
     row.append(create_header('Mean'))
