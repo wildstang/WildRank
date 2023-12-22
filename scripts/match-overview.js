@@ -6,6 +6,8 @@
  * date:        2020-06-13
  */
 
+var match_num_el, time_el, result_el, extra_el, teams_el 
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -23,20 +25,26 @@ function init_page()
     }
     if (first)
     {
+        match_num_el = document.createElement('h2')
+        match_num_el.innerText = 'No Match Selected'
+        time_el = document.createElement('h3')
+        result_el = document.createElement('h3')
         let extra_toggle = new Button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()')
         extra_toggle.add_class('slim')
-        contents_card.innerHTML = `<h2><span id="match_num">No Match Selected</span></h2>
-                                    <h3 id="time"></h3>
-                                    <h3 id="result"></h3>
-                                    ${extra_toggle.toString}
-                                    <div id="extra" style="display: none"></div>`
-        buttons_container.innerHTML = '<div id="teams"></div>'
+        extra_el = document.createElement('div')
+        extra_el.style.display = 'none'
+        contents_card.append(match_num_el, time_el, result_el, extra_toggle.element, extra_el)
 
-        open_match(first)
+        teams_el = document.createElement('div')
+        buttons_container.append(teams_el)
+
+        open_option(first)
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Match Data Found</h2>Please preload event'
+        let header = document.createElement('h2')
+        header.innerText = 'No Match Data Found'
+        contents_card.append(header, 'Please preload event')
     }
 }
 
@@ -50,34 +58,35 @@ function hide_matches()
 {
     let team = document.getElementById('team_filter').value
     let first = populate_matches(true, true, team)
-    open_match(first)
+    open_option(first)
 }
 
 /**
- * function:    open_match
+ * function:    open_option
  * parameters:  Selected match number
  * returns:     none
  * description: Completes right info pane for a given match number.
  */
-function open_match(match_key)
+function open_option(match_key)
 {
-    
     // select option
     deselect_all()
     document.getElementById(`match_option_${match_key}`).classList.add('selected')
 
     // place match number and team to scout on pane
-    document.getElementById('match_num').innerHTML = dal.get_match_value(match_key, 'match_name')
+    match_num_el.innerText = dal.get_match_value(match_key, 'match_name')
 
     // place match time
-    document.getElementById('time').innerHTML = dal.get_match_value(match_key, 'display_time')
+    time_el.innerText = dal.get_match_value(match_key, 'display_time')
+
+    // generate extras
+    let extras = []
     if (dal.get_match_value(match_key, 'complete'))
     {        
         // add match score
-        document.getElementById('result').innerHTML = dal.get_match_value(match_key, 'score_str')
+        result_el.replaceChildren(dal.generate_score(match_key))
 
         // add videos
-        let extra = '<div id="videos"></div>'
         let videos = dal.get_match_value(match_key, 'videos')
         if (videos && videos.length > 0)
         {
@@ -86,7 +95,12 @@ function open_match(match_key)
                 // only youtube videos
                 if (vid.type == 'youtube')
                 {
-                    extra += `<iframe id="${vid.key}" width="640" height="360" src="https://www.youtube.com/embed/${vid.key}" allow="fullscreen"></iframe>`
+                    let video = document.createElement('iframe')
+                    video.width = 640
+                    video.height = 360
+                    video.src = `https://www.youtube.com/embed/${vid.key}`
+                    video.allow = 'fullscreen'
+                    extras.push(video)
                 }
             }
         }
@@ -95,25 +109,30 @@ function open_match(match_key)
         let breakdown = dal.get_match_value(match_key, 'score_breakdown')
         if (breakdown)
         {
-            extra += '<center><table style=""><tr><th>Key</th><th>Red</th><th>Blue</th></tr>'
+            // create score breakdown header
+            let table = document.createElement('table')
+            let row = table.insertRow()
+            row.append(create_header('Key'), create_header('Red'), create_header('Blue'))
+
+            // add each team
             for (let key of Object.keys(breakdown.red))
             {
                 let name = key.replace('tba_', '')
                 name = name[0].toUpperCase() + name.substring(1).split(/(?=[A-Z])/).join(' ')
                 name = name.replace('1', ' 1').replace('2', ' 2').replace('3', ' 3')
-                let red = parse_val(breakdown.red[key])
-                let blue = parse_val(breakdown.blue[key])
-                extra += `<tr><th>${name}</th><td>${red}</td><td>${blue}</td></tr>`
+                row = table.insertRow()
+                row.append(create_header(name))
+                row.insertCell().append(parse_val(breakdown.red[key]))
+                row.insertCell().append(parse_val(breakdown.blue[key]))
             }
-            extra += '</table></center>'
+
+            // center the table
+            let center = document.createElement('center')
+            center.append(table)
+            extras.push(center)
         }
-        document.getElementById('extra').innerHTML = extra
     }
-    else
-    {
-        document.getElementById('result').innerHTML = ''
-        document.getElementById('extra').innerHTML = ''
-    }
+    extra_el.replaceChildren(...extras)
 
     // reorganize teams into single object
     let match_teams = dal.get_match_teams(match_key)
@@ -130,17 +149,28 @@ function open_match(match_key)
         let alliance = key.split('_')[0]
 
         // build button to either scout or result
-        let team = `<span class="${alliance}">${team_num}</span>`
-        let scout_link = new Button(`scout_${team_num}`, `Scout ${team}`)
+        let team = document.createElement('span')
+        team.className = alliance
+        team.innerText = team_num
+
+        let scout_text = document.createElement('span')
+        scout_text.append('Scout ', team)
+        let scout_link = new Button(`scout_${team_num}`, scout_text)
         scout_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match_key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
         if (dal.is_match_scouted(match_key, team_num))
         {
-            scout_link = new Button(`results_${team_num}`, `${team} Results`)
+            let result_text = document.createElement('span')
+            result_text.append(team, ' Results')
+            scout_link = new Button(`results_${team_num}`, result_text)
             scout_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
         }
 
         // add button and description to appropriate column
-        let team_info = `<center><span class="${alliance}">${team_num}</span><br>${dal.get_value(team_num, 'meta.name')}<br>${dal.get_rank_str(team_num)}</center>`
+        let team_info = document.createElement('center')
+        let team_el = document.createElement('span')
+        team_el.className = alliance
+        team_el.innerText = team_num
+        team_info.append(team_el, document.createElement('br'), dal.get_value(team_num, 'meta.name'), document.createElement('br'), dal.get_rank_str(team_num))
         let info_card = new Card(`card_${team_num}`, team_info)
         info_card.limitWidth = true
         if (alliance === 'red')
@@ -157,7 +187,7 @@ function open_match(match_key)
 
     // create page
     let page = new PageFrame('', '', [red_col, blue_col])
-    document.getElementById('teams').innerHTML = page.toString
+    teams_el.replaceChildren(page.element)
 }
 
 /**
@@ -168,14 +198,13 @@ function open_match(match_key)
  */
 function toggle_extra()
 {
-    let extra = document.getElementById('extra')
-    if (extra.style.display == 'none')
+    if (extra_el.style.display == 'none')
     {
-        extra.style.display = 'block'
+        extra_el.style.display = 'block'
     }
     else
     {
-        extra.style.display = 'none'
+        extra_el.style.display = 'none'
     }
 }
 
@@ -200,21 +229,23 @@ function parse_val(val)
     {
         if (Array.isArray(val))
         {
-            let table = '<table>'
-            for (let row of val)
+            let table = document.createElement('table')
+            for (let v of val)
             {
-                table += `<tr><td>${row.row}</td><td>${row.nodes.join(', ')}</td></tr>`
+                let r = table.insertRow()
+                r.insertCell().innerText = v.row
+                r.insertCell().innerText = v.nodes.join(', ')
             }
-            table += '</table>'
             val = table
         }
         else
         {
-            let table = '<table>'
+            let table = document.createElement('table')
             let rows = Object.keys(val)
             for (let r of rows)
             {
-                table += `<tr><th>${r}</th>`
+                let trow = table.insertRow()
+                trow.append(create_header(r))
                 let row = val[r]
                 for (let p of row)
                 {
@@ -227,11 +258,11 @@ function parse_val(val)
                     {
                         color = 'yellow'
                     }
-                    table += `<td style="background-color: ${color}">${p.replace('None', '')}</td>`
+                    let cell = trow.insertCell()
+                    cell.style.backgroundColor = color
+                    cell.innerText = p.replace('None', '')
                 }
-                table += '</tr>'
             }
-            table += '</table>'
             val = table
         }
     }
