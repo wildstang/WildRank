@@ -12,6 +12,8 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
+var title_el, avatar_el, name_el, location_el, ranking_el, table_el
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -20,9 +22,15 @@ const selected = urlParams.get('file')
  */
 function init_page()
 {
-    contents_card.innerHTML = `<div id="result_title"><img id="avatar"> <h2 id="result_name"></h2><h3 id="location"></h3><h3 id="ranking"></h3></div>
-                                <table id="results_tab"></table>`
-    buttons_container.innerHTML = ''
+    title_el = document.createElement('div')
+    avatar_el = document.createElement('img')
+    avatar_el.id = 'avatar'
+    name_el = document.createElement('h2')
+    location_el = document.createElement('h3')
+    ranking_el = document.createElement('h3')
+    title_el.append(avatar_el, ' ', name_el, location_el, ranking_el)
+    table_el = document.createElement('table')
+    contents_card.append(title_el, table_el)
 
     // add filter for teams
     let avail_teams = Object.keys(dal.teams)
@@ -87,7 +95,7 @@ function open_option(option)
 
     // select the new option
     deselect_all()
-    document.getElementById(`option_${option}`).classList.add('selected')
+    document.getElementById(`pit_option_${option}`).classList.add('selected')
 
     // pull match and team out
     let parts = option.split('-')
@@ -96,13 +104,12 @@ function open_option(option)
     ws(team)
 
     // setup header
-    document.getElementById('avatar').src = dal.get_value(team, 'pictures.avatar')
-    document.getElementById('result_name').innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
-    document.getElementById('location').innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
-    document.getElementById('ranking').innerHTML = dal.get_rank_str(team)
+    avatar_el.src = dal.get_value(team, 'pictures.avatar')
+    name_el.innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
+    location_el.innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
+    ranking_el.innerHTML = dal.get_rank_str(team)
 
     let cycles = dal.get_result_keys(true, ['cycle'])
-    buttons_container.innerHTML = ''
     for (let key of cycles)
     {
         let cycle = dal.get_result_value(team, match, key)
@@ -158,7 +165,7 @@ function open_option(option)
 
             page.add_column(column)
         }
-        buttons_container.innerHTML += page.toString
+        buttons_container.replaceChildren(page.element)
     }
 }
 
