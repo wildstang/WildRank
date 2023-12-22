@@ -12,7 +12,7 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var avatar, result_name, loc, rank, results_tab
+var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab
 
 /**
  * function:    init_page
@@ -26,6 +26,11 @@ function init_page()
     avatar = document.createElement('img')
     avatar.id = 'avatar'
     result_name = document.createElement('h2')
+    team_el = document.createElement('label')
+    team_el.id = 'team_num'
+    name_el = document.createElement('name_el')
+    match_el = document.createElement('label')
+    result_name.append(team_el, ': ', name_el, ', ', match_el)
     loc = document.createElement('h3')
     rank = document.createElement('h3')
     title.append(avatar, ' ', result_name, loc, rank)
@@ -134,7 +139,9 @@ function open_option(option)
 
     // setup header
     avatar.src = dal.get_value(team, 'pictures.avatar')
-    result_name.innerText = `${team}: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
+    team_el.innerText = team
+    name_el.innerText = dal.get_value(team, 'meta.name')
+    match_el.innerText = dal.get_match_value(match, 'match_name')
     loc.innerText = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
     rank.innerText = dal.get_rank_str(team)
 
