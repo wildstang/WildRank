@@ -61,7 +61,7 @@ function init_page()
     let search = new Entry('search', 'Search', default_search)
     search.on_text_change = 'filter_notes()'
     let search_col = new ColumnFrame('', '', [search])
-    document.body.innerHTML += new PageFrame('', '', [teams_col, scouter_col, search_col]).toString + new PageFrame('notes', '').toString
+    document.body.append(new PageFrame('', '', [teams_col, scouter_col, search_col]).element, new PageFrame('notes', '').element)
     filter_notes()
 }
 
@@ -86,10 +86,6 @@ function filter_notes()
     sessionStorage.setItem(SESSION_SCOUTER_KEY, scouter)
     let search = document.getElementById('search').value.trim().toLowerCase()
     sessionStorage.setItem(SESSION_SEARCH_KEY, search)
-
-    // clear previous notes
-    let page = document.getElementById('notes')
-    page.innerHTML = ''
 
     for (let team of teams)
     {
@@ -150,7 +146,15 @@ function filter_notes()
             let images = dal.get_photo_carousel(team, '300px')
             let name = dal.get_value(team, 'meta.name')
             let result_keys = Object.keys(notes)
-            let table = `<center><h2>${team}</h2><h3>${name}</h3></center>${images}<table>`
+            let results_el = document.createElement('span')
+            let header = document.createElement('center')
+            let team_el = document.createElement('h2')
+            team_el.innerText = team
+            let name_el = document.createElement('h3')
+            name_el.innerText = name
+            header.append(team, name)
+            let table = document.createElement('table')
+            results_el.append(header, images, table)
             for (let key of result_keys)
             {
                 let name = PIT_MODE
@@ -158,19 +162,22 @@ function filter_notes()
                 {
                     name = dal.matches[key].short_match_name
                 }
-                let row = `<tr><th>${name}</th><td></td></tr>`
+                let row = table.insertRow()
+                row.appendChild(create_header(name), create_header(''))
                 for (let note of notes[key])
                 {
-                    row += `<tr><td></td><td>${note}</td>`
+                    let row = table.insertRow()
+                    row.insertCell()
+                    row.insertCell(note)
                 }
-                table += row
             }
-            table += '</table>'
 
             // add notes to new card
-            let card = new Card(team, table)
+            let card = new Card(team, results_el)
             card.custom_width = 1.5
-            page.innerHTML += new ColumnFrame('', '', [card]).toString
+
+            let page = document.getElementById('notes')
+            page.replaceChildren(new ColumnFrame('', '', [card]).element)
         }
     }
 }
