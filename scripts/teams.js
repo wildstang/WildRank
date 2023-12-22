@@ -11,6 +11,8 @@ include('mini-picklists')
 // read parameters from URL
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
+var avatar, team_num_hdr, team_name, loc, ranking, photos, stats_container, clear_container, match_container
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -22,19 +24,33 @@ function init_page()
     let first = populate_teams()
     if (first)
     {
-        contents_card.innerHTML = `<img id="avatar">
-                                    <h2><span id="team_num">No Team Selected</span> <span id="team_name"></span></h2>
-                                    <h3 id="location"></h3>
-                                    <h3 id="ranking"></h3>
-                                    <center><span id="photos"></span></center>
-                                    <div id="stats_tab"></div>`
-        buttons_container.innerHTML = '<span id="clear_container"></span><div id="matches"></div>'
+        avatar = document.createElement('img')
+
+        let team_header = document.createElement('h2')
+        team_num_hdr = document.createElement('span')
+        team_num_hdr.innerText = 'No Team Selected'
+        team_name = document.createElement('span')
+        team_header.append(team_num_hdr, ' ', team_name)
+
+        loc = document.createElement('h3')
+        ranking = document.createElement('h3')
+        let center = document.createElement('center')
+        photos = document.createElement('span')
+        center.append(photos)
+        stats_container = document.createElement('div')
+        contents_card.append(avatar, team_header, loc, ranking, center, stats_container)
+
+        clear_container = document.createElement('span')
+        match_container = document.createElement('div')
+        buttons_container.append(clear_container, match_container)
         
         open_option(first)
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
+        let header = document.createElement('h2')
+        header.innerText = 'No Team Data Found'
+        contents_card.append(header, 'Please preload event')
     }
 }
 
@@ -48,21 +64,21 @@ function open_option(team_num)
 {
     // select new option
     deselect_all()
-    document.getElementById(`option_${team_num}`).classList.add('selected')
+    document.getElementById(`pit_option_${team_num}`).classList.add('selected')
 
     // populate top
-    document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
-    document.getElementById('team_num').innerHTML = team_num
-    document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
-    document.getElementById('location').innerHTML = `${dal.get_value(team_num, 'meta.city')}, ${dal.get_value(team_num, 'meta.state_prov')}, ${dal.get_value(team_num, 'meta.country')}`
-    document.getElementById('photos').innerHTML = dal.get_photo_carousel(team_num)
+    avatar.src = dal.get_value(team_num, 'pictures.avatar')
+    team_num_hdr.innerText = team_num
+    team_name.innerText = dal.get_value(team_num, 'meta.name')
+    loc.innerText = `${dal.get_value(team_num, 'meta.city')}, ${dal.get_value(team_num, 'meta.state_prov')}, ${dal.get_value(team_num, 'meta.country')}`
+    photos.replaceChildren(dal.get_photo_carousel(team_num))
 
     // populate ranking
-    document.getElementById('ranking').innerHTML = dal.get_rank_str(team_num)
+    ranking.innerHTML = dal.get_rank_str(team_num)
 
     let clear_ignore = new Button('clear_ignore', 'Clear Ignores')
     clear_ignore.on_click = `clear_ignores('${team_num}')`
-    document.getElementById('clear_container').innerHTML = clear_ignore.toString
+    clear_container.replaceChildren(clear_ignore.element)
 
     // pull pit results
     let pit_button = ''
@@ -73,7 +89,8 @@ function open_option(team_num)
     }
 
     // build stats table
-    let stats_tab = '<table style="text-align: left">'
+    let stats_tab = document.createElement('table')
+    stats_tab.style.textAlign = 'left'
     let match_stats = dal.get_keys(true, false, false, false)
     let pit_stats = dal.get_keys(false, true, false, false)
     let num_match = match_stats.length
@@ -83,29 +100,32 @@ function open_option(team_num)
     {
         if ((i < num_pit && dal.is_pit_scouted(team_num)) || (i < num_match && dal.teams[team_num].results.length > 0))
         {
-            stats_tab += '<tr>'
+            let row = stats_tab.insertRow()
+            let pit_cell = row.insertCell()
             if (i < num_pit && dal.is_pit_scouted(team_num))
             {
                 let key = pit_stats[i]
-                stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+                row.append(create_header(dal.get_name(key)))
+                pit_cell.innerText = dal.get_value(team_num, key, 'mean', true)
             }
             else
             {
-                stats_tab += '<th></th><td></td>'
+                row.append(create_header(''))
             }
+            let match_cell = row.insertCell()
             if (i < num_match && dal.teams[team_num].results.length > 0)
             {
                 let key = match_stats[i]
-                stats_tab += `<th>${dal.get_name(key)}</th><td>${dal.get_value(team_num, key, 'mean', true)}</td>`
+                row.append(create_header(dal.get_name(key)))
+                match_cell.innerText = dal.get_value(team_num, key, 'mean', true)
             }
             else
             {
-                stats_tab += '<th></th><td></td>'
+                row.append(create_header(''))
             }
-            stats_tab += '</tr>'
         }
     }
-    document.getElementById('stats_tab').innerHTML = stats_tab
+    stats_container.replaceChildren(stats_tab)
 
     let cards = []
 
@@ -122,7 +142,8 @@ function open_option(team_num)
             let alliance = match.alliance
 
             // add time
-            let time = dal.get_match_value(match_key, 'display_time')
+            let time = document.createElement('center')
+            time.innerText = dal.get_match_value(match_key, 'display_time')
             if (dal.get_match_value(match_key, 'complete'))
             {
                 let winner = dal.get_match_value(match_key, 'winner')
@@ -135,25 +156,49 @@ function open_option(team_num)
                 {
                     win = 'T'
                 }
-                let result = `<b>${win}</b><br>${dal.get_match_value(match_key, 'score_str')}`
-                time += `<br>${result}`
+                let result = document.createElement('span')
+                let w = document.createElement('b')
+                w.innerText = win
+                result.append(w, document.createElement('br'), dal.generate_score(match_key))
+                time.append(document.createElement('br'), result)
             }
 
-            let match_num = `<span class="${alliance}">${dal.get_match_value(match_key, 'short_match_name')}</span>`
-            // make match button
-            let match_link = new Button(`scout_${match_key}`, `Scout Match ${match_num}`)
-            match_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match.match_number}', team: '${team_num}', alliance: '${alliance}', edit: false})`
+            let match_num = document.createElement('span')
+            match_num.className = alliance
+            match_num.innerText = dal.get_match_value(match_key, 'short_match_name')
+            let match_link
             if (dal.is_match_scouted(match_key, team_num))
             {
-                match_link = new Button(`result_${match_key}`, `Match ${match_num} Results`)
-                match_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
-                ignore = new Checkbox(`ignore_${match_key}`, `Ignore Match ${match_num}`, dal.get_result_value(team_num, match_key, 'meta_ignore'))
+                // build text of ignore checkbox
+                let ignore_text = document.createElement('span')
+                ignore_text.append('Ignore Match ', match_num)
+
+                // build ignore checkbox
+                let ignore = new Checkbox(`ignore_${match_key}`, ignore_text, dal.get_result_value(team_num, match_key, 'meta_ignore'))
                 ignore.on_click = `ignore_match('${match_key}', '${team_num}')`
                 ignore.add_class('slim')
                 cards.push(ignore)
+
+                // build text of match button
+                let match_text = document.createElement('span')
+                match_text.append('Match ', match_num, ' Results')
+
+                // build match button
+                match_link = new Button(`result_${match_key}`, match_text)
+                match_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
+            }
+            else
+            {
+                // build text of match button
+                let match_text = document.createElement('span')
+                match_text.append('Scout Match ', match_num)
+    
+                // build match button
+                match_link = new Button(`scout_${match_key}`, match_text)
+                match_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match.match_number}', team: '${team_num}', alliance: '${alliance}', edit: false})`
             }
             cards.push(match_link)
-            cards.push(new Card(`card_${match_key}`, `<center>${time}</center>`))
+            cards.push(new Card(`card_${match_key}`, time))
         }
     }
 
@@ -167,7 +212,7 @@ function open_option(team_num)
     let right_col = new ColumnFrame('', '', cards)
     let page = new PageFrame('', '', [pit_button, left_col, right_col])
 
-    document.getElementById('matches').innerHTML = page.toString
+    match_container.replaceChildren(page.element)
 
     ws(team_num)
 }
