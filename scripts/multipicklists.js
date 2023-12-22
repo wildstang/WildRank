@@ -9,6 +9,8 @@
 include('picklists-core')
 include('transfer')
 
+var avatar_el, team_el, name_el, lists_el
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -20,10 +22,17 @@ function init_page()
     let first = populate_teams(false)
     if (first)
     {
-        contents_card.innerHTML = `<img id="avatar">
-                                    <h2><label id="team_num"></label> <label id="team_name"></label></h2>
-                                    <h4>Belongs to:</h4>
-                                    <span id="belongs_to"></span>`
+        avatar_el = document.createElement('img')
+        avatar_el.id = 'avatar'
+        let header = document.createElement('h2')
+        team_el = document.createElement('label')
+        team_el.id = 'team_num'
+        name_el = document.createElement('label')
+        header.append(team_el, ' ', name_el)
+        let belongs = document.createElement('h4')
+        belongs.innerText = 'Belongs to:'
+        lists_el = document.createElement('span')
+        contents_card.append(avatar_el, header, belongs, lists_el)
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)
@@ -41,7 +50,7 @@ function init_page()
         let remove = new Checkbox('remove_teams', 'Remove Teams')
         let export_button = new Button('export', 'Export Lists', 'export_picklists()')
         let column = new ColumnFrame('', '', [new_list, card, remove, export_button])
-        buttons_container.innerHTML = new PageFrame('page', '', [column]).toString
+        buttons_container.append(new PageFrame('page', '', [column]).element)
         
         build_pick_lists()
         open_option(first)
@@ -60,7 +69,7 @@ function init_page()
  */
 function new_list()
 {
-    let team = document.getElementById('team_num').innerHTML
+    let team = team_el.innerText
     dal.picklists['New List'] = [team]
     build_pick_lists('New List', 0, 'New List')
 }
@@ -94,19 +103,19 @@ function open_option(team_num)
     deselect_all()
 
     // build team header
-    document.getElementById('avatar').src = dal.get_value(team_num, 'pictures.avatar')
-    document.getElementById('team_num').innerHTML = team_num
-    document.getElementById('team_name').innerHTML = dal.get_value(team_num, 'meta.name')
+    avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
+    team_el.innerHTML = team_num
+    name_el.innerHTML = dal.get_value(team_num, 'meta.name')
 
     let belongs_to = []
     if (Object.keys(dal.picklists).length > 0)
     {
         belongs_to = Object.keys(dal.picklists).filter(l => dal.picklists[l].includes(team_num))
     }
-    document.getElementById('belongs_to').innerHTML = belongs_to.join(', ')
+    lists_el.innerHTML = belongs_to.join(', ')
 
     // select team button
-    document.getElementById(`option_${team_num}`).classList.add('selected')
+    document.getElementById(`pit_option_${team_num}`).classList.add('selected')
     ws(team_num)
 }
 
@@ -127,58 +136,76 @@ function build_pick_lists(highlight='', list_num=0, rename='')
         }
     }
 
-    let table = '<table id="pick_list_table">'
+    let table = document.createElement('table')
+    table.id = 'pick_list_table'
     let match_filter = []
     for (let i = 0; i < longest; i++)
     {
-        table += '<tr>'
+        let row = table.insertRow()
         for (let column of columns)
         {
             let list = column[0]
             if (i === 0)
             {
-                let classes = ''
+                let selected = ''
                 if (highlight === list)
                 {
-                    classes += 'selected ' 
+                    selected = 'selected ' 
                 }
                 if (rename === list)
                 {
-                    table += `<td class="${classes}" oncontextmenu="remove_list('${list}'); return false" ontouchstart="touch_button(false)" ontouchend="touch_button('remove_list(\\\'${list}\\\')')"><input id="new_name_${list}" type="text" value="${list}" onchange="rename_list('${list}')"></input></td>`
+                    let name = document.createElement('input')
+                    name.id = `new_name_${list}`
+                    name.type = 'text'
+                    name.value = list
+                    name.onchange = (event) => rename_list(list)
+
+                    let cell = row.insertCell()
+                    cell.className = selected
+                    cell.oncontextmenu = (event) => { remove_list(list); return false }
+                    cell.ontouchstart = (event) => touch_button(false)
+                    cell.ontouchend = (event) => touch_button(`remove_list('${list}')`)
+                    cell.append(name)
                 }
                 else
                 {
-                    table += `<th onclick="build_pick_lists('${list}', 0, '${list}')" class="${classes}">${list}</th>`
+                    let header = create_header(list)
+                    header.onclick = (event) => build_pick_lists(list, 0, list)
+                    header.className = selected
+                    row.append(header)
                 }
             }
             else if (column.length > i)
             {
                 let team = column[i]
-                let classes = ''
+                let classes = []
                 if (i > 1)
                 {
-                    classes += 'team_cell '
+                    classes.push('team_cell')
                 }
                 if (dal.picklists['picked'] && dal.picklists['picked'].includes(team))
                 {
-                    classes += 'crossed_out '
+                    classes.push('crossed_out')
                 }
                 else if (highlight === list)
                 {
                     match_filter.push(team)
                 }
-                table += `<td onclick="add_to('${list}', '${team}')" oncontextmenu="mark_team('${list}', '${team}'); return false" class="${classes}" ontouchstart="touch_button(false)" ontouchend="touch_button('mark_team(\\\'${list}\\\', \\\'${team}\\\')')">${team}</td>`
+                let cell = row.insertCell()
+                cell.onclick = (event) => add_to(list, team)
+                cell.oncontextmenu = (event) => { mark_team(list, team); return false }
+                cell.classList.add(...classes)
+                cell.ontouchstart = (event) => touch_button(false)
+                cell.ontouchend = (event) => touch_button(`mark_team('${list}', '${team}')`)
+                cell.innerText = team
             }
             else
             {
-                table += '<td></td>'
+                row.insertCell()
             }
         }
-        table += '</tr>'
     }
-    table += '</table>'
-
-    document.getElementById('table_card').innerHTML = table
+    document.getElementById('table_card').replaceChildren(table)
 
     // add secondary list for picklist matches
     let prev_right = 'flex'

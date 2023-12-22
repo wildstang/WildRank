@@ -22,31 +22,36 @@ function select_list(name='')
     }
     // create new dropdown with current selection as default
     let dropdown = new Dropdown('list_names', '', Object.keys(dal.picklists), name)
-    dropdown.on_click = 'select_list()'
+    dropdown.on_change = 'select_list()'
     dropdown.add_class('slim')
-    let list_text = `<tr><td>${dropdown.toString}</td>`
+    let table = document.getElementById('mpl-teams')
+    table.replaceChildren()
+    let row = table.insertRow()
+    row.insertCell().append(dropdown.element)
     if (Object.keys(dal.picklists).includes(name))
     {
         let top = new Button('', 'Add to Top', `add_to('${name}', '')`)
         top.on_secondary = `remove_team('${name}', '')`
         top.add_class('pick_item')
         top.add_class('slim')
-        list_text += `<td>${top.toString}</td>`
+        row.insertCell().append(top.element)
         for (let team of dal.picklists[name])
         {
-            let classes = 'pick_item slim'
+            let classes = ['pick_item', 'slim']
             if (dal.picklists['picked'] && dal.picklists['picked'].includes(team))
             {
-                classes += ' crossed_out'
+                classes.push('crossed_out')
             }
             // add team button
             let entry = new Button('', team, `add_to('${name}', '${team}')`)
             entry.on_secondary = `remove_team('${name}', '${team}')`
-            entry.add_class(classes)
-            list_text += `<td>${entry.toString}</td>`
+            for (let c of classes)
+            {
+                entry.add_class(c)
+            }
+            row.insertCell().append(entry.element)
         }
     }
-    document.getElementById('teams').innerHTML = `${list_text}</tr>`
 }
 
 /**
@@ -60,8 +65,9 @@ function build_pick_lists(list_name='first_default', i=0)
     // don't show picklists UI if there are no lists
     if (Object.keys(dal.picklists).length > 0)
     {
-        let lists_text = `<table id="teams" style="overflow-x: scroll; display: block"></table>`
-        document.getElementById('pick_lists').innerHTML = lists_text
+        let lists_text = document.createElement('table')
+        lists_text.id = 'mpl-teams'
+        document.getElementById('pick_lists').replaceChildren(lists_text)
 
         if (list_name === 'first_default')
         {
