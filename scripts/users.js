@@ -20,8 +20,7 @@ function init_page()
     let pits = dal.get_pits([], false)
     if (matches.length > 0 || pits.length > 0)
     {
-        contents_card.style = 'display: none'
-        buttons_container.innerHTML = '<div id="contents"></div>'
+        contents_card.style.display = 'none'
         
         // build list of scouters
         let match_users = matches.map(m => m.meta_scouter_id).filter(id => typeof id !== 'undefined')
@@ -63,7 +62,9 @@ function init_page()
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Results Found</h2>'
+        let header = document.createElement('h2')
+        header.innerText = 'No Results Found'
+        contents_card.append(header)
     }
 }
 
@@ -82,7 +83,7 @@ function open_option(user_id)
 
     // select option
     deselect_all()
-    document.getElementById(`option_${user_id}`).classList.add('selected')
+    document.getElementById(`pit_option_${user_id}`).classList.add('selected')
 
     // get user's results
     let matches = dal.get_results([], false).filter(m => m.meta_scouter_id === user_id)
@@ -94,8 +95,10 @@ function open_option(user_id)
     let pos_counts = {}
     let durations = []
     let delays = []
+
     // create table of scouted matches
-    let time_table = `<table id="time_table"><tr><th>Match</th><th>Team</th><th>Position</th><th>Start Delay</th><th>Duration</th></tr>`
+    let time_table = document.createElement('table')
+    row = time_table.insertRow().append(create_header('Match'), create_header('Team'), create_header('Position'), create_header('Start Delay'), create_header('Duration'))
     for (let match of matches)
     {
         let pos = match.meta_position
@@ -115,8 +118,16 @@ function open_option(user_id)
         {
             delays.push(0)
         }
-        time_table += `<tr onclick="window_open('${open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`})}', '_self')"><td><a>${dal.get_match_value(match.meta_match_key, 'short_match_name')}</a></td><td>${match.meta_team}</td><td>${match.meta_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_scouting_duration.toFixed()}s</td></tr>`
+        row = time_table.insertRow()
+        row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
+        row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
+        row.insertCell().innerText = match.meta_team
+        row.insertCell().innerText = match.meta_position
+        row.insertCell().innerText = `${delays[delays.length - 1]}s`
+        row.insertCell().innerHTML = `${match.meta_scouting_duration.toFixed()}s`
     }
+
+    // create table of notes
     for (let i = 0; i < notes.length; i += 3)
     {
         let match = notes[i]
@@ -137,28 +148,52 @@ function open_option(user_id)
         {
             delays.push(0)
         }
-        time_table += `<tr onclick="window_open('${open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`})}', '_self')"><td><a>${dal.get_match_value(match.meta_match_key, 'short_match_name')}</a></td><td>${match.meta_alliance}</td><td>${match.meta_note_position}</td><td>${delays[delays.length - 1]}s</td><td>${match.meta_note_scouting_duration.toFixed()}s</td></tr>`
+        row = time_table.insertRow()
+        row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
+        row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
+        row.insertCell().innerText = match.meta_alliance
+        row.insertCell().innerText = match.meta_note_position
+        row.insertCell().innerText = `${delays[delays.length - 1]}s`
+        row.insertCell().innerHTML = `${match.meta_scouting_duration.toFixed()}s`
     }
-    time_table += `<tr><th>Averages</th><td>${mean(delays).toFixed()}s</td><td>${mean(durations).toFixed()}s</td></tr></table>`
+    row = time_table.insertRow()
+    row.append(create_header('Mean'))
+    row.insertCell()
+    row.insertCell()
+    row.insertCell().innerText = `${mean(delays).toFixed()}s`
+    row.insertCell().innerText = `${mean(durations).toFixed()}s`
 
     // create table of scouted pits
-    let pit_table = `<table id="pit_table"><tr><th>Team</th><th>Duration</th></tr>`
+    let pit_table = document.createElement('table')
+    pit_table.insertRow().append(create_header('Team'), create_header('Duration'))
     for (let pit of pits)
     {
-        pit_table += `<tr><td>${pit.meta_team}</td><td>${pit.meta_scouting_duration.toFixed()}s</td></tr>`
+        let row = pit_table.insertRow()
+        row.insertCell().innerText = pit.meta_team
+        row.insertCell().innerText = `${pit.meta_scouting_duration.toFixed()}s`
     }
-    pit_table += `</table>`
 
-    let pos_table = '<table id="pos_table"><tr><th>Position</th><th>Matches Scouted</th></tr>'
+    // create table of scouting positions
+    let pos_table = document.createElement('table')
+    pos_table.insertRow().append(create_header('Position'), create_header('Matches Scouted'))
     for (let pos in pos_counts)
     {
-        pos_table += `<tr><td>${pos}</td><td>${pos_counts[pos]}</tr>`
+        let row = pos_table.insertRow()
+        row.insertCell().innerText = pos
+        row.insertCell().innerText = pos_counts[pos]
     }
-    pos_table += '</table>'
 
     // user column
     let name = new Entry('name', 'User\'s Name', cfg.get_name(user_id))
-    let card = new Card('user_card', `has scouted:<br>- <b>${matches.length}</b> matches<br>- <b>${notes.length / 3}</b> notes<br>- <b>${pits.length}</b> pits`)
+    let user = document.createElement('span')
+    let num_matches = document.createElement('b')
+    num_matches.innerText = matches.length
+    let num_notes = document.createElement('b')
+    num_notes.innerText = notes.length / 3
+    let num_pits = document.createElement('b')
+    num_pits.innerText = pits.length
+    user.append('has scouted:', document.createElement('br'), ' - ', num_matches, ' matches', document.createElement('br'), ' - ', num_notes, ' notes', document.createElement('br'), ' - ', num_pits, ' pits')
+    let card = new Card('user_card', user)
     card.limitWidth = true
     let admin = new Checkbox('admin', 'Admin', cfg.is_admin(user_id))
     let position = new Dropdown('position', 'Default Position', [''])
@@ -174,7 +209,7 @@ function open_option(user_id)
         position.add_option(`${color} ${pos}`)
     }
     let pos = cfg.get_position(user_id) + 1
-    position.def = position.options[pos]
+    position.value = position.options[pos]
     let save = new Button('save', 'Apply Changes', `save_user('${user_id}')`)
     let user_col = new ColumnFrame('', '', [name, card, admin, position, save])
 
@@ -186,7 +221,7 @@ function open_option(user_id)
     pit_card.limitWidth = true
     let card_col = new ColumnFrame('', '', [pos_card, time_card, pit_card])
 
-    document.getElementById('contents').innerHTML = new PageFrame('', '', [user_col, card_col]).toString
+    buttons_container.replaceChildren(new PageFrame('', '', [user_col, card_col]).element)
 }
 
 /**
