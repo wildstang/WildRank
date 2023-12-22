@@ -12,7 +12,7 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var title_el, avatar_el, name_el, location_el, ranking_el, table_el
+var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, table_el
 
 /**
  * function:    init_page
@@ -25,10 +25,15 @@ function init_page()
     title_el = document.createElement('div')
     avatar_el = document.createElement('img')
     avatar_el.id = 'avatar'
-    name_el = document.createElement('h2')
+    let result_name = document.createElement('h2')
+    team_el = document.createElement('label')
+    team_el.id = 'team_num'
+    name_el = document.createElement('name_el')
+    match_el = document.createElement('label')
+    result_name.append(team_el, ': ', name_el, ', ', match_el)
     location_el = document.createElement('h3')
     ranking_el = document.createElement('h3')
-    title_el.append(avatar_el, ' ', name_el, location_el, ranking_el)
+    title_el.append(avatar_el, ' ', result_name, location_el, ranking_el)
     table_el = document.createElement('table')
     contents_card.append(title_el, table_el)
 
@@ -105,9 +110,11 @@ function open_option(option)
 
     // setup header
     avatar_el.src = dal.get_value(team, 'pictures.avatar')
-    name_el.innerHTML = `<span id="team_num">${team}</span>: ${dal.get_value(team, 'meta.name')}, ${dal.get_match_value(match, 'match_name')}`
-    location_el.innerHTML = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
-    ranking_el.innerHTML = dal.get_rank_str(team)
+    team_el.innerText = team
+    name_el.innerText = dal.get_value(team, 'meta.name')
+    match_el.innerText = dal.get_match_value(match, 'match_name')
+    location_el.innerText = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
+    ranking_el.innerText = dal.get_rank_str(team)
 
     let cycles = dal.get_result_keys(true, ['cycle'])
     for (let key of cycles)
