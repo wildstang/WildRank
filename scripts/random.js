@@ -156,9 +156,18 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
     results = {}
 
     // scouter metadata
-    results['meta_scouter_id'] = parseInt(user_id)
-    results['meta_scout_time'] = Math.round(start / 1000)
-    results['meta_scouting_duration'] = (Date.now() - start) / 1000
+    if (scout_mode != NOTE_MODE)
+    {
+        results['meta_scouter_id'] = parseInt(user_id)
+        results['meta_scout_time'] = Math.round(start / 1000)
+        results['meta_scouting_duration'] = (Date.now() - start) / 1000
+    }
+    else
+    {
+        results['meta_note_scouter_id'] = parseInt(user_id)
+        results['meta_note_scout_time'] = Math.round(start / 1000)
+        results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
+    }
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode
