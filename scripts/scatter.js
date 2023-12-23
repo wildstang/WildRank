@@ -8,6 +8,8 @@
 var pwidth
 var pheight
 
+let title_el, canvas, max_el
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -16,8 +18,9 @@ var pheight
  */
 function init_page()
 {
-    contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
-    buttons_container.innerHTML = ''
+    title_el = document.createElement('h2')
+    canvas = document.createElement('canvas')
+    contents_card.append(title_el, canvas)
 
     // load keys from localStorage and build list
     let first = populate_dual_keys(dal, false, true)
@@ -40,7 +43,6 @@ function init_canvas()
 {
     pwidth = preview.offsetWidth - 64
     pheight = 2*window.innerHeight/3 - 64
-    let canvas = document.getElementById('whiteboard')
     canvas.width = pwidth
     canvas.height = pheight
     build_plot()
@@ -55,7 +57,7 @@ function init_canvas()
 function open_option(key)
 {
     deselect_all(true)
-    document.getElementById(`option_${key}`).classList.add('selected')
+    document.getElementById(`pit_option_${key}`).classList.add('selected')
 
     build_plot()
 }
@@ -82,7 +84,7 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('p')).map(item => item.id.replace('pit_option_', ''))
 }
 
 /**
@@ -110,7 +112,7 @@ function build_plot()
     // get key names and create title
     let name_a = dal.get_name(key_a)
     let name_b = dal.get_name(key_b)
-    document.getElementById('plot_title').innerHTML = `${name_b} vs ${name_a}`
+    title_el.innerText = `${name_b} vs ${name_a}`
 
     // build table of values
     let points = []
@@ -137,7 +139,7 @@ function build_plot()
     max_b *= 1.05
 
     // reset canvas
-    var ctx = document.getElementById('whiteboard').getContext('2d')
+    var ctx = canvas.getContext('2d')
     ctx.globalCompositeOperation = 'destination-over'
     ctx.clearRect(0, 0, pwidth, pheight)
 
@@ -188,7 +190,6 @@ function build_plot()
     ctx.fill()
 
     // set tooltip on hover over dot
-    let canvas = document.getElementById('whiteboard')
     canvas.onmousemove = function(e) {
         let rect = this.getBoundingClientRect()
         let x = e.clientX - rect.left
