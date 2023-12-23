@@ -6,7 +6,7 @@
  * date:        2021-09-03
  */
 
-const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'Std Dev']
+const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
 
 var container
 
