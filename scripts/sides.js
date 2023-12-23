@@ -11,6 +11,8 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 var selectedA = ''
 var selectedB = ''
 
+var results_tab, val_el
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -29,20 +31,31 @@ function init_page()
         new ColumnFrame('', '', [type_form]),
         new ColumnFrame('', '', [scale_max])
     ])
-    buttons_container.innerHTML = `<br>${page.toString}<br>
-        <div class="column"><center><div class="wr_card"><table id="results_tab" style="text-align:center"></table></div></center></div>`
+
+    let column = document.createElement('div')
+    let center = document.createElement('center')
+    results_tab = document.createElement('table')
+    results_tab.style.textAlign = 'center'
+    let card = new Card('res', results_tab)
+    center.append(card.element)
+    column.append(center)
+
+    buttons_container.append(document.createElement('br'), page.element, document.createElement('br'), column)
     
     let [first, second] = populate_teams(false, false, true)
     if (first)
     {
-        contents_card.innerHTML = '<h2 id="value"></h2>'
+        val_el = document.createElement('div')
+        contents_card.append(val_el)
         selectedA = first
         selectedB = second
         open_both_teams()
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Results Found</h2>'
+        let header = document.createElement('h2')
+        header.innerText = 'No Results Found'
+        contents_card.append(header)
     }
 }
 
@@ -71,6 +84,29 @@ function open_secondary_option(team_num)
 }
 
 /**
+ * function:    build_header
+ * parameters:  team number
+ * returns:     header HTML
+ * description: Builds a header for the given team.
+ */
+function build_header(team)
+{
+    let header = document.createElement('div')
+    header.className = 'result_title'
+    let avatar = document.createElement('img')
+    avatar.id = 'avatar'
+    avatar.src = dal.get_value(team, 'pictures.avatar')
+    let result = document.createElement('h1')
+    result.className = 'result_name'
+    result.innerText = `${team} ${dal.get_value(team, 'meta.name')}`
+    let rank = document.createElement('div')
+    rank.className = 'side_rank'
+    rank.innerText = dal.get_rank_str(team)
+    header.append(avatar, ' ', result, rank)
+    return header
+}
+
+/**
  * function:    open_both_teams
  * parameters:  team numbers
  * returns:     none
@@ -86,23 +122,20 @@ function open_both_teams()
     // select teams
     deselect_all()
     deselect_all(false)
-    document.getElementById(`option_${selectedA}`).classList.add('selected')
+    document.getElementById(`pit_option_${selectedA}`).classList.add('selected')
     document.getElementById(`soption_${selectedB}`).classList.add('selected')
 
-    // populate ranking
-    let rankA = `${dal.get_rank_str(selectedA)}<br>`
-    let rankB = `${dal.get_rank_str(selectedB)}<br>`
     let opponents = dal.find_matches([selectedA], [selectedB])
     let partners = dal.find_matches([selectedA, selectedB])
 
     // team details
-    let details = `<div id="result_title"><img id="avatar" src="${dal.get_value(selectedA, 'pictures.avatar')}"> <h2 class="result_name">${selectedA} ${dal.get_value(selectedA, 'meta.name')}</h2><br>${rankA}</div> vs
-        <div id="result_title"><img id="avatar" src="${dal.get_value(selectedB, 'pictures.avatar')}"> <h2 class="result_name">${selectedB} ${dal.get_value(selectedB, 'meta.name')}</h2><br>${rankB}<br>
-        Competed<br>Together ${partners.length} times<br>Against ${opponents.length} times<br></div>`
+    let summary = document.createElement('div')
+    summary.append('Competed', document.createElement('br'), `Together ${partners.length} times`, document.createElement('br'), `Against ${opponents.length} times`, document.createElement('br'))
 
-    document.getElementById('value').innerHTML = details
+    val_el.replaceChildren(build_header(selectedA), build_header(selectedB), summary)
 
-    let compare = `<tr><th>Key</th><th>${selectedA}</th><th>${selectedB}</th><th>Max</th></tr>`
+    results_tab.replaceChildren()
+    results_tab.insertRow().append(create_header('Key'), create_header(selectedA), create_header(selectedB), create_header('Max'))
     let keys = dal.get_keys(true, true, true, false)
     let type = SORT_OPTIONS[Select.get_selected_option('type_form')]
     for (let key of keys)
@@ -133,16 +166,14 @@ function open_both_teams()
             {
                 let aPct = 100 * aVal[op] / aSum
                 let bPct = 100 * bVal[op] / bSum
-                compare += build_row(key, aPct, bPct, op)
+                build_row(key, aPct, bPct, op)
             }
         }
         else
         {
-            compare += build_row(key, aVal, bVal)
+            build_row(key, aVal, bVal)
         }
     }
-
-    document.getElementById('results_tab').innerHTML = compare
 }
 
 /**
@@ -221,5 +252,13 @@ function build_row(key, aVal, bVal, label='')
         label = ''
     }
 
-    return `<tr><th>${dal.get_name(key)} ${label}</th><td style="color:${aColor}">${aVal}</td><td style="color:${bColor}">${bVal}</td><td>${max}</td></tr>`
+    let row = results_tab.insertRow()
+    row.append(create_header(dal.get_name(key)))
+    let aCell = row.insertCell()
+    aCell.innerText = aVal
+    aCell.style.color = aColor
+    let bCell = row.insertCell()
+    bCell.innerText = bVal
+    bCell.style.color = bColor
+    row.insertCell().innerText = max
 }

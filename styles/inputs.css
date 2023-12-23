@@ -320,12 +320,6 @@
     padding: 0;
 }
 
-.wr_card h1 {
-    margin: 0;
-    background-color: gray;
-    padding: var(--input-padding);
-}
-
 .wr_card .card_body {
     text-align: left;
     padding: var(--input-padding);

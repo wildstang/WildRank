@@ -151,8 +151,14 @@ body {
     overflow-x: auto;
 }
 
-#result_title {
-    text-align: center;
+.result_title {
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid lightgray;
+}
+
+.side_rank {
+    display: block;
 }
 
 #avatar {
