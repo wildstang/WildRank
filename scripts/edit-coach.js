@@ -8,6 +8,8 @@
 
 const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'Std Dev']
 
+var container
+
 /**
  * function:    init_page
  * parameters:  none
@@ -16,9 +18,8 @@ const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'Std Dev']
  */
 function init_page()
 {
-    let container = document.createElement('div')
-    container.id = 'buttons_container'
-    document.body.replaceChildren(container)
+    container = document.createElement('div')
+    document.body.append(container)
     build_buttons()
 }
 
@@ -43,7 +44,7 @@ function build_buttons()
 
     // build template
     let page = new PageFrame('page', '', [new ColumnFrame('new_col', 'New Coach Value', [select, dropdown, button]), column])
-    document.getElementById('buttons_container').replaceChildren(page.element)
+    container.replaceChildren(page.element)
 }
 
 /**
