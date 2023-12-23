@@ -10,6 +10,8 @@ const COLORS = ['black', 'blue', 'red', 'purple', 'orange', 'green']
 var pwidth
 var pheight
 
+let title_el, canvas, max_el, key_tab
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -18,10 +20,17 @@ var pheight
  */
 function init_page()
 {
-    contents_card.innerHTML = '<h2 id="plot_title"></h2><canvas id="whiteboard"></canvas>'
-    let key_card = new Card('', `Max Value: <b id='max'></b><table id='key'></table>`)
+    title_el = document.createElement('h2')
+    canvas = document.createElement('canvas')
+    contents_card.append(title_el, canvas)
+
+    let label = document.createElement('label')
+    max_el = document.createElement('b')
+    key_tab = document.createElement('table')
+    label.append('Max Value: ', max_el, key_tab)
+    let key_card = new Card('key', label)
     key_card.limitWidth = true
-    buttons_container.innerHTML = key_card.toString
+    buttons_container.append(key_card.element)
     
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
 
@@ -44,7 +53,6 @@ function init_canvas()
 {
     pwidth = preview.offsetWidth - 64
     pheight = window.innerHeight/2 - 64
-    let canvas = document.getElementById('whiteboard')
     canvas.width = pwidth
     canvas.height = pheight
     build_plot()
@@ -80,7 +88,7 @@ function filter_teams()
 function open_option(key)
 {
     deselect_all(true)
-    document.getElementById(`option_${key}`).classList.add('selected')
+    document.getElementById(`pit_option_${key}`).classList.add('selected')
 
     build_plot()
 }
@@ -116,7 +124,7 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('o')).map(item => item.id.replace('option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('p')).map(item => item.id.replace('pit_option_', ''))
 }
 
 /**
@@ -140,11 +148,11 @@ function build_plot()
 {
     let key = get_selected_keys()[0]
     let selected_teams = ['avg'].concat(get_secondary_selected_keys())
-    document.getElementById('plot_title').innerHTML = dal.get_name(key)
+    title_el.innerText = dal.get_name(key)
 
     // build key
-    let color_key = document.getElementById('key')
-    color_key.innerHTML = `<tr><th>Color</th><th>Value</th></tr>`
+    key_tab.replaceChildren()
+    key_tab.insertRow().append(create_header('Color'), create_header('Value'))
     for (let i in selected_teams)
     {
         let team = selected_teams[i]
@@ -153,7 +161,11 @@ function build_plot()
         {
             color = dal.get_value(team, 'meta.color')
         }
-        color_key.innerHTML += `<tr><td style="background-color: ${color}"> </td><td>${team}</td></tr>`
+        let row = key_tab.insertRow()
+        let color_cell = row.insertCell()
+        color_cell.style.backgroundColor = color
+        color_cell.innerText = ' '
+        row.insertCell().innerText = team
     }
 
     // build table of values
@@ -190,7 +202,7 @@ function build_plot()
     }
 
     // round to a reasonable number
-    document.getElementById('max').innerHTML = max
+    max_el.innerText = max
     if (max <= 2)
     {
         max = Math.ceil(max)
@@ -220,7 +232,7 @@ function build_plot()
     }
 
     // reset canvas
-    var ctx = document.getElementById('whiteboard').getContext('2d')
+    var ctx = canvas.getContext('2d')
     ctx.globalCompositeOperation = 'destination-over'
     ctx.clearRect(0, 0, pwidth, pheight)
 
