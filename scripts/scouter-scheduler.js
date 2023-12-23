@@ -15,7 +15,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Scouter Scheduler'
+    document.getElementById('header_info').innerText = 'Scouter Scheduler'
 
     // build inputs
     let scouters = new Extended('scouters', 'Enter Scouters')
@@ -38,7 +38,7 @@ function init_page()
 
     let columns = [new ColumnFrame('', '', [scouters, per_shift, min_break, shift_len, generate, export_shifts])]
 
-    document.body.innerHTML += new PageFrame('', '', columns).toString
+    document.body.append(new PageFrame('', '', columns).element)
 }
 
 /**
@@ -125,11 +125,11 @@ function swap(team)
             {
                 if (scouter !== team)
                 {
-                    document.getElementById(scouter).innerHTML = `Swap w/ ${scouter}`
+                    document.getElementById(scouter).innerText = `Swap w/ ${scouter}`
                 }
                 else
                 {
-                    document.getElementById(scouter).innerHTML = 'Cancel'
+                    document.getElementById(scouter).innerText = 'Cancel'
                 }
             }
         }
@@ -191,7 +191,7 @@ function build_shifts()
 
     // text area gets cleared, keep it populated
     let scouters = document.getElementById('scouters').value
-    document.body.innerHTML += shifts_page.toString
+    document.body.append(shifts_page.element)
     document.getElementById('scouters').value = scouters
 }
 
