@@ -106,7 +106,15 @@
 
 .wr_slider_range {
     width: calc(var(--input-width) - 2*var(--input-padding));
-    min-height: calc(var(--input-height) - 2*var(--input-padding));
+    /* there is an extra 5px of bottom margin that I cannot explain */
+    padding-top: 14px;
+    padding-bottom: 4px;
+    margin: 0px;
+}
+
+.wr_slider.slim {
+    padding-top: 10px;
+    padding-bottom: 5px;
 }
 
 .wr_checkbox.slim, .wr_counter.slim, .wr_button.slim, .wr_string.slim, .wr_number.slim {
