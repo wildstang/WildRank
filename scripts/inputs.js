@@ -830,6 +830,7 @@ class Slider extends Entry
             count.append(this.value)
 
             let header = document.createElement('h4')
+            header.className = 'input_label'
             header.id = `${this.id}_label`
             header.append(`${this.label} - `)
             header.append(count)
@@ -1491,7 +1492,7 @@ class Option extends Element
     {
         let label = document.createElement('span')
         label.className = 'long_option_val'
-        // TODO: switch to innerHTML/Text where applicable instead of append
+        // TODO: switch to innerHTML/Text elsewhere instead of append
         // innerHTML so character entities like &nbsp; will encode
         label.innerHTML = this.label
         return [label]
