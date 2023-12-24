@@ -893,7 +893,7 @@ class Slider extends Entry
     static set_slider(id, value)
     {
         document.getElementById(id).value = value
-        update_slider_text(id)
+        Slider.update_slider_text(id)
     }
 
     update_text()
