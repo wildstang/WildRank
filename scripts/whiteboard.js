@@ -36,11 +36,17 @@ function init_page()
         init_canvas()
 
         // create the whiteboard drawing controls and place them in a single column
+        let game_piece = new MultiButton('game_piece', 'Add Game Piece')
+        for (let gp of cfg.whiteboard.game_pieces)
+        {
+            game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
+        }
+        game_piece.on_click = 'add_game_piece()'
         let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
         draw_drag.on_click = 'draw_drag()'
         let clear_lines = new Button('clear_lines', 'Clear Lines', 'whiteboard.clear_lines()')
         let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
-        let controls = new ColumnFrame('', '', [draw_drag, clear_lines, reset_whiteboard])
+        let controls = new ColumnFrame('', '', [game_piece, draw_drag, clear_lines, reset_whiteboard])
 
         // create the various playback controls and place them in a single column
         let play_match = new Button('play_match', 'Play', 'play_match()')

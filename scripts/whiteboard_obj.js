@@ -2,7 +2,6 @@
  * TODO:
  * 
  * - unify drawing colors (drag, trace, heatmap)
- * - add additional magnets (game pieces)
  * - custom match configurations (user specified)
  * - custom heatmaps (one team over event)
  */
@@ -87,7 +86,7 @@ class Magnet
      * Creates an instance of Magnet.
      * 
      * @param {string} name Name of the magnet, normally team number.
-     * @param {string} image Path to or base64 image.
+     * @param {Image} image Image to draw.
      * @param {number} x Starting x-coordinate
      * @param {number} y Starting y-coordinate
      * @param {string} color Color used to draw a trace of the Magnet history.
@@ -256,6 +255,34 @@ class Whiteboard
     {
         this.heatmap_team = team.toLowerCase()
         this.draw()
+    }
+
+    /**
+     * Constructs a new magnet and adds it to the whiteboard.
+     * 
+     * @param {string} name Name of the magnet, normally team number.
+     * @param {number} x Starting x-coordinate, center if not provided
+     * @param {number} y Starting y-coordinate, center if not provided
+     */
+    add_game_piece(name, x=-1, y=-1)
+    {
+        // use center if coordinates not provided
+        x = x < 0 ? this.field_width / 2 : 0
+        y = y < 0 ? this.field_height / 2 : 0
+
+        // find the image in the config
+        let gp = cfg.whiteboard.game_pieces.filter(p => p.name === name)
+        if (gp.length > 0)
+        {
+            let image = new Image()
+            image.src = `assets/${gp[0].image}`
+    
+            // create and add the magnet
+            this.magnets.push(new Magnet(name, image, x, y, 'white'))
+
+            // re-draw
+            this.draw()
+        }
     }
 
     /**
