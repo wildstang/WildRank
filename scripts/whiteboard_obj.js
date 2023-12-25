@@ -2,7 +2,6 @@
  * TODO:
  * 
  * - unify drawing colors (drag, trace, heatmap)
- * - custom match configurations (user specified)
  * - custom heatmaps (one team over event)
  */
 
@@ -283,6 +282,38 @@ class Whiteboard
             // re-draw
             this.draw()
         }
+    }
+
+    /**
+     * Manually adds a team to the whiteboard.
+     * 
+     * @param {number} team_num Team number
+     * @param {string} alliance Optional alliance color
+     * @param {number} position Optional alliance position
+     */
+    add_team(team_num, alliance='white', position=-1)
+    {
+        // create an image from using the avatar
+        let image = new Image()
+        image.src = dal.get_value(team_num, 'pictures.avatar')
+
+        // create a magnet to scale using the configured color and position
+        let x = cfg.whiteboard.field_width / 2
+        let y = cfg.whiteboard.field_height / 2
+        if (Object.keys(cfg.whiteboard).includes(`${alliance}_${position}`))
+        {
+            let c = cfg.whiteboard[`${alliance}_${position}`]
+            x = c.x
+            y = c.y
+            alliance = c.color
+        }
+        this.magnets.push(new Magnet(team_num, image, x / this.scale_factor, y / this.scale_factor, alliance))
+
+        // inform the UI the Whiteboard is ready
+        this.on_load(length)
+
+        // re-draw
+        this.draw()
     }
 
     /**
