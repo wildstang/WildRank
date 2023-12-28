@@ -680,7 +680,14 @@ class Whiteboard
                     let x_tile = color == 'red' ? 17 - x : x
                     let alpha = Math.sqrt(parseFloat(heatmap[x_tile][y])) / max
                     context.globalAlpha = alpha
-                    context.fillRect(x * this.field_width / 18, y * this.field_height / 9, this.field_width / 18, this.field_height / 9)
+
+                    // draw heatmap values, account for margin
+                    let h_margin = cfg.whiteboard.horizontal_margin / this.scale_factor
+                    let v_margin = cfg.whiteboard.vertical_margin / this.scale_factor
+                    let width = (this.field_width - h_margin * 2) / 18
+                    let height = (this.field_height - v_margin * 2) / 9
+                    context.fillRect(x * width + h_margin, y * height + v_margin, width, height)
+
                     context.stroke()
                 }
             }
