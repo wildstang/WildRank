@@ -123,7 +123,7 @@ class Whiteboard
      * 
      * @param {symbol} on_load A reference to a function to call when a match is loaded.
      */
-    constructor(on_load)
+    constructor(on_load, interactive=true)
     {
         this.lines = []
         this.magnets = []
@@ -149,9 +149,12 @@ class Whiteboard
         this.heatmap_team = ''
         this.on_load = on_load
 
-        this.canvas.addEventListener('mousedown', event => this.handle_click(event, 'down'))
-        this.canvas.addEventListener('mousemove', event => this.handle_click(event, 'move'))
-        this.canvas.addEventListener('mouseup', event => this.handle_click(event, 'up'))
+        if (interactive)
+        {
+            this.canvas.addEventListener('mousedown', event => this.handle_click(event, 'down'))
+            this.canvas.addEventListener('mousemove', event => this.handle_click(event, 'move'))
+            this.canvas.addEventListener('mouseup', event => this.handle_click(event, 'up'))
+        }
     }
 
     /**
