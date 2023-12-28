@@ -32,7 +32,7 @@ function init_page()
     {
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard(update_sliders)
-        contents_card.appendChild(whiteboard.canvas)
+        contents_card.append(whiteboard.canvas)
         init_canvas()
 
         // create the whiteboard drawing controls and place them in a single column

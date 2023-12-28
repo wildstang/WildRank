@@ -498,6 +498,7 @@ class Whiteboard
             for (let i in alliance)
             {
                 let points = alliance[i]
+                let team_num = points.team_key.substring(3)
 
                 let heatmap = this.create_heatmap()
                 for (let i in data.times)
@@ -505,26 +506,22 @@ class Whiteboard
                     // build heatmap using only valid data
                     if (i > 0 && i < data.times.length - 1 && points.xs[i] != null && points.ys[i] != null) {
                         // filter into 18x9 buckets
-                        let x = 17 - Math.floor(points.xs[i] / 3)
+                        let x = Math.floor(points.xs[i] / 3)
                         let y = Math.floor(points.ys[i] / 3)
+
+                        // flip the x-axis for blue alliance teams
+                        x = color === 'blue' ? 17 - x : x
 
                         // add to a team, alliance, and match heatmap
                         heatmap[x][y]++
                         alliance_hm[x][y]++
-
-                        // flip the x-axis for red alliance team in the combined heatmap
-                        if (color === 'red')
-                        {
-                            x = 17 - x
-                        }
                         combined_hm[x][y]++
                     }
                 }
-                this.heatmaps[match_key][points.team_key.substring(3)] = heatmap
+                this.heatmaps[match_key][team_num] = heatmap
             }
             this.heatmaps[match_key][color] = alliance_hm
         }
-
         this.heatmaps[match_key]['all'] = combined_hm
     }
 
@@ -658,21 +655,24 @@ class Whiteboard
                     context.beginPath()
 
                     // determine color by alliance, or white for all
-                    if (this.match_traces[this.current_match][this.heatmap_team])
+                    let color = ''
+                    if (this.match_traces[this.current_match] && this.match_traces[this.current_match][this.heatmap_team])
                     {
-                        context.fillStyle = this.match_traces[this.current_match][this.heatmap_team].color
+                        color = this.match_traces[this.current_match][this.heatmap_team].color
                     }
-                    else if (this.heatmap_team === 'all')
+                    else if (this.heatmap_team === 'all' || this.current_match === 'teams')
                     {
-                        context.fillStyle = 'white'
+                        color = 'white'
                     }
                     else
                     {
-                        context.fillStyle = this.heatmap_team
+                        color = this.heatmap_team
                     }
+                    context.fillStyle = color
 
                     // completely fill the square of the map
-                    let alpha = Math.sqrt(parseFloat(heatmap[x][y])) / max
+                    let x_tile = color == 'red' ? 17 - x : x
+                    let alpha = Math.sqrt(parseFloat(heatmap[x_tile][y])) / max
                     context.globalAlpha = alpha
                     context.fillRect(x * this.field_width / 18, y * this.field_height / 9, this.field_width / 18, this.field_height / 9)
                     context.stroke()
