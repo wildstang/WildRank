@@ -6,7 +6,10 @@
  * date:        2020-06-13
  */
 
-var match_num_el, time_el, result_el, extra_el, teams_el 
+include('whiteboard_obj')
+
+var match_num_el, time_el, result_el, extra_el, teams_el, whiteboard
+var playing = false
 
 /**
  * function:    init_page
@@ -25,6 +28,10 @@ function init_page()
     }
     if (first)
     {
+        whiteboard = new Whiteboard(start_match, false)
+        let preview = document.getElementById('center')
+        whiteboard.update_dimensions(640, preview.offsetHeight)
+
         match_num_el = document.createElement('h2')
         match_num_el.innerText = 'No Match Selected'
         time_el = document.createElement('h3')
@@ -45,6 +52,51 @@ function init_page()
         let header = document.createElement('h2')
         header.innerText = 'No Match Data Found'
         contents_card.append(header, 'Please preload event')
+    }
+}
+
+/**
+ * Plays the match continuously.
+ */
+async function start_match()
+{
+    playing = false
+
+    let length = whiteboard.get_match_length()
+    if (length > 0)
+    {
+        await new Promise(r => setTimeout(r, 1000))
+        whiteboard.canvas.style.display = 'inline-block'
+    
+        let time = 0
+        playing = true
+        while (playing)
+        {
+            start = Date.now()
+    
+            // increment the playback
+            whiteboard.set_match_time(++time, 10)
+    
+            // determine the interval by the requested speed (in 1/10 seconds)
+            let interval = 100.0
+            let delta = Date.now() - start
+    
+            // sleep until the next frame
+            if (interval > delta)
+            {
+                await new Promise(r => setTimeout(r, interval - delta))
+            }
+    
+            if (time >= length)
+            {
+                time = 0
+            }
+        }
+    }
+    else
+    {
+        // hide the whiteboard if there is no zebra data
+        whiteboard.canvas.style.display = 'none'
     }
 }
 
@@ -104,6 +156,8 @@ function open_option(match_key)
                 }
             }
         }
+
+        extras.push(whiteboard.canvas)
 
         // add score breakdown
         let breakdown = dal.get_match_value(match_key, 'score_breakdown')
@@ -188,6 +242,8 @@ function open_option(match_key)
     // create page
     let page = new PageFrame('', '', [red_col, blue_col])
     teams_el.replaceChildren(page.element)
+
+    whiteboard.load_match(match_key)
 }
 
 /**
