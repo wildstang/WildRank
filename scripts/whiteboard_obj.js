@@ -245,6 +245,24 @@ class Whiteboard
     }
 
     /**
+     * Returns the number of points in the match. Subtracts 10 to remove garbage at the end.
+     * 
+     * @returns The length of the match in 1/10 seconds.
+     */
+    get_match_length()
+    {
+        if (this.match_traces[this.current_match])
+        {
+            let traces = Object.values(this.match_traces[this.current_match])
+            if (traces.length > 0)
+            {
+                return traces[0].num_points - 10
+            }
+        }
+        return 0
+    }
+
+    /**
      * Set the team or other heatmap to display, re-draw. Disable with any other string.
      * 
      * @param {string} team Team number, alliance name, or all. Case-insensitive
@@ -309,7 +327,7 @@ class Whiteboard
         this.magnets.push(new Magnet(team_num, image, x / this.scale_factor, y / this.scale_factor, alliance))
 
         // inform the UI the Whiteboard is ready
-        this.on_load(length)
+        this.on_load()
 
         // re-draw
         this.draw()
@@ -351,16 +369,8 @@ class Whiteboard
         }
         else
         {
-            // determine the number of points to use
-            let traces = Object.values(this.match_traces[match_key])
-            let length = 0
-            if (traces.length > 0)
-            {
-                length = traces[0].num_points - 10
-            }
-
             // inform the UI the Whiteboard is ready
-            this.on_load(length)
+            this.on_load()
         }
 
         // re-draw
@@ -425,17 +435,14 @@ class Whiteboard
                 // build heatmaps using the same data
                 this.build_match_heatmaps(match_key, data)
 
-                // determine the number of points to use
-                let length = Object.values(this.match_traces[match_key])[0].num_points
-
                 // inform the UI the Whiteboard is ready
-                this.on_load(length - 10)
+                this.on_load()
             })
             .catch(err => {
                 console.log('Error loading zebra data!', err)
 
                 // data was not found, inform the UI the Whiteboard is ready
-                this.on_load(0)
+                this.on_load()
             })
     }
 

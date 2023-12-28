@@ -135,16 +135,15 @@ function open_option(match_key)
 /**
  * A function passed to the whiteboard to update the sliders, populate the
  * dropdown, and pause any playback when a new match is opened.
- * 
- * @param {number} length Number of frames in the new match.
  */
-function update_sliders(length)
+function update_sliders()
 {
     // reset previous match playback
     pause()
     Slider.set_slider('match_time', 1)
 
     // set the slider limits appropriately
+    let length = whiteboard.get_match_length()
     document.getElementById('match_time').max = length
     document.getElementById('trail_length').max = length
 
