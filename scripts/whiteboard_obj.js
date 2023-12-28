@@ -148,6 +148,7 @@ class Whiteboard
         this.current_match = ''
         this.heatmap_team = ''
         this.on_load = on_load
+        this.match_time = 0
 
         if (interactive)
         {
@@ -228,6 +229,7 @@ class Whiteboard
     set_match_time(time, trail_length)
     {
         this.traces = []
+        this.match_time = time
         if (Object.keys(this.match_traces).includes(this.current_match))
         {
             for (let magnet of this.magnets)
@@ -691,6 +693,17 @@ class Whiteboard
                     context.stroke()
                 }
             }
+        }
+
+        // draw a match time progress bar
+        let length = this.get_match_length()
+        if (length > 0)
+        {
+            context.beginPath()
+            context.fillStyle = 'red'
+            let progress = (this.match_time / length) * this.field_width
+            context.fillRect(0, 0.98 * this.field_height, progress, this.field_height)
+            context.stroke()
         }
     }
 }
