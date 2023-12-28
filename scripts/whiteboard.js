@@ -95,7 +95,11 @@ function init_page()
 function init_canvas()
 {
     let preview = document.getElementById('center')
-    whiteboard.update_dimensions(preview.offsetWidth, preview.offsetHeight)
+    // subtract margins from the parent dimensions
+    // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
+    let width = preview.offsetWidth - (16 + 32 + 8)
+    let height = preview.offsetHeight - (16 + 32 + 8)
+    whiteboard.update_dimensions(width, height)
 }
 
 /**

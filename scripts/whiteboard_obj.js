@@ -160,19 +160,15 @@ class Whiteboard
     /**
      * Update the canvas dimensions based on given dimensions.
      * 
-     * @param {number} parent_width Parent Element width in pixels.
-     * @param {number} parent_height Parent Element height in pixels.
+     * @param {number} width Desired Element width in pixels.
+     * @param {number} height Desired Element height in pixels.
      */
-    update_dimensions(parent_width, parent_height)
+    update_dimensions(width, height)
     {
-        // subtract margins from the parent dimensions
-        // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
-        parent_width -= 16 + 32 + 8
-        parent_height -= 16 + 32 + 8
 
         // determine scaling factor for magnets and lines
-        let horizontal_scale_factor = cfg.whiteboard.field_width / parent_width
-        let vertical_scale_factor = cfg.whiteboard.field_height / parent_height
+        let horizontal_scale_factor = cfg.whiteboard.field_width / width
+        let vertical_scale_factor = cfg.whiteboard.field_height / height
         let prev_scale_factor = this.scale_factor
         this.scale_factor = Math.max(horizontal_scale_factor, vertical_scale_factor)
 
