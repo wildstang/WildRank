@@ -36,8 +36,16 @@ function init_page()
     }
 
     // build the page from config for the desired mode
-    let style = `color: ${alliance_color}; background-color: rgba(0, 0, 0, 0.33); box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.33)`
-    document.getElementById('header_info').innerHTML = `<span id="match">${dal.get_match_value(match_num, 'match_name')}</span> - Scouting: <span id="team" style="${style}">${teams.join(', ')}</span>`
+    let match = document.createElement('span')
+    match.innerText = dal.get_match_value(match_num, 'match_name')
+
+    let team = document.createElement('span')
+    team.style.color = alliance_color
+    team.style.backgroundColor = "rgba(0, 0, 0, 0.33)"
+    team.style.boxShadow = "0 0 4px 4px rgba(0, 0, 0, 0.33)"
+    team.innerText = teams.join(', ')
+
+    document.getElementById('header_info').append(match, ' - Scouting: ', team)
 
     build_page_from_config()
 }
@@ -61,12 +69,12 @@ function build_page_from_config()
     }
     if (page.columns.length > 1)
     {
-        page_frame.add_column(build_column_from_config(page.columns[1], NOTE_MODE, select_ids, edit, match_num, team, alliance_color))
+        page_frame.add_column(build_column_from_config(page.columns[1], NOTE_MODE, select_ids, edit, match_num, 'alliance', alliance_color))
     }
 
     let submit = new Button('submit', 'Submit', 'get_results_from_page()')
     let submit_page = new PageFrame('', '', [new ColumnFrame('', '', [submit])])
-    document.body.innerHTML += page_frame.toString + submit_page.toString
+    document.body.append(page_frame.element, submit_page.element)
 
     // mark each selected box as such
     for (let id of select_ids)
@@ -88,7 +96,7 @@ function check_results()
 
     if (page.columns.length > 1)
     {
-        let ret = check_column(page.columns[1], NOTE_MODE, team, alliance_color)
+        let ret = check_column(page.columns[1], NOTE_MODE, 'alliance', alliance_color)
         if (ret)
         {
             return ret
@@ -157,7 +165,7 @@ function get_results_from_page()
     let alliance_results = {}
     if (page.columns.length > 1)
     {
-        alliance_results = get_results_from_column(page.columns[1], NOTE_MODE, team, alliance_color)
+        alliance_results = get_results_from_column(page.columns[1], NOTE_MODE, 'alliance', alliance_color)
     }
 
     // scouter metadata
