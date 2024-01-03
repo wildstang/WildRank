@@ -9,6 +9,8 @@
 const REGIONAL = 0
 const DISTRICT = 1
 
+var summary, table
+
 /**
  * function:    init_page
  * parameters:  none
@@ -21,9 +23,17 @@ function init_page()
     year.type = 'number'
     let entry_col = new ColumnFrame('', '', [year])
     let run = new Button('run', 'Run', 'process_year()')
-    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
-    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
-    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
+    let label = document.createElement('h4')
+    label.className = 'input_label'
+    label.innerHTML = '&nbsp;'
+    let button_col = new ColumnFrame('', '', [label, run])
+    let card_contents = document.createElement('span')
+    summary = document.createElement('summary')
+    table = document.createElement('table')
+    table.style.textAlign = 'right'
+    card_contents.append(summary, table)
+    let card = new Card('card', card_contents)
+    document.body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
 }
 
 /**
@@ -35,8 +45,9 @@ function init_page()
 function process_year()
 {
     let year = document.getElementById('year').value
-    document.getElementById('summary').innerHTML = 'Loading data....'
-    document.getElementById('table').innerHTML = '<tr><th>Regional</th><th>Location</th><th>Total Teams</th><th>District Teams</th><th>Percent District</th></tr>'
+    summary.innerText = 'Loading data....'
+
+    table.insertRow().append(create_header('Regional'), create_header('Location'), create_header('Total Teams'), create_header('District Teams'), create_header('Percent District'))
 
     if (!TBA_KEY)
     {
@@ -68,7 +79,8 @@ function process_year()
             return response.json()
         })
         .then(events => {
-            for (let event of events)
+            let evs = events.filter(e => [REGIONAL, DISTRICT].includes(e.event_type))
+            for (let event of evs)
             {
                 // fetch list of teams in each event
                 fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/teams/keys${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
@@ -101,7 +113,7 @@ function process_year()
                         }
 
                         // when all events have been processed
-                        if (++processed === events.length)
+                        if (++processed === evs.length)
                         {
                             let unique_district_teams = []
                             let district_regionals = 0
@@ -128,7 +140,12 @@ function process_year()
                                 if (district_count > 0)
                                 {
                                     district_regionals++
-                                    document.getElementById('table').innerHTML += `<tr><td>${event}</td><td>${regionals[event].location}</td><td>${regionals[event].teams.length}</td><td>${district_count}</td><td>${(100*district_count/regionals[event].teams.length).toFixed(2)}</td></tr>`
+                                    let row = table.insertRow()
+                                    row.insertCell().innerText = event
+                                    row.insertCell().innerText = regionals[event].location
+                                    row.insertCell().innerText = regionals[event].teams.length
+                                    row.insertCell().innerText = district_count
+                                    row.insertCell().innerText = (100 * district_count / regionals[event].teams.length).toFixed(2)
                                 }
                                 
                                 // add to totals of teams
@@ -137,12 +154,18 @@ function process_year()
                             }
 
                             // add summary info
-                            document.getElementById('table').innerHTML += `<tr><td>Total</td><td></td><td>${total_regional_teams}</td><td>${total_district_teams}</td><td>${(100*total_district_teams/total_regional_teams).toFixed(2)}</td></tr>`
-                            document.getElementById('summary').innerHTML = `There were ${district_regionals} regionals that included teams from districts in ${year}.<br>${total_district_teams} spots at these regionals were filled by ${unique_district_teams.length} district teams (${(total_district_teams/unique_district_teams.length).toFixed(1)} regionals / team).`
+                            let row = table.insertRow()
+                            row.insertCell().innerText = 'Total'
+                            row.insertCell()
+                            row.insertCell().innerText = total_regional_teams
+                            row.insertCell().innerText = total_district_teams
+                            row.insertCell().innerText = (100 * total_district_teams / total_regional_teams).toFixed(2)
+                            summary.innerHTML = `There were ${district_regionals} regionals that included teams from districts in ${year}.<br>${total_district_teams} spots at these regionals were filled by ${unique_district_teams.length} district teams (${(total_district_teams/unique_district_teams.length).toFixed(1)} regionals / team).`
                         }
                     })
                     .catch(err => {
                         console.log(`Error fetching ${event.event_key} teams, ${err}`)
+                        processed++
                     })
             }
         })

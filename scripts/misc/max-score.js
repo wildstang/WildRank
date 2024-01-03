@@ -5,6 +5,8 @@
  * date:        2023-04-02
  */
 
+var summary, table
+
 /**
  * function:    init_page
  * parameters:  none
@@ -17,9 +19,17 @@ function init_page()
     year.type = 'number'
     let entry_col = new ColumnFrame('', '', [year])
     let run = new Button('run', 'Run', 'process_year()')
-    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
-    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
-    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
+    let label = document.createElement('h4')
+    label.className = 'input_label'
+    label.innerHTML = '&nbsp;'
+    let button_col = new ColumnFrame('', '', [label, run])
+    let card_contents = document.createElement('span')
+    summary = document.createElement('summary')
+    table = document.createElement('table')
+    table.style.textAlign = 'right'
+    card_contents.append(summary, table)
+    let card = new Card('card', card_contents)
+    document.body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
 }
 
 /**
@@ -31,8 +41,9 @@ function init_page()
 function process_year()
 {
     let year = document.getElementById('year').value
-    document.getElementById('summary').innerHTML = 'Loading data....'
-    document.getElementById('table').innerHTML = '<tr><th>Event</th><th>Match</th><th>Red Alliance</th><th>Red Score</th><th>Blue Alliance</th><th>Blue Score</th><th>Combined Score</th></tr>'
+    summary.innerHTML = 'Loading data....'
+
+    table.insertRow().append(create_header('Event'), create_header('Match'), create_header('Red Alliance'), create_header('Red Score'), create_header('Blue Alliance'), create_header('Blue Score'), create_header('Combined Score'))
 
     if (!TBA_KEY)
     {
@@ -101,7 +112,6 @@ function process_year()
                             let highest_ev = events.filter(e => e.key == highest.event_key)[0]
 
                             // create an HTML table of scores
-                            let table = ''
                             for (let match of maxes)
                             {
                                 let ev = events.filter(e => e.key == match.event_key)[0]
@@ -110,12 +120,19 @@ function process_year()
                                 let red_share = match.alliances.red.score - match.score_breakdown.red.foulPoints
                                 let blue_teams = match.alliances.blue.team_keys.join('<br>').replaceAll('frc', '')
                                 let blue_share = match.alliances.blue.score - match.score_breakdown.blue.foulPoints
-                                table += `<tr><td>${ev.name}</td><td>${match_key}</td><td>${red_teams}</td><td>${red_share}</td><td>${blue_teams}</td><td>${blue_share}</td><td>${match.score}</td></td>`
+
+                                let row = table.insertRow()
+                                row.insertCell().innerText = ev.name
+                                row.insertCell().innerText = match_key
+                                row.insertCell().innerHTML = red_teams
+                                row.insertCell().innerText = red_share
+                                row.insertCell().innerHTML = blue_teams
+                                row.insertCell().innerText = blue_share
+                                row.insertCell().innerText = match.score
                             }
 
                             // populate summary and table
-                            document.getElementById('table').innerHTML += table
-                            document.getElementById('summary').innerHTML = `The max score for ${year} is <b>${highest.score}</b> at ${highest_ev.name}.`
+                            summary.innerHTML = `The max score for ${year} is <b>${highest.score}</b> at ${highest_ev.name}.`
                         }
                     })
                     .catch(err => {

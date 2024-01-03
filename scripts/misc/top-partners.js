@@ -9,6 +9,8 @@ WINNER_TYPE = 1
 
 var partners = {}
 
+var summary, table
+
 /**
  * function:    init_page
  * parameters:  none
@@ -21,9 +23,17 @@ function init_page()
     team.type = 'number'
     let entry_col = new ColumnFrame('', '', [team])
     let run = new Button('run', 'Run', 'handle_team()')
-    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
-    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
-    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
+    let label = document.createElement('h4')
+    label.className = 'input_label'
+    label.innerHTML = '&nbsp;'
+    let button_col = new ColumnFrame('', '', [label, run])
+    let card_contents = document.createElement('span')
+    summary = document.createElement('summary')
+    table = document.createElement('table')
+    table.style.textAlign = 'right'
+    card_contents.append(summary, table)
+    let card = new Card('card', card_contents)
+    document.body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
 }
 
 /**
@@ -35,8 +45,8 @@ function init_page()
 function handle_team()
 {
     let team = document.getElementById('team').value
-    document.getElementById('summary').innerHTML = 'Loading data....'
-    document.getElementById('table').innerHTML = ''
+    summary.innerText = 'Loading data....'
+    table.replaceChildren()
 
     if (!TBA_KEY)
     {
@@ -130,14 +140,16 @@ function handle_team()
 function populate_table()
 {
     let team = document.getElementById('team').value
-    let table = document.getElementById('table')
-    document.getElementById('summary').innerHTML = `${team} has won with ${Object.keys(partners).length} unique partners.`
-    table.innerHTML = '<tr><th>Team</th><th>Banners</th><th>Events</th></tr>'
+    summary.innerText = `${team} has won with ${Object.keys(partners).length} unique partners.`
+    table.insertRow().append(create_header('Team'), create_header('Banners'), create_header('Events'))
 
     let teams = Object.keys(partners)
     for (let partner of teams)
     {
         let events = partners[partner]
-        table.innerHTML += `<tr><td>${partner}</td><td>${events.length}</td><td>${events.join(', ')}</td></tr>`
+        let row = table.insertRow()
+        row.insertCell().innerText = partner
+        row.insertCell().innerText = events.length
+        row.insertCell().innerText = events.join(', ')
     }
 }

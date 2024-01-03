@@ -7,6 +7,9 @@
 
 // TBA event types
 const REGIONAL = 0
+const TURKIYE = ['Türkiye', 'Turkiye', 'Turkey']
+
+var summary, table
 
 /**
  * function:    init_page
@@ -20,9 +23,17 @@ function init_page()
     year.type = 'number'
     let entry_col = new ColumnFrame('', '', [year])
     let run = new Button('run', 'Run', 'process_year()')
-    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
-    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
-    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
+    let label = document.createElement('h4')
+    label.className = 'input_label'
+    label.innerHTML = '&nbsp;'
+    let button_col = new ColumnFrame('', '', [label, run])
+    let card_contents = document.createElement('span')
+    summary = document.createElement('summary')
+    table = document.createElement('table')
+    table.style.textAlign = 'right'
+    card_contents.append(summary, table)
+    let card = new Card('card', card_contents)
+    document.body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
 }
 
 /**
@@ -34,8 +45,9 @@ function init_page()
 function process_year()
 {
     let year = document.getElementById('year').value
-    document.getElementById('summary').innerHTML = 'Loading data....'
-    document.getElementById('table').innerHTML = '<tr><th>Regional</th><th>Location</th><th>Total Teams</th><th>International Teams</th><th>Percent International</th></tr></table>'
+    summary.innerText = 'Loading data....'
+
+    table.insertRow().append(create_header('Regional'), create_header('Location'), create_header('Total Teams'), create_header('International Teams'), create_header('Percent International'))
 
     if (!TBA_KEY)
     {
@@ -81,7 +93,8 @@ function process_year()
                         // find events featuring international teams and count
                         for (let team of teams)
                         {
-                            if (team.country !== event.country)
+                            // turkiye has 3 different spellings and that was messing up the data
+                            if (team.country !== event.country && !(TURKIYE.includes(team.country) && TURKIYE.includes(event.country)))
                             {
                                 if (!regionals.hasOwnProperty(event.key))
                                 {
@@ -104,11 +117,16 @@ function process_year()
                             {
                                 let international = regionals[event].international
                                 total += international
-                                document.getElementById('table').innerHTML += `<tr><td>${event}</td><td>${regionals[event].location}</td><td>${regionals[event].teams}</td><td>${international}</td><td>${(100*international/regionals[event].teams).toFixed(2)}</td></tr>`
+                                let row = table.insertRow()
+                                row.insertCell().innerText = event
+                                row.insertCell().innerText = regionals[event].location
+                                row.insertCell().innerText = regionals[event].teams
+                                row.insertCell().innerText = international
+                                row.insertCell().innerText = (100 * international / regionals[event].teams).toFixed(2)
                             }
 
                             // add summary info
-                            document.getElementById('summary').innerHTML = `There were ${keys.length} regionals featuring ${total} total international teams in ${year}.`
+                            summary.innerText = `There were ${keys.length} regionals featuring ${total} total international teams in ${year}.`
                         }
                     })
                     .catch(err => {

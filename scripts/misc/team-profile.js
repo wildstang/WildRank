@@ -157,22 +157,48 @@ function build_cards(robots)
     for (let year of years)
     {
         let parts = year.split(' - ')
-        let image = `No pictures found. <a href="https://www.thebluealliance.com/suggest/team/media?team_key=frc${parts[1]}&year=${parts[0]}">Add one to TBA.</a>`
+        let image = document.createElement('span')
         if (robots[year].photos.length > 0)
         {
-            image = `<img src="${robots[year].photos[0]}" height="400px">`
+            let img = document.createElement('img')
+            img.src = robots[year].photos[0]
+            img.height = 400
+            image.append(img)
         }
-        let code = `<a href="${robots[year].code}">Source Code</a>`
-        let tba = `<a href="https://www.thebluealliance.com/team/${parts[1]}/${parts[0]}">Season Stats</a>`
-        let awards = ''
+        else
+        {
+            let link = document.createElement('a')
+            link.href = `https://www.thebluealliance.com/suggest/team/media?team_key=frc${parts[1]}&year=${parts[0]}`
+            link.innerText = 'Add one to TBA'
+            image.append('No pictures found. ', link)
+        }
+        let code = document.createElement('a')
+        code.href = robots[year].code
+        code.innerText = 'Source Code'
+        let tba = document.createElement('a')
+        tba.href = `https://www.thebluealliance.com/team/${parts[1]}/${parts[0]}`
+        tba.innerText = 'Season Stats'
+        let awards = document.createElement('div')
         let events = Object.keys(robots[year].awards)
         for (let event of events)
         {
-            let event_awards = robots[year].awards[event]
-            awards += `<br><b>${event}</b><br>`
-            awards += event_awards.map(a => a.name).join('<br>')
+            let name = document.createElement('b')
+            name.innerText = event
+            awards.append(document.createElement('br'), name, document.createElement('br'))
+            for (let a of robots[year].awards[event])
+            {
+                awards.append(a.name, document.createElement('br'))
+            }
         }
-        let card = new Card(year, `<h1>${year}</h1>${image}<div class="card_body"><div class="links">${code}${tba}</div><div class="awards">${awards}</div></div>`)
+        let card_content = document.createElement('span')
+        let header = document.createElement('h1')
+        header.innerText = year
+        let body = document.createElement('div')
+        let links = document.createElement('div')
+        links.append(code, tba)
+        body.append(links, awards)
+        card_content.append(header, image, body)
+        let card = new Card(year, card_content)
         card.add_class('profile')
         if (left)
         {
@@ -185,5 +211,5 @@ function build_cards(robots)
         left = !left
     }
 
-    document.body.innerHTML += new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).toString
+    document.body.append(new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).element)
 }

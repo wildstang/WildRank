@@ -5,6 +5,8 @@
  * date:        2022-12-07
  */
 
+let gaps_tab, lasts_tab
+
 /**
  * function:    init_page
  * parameters:  none
@@ -13,9 +15,16 @@
  */
 function init_page()
 {
-	let gaps = new Card('gaps_card', '<table id="gaps" style="text-align: right"><tr><th>Consecutive Years Inactive</th><th>Num Team Nums</th><th>Teams</th></tr></table>')
-	let lasts = new Card('lasts_card', '<table id="lasts" style="text-align: right"><tr><th>Last Year Before Inactive</th><th>Num Team Nums</th></tr></table>')
-	document.body.innerHTML += new PageFrame('', '', [gaps, lasts]).toString
+	gaps_tab = document.createElement('table')
+	gaps_tab.style.textAlign = 'right'
+	lasts_tab = document.createElement('table')
+	lasts_tab.style.textAlign = 'right'
+	let gaps = new Card('gaps_card', gaps_tab)
+	let lasts = new Card('lasts_card', lasts_tab)
+	document.body.append(new PageFrame('', '', [gaps, lasts]).element)
+
+	gaps_tab.insertRow().append(create_header('Consecutive Years Inactive'), create_header('Num Team Nums'), create_header('Teams'))
+	lasts_tab.insertRow().append(create_header('Last Year Before Inactive'), create_header('Num Team Nums'))
 
     process_teams()
 }
@@ -113,11 +122,16 @@ async function process_teams()
 									{
 										teams = gaps[years].join(', ')
 									}
-									document.getElementById('gaps').innerHTML += `<tr><td>${years}</td><td>${gaps[years].length}</td><td>${teams}</td></tr>`
+									let row = gaps_tab.insertRow()
+									row.insertCell().innerText = years
+									row.insertCell().innerText = gaps[years].length
+									row.insertCell().innerText = teams
 								}
 								for (let years in lasts)
 								{
-									document.getElementById('lasts').innerHTML += `<tr><td>${years}</td><td>${lasts[years].length}</td></tr>`
+									let row = lasts_tab.insertRow()
+									row.insertCell().innerText = years
+									row.insertCell().innerText = lasts[years].length
 								}
 							}
 						})

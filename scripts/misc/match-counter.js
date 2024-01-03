@@ -22,6 +22,8 @@ const UNLABLED = -1
 // first year to count
 const FIRST_YEAR = 2002
 
+var summary, table
+
 /**
  * function:    init_page
  * parameters:  none
@@ -30,8 +32,14 @@ const FIRST_YEAR = 2002
  */
 function init_page()
 {
-    let card = new Card('card', '<div id="summary">Loading data....</div><table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Regional Matches</th><th>District Matches</th><th>District Champs Matches</th><th>Champs Matches</th></tr></table>')
-    document.body.innerHTML += new PageFrame('', '', [card]).toString
+    let card_contents = document.createElement('span')
+    summary = document.createElement('summary')
+    table = document.createElement('table')
+    table.style.textAlign = 'right'
+    card_contents.append(summary, table)
+    let card = new Card('card', card_contents)
+    document.body.append(new PageFrame('', '', [card]).element)
+    table.insertRow().append(create_header('Year'), create_header('Matches'), create_header('Regional Matches'), create_header('District Matches'), create_header('District Champs Matches'), create_header('Champs Matches'))
 
     process_year(FIRST_YEAR)
 }
@@ -97,7 +105,13 @@ function process_year(year)
                                 let annual_total = counts.reduce((a, b) => a + b)
                                 total += annual_total
                                 // add to page
-                                document.getElementById('table').innerHTML += `<tr><th>${year}</th><td>${annual_total}</td><td>${counts[REGIONAL]}</td><td>${counts[DISTRICT]}</td><td>${counts[DISTRICT_CMP_DIVISION] + counts[DISTRICT_CMP]}</td><td>${counts[CMP_DIVISION] + counts[CMP_FINALS] + counts[FOC]}</td></tr>`
+                                let row = table.insertRow()
+                                row.insertCell().innerText = year
+                                row.insertCell().innerText = annual_total
+                                row.insertCell().innerText = counts[REGIONAL]
+                                row.insertCell().innerText = counts[DISTRICT]
+                                row.insertCell().innerText = counts[DISTRICT_CMP_DIVISION] + counts[DISTRICT_CMP]
+                                row.insertCell().innerText = counts[CMP_DIVISION] + counts[CMP_FINALS] + counts[FOC]
                                 // count next year
                                 if (year < cfg.year)
                                 {
@@ -106,7 +120,7 @@ function process_year(year)
                                 // label as complete
                                 else
                                 {
-                                    document.getElementById('summary').innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
+                                    summary.innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
                                 }
                             }
                         })

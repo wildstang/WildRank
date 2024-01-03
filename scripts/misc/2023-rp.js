@@ -5,6 +5,8 @@
  * date:        2023-04-11
  */
 
+let summary, table
+
 /**
  * function:    init_page
  * parameters:  none
@@ -16,9 +18,17 @@ function init_page()
     let event = new Entry('event', 'Event ID', event_id)
     let entry_col = new ColumnFrame('', '', [event])
     let run = new Button('run', 'Run', 'process_event()')
-    let button_col = new ColumnFrame('', '', ['<h4 class="input_label">&nbsp;</h4>', run])
-    let card = new Card('card', '<div id="summary"></div><table id="table" style="text-align: right"></table>')
-    document.body.innerHTML += new PageFrame('', '', [entry_col, button_col, card]).toString
+    let label = document.createElement('h4')
+    label.className = 'input_label'
+    label.innerHTML = '&nbsp;'
+    let button_col = new ColumnFrame('', '', [label, run])
+    let card_contents = document.createElement('span')
+    summary = document.createElement('summary')
+    table = document.createElement('table')
+    table.style.textAlign = 'right'
+    card_contents.append(summary, table)
+    let card = new Card('card', card_contents)
+    document.body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
 }
 
 /**
@@ -30,8 +40,9 @@ function init_page()
 function process_event()
 {
     let event_id = document.getElementById('event').value
-    document.getElementById('summary').innerHTML = 'Loading data....'
-    document.getElementById('table').innerHTML = '<tr><th>Team</th><th>Original Rank</th><th>Original RPs</th><th>New Rank</th><th>New RPs</th><th>Total Points</th></tr>'
+    summary.innerText = 'Loading data....'
+
+    table.insertRow().append(create_header('Team'), create_header('Original Rank'), create_header('Original RPs'), create_header('New Rank'), create_header('New RPs'), create_header('Total Points'))
 
     if (!TBA_KEY)
     {
@@ -115,9 +126,17 @@ function process_event()
                 {
                     let og_rank = og_teams.indexOf(team) + 1
                     let new_rank = new_teams.indexOf(team) + 1
-                    document.getElementById('table').innerHTML += `<tr><td>${team.substring(3)}</td><td>${og_rank}</td><td>${og_team_rank[team]}</td><td>${new_rank}</td><td>${new_team_rank[team]}</td><td>${points[team]}</td></tr>`
+                    let row = table.insertRow()
+                    row.insertCell().innerText = team.substring(3)
+                    row.insertCell().innerText = og_rank
+                    row.insertCell().innerText = og_team_rank[team]
+                    row.insertCell().innerText = new_rank
+                    row.insertCell().innerText = new_team_rank[team]
+                    row.insertCell().innerText = points[team]
                 }
-                document.getElementById('summary').innerHTML = `<h2>${event_id}</h2>Note: tie breakers not accounted for in rankings.`
+                let header = document.createElement('h2')
+                header.innerText = event_id
+                summary.replaceChildren(header, 'Note: tie breakers not accounted for in rankings.')
             }
             else
             {

@@ -17,12 +17,13 @@ const CLIMB_OPTIONS = ['No', 'Prk', 'Dok', 'Eng']
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Score Estimator'
+    document.getElementById('header_info').innerText = 'Score Estimator'
 
     // build red score column
     let red_col = new ColumnFrame('', 'Red Alliance')
     let red_base = new Entry('red_base_score', 'Base Score', 0)
     red_base.type = 'number'
+    red_base.on_text_change = 'calc_score()'
     red_col.add_input(red_base)
     let red_climb_1 = new Select('red_climb_1', 'Climb 1', CLIMB_OPTIONS, 'No')
     red_climb_1.on_change = 'calc_score()'
@@ -39,6 +40,7 @@ function init_page()
     let blue_col = new ColumnFrame('', 'Blue Alliance')
     let blue_base = new Entry('blue_base_score', 'Base Score', 0)
     blue_base.type = 'number'
+    blue_base.on_text_change = 'calc_score()'
     blue_col.add_input(blue_base)
     let blue_climb_1 = new Select('blue_climb_1', 'Climb 1', CLIMB_OPTIONS, 'No')
     blue_climb_1.on_change = 'calc_score()'
@@ -52,7 +54,7 @@ function init_page()
     blue_col.add_input(new Number('blue_final_score', 'Blue Score', 0))
 
     // build page
-    document.body.innerHTML += new PageFrame('', '', [red_col, blue_col]).toString
+    document.body.append(new PageFrame('', '', [red_col, blue_col]).element)
 }
 
 /**
