@@ -25,6 +25,8 @@ const FIRST_YEAR = 2002
 // stat options
 const STAT_OPTIONS = ['Mean', 'Median', 'Mode', 'StdDev', 'Min', 'Max', 'Total']
 
+var summary, type_tab, week_tab
+
 /**
  * function:    init_page
  * parameters:  none
@@ -33,13 +35,20 @@ const STAT_OPTIONS = ['Mean', 'Median', 'Mode', 'StdDev', 'Min', 'Max', 'Total']
  */
 function init_page()
 {
-    let summary = '<div id="summary">Loading data....</div>'
-    let typetab = '<table id="table" style="text-align: right"><tr><th>Year</th><th>Matches</th><th>Average</th><th>Winning</th><th>Losing</th><th>Share</th><th>Regional</th><th>District</th><th>Dist Champ</th><th>Champ Div</th><th>Champ Final</th><th>Dist Champ Div</th></tr></table>'
-    let weektab = '<table id="week_table" style="text-align: right"><tr><th>Year</th><th>Week 0</th><th>Week 1</th><th>Week 2</th><th>Week 3</th><th>Week 4</th><th>Week 5</th><th>Week 6</th><th>Week 7</th><th>Week 8</th><th>Championship</th><th>Offseason</th></tr></table>'
-    let card = new Card('card', summary + typetab + weektab)
+    let card_container = document.createElement('span')
+    summary = document.createElement('div')
+    summary.innerText = 'Loading data...'
+    type_tab = document.createElement('table')
+    type_tab.style.textAlign = 'right'
+    type_tab.insertRow().append(create_header('Year'), create_header('Matches'), create_header('Average'), create_header('Winning'), create_header('Losing'), create_header('Share'), create_header('Regional'), create_header('District'), create_header('Dist Champ'), create_header('Champ Div'), create_header('Champ Final'), create_header('Dist Champ Div'))
+    week_tab = document.createElement('table')
+    week_tab.style.textAlign = 'right'
+    week_tab.insertRow().append(create_header('Year'), create_header('Week 0'), create_header('Week 1'), create_header('Week 2'), create_header('Week 3'), create_header('Week 4'), create_header('Week 5'), create_header('Week 6'), create_header('Week 7'), create_header('Week 8'), create_header('Championship'), create_header('Offseason'))
+    card_container.append(summary, type_tab, week_tab)
+    let card = new Card('card', card_container)
     let select = new Select('stat', 'Stat', STAT_OPTIONS)
     select.on_change = 'show_stat()'
-    document.body.innerHTML += new PageFrame('', '', [card, select]).toString
+    document.body.append(new PageFrame('', '', [card, select]).element)
 
     process_year(FIRST_YEAR)
 }
@@ -180,12 +189,26 @@ function process_year(year)
                                 {
                                     winner_share += '%'
                                 }
-                                document.getElementById('table').innerHTML += `<tr><th>${year}</th><td>${scores.length/2}</td>${build_stats_cell(scores)}
-                                    ${build_stats_cell(winners)}<td>${losing.toFixed(0)}</td><td>${winner_share}</td>${event_cells.join('')}</tr>`
+                                let row = type_tab.insertRow()
+                                row.append(create_header(year))
+                                row.insertCell().innerText = scores.length / 2
+                                row.insertCell().innerHTML = build_stats_cell(scores)
+                                row.insertCell().innerHTML = build_stats_cell(winners)
+                                row.insertCell().innerText = losing.toFixed(0)
+                                row.insertCell().innerText = winner_share
+                                for (let cell of event_cells)
+                                {
+                                    row.insertCell().innerHTML = cell
+                                }
 
                                 let names = Object.keys(weeks)
                                 let cells = names.map(w => build_stats_cell(weeks[w]))
-                                document.getElementById('week_table').innerHTML += `<tr><th>${year}</th>${cells.join('')}</tr>`
+                                row = week_tab.insertRow()
+                                row.append(create_header(year))
+                                for (let cell of cells)
+                                {
+                                    row.insertCell().innerHTML = cell
+                                }
                                 
                                 // count next year
                                 if (year < cfg.year)
@@ -195,7 +218,7 @@ function process_year(year)
                                 // label as complete
                                 else
                                 {
-                                    document.getElementById('summary').innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
+                                    summary.innerHTML = `From ${FIRST_YEAR} through ${cfg.year} ${total} FRC matches were completed.<br>This data includes all matches not categorized as REMOTE, OFFSEASON, PRESEASON, or UNLABELED.`
                                 }
                             }
                         })
@@ -218,7 +241,7 @@ function build_stats_cell(values)
 {
     if (values.length === 0)
     {
-        return '<td></td>'
+        return ''
     }
 
     let avg = mean(values).toFixed(0)
@@ -228,14 +251,13 @@ function build_stats_cell(values)
     let med = median(values)
     let mod = mode(values)
     let tot = values.reduce((a,b) => a + b, 0)
-    return `<td><span class="Mean">${avg}</span>
+    return `<span class="Mean">${avg}</span>
         <span class="StdDev" style="display: none">${dev}</span>
         <span class="Min" style="display: none">${min}</span>
         <span class="Max" style="display: none">${max}</span>
         <span class="Median" style="display: none">${med}</span>
         <span class="Mode" style="display: none">${mod}</span>
-        <span class="Total" style="display: none">${tot}</span>
-    </td>`
+        <span class="Total" style="display: none">${tot}</span>`
 }
 
 function show_stat()

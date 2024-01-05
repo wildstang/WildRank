@@ -1,7 +1,9 @@
 /**
  * file:        event-planner.js
  * description: Helps a team plan their events.
- *              TODO: add travel time filters
+ *              TODO:
+ *                - fix broken map tiles
+ *                - add travel time filters
  * author:      Liam Fruzyna
  * date:        2022-09-17
  */
@@ -25,6 +27,8 @@ const PRESEASON = 100
 var map
 var scope
 var locs = []
+
+var summary, week_tab
 
 /**
  * function:    init_page
@@ -54,13 +58,23 @@ function init_page()
     let offseasons = new Checkbox('offseasons', 'Show Offseason Events', false)
     let championships = new Checkbox('championships', 'Show Championships', false)
     let search = new Button('search', 'Search', `process_year(${year})`)
+    let map_el = document.createElement('div')
+    map_el.id = 'map'
+    map_el.style.height = '300px'
+    map_el.style.width = '400px'
     let filters = new PageFrame('', '', [new ColumnFrame('', '', [range, states]),
                                          new ColumnFrame('', '', [latitude, regionals, districts]),
                                          new ColumnFrame('', '', [longitude, championships, offseasons, search]),
-                                         new ColumnFrame('mapcol', 'Map', ['<div id="map" style="height: 300px; width: 400px"></div>'])])
+                                         new ColumnFrame('mapcol', 'Map', [map_el])])
 
-    let card = new Card('card', '<div id="summary">Loading data....</div><table id="weeks" style="text-align: left"></table>')
-    document.body.innerHTML += filters.toString + '<br>' + new PageFrame('', '', [card]).toString
+    let card_container = document.createElement('span')
+    summary = document.createElement('div')
+    summary.innerText = 'Loading data...'
+    week_tab = document.createElement('table')
+    week_tab.style.textAlign = 'left'
+    card_container.append(summary, week_tab)
+    let card = new Card('card', card_container)
+    document.body.append(filters.element, document.createElement('br'), new PageFrame('', '', [card]).element)
 
     if ('geolocation' in navigator)
     {
@@ -207,7 +221,7 @@ function process_year(year)
             let championships = document.getElementById('championships').checked
 
             // add a table for each week
-            document.getElementById('weeks').innerHTML = ''
+            week_tab.replaceChildren()
             for (let week in weeks)
             {
                 let header = false
@@ -224,11 +238,18 @@ function process_year(year)
                     {
                         if (!header)
                         {
-                            document.getElementById('weeks').innerHTML += `<tr><td></td><td><h3>${week}</h3></td></tr>`
+                            let row = week_tab.insertRow()
+                            row.insertCell()
+                            row.append(create_header(week))
                             header = true
                         }
                         count++
-                        document.getElementById('weeks').innerHTML += `<tr><td>${event.key}</td><td>${event.name}</td><td>${event.city}, ${event.state_prov}, ${event.country}</td><td>${event.start_date}</td></tr>`
+
+                        let row = week_tab.insertRow()
+                        row.insertCell().innerText = event.key
+                        row.insertCell().innerText = event.name
+                        row.insertCell().innerText = `${event.city}, ${event.state_prov}, ${event.country}`
+                        row.insertCell().innerText = event.start_date
 
                         locs.push(L.marker([event.lat, event.lng]).addTo(map)
                                    .bindTooltip(event.name)
@@ -237,7 +258,7 @@ function process_year(year)
                 }
             }
 
-            document.getElementById('summary').innerHTML = `There are ${count} events within your parameters.`
+            summary.innerText = `There are ${count} events within your parameters.`
             changeLoc(latitude, longitude)
         })
         .catch(err => {
