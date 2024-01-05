@@ -68,6 +68,7 @@ const CACHE_LIST = [
     '/scripts/users.js',
     '/scripts/utils.js',
     '/scripts/whiteboard.js',
+    '/scripts/whiteboard-obj.js',
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
     //'/scripts/misc/2022-score-estimator.js',

@@ -5,7 +5,7 @@
  * date:        2023-12-24
  */
 
-include('whiteboard_obj')
+include('whiteboard-obj')
 
 var whiteboard
 var playing = false

@@ -6,7 +6,7 @@
  * date:        2020-06-13
  */
 
-include('whiteboard_obj')
+include('whiteboard-obj')
 
 var match_num_el, time_el, result_el, extra_el, teams_el, whiteboard
 var playing = false
