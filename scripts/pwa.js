@@ -24,6 +24,7 @@ const CACHE_LIST = [
     '/scripts/config-debug.js',
     '/scripts/config-generator.js',
     '/scripts/config.js',
+    '/scripts/custom-match.js',
     '/scripts/cycles.js',
     '/scripts/data.js',
     '/scripts/distro.js',

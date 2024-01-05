@@ -117,9 +117,11 @@ function open_option(match_key)
     let edit = new Button('edit_coach', 'Edit Values')
     edit.link = `open_page('edit-coach')`
 
+    let custom = new Button('custom_match', 'Add Custom Match')
+    custom.link = `open_page('custom-match')`
+
     // build template
-    buttons_container.replaceChildren(page.element)
-    buttons_container.append(edit.element)
+    buttons_container.replaceChildren(page.element, edit.element, custom.element)
 
     // populate cards with tables
     build_table('red', red_teams)

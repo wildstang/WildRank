@@ -899,6 +899,11 @@ class DAL
                     match_name = `Qual ${match.match_number}`
                     short_match_name = `${match.match_number}`
                 }
+                else if (match.comp_level === 'cm')
+                {
+                    match_name = `Custom ${match.match_number}`
+                    short_match_name = `C${match.match_number}`
+                }
                 // convert TBA structure to double-elim
                 else if (this.event.playoff_type === 10)
                 {

@@ -7,6 +7,7 @@
 
 var BLANK_PAGES = {
     'config-generator': ['event', 'user'],
+    'custom-match': ['event'],
     'edit-coach': ['event'],
     'edit-stats': ['event'],
     settings: ['event', 'user'],
