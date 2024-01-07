@@ -166,7 +166,6 @@ class Whiteboard
      */
     update_dimensions(width, height)
     {
-
         // determine scaling factor for magnets and lines
         let horizontal_scale_factor = cfg.whiteboard.field_width / width
         let vertical_scale_factor = cfg.whiteboard.field_height / height
@@ -179,7 +178,7 @@ class Whiteboard
         this.magnet_size = cfg.whiteboard.magnet_size / this.scale_factor
         this.line_width = cfg.whiteboard.line_width / this.scale_factor
 
-        // rescale any existing lines
+        // rescale any existing lines and magents
         let rescale_factor = prev_scale_factor / this.scale_factor
         for (let line of this.lines)
         {
@@ -188,6 +187,11 @@ class Whiteboard
                 line.x_points[i] *= rescale_factor
                 line.y_points[i] *= rescale_factor
             }
+        }
+        for (let magnet of this.magnets)
+        {
+            magnet.x *= rescale_factor
+            magnet.y *= rescale_factor
         }
 
         // re-draw
