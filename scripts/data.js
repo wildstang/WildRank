@@ -684,6 +684,7 @@ class DAL
                         {
                             match.meta_score = match_info.blue_score
                             match.meta_opp_score = match_info.red_score
+                            match.meta_driver_station = match_info.blue_alliance.indexOf(team)
                             if (match_info.score_breakdown !== null)
                             {
                                 for (let key in match_info.score_breakdown.blue)
@@ -700,6 +701,7 @@ class DAL
                         {
                             match.meta_score = match_info.red_score
                             match.meta_opp_score = match_info.blue_score
+                            match.meta_driver_station = match_info.red_alliance.indexOf(team)
                             if (match_info.score_breakdown !== null)
                             {
                                 for (let key in match_info.score_breakdown.red)
