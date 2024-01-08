@@ -67,7 +67,7 @@ function init_page()
     scout.link = `check_press('scout')`
     roles.add_input(scout)
 
-    let note = new Button('note', 'Note Taker')
+    let note = new Button('note', 'Pit / Note Scouter')
     note.link = `check_press('note')`
     roles.add_input(note)
 
