@@ -46,6 +46,7 @@ function init_page()
         if (scout_mode == MATCH_MODE)
         {
             avatar_el = document.createElement('img')
+            avatar_el.id = 'avatar'
             avatar_el.onclick = (event) => generate = 'random'
             avatar_el.ontouchstart = (event) => touch_button(false)
             avatar_el.ontouchend = (event) => touch_button('generate="random"', true)
