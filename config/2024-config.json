@@ -33,92 +33,434 @@
 			}]
 		}]
 	}],
-	"pit": [{
-		"name": "Pit",
-		"id": "pit_pit",
-		"columns": [{
-			"name": "Body",
-			"id": "pit_pit_body",
-			"cycle": false,
-			"inputs": [{
-				"name": "Weight without Battery/Bumpers",
-				"id": "pit_pit_body_weight",
-				"type": "slider",
-				"options": [50, 125, 1],
-				"default": 120,
-				"negative": false
-			}, {
-				"name": "Longest Side Length",
-				"id": "pit_pit_body_longest_side_length",
-				"type": "number",
-				"options": [0, 40],
-				"default": 30,
-				"negative": false
-			}, {
-				"name": "Shortest Side Length",
-				"id": "pit_pit_body_shortest_side_length",
-				"type": "number",
-				"options": [0, 40],
-				"default": 30,
-				"negative": false
-			}]
-		}, {
-			"name": "Drive",
-			"id": "pit_pit_drive",
-			"cycle": false,
-			"inputs": [{
-				"name": "Drive Type",
-				"id": "pit_pit_drive_drive_type",
-				"type": "dropdown",
-				"options": ["Tank", "Mecanum", "Swerve", "Other"],
-				"default": "Tank"
-			}, {
-				"name": "Drive Motor Count",
-				"id": "pit_pit_drive_drive_motor_count",
-				"type": "slider",
-				"options": [2, 12, 1],
-				"default": 4,
-				"negative": false
-			}, {
-				"name": "Drive Motor Type",
-				"id": "pit_pit_drive_drive_motor_type",
-				"type": "dropdown",
-				"options": ["Neo", "Falcon", "Other"],
-				"default": "Neo"
-			}]
-		}, {
-			"name": "Other",
-			"id": "pit_pit_other",
-			"cycle": false,
-			"inputs": [{
-				"name": "Changes From Last Event?",
-				"id": "pit_pit_other_changes_from_last_event",
-				"type": "text",
-				"default": "N/A"
-			}, {
-				"name": "Notes",
-				"id": "pit_pit_other_notes",
-				"type": "text",
-				"default": "N/A"
-			}]
-		}]
-	}],
-	"match": [{
-		"name": "Auto",
-		"id": "match_auto",
-		"columns": [{
-			"name": "Auto",
-			"id": "match_auto_auto",
-			"cycle": true,
-			"inputs": [{
-				"name": "Mobility Bonus",
-				"id": "match_auto_auto_mobility_bonus",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}]
-		}]
-	}],
+	"pit": [
+        {
+            "name": "Pit",
+            "id": "pit_pit",
+            "columns": [
+                {
+                    "name": "Measurements",
+                    "id": "pit_pit_measurements",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Name",
+                            "id": "pit_pit_measurements_name",
+                            "type": "string",
+                            "default": " "
+                        },
+                        {
+                            "name": "Weight",
+                            "id": "pit_pit_measurements_weight",
+                            "type": "number",
+                            "disallow_default": true,
+                            "options": [
+                                0,
+                                130
+                            ],
+                            "default": 0,
+                            "negative": false
+                        },
+                        {
+                            "name": "Min Height",
+                            "id": "pit_pit_measurements_min_height",
+                            "type": "number",
+                            "disallow_default": true,
+                            "options": [
+                                0,
+                                50
+                            ],
+                            "default": 0,
+                            "negative": false
+                        },
+                        {
+                            "name": "Width",
+                            "id": "pit_pit_measurements_width",
+                            "type": "number",
+                            "disallow_default": true,
+                            "options": [
+                                0,
+                                50
+                            ],
+                            "default": 0,
+                            "negative": false
+                        },
+                        {
+                            "name": "Length",
+                            "id": "pit_pit_measurements_length",
+                            "type": "number",
+                            "disallow_default": true,
+                            "options": [
+                                0,
+                                50
+                            ],
+                            "default": 0,
+                            "negative": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Drive",
+                    "id": "pit_pit_drive",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Type",
+                            "id": "pit_pit_drive_type",
+                            "type": "dropdown",
+                            "disallow_default": true,
+                            "options": [
+                                "Select",
+                                "Swerve",
+                                "Tank",
+                                "Mechanum",
+                                "Other"
+                            ],
+                            "default": "Select"
+                        },
+                        {
+                            "name": "Details",
+                            "id": "pit_pit_drive_details",
+                            "type": "text",
+                            "disallow_default": true,
+                            "default": "Motor Type: \nNum Motors: \nGear Ratio: "
+                        }
+                    ]
+                },
+                {
+                    "name": "Capabilities",
+                    "id": "pit_pit_capabilities",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Shoot",
+                            "id": "pit_pit_capabilities_shoot",
+                            "type": "multiselect",
+                            "colors": [
+                                ""
+                            ],
+                            "options": [
+                                "Speaker",
+                                "Amp",
+                                "Trap"
+                            ],
+                            "default": ""
+                        },
+                        {
+                            "name": "Climb",
+                            "id": "pit_pit_capabilities_climb",
+                            "type": "multiselect",
+                            "colors": [
+                                ""
+                            ],
+                            "options": [
+                                "Center",
+                                "Edge",
+                                "Lock"
+                            ],
+                            "default": ""
+                        },
+                        {
+                            "name": "Pickup",
+                            "id": "pit_pit_capabilities_pickup",
+                            "type": "multiselect",
+                            "colors": [
+                                ""
+                            ],
+                            "options": [
+                                "Floor",
+                                "Source"
+                            ],
+                            "default": ""
+                        },
+                        {
+                            "name": "Notes",
+                            "id": "pit_pit_capabilities_notes",
+                            "type": "text",
+                            "default": " "
+                        }
+                    ]
+                },
+                {
+                    "name": "Auto",
+                    "id": "pit_pit_auto",
+                    "cycle": true,
+                    "inputs": [
+                        {
+                            "name": "Start",
+                            "id": "pit_pit_auto_start",
+                            "type": "dropdown",
+                            "disallow_default": true,
+                            "options": [
+                                "Choose",
+                                "Speaker Center",
+                                "Speaker Left",
+                                "Speaker Right",
+                                "Source"
+                            ],
+                            "default": "Choose"
+                        },
+                        {
+                            "name": "Action 1",
+                            "id": "pit_pit_auto_action_1",
+                            "type": "dropdown",
+                            "options": [
+                                "Complete",
+                                "Leave",
+                                "Score Preload",
+                                "Score Wing",
+                                "Score Center"
+                            ],
+                            "default": "Complete"
+                        },
+                        {
+                            "name": "Action 2",
+                            "id": "pit_pit_auto_action_2",
+                            "type": "dropdown",
+                            "options": [
+                                "Complete",
+                                "Leave",
+                                "Score Preload",
+                                "Score Wing",
+                                "Score Center"
+                            ],
+                            "default": "Complete"
+                        },
+                        {
+                            "name": "Action 3",
+                            "id": "pit_pit_auto_action_3",
+                            "type": "dropdown",
+                            "options": [
+                                "Complete",
+                                "Leave",
+                                "Score Preload",
+                                "Score Wing",
+                                "Score Center"
+                            ],
+                            "default": "Complete"
+                        },
+                        {
+                            "name": "Action 4",
+                            "id": "pit_pit_auto_action_4",
+                            "type": "dropdown",
+                            "options": [
+                                "Complete",
+                                "Leave",
+                                "Score Preload",
+                                "Score Wing",
+                                "Score Center"
+                            ],
+                            "default": "Complete"
+                        },
+                        {
+                            "name": "Action 5",
+                            "id": "pit_pit_auto_action_5",
+                            "type": "dropdown",
+                            "options": [
+                                "Complete",
+                                "Leave",
+                                "Score Preload",
+                                "Score Wing",
+                                "Score Center"
+                            ],
+                            "default": "Complete"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+	"match": [
+        {
+            "name": "Auto",
+            "id": "match_auto",
+            "columns": [
+                {
+                    "name": "Scoring",
+                    "id": "match_auto_scoring",
+                    "cycle": true,
+                    "inputs": [
+                        {
+                            "name": "Game Piece",
+                            "id": "match_auto_scoring_game_piece",
+                            "type": "select",
+                            "colors": [
+                                ""
+                            ],
+                            "options": [
+                                "PL",
+                                "W1",
+                                "W2",
+                                "W3",
+                                "C1",
+                                "C2",
+                                "C3",
+                                "C4",
+                                "C5"
+                            ],
+                            "default": "PL"
+                        },
+                        {
+                            "name": "Result",
+                            "id": "match_auto_scoring_result",
+                            "type": "select",
+                            "disallow_default": true,
+                            "colors": [
+                                ""
+                            ],
+                            "options": [
+                                "Choose",
+                                "Failed",
+                                "Held",
+                                "Missed",
+                                "Speaker",
+                                "Amp"
+                            ],
+                            "default": "Choose"
+                        }
+                    ]
+                },
+                {
+                    "name": "Other",
+                    "id": "match_auto_other",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Left",
+                            "id": "match_auto_other_left",
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Teleop",
+            "id": "match_teleop",
+            "columns": [
+                {
+                    "name": "Scoring",
+                    "id": "match_teleop_scoring",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Speaker",
+                            "id": "match_teleop_scoring_speaker",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                true
+                            ],
+                            "options": [
+                                "Scored",
+                                "Missed"
+                            ],
+                            "default": 0
+                        },
+                        {
+                            "name": "Amp",
+                            "id": "match_teleop_scoring_amp",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                true
+                            ],
+                            "options": [
+                                "Scored",
+                                "Missed"
+                            ],
+                            "default": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "End Game",
+                    "id": "match_teleop_end_game",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Trap",
+                            "id": "match_teleop_end_game_trap",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                true
+                            ],
+                            "options": [
+                                "Scored",
+                                "Missed"
+                            ],
+                            "default": 0
+                        },
+                        {
+                            "name": "Climbed",
+                            "id": "match_teleop_end_game_climbed",
+                            "type": "select",
+                            "disallow_default": true,
+                            "colors": [
+                                ""
+                            ],
+                            "options": [
+                                "Choose",
+                                "Climbed",
+                                "Failed"
+                            ],
+                            "default": "Choose"
+                        },
+                        {
+                            "name": "Harmonizing Robots",
+                            "id": "match_teleop_end_game_harmonizing_robots",
+                            "type": "multicounter",
+                            "negative": [
+                                false
+                            ],
+                            "options": [
+                                "Before",
+                                "After"
+                            ],
+                            "default": 0
+                        },
+                        {
+                            "name": "Spotlight",
+                            "id": "match_teleop_end_game_spotlight",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                true
+                            ],
+                            "options": [
+                                "Scored",
+                                "Missed"
+                            ],
+                            "default": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Post Match",
+                    "id": "match_teleop_post_match",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Broke Down",
+                            "id": "match_teleop_post_match_broke_down",
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": true
+                        },
+                        {
+                            "name": "Notes",
+                            "id": "match_teleop_post_match_notes",
+                            "type": "text",
+                            "default": " "
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
 	"smart_stats": [],
 	"coach": [],
 	"whiteboard": {
