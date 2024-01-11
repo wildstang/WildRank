@@ -153,7 +153,7 @@ function open_option(match_num)
                 page.add_column(new ColumnFrame('', '', [edit_button]))
 
                 let renumber = new Button('renumber', 'Renumber Result')
-                renumber.link = `renumber_result('${key}', '${team_num}')`
+                renumber.link = `renumber_match('${key}', '${team_num}')`
                 renumber.add_class('slim')
                 page.add_column(new ColumnFrame('', '', [renumber]))
         
@@ -198,9 +198,9 @@ function open_option(match_num)
                 page.add_column(new ColumnFrame('', '', [edit_button]))
 
                 let renumber = new Button('renumber', 'Renumber Result')
-                renumber.link = `renumber_result('${key}', '${team_num}')`
+                renumber.link = `renumber_note('${key}', '${alliance}')`
                 renumber.add_class('slim')
-                //page.add_column(new ColumnFrame('', '', [renumber]))
+                page.add_column(new ColumnFrame('', '', [renumber]))
         
                 let del = new Button('delete', 'Delete Result')
                 del.link = `delete_result('${key}', '${team_num}')`
@@ -255,12 +255,73 @@ function export_results()
 }
 
 /**
- * Renumbers a result with a new team and match.
+ * Renumbers a note result with a new match.
+ * 
+ * @param {string} match_key Old match key
+ * @param {string} alliance Alliance color
+ */
+function renumber_note(match_key, alliance)
+{
+    let input = prompt('New match number')
+    if (input !== null)
+    {
+        let teams = dal.get_match_teams(match_key)
+        let positions = Object.keys(teams).filter(p => p.startsWith(alliance.toLowerCase()))
+
+        // build the new match key
+        let new_num = parseInt(input)
+        let new_key = `${dal.event_id}_qm${new_num}`
+        let new_teams = dal.get_match_teams(new_key)
+
+        for (let position of positions)
+        {
+            let team = teams[position]
+            let new_team = new_teams[position]
+
+            // determine the existing file name
+            let file = `${NOTE_MODE}-${match_key}-${team}`
+            let new_file = `${NOTE_MODE}-${new_key}-${new_team}`
+
+            // confirm the user renamed the file correctly
+            if (confirm(`Rename ${file} to ${new_file}`))
+            {
+                let result = localStorage.getItem(file)
+                let new_result = localStorage.getItem(new_file)
+                if (result !== null)
+                {
+                    if (new_result === null)
+                    {
+                        // edit the metadata and move the file
+                        let jresult = JSON.parse(result)
+                        jresult.meta_team = new_team
+                        jresult.meta_match = new_num
+                        jresult.meta_match_key = new_key
+                        localStorage.setItem(new_file, JSON.stringify(jresult))
+                        localStorage.removeItem(file)
+                    }
+                    else
+                    {
+                        alert(`${new_file} already exists!`)
+                    }
+                }
+                else
+                {
+                    alert(`Rename failed!`)
+                }
+            }
+        }
+  
+        location.reload()
+    }
+}
+
+/**
+ * Renumbers a match result with a new team and match.
  * 
  * @param {string} match_key Old match key
  * @param {string} team_num Old team number
  */
-function renumber_result(match_key, team_num)
+function renumber_match(match_key, team_num)
 {
     let input = prompt('New match number')
     if (input !== null)
