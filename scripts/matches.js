@@ -155,7 +155,7 @@ function open_option(match_num)
                 let renumber = new Button('renumber', 'Renumber Result')
                 renumber.link = `renumber_result('${key}', '${team_num}')`
                 renumber.add_class('slim')
-                //page.add_column(new ColumnFrame('', '', [renumber]))
+                page.add_column(new ColumnFrame('', '', [renumber]))
         
                 let del = new Button('delete', 'Delete Result')
                 del.link = `delete_result('${key}', '${team_num}')`
@@ -252,4 +252,62 @@ function export_results()
     handler.note = scout_mode === NOTE_MODE
     handler.user = user_id
     handler.export_zip()
+}
+
+/**
+ * Renumbers a result with a new team and match.
+ * 
+ * @param {string} match_key Old match key
+ * @param {string} team_num Old team number
+ */
+function renumber_result(match_key, team_num)
+{
+    let input = prompt('New match number')
+    if (input !== null)
+    {
+        // determine the existing file name
+        let file = `${MATCH_MODE}-${match_key}-${team_num}`
+
+        // build the new match key
+        let new_num = parseInt(input)
+        let new_key = `${dal.event_id}_qm${new_num}`
+
+        // find the new team number
+        let teams = dal.get_match_teams(new_key)
+        let position = scout_pos < dal.max_alliance_size ? `red_${scout_pos}` : `blue_${scout_pos - dal.max_alliance_size}`
+        let new_team = teams[position]
+
+        // build the new file name
+        let new_file = `${MATCH_MODE}-${dal.event_id}_qm${new_num}-${new_team}`
+
+        // confirm the user renamed the file correctly
+        if (confirm(`Rename ${file} to ${new_file}`))
+        {
+            let result = localStorage.getItem(file)
+            let new_result = localStorage.getItem(new_file)
+            if (result !== null)
+            {
+                if (new_result === null)
+                {
+                    // edit the metadata and move the file
+                    let jresult = JSON.parse(result)
+                    jresult.meta_team = new_team
+                    jresult.meta_match = new_num
+                    jresult.meta_match_key = new_key
+                    localStorage.setItem(new_file, JSON.stringify(jresult))
+                    localStorage.removeItem(file)
+        
+                    location.reload()
+                }
+                else
+                {
+                    alert(`${new_file} already exists!`)
+                }
+            }
+            else
+            {
+                alert(`Rename failed!`)
+            }
+        }
+    }
 }
