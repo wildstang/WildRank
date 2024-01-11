@@ -25,7 +25,7 @@ function init_page()
     if (first)
     {
         avatar = document.createElement('img')
-        avatar.id = 'avatar'
+        avatar.className = 'avatar'
 
         let team_header = document.createElement('h2')
         team_num_hdr = document.createElement('span')

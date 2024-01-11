@@ -24,7 +24,7 @@ function init_page()
 {
     let title = document.createElement('div')
     avatar = document.createElement('img')
-    avatar.id = 'avatar'
+    avatar.className = 'avatar'
     result_name = document.createElement('h2')
     team_el = document.createElement('label')
     team_el.id = 'team_num'

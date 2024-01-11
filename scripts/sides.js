@@ -94,7 +94,7 @@ function build_header(team)
     let header = document.createElement('div')
     header.className = 'result_title'
     let avatar = document.createElement('img')
-    avatar.id = 'avatar'
+    avatar.className = 'avatar'
     avatar.src = dal.get_value(team, 'pictures.avatar')
     let result = document.createElement('h1')
     result.className = 'result_name'
