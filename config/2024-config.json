@@ -405,7 +405,8 @@
                             "options": [
                                 "Choose",
                                 "Climbed",
-                                "Failed"
+                                "Failed",
+                                "No Attempt"
                             ],
                             "default": "Choose"
                         },
