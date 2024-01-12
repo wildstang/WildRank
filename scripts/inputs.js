@@ -1756,6 +1756,9 @@ function build_column_from_config(column, scout_mode, select_ids, edit=false, ma
             case 'multicounter':
                 item = new MultiCounter(id, name, options, default_val)
                 break
+            case 'timer':
+                item = new Timer(id, name)
+                break
             case 'select':
                 item = new Select(id, name, options, default_val)
                 item.vertical = input.vertical
@@ -1854,6 +1857,9 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
             case 'counter':
                 results[id] = parseInt(document.getElementById(el_id).innerHTML)
                 break
+            case 'timer':
+                results[id] = parseFloat(document.getElementById(el_id).innerHTML)
+                break
             case 'multicounter':
                 for (let i in options)
                 {
@@ -1937,6 +1943,9 @@ function check_column(column, scout_mode, team='', alliance_color='')
                     break
                 case 'counter':
                     value = parseInt(document.getElementById(id).innerHTML)
+                    break
+                case 'timer':
+                    value = parseFloat(document.getElementById(id).innerHTML)
                     break
                 case 'multicounter':
                     value = []

@@ -245,6 +245,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                             results[id] = random_bool()
                             break
                         case 'counter':
+                        case 'timer':
                             results[id] = random_int()
                             break
                         case 'multicounter':

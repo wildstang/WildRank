@@ -5,7 +5,7 @@
  * date:        2020-12-08
  */
 
-const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
+const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Timer', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
 var config = Array(MODES.length).fill([])
 
@@ -161,6 +161,10 @@ function populate_options()
                 def.type = 'number'
                 def.description = 'The default value displayed in the box.'
                 ops.add_input(def)
+                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
+                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                break
+            case 'Timer':
                 ops.add_input(new Checkbox('new-element-negative', 'Negative'))
                 ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
@@ -320,6 +324,9 @@ function create_element()
                         def = '0'
                     }
                     input.default = parseInt(def)
+                    input.negative = document.getElementById('new-element-negative').checked
+                    break
+                case 'Time':
                     input.negative = document.getElementById('new-element-negative').checked
                     break
                 case 'Multicounter':
@@ -646,6 +653,9 @@ function build_page_from_config()
                                 break
                             case 'counter':
                                 item = new Counter(id, name, default_val)
+                                break
+                            case 'timer':
+                                item = new Timer(id, name)
                                 break
                             case 'multicounter':
                                 item = new MultiCounter(id, name, options, default_val)

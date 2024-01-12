@@ -694,6 +694,12 @@ class Config
                                     return result
                                 }
                                 break
+                            case 'timer':
+                                if (Config.failed(result))
+                                {
+                                    return result
+                                }
+                                break
                             default:
                                 return Config.return_description(false, `Invalid type "${input.type}"`, description, input.id)
                         }
