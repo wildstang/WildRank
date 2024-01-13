@@ -342,6 +342,14 @@ function create_element()
                 case 'String':
                 case 'Text':
                     input.default = document.getElementById('new-element-default').value
+                    if (type === 'Multiselect')
+                    {
+                        input.default = input.default.split(',').map(d => d.toLowerCase() === 'true')
+                        while (input.default.length < input.options.length)
+                        {
+                            input.default.push(false)
+                        }
+                    }
             }
             if (type == 'Multicounter')
             {
@@ -665,16 +673,7 @@ function build_page_from_config()
                                 item.vertical = input.vertical
                                 break
                             case 'multiselect':
-                                let dval = ''
-                                if (typeof dval === 'string')
-                                {
-                                    dval = default_val
-                                }
-                                else if (dval instanceof Array)
-                                {
-                                    davl = default_val.split(',')
-                                }
-                                item = new MultiSelect(id, name, options, dval)
+                                item = new MultiSelect(id, name, options, default_val)
                                 item.vertical = input.vertical
                                 break
                             case 'dropdown':

@@ -1389,7 +1389,7 @@ class MultiSelect extends MultiInput
             let option = document.createElement('span')
             option.id = `${this.id}-${i}`
             option.className = 'wr_select_option'
-            if (this.value.includes(op_name))
+            if (this.value.length > i && this.value[i])
             {
                 option.classList.add('selected')
             }
@@ -1464,6 +1464,17 @@ class MultiSelect extends MultiInput
         {
             console.log('Invalid index')
         }
+    }
+
+    /**
+     * function:    reset_selection
+     * parameters:  ID of the selector, index of the selected option to reset
+     * returns:     none
+     * description: Clears the option is selected.
+     */
+    static reset_selection(id, index)
+    {
+        document.getElementById(`${id}-${index}`).classList.remove('selected')
     }
 
     /**
@@ -1764,22 +1775,7 @@ function build_column_from_config(column, scout_mode, select_ids, edit=false, ma
                 item.vertical = input.vertical
                 break
             case 'multiselect':
-                let def = []
-                if (default_val instanceof Array)
-                {
-                    for (let i in default_val)
-                    {
-                        if (default_val[i])
-                        {
-                            def.push(options[parseInt(i)])
-                        }
-                    }
-                }
-                else if (default_val)
-                {
-                    default_val.split(',')
-                }
-                item = new MultiSelect(id, name, options, def)
+                item = new MultiSelect(id, name, options, default_val)
                 item.vertical = input.vertical
                 break
             case 'dropdown':
@@ -1892,8 +1888,6 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
                 results[id] = document.getElementById(el_id).selectedIndex
                 break
             case 'number':
-                results[id] = parseInt(document.getElementById(el_id).value)
-                break
             case 'slider':
                 results[id] = parseInt(document.getElementById(el_id).value)
                 break
@@ -1971,9 +1965,10 @@ function check_column(column, scout_mode, team='', alliance_color='')
                     value = options[value]
                     break
                 case 'multiselect':
+                    let selected = MultiSelect.get_selected_options(id)
                     for (let i in options)
                     {
-                        if (MultiSelect.get_selected_options(id).includes(parseInt(i)))
+                        if (selected.includes(parseInt(i)))
                         {
                             value += options[i]
                         }

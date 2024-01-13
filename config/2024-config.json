@@ -144,7 +144,7 @@
                                 "Amp",
                                 "Trap"
                             ],
-                            "default": ""
+                            "default": [false, false, false]
                         },
                         {
                             "name": "Climb",
@@ -158,7 +158,7 @@
                                 "Edge",
                                 "Lock"
                             ],
-                            "default": ""
+                            "default": [false, false, false]
                         },
                         {
                             "name": "Pickup",
@@ -171,7 +171,7 @@
                                 "Floor",
                                 "Source"
                             ],
-                            "default": ""
+                            "default": [false, false, false]
                         },
                         {
                             "name": "Notes",

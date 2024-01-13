@@ -633,7 +633,10 @@ class Config
                                 {
                                     return Config.return_description(false, '', description, input.id)
                                 }
-                                result = Config.check_properties(input, {'default': 'string'}, description, input.id)
+                                if (!input.hasOwnProperty('default') && Array.isArray(input.options))
+                                {
+                                    return Config.return_description(false, '', description, input.id)
+                                }
                                 if (Config.failed(result))
                                 {
                                     return result
