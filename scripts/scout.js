@@ -187,10 +187,17 @@ function update_cycle(cycle, decrement)
 {
     // get selected and total number of cycles
     let cycles_id = `${cycle}_cycles-value`
-    let val = parseInt(document.getElementById(cycles_id).innerHTML)
-    let last = cycles[cycle].length
+    let cycle_num = parseInt(document.getElementById(cycles_id).innerHTML)
+    let saved_cycles = cycles[cycle].length
 
+    let existing_result = {}
     let cycle_result = {}
+    let new_cycle = true
+    if (cycle_num < saved_cycles)
+    {
+        new_cycle = false
+        existing_result = cycles[cycle][cycle_num]
+    }
 
     // iterate through each column in the page
     for (let page of cfg[scout_mode])
@@ -215,31 +222,30 @@ function update_cycle(cycle, decrement)
                             if (!decrement)
                             {
                                 cycle_result[id] = Select.get_selected_option(id)
-                                let op = ops.indexOf(def)
-                                if (op >= 0)
-                                {
-                                    Select.select_option(id, op)
-                                }
                             }
-                            if (val < last)
+                            Select.select_option(id, new_cycle ? ops.indexOf(def) : existing_result[id])
+                            break
+                        case 'multiselect':
+                            for (let i in ops)
                             {
-                                Select.select_option(id, cycles[cycle][val][id])
+                                let name = `${id}_${ops[i].toLowerCase().split().join('_')}`
+                                if (!decrement)
+                                {
+                                    cycle_result[name] = MultiSelect.get_selected_options(id).includes(parseInt(i))
+                                }
+                                MultiSelect.reset_selection(id, i)
+                                if (new_cycle ? def[i] : existing_result[name])
+                                {
+                                    MultiSelect.select_option(id, i)
+                                }
                             }
                             break
                         case 'dropdown':
                             if (!decrement)
                             {
                                 cycle_result[id] = document.getElementById(id).selectedIndex
-                                let op = ops.indexOf(def)
-                                if (op >= 0)
-                                {
-                                    document.getElementById(id).selectedIndex = op
-                                }
                             }
-                            if (val < last)
-                            {
-                                document.getElementById(id).selectedIndex = cycles[cycle][val][id]
-                            }
+                            document.getElementById(id).selectedIndex = new_cycle ? ops.indexOf(def) : existing_result[id]
                             break
                         case 'multicounter':
                             for (let op of ops)
@@ -248,24 +254,16 @@ function update_cycle(cycle, decrement)
                                 if (!decrement)
                                 {
                                     cycle_result[op_id] = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
-                                    document.getElementById(`${op_id}-value`).innerHTML = def
                                 }
-                                if (val < last)
-                                {
-                                    document.getElementById(`${op_id}-value`).innerHTML = cycles[cycle][val][op_id]
-                                }
+                                document.getElementById(`${op_id}-value`).innerHTML = new_cycle ? def : existing_result[op_id]
                             }
                             break
                         case 'checkbox':
                             if (!decrement)
                             {
                                 cycle_result[id] = document.getElementById(id).checked
-                                document.getElementById(id).checked = def
                             }
-                            if (val < last)
-                            {
-                                document.getElementById(id).checked = cycles[cycle][val][id]
-                            }
+                            document.getElementById(id).checked = new_cycle ? def : existing_result[id]
 
                             // highlight checkbox
                             if (document.getElementById(id).checked)
@@ -280,13 +278,38 @@ function update_cycle(cycle, decrement)
                         case 'counter':
                             if (!decrement)
                             {
-                                cycle_result[id] = parseInt(document.getElementById(`${id}`).innerHTML)
-                                document.getElementById(`${id}`).innerHTML = def
+                                cycle_result[id] = parseInt(document.getElementById(id).innerHTML)
                             }
-                            if (val < last)
+                            document.getElementById(id).innerHTML = new_cycle ? def : existing_result[id]
+                            break
+                        case 'slider':
+                            if (!decrement)
                             {
-                                document.getElementById(`${id}`).innerHTML = cycles[cycle][val][id]
+                                cycle_result[id] = parseInt(document.getElementById(id).value)
                             }
+                            Slider.set_slider(id, new_cycle ? def : existing_result[id])
+                            break
+                        case 'number':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = parseInt(document.getElementById(id).value)
+                            }
+                            document.getElementById(id).value = new_cycle ? def : existing_result[id]
+                            break
+                        case 'timer':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = parseFloat(document.getElementById(id).innerHTML)
+                            }
+                            document.getElementById(id).innerHTML = new_cycle ? def : existing_result[id]
+                            break
+                        case 'string':
+                        case 'text':
+                            if (!decrement)
+                            {
+                                cycle_result[id] = document.getElementById(id).value
+                            }
+                            document.getElementById(id).value = new_cycle ? def : existing_result[id]
                             break
                         default:
                             // do nothing, no other inputs allowed
@@ -298,13 +321,13 @@ function update_cycle(cycle, decrement)
     }
 
     // store cycle in appropriate position
-    if (val > last)
+    if (new_cycle)
     {
         cycles[cycle].push(cycle_result)
     }
     else if (!decrement)
     {
-        cycles[cycle][val-1] = cycle_result
+        cycles[cycle][cycle_num-1] = cycle_result
     }
 }
 
@@ -547,22 +570,53 @@ function generate_results()
                     {
                         let id = input.id
                         let type = input.type
-                        let ops = input.options
-
-                        if (type == 'multicounter')
+                        let options = input.options
+    
+                        switch (type)
                         {
-                            for (let op of ops)
-                            {
-                                c[`${id}_${op.toLowerCase().split().join('_')}`] = random_int()
-                            }
-                        }
-                        else if (type == 'counter')
-                        {
-                            c[id] = random_int()
-                        }
-                        else
-                        {
-                            c[id] = random_int(0, ops.length-1)
+                            case 'checkbox':
+                                c[id] = random_bool()
+                                break
+                            case 'counter':
+                                c[id] = random_int()
+                                break
+                            case 'multicounter':
+                                for (let op of options)
+                                {
+                                    let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                    c[name] = random_int()
+                                }
+                                break
+                            case 'select':
+                                c[id] = random_int(0, options.length - 1)
+                                break
+                            case 'multiselect':
+                                c[id] = random_int(0, options.length - 1)
+                                break
+                            case 'dropdown':
+                                c[id] = random_int(0, options.length - 1)
+                                break
+                            case 'number':
+                            case 'slider':
+                                let min = 0
+                                let max = 10
+                                if (options.length == 2)
+                                {
+                                    min = options[0]
+                                    max = options[1]
+                                }
+                                else if (options.length == 1)
+                                {
+                                    max = options[0]
+                                }
+                                c[id] = random_int(min, max)
+                                break
+                            case 'string':
+                                c[id] = "Random result"
+                                break
+                            case 'text':
+                                c[id] = "This result was randomly generated"
+                                break
                         }
                     }
                     cycle.push(c)

@@ -202,26 +202,53 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                     {
                         let id = input.id
                         let type = input.type
-                        let ops = input.options
-
-                        if (type == 'multicounter')
+                        let options = input.options
+    
+                        switch (type)
                         {
-                            for (let op of ops)
-                            {
-                                c[`${id}_${op.toLowerCase().split().join('_')}`] = random_int()
-                            }
-                        }
-                        else if (type == 'counter')
-                        {
-                            c[id] = random_int()
-                        }
-                        else if (type == 'checkbox')
-                        {
-                            c[id] = random_bool()
-                        }
-                        else
-                        {
-                            c[id] = random_int(0, ops.length-1)
+                            case 'checkbox':
+                                c[id] = random_bool()
+                                break
+                            case 'counter':
+                                c[id] = random_int()
+                                break
+                            case 'multicounter':
+                                for (let op of options)
+                                {
+                                    let name = `${id}_${op.toLowerCase().split().join('_')}`
+                                    c[name] = random_int()
+                                }
+                                break
+                            case 'select':
+                                c[id] = random_int(0, options.length - 1)
+                                break
+                            case 'multiselect':
+                                c[id] = random_int(0, options.length - 1)
+                                break
+                            case 'dropdown':
+                                c[id] = random_int(0, options.length - 1)
+                                break
+                            case 'number':
+                            case 'slider':
+                                let min = 0
+                                let max = 10
+                                if (options.length == 2)
+                                {
+                                    min = options[0]
+                                    max = options[1]
+                                }
+                                else if (options.length == 1)
+                                {
+                                    max = options[0]
+                                }
+                                c[id] = random_int(min, max)
+                                break
+                            case 'string':
+                                c[id] = "Random result"
+                                break
+                            case 'text':
+                                c[id] = "This result was randomly generated"
+                                break
                         }
                     }
                     cycle.push(c)
