@@ -121,18 +121,9 @@ function build_page_from_config()
         for (let column of page.columns)
         {
             let cycle = column.cycle
-            let col_frame = build_column_from_config(column, scout_mode, select_ids, edit, match_num, team_num, alliance_color, alliances)
+            let col_frame = build_column_from_config(column, scout_mode, select_ids, edit && !cycle, match_num, team_num, alliance_color, alliances)
             if (cycle)
             {
-                // create cycle counter, call update_cycle() on change
-                let cycler = new Cycler(`${column.id}_cycles`, 'Cycles')
-                if (cycle)
-                {
-                    cycler.on_increment = `update_cycle('${column.id}', false)`
-                    cycler.on_decrement = `update_cycle('${column.id}', true)`
-                }
-                col_frame.add_input(cycler)
-
                 // create and populate (if editing) cycle arrays
                 if (edit)
                 {
@@ -142,6 +133,15 @@ function build_page_from_config()
                 {
                     cycles[column.id] = []
                 }
+
+                // create cycle counter, call update_cycle() on change
+                let cycler = new Cycler(`${column.id}_cycles`, 'Cycles', cycles[column.id].length)
+                if (cycle)
+                {
+                    cycler.on_increment = `update_cycle('${column.id}', false)`
+                    cycler.on_decrement = `update_cycle('${column.id}', true)`
+                }
+                col_frame.add_input(cycler)
                 col_frame.add_class('cycle')
             }
             page_frame.add_column(col_frame)
@@ -160,15 +160,6 @@ function build_page_from_config()
     for (let id of select_ids)
     {
         document.getElementById(id).classList.add('selected')
-    }
-
-    // populate first cycles into inputs
-    if (edit)
-    {
-        for (let cycle of Object.keys(cycles))
-        {
-            update_cycle(cycle, cycles[cycle].length > 0)
-        }
     }
 }
 

@@ -987,7 +987,6 @@ class Cycler extends Counter
             document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
         }
         document.getElementById(`${id}-back`).style.display = 'table-cell'
-        document.getElementById(`${id}-back`).innerHTML = 'Last'
     }
 
     static on_decrement(id)
@@ -996,12 +995,10 @@ class Cycler extends Counter
         if (val > 0)
         {
             document.getElementById(`${id}-back`).style.display = 'table-cell'
-            document.getElementById(`${id}-back`).innerHTML = 'Last'
         }
         else
         {
             document.getElementById(`${id}-back`).style.display = 'none'
-            document.getElementById(`${id}-back`).innerHTML = ''
         }
         document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
     }
@@ -1014,7 +1011,8 @@ class Cycler extends Counter
         let back = document.createElement('span')
         back.id = `${this.id}-back`
         back.className = 'wr_select_option'
-        back.style.display = 'none'
+        back.innerHTML = 'Last'
+        back.style.display = this.value ? 'table-cell' : 'none'
         back.onclick = (event) => increment(`${this.id}-value`, true, on_decr)
         back.oncontextmenu = (event) => false
         back.onauxclick = (event) => {
