@@ -226,6 +226,18 @@ function random_int(min=0, max=10)
 }
 
 /**
+ * Generates a random floating point number between two given bounds.
+ * 
+ * @param {number} min Minimum random value
+ * @param {number} max Maximum random values
+ * @returns Random float between min and max.
+ */
+function random_float(min=0, max=10)
+{
+    return Math.random() * (max - min) + min
+}
+
+/**
  * function:    distance
  * parameters:  2 pairs of x, y coordinates
  * returns:     distance between 2 coordinates

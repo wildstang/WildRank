@@ -203,51 +203,20 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                         let id = input.id
                         let type = input.type
                         let options = input.options
-    
+
+                        let res = generate_result_for_input(input)
                         switch (type)
                         {
-                            case 'checkbox':
-                                c[id] = random_bool()
-                                break
-                            case 'counter':
-                                c[id] = random_int()
-                                break
                             case 'multicounter':
-                                for (let op of options)
-                                {
-                                    let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                    c[name] = random_int()
-                                }
-                                break
-                            case 'select':
-                                c[id] = random_int(0, options.length - 1)
-                                break
                             case 'multiselect':
-                                c[id] = random_int(0, options.length - 1)
-                                break
-                            case 'dropdown':
-                                c[id] = random_int(0, options.length - 1)
-                                break
-                            case 'number':
-                            case 'slider':
-                                let min = 0
-                                let max = 10
-                                if (options.length == 2)
+                                for (let i in options)
                                 {
-                                    min = options[0]
-                                    max = options[1]
+                                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                    c[name] = res[i]
                                 }
-                                else if (options.length == 1)
-                                {
-                                    max = options[0]
-                                }
-                                c[id] = random_int(min, max)
                                 break
-                            case 'string':
-                                c[id] = "Random result"
-                                break
-                            case 'text':
-                                c[id] = "This result was randomly generated"
+                            default:
+                                c[id] = res
                                 break
                         }
                     }
@@ -262,63 +231,20 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                     let id = input.id
                     let type = input.type
                     let options = input.options
-                    let min = 0
-                    let max = 10
 
-                    // randomly generate results appropriate for each input
+                    let res = generate_result_for_input(input)
                     switch (type)
                     {
-                        case 'checkbox':
-                            results[id] = random_bool()
-                            break
-                        case 'counter':
-                        case 'timer':
-                            results[id] = random_int()
-                            break
                         case 'multicounter':
-                            for (let op of options)
-                            {
-                                let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                results[name] = random_int()
-                            }
-                            break
                         case 'multiselect':
-                            for (let op of options)
+                            for (let i in options)
                             {
-                                let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                results[name] = random_bool(1 - 0.5 / options.length)
+                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                results[name] = res[i]
                             }
                             break
-                        case 'select':
-                            results[id] = random_int(0, options.length - 1)
-                            break
-                        case 'dropdown':
-                            results[id] = random_int(0, options.length - 1)
-                            break
-                        case 'number':
-                            if (options.length == 2)
-                            {
-                                min = options[0]
-                                max = options[1]
-                            }
-                            else if (options.length == 1)
-                            {
-                                max = options[0]
-                            }
-                            results[id] = random_int(min, max)
-                            break
-                        case 'slider':
-                            if (options.length >= 2)
-                            {
-                                min = options[0]
-                                max = options[1]
-                            }
-                            results[id] = random_int(min, max)
-                            break
-                        case 'string':
-                            results[id] = 'Random Result'
-                        case 'text':
-                            results[id] = 'This result was randomly generated'
+                        default:
+                            results[id] = res
                             break
                     }
                 }

@@ -108,7 +108,6 @@ function check_for_last_page()
  */
 function build_page_from_config()
 {
-    let select_ids = []
     // iterate through each page in the mode
     let body = document.createElement('div')
     body.id = 'scouting-carousel'
@@ -121,7 +120,7 @@ function build_page_from_config()
         for (let column of page.columns)
         {
             let cycle = column.cycle
-            let col_frame = build_column_from_config(column, scout_mode, select_ids, edit && !cycle, match_num, team_num, alliance_color, alliances)
+            let col_frame = build_column_from_config(column, scout_mode, edit && !cycle, match_num, team_num, '', alliances)
             if (cycle)
             {
                 // create and populate (if editing) cycle arrays
@@ -155,12 +154,6 @@ function build_page_from_config()
     let page_options = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
     document.getElementById('body').replaceChildren(body, page_options.element)
     check_for_last_page()
-
-    // mark each selected box as such
-    for (let id of select_ids)
-    {
-        document.getElementById(id).classList.add('selected')
-    }
 }
 
 /**
@@ -178,10 +171,10 @@ function update_cycle(cycle, decrement)
 
     let existing_result = {}
     let cycle_result = {}
-    let new_cycle = true
-    if (cycle_num < saved_cycles)
+    let saving_new_cycle = saved_cycles < cycle_num
+    let starting_new_cycle = saved_cycles <= cycle_num
+    if (!starting_new_cycle)
     {
-        new_cycle = false
         existing_result = cycles[cycle][cycle_num]
     }
 
@@ -202,104 +195,31 @@ function update_cycle(cycle, decrement)
                     let ops = input.options
                     let def = input.default
 
+                    if (!decrement)
+                    {
+                        cycle_result = Object.assign(cycle_result, get_result_from_input(input, scout_mode, '', '', alliances)) 
+                    }
+
                     switch (type)
                     {
-                        case 'select':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = Select.get_selected_option(id)
-                            }
-                            Select.select_option(id, new_cycle ? ops.indexOf(def) : existing_result[id])
-                            break
-                        case 'multiselect':
-                            for (let i in ops)
-                            {
-                                let name = `${id}_${ops[i].toLowerCase().split().join('_')}`
-                                if (!decrement)
-                                {
-                                    cycle_result[name] = MultiSelect.get_selected_options(id).includes(parseInt(i))
-                                }
-                                MultiSelect.reset_selection(id, i)
-                                if (new_cycle ? def[i] : existing_result[name])
-                                {
-                                    MultiSelect.select_option(id, i)
-                                }
-                            }
-                            break
-                        case 'dropdown':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = document.getElementById(id).selectedIndex
-                            }
-                            document.getElementById(id).selectedIndex = new_cycle ? ops.indexOf(def) : existing_result[id]
-                            break
                         case 'multicounter':
-                            for (let op of ops)
+                        case 'multiselect':
+                            let values = []
+                            if (starting_new_cycle)
                             {
-                                let op_id = `${id}_${op.toLowerCase().split().join('_')}`
-                                if (!decrement)
-                                {
-                                    cycle_result[op_id] = parseInt(document.getElementById(`${op_id}-value`).innerHTML)
-                                }
-                                document.getElementById(`${op_id}-value`).innerHTML = new_cycle ? def : existing_result[op_id]
-                            }
-                            break
-                        case 'checkbox':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = document.getElementById(id).checked
-                            }
-                            document.getElementById(id).checked = new_cycle ? def : existing_result[id]
-
-                            // highlight checkbox
-                            if (document.getElementById(id).checked)
-                            {
-                                document.getElementById(`${id}-container`).classList.add('selected')
+                                values = def
                             }
                             else
                             {
-                                document.getElementById(`${id}-container`).classList.remove('selected')
+                                values = ops.map(op => existing_result[`${id}_${op.toLowerCase().split().join('_')}`])
                             }
+                            set_input_value(input, values)
                             break
-                        case 'counter':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = parseInt(document.getElementById(id).innerHTML)
-                            }
-                            document.getElementById(id).innerHTML = new_cycle ? def : existing_result[id]
-                            break
-                        case 'slider':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = parseInt(document.getElementById(id).value)
-                            }
-                            Slider.set_slider(id, new_cycle ? def : existing_result[id])
-                            break
-                        case 'number':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = parseInt(document.getElementById(id).value)
-                            }
-                            document.getElementById(id).value = new_cycle ? def : existing_result[id]
-                            break
-                        case 'timer':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = parseFloat(document.getElementById(id).innerHTML)
-                            }
-                            document.getElementById(id).innerHTML = new_cycle ? def : existing_result[id]
-                            break
-                        case 'string':
-                        case 'text':
-                            if (!decrement)
-                            {
-                                cycle_result[id] = document.getElementById(id).value
-                            }
-                            document.getElementById(id).value = new_cycle ? def : existing_result[id]
-                            break
+                        case 'dropdown':
+                        case 'select':
+                            def = ops.indexOf(def)
                         default:
-                            // do nothing, no other inputs allowed
-                            break
+                            set_input_value(input, starting_new_cycle ? def : existing_result[id])
                     }
                 }
             }
@@ -307,13 +227,16 @@ function update_cycle(cycle, decrement)
     }
 
     // store cycle in appropriate position
-    if (new_cycle)
+    if (!decrement)
     {
-        cycles[cycle].push(cycle_result)
-    }
-    else if (!decrement)
-    {
-        cycles[cycle][cycle_num-1] = cycle_result
+        if (saving_new_cycle)
+        {
+            cycles[cycle].push(cycle_result)
+        }
+        else
+        {
+            cycles[cycle][cycle_num-1] = cycle_result
+        }
     }
 }
 
@@ -331,58 +254,9 @@ function check_cycles()
         // iterate through each column in the page
         for (let column of page.columns)
         {
-            if (column.cycle == true)
+            if (column.cycle)
             {
-                // populate/save each input in the cycle
-                for (let input of column.inputs)
-                {
-                    // only multicounter, select, and dropdown are supported in cycles
-                    let type = input.type
-                    let id = input.id
-                    let ops = input.options
-                    let def = input.default
-
-                    switch (type)
-                    {
-                        case 'select':
-                            if (Select.get_selected_option(id) != ops.indexOf(def) && ops.indexOf(def) >= 0)
-                            {
-                                return id
-                            }
-                            break
-                        case 'dropdown':
-                            if (document.getElementById(id).value != def)
-                            {
-                                return id
-                            }
-                            break
-                        case 'multicounter':
-                            for (let op of ops)
-                            {
-                                let op_id = `${id}_${op.toLowerCase().split().join('_')}`
-                                if (document.getElementById(`${op_id}-value`).innerHTML != def)
-                                {
-                                    return id
-                                }
-                            }
-                            break
-                        case 'checkbox':
-                            if (document.getElementById(id).checked != def)
-                            {
-                                return id
-                            }
-                            break
-                        case 'counter':
-                            if (document.getElementById(id).innerHTML != def)
-                            {
-                                return id
-                            }
-                            break
-                        default:
-                            // do nothing, no other inputs allowed
-                            break
-                    }
-                }
+                check_column(column, scout_mode, '', '', alliances)
             }
         }
     }
@@ -521,10 +395,13 @@ function check_results()
     {
         for (let column of page.columns)
         {
-            let ret = check_column(column, scout_mode)
-            if (ret)
+            if (!column.cycle)
             {
-                return ret
+                let ret = check_column(column, scout_mode, '', '', alliances)
+                if (ret)
+                {
+                    return ret
+                }
             }
         }
     }

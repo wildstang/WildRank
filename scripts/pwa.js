@@ -30,6 +30,7 @@ const CACHE_LIST = [
     '/scripts/distro.js',
     '/scripts/edit-coach.js',
     '/scripts/edit-stats.js',
+    '/scripts/elements.js',
     '/scripts/event-generator.js',
     '/scripts/events.js',
     '/scripts/export.js',

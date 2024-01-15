@@ -5,7 +5,7 @@
  * date:        2020-12-08
  */
 
-const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Timer', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
+const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
 var config = Array(MODES.length).fill([])
 
@@ -161,10 +161,6 @@ function populate_options()
                 def.type = 'number'
                 def.description = 'The default value displayed in the box.'
                 ops.add_input(def)
-                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
-                break
-            case 'Timer':
                 ops.add_input(new Checkbox('new-element-negative', 'Negative'))
                 ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
                 break
@@ -608,13 +604,8 @@ function build_page_from_config()
             pages.push(page_frame)
             if (selected_page != page_name)
             {
-                let button = new MultiButton(`${page.id}_edit`, '')
-                button.add_option('◀', `shift('${page.id}', 'up')`)
-                button.add_option('X', `shift('${page.id}', 'rm')`)
-                button.add_option('▶', `shift('${page.id}', 'down')`)
-                button.add_class('slim')
+                let button = build_shift_buttons(page.id)
                 button.add_class('page_color')
-                button.columns = 3
                 page_frame.add_column(button)
             }
             // iterate through each column in the page
@@ -630,79 +621,20 @@ function build_page_from_config()
                     page_frame.add_column(column_frame)
                     if (selected_col != col_name)
                     {
-                        let button = new MultiButton(`${column.id}_edit`, '')
-                        button.add_option('◀', `shift('${column.id}', 'up')`)
-                        button.add_option('X', `shift('${column.id}', 'rm')`)
-                        button.add_option('▶', `shift('${column.id}', 'down')`)
-                        button.add_class('slim')
+                        let button = build_shift_buttons(column.id)
                         button.add_class('column_color')
-                        button.columns = 3
                         column_frame.add_input(button)
                     }
                     // iterate through input in the column
                     for (let input of column.inputs)
                     {
-                        let name = input.name
-                        let id = input.id
-                        let type = input.type
-                        let default_val = input.default
-                        let options = input['options']
-
-                        let item = ''
-                        // build each input from its template
-                        switch (type)
+                        let item = build_input_from_config(input)
+                        if (item)
                         {
-                            case 'checkbox':
-                                if (default_val)
-                                {
-                                    select_ids.push(`${id}-container`)
-                                }
-                                item = new Checkbox(id, name, default_val)
-                                break
-                            case 'counter':
-                                item = new Counter(id, name, default_val)
-                                break
-                            case 'timer':
-                                item = new Timer(id, name)
-                                break
-                            case 'multicounter':
-                                item = new MultiCounter(id, name, options, default_val)
-                                break
-                            case 'select':
-                                item = new Select(id, name, options, default_val)
-                                item.vertical = input.vertical
-                                break
-                            case 'multiselect':
-                                item = new MultiSelect(id, name, options, default_val)
-                                item.vertical = input.vertical
-                                break
-                            case 'dropdown':
-                                item = new Dropdown(id, name, options, default_val)
-                                break
-                            case 'string':
-                                item = new Entry(id, name, default_val)
-                                break
-                            case 'number':
-                                item = new Entry(id, name, default_val)
-                                item.type = 'number'
-                                item.bounds = options
-                                break
-                            case 'slider':
-                                item = new Slider(id, name, default_val)
-                                item.bounds = options
-                                break
-                            case 'text':
-                                item = new Extended(id, name, default_val)
-                                break
+                            column_frame.add_input(item)
                         }
-                        column_frame.add_input(item)
-                        
-                        let button = new MultiButton(`${id}_edit`, '')
-                        button.add_option('◀', `shift('${id}', 'up')`)
-                        button.add_option('X', `shift('${id}', 'rm')`)
-                        button.add_option('▶', `shift('${id}', 'down')`)
-                        button.add_class('slim')
-                        button.columns = 3
+
+                        let button = build_shift_buttons(input.id)
                         column_frame.add_input(button)
                     }
                     if (cycle)
@@ -720,6 +652,23 @@ function build_page_from_config()
     {
         document.getElementById(id).classList.add('selected')
     }
+}
+
+/**
+ * Builds a multibutton used to shift an element in the config.
+ * 
+ * @param {string} id ID of the related element.
+ * @returns {MultiButton} MultiButton reference
+ */
+function build_shift_buttons(id)
+{
+    let button = new MultiButton(`${id}_edit`, '')
+    button.add_option('◀', `shift('${id}', 'up')`)
+    button.add_option('X', `shift('${id}', 'rm')`)
+    button.add_option('▶', `shift('${id}', 'down')`)
+    button.add_class('slim')
+    button.columns = 3
+    return button
 }
 
 /**
