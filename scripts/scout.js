@@ -19,7 +19,6 @@ var urlParams = new URLSearchParams(window.location.search)
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
-const generate = urlParams.get('generate')
 var edit = urlParams.get('edit') == 'true'
 
 /**
@@ -81,10 +80,6 @@ function init_page()
     }
     ws(team_num)
     build_page_from_config()
-    if ((generate === 'random' && cfg.settings.allow_random) || generate === 'force')
-    {
-        generate_results()
-    }
 }
 
 /**
@@ -544,142 +539,4 @@ function check_results()
     }
 
     return false
-}
-
-/**
- * function:    generate_results
- * parameters:  none
- * returns:     none
- * description: Populates the page with randomly generated results.
- */
-function generate_results()
-{
-    for (let page of cfg[scout_mode])
-    {
-        for (let column of page.columns)
-        {
-            // check if its a cycle column
-            if (column.cycle)
-            {
-                let cycle = []
-                let num_cycles = random_int()
-                for (let i = 0; i < num_cycles; ++i)
-                {
-                    let c = {}
-                    for (let input of column.inputs)
-                    {
-                        let id = input.id
-                        let type = input.type
-                        let options = input.options
-    
-                        switch (type)
-                        {
-                            case 'checkbox':
-                                c[id] = random_bool()
-                                break
-                            case 'counter':
-                                c[id] = random_int()
-                                break
-                            case 'multicounter':
-                                for (let op of options)
-                                {
-                                    let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                    c[name] = random_int()
-                                }
-                                break
-                            case 'select':
-                                c[id] = random_int(0, options.length - 1)
-                                break
-                            case 'multiselect':
-                                c[id] = random_int(0, options.length - 1)
-                                break
-                            case 'dropdown':
-                                c[id] = random_int(0, options.length - 1)
-                                break
-                            case 'number':
-                            case 'slider':
-                                let min = 0
-                                let max = 10
-                                if (options.length == 2)
-                                {
-                                    min = options[0]
-                                    max = options[1]
-                                }
-                                else if (options.length == 1)
-                                {
-                                    max = options[0]
-                                }
-                                c[id] = random_int(min, max)
-                                break
-                            case 'string':
-                                c[id] = "Random result"
-                                break
-                            case 'text':
-                                c[id] = "This result was randomly generated"
-                                break
-                        }
-                    }
-                    cycle.push(c)
-                }
-                cycles[column.id] = cycle
-                update_cycle(column.id, true)
-            }
-            else
-            {
-                for (let input of column.inputs)
-                {
-                    var id = input.id
-                    var type = input.type
-                    var options = input.options
-    
-                    switch (type)
-                    {
-                        case 'checkbox':
-                            document.getElementById(id).checked = random_bool()
-                            break
-                        case 'counter':
-                            document.getElementById(id).innerHTML = random_int()
-                            break
-                        case 'multicounter':
-                            for (let op of options)
-                            {
-                                let name = `${id}_${op.toLowerCase().split().join('_')}`
-                                document.getElementById(`${name}-value`).innerHTML = random_int()
-                            }
-                            break
-                        case 'select':
-                            Select.select_option(id, random_int(0, options.length - 1))
-                            break
-                        case 'multiselect':
-                            MultiSelect.select_option(id, random_int(0, options.length - 1))
-                            break
-                        case 'dropdown':
-                            document.getElementById(id).selectedIndex = random_int(0, options.length - 1)
-                            break
-                        case 'number':
-                        case 'slider':
-                            let min = 0
-                            let max = 10
-                            if (options.length == 2)
-                            {
-                                min = options[0]
-                                max = options[1]
-                            }
-                            else if (options.length == 1)
-                            {
-                                max = options[0]
-                            }
-                            document.getElementById(id).value = random_int(min, max)
-                            break
-                        case 'string':
-                            document.getElementById(id).value = "Random result"
-                            break
-                        case 'text':
-                            document.getElementById(id).value = "This result was randomly generated"
-                            break
-                    }
-                }
-            }
-        }
-    }
 }

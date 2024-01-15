@@ -9,7 +9,6 @@
 // read parameters from URL
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var generate = ''
 var streaming = false
 
 var avatar_el, team_num_el, team_name_el, photos_el, buttons_el, preview_el, capture_el
@@ -30,9 +29,6 @@ function init_page()
     {
         avatar_el = document.createElement('img')
         avatar_el.className = 'avatar'
-        avatar_el.onclick = (event) => generate = 'random'
-        avatar_el.ontouchstart = (event) => touch_button(false)
-        avatar_el.ontouchend = (event) => touch_button('generate="random"', true)
 
         team_el = document.createElement('h2')
         team_num_el = document.createElement('span')
@@ -246,7 +242,7 @@ function open_result(file)
  */
 function start_scouting(team_num, edit)
 {
-    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit, 'generate': generate })
+    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit })
 }
 
 /**
