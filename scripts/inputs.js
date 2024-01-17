@@ -349,7 +349,7 @@ function get_result_from_input(input, scout_mode, team='', alliance_color='', al
             {
                 if (children[i].classList.contains('selected'))
                 {
-                    result[id] = i
+                    result[id] = parseInt(i)
                 }
             }
             break
@@ -394,7 +394,7 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
  * @param {string} team Team number to replace keywords with.
  * @param {string} alliance_color Alliance color to replace keywords with.
  * @param {object} alliances Map of alliance keys to team numbers.
- * @returns False, if column passed, otherwise first failing column ID.
+ * @returns False, if column passed, otherwise first failing input ID.
  */
 function check_column(column, scout_mode, team='', alliance_color='', alliances={})
 {
