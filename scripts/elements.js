@@ -1009,8 +1009,8 @@ class Cycler extends Counter
 
     get element()
     {
-        let on_incr = `${this.on_increment}; Cycler.on_increment('${this.id}')`
-        let on_decr = `${this.on_decrement}; Cycler.on_decrement('${this.id}')`
+        let on_incr = `if (${this.on_increment}) Cycler.on_increment('${this.id}')`
+        let on_decr = `if (${this.on_decrement}) Cycler.on_decrement('${this.id}')`
 
         let back = document.createElement('span')
         back.id = `${this.id}-back`
