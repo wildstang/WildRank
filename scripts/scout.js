@@ -159,14 +159,15 @@ function build_page_from_config()
 /**
  * function:    update_cycle
  * parameters:  cycle name, if cycle was decremented
- * returns:     none
+ * returns:     If increment/decrement is allowed
  * description: Saves the current cycles and moves on to the next.
  */
 function update_cycle(cycle, decrement)
 {
     // get selected and total number of cycles
     let cycles_id = `${cycle}_cycles-value`
-    let cycle_num = parseInt(document.getElementById(cycles_id).innerHTML)
+    let counter = document.getElementById(cycles_id)
+    let cycle_num = parseInt(counter.innerText)
     let saved_cycles = cycles[cycle].length
 
     let existing_result = {}
@@ -186,6 +187,40 @@ function update_cycle(cycle, decrement)
         {
             if (column.id == cycle)
             {
+                // determine if necessary defaults are changed before saving
+                if (!decrement)
+                {
+                    let cid = check_column(column, scout_mode, '', '', alliances)
+                    if (cid)
+                    {
+                        counter.innerText = cycle_num - 1
+                        document.getElementById(cid).style['background-color'] = '#FFF2A8'
+                        let container = document.getElementById(`${cid}-container`)
+                        if (container !== null)
+                        {
+                            container.style['background-color'] = '#FFF2A8'
+                        }
+                        alert(`${cycle} has unchanged defaults! (${cid})`)
+                        return false
+                    }
+                }
+                // determine that nothing is changed in the new cycle before going back
+                else if (saved_cycles === cycle_num + 1)
+                {
+                    let cid = check_cycle(column, scout_mode, '', '', alliances, true)
+                    if (cid && !confirm(`The current cycle is unsaved (${cid})! Do you want to continue?`))
+                    {
+                        document.getElementById(cid).style['background-color'] = '#FFF2A8'
+                        let container = document.getElementById(`${cid}-container`)
+                        if (container !== null)
+                        {
+                            container.style['background-color'] = '#FFF2A8'
+                        }
+                        counter.innerText = cycle_num + 1
+                        return false
+                    }
+                }
+
                 // populate/save each input in the cycle
                 for (let input of column.inputs)
                 {
@@ -238,6 +273,8 @@ function update_cycle(cycle, decrement)
             cycles[cycle][cycle_num-1] = cycle_result
         }
     }
+
+    return true
 }
 
 /**
@@ -256,7 +293,11 @@ function check_cycles()
         {
             if (column.cycle)
             {
-                check_column(column, scout_mode, '', '', alliances)
+                let ret = check_cycle(column, scout_mode, '', '', alliances, true)
+                if (ret)
+                {
+                    return column.id
+                }
             }
         }
     }
@@ -275,7 +316,7 @@ function get_results_from_page()
     if (cid)
     {
         document.getElementById(cid).style['background-color'] = '#FFF2A8'
-        let container = document.getElementById(`${cid}_container`)
+        let container = document.getElementById(`${cid}-container`)
         if (container !== null)
         {
             container.style['background-color'] = '#FFF2A8'
@@ -289,7 +330,7 @@ function get_results_from_page()
     if (iid)
     {
         document.getElementById(iid).style['background-color'] = '#FAA0A0'
-        let container = document.getElementById(`${iid}_container`)
+        let container = document.getElementById(`${iid}-container`)
         if (container !== null)
         {
             container.style['background-color'] = '#FAA0A0'

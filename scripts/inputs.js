@@ -439,6 +439,53 @@ function check_column(column, scout_mode, team='', alliance_color='', alliances=
 }
 
 /**
+ * Determines if a cycle has been changed.
+ * 
+ * @param {object} column Scouting configuration column
+ * @param {string} scout_mode Scouting mode
+ * @param {string} team Team number to replace keywords with.
+ * @param {string} alliance_color Alliance color to replace keywords with.
+ * @param {object} alliances Map of alliance keys to team numbers.
+ * @returns False, if column passed, otherwise first failing input ID.
+ */
+function check_cycle(column, scout_mode, team='', alliance_color='', alliances={})
+{
+    for (let input of column.inputs)
+    {
+        let id = input.id
+        let type = input.type
+        let options = input.options
+        let def = input.default
+
+        let value = get_result_from_input(input, scout_mode, team, alliance_color, alliances)
+        switch (type)
+        {
+            case 'multicounter':
+                def = Array(options.length).fill(def)
+            case 'multiselect':
+                for (let i in options)
+                {
+                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    if (value[name] !== def[i])
+                    {
+                        return name
+                    }
+                }
+                break
+            case 'select':
+                def = options.indexOf(def)
+            default:
+                if (value[id] !== def)
+                {
+                    return id
+                }
+        }
+    }
+
+    return false
+}
+
+/**
  * Generates a result for a given input.
  * 
  * @param {object} input Scouting configuration input
