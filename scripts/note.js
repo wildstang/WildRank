@@ -145,7 +145,7 @@ function get_results_from_page()
     if (iid)
     {
         document.getElementById(iid).style['background-color'] = '#FAA0A0'
-        let container = document.getElementById(`${iid}_container`)
+        let container = document.getElementById(`${iid}-container`)
         if (container !== null)
         {
             container.style['background-color'] = '#FAA0A0'

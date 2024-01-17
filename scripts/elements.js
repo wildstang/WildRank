@@ -872,7 +872,7 @@ class Slider extends Entry
         }
 
         let box = document.createElement('div')
-        box.id = `${this.id}_container`
+        box.id = `${this.id}-container`
         box.className = 'wr_slider'
         box.classList.add(...this.classes)
         box.append(slider)
