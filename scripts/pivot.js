@@ -14,6 +14,7 @@ const SESSION_REVERSE_KEY = 'pivot-reverse-key'
 let selected_keys = []
 let last_sort = 0
 let last_reverse = false
+var results_tab
 
 const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
 
@@ -29,9 +30,8 @@ function init_page()
     let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
     let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
 
-    let table = document.createElement('table')
-    table.id = 'results_tab'
-    contents_card.replaceChildren(table)
+    results_tab = document.createElement('table')
+    contents_card.replaceChildren(results_tab)
     buttons_container.replaceChildren(picklist_button.element, export_button.element, import_button.element)
     
     // add pick list filter
@@ -359,8 +359,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     let keys_row = table.insertRow()
     keys_row.classList.add('sticky_header')
     keys_row.insertCell()
-    let team_header = document.createElement('th')
-    team_header.id = 'team'
+    let team_header = create_element('th', 'team')
     team_header.ondragover = dragover_handler
     team_header.ondragenter = dragenter_handler
     team_header.ondrop = drop_handler
@@ -394,8 +393,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         }
 
         // add key names
-        let col_header = document.createElement('th')
-        col_header.id = `header_${i}`
+        let col_header = create_element('th', `header_${i}`)
         col_header.draggable = true
         col_header.ondragstart = dragstart_handler
         col_header.ondragover = dragover_handler
@@ -598,7 +596,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         }
     }
 
-    document.getElementById('results_tab').replaceChildren(table)
+    results_tab.replaceChildren(table)
 
     sessionStorage.setItem(SESSION_TYPES_KEY, JSON.stringify(selected_types))
 }

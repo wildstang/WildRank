@@ -1665,7 +1665,31 @@ function increment(id, right, on_increment='')
     }
 }
 
+/**
+ * Creates a new br element.
+ * 
+ * @returns {HTMLBRElement} br
+ */
 function br()
 {
     return document.createElement('br')
+}
+
+/**
+ * Calls createElement and adds a id and class.
+ * 
+ * @param {string} tag Tag name
+ * @param {string} id ID
+ * @param {string} class_name Class name
+ * @returns {HTMLElement} element
+ */
+function create_element(tag, id, class_name='')
+{
+    let el = document.createElement(tag)
+    el.id = id
+    if (class_name)
+    {
+        el.className = class_name
+    }
+    return el
 }

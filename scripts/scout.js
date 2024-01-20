@@ -109,9 +109,7 @@ function check_for_last_page()
 function build_page_from_config()
 {
     // iterate through each page in the mode
-    let body = document.createElement('div')
-    body.id = 'scouting-carousel'
-    body.className = 'scouting-carousel'
+    let body = create_element('div', 'scouting-carousel', 'scouting-carousel')
     body.onscroll = check_for_last_page
     for (let page of cfg[scout_mode])
     {
@@ -149,8 +147,7 @@ function build_page_from_config()
     }
 
     let unsure = new Checkbox('unsure', `Unsure of Results`)
-    let submit = document.createElement('span')
-    submit.id = 'submit_container'
+    let submit = create_element('span', 'submit_container')
     let page_options = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
     document.getElementById('body').replaceChildren(body, page_options.element)
     check_for_last_page()

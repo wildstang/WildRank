@@ -26,8 +26,7 @@ function init_page()
     avatar_el = document.createElement('img')
     avatar_el.className = 'avatar'
     let result_name = document.createElement('h2')
-    team_el = document.createElement('label')
-    team_el.id = 'team_num'
+    team_el = create_element('label', 'team_num')
     name_el = document.createElement('name_el')
     match_el = document.createElement('label')
     result_name.append(team_el, ': ', name_el, ', ', match_el)

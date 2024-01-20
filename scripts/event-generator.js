@@ -8,6 +8,8 @@
 
 const start = Date.now()
 
+var match_col
+
 /**
  * function:    init_page
  * parameters:  none
@@ -52,8 +54,7 @@ function init_page()
     let generate_button = new Button('generate_teams', 'Generate Teams', 'generate_teams()')
     col.add_input(generate_button)
 
-    let match_col = document.createElement('div')
-    match_col.id = 'match_col'
+    match_col = document.createElement('div')
     let match_page = new PageFrame('match', 'Match')
     match_page.add_column(match_col)
 
@@ -99,7 +100,7 @@ function populate_matches()
 
         cols = [blue_col.element, red_col.element]
     }
-    document.getElementById('match_col').replaceChildren(...cols)
+    match_col.replaceChildren(...cols)
 }
 
 /**

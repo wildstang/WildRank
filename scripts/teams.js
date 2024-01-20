@@ -28,9 +28,8 @@ function init_page()
         avatar.className = 'avatar'
 
         let team_header = document.createElement('h2')
-        team_num_hdr = document.createElement('span')
+        team_num_hdr = create_element('span', 'team_num')
         team_num_hdr.innerText = 'No Team Selected'
-        team_num_hdr.id = 'team_num'
         team_name = document.createElement('span')
         team_header.append(team_num_hdr, ' ', team_name)
 

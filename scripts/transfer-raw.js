@@ -11,6 +11,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var urlParams = new URLSearchParams(window.location.search)
 const fromCache = urlParams.get('cache') === 'true'
 
+var progress_el
+
 include('transfer')
 
 /**
@@ -80,12 +82,10 @@ async function init_page()
     direction.add_option('Export', 'export_zip()')
     option_col.add_input(direction)
 
-    let progress = document.createElement('progress')
-    progress.id = 'progress'
-    progress.className = 'wr_progress'
-    progress.value = 0
-    progress.max = 100
-    option_col.add_input(progress)
+    progress_el = create_element('progress', 'progress', 'wr_progress')
+    progress_el.value = 0
+    progress_el.max = 100
+    option_col.add_input(progress_el)
 
     let status_col = new ColumnFrame('', 'Data Status')
     page.add_column(status_col)
@@ -193,12 +193,11 @@ function export_zip()
 
 function update_progress(complete, total)
 {
-    let progress = document.getElementById('progress')
-    if (progress !== null)
+    if (progress_el !== null)
     {
-        progress.innerHTML = `${complete}/${total}`
-        progress.value = complete
-        progress.max = total
+        progress_el.innerHTML = `${complete}/${total}`
+        progress_el.value = complete
+        progress_el.max = total
     }
 }
 

@@ -6,6 +6,8 @@
  *              2022-01-20
  */
 
+var options_el
+
 /**
  * function:    init_page
  * parameters:  none
@@ -16,9 +18,8 @@ function init_page()
 {
     document.getElementById('header_info').innerHTML = `Settings`
 
-    let options = document.createElement('div')
-    options.id = 'options'
-    let page = new PageFrame('', '', [options,
+    options_el = document.createElement('div')
+    let page = new PageFrame('', '', [options_el,
         new ColumnFrame('', '', [new Button('', 'Download', 'download_config()')]),
         new ColumnFrame('', '', [new Button('', 'Upload', 'upload_config()')]),
         new ColumnFrame('', '', [new Button('', 'Apply', 'apply_config()')])
@@ -46,7 +47,7 @@ function build_page()
         build_column('Dark Theme', 'dark_theme')
     ])
 
-    document.getElementById('options').replaceChildren(page.element)
+    options_el.replaceChildren(page.element)
 }
 
 /**

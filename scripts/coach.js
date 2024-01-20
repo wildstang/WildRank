@@ -6,6 +6,8 @@
  * date:        2021-09-03
  */
 
+var match_key_el, time_el, table_el
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -27,20 +29,15 @@ function init_page()
 
     if (first)
     {
-        let match = document.createElement('span')
-        match.id = 'match_key'
-        match.innerText = 'No Match Selected'
+        match_key_el = document.createElement('span')
+        match_key_el.innerText = 'No Match Selected'
 
         let header = document.createElement('h2')
-        header.append(match)
+        header.append(match_key_el)
 
-        let time = document.createElement('h3')
-        time.id = 'time'
-
-        let table = document.createElement('table')
-        table.id = 'alliance_stats'
-
-        contents_card.append(header, time, table)
+        time_el = document.createElement('h3')
+        table_el = document.createElement('table')
+        contents_card.append(header, time_el, table_el)
 
         hide_matches()
     }
@@ -87,7 +84,7 @@ function open_option(match_key)
     let blue_teams = Object.keys(match_teams).filter(k => k.startsWith('blue')).map(k => match_teams[k])
 
     // place match number and team to scout on pane
-    document.getElementById('match_key').innerText = dal.get_match_value(match_key, 'match_name')
+    match_key_el.innerText = dal.get_match_value(match_key, 'match_name')
 
     // place match time
     let actual = dal.get_match_value(match_key, 'started_time')
@@ -95,11 +92,15 @@ function open_option(match_key)
     let time = dal.get_match_value(match_key, 'scheduled_time')
     if (actual > 0)
     {
-        time.innerText = unix_to_match_time(actual)
+        time_el.innerText = unix_to_match_time(actual)
     }
     else if (predicted > 0)
     {
-        time.innerText = `${unix_to_match_time(predicted)} (Projected)`
+        time_el.innerText = `${unix_to_match_time(predicted)} (Projected)`
+    }
+    else
+    {
+        time_el.innerText = unix_to_match_time(time)
     }
 
     let red_col = new ColumnFrame('red_alliance', '')
@@ -135,7 +136,7 @@ function open_option(match_key)
     {
         stats += `<tr><th>${dal.get_name(v.key, v.function)}</th><td>${dal.get_global_value(red_global, v.key, v.function, true)}</td><td>${dal.get_global_value(blue_global, v.key, v.function, true)}</td></tr>`
     }
-    //document.getElementById('alliance_stats').innerHTML = stats
+    //table_el.innerHTML = stats
 }
 
 /**

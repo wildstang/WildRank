@@ -12,7 +12,7 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab
+var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab, show_meta
 
 /**
  * function:    init_page
@@ -26,8 +26,7 @@ function init_page()
     avatar = document.createElement('img')
     avatar.className = 'avatar'
     result_name = document.createElement('h2')
-    team_el = document.createElement('label')
-    team_el.id = 'team_num'
+    team_el = create_element('label', 'team_num')
     name_el = document.createElement('name_el')
     match_el = document.createElement('label')
     result_name.append(team_el, ': ', name_el, ', ', match_el)
@@ -36,14 +35,12 @@ function init_page()
     title.append(avatar, ' ', result_name, loc, rank)
 
     let label = document.createElement('label')
-    let show_meta = document.createElement('input')
+    show_meta = create_element('input', 'show_meta')
     show_meta.type = 'checkbox'
-    show_meta.id = 'show_meta'
     show_meta.onclick = (event) => rebuild_result_list()
     label.append(show_meta, 'Show Metadata')
 
-    results_tab = document.createElement('table')
-    results_tab.id = 'results_tab'
+    results_tab = create_element('table', 'results_tab')
     contents_card.replaceChildren(title, label, results_tab)
 
     // add filter for teams
@@ -162,7 +159,7 @@ function open_option(option)
     results_tab.replaceChildren()
     results_tab.insertRow().append(document.createElement('th'), create_header('Match Value'))
     let keys = Object.keys(result)
-    if (!document.getElementById('show_meta').checked)
+    if (!show_meta.checked)
     {
         keys = keys.filter(k => !k.startsWith('meta_'))
     }

@@ -9,6 +9,8 @@
 
 const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter']
 
+var params_el
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -32,9 +34,8 @@ function init_page()
     type.on_change = 'update_params()'
     builder_col.add_input(type)
 
-    let params = document.createElement('div')
-    params.id = 'params'
-    builder_col.add_input(params)
+    params_el = document.createElement('div')
+    builder_col.add_input(params_el)
 
     let button_col = new ColumnFrame('', 'Save')
     page.add_column(button_col)
@@ -194,12 +195,11 @@ function update_params()
             let filter = new Dropdown('filter_by', 'Filter By', keys)
             filter.on_change = 'update_filter()'
 
-            let filter_ops = document.createElement('span')
-            filter_ops.id = 'filter_ops'
+            let filter_ops = create_element('span', 'filter_ops')
             page.add_column(new ColumnFrame('', '', [stat, filter, filter_ops]))
             break
     }
-    document.getElementById('params').replaceChildren(page.element)
+    params_el.replaceChildren(page.element)
 
     if (type === 'Filter')
     {

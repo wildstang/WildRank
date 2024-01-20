@@ -56,8 +56,7 @@ function init_page()
     theme.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
     options.add_input(theme)
 
-    let install = document.createElement('div')
-    install.id = 'install-container'
+    let install = create_element('div', 'install-container')
     options.add_input(install)
 
     let roles = new ColumnFrame('roles', 'Role')

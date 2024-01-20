@@ -132,8 +132,7 @@ class Whiteboard
         this.match_traces = {}
         this.heatmaps = {}
 
-        this.canvas = document.createElement('canvas')
-        this.canvas.id = 'whiteboard'
+        this.canvas = create_element('canvas', 'whiteboard')
         this.canvas.style.backgroundImage = `url('assets/${cfg.year}/field-${cfg.year}.png')`
 
         this.scale_factor = 0

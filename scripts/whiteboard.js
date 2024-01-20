@@ -7,7 +7,7 @@
 
 include('whiteboard-obj')
 
-var whiteboard
+var whiteboard, teams_container
 var playing = false
 
 /**
@@ -66,8 +66,7 @@ function init_page()
         let playback = new ColumnFrame('', '', [play_match, playback_speed, match_time, trail_length])
 
         // create a container to place the teams dropdown in
-        let teams_container = document.createElement('span')
-        teams_container.id = 'teams'
+        teams_container = document.createElement('span')
         let teams = new ColumnFrame('', '', [teams_container])
 
         // populate the controls below the whiteboard in single column pages
@@ -152,7 +151,7 @@ function update_sliders()
     teams.unshift('None', 'All', 'Blue', 'Red')
     let team_drop = new Dropdown('team_drop', 'Heatmap', teams, 'None')
     team_drop.on_change = 'set_draw_team()'
-    document.getElementById('teams').replaceChildren(team_drop.element)
+    teams_container.replaceChildren(team_drop.element)
 
     // redraw the now reset whiteboard
     update_time()

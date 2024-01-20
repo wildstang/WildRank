@@ -25,8 +25,7 @@ function init_page()
         avatar_el = document.createElement('img')
         avatar_el.className = 'avatar'
         let header = document.createElement('h2')
-        team_el = document.createElement('label')
-        team_el.id = 'team_num'
+        team_el = create_element('label', 'team_num')
         name_el = document.createElement('label')
         header.append(team_el, ' ', name_el)
         let belongs = document.createElement('h4')
@@ -136,8 +135,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
         }
     }
 
-    let table = document.createElement('table')
-    table.id = 'pick_list_table'
+    let table = create_element('table', 'pick_list_table')
     let match_filter = []
     for (let i = 0; i < longest; i++)
     {
@@ -154,8 +152,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                 }
                 if (rename === list)
                 {
-                    let name = document.createElement('input')
-                    name.id = `new_name_${list}`
+                    let name = create_element('input', `new_name_${list}`)
                     name.type = 'text'
                     name.value = list
                     name.onchange = (event) => rename_list(list)

@@ -7,6 +7,8 @@
 
 const start = Date.now()
 
+var match_col
+
 /**
  * Function used by the application to initialize the custom match page.
  */
@@ -15,8 +17,7 @@ function init_page()
     // set header
     document.getElementById('header_info').innerHTML = 'Custom Match'
 
-    let match_col = document.createElement('div')
-    match_col.id = 'match_col'
+    match_col = document.createElement('div')
     let match_page = new PageFrame('match', 'Match')
     match_page.add_column(match_col)
 
@@ -56,7 +57,7 @@ function populate_matches()
 
         cols = [blue_col.element, red_col.element]
     }
-    document.getElementById('match_col').replaceChildren(...cols)
+    match_col.replaceChildren(...cols)
 }
 
 /**

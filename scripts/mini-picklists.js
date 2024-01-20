@@ -65,8 +65,7 @@ function build_pick_lists(list_name='first_default', i=0)
     // don't show picklists UI if there are no lists
     if (Object.keys(dal.picklists).length > 0)
     {
-        let lists_text = document.createElement('table')
-        lists_text.id = 'mpl-teams'
+        let lists_text = create_element('table', 'mpl-teams')
         document.getElementById('pick_lists').replaceChildren(lists_text)
 
         if (list_name === 'first_default')

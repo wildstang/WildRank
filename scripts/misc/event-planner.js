@@ -58,8 +58,7 @@ function init_page()
     let offseasons = new Checkbox('offseasons', 'Show Offseason Events', false)
     let championships = new Checkbox('championships', 'Show Championships', false)
     let search = new Button('search', 'Search', `process_year(${year})`)
-    let map_el = document.createElement('div')
-    map_el.id = 'map'
+    let map_el = create_element('div', 'map')
     map_el.style.height = '300px'
     map_el.style.width = '400px'
     let filters = new PageFrame('', '', [new ColumnFrame('', '', [range, states]),

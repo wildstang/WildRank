@@ -1419,8 +1419,7 @@ class DAL
 
             // add each team picture to the carousel
             let added = false
-            let carousel = document.createElement('div')
-            carousel.id = 'carousel'
+            let carousel = create_element('div', 'carousel')
             carousel.style.width = width
             carousel.classList.add('photo-carousel')
 
