@@ -22,7 +22,8 @@
     --green-alliance-color: #2ECC40;
     --alt-table-color: #F2F2F2;
     --highlight-color: #FFF2A8;
-    --font: "mono"
+    --font: "mono";
+    --font-size: "x-large";
 }
 
 html {
@@ -104,4 +105,8 @@ tr:nth-child(even) {
     display: inline-block;
     height: 50px;
     width: 50px;
+}
+
+#contents_card {
+    font-size: var(--font-size);
 }

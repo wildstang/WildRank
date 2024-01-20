@@ -91,6 +91,11 @@ function build_column(cfg_name, file)
                 entry.show_color = true
                 column.add_input(entry)
             }
+            else if (key === 'font-size')
+            {
+                let entry = new Dropdown(id, name, ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'], val)
+                column.add_input(entry)
+            }
             else if (val.length > 32)
             {
                 let entry = new Extended(id, name, val)

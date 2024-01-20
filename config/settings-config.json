@@ -46,7 +46,8 @@
 		"green-alliance-color": "#2ECC40",
 		"alt-table-color": "#F2F2F2",
 		"highlight-color": "#FFF2A8",
-		"font": "mono, courier"
+		"font": "mono, courier",
+		"font-size": "medium"
 	},
     "dark-theme": {
 		"primary-color": "#000080",
@@ -71,6 +72,7 @@
 		"green-alliance-color": "#2ECC40",
 		"alt-table-color": "#332940",
 		"highlight-color": "#FFF2A8",
-		"font": "mono, courier"
+		"font": "mono, courier",
+		"font-size": "medium"
 	}
 }
