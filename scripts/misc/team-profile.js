@@ -184,10 +184,10 @@ function build_cards(robots)
         {
             let name = document.createElement('b')
             name.innerText = event
-            awards.append(document.createElement('br'), name, document.createElement('br'))
+            awards.append(br(), name, br())
             for (let a of robots[year].awards[event])
             {
-                awards.append(a.name, document.createElement('br'))
+                awards.append(a.name, br())
             }
         }
         let card_content = document.createElement('span')

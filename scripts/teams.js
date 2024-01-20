@@ -161,8 +161,8 @@ function open_option(team_num)
                 let result = document.createElement('span')
                 let w = document.createElement('b')
                 w.innerText = win
-                result.append(w, document.createElement('br'), dal.generate_score(match_key))
-                time.append(document.createElement('br'), result)
+                result.append(w, br(), dal.generate_score(match_key))
+                time.append(br(), result)
             }
 
             let match_num = document.createElement('span')

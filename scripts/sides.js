@@ -40,7 +40,7 @@ function init_page()
     center.append(card.element)
     column.append(center)
 
-    buttons_container.append(document.createElement('br'), page.element, document.createElement('br'), column)
+    buttons_container.append(br(), page.element, br(), column)
     
     let [first, second] = populate_teams(false, false, true)
     if (first)
@@ -130,7 +130,7 @@ function open_both_teams()
 
     // team details
     let summary = document.createElement('div')
-    summary.append('Competed', document.createElement('br'), `Together ${partners.length} times`, document.createElement('br'), `Against ${opponents.length} times`, document.createElement('br'))
+    summary.append('Competed', br(), `Together ${partners.length} times`, br(), `Against ${opponents.length} times`, br())
 
     val_el.replaceChildren(build_header(selectedA), build_header(selectedB), summary)
 

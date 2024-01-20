@@ -224,7 +224,7 @@ function open_option(match_key)
         let team_el = document.createElement('span')
         team_el.className = alliance
         team_el.innerText = team_num
-        team_info.append(team_el, document.createElement('br'), dal.get_value(team_num, 'meta.name'), document.createElement('br'), dal.get_rank_str(team_num))
+        team_info.append(team_el, br(), dal.get_value(team_num, 'meta.name'), br(), dal.get_rank_str(team_num))
         let info_card = new Card(`card_${team_num}`, team_info)
         info_card.limitWidth = true
         if (alliance === 'red')

@@ -71,7 +71,7 @@ function init_page()
         let teams = new ColumnFrame('', '', [teams_container])
 
         // populate the controls below the whiteboard in single column pages
-        buttons_container.append(document.createElement('br'),
+        buttons_container.append(br(),
             new PageFrame('controls', 'Controls', [controls]).element,
             new PageFrame('playback', 'Playback', [playback]).element,
             new PageFrame('teams_page', 'Teams', [teams]).element)

@@ -192,7 +192,7 @@ function open_option(user_id)
     num_notes.innerText = notes.length / 3
     let num_pits = document.createElement('b')
     num_pits.innerText = pits.length
-    user.append('has scouted:', document.createElement('br'), ' - ', num_matches, ' matches', document.createElement('br'), ' - ', num_notes, ' notes', document.createElement('br'), ' - ', num_pits, ' pits')
+    user.append('has scouted:', br(), ' - ', num_matches, ' matches', br(), ' - ', num_notes, ' notes', br(), ' - ', num_pits, ' pits')
     let card = new Card('user_card', user)
     card.limitWidth = true
     let admin = new Checkbox('admin', 'Admin', cfg.is_admin(user_id))

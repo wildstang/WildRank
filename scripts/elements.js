@@ -324,7 +324,7 @@ class Card extends Element
         container.append(card)
         if (this.space_after)
         {
-            container.append(document.createElement('br'))
+            container.append(br())
         }
         return container
     }
@@ -1566,7 +1566,7 @@ class DescriptiveOption extends Option
         description.className = 'long_option_description'
         description.append(this.description)
 
-        return [label, document.createElement('br'), description]
+        return [label, br(), description]
     }
 }
 
