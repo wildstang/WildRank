@@ -562,7 +562,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             let min = dal.get_global_value(global_stats, key, 'min')
             let max = dal.get_global_value(global_stats, key, 'max')
             let mean = dal.get_global_value(global_stats, key, 'mean')
-            if (!STATS.includes(type))
+            if (!STATS.includes(type[0].toUpperCase() + type.substring(1)))
             {
                 min = 0
                 max = 1.0
@@ -586,12 +586,12 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
                 {
                     colors = [colors[1], colors[0], colors[2], colors[3]]
                 }
-                color = `rgba(${colors.join(',')}`
+                color = `rgba(${colors.join(',')})`
             }
 
             // build cell
             let cell = row.insertCell()
-            cell.style.background_color = color
+            cell.style.backgroundColor = color
             cell.innerText = dal.get_value(team, key, type, true)
         }
     }
