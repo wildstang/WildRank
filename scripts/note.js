@@ -65,11 +65,11 @@ function build_page_from_config()
     // iterate through each column in the page
     for (let team of teams)
     {
-        page_frame.add_column(build_column_from_config(column, NOTE_MODE, select_ids, edit, match_num, team, alliance_color))
+        page_frame.add_column(build_column_from_config(column, NOTE_MODE, edit, match_num, team, alliance_color))
     }
     if (page.columns.length > 1)
     {
-        page_frame.add_column(build_column_from_config(page.columns[1], NOTE_MODE, select_ids, edit, match_num, 'alliance', alliance_color))
+        page_frame.add_column(build_column_from_config(page.columns[1], NOTE_MODE, edit, match_num, 'alliance', alliance_color))
     }
 
     let submit = new Button('submit', 'Submit', 'get_results_from_page()')
