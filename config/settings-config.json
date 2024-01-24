@@ -5,7 +5,8 @@
 		"time_format": 12,
 		"use_images": true,
 		"use_team_color": true,
-		"use_offline": true
+		"use_offline": true,
+		"auto_hide_right": false
 	},
 	"defaults": {
 		"event_id": "2024ilpe",

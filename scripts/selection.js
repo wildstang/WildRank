@@ -179,7 +179,10 @@ function toggle_menu(primary_list=true)
  */
 function enable_secondary_list()
 {
-    document.getElementById('right').style.display = 'flex'
+    if (!cfg.settings.auto_hide_right)
+    {
+        document.getElementById('right').style.display = 'flex'
+    }
     document.getElementById('secondary_menu_toggle').style.display = 'block'
 }
 
