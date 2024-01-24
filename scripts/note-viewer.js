@@ -174,6 +174,7 @@ function filter_notes()
 
             // add notes to new card
             let card = new Card(team, results_el)
+            card.add_class('scalable_card')
             card.custom_width = 1.5
 
             let page = document.getElementById('notes')

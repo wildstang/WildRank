@@ -45,6 +45,7 @@ function init_page()
 
         // build page
         let card = new Card('table_card', '')
+        card.add_class('scalable_card')
         let new_list = new Button('new_list', 'Add to New List', 'new_list()')
         let remove = new Checkbox('remove_teams', 'Remove Teams')
         let export_button = new Button('export', 'Export Lists', 'export_picklists()')

@@ -67,6 +67,11 @@
 
 #contents_card.wr_card {
     display: inline-block;
+    font-size: var(--font-size);
+}
+
+.scalable_card {
+    font-size: var(--font-size);
 }
 
 .wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text {

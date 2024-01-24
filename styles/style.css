@@ -106,7 +106,3 @@ tr:nth-child(even) {
     height: 50px;
     width: 50px;
 }
-
-#contents_card {
-    font-size: var(--font-size);
-}

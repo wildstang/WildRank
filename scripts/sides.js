@@ -37,6 +37,7 @@ function init_page()
     results_tab = document.createElement('table')
     results_tab.style.textAlign = 'center'
     let card = new Card('res', results_tab)
+    card.add_class('scalable_card')
     center.append(card.element)
     column.append(center)
 
