@@ -7,7 +7,7 @@
  *              2021-11-19
  */
 
-const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter']
+const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter', 'Wgtd Rank']
 
 var params_el
 
@@ -190,13 +190,19 @@ function update_params()
         case 'Filter':
             keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
             keys = keys.map(k => dal.get_name(k))
-            let stat = new Dropdown('primary_stat', 'Primary Stat', keys)
-            stat.on_change = 'calculate()'
+            let primary_stat = new Dropdown('primary_stat', 'Primary Stat', keys)
+            primary_stat.on_change = 'calculate()'
             let filter = new Dropdown('filter_by', 'Filter By', keys)
             filter.on_change = 'update_filter()'
 
             let filter_ops = create_element('span', 'filter_ops')
-            page.add_column(new ColumnFrame('', '', [stat, filter, filter_ops]))
+            page.add_column(new ColumnFrame('', '', [primary_stat, filter, filter_ops]))
+            break
+        case 'Wgtd Rank':
+            keys = keys.map(k => dal.get_name(k))
+            let stat = new Dropdown('stat', 'Stat', keys)
+            stat.on_change = 'calculate()'
+            page.add_column(new ColumnFrame('', '', [stat]))
             break
     }
     params_el.replaceChildren(page.element)
@@ -446,6 +452,12 @@ function build_stat()
                     stat.value = dal.meta[filter].options.indexOf(stat.value)
                     break
             }
+            break
+        case 'Wgtd Rank':
+            let key = numeric[document.getElementById('stat').selectedIndex]
+            stat.stat = key.replace('results.', '')
+            stat.negative = dal.meta[key].negative
+            stat.type = 'wrank'
             break
     }
     return stat

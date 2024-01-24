@@ -1226,6 +1226,43 @@ class DAL
                         }
                     }
                     break
+                case 'wrank':
+                    /**
+                     * This stat is a special case, but I am building it to be as flexible as possible.
+                     * To calculate Thee WildRank we first need to compute a ranking offset for each match.
+                     * That is the average partner ranking minus the expected partner ranking.
+                     * Then we add that difference to the team's ranking for the current match to get the weight rank.
+                     * When these rated ranks are averaged we get the WildRank.
+                     * Technically this smart stat mode can be used with any numeric stat, however,
+                     * if that stat isn't a number 1 -> alliance_size it will likely produce meaningless values.
+                     */
+                    if (result.hasOwnProperty(stat.stat))
+                    {
+                        // determine each partner's event average
+                        let partner_vals = []
+                        let teams = this.get_match_teams(result.meta_match_key)
+                        for (let i = 0; i < this.alliance_size; i++)
+                        {
+                            if (i != result.meta_position)
+                            {
+                                let team = teams[`${result.meta_alliance}_${i}`]
+                                partner_vals.push(dal.teams[team].stats[`${stat.stat}.mean`])
+                            }
+                        }
+
+                        // calculate the weighted stat
+                        let num_partners = partner_vals.length
+                        let expected_average_ranking = (num_partners / 2 + 1) * num_partners
+                        let average_ranking = partner_vals.reduce((a, b) => a + b, 0)
+                        result.meta_wildrank_partner_weight = average_ranking - expected_average_ranking
+                        result[id] = result[stat.stat] + result.meta_wildrank_partner_weight
+
+                        if (isNaN(result[id]))
+                        {
+                            result[id] = 0
+                        }
+                    }
+                    break
             }
         }
         return result
