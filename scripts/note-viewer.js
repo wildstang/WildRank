@@ -152,7 +152,7 @@ function filter_notes()
             team_el.innerText = team
             let name_el = document.createElement('h3')
             name_el.innerText = name
-            header.append(team, name)
+            header.append(team_el, name_el)
             let table = document.createElement('table')
             results_el.append(header, images, table)
             for (let key of result_keys)
