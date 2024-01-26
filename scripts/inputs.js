@@ -6,27 +6,43 @@
  */
 
 /**
- * Fills team numbers into a given name and set of options.
+ * Fills team numbers into a given name.
+ * 
+ * @param {string} scout_mode Scouting mode, only applies to MATCH mode.
+ * @param {string} name Input name to check for keywords.
+ * @param {object} alliances Map of alliance keys to team numbers.
+ * @returns {string} Updated name
+ */
+function fill_name(scout_mode, name, alliances)
+{
+    if (scout_mode === MATCH_MODE && alliances && Object.keys(alliances).length > 0)
+    {
+        // replace opponentsX with the team's opponent team numbers
+        return dal.fill_team_numbers(name, alliances)
+    }
+    return name
+}
+
+/**
+ * Fills team numbers into a given set of options.
  * 
  * @param {string} scout_mode Scouting mode, only applies to MATCH mode.
  * @param {string} name Input name to check for keywords.
  * @param {array} options Options to check for keywords.
  * @param {object} alliances Map of alliance keys to team numbers.
+ * @returns {string} Updated options
  */
-function fill_team_numbers(scout_mode, name, options, alliances)
+function fill_options(scout_mode, options, alliances)
 {
     if (scout_mode === MATCH_MODE && alliances && Object.keys(alliances).length > 0)
     {
         // replace opponentsX with the team's opponent team numbers
         if (options instanceof Array && options.length > 0)
         {
-            options = options.map(op => dal.fill_team_numbers(op, alliances))
-        }
-        if (name)
-        {
-            name = dal.fill_team_numbers(name, alliances)
+            return options.map(op => dal.fill_team_numbers(op, alliances))
         }
     }
+    return options
 }
 
 /**
@@ -36,6 +52,7 @@ function fill_team_numbers(scout_mode, name, options, alliances)
  * @param {string} id Input ID to check for keywords.
  * @param {string} team Team number to replace keywords with.
  * @param {string} alliance_color Alliance color to replace keywords with.
+ * @returns {string} Updated ID
  */
 function replace_id_keywords(scout_mode, id, team, alliance_color)
 {
@@ -50,6 +67,7 @@ function replace_id_keywords(scout_mode, id, team, alliance_color)
             id = id.replace('_alliance_', `_${alliance_color}_`)
         }
     }
+    return id
 }
 
 /**
@@ -65,14 +83,11 @@ function replace_id_keywords(scout_mode, id, team, alliance_color)
  */
 function build_input_from_config(input, default_override='', scout_mode='', team='', alliance_color='', alliances={})
 {
-    let name = input.name
-    let id = input.id
     let type = input.type
+    let id = replace_id_keywords(scout_mode, input.id, team, alliance_color)
+    let name = fill_name(scout_mode, input.name, alliances)
+    let options = fill_options(scout_mode, input.options, alliances)
     let default_val = default_override ? default_override : input.default
-    let options = input['options']
-
-    fill_team_numbers(scout_mode, alliances, name, options)
-    replace_id_keywords(scout_mode, team, alliance_color, id)
 
     let item
     // build each input from its template
@@ -97,7 +112,7 @@ function build_input_from_config(input, default_override='', scout_mode='', team
         case 'number':
             item = new Entry(id, name, default_val)
             item.type = 'number'
-            item.bounds = options
+            item.bounds = input.options
             break
         case 'select':
             item = new Select(id, name, options, default_val)
@@ -105,7 +120,7 @@ function build_input_from_config(input, default_override='', scout_mode='', team
             break
         case 'slider':
             item = new Slider(id, name, default_val)
-            item.bounds = options
+            item.bounds = input.options
             break
         case 'string':
             item = new Entry(id, name, default_val)
@@ -227,13 +242,10 @@ function build_column_from_config(column, scout_mode, fill_results=false, match=
  */
 function set_input_value(input, value, scout_mode='', team='', alliance_color='')
 {
-    let id = input.id
-    let type = input.type
     let options = input.options
+    let id = replace_id_keywords(scout_mode, input.id, team, alliance_color)
 
-    replace_id_keywords(scout_mode, team, alliance_color, id)
-
-    switch (type)
+    switch (input.type)
     {
         case 'checkbox':
             document.getElementById(id).checked = value
@@ -302,17 +314,14 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
 function get_result_from_input(input, scout_mode, team='', alliance_color='', alliances={})
 {
     let id = input.id
-    let el_id = id
-    let type = input.type
     let options = input.options
 
     // replace opponentsX with the team's opponent team numbers
-    let op_ids = options
-    fill_team_numbers(scout_mode, alliances, '', op_ids)
-    replace_id_keywords(scout_mode, team, alliance_color, el_id)
+    let el_id = replace_id_keywords(scout_mode, id, team, alliance_color)
+    let op_ids = fill_options(scout_mode, options, alliances)
 
     let result = {}
-    switch (type)
+    switch (input.type)
     {
         case 'checkbox':
             result[id] = document.getElementById(el_id).checked
@@ -406,12 +415,11 @@ function check_column(column, scout_mode, team='', alliance_color='', alliances=
         }
 
         let id = input.id
-        let type = input.type
         let options = input.options
         let def = input.default
 
         let value = get_result_from_input(input, scout_mode, team, alliance_color, alliances)
-        switch (type)
+        switch (input.type)
         {
             case 'multicounter':
                 def = Array(options.length).fill(def)
@@ -453,12 +461,11 @@ function check_cycle(column, scout_mode, team='', alliance_color='', alliances={
     for (let input of column.inputs)
     {
         let id = input.id
-        let type = input.type
         let options = input.options
         let def = input.default
 
         let value = get_result_from_input(input, scout_mode, team, alliance_color, alliances)
-        switch (type)
+        switch (input.type)
         {
             case 'multicounter':
                 def = Array(options.length).fill(def)
@@ -493,10 +500,9 @@ function check_cycle(column, scout_mode, team='', alliance_color='', alliances={
  */
 function generate_result_for_input(input)
 {
-    let type = input.type
     let options = input.options
 
-    switch (type)
+    switch (input.type)
     {
         case 'checkbox':
             return random_bool()
