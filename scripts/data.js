@@ -151,6 +151,17 @@ class DAL
                     {
                         type = 'string'
                     }
+                    else if (stat.type === 'wrank')
+                    {
+                        meta[prefix + 'meta_wildrank_partner_weight'] = {
+                            name: stat.name + ' Partner Weight',
+                            type: type,
+                            negative: neg,
+                            options: [],
+                            options_index: [],
+                            cycle: stat.type === 'count'
+                        }
+                    }
 
                     meta[prefix + stat.id] = {
                         name: stat.name,
@@ -718,7 +729,7 @@ class DAL
                 }
 
                 // add smart stats, then add to results
-                this.teams[team].results.push(this.add_smart_stats(match, stats))
+                this.teams[team].results.push(match)
             }
         }
         // add remaining notes
@@ -732,8 +743,17 @@ class DAL
                 if (!this.teams[team].results.some(m => m.meta_match_key === match.meta_match_key))
                 {
                     match.meta_both_scouted = false
-                    this.teams[team].results.push(this.add_smart_stats(match, stats))
+                    this.teams[team].results.push(match)
                 }
+            }
+        }
+
+        // apply smart stats
+        for (let team of teams)
+        {
+            for (let result of this.teams[team].results)
+            {
+                result = this.add_smart_stats(result, stats)
             }
         }
 
@@ -1238,23 +1258,33 @@ class DAL
                      */
                     if (result.hasOwnProperty(stat.stat))
                     {
-                        // determine each partner's event average
-                        let partner_vals = []
+                        let position = result.meta_position
+                        if (position >= this.alliance_size)
+                        {
+                            position -= this.alliance_size
+                        }
+
+                        // sum each partner's event average
+                        let total_partner_rank = 0
+                        let mean_id = `${stat.stat}.mean`
                         let teams = this.get_match_teams(result.meta_match_key)
                         for (let i = 0; i < this.alliance_size; i++)
                         {
-                            if (i != result.meta_position)
+                            if (i !== position)
                             {
                                 let team = teams[`${result.meta_alliance}_${i}`]
-                                partner_vals.push(dal.teams[team].stats[`${stat.stat}.mean`])
+                                if (!this.teams[team].stats.hasOwnProperty(mean_id))
+                                {
+                                    this.compute_stat(team, `results.${stat.stat}`)
+                                }
+                                total_partner_rank += this.teams[team].stats[mean_id]
                             }
                         }
 
                         // calculate the weighted stat
-                        let num_partners = partner_vals.length
-                        let expected_average_ranking = (num_partners / 2 + 1) * num_partners
-                        let average_ranking = partner_vals.reduce((a, b) => a + b, 0)
-                        result.meta_wildrank_partner_weight = average_ranking - expected_average_ranking
+                        let num_partners = this.alliance_size - 1
+                        let expected_partner_rank = (num_partners / 2 + 1) * num_partners
+                        result.meta_wildrank_partner_weight = total_partner_rank - expected_partner_rank
                         result[id] = result[stat.stat] + result.meta_wildrank_partner_weight
 
                         if (isNaN(result[id]))
