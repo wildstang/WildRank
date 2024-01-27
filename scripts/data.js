@@ -133,7 +133,7 @@ class DAL
                     }
                 }
             }
-            
+
             // add on smart stats
             if (mode == MATCH_MODE)
             {
@@ -145,7 +145,7 @@ class DAL
                     {
                         neg = false
                     }
-            
+
                     let type = 'number'
                     if (stat.type === 'min' || stat.type === 'max')
                     {
@@ -153,8 +153,8 @@ class DAL
                     }
                     else if (stat.type === 'wrank')
                     {
-                        meta[prefix + 'meta_wildrank_partner_weight'] = {
-                            name: stat.name + ' Partner Weight',
+                        meta[`${prefix}${stat.id}_partner_weight`] = {
+                            name: `${stat.name} Partner Weight`,
                             type: type,
                             negative: neg,
                             options: [],
@@ -1284,8 +1284,9 @@ class DAL
                         // calculate the weighted stat
                         let num_partners = this.alliance_size - 1
                         let expected_partner_rank = (num_partners / 2 + 1) * num_partners
-                        result.meta_wildrank_partner_weight = total_partner_rank - expected_partner_rank
-                        result[id] = result[stat.stat] + result.meta_wildrank_partner_weight
+                        let p_weight_id = `${id}_partner_weight`
+                        result[p_weight_id] = total_partner_rank - expected_partner_rank
+                        result[id] = result[stat.stat] + result[p_weight_id]
 
                         if (isNaN(result[id]))
                         {
