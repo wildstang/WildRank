@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-2.3.1'
+const CACHE_NAME = 'wildrank-240127'
 const CACHE_LIST = [
     // html files
     '/',
@@ -72,9 +72,9 @@ const CACHE_LIST = [
     '/scripts/whiteboard-obj.js',
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
-    //'/scripts/misc/2022-score-estimator.js',
-    '/scripts/misc/2023-score-estimator.js',
     /* don't cache misc scripts that rely on tba
+    '/scripts/misc/2022-score-estimator.js',
+    '/scripts/misc/2023-score-estimator.js',
     '/scripts/misc/district-counter.js',
     '/scripts/misc/event-planner.js',
     '/scripts/misc/international-counter.js',
@@ -87,6 +87,8 @@ const CACHE_LIST = [
     '/assets/2023/cone.png',
     '/assets/2023/cube.png',
     '/assets/2023/field-2023.png',
+    '/assets/2024/note.png',
+    '/assets/2024/field-2024.png',
     /* icons should be cached when pwa is installed
     '/assets/icons/icon-192x192-maskable.png',
     '/assets/icons/icon-192x192.png',
@@ -101,6 +103,7 @@ const CACHE_LIST = [
     '/assets/menu-white-18dp.svg',
     // configs
     '/config/2023-config.json',
+    '/config/2024-config.json',
     '/config/settings-config.json',
     // other files
     '/favicon.ico',
