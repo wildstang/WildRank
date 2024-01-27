@@ -541,6 +541,13 @@ class Config
                             return Config.return_description(false, `stat missing property value`, description, stat.id)
                         }
                         break
+                    case 'wrank':
+                        result = Config.check_properties(stat, {'stat': 'string'}, description, stat.id)
+                        if (Config.failed(result))
+                        {
+                            return result
+                        }
+                        break
                     default:
                         return Config.return_description(false, `Unknown type, ${stat.type}`, description, stat.id)
                 }
