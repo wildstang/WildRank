@@ -251,10 +251,10 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                     // ensure team rank is unique
                     if (id === 'note_notes_team_rank')
                     {
-                        let red = dal.matches[match_key].red_alliance.indexOf(team_num)
+                        let red = dal.matches[match_key].red_alliance.sort().indexOf(team_num)
                         if (red < 0)
                         {
-                            let blue = dal.matches[match_key].blue_alliance.indexOf(team_num)
+                            let blue = dal.matches[match_key].blue_alliance.sort().indexOf(team_num)
                             results[id] = blue + 1
                         }
                         else
