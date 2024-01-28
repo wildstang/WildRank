@@ -64,7 +64,7 @@ function init_canvas()
 function filter_stats()
 {
     let filter = document.getElementById('stat_filter').value.toLowerCase()
-    let keys = dal.get_keys(true, true, true, false)
+    let keys = dal.get_keys(true, true, true, false, [], false)
     for (let k of keys)
     {
         let element = document.getElementById(`pit_option_${k}`)
