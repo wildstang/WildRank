@@ -540,6 +540,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         row.insertCell().innerText = parseInt(idx) + 1
         let team_num = row.insertCell()
         team_num.innerText = team
+        team_num.title = dal.get_value(team, 'meta.name')
         if (dal.is_unsure(team))
         {
             team_num.classList.append('highlighted')
