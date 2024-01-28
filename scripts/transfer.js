@@ -811,7 +811,7 @@ class ZipHandler
                             let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version
                             if (write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
                             {
-                                alert(`Config version mismatch on ${n}`)
+                                write = confirm(`Config version mismatch on ${n}, continue?`)
                             }
                         }
 
