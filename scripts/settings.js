@@ -110,6 +110,7 @@ function build_column(cfg_name, file)
             {
                 let button = new Button('tba_link', 'Get an API Key')
                 button.external_link = 'https://www.thebluealliance.com/account#submissions-accepted-count-row'
+                button.add_class('slim')
                 column.add_input(button)
             }
         }
