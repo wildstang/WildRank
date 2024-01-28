@@ -543,7 +543,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         team_num.title = dal.get_value(team, 'meta.name')
         if (dal.is_unsure(team))
         {
-            team_num.classList.append('highlighted')
+            team_num.classList.add('highlighted')
         }
 
         for (let i in selected)
