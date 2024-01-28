@@ -807,7 +807,9 @@ class ZipHandler
                             }
 
                             // warn if reported config version does not match
-                            if (write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== cfg.version)
+                            let version_key = `config-${cfg.year}-version`
+                            let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version
+                            if (write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
                             {
                                 alert(`Config version mismatch on ${n}`)
                             }
