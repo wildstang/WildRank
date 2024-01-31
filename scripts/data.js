@@ -146,6 +146,11 @@ class DAL
                         neg = false
                     }
 
+                    if (stat.hasOwnProperty('pit') && stat.pit)
+                    {
+                        prefix = 'pit.'
+                    }
+
                     let type = 'number'
                     if (stat.type === 'min' || stat.type === 'max')
                     {
@@ -751,6 +756,12 @@ class DAL
         // apply smart stats
         for (let team of teams)
         {
+            let pit = this.teams[team].pit
+            if (Object.keys(pit).length > 0)
+            {
+                pit = this.add_smart_stats(pit, stats, 'pit')
+            }
+
             for (let result of this.teams[team].results)
             {
                 result = this.add_smart_stats(result, stats)
@@ -1043,257 +1054,260 @@ class DAL
      * returns:     return modified result
      * description: Add given smart stats to a given match.
      */
-    add_smart_stats(result, stats)
+    add_smart_stats(result, stats, result_type='results')
     {
         for (let stat of stats)
         {
-            let id = stat.id
-            switch (stat.type)
+            if ((result_type === 'pit') === (stat.hasOwnProperty('pit') && stat.pit))
             {
-                case 'sum':
-                    let total = 0
-                    for (let k of stat.keys)
-                    {
-                        if (!result.hasOwnProperty(k))
+                let id = stat.id
+                switch (stat.type)
+                {
+                    case 'sum':
+                        let total = 0
+                        for (let k of stat.keys)
                         {
-                            break
-                        }
-                        total += result[k]
-                    }
-                    result[id] = total
-                    break
-                case 'math':
-                    let math_fn = stat.math
-                    // pull constants first so they aren't picked up as 2 keys
-                    let constants = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
-                    if (constants)
-                    {
-                        let team = result['meta_team']
-                        for (let c of constants)
-                        {
-                            let parts = c.split('.')
-                            if (this.teams[team].hasOwnProperty(parts[0]) && this.teams[team][parts[0]].hasOwnProperty(parts[1]))
-                            {
-                                math_fn = math_fn.replace(c, this.get_value(team, c))
-                            }
-                        }
-                    }
-                    let keys = math_fn.match(/[a-z][a-z0-9_]+/g)
-                    if (keys)
-                    {
-                        for (let k of keys)
-                        {
-                            if (result.hasOwnProperty(k))
-                            {
-                                math_fn = math_fn.replace(k, result[k])
-                            }
-                        }
-                    }
-                    try
-                    {
-                        result[id] = eval(math_fn)
-                    }
-                    // if the JS is not valid just make it 0
-                    catch (err)
-                    {
-                        result[id] = 0
-                    }
-                    break
-                case 'percent':
-                    if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
-                    {
-                        result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
-                        if (isNaN(result[id]))
-                        {
-                            result[id] = 0
-                        }
-                    }
-                    break
-                case 'ratio':
-                    if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
-                    {
-                        if (result[stat.denominator] != 0)
-                        {
-                            result[id] = result[stat.numerator] / result[stat.denominator]
-                        }
-                        else
-                        {
-                            result[id] = result[stat.numerator]
-                        }
-                    }
-                    break
-                // exclusively for cycle
-                case 'where':
-                    let count = typeof stat.sum === 'undefined' || !stat.sum
-                    let value = 0
-                    let denominator = 0
-                    let percent = typeof stat.denominator !== 'undefined'
-                    if (stat.cycle && result.hasOwnProperty(stat.cycle))
-                    {
-                        for (let cycle of result[stat.cycle])
-                        {
-                            if (typeof cycle === 'undefined')
+                            if (!result.hasOwnProperty(k))
                             {
                                 break
                             }
-                            let passed = true
-                            for (let key of Object.keys(stat.conditions))
+                            total += result[k]
+                        }
+                        result[id] = total
+                        break
+                    case 'math':
+                        let math_fn = stat.math
+                        // pull constants first so they aren't picked up as 2 keys
+                        let constants = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
+                        if (constants)
+                        {
+                            let team = result['meta_team']
+                            for (let c of constants)
                             {
-                                if (cycle.hasOwnProperty(key))
+                                let parts = c.split('.')
+                                if (this.teams[team].hasOwnProperty(parts[0]) && this.teams[team][parts[0]].hasOwnProperty(parts[1]))
                                 {
-                                    if (this.meta['results.' + key].type === 'checkbox')
+                                    math_fn = math_fn.replace(c, this.get_value(team, c))
+                                }
+                            }
+                        }
+                        let keys = math_fn.match(/[a-z][a-z0-9_]+/g)
+                        if (keys)
+                        {
+                            for (let k of keys)
+                            {
+                                if (result.hasOwnProperty(k))
+                                {
+                                    math_fn = math_fn.replace(k, result[k])
+                                }
+                            }
+                        }
+                        try
+                        {
+                            result[id] = eval(math_fn)
+                        }
+                        // if the JS is not valid just make it 0
+                        catch (err)
+                        {
+                            result[id] = 0
+                        }
+                        break
+                    case 'percent':
+                        if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
+                        {
+                            result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
+                            if (isNaN(result[id]))
+                            {
+                                result[id] = 0
+                            }
+                        }
+                        break
+                    case 'ratio':
+                        if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
+                        {
+                            if (result[stat.denominator] != 0)
+                            {
+                                result[id] = result[stat.numerator] / result[stat.denominator]
+                            }
+                            else
+                            {
+                                result[id] = result[stat.numerator]
+                            }
+                        }
+                        break
+                    // exclusively for cycle
+                    case 'where':
+                        let count = typeof stat.sum === 'undefined' || !stat.sum
+                        let value = 0
+                        let denominator = 0
+                        let percent = typeof stat.denominator !== 'undefined'
+                        if (stat.cycle && result.hasOwnProperty(stat.cycle))
+                        {
+                            for (let cycle of result[stat.cycle])
+                            {
+                                if (typeof cycle === 'undefined')
+                                {
+                                    break
+                                }
+                                let passed = true
+                                for (let key of Object.keys(stat.conditions))
+                                {
+                                    if (cycle.hasOwnProperty(key))
                                     {
-                                        if (stat.conditions[key] !== cycle[key])
+                                        if (this.meta['results.' + key].type === 'checkbox')
+                                        {
+                                            if (stat.conditions[key] !== cycle[key])
+                                            {
+                                                passed = false
+                                            }
+                                        }
+                                        else if (cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
                                         {
                                             passed = false
                                         }
                                     }
-                                    else if (cycle[key] !== this.meta['results.' + key].options.indexOf(stat.conditions[key]))
+                                }
+                                if (passed)
+                                {
+                                    if (count)
                                     {
-                                        passed = false
+                                        value++
+                                    }
+                                    else if (cycle.hasOwnProperty(stat.sum))
+                                    {
+                                        value += cycle[stat.sum]
+                                    }
+                                    if (percent && cycle.hasOwnProperty(stat.denominator))
+                                    {
+                                        denominator += cycle[stat.denominator]
                                     }
                                 }
                             }
-                            if (passed)
-                            {
-                                if (count)
-                                {
-                                    value++
-                                }
-                                else if (cycle.hasOwnProperty(stat.sum))
-                                {
-                                    value += cycle[stat.sum]
-                                }
-                                if (percent && cycle.hasOwnProperty(stat.denominator))
-                                {
-                                    denominator += cycle[stat.denominator]
-                                }
-                            }
                         }
-                    }
 
-                    // store smart stat
-                    if (percent)
-                    {
-                        result[id] = value / (value + denominator)
-                        if (isNaN(result[id]))
+                        // store smart stat
+                        if (percent)
                         {
-                            result[id] = 0
-                        }
-                    }
-                    else
-                    {
-                        result[id] = value
-                    }
-                    break
-                case 'min':
-                case 'max':
-                    let extreme = [stat.keys[0]]
-                    for (let k of stat.keys)
-                    {
-                        if (!result.hasOwnProperty(k))
-                        {
-                            break
-                        }
-                        if (stat.type === 'min' && result[k] < result[extreme[0]])
-                        {
-                            extreme = [k]
-                        }
-                        if (stat.type === 'max' && result[k] > result[extreme[0]])
-                        {
-                            extreme = [k]
-                        }
-                        else if (result[k] === result[extreme[0]] && k != stat.keys[0])
-                        {
-                            extreme.push(k)
-                        }
-                    }
-                    result[id] = extreme.map(k => this.get_name(k, '')).join(', ')
-                    break
-                case 'filter':
-                    if (result.hasOwnProperty(stat.filter) && result.hasOwnProperty(stat.key))
-                    {
-                        let val = result[stat.filter]
-                        let passes = false
-                        switch (stat.compare_type)
-                        {
-                            case 0:
-                                passes = val > stat.value
-                                break
-                            case 1:
-                                passes = val >= stat.value
-                                break
-                            case 2:
-                                passes = val === stat.value
-                                break
-                            case 3:
-                                passes = val !== stat.value
-                                break
-                            case 4:
-                                passes = val <= stat.value
-                                break
-                            case 5:
-                                passes = val < stat.value
-                                break
-                        }
-                        if (passes)
-                        {
-                            result[id] = result[stat.key]
+                            result[id] = value / (value + denominator)
+                            if (isNaN(result[id]))
+                            {
+                                result[id] = 0
+                            }
                         }
                         else
                         {
-                            delete result[id]
+                            result[id] = value
                         }
-                    }
-                    break
-                case 'wrank':
-                    /**
-                     * This stat is a special case, but I am building it to be as flexible as possible.
-                     * To calculate Thee WildRank we first need to compute a ranking offset for each match.
-                     * That is the average partner ranking minus the expected partner ranking.
-                     * Then we add that difference to the team's ranking for the current match to get the weight rank.
-                     * When these rated ranks are averaged we get the WildRank.
-                     * Technically this smart stat mode can be used with any numeric stat, however,
-                     * if that stat isn't a number 1 -> alliance_size it will likely produce meaningless values.
-                     */
-                    if (result.hasOwnProperty(stat.stat))
-                    {
-                        let position = result.meta_position
-                        if (position >= this.alliance_size)
+                        break
+                    case 'min':
+                    case 'max':
+                        let extreme = [stat.keys[0]]
+                        for (let k of stat.keys)
                         {
-                            position -= this.alliance_size
-                        }
-
-                        // sum each partner's event average
-                        let total_partner_rank = 0
-                        let mean_id = `${stat.stat}.mean`
-                        let teams = this.get_match_teams(result.meta_match_key)
-                        for (let i = 0; i < this.alliance_size; i++)
-                        {
-                            if (i !== position)
+                            if (!result.hasOwnProperty(k))
                             {
-                                let team = teams[`${result.meta_alliance}_${i}`]
-                                if (!this.teams[team].stats.hasOwnProperty(mean_id))
-                                {
-                                    this.compute_stat(team, `results.${stat.stat}`)
-                                }
-                                total_partner_rank += this.teams[team].stats[mean_id]
+                                break
+                            }
+                            if (stat.type === 'min' && result[k] < result[extreme[0]])
+                            {
+                                extreme = [k]
+                            }
+                            if (stat.type === 'max' && result[k] > result[extreme[0]])
+                            {
+                                extreme = [k]
+                            }
+                            else if (result[k] === result[extreme[0]] && k != stat.keys[0])
+                            {
+                                extreme.push(k)
                             }
                         }
-
-                        // calculate the weighted stat
-                        let num_partners = this.alliance_size - 1
-                        let expected_partner_rank = (num_partners / 2 + 1) * num_partners
-                        let p_weight_id = `${id}_partner_weight`
-                        result[p_weight_id] = total_partner_rank - expected_partner_rank
-                        result[id] = result[stat.stat] + result[p_weight_id]
-
-                        if (isNaN(result[id]))
+                        result[id] = extreme.map(k => this.get_name(k, '')).join(', ')
+                        break
+                    case 'filter':
+                        if (result.hasOwnProperty(stat.filter) && result.hasOwnProperty(stat.key))
                         {
-                            result[id] = 0
+                            let val = result[stat.filter]
+                            let passes = false
+                            switch (stat.compare_type)
+                            {
+                                case 0:
+                                    passes = val > stat.value
+                                    break
+                                case 1:
+                                    passes = val >= stat.value
+                                    break
+                                case 2:
+                                    passes = val === stat.value
+                                    break
+                                case 3:
+                                    passes = val !== stat.value
+                                    break
+                                case 4:
+                                    passes = val <= stat.value
+                                    break
+                                case 5:
+                                    passes = val < stat.value
+                                    break
+                            }
+                            if (passes)
+                            {
+                                result[id] = result[stat.key]
+                            }
+                            else
+                            {
+                                delete result[id]
+                            }
                         }
-                    }
-                    break
+                        break
+                    case 'wrank':
+                        /**
+                         * This stat is a special case, but I am building it to be as flexible as possible.
+                         * To calculate Thee WildRank we first need to compute a ranking offset for each match.
+                         * That is the average partner ranking minus the expected partner ranking.
+                         * Then we add that difference to the team's ranking for the current match to get the weight rank.
+                         * When these rated ranks are averaged we get the WildRank.
+                         * Technically this smart stat mode can be used with any numeric stat, however,
+                         * if that stat isn't a number 1 -> alliance_size it will likely produce meaningless values.
+                         */
+                        if (result.hasOwnProperty(stat.stat))
+                        {
+                            let position = result.meta_position
+                            if (position >= this.alliance_size)
+                            {
+                                position -= this.alliance_size
+                            }
+
+                            // sum each partner's event average
+                            let total_partner_rank = 0
+                            let mean_id = `${stat.stat}.mean`
+                            let teams = this.get_match_teams(result.meta_match_key)
+                            for (let i = 0; i < this.alliance_size; i++)
+                            {
+                                if (i !== position)
+                                {
+                                    let team = teams[`${result.meta_alliance}_${i}`]
+                                    if (!this.teams[team].stats.hasOwnProperty(mean_id))
+                                    {
+                                        this.compute_stat(team, `results.${stat.stat}`)
+                                    }
+                                    total_partner_rank += this.teams[team].stats[mean_id]
+                                }
+                            }
+
+                            // calculate the weighted stat
+                            let num_partners = this.alliance_size - 1
+                            let expected_partner_rank = (num_partners / 2 + 1) * num_partners
+                            let p_weight_id = `${id}_partner_weight`
+                            result[p_weight_id] = total_partner_rank - expected_partner_rank
+                            result[id] = result[stat.stat] + result[p_weight_id]
+
+                            if (isNaN(result[id]))
+                            {
+                                result[id] = 0
+                            }
+                        }
+                        break
+                }
             }
         }
         return result

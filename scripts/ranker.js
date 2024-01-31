@@ -375,7 +375,19 @@ function build_stat()
             stat.keys = keys
             break
         case 'Math':
-            stat.math = document.getElementById('math').value.replace(/\s/g, '')
+            let math_fn = document.getElementById('math').value.replace(/\s/g, '')
+            // pull constants first so they aren't picked up as 2 keys
+            let constants = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
+            if (constants)
+            {
+                for (let c of constants)
+                {
+                    math_fn = math_fn.replace(c, '')
+                }
+            }
+            // determine if pit stat based on if there are any match keys
+            stat.pit = math_fn.match(/[a-z][a-z0-9_]+/g) === null
+            stat.math = math_fn
             stat.negative = document.getElementById('negative').checked
             break
         case 'Percent':
