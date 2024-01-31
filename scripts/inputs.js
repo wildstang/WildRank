@@ -88,6 +88,7 @@ function build_input_from_config(input, default_override='', scout_mode='', team
     let name = fill_name(scout_mode, input.name, alliances)
     let options = fill_options(scout_mode, input.options, alliances)
     let default_val = default_override ? default_override : input.default
+    let images = input.images ? input.images.map(i => `/assets/${i}`) : []
 
     let item
     // build each input from its template
@@ -106,7 +107,7 @@ function build_input_from_config(input, default_override='', scout_mode='', team
             item = new MultiCounter(id, name, options, default_val)
             break
         case 'multiselect':
-            item = new MultiSelect(id, name, options, default_val)
+            item = new MultiSelect(id, name, options, default_val, images)
             item.vertical = input.vertical
             break
         case 'number':
@@ -115,7 +116,7 @@ function build_input_from_config(input, default_override='', scout_mode='', team
             item.bounds = input.options
             break
         case 'select':
-            item = new Select(id, name, options, default_val)
+            item = new Select(id, name, options, default_val, images)
             item.vertical = input.vertical
             break
         case 'slider':
@@ -141,6 +142,7 @@ function build_input_from_config(input, default_override='', scout_mode='', team
             let sheet = window.document.styleSheets[1]
             for (let i in options)
             {
+                console.log(`#${id}-${i}`, input.colors[i])
                 sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
             }
         }

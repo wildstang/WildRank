@@ -636,11 +636,19 @@ class Config
                                     return Config.return_description(false, `default "${input.default}" not found in options`, description, input.id)
                                 }
                             case 'multiselect':
-                                if (!input.hasOwnProperty('options') && Array.isArray(input.options))
+                                if (!input.hasOwnProperty('options') || !Array.isArray(input.options))
                                 {
                                     return Config.return_description(false, '', description, input.id)
                                 }
-                                if (!input.hasOwnProperty('default') && Array.isArray(input.options))
+                                if (input.hasOwnProperty('default') && input.type === 'multiselect' && Array.isArray(input.default) && input.default.length !== input.options.length)
+                                {
+                                    return Config.return_description(false, '', description, input.id)
+                                }
+                                if (input.hasOwnProperty('colors') && (!Array.isArray(input.colors) || input.colors.length !== input.options.length))
+                                {
+                                    return Config.return_description(false, '', description, input.id)
+                                }
+                                if (input.hasOwnProperty('images') && (!Array.isArray(input.images) || input.images.length !== input.options.length))
                                 {
                                     return Config.return_description(false, '', description, input.id)
                                 }

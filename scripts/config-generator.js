@@ -134,7 +134,7 @@ function populate_options()
     }
     else
     {
-        let colors
+        let colors, images
         switch (type)
         {
             case 'Checkbox':
@@ -193,6 +193,8 @@ function populate_options()
             case 'Multiselect':
                 colors = new Entry('new-element-colors', 'Colors')
                 colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
+                images = new Entry('new-element-images', 'Images')
+                images.description = 'A comma-separated list of image files available in /assets/, one for each option, all spaces will be deleted.'
             case 'Dropdown':
                 let sops = new Entry('new-element-options', 'Options')
                 sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
@@ -200,6 +202,10 @@ function populate_options()
                 if (typeof colors !== 'undefined')
                 {
                     ops.add_input(colors)
+                }
+                if (typeof images !== 'undefined')
+                {
+                    ops.add_input(images)
                 }
                 let defo = new Entry('new-element-default', 'Default', '')
                 defo.description = 'The default selected option, must exactly match that option.'
@@ -233,7 +239,12 @@ function create_full_id_from_name(parent, name)
  */
 function parse_list(list)
 {
-    return list.split(',').map(s => s.trim())
+    let items = list.split(',').map(s => s.trim())
+    if (items.length === 1 && items[0] === '')
+    {
+        return []
+    }
+    return items
 }
 
 /** 
@@ -332,6 +343,7 @@ function create_element()
                     if (type !== 'Multicounter')
                     {
                         input.colors = parse_list(document.getElementById('new-element-colors').value)
+                        input.images = parse_list(document.getElementById('new-element-images').value)
                     }
                 case 'Dropdown':
                     input.options = parse_list(document.getElementById('new-element-options').value)

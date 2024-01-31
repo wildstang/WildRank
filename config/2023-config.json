@@ -94,21 +94,18 @@
 				"name": "Preferred Cone Pickup",
 				"id": "pit_pit_game_pieces_preferred_cone_pickup",
 				"type": "select",
-				"colors": [""],
 				"options": ["None", "Double", "Single", "Floor"],
 				"default": "None"
 			}, {
 				"name": "Preferred Cube Pickup",
 				"id": "pit_pit_game_pieces_preferred_cube_pickup",
 				"type": "select",
-				"colors": [""],
 				"options": ["None", "Double", "Single", "Floor"],
 				"default": "None"
 			}, {
 				"name": "Can Supercharge",
 				"id": "pit_pit_game_pieces_can_supercharge",
 				"type": "multiselect",
-				"colors": [""],
 				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes"],
 				"default": ""
 			}]
@@ -120,7 +117,6 @@
 				"name": "Starting Positions with Mobility and Engage",
 				"id": "pit_pit_auto_starting_positions_with_mobility_and_engage",
 				"type": "multiselect",
-				"colors": [""],
 				"options": ["LoadingZone", "ChargeStation", "BumpSide"],
 				"default": ""
 			}, {
@@ -167,7 +163,6 @@
 				"id": "match_auto_auto_starting_location",
 				"type": "select",
 				"disallow_default": true,
-				"colors": [""],
 				"options": ["Default", "LoadingZone", "CS", "BumpSide"],
 				"default": "Default"
 			}, {
@@ -195,7 +190,6 @@
 				"id": "match_auto_auto_auto_charge_station",
 				"type": "select",
 				"disallow_default": true,
-				"colors": [""],
 				"options": ["Default", "NoAttempt", "Failed", "Docked", "Engaged"],
 				"default": "Default"
 			}]
@@ -230,14 +224,12 @@
 				"id": "match_tele_post_match_charging_station",
 				"type": "select",
 				"disallow_default": true,
-				"colors": [""],
 				"options": ["Default", "NoAttempt", "Parked", "Failed", "Docked", "Engaged"],
 				"default": "Default"
 			}, {
 				"name": "State",
 				"id": "match_tele_post_match_state",
 				"type": "multiselect",
-				"colors": [""],
 				"options": ["Tipped", "BrokeDown"],
 				"negative": true,
 				"default": ""
