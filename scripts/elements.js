@@ -1189,9 +1189,10 @@ class OptionedInput extends MultiInput
 
 class Select extends OptionedInput
 {
-    constructor(id, label, options=[], value='')
+    constructor(id, label, options=[], value='', images=[])
     {
         super(id, label, options, value)
+        this.images = images
     }
 
     get option_elements()
@@ -1229,6 +1230,15 @@ class Select extends OptionedInput
                 Select.select_option(this.id, i)
                 eval(this.on_change)
             }
+
+            if (this.images.length)
+            {
+                option.classList.add('wr_select_img')
+
+                label = document.createElement('img')
+                label.src = this.images[i]
+            }
+
             option.append(label)
             rows[rows.length - 1].push(option)
         }
