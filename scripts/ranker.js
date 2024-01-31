@@ -7,7 +7,7 @@
  *              2021-11-19
  */
 
-const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter', 'Wgtd Rank']
+const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter', 'Wgtd Rank', 'Map']
 
 var params_el
 
@@ -204,6 +204,13 @@ function update_params()
             stat.on_change = 'calculate()'
             page.add_column(new ColumnFrame('', '', [stat]))
             break
+        case 'Map':
+            let select_keys = dal.get_keys(true, true, false, false, ['select', 'dropdown'], false)
+            select_keys = select_keys.map(k => dal.get_name(k))
+            let input = new Dropdown('stat', 'Input Stat', select_keys)
+            input.on_change = 'populate_options()'
+            page.add_column(new ColumnFrame('', '', [input, create_element('div', 'values')]))
+            break
     }
     params_el.replaceChildren(page.element)
 
@@ -211,9 +218,31 @@ function update_params()
     {
         update_filter()
     }
+    else if (type === 'Map')
+    {
+        populate_options()
+    }
 
     // always update the calculations on any change
     calculate()
+}
+
+/**
+ * Populate the column of options when a new Select is created for a Map stat.
+ */
+function populate_options()
+{
+    let key = dal.get_keys(true, true, false, false, ['select', 'dropdown'], false)[document.getElementById('stat').selectedIndex]
+    let options = dal.meta[key].options
+    let entries = []
+    for (let option of options)
+    {
+        let entry = new Entry(option, dal.get_name(option))
+        entry.type = 'number'
+        entry.on_text_change = 'calculate()'
+        entries.push(entry.element)
+    }
+    document.getElementById('values').replaceChildren(...entries)
 }
 
 /**
@@ -471,6 +500,27 @@ function build_stat()
             stat.negative = dal.meta[key].negative
             stat.type = 'wrank'
             break
+        case 'Map':
+            let select_keys = dal.get_keys(true, true, false, false, ['select', 'dropdown'], false)
+            let selected_key = select_keys[document.getElementById('stat').selectedIndex]
+            let options = dal.meta[selected_key].options
+            let values = []
+            for (let option of options)
+            {
+                let val = document.getElementById(option).value
+                if (val.length > 0)
+                {
+                    values.push(parseInt(document.getElementById(option).value))
+                }
+                else
+                {
+                    return false
+                }
+            }
+            stat.stat = selected_key.replace('results.', '').replace('pit.', '')
+            stat.values = values
+            stat.pit = selected_key.startsWith('pit.')
+            break
     }
     return stat
 }
@@ -486,6 +536,10 @@ function calculate()
     let name = document.getElementById('name').value
     let id = create_id_from_name(name)
     let stat = build_stat()
+    if (!stat)
+    {
+        return
+    }
     console.log(stat)
 
     // filter teams
@@ -583,6 +637,10 @@ function save_stat()
     if (dal.meta.hasOwnProperty(`results.${stat.id}`))
     {
         alert('Stat already exists!')
+    }
+    else if (!stat)
+    {
+        alert('Missing inputs!')
     }
     else
     {

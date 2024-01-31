@@ -1307,6 +1307,9 @@ class DAL
                             }
                         }
                         break
+                    case 'map':
+                        result[id] = stat.values[result[stat.stat]]
+                        break
                 }
             }
         }
