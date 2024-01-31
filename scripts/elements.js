@@ -1368,10 +1368,11 @@ class Dropdown extends OptionedInput
 
 class MultiSelect extends MultiInput
 {
-    constructor(id, label, options=[], value=[])
+    constructor(id, label, options=[], value=[], images=[])
     {
         super(id, label, options, value)
         this.on_change = ''
+        this.images = images
     }
 
     add_option(option)
@@ -1414,6 +1415,15 @@ class MultiSelect extends MultiInput
                 MultiSelect.select_option(this.id, i)
                 eval(this.on_change)
             }
+
+            if (this.images.length)
+            {
+                option.classList.add('wr_select_img')
+
+                label = document.createElement('img')
+                label.src = this.images[i]
+            }
+
             option.append(label)
             rows[rows.length - 1].push(option)
         }
