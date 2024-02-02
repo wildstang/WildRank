@@ -644,11 +644,11 @@ class Config
                                 {
                                     return Config.return_description(false, '', description, input.id)
                                 }
-                                if (input.hasOwnProperty('colors') && (!Array.isArray(input.colors) || input.colors.length !== input.options.length))
+                                if (input.hasOwnProperty('colors') && (!Array.isArray(input.colors) || (input.colors.length > 0 && input.colors.length !== input.options.length)))
                                 {
                                     return Config.return_description(false, '', description, input.id)
                                 }
-                                if (input.hasOwnProperty('images') && (!Array.isArray(input.images) || input.images.length !== input.options.length))
+                                if (input.hasOwnProperty('images') && (!Array.isArray(input.images) || (input.images.length > 0 && input.images.length !== input.options.length)))
                                 {
                                     return Config.return_description(false, '', description, input.id)
                                 }
