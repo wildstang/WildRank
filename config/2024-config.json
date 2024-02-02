@@ -136,9 +136,6 @@
                             "name": "Shoot",
                             "id": "pit_pit_capabilities_shoot",
                             "type": "multiselect",
-                            "colors": [
-                                ""
-                            ],
                             "options": [
                                 "Speaker",
                                 "Amp",
@@ -150,9 +147,6 @@
                             "name": "Climb",
                             "id": "pit_pit_capabilities_climb",
                             "type": "multiselect",
-                            "colors": [
-                                ""
-                            ],
                             "options": [
                                 "Center",
                                 "Edge",
@@ -164,9 +158,6 @@
                             "name": "Pickup",
                             "id": "pit_pit_capabilities_pickup",
                             "type": "multiselect",
-                            "colors": [
-                                ""
-                            ],
                             "options": [
                                 "Floor",
                                 "Source"
@@ -284,9 +275,6 @@
                             "name": "Game Piece",
                             "id": "match_auto_scoring_game_piece",
                             "type": "select",
-                            "colors": [
-                                ""
-                            ],
                             "options": [
                                 "PL",
                                 "W1",
@@ -305,9 +293,6 @@
                             "id": "match_auto_scoring_result",
                             "type": "select",
                             "disallow_default": true,
-                            "colors": [
-                                ""
-                            ],
                             "options": [
                                 "Choose",
                                 "Failed",
@@ -399,9 +384,6 @@
                             "id": "match_teleop_end_game_climbed",
                             "type": "select",
                             "disallow_default": true,
-                            "colors": [
-                                ""
-                            ],
                             "options": [
                                 "Choose",
                                 "Climbed",
