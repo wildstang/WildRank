@@ -162,7 +162,7 @@
                                 "Floor",
                                 "Source"
                             ],
-                            "default": [false, false, false]
+                            "default": [false, false]
                         },
                         {
                             "name": "Notes",
