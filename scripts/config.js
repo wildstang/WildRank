@@ -586,29 +586,33 @@ class Config
                 {
                     return result
                 }
-                if (!page.hasOwnProperty('columns'))
+
+                result = Config.check_array(page, 'columns', 'object', -1, true)
+                if (Config.failed(result))
                 {
-                    return Config.return_description(false, `page missing property columns`, description, page.id)
+                    return result
                 }
-                if (!Array.isArray(page.columns))
-                {
-                    return Config.return_description(false, `page property columns should be an array`, description, page.id)
-                }
+
                 for (let column of page.columns)
                 {
-                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, description, page.id)
+                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, description, column.id)
                     if (Config.failed(result))
                     {
                         return result
                     }
-                    if (!column.hasOwnProperty('inputs'))
+
+                    result = Config.check_array(column, 'inputs', 'object', -1, true)
+                    if (Config.failed(result))
                     {
-                        return Config.return_description(false, `column missing property inputs`, description, column.id)
+                        return result
                     }
-                    if (!Array.isArray(column.inputs))
+
+                    result = Config.check_properties(column, {'cycle': 'boolean'}, description, column.id, false)
+                    if (Config.failed(result))
                     {
-                        return Config.return_description(false, `column property inputs should be an array`, description, column.id)
+                        return result
                     }
+
                     for (let input of column.inputs)
                     {
                         result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, description, input.id)
@@ -616,78 +620,90 @@ class Config
                         {
                             return result
                         }
+
                         // check for overlapping IDs
                         if (ids.includes(input.id))
                         {
                             return Config.return_description(false, `Repeat id "${input.id}"`, description, input.id)
                         }
                         ids.push(input.id)
+
+                        // check options first because it's values are used in future checking
+                        if (input.type in ['dropdown', 'select', 'multiselect', 'multicounter'])
+                        {
+                            result = Config.check_array(input, 'options', 'string', -1, true)
+                            if (Config.failed(result))
+                            {
+                                return result
+                            }
+
+                            // check for overlapping IDs
+                            for (let option of input.options)
+                            {
+                                let id = `${input.id}_${option.toLowerCase()}`
+                                if (ids.includes(id))
+                                {
+                                    return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                }
+                                ids.push(id)
+                            }
+                        }
+
                         switch (input.type)
                         {
-                            case 'dropdown':
                             case 'select':
+                                let num_options = input.options.length
+                                result = Config.check_array(input, 'images', 'string', num_options, false)
+                                if (Config.failed(result))
+                                {
+                                    return result
+                                }
+
+                                result = Config.check_array(input, 'colors', 'string', num_options, false)
+                                if (Config.failed(result))
+                                {
+                                    return result
+                                }
+
+                            case 'dropdown':
                                 result = Config.check_properties(input, {'default': 'string'}, description, input.id)
                                 if (Config.failed(result))
                                 {
                                     return result
                                 }
+                                // ensure "default" exists in options
                                 else if (!input.options.includes(input.default))
                                 {
                                     return Config.return_description(false, `default "${input.default}" not found in options`, description, input.id)
                                 }
+
                             case 'multiselect':
-                                if (!input.hasOwnProperty('options') || !Array.isArray(input.options))
+                                // require only multiselect to have a "default" array
+                                if (input.type === 'multiselect')
                                 {
-                                    return Config.return_description(false, '', description, input.id)
-                                }
-                                if (input.hasOwnProperty('default') && input.type === 'multiselect' && Array.isArray(input.default) && input.default.length !== input.options.length)
-                                {
-                                    return Config.return_description(false, '', description, input.id)
-                                }
-                                if (input.hasOwnProperty('colors') && (!Array.isArray(input.colors) || (input.colors.length > 0 && input.colors.length !== input.options.length)))
-                                {
-                                    return Config.return_description(false, '', description, input.id)
-                                }
-                                if (input.hasOwnProperty('images') && (!Array.isArray(input.images) || (input.images.length > 0 && input.images.length !== input.options.length)))
-                                {
-                                    return Config.return_description(false, '', description, input.id)
-                                }
-                                if (Config.failed(result))
-                                {
-                                    return result
-                                }
-                                // check for overlapping IDs
-                                for (let option of input.options)
-                                {
-                                    let id = `${input.id}_${option.toLowerCase()}`
-                                    if (ids.includes(id))
+                                    result = Config.check_array(input, 'default', 'boolean', input.options.length, true)
+                                    if (Config.failed(result))
                                     {
-                                        return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                        return result
                                     }
-                                    ids.push(id)
                                 }
                                 break
+
                             case 'multicounter':
-                                if (!input.hasOwnProperty('options') && Array.isArray(input.options))
-                                {
-                                    return Config.return_description(false, '', description, input.id)
-                                }
                                 result = Config.check_properties(input, {'default': 'number'}, description, input.id)
                                 if (Config.failed(result))
                                 {
                                     return result
                                 }
-                                // check for overlapping IDs
-                                for (let option of input.options)
+
+                                // allow multicounter to have an "negative" array
+                                result = Config.check_array(input, 'negative', 'boolean', input.options.length, false)
+                                if (Config.failed(result))
                                 {
-                                    let id = `${input.id}_${option.toLowerCase()}`
-                                    if (ids.includes(id))
-                                    {
-                                        return Config.return_description(false, `Repeat id "${id}"`, description, id)
-                                    }
-                                    ids.push(id)
+                                    return result
                                 }
                                 break
+
                             case 'checkbox':
                                 result = Config.check_properties(input, {'default': 'boolean'}, description, input.id)
                                 if (Config.failed(result))
@@ -695,6 +711,7 @@ class Config
                                     return result
                                 }
                                 break
+
                             case 'string':
                             case 'text':
                                 result = Config.check_properties(input, {'default': 'string'}, description, input.id)
@@ -703,6 +720,7 @@ class Config
                                     return result
                                 }
                                 break
+
                             case 'number':
                             case 'slider':
                             case 'counter':
@@ -712,14 +730,27 @@ class Config
                                     return result
                                 }
                                 break
-                            case 'timer':
-                                if (Config.failed(result))
-                                {
-                                    return result
-                                }
-                                break
+
+                            // prevent all other types
                             default:
                                 return Config.return_description(false, `Invalid type "${input.type}"`, description, input.id)
+                        }
+
+                        // allow all inputs to have a "disallow_default" boolean
+                        result = Config.check_properties(input, {'disallow_default': 'boolean'}, description, input.id, false)
+                        if (Config.failed(result))
+                        {
+                            return result
+                        }
+
+                        // allow "negative" to be a boolean for all but multicounter
+                        if (input.type !== 'multicounter')
+                        {
+                            result = Config.check_properties(input, {'negative': 'boolean'}, description, input.id, false)
+                            if (Config.failed(result))
+                            {
+                                return result
+                            } 
                         }
                     }
                 }
@@ -735,18 +766,18 @@ class Config
      * returns:     property exists and is of valid type
      * description: Confirms a given property exists in a given object and has a value of a given type.
      */
-    static check_properties(object, types, description=false, id='')
+    static check_properties(object, types, description=false, id='', required=true)
     {
         let keys = Object.keys(types)
         let fails = []
         for (let key of keys)
         {
             let type = types[key]
-            if (!object.hasOwnProperty(key))
+            if (!key in object && required)
             {
                 fails.push(`missing property ${key} of type ${type}`)
             }
-            else if (typeof object[key] !== type)
+            else if (key in object && typeof object[key] !== type)
             {
                 fails.push(`${key} should be a ${type}, but found ${typeof object[key]}`)
             }
@@ -756,6 +787,49 @@ class Config
             return Config.return_description(false, fails.join('; '), description, id)
         }
         return Config.return_description(true, '', description)
+    }
+
+    /**
+     * Validate that an array adheres to its required criteria.
+     * 
+     * @param {object} input Input/column/page that should contain the array.
+     * @param {string} key Key representing the array in the input.
+     * @param {string} type String type that values should be.
+     * @param {number} expected_len The required number of entries in the array, < 0 implies no requirement.
+     * @param {boolean} require Whether the array's presents and expected length are required.
+     * @returns true or an array [false, string description, true, id]
+     */
+    static check_array(input, key, type, expected_len=-1, require=false)
+    {
+        let id = input.id
+        if (key in input)
+        {
+            let value = input[key]
+            if (!Array.isArray(value))
+            {
+                return this.return_description(false, `${key} must be an array`, true, id)
+            }
+            // if there is an expected length, enfore the array to match that, or if not required all it to be zero
+            else if (expected_len >= 0 && ((value.length === 0 && require) || value.length !== expected_len))
+            {
+                return this.return_description(false, `${key} must have ${expected_len} values`, true, id)
+            }
+            
+            // check that each value conforms to the type
+            for (let v of value)
+            {
+                if (typeof v !== type)
+                {
+                    return this.return_description(false, `All values in ${key} must be of type ${type}`, true, id)
+                }
+            }
+        }
+        else if (require)
+        {
+            return this.return_description(false, `${key} is required`, true, id)
+        }
+
+        return true
     }
 
     /**
