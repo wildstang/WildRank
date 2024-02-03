@@ -89,9 +89,9 @@ function init_page()
                     // if all team events have been collected get event data
                     if (++team_count == Object.keys(teams).length)
                     {
-                        let keys = Object.keys(events)
+                        let event_keys = Object.keys(events)
                         let received = 0
-                        for (let e of keys)
+                        for (let e of event_keys)
                         {
                             fetch(`https://www.thebluealliance.com/api/v3/event/${cfg.year}${e}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                                 .then(response => {
@@ -149,33 +149,34 @@ function init_page()
                                         }
                                     }
 
-                                    if (++received == keys.length)
+                                    if (++received == event_keys.length)
                                     {
                                         console.log(events)
                                         // sort events by date then teams
-                                        keys.sort((a, b) => Object.keys(events[b].teams).length - Object.keys(events[a].teams).length)
-                                        keys.sort((a, b) => new Date(events[a].start) - new Date(events[b].start))
+                                        event_keys.sort((a, b) => Object.keys(events[b].teams).length - Object.keys(events[a].teams).length)
+                                        event_keys.sort((a, b) => new Date(events[a].start) - new Date(events[b].start))
 
                                         // add each event to the table
-                                        for (let r of keys)
+                                        for (let r of event_keys)
                                         {
                                             let event = events[r]
-                                            let keys = Object.keys(event.teams)
+                                            let team_keys = Object.keys(event.teams)
                                             let row = table.insertRow()
                                             if (dal.event_id.endsWith(r))
                                             {
+                                                summary.innerText = `Of the ${team_keys.length} teams attending the ${event.name}...`
                                                 row.style.backgroundColor = 'gray'
-                                                keys = firsts
-                                                summary.innerText = `Of the ${keys.length} teams attending the ${event.name}...`
+                                                // only show first event teams for current event
+                                                team_keys = firsts
                                             }
                                             // sort teams and add row
-                                            keys.sort((a, b) => parseInt(a) - parseInt(b))
+                                            team_keys.sort((a, b) => parseInt(a) - parseInt(b))
                                             row.insertCell().innerText = event.name
                                             row.insertCell().innerText = r
                                             row.insertCell().innerText = event.start.replaceAll(`${cfg.year}-`, '')
-                                            row.insertCell().innerText = keys.length
+                                            row.insertCell().innerText = team_keys.length
                                             let teams = row.insertCell()
-                                            for (let t of keys)
+                                            for (let t of team_keys)
                                             {
                                                 let span = document.createElement('span')
                                                 if (event.teams[t].award === 'winner')
@@ -195,7 +196,7 @@ function init_page()
                                                 }
                                                 span.innerText = `${t}${event.teams[t].label}`
                                                 teams.append(span)
-                                                if (keys.indexOf(t) !== keys.length - 1)
+                                                if (team_keys.indexOf(t) !== team_keys.length - 1)
                                                 {
                                                     teams.append(', ')
                                                 }
