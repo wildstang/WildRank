@@ -389,7 +389,8 @@ function create_element()
     }
     
     // remove change to config if invalid
-    if (Config.validate_mode_raw(config[0]) && Config.validate_mode_raw(config[1]))
+    let result = Config.validate_mode_raw(config[mode])
+    if (result.result)
     {
         // populate to add to dropdown
         populate_dropdowns()
@@ -408,7 +409,7 @@ function create_element()
     }
     else
     {
-        alert('Invalid change!')
+        alert(`Config invalid!${'id' in result ? ` (${result.id})` : ''}\n\n${result.description}`)
         config = backup
     }
 }

@@ -198,40 +198,6 @@ class Config
     }
 
     /**
-     * function:    validate_settings_configs
-     * parameters:  none
-     * returns:     none
-     * description: Validates all settings configs.
-     */
-    validate_settings_configs()
-    {
-        return this.validate_theme('theme') && this.validate_theme('dark_theme') && this.validate_keys('keys') &&
-            this.validate_users('users') && this.validate_defaults('defaults') && this.validate_settings('settings')
-    }
-
-    /**
-     * function:    Config.return_description
-     * parameters:  boolean result, result description, whether to return the description
-     * returns:     either the boolean result or an array of the result and its description
-     * description: Variably returns a description with a result
-     */
-    static return_description(result, description, return_description, id='')
-    {
-        if (description !== '')
-        {
-            console.log(description)
-        }
-        if (return_description)
-        {
-            return [result, description, id]
-        }
-        else
-        {
-            return result
-        }
-    }
-
-    /**
      * function:    is_admin
      * parameters:  user id
      * returns:     if the user is an admin
@@ -283,120 +249,183 @@ class Config
     }
 
     /**
-     * function:    validate_theme
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a theme config.
+     * Validates all settings configuration sections.
+     * 
+     * @returns {boolean} Whether all sections are valid.
      */
-    validate_theme(config, description=false)
+    validate_settings_configs()
+    {
+        return [this.validate_theme('theme'), this.validate_theme('dark_theme'), this.validate_keys('keys'),
+            this.validate_users('users'), this.validate_defaults('defaults'), this.validate_settings('settings')].every(r => r.result)
+    }
+
+    /**
+     * Handles a validation result. Prints any errors to the console, then builds a result object using the arguments.
+     * 
+     * @param {boolean} result Whether the validation passed.
+     * @param {string} description Reason why the validation failed, ignored if passed.
+     * @param {string} id An identifier associated with the failure.
+     * @returns {object} An object containing the result, description, and id.
+     */
+    static return_description(result, description='', id='')
+    {
+        if (result)
+        {
+            description = ''
+        }
+        else if (description !== '')
+        {
+            console.log(description)
+        }
+
+        let res = {
+            'result': result,
+            'description': description
+        }
+        if (id !== '')
+        {
+            res.id = id
+        }
+        return res
+    }
+
+    /**
+     * Builds a passing validation result.
+     * 
+     * @returns {object} A validation result
+     */
+    static return_pass()
+    {
+        return Config.return_description(true)
+    }
+
+    /**
+     * Builds a failing validation result.
+     * 
+     * @param {string} description Reason why the validation failed, ignored if passed.
+     * @param {string} id An identifier associated with the failure.
+     * @returns {object} A validation result
+     */
+    static return_fail(description, id='')
+    {
+        return Config.return_description(false, description, id)
+    }
+
+    /**
+     * Validates a theme configuration section.
+     * 
+     * @param {object} config Theme config name 
+     * @returns {object} Validation result
+     */
+    validate_theme(config)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return Config.return_description(true, '', description)
+            return Config.return_pass()
         }
-        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
+        return Config.return_fail(`should be an object, but found ${typeof c}`)
     }
 
     /**
-     * function:    validate_keys
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a keys config.
+     * Validates a keys configuration section.
+     * 
+     * @param {object} config Keys config name 
+     * @returns {object} Validation result
      */
-    validate_keys(config, description=false)
+    validate_keys(config)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return Config.check_properties(c, {'tba': 'string', 'server': 'string'}, description)
+            return Config.check_properties(c, {'tba': 'string', 'server': 'string'}, '', false)
         }
-        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
+        return Config.return_fail(`should be an object, but found ${typeof c}`)
     }
 
     /**
-     * function:    validate_users
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a users config.
+     * Validates a users configuration section.
+     * 
+     * @param {object} config Users config name 
+     * @returns {object} Validation result
      */
-    validate_users(config, description=false)
+    validate_users(config)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return [true, '', description]
+            return Config.return_pass()
         }
-        return Config.return_description(typeof c !== 'object', `should be an object, but found ${typeof c}`, description)
+        return Config.return_description(typeof c !== 'object', `should be an object, but found ${typeof c}`)
     }
 
     /**
-     * function:    validate_defaults
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a defaults config.
+     * Validates a defaults configuration section.
+     * 
+     * @param {object} config Defaults config name 
+     * @returns {object} Validation result
      */
-    validate_defaults(config, description=false)
+    validate_defaults(config)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return Config.check_properties(c, {'event_id': 'string', 'upload_url': 'string', 'user_id': 'number'}, description)
+            return Config.check_properties(c, {'event_id': 'string', 'upload_url': 'string', 'user_id': 'number'})
         }
-        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
+        return Config.return_fail(`should be an object, but found ${typeof c}`)
     }
 
     /**
-     * function:    validate_settings
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a settings config.
+     * Validates a settings configuration section.
+     * 
+     * @param {object} config Settings config name 
+     * @returns {object} Validation result
      */
-    validate_settings(config, description=false)
+    validate_settings(config)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
-            return Config.check_properties(c, {'title': 'string', 'team_number': 'number', 'time_format': 'number', 'use_images': 'boolean', 'use_team_color': 'boolean', 'use_offline': 'boolean'}, description)
+            return Config.check_properties(c, {'title': 'string', 'team_number': 'number', 'time_format': 'number',
+                                               'use_images': 'boolean', 'use_team_color': 'boolean', 'use_offline': 'boolean'})
         }
-        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
+        return Config.return_fail(`should be an object, but found ${typeof c}`)
     }
 
     /**
-     * function:    is_settings_valid
-     * parameters:  none
-     * returns:     none
-     * description: Validates all settings configs.
+     * Validates all game configuration sections.
+     * 
+     * @returns {boolean} Whether all sections are valid.
      */
     validate_game_configs()
     {
-        return this.validate_version('version') && this.validate_coach('coach') && this.validate_whiteboard('whiteboard') &&
-            this.validate_smart_stats('smart_stats') && MODES.every(m => this.validate_mode(m))
+        return [this.validate_version('version'), this.validate_coach('coach'), this.validate_whiteboard('whiteboard'),
+            this.validate_smart_stats('smart_stats')].every(r => r.result) && MODES.every(m => this.validate_mode(m).result)
     }
 
     /**
-     * function:    validate_version
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a version config.
+     * Validates a version configuration section.
+     * 
+     * @param {object} config Version config name 
+     * @returns {object} Validation result
      */
-    validate_version(config, description=false)
+    validate_version(config)
     {
         let c = this[config]
         if (typeof c !== 'string')
         {
-            return Config.return_description(false, `should be a string, but found ${typeof c}`, description)
+            return Config.return_fail(`should be a string, but found ${typeof c}`)
         }
-        return Config.return_description(true, '', description)
+        return Config.return_pass()
     }
 
     /**
-     * function:    validate_coach
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a coach stats config.
+     * Validates a coach configuration section.
+     * 
+     * @param {object} config Coach config name 
+     * @returns {object} Validation result
      */
-    validate_coach(config, description=false)
+    validate_coach(config)
     {
         let c = this[config]
         if (Array.isArray(c))
@@ -405,65 +434,65 @@ class Config
             for (let coach of c)
             {
                 let result = Config.check_properties(coach, {'function': 'string', 'key': 'string'}, coach.key)
-                if (Config.failed(result))
+                if (!result.result)
                 {
                     return result
                 }
                 if (!['mean', 'median', 'mode', 'min', 'max', 'total'].includes(coach.function))
                 {
-                    return Config.return_description(false, `invalid function ${coach.function}`, description, coach.key)
+                    return Config.return_fail(`invalid function ${coach.function}`, coach.key)
                 }
                 if (!keys.includes(coach.key))
                 {
-                    return Config.return_description(false, `key ${coach.key} does not exist`, description, coach.key)
+                    return Config.return_fail(`key ${coach.key} does not exist`, coach.key)
                 }
             }
-            return Config.return_description(true, '', description)
+            return Config.return_pass()
         }
-        return Config.return_description(false, `should be an array`, description)
+        return Config.return_fail(`should be an array`)
     }
 
     /**
-     * function:    validate_whiteboard
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a whiteboard config.
+     * Validates a whiteboard configuration section.
+     * 
+     * @param {object} config Whiteboard config name 
+     * @returns {object} Validation result
      */
-    validate_whiteboard(config, description=false)
+    validate_whiteboard(config)
     {
         let c = this[config]
         if (typeof c === 'object')
         {
             if (!c.hasOwnProperty('game_pieces'))
             {
-                return Config.return_description(false, `missing property game_pieces`, description)
+                return Config.return_fail(`missing property game_pieces`)
             }
             if (!Array.isArray(c.game_pieces))
             {
-                return Config.return_description(false, `property game_pieces should be an array`, description)
+                return Config.return_fail(`property game_pieces should be an array`)
             }
             return Config.check_properties(c, {'draw_color': 'string', 'field_height': 'number', 'field_height_ft': 'number', 'field_height_px': 'number',
                 'field_width': 'number', 'horizontal_margin': 'number', 'line_width': 'number', 'magnet_size': 'number', 'vertical_margin': 'number',
-                'blue_0': 'object', 'blue_1': 'object', 'blue_2': 'object', 'red_0': 'object', 'red_1': 'object', 'red_2': 'object'}, description)
+                'blue_0': 'object', 'blue_1': 'object', 'blue_2': 'object', 'red_0': 'object', 'red_1': 'object', 'red_2': 'object'})
         }
-        return Config.return_description(false, `should be an object, but found ${typeof c}`, description)
+        return Config.return_fail(`should be an object, but found ${typeof c}`)
     }
 
     /**
-     * function:    validate_smart_stats
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a smart stats config.
+     * Validates a smart stats configuration section.
+     * 
+     * @param {object} config Smart stats config name 
+     * @returns {object} Validation result
      */
-    validate_smart_stats(config, description=false)
+    validate_smart_stats(config)
     {
         let c = this[config]
         if (Array.isArray(c))
         {
             for (let stat of c)
             {
-                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string'}, description, stat.id)
-                if (Config.failed(result))
+                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string'}, stat.id)
+                if (!result.result)
                 {
                     return result
                 }
@@ -472,31 +501,31 @@ class Config
                     case 'sum':
                         if (!stat.hasOwnProperty('keys'))
                         {
-                            return Config.return_description(false, `stat missing property keys`, description, stat.id)
+                            return Config.return_fail(`stat missing property keys`, stat.id)
                         }
                         if (!Array.isArray(stat.keys))
                         {
-                            return Config.return_description(false, `stat property keys should be an array`, description, stat.id)
+                            return Config.return_fail(`stat property keys should be an array`, stat.id)
                         }
                         break
                     case 'percent':
                     case 'ratio':
-                        result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, description, stat.id)
-                        if (Config.failed(result))
+                        result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, stat.id)
+                        if (!result.result)
                         {
                             return result
                         }
                         break
                     case 'where':
-                        result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, description, stat.id)
-                        if (Config.failed(result))
+                        result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, stat.id)
+                        if (!result.result)
                         {
                             return result
                         }
                         let keys = dal.get_result_keys(true, ['cycle'])
                         if (!keys.includes(`results.${stat.cycle}`))
                         {
-                            return Config.return_description(false, `cycle ${stat.cycle} for where does not exist`, description, stat.id)
+                            return Config.return_fail(`cycle ${stat.cycle} for where does not exist`, stat.id)
                         }
                         keys = dal.get_result_keys(stat.cycle)
                         let conditions = Object.keys(stat.conditions)
@@ -504,11 +533,11 @@ class Config
                         {
                             if (!keys.includes(`results.${key}`))
                             {
-                                return Config.return_description(false, `condition ${key} for where does not exist`, description, stat.id)
+                                return Config.return_fail(`condition ${key} for where does not exist`, stat.id)
                             }
                             if (!dal.meta[`results.${key}`].options.includes(stat.conditions[key]))
                             {
-                                return Config.return_description(false, `condition ${key} does not have option ${stat.conditions[key]} for where`, description, stat.id)
+                                return Config.return_fail(`condition ${key} does not have option ${stat.conditions[key]} for where`, stat.id)
                             }
                         }
                         break
@@ -516,107 +545,107 @@ class Config
                     case 'max':
                         if (!stat.hasOwnProperty('keys'))
                         {
-                            return Config.return_description(false, `stat missing property keys`, description, stat.id)
+                            return Config.return_fail(`stat missing property keys`, stat.id)
                         }
                         if (!Array.isArray(stat.keys))
                         {
-                            return Config.return_description(false, `stat property keys should be an array`, description, stat.id)
+                            return Config.return_fail(`stat property keys should be an array`, stat.id)
                         }
                         break
                     case 'math':
-                        result = Config.check_properties(stat, {'math': 'string'}, description, stat.id)
-                        if (Config.failed(result))
+                        result = Config.check_properties(stat, {'math': 'string'}, stat.id)
+                        if (!result.result)
                         {
                             return result
                         }
                         break
                     case 'filter':
-                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, description, stat.id)
-                        if (Config.failed(result))
+                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, stat.id)
+                        if (!result.result)
                         {
                             return result
                         }
                         if (!stat.hasOwnProperty('value'))
                         {
-                            return Config.return_description(false, `stat missing property value`, description, stat.id)
+                            return Config.return_fail(`stat missing property value`, stat.id)
                         }
                         break
                     case 'wrank':
-                        result = Config.check_properties(stat, {'stat': 'string'}, description, stat.id)
-                        if (Config.failed(result))
+                        result = Config.check_properties(stat, {'stat': 'string'}, stat.id)
+                        if (!result.result)
                         {
                             return result
                         }
                         break
                     default:
-                        return Config.return_description(false, `Unknown type, ${stat.type}`, description, stat.id)
+                        return Config.return_fail(`Unknown type, ${stat.type}`, stat.id)
                 }
             }
-            return Config.return_description(true, '', description)
+            return Config.return_pass()
         }
-        return Config.return_description(false, `should be an array`, description)
+        return Config.return_fail(`should be an array`)
     }
 
     /**
-     * function:    validate_mode
-     * parameters:  config name
-     * returns:     none
-     * description: Validates a scouting mode config.
+     * Validates a given mode configuration section.
+     * 
+     * @param {object} config Mode config name 
+     * @returns {object} Validation result
      */
-    validate_mode(config, description=false)
+    validate_mode(config)
     {
-        return Config.validate_mode_raw(this[config], description)
+        return Config.validate_mode_raw(this[config])
     }
 
     /**
-     * function:    validate_mode_raw
-     * parameters:  config array
-     * returns:     none
-     * description: Validates a scouting mode config.
+     * Validates a given mode configuration section.
+     * 
+     * @param {object} config Mode config object 
+     * @returns {object} Validation result
      */
-    static validate_mode_raw(c, description=false)
+    static validate_mode_raw(c)
     {
         let ids = []
         if (Array.isArray(c))
         {
             for (let page of c)
             {
-                let result = Config.check_properties(page, {'name': 'string', 'id': 'string'}, description, page.id)
-                if (Config.failed(result))
+                let result = Config.check_properties(page, {'name': 'string', 'id': 'string'}, page.id)
+                if (!result.result)
                 {
                     return result
                 }
 
-                result = Config.check_array(page, 'columns', 'object', -1, true)
-                if (Config.failed(result))
+                result = Config.check_array(page, 'columns', 'object', 0, true)
+                if (!result.result)
                 {
                     return result
                 }
 
                 for (let column of page.columns)
                 {
-                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, description, column.id)
-                    if (Config.failed(result))
+                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, column.id)
+                    if (!result.result)
                     {
                         return result
                     }
 
-                    result = Config.check_array(column, 'inputs', 'object', -1, true)
-                    if (Config.failed(result))
+                    result = Config.check_array(column, 'inputs', 'object', 0, true)
+                    if (!result.result)
                     {
                         return result
                     }
 
-                    result = Config.check_properties(column, {'cycle': 'boolean'}, description, column.id, false)
-                    if (Config.failed(result))
+                    result = Config.check_properties(column, {'cycle': 'boolean'}, column.id, false)
+                    if (!result.result)
                     {
                         return result
                     }
 
                     for (let input of column.inputs)
                     {
-                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, description, input.id)
-                        if (Config.failed(result))
+                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, input.id)
+                        if (!result.result)
                         {
                             return result
                         }
@@ -624,15 +653,15 @@ class Config
                         // check for overlapping IDs
                         if (ids.includes(input.id))
                         {
-                            return Config.return_description(false, `Repeat id "${input.id}"`, description, input.id)
+                            return Config.return_fail(`Repeat id "${input.id}"`, input.id)
                         }
                         ids.push(input.id)
 
                         // check options first because it's values are used in future checking
-                        if (input.type in ['dropdown', 'select', 'multiselect', 'multicounter'])
+                        if (['dropdown', 'select', 'multiselect', 'multicounter'].includes(input.type))
                         {
-                            result = Config.check_array(input, 'options', 'string', -1, true)
-                            if (Config.failed(result))
+                            result = Config.check_array(input, 'options', 'string', 0, true)
+                            if (!result.result)
                             {
                                 return result
                             }
@@ -643,7 +672,7 @@ class Config
                                 let id = `${input.id}_${option.toLowerCase()}`
                                 if (ids.includes(id))
                                 {
-                                    return Config.return_description(false, `Repeat id "${id}"`, description, id)
+                                    return Config.return_fail(`Repeat id "${id}"`, id)
                                 }
                                 ids.push(id)
                             }
@@ -654,27 +683,27 @@ class Config
                             case 'select':
                                 let num_options = input.options.length
                                 result = Config.check_array(input, 'images', 'string', num_options, false)
-                                if (Config.failed(result))
+                                if (!result.result)
                                 {
                                     return result
                                 }
 
                                 result = Config.check_array(input, 'colors', 'string', num_options, false)
-                                if (Config.failed(result))
+                                if (!result.result)
                                 {
                                     return result
                                 }
 
                             case 'dropdown':
-                                result = Config.check_properties(input, {'default': 'string'}, description, input.id)
-                                if (Config.failed(result))
+                                result = Config.check_properties(input, {'default': 'string'}, input.id)
+                                if (!result.result)
                                 {
                                     return result
                                 }
                                 // ensure "default" exists in options
                                 else if (!input.options.includes(input.default))
                                 {
-                                    return Config.return_description(false, `default "${input.default}" not found in options`, description, input.id)
+                                    return Config.return_fail(`default "${input.default}" not found in options`, input.id)
                                 }
 
                             case 'multiselect':
@@ -682,7 +711,7 @@ class Config
                                 if (input.type === 'multiselect')
                                 {
                                     result = Config.check_array(input, 'default', 'boolean', input.options.length, true)
-                                    if (Config.failed(result))
+                                    if (!result.result)
                                     {
                                         return result
                                     }
@@ -690,23 +719,23 @@ class Config
                                 break
 
                             case 'multicounter':
-                                result = Config.check_properties(input, {'default': 'number'}, description, input.id)
-                                if (Config.failed(result))
+                                result = Config.check_properties(input, {'default': 'number'}, input.id)
+                                if (!result.result)
                                 {
                                     return result
                                 }
 
                                 // allow multicounter to have an "negative" array
                                 result = Config.check_array(input, 'negative', 'boolean', input.options.length, false)
-                                if (Config.failed(result))
+                                if (!result.result)
                                 {
                                     return result
                                 }
                                 break
 
                             case 'checkbox':
-                                result = Config.check_properties(input, {'default': 'boolean'}, description, input.id)
-                                if (Config.failed(result))
+                                result = Config.check_properties(input, {'default': 'boolean'}, input.id)
+                                if (!result.result)
                                 {
                                     return result
                                 }
@@ -714,18 +743,50 @@ class Config
 
                             case 'string':
                             case 'text':
-                                result = Config.check_properties(input, {'default': 'string'}, description, input.id)
-                                if (Config.failed(result))
+                                result = Config.check_properties(input, {'default': 'string'}, input.id)
+                                if (!result.result)
                                 {
                                     return result
                                 }
                                 break
 
-                            case 'number':
                             case 'slider':
+                                // this is checked later in number because either 2 or 3 is allowed
+                                result = Config.check_array(input, 'options', 'number', 3, false)
+
+                                if (result.result && 'options' in input)
+                                {
+                                    // ensure incr > 0
+                                    if (input.options[2] <= 0)
+                                    {
+                                        return Config.return_fail('increment must be positive', input.id)
+                                    }
+                                    // ensure incr <= max - min
+                                    if (input.options[2] > input.options[1] - input.options[0])
+                                    {
+                                        return Config.return_fail('increment may not be greater than the gap between minimum and maximum', input.id)
+                                    }
+                                }
+
+                            case 'number':
+                                // if slider has already passed don't bother checking 2 options
+                                if (input.type === 'number' || !result.result)
+                                {
+                                    result = Config.check_array(input, 'options', 'number', 2, false)
+                                }
+                                if (!result.result)
+                                {
+                                    return result
+                                }
+                                // ensure max >= min
+                                else if ('options' in input && input.options[1] < input.options[0])
+                                {
+                                    return Config.return_fail('maximum may not be less than minimum', input.id)
+                                }
+
                             case 'counter':
-                                result = Config.check_properties(input, {'default': 'number'}, description, input.id)
-                                if (Config.failed(result))
+                                result = Config.check_properties(input, {'default': 'number'}, input.id)
+                                if (!result.result)
                                 {
                                     return result
                                 }
@@ -733,12 +794,12 @@ class Config
 
                             // prevent all other types
                             default:
-                                return Config.return_description(false, `Invalid type "${input.type}"`, description, input.id)
+                                return Config.return_fail(`Invalid type "${input.type}"`, input.id)
                         }
 
                         // allow all inputs to have a "disallow_default" boolean
-                        result = Config.check_properties(input, {'disallow_default': 'boolean'}, description, input.id, false)
-                        if (Config.failed(result))
+                        result = Config.check_properties(input, {'disallow_default': 'boolean'}, input.id, false)
+                        if (!result.result)
                         {
                             return result
                         }
@@ -746,8 +807,8 @@ class Config
                         // allow "negative" to be a boolean for all but multicounter
                         if (input.type !== 'multicounter')
                         {
-                            result = Config.check_properties(input, {'negative': 'boolean'}, description, input.id, false)
-                            if (Config.failed(result))
+                            result = Config.check_properties(input, {'negative': 'boolean'}, input.id, false)
+                            if (!result.result)
                             {
                                 return result
                             } 
@@ -755,18 +816,20 @@ class Config
                     }
                 }
             }
-            return Config.return_description(true, '', description)
+            return Config.return_pass()
         }
-        return Config.return_description(false, 'Invalid mode object', description)
+        return Config.return_fail('Invalid mode object')
     }
 
     /**
-     * function:    check_property
-     * parameters:  js object, property key, expected type
-     * returns:     property exists and is of valid type
-     * description: Confirms a given property exists in a given object and has a value of a given type.
+     * Validates a object has a set of keys and values.
+     * 
+     * @param {object} types A map of keys to value types.
+     * @param {string} id An optional ID associated with the object.
+     * @param {boolean} required Whether the given keys are required.
+     * @returns {object} Validation result
      */
-    static check_properties(object, types, description=false, id='', required=true)
+    static check_properties(object, types, id='', required=true)
     {
         let keys = Object.keys(types)
         let fails = []
@@ -775,18 +838,22 @@ class Config
             let type = types[key]
             if (!key in object && required)
             {
-                fails.push(`missing property ${key} of type ${type}`)
+                fails.push(`missing property "${key}" of type ${type}`)
             }
             else if (key in object && typeof object[key] !== type)
             {
                 fails.push(`${key} should be a ${type}, but found ${typeof object[key]}`)
             }
+            else if (type === 'string' && object[key] === '' && required)
+            {
+                fails.push(`missing property "${key}" of type ${type}`)
+            }
         }
         if (fails.length > 0)
         {
-            return Config.return_description(false, fails.join('; '), description, id)
+            return Config.return_fail(fails.join('; '), id)
         }
-        return Config.return_description(true, '', description)
+        return Config.return_pass()
     }
 
     /**
@@ -795,11 +862,11 @@ class Config
      * @param {object} input Input/column/page that should contain the array.
      * @param {string} key Key representing the array in the input.
      * @param {string} type String type that values should be.
-     * @param {number} expected_len The required number of entries in the array, < 0 implies no requirement.
+     * @param {number} expected_len The required number of entries in the array, <= 0 implies no requirement.
      * @param {boolean} require Whether the array's presents and expected length are required.
-     * @returns true or an array [false, string description, true, id]
+     * @returns {object} Validation object
      */
-    static check_array(input, key, type, expected_len=-1, require=false)
+    static check_array(input, key, type, expected_len=0, require=false)
     {
         let id = input.id
         if (key in input)
@@ -807,12 +874,17 @@ class Config
             let value = input[key]
             if (!Array.isArray(value))
             {
-                return this.return_description(false, `${key} must be an array`, true, id)
+                return Config.return_fail(`${key} must be an array`, id)
             }
-            // if there is an expected length, enfore the array to match that, or if not required all it to be zero
-            else if (expected_len >= 0 && ((value.length === 0 && require) || value.length !== expected_len))
+            // ensure non-zero lengths match the expected length (if provided)
+            else if (value.length > 0 && expected_len > 0 && value.length !== expected_len)
             {
-                return this.return_description(false, `${key} must have ${expected_len} values`, true, id)
+                return Config.return_fail(`${key} must have ${expected_len} values`, id)
+            }
+            // ensure required keys have non-zero lengths
+            else if (value.length === 0 && require)
+            {
+                return Config.return_fail(`${key} must have ${expected_len > 0 ? expected_len : '> 0 '} values`, id)
             }
             
             // check that each value conforms to the type
@@ -820,26 +892,15 @@ class Config
             {
                 if (typeof v !== type)
                 {
-                    return this.return_description(false, `All values in ${key} must be of type ${type}`, true, id)
+                    return Config.return_fail(`All values in ${key} must be of type ${type}`, id)
                 }
             }
         }
         else if (require)
         {
-            return this.return_description(false, `${key} is required`, true, id)
+            return Config.return_fail(`${key} is required`, id)
         }
 
-        return true
-    }
-
-    /**
-     * function:    failed
-     * parameters:  result
-     * returns:     If the result is false
-     * description: Determines if the given result is false.
-     */
-    static failed(result)
-    {
-        return (Array.isArray(result) && !result[0]) || !result
+        return Config.return_pass()
     }
 }

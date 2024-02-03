@@ -25,67 +25,76 @@ function init_page()
     
     let pit = new StatusTile('pit', 'Pit')
     let match = new StatusTile('match', 'Match')
+    let note = new StatusTile('note', 'Note')
     let smart_stats = new StatusTile('smart_stats', 'Smart Stats')
     let coach = new StatusTile('coach', 'Coach')
     let whiteboard = new StatusTile('whiteboard', 'Whiteboard')
     let version = new StatusTile('version', 'Version')
 
     let keys_result = cfg.validate_keys('keys', true)
-    keys.description = keys_result[1]
+    keys.description = keys_result.description
     let defaults_result = cfg.validate_defaults('defaults', true)
-    defaults.description = defaults_result[1]
+    defaults.description = defaults_result.description
     let theme_result = cfg.validate_theme('theme', true)
-    theme.description = theme_result[1]
+    theme.description = theme_result.description
     let dark_theme_result = cfg.validate_theme('dark_theme', true)
-    dark_theme.description = dark_theme_result[1]
+    dark_theme.description = dark_theme_result.description
     let users_result = cfg.validate_users('users', true)
-    users.description = users_result[1]
+    users.description = users_result.description
     let settings_result = cfg.validate_settings('settings', true)
-    settings.description = settings_result[1]
+    settings.description = settings_result.description
     
     let pit_result = cfg.validate_mode('pit', true)
-    pit.description = pit_result[1]
-    if (pit_result[2].length > 0)
+    pit.description = pit_result.description
+    if ('id' in pit_result > 0)
     {
-        pit.description += ` (${pit_result[2]})`
+        pit.description += ` (${pit_result.id})`
     }
     let match_result = cfg.validate_mode('match', true)
-    match.description = match_result[1]
-    if (match_result[2].length > 0)
+    match.description = match_result.description
+    if ('id' in match_result > 0)
     {
-        match.description += ` (${match_result[2]})`
+        match.description += ` (${match_result.id})`
+    }
+    let note_result = cfg.validate_mode('match', true)
+    note.description = note_result.description
+    if ('id' in note_result > 0)
+    {
+        note.description += ` (${note_result.id})`
     }
     let smart_stats_result = cfg.validate_smart_stats('smart_stats', true)
-    smart_stats.description = smart_stats_result[1]
-    if (smart_stats_result[2].length > 0)
+    smart_stats.description = smart_stats_result.description
+    if ('id' in smart_stats_result > 0)
     {
-        smart_stats.description += ` (${smart_stats_result[2]})`
+        smart_stats.description += ` (${smart_stats_result.id})`
     }
     let coach_result = cfg.validate_coach('coach', true)
-    coach.description = coach_result[1]
-    if (coach_result[2].length > 0)
+    coach.description = coach_result.description
+    if ('id' in coach_result > 0)
     {
-        coach.description += ` (${coach_result[2]})`
+        coach.description += ` (${coach_result.id})`
     }
     let whiteboard_result = cfg.validate_whiteboard('whiteboard', true)
-    whiteboard.description = whiteboard_result[1]
+    whiteboard.description = whiteboard_result.description
     let version_result = cfg.validate_version('version', true)
-    version.description = version_result[1]
+    version.description = version_result.description
 
-    let page = new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]), new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, smart_stats, coach, whiteboard, version])]).element
+    let page = new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]),
+                                      new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, note, smart_stats, coach, whiteboard, version])]).element
     document.getElementById('body').replaceChildren(page)
     
-    keys.status = keys_result[0]
-    defaults.status = defaults_result[0]
-    theme.status = theme_result[0]
-    dark_theme.status = dark_theme_result[0]
-    users.status = users_result[0]
-    settings.status = settings_result[0]
+    keys.status = keys_result.result
+    defaults.status = defaults_result.result
+    theme.status = theme_result.result
+    dark_theme.status = dark_theme_result.result
+    users.status = users_result.result
+    settings.status = settings_result.result
     
-    pit.status = pit_result[0]
-    match.status = match_result[0]
-    smart_stats.status = smart_stats_result[0]
-    coach.status = coach_result[0]
-    whiteboard.status = whiteboard_result[0]
-    version.status = version_result[0]
+    pit.status = pit_result.result
+    match.status = match_result.result
+    note.status = note_result.result
+    smart_stats.status = smart_stats_result.result
+    coach.status = coach_result.result
+    whiteboard.status = whiteboard_result.result
+    version.status = version_result.result
 }
