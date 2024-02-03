@@ -107,7 +107,7 @@
 				"id": "pit_pit_game_pieces_can_supercharge",
 				"type": "multiselect",
 				"options": ["HighCones", "HighCubes", "MidCones", "MidCubes"],
-				"default": ""
+				"default": [false, false, false, false]
 			}]
 		}, {
 			"name": "Auto",
@@ -118,7 +118,7 @@
 				"id": "pit_pit_auto_starting_positions_with_mobility_and_engage",
 				"type": "multiselect",
 				"options": ["LoadingZone", "ChargeStation", "BumpSide"],
-				"default": ""
+				"default": [false, false, false]
 			}, {
 				"name": "GP Scored From Starting Position With Engage",
 				"id": "pit_pit_auto_gp_scored_from_starting_position_with_engage",
@@ -232,7 +232,7 @@
 				"type": "multiselect",
 				"options": ["Tipped", "BrokeDown"],
 				"negative": true,
-				"default": ""
+				"default": [false, false]
 			}, {
 				"name": "Notes",
 				"id": "match_tele_post_match_notes",

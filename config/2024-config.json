@@ -397,6 +397,7 @@
                             "id": "match_teleop_end_game_harmonizing_robots",
                             "type": "multicounter",
                             "negative": [
+                                false,
                                 false
                             ],
                             "options": [
