@@ -209,7 +209,9 @@ function update_params()
             select_keys = select_keys.map(k => dal.get_name(k))
             let input = new Dropdown('stat', 'Input Stat', select_keys)
             input.on_change = 'populate_options()'
-            page.add_column(new ColumnFrame('', '', [input, create_element('div', 'values')]))
+            let neg = new Checkbox('negative', 'Negative')
+            neg.on_click = 'calculate()'
+            page.add_column(new ColumnFrame('', '', [input, create_element('div', 'values'), neg]))
             break
     }
     params_el.replaceChildren(page.element)
@@ -465,6 +467,7 @@ function build_stat()
         case 'Min/Max':
             stat.keys = document.getElementById('keys').value.replace(/\s/g, '').split(',')
             stat.type = ['min', 'max'][Select.get_selected_option('minmax')]
+            stat.negative = stat.keys.any(k => dal.meta[`results.${k}`].negative) 
             break
         case 'Filter':
             let ops = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
@@ -520,6 +523,7 @@ function build_stat()
             stat.stat = selected_key.replace('results.', '').replace('pit.', '')
             stat.values = values
             stat.pit = selected_key.startsWith('pit.')
+            stat.negative = document.getElementById('negative').checked
             break
     }
     return stat
