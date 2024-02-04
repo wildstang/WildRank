@@ -486,28 +486,30 @@ class Config
      */
     validate_smart_stats(config)
     {
+        let numeric_keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
+
         let c = this[config]
         if (Array.isArray(c))
         {
             for (let stat of c)
             {
-                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string'}, stat.id)
+                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string', 'negative': 'boolean'}, stat.id)
                 if (!result.result)
                 {
                     return result
                 }
                 switch (stat.type)
                 {
+                    case 'min':
+                    case 'max':
                     case 'sum':
-                        if (!stat.hasOwnProperty('keys'))
+                        result = Config.check_array(stat, 'keys', 'string', 0, true, numeric_keys.map(k => k.split('.')[1]))
+                        if (!result.result)
                         {
-                            return Config.return_fail(`stat missing property keys`, stat.id)
-                        }
-                        if (!Array.isArray(stat.keys))
-                        {
-                            return Config.return_fail(`stat property keys should be an array`, stat.id)
+                            return result
                         }
                         break
+
                     case 'percent':
                     case 'ratio':
                         result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, stat.id)
@@ -515,68 +517,131 @@ class Config
                         {
                             return result
                         }
+                        // confirm the numerator and denominator are valid numeric keys
+                        if (!numeric_keys.includes(`results.${stat.numerator}`))
+                        {
+                            return Config.return_fail(`unexpected value "${stat.numerator}" in numerator`, stat.id)
+                        }
+                        if (!numeric_keys.includes(`results.${stat.denominator}`))
+                        {
+                            return Config.return_fail(`unexpected value "${stat.denominator}" in denominator`, stat.id)
+                        }
                         break
+
                     case 'where':
                         result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, stat.id)
                         if (!result.result)
                         {
                             return result
                         }
-                        let keys = dal.get_result_keys(true, ['cycle'])
-                        if (!keys.includes(`results.${stat.cycle}`))
-                        {
-                            return Config.return_fail(`cycle ${stat.cycle} for where does not exist`, stat.id)
-                        }
-                        keys = dal.get_result_keys(stat.cycle)
-                        let conditions = Object.keys(stat.conditions)
-                        for (let key of conditions)
-                        {
-                            if (!keys.includes(`results.${key}`))
-                            {
-                                return Config.return_fail(`condition ${key} for where does not exist`, stat.id)
-                            }
-                            if (!dal.meta[`results.${key}`].options.includes(stat.conditions[key]))
-                            {
-                                return Config.return_fail(`condition ${key} does not have option ${stat.conditions[key]} for where`, stat.id)
-                            }
-                        }
-                        break
-                    case 'min':
-                    case 'max':
-                        if (!stat.hasOwnProperty('keys'))
-                        {
-                            return Config.return_fail(`stat missing property keys`, stat.id)
-                        }
-                        if (!Array.isArray(stat.keys))
-                        {
-                            return Config.return_fail(`stat property keys should be an array`, stat.id)
-                        }
-                        break
-                    case 'math':
-                        result = Config.check_properties(stat, {'math': 'string'}, stat.id)
+                        result = Config.check_properties(stat, {'sum': 'string', 'denominator': 'string'}, stat.id)
                         if (!result.result)
                         {
                             return result
                         }
+                        // check cycle keys
+                        let cycles = dal.get_result_keys(true, ['cycle'])//.map(c => dal.meta[c].name)
+                        if (!cycles.includes(`results.${stat.cycle}`))
+                        {
+                            return Config.return_fail(`cycle "${stat.cycle}" for where does not exist`, stat.id)
+                        }
+                        // check condition select keys
+                        let selects = dal.get_result_keys(stat.cycle, ['dropdown', 'select', 'checkbox'])
+                        let conditions = Object.keys(stat.conditions)
+                        for (let key of conditions)
+                        {
+                            let id = `results.${key}`
+                            if (!selects.includes(id))
+                            {
+                                return Config.return_fail(`condition ${key} for where does not exist`, stat.id)
+                            }
+                            // get list of valid options
+                            let options = [true, false]
+                            if (dal.meta[id].type !== 'checkbox')
+                            {
+                                options = dal.meta[`results.${key}`].options
+                            }
+                            // determine if condition value is in the options
+                            if (!options.includes(stat.conditions[key]))
+                            {
+                                return Config.return_fail(`condition ${key} does not have option ${stat.conditions[key]} for where`, stat.id)
+                            }
+                        }
+                        // check values of optional keys, sum and denominator
+                        let counters = dal.get_result_keys(stat.cycle, ['counter'])
+                        if ('sum' in stat && !counters.includes(`results.${stat.sum}`))
+                        {
+                            return Config.return_fail(`unexpected value "${stat.sum}" in sum`, stat.id)
+                        }
+                        if ('denominator' in stat && !counters.includes(`results.${stat.denominator}`))
+                        {
+                            return Config.return_fail(`unexpected value "${stat.denominator}" in denominator`, stat.id)
+                        }
                         break
+
+                    case 'math':
+                        result = Config.check_properties(stat, {'math': 'string', 'pit': 'boolean'}, stat.id)
+                        if (!result.result)
+                        {
+                            return result
+                        }
+                        // not doing any detailed checking on math stats because they are so complex
+                        break
+
                     case 'filter':
                         result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, stat.id)
                         if (!result.result)
                         {
                             return result
                         }
+                        // value could be on of many types based on the key
                         if (!stat.hasOwnProperty('value'))
                         {
                             return Config.return_fail(`stat missing property value`, stat.id)
                         }
+                        // confirm the key and filter are valid keys
+                        let keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
+                        if (!keys.includes(`results.${stat.key}`))
+                        {
+                            return Config.return_fail(`unexpected value "${v}" in key`, stat.id)
+                        }
+                        if (!keys.includes(`results.${stat.filter}`))
+                        {
+                            return Config.return_fail(`unexpected value "${v}" in filter`, stat.id)
+                        }
                         break
+
                     case 'wrank':
                         result = Config.check_properties(stat, {'stat': 'string'}, stat.id)
                         if (!result.result)
                         {
                             return result
                         }
+                        if (!numeric_keys.includes(`results.${stat.stat}`))
+                        {
+                            return Config.return_fail(`unexpected value "${stat.stat}" in stat`, stat.id)
+                        }
                         break
+
+                    case 'map':
+                        result = Config.check_properties(stat, {'stat': 'string', 'pit': 'boolean'}, stat.id)
+                        if (!result.result)
+                        {
+                            return result
+                        }
+                        result = Config.check_array(stat, 'values', 'number', 0, true)
+                        if (!result.result)
+                        {
+                            return result
+                        }
+                        // confirm the stat is a valid select key
+                        let select_keys = dal.get_keys(true, true, false, false, ['select', 'dropdown'], false).map(k => k.split('.')[1])
+                        if (!select_keys.includes(stat.stat))
+                        {
+                            return Config.return_fail(`unexpected value "${stat.stat}" in stat`, stat.id)
+                        }
+                        break
+
                     default:
                         return Config.return_fail(`Unknown type, ${stat.type}`, stat.id)
                 }
@@ -866,7 +931,7 @@ class Config
      * @param {boolean} require Whether the array's presents and expected length are required.
      * @returns {object} Validation object
      */
-    static check_array(input, key, type, expected_len=0, require=false)
+    static check_array(input, key, type, expected_len=0, require=false, valid_values=[])
     {
         let id = input.id
         if (key in input)
@@ -892,7 +957,11 @@ class Config
             {
                 if (typeof v !== type)
                 {
-                    return Config.return_fail(`All values in ${key} must be of type ${type}`, id)
+                    return Config.return_fail(`value "${v}" in ${key} must be of type ${type}`, id)
+                }
+                else if (valid_values.length > 0 && !valid_values.includes(v))
+                {
+                    return Config.return_fail(`unexpected value "${v}" in ${key}`, id)
                 }
             }
         }
