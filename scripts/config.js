@@ -709,21 +709,25 @@ class Config
 
                     for (let input of column.inputs)
                     {
-                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, input.id)
+                        let id = input.id
+                        let type = input.type
+                        let options = input.options
+
+                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, id)
                         if (!result.result)
                         {
                             return result
                         }
 
                         // check for overlapping IDs
-                        if (ids.includes(input.id))
+                        if (ids.includes(id))
                         {
-                            return Config.return_fail(`Repeat id "${input.id}"`, input.id)
+                            return Config.return_fail(`Repeat id "${id}"`, id)
                         }
-                        ids.push(input.id)
+                        ids.push(id)
 
                         // check options first because it's values are used in future checking
-                        if (['dropdown', 'select', 'multiselect', 'multicounter'].includes(input.type))
+                        if (['dropdown', 'select', 'multiselect', 'multicounter'].includes(type))
                         {
                             result = Config.check_array(input, 'options', 'string', 0, true)
                             if (!result.result)
@@ -731,22 +735,30 @@ class Config
                                 return result
                             }
 
+                            let multi = type.startsWith('multi')
                             // check for overlapping IDs
-                            for (let option of input.options)
+                            for (let option of options)
                             {
-                                let id = `${input.id}_${option.toLowerCase()}`
-                                if (ids.includes(id))
+                                if (multi)
                                 {
-                                    return Config.return_fail(`Repeat id "${id}"`, id)
+                                    let sid = `${id}_${option.toLowerCase()}`
+                                    if (ids.includes(sid))
+                                    {
+                                        return Config.return_fail(`Repeat id "${sid}"`, id)
+                                    }
+                                    ids.push(sid)
                                 }
-                                ids.push(id)
+                                if (type !== 'select' && !option)
+                                {
+                                    return Config.return_fail('Options may not be blank', id)
+                                }
                             }
                         }
 
-                        switch (input.type)
+                        switch (type)
                         {
                             case 'select':
-                                let num_options = input.options.length
+                                let num_options = options.length
                                 result = Config.check_array(input, 'images', 'string', num_options, false)
                                 if (!result.result)
                                 {
@@ -760,22 +772,22 @@ class Config
                                 }
 
                             case 'dropdown':
-                                result = Config.check_properties(input, {'default': 'string'}, input.id)
+                                result = Config.check_properties(input, {'default': 'string'}, id)
                                 if (!result.result)
                                 {
                                     return result
                                 }
                                 // ensure "default" exists in options
-                                else if (!input.options.includes(input.default))
+                                else if (!options.includes(input.default))
                                 {
-                                    return Config.return_fail(`default "${input.default}" not found in options`, input.id)
+                                    return Config.return_fail(`default "${input.default}" not found in options`, id)
                                 }
 
                             case 'multiselect':
                                 // require only multiselect to have a "default" array
-                                if (input.type === 'multiselect')
+                                if (type === 'multiselect')
                                 {
-                                    result = Config.check_array(input, 'default', 'boolean', input.options.length, true)
+                                    result = Config.check_array(input, 'default', 'boolean', options.length, true)
                                     if (!result.result)
                                     {
                                         return result
@@ -784,14 +796,14 @@ class Config
                                 break
 
                             case 'multicounter':
-                                result = Config.check_properties(input, {'default': 'number'}, input.id)
+                                result = Config.check_properties(input, {'default': 'number'}, id)
                                 if (!result.result)
                                 {
                                     return result
                                 }
 
                                 // allow multicounter to have an "negative" array
-                                result = Config.check_array(input, 'negative', 'boolean', input.options.length, false)
+                                result = Config.check_array(input, 'negative', 'boolean', options.length, false)
                                 if (!result.result)
                                 {
                                     return result
@@ -799,7 +811,7 @@ class Config
                                 break
 
                             case 'checkbox':
-                                result = Config.check_properties(input, {'default': 'boolean'}, input.id)
+                                result = Config.check_properties(input, {'default': 'boolean'}, id)
                                 if (!result.result)
                                 {
                                     return result
@@ -808,7 +820,7 @@ class Config
 
                             case 'string':
                             case 'text':
-                                result = Config.check_properties(input, {'default': 'string'}, input.id)
+                                result = Config.check_properties(input, {'default': 'string'}, id)
                                 if (!result.result)
                                 {
                                     return result
@@ -822,12 +834,12 @@ class Config
                                 if (result.result && 'options' in input)
                                 {
                                     // ensure incr > 0
-                                    if (input.options[2] <= 0)
+                                    if (options[2] <= 0)
                                     {
-                                        return Config.return_fail('increment must be positive', input.id)
+                                        return Config.return_fail('increment must be positive', id)
                                     }
                                     // ensure incr <= max - min
-                                    if (input.options[2] > input.options[1] - input.options[0])
+                                    if (options[2] > options[1] - options[0])
                                     {
                                         return Config.return_fail('increment may not be greater than the gap between minimum and maximum', input.id)
                                     }
@@ -835,7 +847,7 @@ class Config
 
                             case 'number':
                                 // if slider has already passed don't bother checking 2 options
-                                if (input.type === 'number' || !result.result)
+                                if (type === 'number' || !result.result)
                                 {
                                     result = Config.check_array(input, 'options', 'number', 2, false)
                                 }
@@ -844,13 +856,13 @@ class Config
                                     return result
                                 }
                                 // ensure max >= min
-                                else if ('options' in input && input.options[1] < input.options[0])
+                                else if ('options' in input && options[1] < options[0])
                                 {
-                                    return Config.return_fail('maximum may not be less than minimum', input.id)
+                                    return Config.return_fail('maximum may not be less than minimum', id)
                                 }
 
                             case 'counter':
-                                result = Config.check_properties(input, {'default': 'number'}, input.id)
+                                result = Config.check_properties(input, {'default': 'number'}, id)
                                 if (!result.result)
                                 {
                                     return result
@@ -859,20 +871,20 @@ class Config
 
                             // prevent all other types
                             default:
-                                return Config.return_fail(`Invalid type "${input.type}"`, input.id)
+                                return Config.return_fail(`Invalid type "${type}"`, id)
                         }
 
                         // allow all inputs to have a "disallow_default" boolean
-                        result = Config.check_properties(input, {'disallow_default': 'boolean'}, input.id, false)
+                        result = Config.check_properties(input, {'disallow_default': 'boolean'}, id, false)
                         if (!result.result)
                         {
                             return result
                         }
 
                         // allow "negative" to be a boolean for all but multicounter
-                        if (input.type !== 'multicounter')
+                        if (type !== 'multicounter')
                         {
-                            result = Config.check_properties(input, {'negative': 'boolean'}, input.id, false)
+                            result = Config.check_properties(input, {'negative': 'boolean'}, id, false)
                             if (!result.result)
                             {
                                 return result

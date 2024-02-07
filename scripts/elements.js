@@ -1205,41 +1205,54 @@ class Select extends OptionedInput
         let rows = [[]]
         for (let i in this.options)
         {
-            let op_name = this.options[i]
+            // add a new row the column limit is reached
             if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
                 rows.push([])
             }
 
-            let label = document.createElement('label')
-            label.append(op_name)
-
+            let op_name = this.options[i]
             let option = document.createElement('span')
             option.id = `${this.id}-${i}`
-            option.className = 'wr_select_option'
+
             if (op_name.toLowerCase() === this.value.toLowerCase())
             {
                 option.classList.add('selected')
             }
-            option.classList.add(...this.classes)
             if (this.vertical)
             {
                 option.classList.add('vertical')
             }
-            option.onclick = (event) => {
-                Select.select_option(this.id, i)
-                eval(this.on_change)
-            }
+            option.classList.add(...this.classes)
 
-            if (this.images.length)
+            // only add labels if the option name isn't empty
+            if (op_name)
             {
-                option.classList.add('wr_select_img')
+                option.classList.add('wr_select_option')
 
-                label = document.createElement('img')
-                label.src = this.images[i]
+                option.onclick = (event) => {
+                    Select.select_option(this.id, i)
+                    eval(this.on_change)
+                }
+
+                let label = document.createElement('label')
+                label.append(op_name)
+
+                if (this.images.length)
+                {
+                    option.classList.add('wr_select_img')
+
+                    label = document.createElement('img')
+                    label.src = this.images[i]
+                }
+
+                option.append(label)
+            }
+            else
+            {
+                option.classList.add('wr_select_filler')
             }
 
-            option.append(label)
             rows[rows.length - 1].push(option)
         }
 
