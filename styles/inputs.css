@@ -74,7 +74,7 @@
     font-size: var(--font-size);
 }
 
-.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text {
+.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text, .wr_description {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
