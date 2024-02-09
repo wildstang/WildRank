@@ -239,7 +239,7 @@ function init_page()
         {
             let match = dal.matches[i]
             let idx = match.set_number - 1
-            if (match.short_match_name.startsWith('M') && idx < 4)
+            if (match.short_match_name.startsWith('M'))
             {
                 if (match.red_alliance.length)
                 {
