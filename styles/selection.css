@@ -123,14 +123,6 @@ body {
     width: 170px;
 }
 
-.blue {
-    color: var(--blue-alliance-color);
-}
-
-.red {
-    color: var(--red-alliance-color);
-}
-
 .scouted {
     background-color: var(--inactive-color);
     color: var(--inactive-text-color);

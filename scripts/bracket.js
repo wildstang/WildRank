@@ -1,253 +1,390 @@
 /**
  * file:        bracket.js
- * description: Builds a double elim bracket for your team.
- *              TODO: support manually marking teams as won and generating matches
+ * description: Lists all double elim matches and the teams.
+ *              Allows manual advancement of teams if no network.
  * author:      Liam Fruzyna
- * date:        2023-04-07
+ * date:        2024-02-08
  */
 
 include('transfer')
 
+// an array representing the matches in the bracket and which lead where
+const BRACKET = [
+    [6, 'r', 4, 'r'], [6, 'b', 4, 'b'], [7, 'r', 5, 'r'], [7, 'b', 5, 'b'],
+    [9, 'b'], [8, 'b'], [10, 'r', 8, 'r'], [10, 'b', 9, 'r'],
+    [11, 'b'], [11, 'r'],
+    [13, 'r', 12, 'r'], [12, 'b'],
+    [13, 'b'],
+    []
+]
+
+class ElimMatch
+{
+    /**
+     * Constructor of ElimMatch.
+     * 
+     * @param {number} idx Match index (number - 1)
+     */
+    constructor(idx)
+    {
+        this.idx = idx
+        this.red_alliance = -1
+        this.blue_alliance = -1
+        this.winner = -1
+        this.loser = -1
+    }
+
+    /**
+     * Populates the winner and loser fields using the given winning alliance color.
+     * Then attempts to populate the teams in the following matches.
+     * 
+     * @param {string} alliance Winning alliance color 
+     */
+    mark_winner(alliance)
+    {
+        // marks the winner and loser fields
+        this.winner = alliance === 'red' ? this.red_alliance : this.blue_alliance
+        this.loser = alliance === 'red' ? this.blue_alliance : this.red_alliance
+
+        // gets the matches populated by these alliances
+        let next_matches = BRACKET[this.idx]
+
+        // populate the winners next match with the winning alliance
+        if (next_matches.length >= 2)
+        {
+            if (next_matches[1] === 'r')
+            {
+                matches[next_matches[0]].red_alliance = this.winner
+            }
+            else
+            {
+                matches[next_matches[0]].blue_alliance = this.winner
+            }
+        }
+
+        // if this is an upper bracket math, populate the losers next match with the losing alliance
+        if (next_matches.length === 4)
+        {
+            if (next_matches[3] === 'r')
+            {
+                matches[next_matches[2]].red_alliance = this.loser
+            }
+            else
+            {
+                matches[next_matches[2]].blue_alliance = this.loser
+            }
+        }
+    }
+
+    /**
+     * The match number.
+     */
+    get number()
+    {
+        return this.idx + 1
+    }
+
+    /**
+     * The full name of the match.
+     */
+    get name()
+    {
+        if (this.number === matches.length)
+        {
+            return 'Finals'
+        }
+        return `Match ${this.number}`
+    }
+
+    /**
+     * A short name describing the match.
+     */
+    get short_name()
+    {
+        if (this.number === matches.length)
+        {
+            return 'F'
+        }
+        return `M${this.number}`
+    }
+}
+
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
+ * Represents an alliance in the double-elim tournament.
+ */
+class Alliance
+{
+    /**
+     * Constructor of Alliance.
+     * 
+     * @param {number} idx Alliance index (number - 1)
+     * @param {array} teams List of team numbers
+     */
+    constructor(idx, teams)
+    {
+        this.idx = idx
+        this.teams = teams
+    }
+
+    /**
+     * Determines if a given array of teams is the current alliance.
+     * 
+     * @param {array} teams A set of team numbers.
+     * @returns True if any of the given teams are in this alliance.
+     */
+    is(teams)
+    {
+        for (let team of teams)
+        {
+            if (this.teams.includes(team))
+            {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Determines which match this alliance is a part of.
+     * Returns the match object or a string describing their fate.
+     */
+    get match()
+    {
+        let match = [match1, match2, match3, match4][3.5 - Math.abs(alliances - 4.5)]
+        while (true)
+        {
+            next_match = match.get_next_match(match.winner)
+            if (next_match !== null)
+            {
+                match = next_match
+            }
+            if (match === 'Elim')
+            {
+                match = `Eliminated in match ${match.id}`
+                break
+            }
+            else if (match === 'Win')
+            {
+                match = `Won Event`
+                break
+            }
+        }
+    }
+
+    /**
+     * The alliance number.
+     */
+    get number()
+    {
+        return this.idx + 1
+    }
+
+    /**
+     * The alliance number and teams as a string.
+     */
+    get team_str()
+    {
+        return `(${this.number}) ${this.teams.join(', ')}`
+    }
+}
+
+
+// initialize two arrays representing the matches and alliance
+var matches = new Array(BRACKET.length)
+var alliances = new Array(8)
+
+
+/**
+ * Initializes the contents of the page on page load.
  */
 function init_page()
 {
-    // build page
-    first = populate_teams(false)
-
     if (dal.event.playoff_type !== 10)
     {
-        contents_card.innerHTML = '<h2>Not a double elim event!</h2>'
-    }
-    else if (first)
-    {
-        // build template
-        contents_card.innerHTML = `<h2 id="next_match"></h2><h4 id="bracket"></h4><h3 id="alliance"></h3><div id="partners"></div><br>vs<h3 id="opp_alliance"></h3><div id="opponents"></div>`
-        let card = new Card('table', '')
-        let edit = new Button('edit_coach', 'Edit Values')
-        edit.link = `open_page('edit-coach')`
-        let preload = new Button('preload', 'Update Matches', 'preload_event()')
-        buttons_container.innerHTML = new ColumnFrame('', '', [card, edit, preload]).toString
-
-        // open default time
-        if (cfg.settings.hasOwnProperty('team_number'))
-        {
-            let team = cfg.settings.team_number.toString()
-            if (team in dal.teams)
-            {
-                first = cfg.settings.team_number.toString()
-            }
-        }
-        open_option(first)
+        document.getElementById('body').innerText = 'Not a double-elimination event.'
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Teams Found</h2>Please preload event'
+        // populate matches with bare ElimMatches
+        for (let i = 0; i < BRACKET.length; i++)
+        {
+            matches[i] = new ElimMatch(i)
+        }
+
+        // populate alliances with Alliances of teams
+        for (let i in dal.matches)
+        {
+            let match = dal.matches[i]
+            if (match.short_match_name.startsWith('M'))
+            {
+                // determine alliance number based off match number and alliance color
+                let idx = [0, 3, 1, 2][match.set_number - 1]
+                if (idx < 4)
+                {
+                    if (match.red_alliance.length)
+                    {
+                        alliances[idx] = new Alliance(idx, match.red_alliance)
+                    }
+                    if (match.blue_alliance.length)
+                    {
+                        idx = 7 - idx
+                        alliances[idx] = new Alliance(idx, match.blue_alliance)
+                    }
+                }
+            }
+        }
+
+        // populate matches with alliances
+        for (let i in dal.matches)
+        {
+            let match = dal.matches[i]
+            if (match.short_match_name.startsWith('M'))
+            {
+                let idx = match.set_number - 1
+                if (match.red_alliance.length)
+                {
+                    matches[idx].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
+                }
+                if (match.blue_alliance.length)
+                {
+                    matches[idx].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
+                }
+                if (match.winner)
+                {
+                    matches[idx].mark_winner(match.winner)
+                }
+            }
+        }
+
+        build_page()
     }
 }
 
 /**
- * function:    open_match
- * parameters:  Selected team number
- * returns:     none
- * description: Completes right info pane for a given team number.
+ * Populates the page with all available matches.
  */
-function open_option(team)
+function build_page()
 {
-    // select option
-    deselect_all()
-    document.getElementById(`option_${team}`).classList.add('selected')
-
-    // get the team's matches
-    let matches = Object.values(dal.matches)
-    let team_matches = matches.filter(m => (m.red_alliance.includes(team) || m.blue_alliance.includes(team)) && !m.complete)
-
-    // find the templates
-    let title = document.getElementById('next_match')
-    let bracket = document.getElementById('bracket')
-    let alliance_box = document.getElementById('alliance')
-    let partner_box = document.getElementById('partners')
-    let opp_section = document.getElementById('opp_alliance')
-    let opp_teams = document.getElementById('opponents')
-    document.getElementById(`table`).innerHTML = ''
-
-    // if no matches find assume team is eliminated
-    if (team_matches.length === 0)
+    let p = document.createElement('p')
+    for (let match of matches)
     {
-        title.innerHTML = 'Team Eliminated'
-        bracket.innerHTML = ''
-        alliance_box.innerHTML = ''
-        partner_box.innerHTML = ''
-        opp_section.innerHTML = ''
-        opp_teams.innerHTML = ''
+        p.append(build_match(match))
     }
-    // if there still is a qualification match scheduled, elims hasn't started
-    else if (team_matches[0].comp_level === 'qm')
+    document.getElementById('body').replaceChildren(p)
+}
+
+/**
+ * Builds an Element containing the match teams of a given ElimMatch
+ * 
+ * @param {ElimMatch} match Object representation of the match to build.
+ * @returns {Element} Populated Element
+ */
+function build_match(match)
+{
+    // add match name
+    let title = document.createElement('h3')
+    title.innerText = match.name
+
+    // build each alliance
+    let red = build_alliance(match, 'red')
+    let blue = build_alliance(match, 'blue')
+
+    let container = document.createElement('div')
+    container.append(title, red, br(), blue)
+    return container
+}
+
+/**
+ * Builds an Element containing an alliance of a given ElimMatch.
+ * 
+ * @param {ElimMatch} match Object representation of the match to build.
+ * @param {string} color Color of the alliance to build.
+ * @returns {Element} Populated Element
+ */
+function build_alliance(match, color)
+{
+    // create the based Element with an appropriate color
+    let alliance = document.createElement('label')
+    alliance.className = color
+
+    // get the alliance index of the match-color
+    let idx = match[`${color}_alliance`]
+
+    // if the alliance is populated
+    if (idx > -1)
     {
-        title.innerHTML = 'Elims not yet started'
-        bracket.innerHTML = ''
-        alliance_box.innerHTML = ''
-        partner_box.innerHTML = ''
-        opp_section.innerHTML = ''
-        opp_teams.innerHTML = ''
+        // populate the alliance with its string of teams
+        alliance.innerText = alliances[idx].team_str
+
+        // if the alliance is the winner, bold the alliance and specify which match they will play in next
+        if (match.winner === idx)
+        {
+            alliance.style.fontWeight = 'bold'
+            alliance.innerText += ` to ${matches[BRACKET[match.idx][0]].short_name}`
+        }
+        // if the alliance is the loser in a lower bracket match, strike-through the alliance
+        else if (BRACKET[match.idx].length === 2 && match.loser === idx)
+        {
+            alliance.style.textDecoration = 'line-through'
+        }
+        // if the alliance is the loser in an upper bracket match, specify which match they will play in next
+        else if (match.loser === idx)
+        {
+            alliance.innerText += ` to ${matches[BRACKET[match.idx][2]].short_name}`
+        }
+        // if there is no winner yet and both teams are present, place a button to choose the alliance as the winner
+        else if (match.red_alliance > -1 && match.blue_alliance > -1 && BRACKET[match.idx].length > 0)
+        {
+            let button = document.createElement('button')
+            button.onclick = e => {
+                match.mark_winner(color)
+                build_page()
+            }
+            button.innerText = 'Winner'
+            alliance.append(' ', button)
+        }
     }
-    // otherwise populate with the assumed next elim match
+    // if the alliance is not populated
     else
     {
-        let match = team_matches[0]
-        title.innerHTML = `Next Match: ${match.match_name}`
-
-        // determine alliance color and teams
-        let alliance = 'Blue'
-        let opp_alliance = 'Red'
-        if (match.red_alliance.includes(team))
+        // iterate over previous matches to find the match filling that spot
+        for (let i = 0; i < match.idx; i++)
         {
-            alliance = 'Red'
-            opp_alliance = 'Blue'
-        }
-        let partners = match[`${alliance.toLowerCase()}_alliance`]
-        let opponents = match[`${opp_alliance.toLowerCase()}_alliance`]
-
-        // place alliance color
-        alliance_box.innerHTML = `${alliance} Alliance`
-        alliance_box.style.color = alliance
-        partner_box.innerHTML = partners.join(', ')
-
-        // determine bracket
-        let num = parseInt(match.short_match_name.substring(1))
-        if (match.short_match_name.startsWith('F'))
-        {
-            bracket.innerHTML = 'Finals'
-        }
-        else if (num < 5 || num === 7 || num === 8 || num === 12)
-        {
-            bracket.innerHTML = 'Upper Bracket'
-        }
-        else
-        {
-            bracket.innerHTML = 'Lower Bracket'
-        }
-
-        if (opponents.length > 0 && !opponents.includes('0'))
-        {
-            // place alliance partners
-            opp_section.style.color = opp_alliance
-            opp_section.innerHTML = `${opp_alliance} Alliance`
-            opp_teams.innerHTML = opponents.join(', ')
-            build_table(opp_alliance.toLowerCase(), opponents)
-        }
-        else
-        {
-            // determine match that determines opponents
-            let match_name = ''
-            let winner = true
-            switch (match.short_match_name)
+            let prev_match = matches[i]
+            let next_matches = BRACKET[i]
+            let pos = next_matches.indexOf(match.idx)
+            // if the match number is found in the previous match and the alliance color matches
+            // specify which match fills the position and what teams are playing in the match
+            if (pos === 0 && next_matches[1] === color[0])
             {
-                case 'M5':
-                    match_name = 'M2'
-                    winner = false
-                    break
-                case 'M6':
-                    match_name = 'M4'
-                    winner = false
-                    break
-                case 'M7':
-                    match_name = 'M2'
-                    break
-                case 'M8':
-                    match_name = 'M4'
-                    break
-                case 'M9':
-                    match_name = 'M7'
-                    winner = false
-                    break
-                case 'M10':
-                    match_name = 'M8'
-                    winner = false
-                    break
-                case 'M11':
-                    match_name = 'M10'
-                    break
-                case 'M12':
-                    match_name = 'M8'
-                    break
-                case 'M13':
-                    match_name = 'M12'
-                    winner = false
-                    break
-                case 'F1':
-                    match_name = 'M13'
-                    break
+                add_speculative_teams(alliance, prev_match, 'Winner')
             }
-            let opp_match = matches.filter(m => m.short_match_name === match_name)[0]
-
-            // populate with opponent match
-            opp_section.innerHTML = `Determined by ${winner ? 'WINNER' : 'LOSER'} of ${opp_match.match_name}`
-            opp_section.style.color = 'black'
-            opp_teams.innerHTML = `<table style="margin-left: auto; margin-right: auto">
-                                        <tr style="color: red">${opp_match.red_alliance.map(t => `<td>${t}</td>`).join('')}</tr>
-                                        <tr style="color: blue">${opp_match.blue_alliance.map(t => `<td>${t}</td>`).join('')}</tr></table>`
-
-            build_table('red', opp_match.red_alliance)
-            build_table('blue', opp_match.blue_alliance)
+            if (pos === 2 && next_matches[3] === color[0])
+            {
+                add_speculative_teams(alliance, prev_match, 'Loser')
+            }
         }
     }
+    return alliance
 }
 
 /**
- * function:    build_table
- * parameters:  alliance color, array of team numbers
- * returns:     none
- * description: Populates a card with coach vals of each team in an alliance.
+ * Adds to a given match element who the potential next players are.
+ * 
+ * @param {Element} alliance An Element to append information to.
+ * @param {ElimMatch} prev_match The match determining determining this spot.
+ * @param {string} state Winner/Loser of the previous match. 
  */
-function build_table(alliance, teams)
+function add_speculative_teams(alliance, prev_match, state)
 {
-    let images = dal.get_photo_carousel(teams, '400px')
-    let table = '<table><tr><td></td>'
-    let names = '<tr><td></td>'
-    for (let team of teams)
+    // state which match determines who will play here
+    alliance.innerText = `${state} of ${prev_match.short_name}`
+
+    // determine which teams could play here next
+    let alliance_idcs = [prev_match.red_alliance, prev_match.blue_alliance].filter(i => i >= 0)
+    if (alliance_idcs.length > 0)
     {
-        table += `<th ${dal.is_unsure(team) ? 'class="highlighted"' : ''}>${team}</th>`
-        names += `<th>${dal.get_value(team, 'meta.name')}</th>`
+        let teams = alliance_idcs.map(i => alliances[i].team_str).join(' or ')
+        alliance.append(br(), teams)
     }
-    table += `</tr>${names}</tr>`
-    for (let v of cfg.coach)
-    {
-        table += `<tr><th>${dal.get_name(v.key, v.function)}</th>`
-        for (let team of teams)
-        {
-            table += `<td>${dal.get_value(team, v.key, v.function, true)}</td>`
-        }
-        table += '</tr>'
-    }
-    table += '</table>'
-    let header = `<center><h2 style="color: ${alliance}">${alliance[0].toUpperCase()}${alliance.substring(1)} Alliance</h2></center>`
-    document.getElementById(`table`).innerHTML += header + images + table
-}
-
-/**
- * function:    process_files
- * parameters:  none
- * returns:     none
- * description: Reloads the page on new results.
- */
-function process_files()
-{
-    dal.build_teams()
-    init_page()
-}
-
-/**
- * function:    get_event
- * parameters:  none
- * returns:     Currently entered event ID.
- * description: Returns text in event id box.
- */
-function get_event()
-{
-    return get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
 }

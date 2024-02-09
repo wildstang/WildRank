@@ -22,6 +22,7 @@ var BLANK_PAGES = {
     about: [],
     export: ['event'],
     'config-debug': ['event'],
+    bracket: ['event', 'user'],
     scout: ['event', 'user', 'position'],
     note: ['event', 'user', 'position'],
         // type
@@ -63,7 +64,6 @@ var SELECTION_PAGES = {
     plot: ['event', 'user'],
     scatter: ['event', 'user'],
     coach: ['event', 'user'],
-    bracket: ['event', 'user'],
     results: ['event'], // file
     cycles: ['event'] // file
 }
