@@ -1409,12 +1409,8 @@ class MultiSelect extends MultiInput
                 rows.push([])
             }
 
-            let label = document.createElement('label')
-            label.append(op_name)
-
             let option = document.createElement('span')
             option.id = `${this.id}-${i}`
-            option.className = 'wr_select_option'
             if (this.value.length > i && this.value[i])
             {
                 option.classList.add('selected')
@@ -1424,20 +1420,35 @@ class MultiSelect extends MultiInput
                 option.classList.add('vertical')
             }
             option.classList.add(...this.classes)
-            option.onclick = (event) => {
-                MultiSelect.select_option(this.id, i)
-                eval(this.on_change)
-            }
 
-            if (this.images.length)
+            // only add labels if the option name isn't empty
+            if (op_name)
             {
-                option.classList.add('wr_select_img')
+                option.classList.add('wr_select_option')
 
-                label = document.createElement('img')
-                label.src = this.images[i]
+                option.onclick = (event) => {
+                    MultiSelect.select_option(this.id, i)
+                    eval(this.on_change)
+                }
+
+                let label = document.createElement('label')
+                label.append(op_name)
+
+                if (this.images.length)
+                {
+                    option.classList.add('wr_select_img')
+
+                    label = document.createElement('img')
+                    label.src = this.images[i]
+                }
+
+                option.append(label)
+            }
+            else
+            {
+                option.classList.add('wr_select_filler')
             }
 
-            option.append(label)
             rows[rows.length - 1].push(option)
         }
 

@@ -739,7 +739,11 @@ class Config
                             // check for overlapping IDs
                             for (let option of options)
                             {
-                                if (multi)
+                                if (!type.endsWith('select') && !option)
+                                {
+                                    return Config.return_fail('Options may not be blank', id)
+                                }
+                                if (multi && option !== '')
                                 {
                                     let sid = `${id}_${option.toLowerCase()}`
                                     if (ids.includes(sid))
@@ -747,10 +751,6 @@ class Config
                                         return Config.return_fail(`Repeat id "${sid}"`, id)
                                     }
                                     ids.push(sid)
-                                }
-                                if (type !== 'select' && !option)
-                                {
-                                    return Config.return_fail('Options may not be blank', id)
                                 }
                             }
                         }
