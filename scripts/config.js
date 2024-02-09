@@ -681,7 +681,7 @@ class Config
                     return result
                 }
 
-                result = Config.check_array(page, 'columns', 'object', 0, true)
+                result = Config.check_array(page, 'columns', 'object', -1, false)
                 if (!result.result)
                 {
                     return result
@@ -695,7 +695,7 @@ class Config
                         return result
                     }
 
-                    result = Config.check_array(column, 'inputs', 'object', 0, true)
+                    result = Config.check_array(column, 'inputs', 'object', -1, false)
                     if (!result.result)
                     {
                         return result
