@@ -238,9 +238,9 @@ function init_page()
         for (let i in dal.matches)
         {
             let match = dal.matches[i]
-            if (match.short_match_name.startsWith('M'))
+            let idx = match.set_number - 1
+            if (match.short_match_name.startsWith('M') && idx < 4)
             {
-                let idx = match.set_number - 1
                 if (match.red_alliance.length)
                 {
                     matches[idx].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
@@ -265,12 +265,19 @@ function init_page()
  */
 function build_page()
 {
-    let p = document.createElement('p')
-    for (let match of matches)
+    let page = new PageFrame()
+    let columns = [new ColumnFrame()]
+    for (let i in matches)
     {
-        p.append(build_match(match))
+        columns[columns.length - 1].add_input(build_match(matches[i]))
+        if (['3', '7', '9', '11', '12'].includes(i))
+        {
+            page.add_column(columns[columns.length - 1])
+            columns.push(new ColumnFrame())
+        }
     }
-    document.getElementById('body').replaceChildren(p)
+    page.add_column(columns[columns.length - 1])
+    document.getElementById('body').replaceChildren(page.element)
 }
 
 /**
@@ -285,13 +292,39 @@ function build_match(match)
     let title = document.createElement('h3')
     title.innerText = match.name
 
+    // add bracket name
+    let subtitle = document.createElement('h5')
+    let len = BRACKET[match.idx].length
+    if (len > 2)
+    {
+        subtitle.innerText = `Upper Bracket`
+    }
+    else if (len == 2)
+    {
+        subtitle.innerText = `Lower Bracket`
+    }
+    else
+    {
+        subtitle = ''
+    }
+
     // build each alliance
     let red = build_alliance(match, 'red')
     let blue = build_alliance(match, 'blue')
 
-    let container = document.createElement('div')
-    container.append(title, red, br(), blue)
-    return container
+    let container = document.createElement('span')
+    container.append(title, subtitle, red, blue)
+
+    // build card around container
+    let card = new Card('', '')
+    card.label = container
+    card.add_class('elim_match')
+    if (match.winner > -1)
+    {
+        card.add_class('complete')
+    }
+
+    return card.element
 }
 
 /**
@@ -304,7 +337,7 @@ function build_match(match)
 function build_alliance(match, color)
 {
     // create the based Element with an appropriate color
-    let alliance = document.createElement('label')
+    let alliance = document.createElement('div')
     alliance.className = color
 
     // get the alliance index of the match-color
@@ -320,7 +353,7 @@ function build_alliance(match, color)
         if (match.winner === idx)
         {
             alliance.style.fontWeight = 'bold'
-            alliance.innerText += ` to ${matches[BRACKET[match.idx][0]].short_name}`
+            alliance.append(br(), `Advanced to ${matches[BRACKET[match.idx][0]].short_name}`)
         }
         // if the alliance is the loser in a lower bracket match, strike-through the alliance
         else if (BRACKET[match.idx].length === 2 && match.loser === idx)
@@ -330,7 +363,7 @@ function build_alliance(match, color)
         // if the alliance is the loser in an upper bracket match, specify which match they will play in next
         else if (match.loser === idx)
         {
-            alliance.innerText += ` to ${matches[BRACKET[match.idx][2]].short_name}`
+            alliance.append(br(), `Advanced to ${matches[BRACKET[match.idx][2]].short_name}`)
         }
         // if there is no winner yet and both teams are present, place a button to choose the alliance as the winner
         else if (match.red_alliance > -1 && match.blue_alliance > -1 && BRACKET[match.idx].length > 0)
@@ -341,7 +374,8 @@ function build_alliance(match, color)
                 build_page()
             }
             button.innerText = 'Winner'
-            alliance.append(' ', button)
+            button.className = 'winner_button'
+            alliance.append(br(), button)
         }
     }
     // if the alliance is not populated
@@ -384,7 +418,10 @@ function add_speculative_teams(alliance, prev_match, state)
     let alliance_idcs = [prev_match.red_alliance, prev_match.blue_alliance].filter(i => i >= 0)
     if (alliance_idcs.length > 0)
     {
-        let teams = alliance_idcs.map(i => alliances[i].team_str).join(' or ')
-        alliance.append(br(), teams)
+        let teams = alliance_idcs.map(i => alliances[i].team_str)
+        for (let team of teams)
+        {
+            alliance.append(br(), team)
+        }
     }
 }
