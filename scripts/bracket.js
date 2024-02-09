@@ -265,11 +265,30 @@ function init_page()
  */
 function build_page()
 {
+    // determine previously selected alliance filter
+    let alliance = 0
+    let f = document.getElementById('alliance_filter')
+    let ops = ['All'].concat(alliances.map(a => a.team_str))
+    if (f)
+    {
+        alliance = f.selectedIndex
+    }
+
+    // build a filter for the alliance
+    let filter = new Dropdown('alliance_filter', 'Alliance Filter', ops, ops[alliance])
+    filter.add_class('slim')
+    filter.on_change = 'build_page()'
+    let filter_page = new PageFrame('', '', [new ColumnFrame('', '', [filter])])
+
+    // build a column for each round and a card for each match
     let page = new PageFrame()
     let columns = [new ColumnFrame()]
     for (let i in matches)
     {
-        columns[columns.length - 1].add_input(build_match(matches[i]))
+        if (alliance === 0 || [matches[i].red_alliance, matches[i].blue_alliance].includes(alliance - 1))
+        {
+            columns[columns.length - 1].add_input(build_match(matches[i]))
+        }
         if (['3', '7', '9', '11', '12'].includes(i))
         {
             page.add_column(columns[columns.length - 1])
@@ -277,7 +296,7 @@ function build_page()
         }
     }
     page.add_column(columns[columns.length - 1])
-    document.getElementById('body').replaceChildren(page.element)
+    document.getElementById('body').replaceChildren(filter_page.element, page.element)
 }
 
 /**
