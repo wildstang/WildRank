@@ -2,6 +2,9 @@
  * file:        bracket.js
  * description: Lists all double elim matches and the teams.
  *              Allows manual advancement of teams if no network.
+ *              TODO:
+ *              - Advance other matches while filtered
+ *              - Manually enter teams?
  * author:      Liam Fruzyna
  * date:        2024-02-08
  */
@@ -17,6 +20,8 @@ const BRACKET = [
     [13, 'b'],
     []
 ]
+
+var WINNERS_KEY = ''
 
 class ElimMatch
 {
@@ -52,28 +57,49 @@ class ElimMatch
         // populate the winners next match with the winning alliance
         if (next_matches.length >= 2)
         {
+            let match = matches[next_matches[0]]
             if (next_matches[1] === 'r')
             {
-                matches[next_matches[0]].red_alliance = this.winner
+                match.red_alliance = this.winner
             }
             else
             {
-                matches[next_matches[0]].blue_alliance = this.winner
+                match.blue_alliance = this.winner
             }
         }
 
         // if this is an upper bracket math, populate the losers next match with the losing alliance
         if (next_matches.length === 4)
         {
+            let match = matches[next_matches[2]]
             if (next_matches[3] === 'r')
             {
-                matches[next_matches[2]].red_alliance = this.loser
+                match.red_alliance = this.loser
             }
             else
             {
-                matches[next_matches[2]].blue_alliance = this.loser
+                match.blue_alliance = this.loser
             }
         }
+    }
+
+    /**
+     * The winning alliance color.
+     */
+    get winning_color()
+    {
+        if (this.winner > -1)
+        {
+            if (this.winner === this.red_alliance)
+            {
+                return 'red'
+            }
+            if (this.winner === this.blue_alliance)
+            {
+                return 'blue'
+            }
+        }
+        return ''
     }
 
     /**
@@ -205,54 +231,61 @@ function init_page()
     }
     else
     {
+        // wait until the page is loaded before accessing dal
+        WINNERS_KEY = `${dal.event_id}-delim-winners`
+
         // populate matches with bare ElimMatches
         for (let i = 0; i < BRACKET.length; i++)
         {
             matches[i] = new ElimMatch(i)
         }
 
+        // elim matches are given the short name M# and use set_number to store the match number
+        // matches are sorted to ensure winner are set in correct order
+        let dal_matches = Object.values(dal.matches).filter(m => m.short_match_name.startsWith('M'))
+                                                    .sort((a, b) => a.set_number - b.set_number)
+
         // populate alliances with Alliances of teams
-        for (let i in dal.matches)
+        for (let match of dal_matches)
         {
-            let match = dal.matches[i]
-            if (match.short_match_name.startsWith('M'))
+            // determine alliance number based off match number and alliance color
+            let idx = [0, 3, 1, 2][match.set_number - 1]
+            if (idx < 4)
             {
-                // determine alliance number based off match number and alliance color
-                let idx = [0, 3, 1, 2][match.set_number - 1]
-                if (idx < 4)
+                if (match.red_alliance.length)
                 {
-                    if (match.red_alliance.length)
-                    {
-                        alliances[idx] = new Alliance(idx, match.red_alliance)
-                    }
-                    if (match.blue_alliance.length)
-                    {
-                        idx = 7 - idx
-                        alliances[idx] = new Alliance(idx, match.blue_alliance)
-                    }
+                    alliances[idx] = new Alliance(idx, match.red_alliance)
+                }
+                if (match.blue_alliance.length)
+                {
+                    idx = 7 - idx
+                    alliances[idx] = new Alliance(idx, match.blue_alliance)
                 }
             }
         }
 
         // populate matches with alliances
-        for (let i in dal.matches)
+        let winners = get_winners()
+        for (let match of dal_matches)
         {
-            let match = dal.matches[i]
             let idx = match.set_number - 1
-            if (match.short_match_name.startsWith('M'))
+            // get alliances from TBA data
+            if (match.red_alliance.length)
             {
-                if (match.red_alliance.length)
-                {
-                    matches[idx].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
-                }
-                if (match.blue_alliance.length)
-                {
-                    matches[idx].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
-                }
-                if (match.winner)
-                {
-                    matches[idx].mark_winner(match.winner)
-                }
+                matches[idx].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
+            }
+            if (match.blue_alliance.length)
+            {
+                matches[idx].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
+            }
+            // get winner either from TBA data or winner file
+            if (match.winner)
+            {
+                matches[idx].mark_winner(match.winner)
+            }
+            else if (winners[idx])
+            {
+                matches[idx].mark_winner(winners[idx])
             }
         }
 
@@ -390,6 +423,7 @@ function build_alliance(match, color)
             let button = document.createElement('button')
             button.onclick = e => {
                 match.mark_winner(color)
+                save_winners()
                 build_page()
             }
             button.innerText = 'Winner'
@@ -443,4 +477,26 @@ function add_speculative_teams(alliance, prev_match, state)
             alliance.append(br(), team)
         }
     }
+}
+
+/**
+ * Stores the winning color of each map in sessionStorage for recalling later.
+ */
+function save_winners()
+{
+    sessionStorage.setItem(WINNERS_KEY, JSON.stringify(matches.map(m => m.winning_color)))
+}
+
+/**
+ * Pulls the list of winning colors from sessionStorage.
+ * @returns {Array} Array of winning color strings.
+ */
+function get_winners()
+{
+    let winners = sessionStorage.getItem(WINNERS_KEY)
+    if (winners === null)
+    {
+        return new Array(matches.length)
+    }
+    return JSON.parse(winners)
 }
