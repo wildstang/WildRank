@@ -32,6 +32,7 @@ class ElimMatch
      */
     constructor(idx)
     {
+        this.id = -1
         this.idx = idx
         this.red_alliance = -1
         this.blue_alliance = -1
@@ -242,12 +243,13 @@ function init_page()
 
         // elim matches are given the short name M# and use set_number to store the match number
         // matches are sorted to ensure winner are set in correct order
-        let dal_matches = Object.values(dal.matches).filter(m => m.short_match_name.startsWith('M'))
-                                                    .sort((a, b) => a.set_number - b.set_number)
+        let match_keys = Object.keys(dal.matches).filter(m => dal.matches[m].short_match_name.startsWith('M'))
+                                                 .sort((a, b) => dal.matches[a].set_number - dal.matches[b].set_number)
 
         // populate alliances with Alliances of teams
-        for (let match of dal_matches)
+        for (let key of match_keys)
         {
+            let match = dal.matches[key]
             // determine alliance number based off match number and alliance color
             let idx = [0, 3, 1, 2][match.set_number - 1]
             if (idx < 4)
@@ -266,9 +268,11 @@ function init_page()
 
         // populate matches with alliances
         let winners = get_winners()
-        for (let match of dal_matches)
+        for (let key of match_keys)
         {
+            let match = dal.matches[key]
             let idx = match.set_number - 1
+            matches[idx].id = key
             // get alliances from TBA data
             if (match.red_alliance.length)
             {
@@ -318,9 +322,23 @@ function build_page()
     let columns = [new ColumnFrame()]
     for (let i in matches)
     {
-        if (alliance === 0 || [matches[i].red_alliance, matches[i].blue_alliance].includes(alliance - 1))
+        let match = matches[i]
+        if (alliance === 0 || [match.red_alliance, match.blue_alliance].includes(alliance - 1))
         {
-            columns[columns.length - 1].add_input(build_match(matches[i]))
+            let card = build_match(match)
+            // if the match is set but not started add a button below to preview in coach mode
+            if (match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
+            {
+                let button = new Button('open_coach', 'Preview Match')
+                button.link = `open_page('coach', {match: '${match.id}'})`
+
+                let stack = new Stack('', [card, button])
+                columns[columns.length - 1].add_input(stack.element)
+            }
+            else
+            {
+                columns[columns.length - 1].add_input(card.element)
+            }
         }
         if (['3', '7', '9', '11', '12'].includes(i))
         {
@@ -336,7 +354,7 @@ function build_page()
  * Builds an Element containing the match teams of a given ElimMatch
  * 
  * @param {ElimMatch} match Object representation of the match to build.
- * @returns {Element} Populated Element
+ * @returns {Card} Populated WR Card
  */
 function build_match(match)
 {
@@ -369,6 +387,7 @@ function build_match(match)
 
     // build card around container
     let card = new Card('', '')
+    card.space_after = false
     card.label = container
     card.add_class('elim_match')
     if (match.winner > -1)
@@ -376,7 +395,7 @@ function build_match(match)
         card.add_class('complete')
     }
 
-    return card.element
+    return card
 }
 
 /**
