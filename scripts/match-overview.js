@@ -227,15 +227,15 @@ function open_option(match_key)
         team_info.append(team_el, br(), dal.get_value(team_num, 'meta.name'), br(), dal.get_rank_str(team_num))
         let info_card = new Card(`card_${team_num}`, team_info)
         info_card.limitWidth = true
+        info_card.space_after = false
+        let stack = new Stack('', [info_card, scout_link])
         if (alliance === 'red')
         {
-            red_col.add_input(scout_link)
-            red_col.add_input(info_card)
+            red_col.add_input(stack)
         }
         else
         {
-            blue_col.add_input(scout_link)
-            blue_col.add_input(info_card)
+            blue_col.add_input(stack)
         }
     }
 
