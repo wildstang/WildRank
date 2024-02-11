@@ -8,6 +8,10 @@
 
 var match_key_el, time_el, table_el
 
+// read parameters from URL
+var urlParams = new URLSearchParams(window.location.search)
+const selected = urlParams.get('match')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -21,7 +25,7 @@ function init_page()
     let teams = Object.keys(dal.teams)
     teams.unshift('')
     let default_filter = ''
-    if (cfg.settings.hasOwnProperty('team_number'))
+    if (selected === '' && cfg.settings.hasOwnProperty('team_number'))
     {
         default_filter = cfg.settings.team_number.toString()
     }
@@ -40,6 +44,11 @@ function init_page()
         contents_card.append(header, time_el, table_el)
 
         hide_matches()
+
+        if (selected)
+        {
+            open_option(selected)
+        }
     }
     else
     {
