@@ -186,7 +186,7 @@ class Alliance
             }
             if (match === 'Elim')
             {
-                match = `Eliminated in match ${match.id}`
+                match = `Eliminated in ${match.name}`
                 break
             }
             else if (match === 'Win')
