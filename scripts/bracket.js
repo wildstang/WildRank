@@ -3,6 +3,7 @@
  * description: Lists all double elim matches and the teams.
  *              Allows manual advancement of teams if no network.
  *              TODO:
+ *              - Handle 4 team alliances properly
  *              - Advance other matches while filtered
  *              - Manually enter teams?
  * author:      Liam Fruzyna
@@ -32,6 +33,7 @@ class ElimMatch
      */
     constructor(idx)
     {
+        this.id = -1
         this.idx = idx
         this.red_alliance = -1
         this.blue_alliance = -1
@@ -242,12 +244,13 @@ function init_page()
 
         // elim matches are given the short name M# and use set_number to store the match number
         // matches are sorted to ensure winner are set in correct order
-        let dal_matches = Object.values(dal.matches).filter(m => m.short_match_name.startsWith('M'))
-                                                    .sort((a, b) => a.set_number - b.set_number)
+        let match_keys = Object.keys(dal.matches).filter(m => dal.matches[m].short_match_name.startsWith('M'))
+                                                 .sort((a, b) => dal.matches[a].set_number - dal.matches[b].set_number)
 
         // populate alliances with Alliances of teams
-        for (let match of dal_matches)
+        for (let key of match_keys)
         {
+            let match = dal.matches[key]
             // determine alliance number based off match number and alliance color
             let idx = [0, 3, 1, 2][match.set_number - 1]
             if (idx < 4)
@@ -264,28 +267,41 @@ function init_page()
             }
         }
 
+        // add the last final match to the end
+        for (let i = 3; i >= 0; i--)
+        {
+            let final_id = `${dal.event_id}_f1m${i}`
+            if (final_id in dal.matches)
+            {
+                match_keys.push(final_id)
+                break
+            }
+        }
+
         // populate matches with alliances
         let winners = get_winners()
-        for (let match of dal_matches)
+        for (let i in match_keys)
         {
-            let idx = match.set_number - 1
+            let key = match_keys[i]
+            let match = dal.matches[key]
+            matches[i].id = key
             // get alliances from TBA data
             if (match.red_alliance.length)
             {
-                matches[idx].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
+                matches[i].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
             }
             if (match.blue_alliance.length)
             {
-                matches[idx].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
+                matches[i].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
             }
             // get winner either from TBA data or winner file
             if (match.winner)
             {
-                matches[idx].mark_winner(match.winner)
+                matches[i].mark_winner(match.winner)
             }
-            else if (winners[idx])
+            else if (winners[i])
             {
-                matches[idx].mark_winner(winners[idx])
+                matches[i].mark_winner(winners[i])
             }
         }
 
@@ -318,9 +334,23 @@ function build_page()
     let columns = [new ColumnFrame()]
     for (let i in matches)
     {
-        if (alliance === 0 || [matches[i].red_alliance, matches[i].blue_alliance].includes(alliance - 1))
+        let match = matches[i]
+        if (alliance === 0 || [match.red_alliance, match.blue_alliance].includes(alliance - 1))
         {
-            columns[columns.length - 1].add_input(build_match(matches[i]))
+            let card = build_match(match)
+            // if the match is set but not started add a button below to preview in coach mode
+            if (match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
+            {
+                let button = new Button('open_coach', 'Preview Match')
+                button.link = `open_page('coach', {match: '${match.id}'})`
+
+                let stack = new Stack('', [card, button])
+                columns[columns.length - 1].add_input(stack.element)
+            }
+            else
+            {
+                columns[columns.length - 1].add_input(card.element)
+            }
         }
         if (['3', '7', '9', '11', '12'].includes(i))
         {
@@ -336,7 +366,7 @@ function build_page()
  * Builds an Element containing the match teams of a given ElimMatch
  * 
  * @param {ElimMatch} match Object representation of the match to build.
- * @returns {Element} Populated Element
+ * @returns {Card} Populated WR Card
  */
 function build_match(match)
 {
@@ -369,6 +399,7 @@ function build_match(match)
 
     // build card around container
     let card = new Card('', '')
+    card.space_after = false
     card.label = container
     card.add_class('elim_match')
     if (match.winner > -1)
@@ -376,7 +407,7 @@ function build_match(match)
         card.add_class('complete')
     }
 
-    return card.element
+    return card
 }
 
 /**
@@ -405,10 +436,17 @@ function build_alliance(match, color)
         if (match.winner === idx)
         {
             alliance.style.fontWeight = 'bold'
-            alliance.append(br(), `Advanced to ${matches[BRACKET[match.idx][0]].short_name}`)
+            if (match.idx === BRACKET.length - 1)
+            {
+                alliance.append(br(), 'Event Winner!')
+            }
+            else
+            {
+                alliance.append(br(), `Advanced to ${matches[BRACKET[match.idx][0]].short_name}`)
+            }
         }
         // if the alliance is the loser in a lower bracket match, strike-through the alliance
-        else if (BRACKET[match.idx].length === 2 && match.loser === idx)
+        else if (BRACKET[match.idx].length <= 2 && match.loser === idx)
         {
             alliance.style.textDecoration = 'line-through'
         }
