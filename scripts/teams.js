@@ -167,7 +167,7 @@ function open_option(team_num)
             let match_num = document.createElement('span')
             match_num.className = alliance
             match_num.innerText = dal.get_match_value(match_key, 'short_match_name')
-            let match_link
+            let match_link, ignore
             if (dal.is_match_scouted(match_key, team_num))
             {
                 // build text of ignore checkbox
@@ -175,10 +175,9 @@ function open_option(team_num)
                 ignore_text.append('Ignore Match ', match_num)
 
                 // build ignore checkbox
-                let ignore = new Checkbox(`ignore_${match_key}`, ignore_text, dal.get_result_value(team_num, match_key, 'meta_ignore'))
+                ignore = new Checkbox(`ignore_${match_key}`, ignore_text, dal.get_result_value(team_num, match_key, 'meta_ignore'))
                 ignore.on_click = `ignore_match('${match_key}', '${team_num}')`
                 ignore.add_class('slim')
-                cards.push(ignore)
 
                 // build text of match button
                 let match_text = document.createElement('span')
@@ -196,10 +195,18 @@ function open_option(team_num)
     
                 // build match button
                 match_link = new Button(`scout_${match_key}`, match_text)
-                match_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match.match_number}', team: '${team_num}', alliance: '${alliance}', edit: false})`
+                match_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match_key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
             }
-            cards.push(match_link)
-            cards.push(new Card(`card_${match_key}`, time))
+
+            let card = new Card(`card_${match_key}`, time)
+            card.space_after = false
+
+            let stack = new Stack('', [card, match_link])
+            if (ignore)
+            {
+                stack.add_element(ignore)
+            }
+            cards.push(stack)
         }
     }
 
