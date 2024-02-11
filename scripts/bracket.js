@@ -3,6 +3,7 @@
  * description: Lists all double elim matches and the teams.
  *              Allows manual advancement of teams if no network.
  *              TODO:
+ *              - Handle 4 team alliances properly
  *              - Advance other matches while filtered
  *              - Manually enter teams?
  * author:      Liam Fruzyna
@@ -266,30 +267,41 @@ function init_page()
             }
         }
 
+        // add the last final match to the end
+        for (let i = 3; i >= 0; i--)
+        {
+            let final_id = `${dal.event_id}_f1m${i}`
+            if (final_id in dal.matches)
+            {
+                match_keys.push(final_id)
+                break
+            }
+        }
+
         // populate matches with alliances
         let winners = get_winners()
-        for (let key of match_keys)
+        for (let i in match_keys)
         {
+            let key = match_keys[i]
             let match = dal.matches[key]
-            let idx = match.set_number - 1
-            matches[idx].id = key
+            matches[i].id = key
             // get alliances from TBA data
             if (match.red_alliance.length)
             {
-                matches[idx].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
+                matches[i].red_alliance = alliances.filter(a => a.is(match.red_alliance))[0].idx
             }
             if (match.blue_alliance.length)
             {
-                matches[idx].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
+                matches[i].blue_alliance = alliances.filter(a => a.is(match.blue_alliance))[0].idx
             }
             // get winner either from TBA data or winner file
             if (match.winner)
             {
-                matches[idx].mark_winner(match.winner)
+                matches[i].mark_winner(match.winner)
             }
-            else if (winners[idx])
+            else if (winners[i])
             {
-                matches[idx].mark_winner(winners[idx])
+                matches[i].mark_winner(winners[i])
             }
         }
 
@@ -424,10 +436,17 @@ function build_alliance(match, color)
         if (match.winner === idx)
         {
             alliance.style.fontWeight = 'bold'
-            alliance.append(br(), `Advanced to ${matches[BRACKET[match.idx][0]].short_name}`)
+            if (match.idx === BRACKET.length - 1)
+            {
+                alliance.append(br(), 'Event Winner!')
+            }
+            else
+            {
+                alliance.append(br(), `Advanced to ${matches[BRACKET[match.idx][0]].short_name}`)
+            }
         }
         // if the alliance is the loser in a lower bracket match, strike-through the alliance
-        else if (BRACKET[match.idx].length === 2 && match.loser === idx)
+        else if (BRACKET[match.idx].length <= 2 && match.loser === idx)
         {
             alliance.style.textDecoration = 'line-through'
         }
