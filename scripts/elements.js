@@ -1645,6 +1645,36 @@ class MatchOption extends Option
     }
 }
 
+class Stack extends Element
+{
+    constructor(id, elements)
+    {
+        super(id, '')
+        this.elements = elements
+    }
+
+    add_element(element)
+    {
+        this.elements.push(element)
+    }
+
+    get element()
+    {
+        this.elements[0].add_class('stack_top')
+        for (let i = 1; i < this.elements.length; i++)
+        {
+            this.elements[i].add_class('slim')
+            this.elements[i].add_class('stack_bottom')
+        }
+
+        let stack = document.createElement('div')
+        stack.className = 'stack'
+        stack.append(...this.elements.map(e => e.element))
+
+        return stack
+    }
+}
+
 /**
  * Aux Funcs
  */
