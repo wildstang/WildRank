@@ -143,7 +143,7 @@ function init_page()
             title = 'Administrator'
             break
     }
-    document.getElementById('header_info').innerHTML = title
+    header_info.innerHTML = title
 
     // redirect if there is only 1 option on the page
     let columns = CONFIGS[role]
@@ -185,7 +185,7 @@ function init_page()
     sign_out.link = 'sign_out()'
     column.add_input(sign_out)
 
-    document.getElementById('body').replaceChildren(page.element, sign_out_page.element)
+    body.replaceChildren(page.element, sign_out_page.element)
 }
 
 /**

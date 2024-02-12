@@ -24,7 +24,7 @@ include('transfer')
 async function init_page()
 {
     // set header
-    document.getElementById('header_info').innerText = 'Raw Data Zip Transfer'
+    header_info.innerText = 'Raw Data Zip Transfer'
 
     let page = new PageFrame()
     let check_col = new ColumnFrame('', 'Data to Transfer')
@@ -117,7 +117,7 @@ async function init_page()
     let match_results = new Number('match_results', 'Match Results')
     status_col.add_input(match_results)
 
-    document.getElementById('body').replaceChildren(page.element)
+    body.replaceChildren(page.element)
     process_files()
 }
 

@@ -14,7 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerText = 'Test Page'
+    header_info.innerText = 'Test Page'
 
     let page = new PageFrame('', 'Test Page')
     let buttons = new ColumnFrame('', 'Button Column')
@@ -184,7 +184,7 @@ function init_page()
     alertslider.on_change = `alert('Slid')`
     others.add_input(alertslider)
 
-    document.body.append(page.element)
+    body.append(page.element)
 
     let timer = new Timer('', 'Test Timer')
     document.getElementById('counter_column').append(timer.get())

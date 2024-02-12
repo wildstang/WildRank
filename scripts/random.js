@@ -20,7 +20,7 @@ const start = Date.now()
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Generate Results'
+    header_info.innerHTML = 'Generate Results'
     
     // load in and count qualification matches
     let count = Object.keys(dal.matches).length
@@ -56,7 +56,7 @@ function init_page()
     right_col.add_input(generate)
 
     // build page
-    document.getElementById('body').append(page.element)
+    body.append(page.element)
     hide_buttons()
 }
 

@@ -14,7 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerText = 'About'
+    header_info.innerText = 'About'
 
     // generate page
     let page = new PageFrame()
@@ -56,7 +56,7 @@ function init_page()
     wildstang.external_link = `https://wildstang.org`
     get_col.add_input(wildstang)
 
-    document.getElementById('body').replaceChildren(page.element)
+    body.replaceChildren(page.element)
 
     try
     {

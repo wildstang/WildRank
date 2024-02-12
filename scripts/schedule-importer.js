@@ -17,7 +17,7 @@ const start = Date.now()
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Generate Event'
+    header_info.innerHTML = 'Generate Event'
 
     let col = new ColumnFrame()
     let setup_page = new PageFrame('', 'Setup', [col])
@@ -47,7 +47,7 @@ function init_page()
     matches_col.add_input(schedule)
 
     // build page
-    document.getElementById('body').replaceChildren(setup_page.element, matches_page.element)
+    body.replaceChildren(setup_page.element, matches_page.element)
 }
 
 /**

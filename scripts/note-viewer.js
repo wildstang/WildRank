@@ -61,7 +61,7 @@ function init_page()
     let search = new Entry('search', 'Search', default_search)
     search.on_text_change = 'filter_notes()'
     let search_col = new ColumnFrame('', '', [search])
-    document.body.append(new PageFrame('', '', [teams_col, scouter_col, search_col]).element, new PageFrame('notes', '').element)
+    body.append(new PageFrame('', '', [teams_col, scouter_col, search_col]).element, new PageFrame('notes', '').element)
     filter_notes()
 }
 

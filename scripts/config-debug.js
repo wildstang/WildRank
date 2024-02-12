@@ -14,7 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Config Debug'
+    header_info.innerHTML = 'Config Debug'
     
     let keys = new StatusTile('keys', 'Keys')
     let defaults = new StatusTile('defaults', 'Defaults')
@@ -81,7 +81,7 @@ function init_page()
 
     let page = new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]),
                                       new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, note, smart_stats, coach, whiteboard, version])]).element
-    document.getElementById('body').replaceChildren(page)
+    body.replaceChildren(page)
     
     keys.status = keys_result.result
     defaults.status = defaults_result.result

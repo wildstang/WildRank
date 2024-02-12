@@ -131,7 +131,7 @@ function init_page()
     about.link = `open_link('about')`
     data.add_input(about)
 
-    document.getElementById('body').replaceChildren(user_page.element, data_page.element)
+    body.replaceChildren(user_page.element, data_page.element)
 
     check_id()
     apply_theme()

@@ -17,7 +17,7 @@ const CLIMB_OPTIONS = ['No', 'Prk', 'Dok', 'Eng']
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerText = 'Score Estimator'
+    header_info.innerText = 'Score Estimator'
 
     // build red score column
     let red_col = new ColumnFrame('', 'Red Alliance')
@@ -54,7 +54,7 @@ function init_page()
     blue_col.add_input(new Number('blue_final_score', 'Blue Score', 0))
 
     // build page
-    document.body.append(new PageFrame('', '', [red_col, blue_col]).element)
+    body.append(new PageFrame('', '', [red_col, blue_col]).element)
 }
 
 /**

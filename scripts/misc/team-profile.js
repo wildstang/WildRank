@@ -193,11 +193,11 @@ function build_cards(robots)
         let card_content = document.createElement('span')
         let header = document.createElement('h1')
         header.innerText = year
-        let body = document.createElement('div')
+        let contents = document.createElement('div')
         let links = document.createElement('div')
         links.append(code, tba)
-        body.append(links, awards)
-        card_content.append(header, image, body)
+        contents.append(links, awards)
+        card_content.append(header, image, contents)
         let card = new Card(year, card_content)
         card.add_class('profile')
         if (left)
@@ -211,5 +211,5 @@ function build_cards(robots)
         left = !left
     }
 
-    document.body.append(new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).element)
+    body.append(new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).element)
 }

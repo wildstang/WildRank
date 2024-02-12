@@ -19,10 +19,7 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
  */
 function init_page()
 {
-    document.getElementById('header_info').innerHTML = `Config Generator`
-    let add = document.createElement('div')
-    add.id = 'add-item'
-    document.getElementById('body').replaceChildren(add)
+    header_info.innerHTML = `Config Generator`
     load_config()
 }
 
@@ -50,7 +47,7 @@ function build_page()
     preview.id = 'preview'
     let options = document.createElement('div')
     options.id = 'options'
-    document.getElementById('add-item').replaceChildren(new PageFrame('', 'Add to...', [
+    body.replaceChildren(new PageFrame('', 'Add to...', [
             new ColumnFrame('', '', [mode, page, column, type]),
             new ColumnFrame('', '', [name]),
             new ColumnFrame('', '', [options])
@@ -587,11 +584,11 @@ function download_config()
     element.setAttribute('download', `${cfg.year}-config.json`)
 
     element.style.display = 'none'
-    document.body.appendChild(element)
+    body.appendChild(element)
 
     element.click()
 
-    document.body.removeChild(element)
+    body.removeChild(element)
 }
 
 /** 

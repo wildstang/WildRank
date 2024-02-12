@@ -30,7 +30,7 @@ function build_key(color, label)
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerText = 'Scouting Progress'
+    header_info.innerText = 'Scouting Progress'
 
     let match_table = document.createElement('table')
     let pit_table = document.createElement('table')
@@ -157,7 +157,7 @@ function init_page()
     let match_card = new Card('matches', match_content)
     match.add_input(match_card)
 
-    document.getElementById('body').replaceChildren(page.element)
+    body.replaceChildren(page.element)
 }
 
 /**

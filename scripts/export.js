@@ -14,7 +14,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Server Export'
+    header_info.innerHTML = 'Server Export'
 
     let server = parse_server_addr(document.location.href)
     if (!check_server(server))
@@ -41,7 +41,7 @@ function init_page()
     let submit = new Button('submit', 'Export', 'submit()')
 
     let page = new PageFrame('', '', [check_col, new ColumnFrame('', '', [from, to, password, submit])]).element
-    document.getElementById('body').replaceChildren(page)
+    body.replaceChildren(page)
 }
 
 /**

@@ -24,7 +24,7 @@ function init_page()
     header.append(create_header('Event'), create_header('Key'), create_header('Start Date'), create_header('Team Count'), create_header('Teams'))
 
     let card = new Card('card', contents)
-    document.body.append(new PageFrame('', '', [card]).element)
+    body.append(new PageFrame('', '', [card]).element)
 
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)

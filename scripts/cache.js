@@ -18,7 +18,7 @@ let current = 'default'
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Cache Manager'
+    header_info.innerHTML = 'Cache Manager'
 
     if (typeof caches !== 'undefined')
     {
@@ -54,7 +54,7 @@ async function populate_page()
     {
         let card = new Card('table', 'No caches found')
         let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
-        document.getElementById('body').replaceChildren(page.element)
+        body.replaceChildren(page.element)
     }
 
     for (let name of names)
@@ -127,7 +127,7 @@ async function populate_page()
 
         let card = new Card('table', table)
         let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
-        document.getElementById('body').replaceChildren(page.element)
+        body.replaceChildren(page.element)
 
         button_col.add_input(new Button(`purge_${name}`, `Purge ${name}`, `purge_cache('${name}')`))
     }

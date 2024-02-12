@@ -19,7 +19,7 @@ var match_col
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Generate Event'
+    header_info.innerHTML = 'Generate Event'
 
     let col = new ColumnFrame()
     let team_page = new PageFrame('', 'Team', [col])
@@ -59,7 +59,7 @@ function init_page()
     match_page.add_column(match_col)
 
     // build page
-    document.getElementById('body').replaceChildren(team_page.element, match_page.element)
+    body.replaceChildren(team_page.element, match_page.element)
 
     populate_matches()
 }

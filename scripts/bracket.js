@@ -229,7 +229,7 @@ function init_page()
 {
     if (dal.event.playoff_type !== 10)
     {
-        document.getElementById('body').innerText = 'Not a double-elimination event.'
+        body.innerText = 'Not a double-elimination event.'
     }
     else
     {
@@ -359,7 +359,7 @@ function build_page()
         }
     }
     page.add_column(columns[columns.length - 1])
-    document.getElementById('body').replaceChildren(filter_page.element, page.element)
+    body.replaceChildren(filter_page.element, page.element)
 }
 
 /**

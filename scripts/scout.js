@@ -53,7 +53,7 @@ function init_page()
 
     let match_box = document.createElement('span')
     let team_box = document.createElement('span')
-    document.getElementById('header_info').append(match_box, ' - Scouting: ', team_box)
+    header_info.append(match_box, ' - Scouting: ', team_box)
 
     // build the page from config for the desired mode
     switch (scout_mode)
@@ -109,8 +109,8 @@ function check_for_last_page()
 function build_page_from_config()
 {
     // iterate through each page in the mode
-    let body = create_element('div', 'scouting-carousel', 'scouting-carousel')
-    body.onscroll = check_for_last_page
+    let carousel = create_element('div', 'scouting-carousel', 'scouting-carousel')
+    carousel.onscroll = check_for_last_page
     for (let page of cfg[scout_mode])
     {
         let page_frame = new PageFrame(page.id, page.name)
@@ -143,13 +143,13 @@ function build_page_from_config()
             }
             page_frame.add_column(col_frame)
         }
-        body.append(page_frame.element)
+        carousel.append(page_frame.element)
     }
 
     let unsure = new Checkbox('unsure', `Unsure of Results`)
     let submit = create_element('span', 'submit_container')
     let page_options = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
-    document.getElementById('body').replaceChildren(body, page_options.element)
+    body.replaceChildren(carousel, page_options.element)
     check_for_last_page()
 }
 

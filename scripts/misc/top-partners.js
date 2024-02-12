@@ -33,7 +33,7 @@ function init_page()
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
     let card = new Card('card', card_contents)
-    document.body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
+    body.append(new PageFrame('', '', [entry_col, button_col, card]).element)
 }
 
 /**

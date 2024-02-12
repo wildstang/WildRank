@@ -15,14 +15,14 @@ var match_col
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerHTML = 'Custom Match'
+    header_info.innerHTML = 'Custom Match'
 
     match_col = document.createElement('div')
     let match_page = new PageFrame('match', 'Match')
     match_page.add_column(match_col)
 
     // build page
-    document.getElementById('body').replaceChildren(match_page.element)
+    body.replaceChildren(match_page.element)
 
     populate_matches()
 }

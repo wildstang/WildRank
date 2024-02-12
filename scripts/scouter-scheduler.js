@@ -15,7 +15,7 @@
 function init_page()
 {
     // set header
-    document.getElementById('header_info').innerText = 'Scouter Scheduler'
+    header_info.innerText = 'Scouter Scheduler'
 
     // build inputs
     let scouters = new Extended('scouters', 'Enter Scouters')
@@ -38,7 +38,7 @@ function init_page()
 
     let columns = [new ColumnFrame('', '', [scouters, per_shift, min_break, shift_len, generate, export_shifts])]
 
-    document.body.append(new PageFrame('', '', columns).element)
+    body.append(new PageFrame('', '', columns).element)
 }
 
 /**
@@ -191,7 +191,7 @@ function build_shifts()
 
     // text area gets cleared, keep it populated
     let scouters = document.getElementById('scouters').value
-    document.body.append(shifts_page.element)
+    body.append(shifts_page.element)
     document.getElementById('scouters').value = scouters
 }
 
@@ -225,9 +225,9 @@ function export_shifts()
     element.setAttribute('download', `scouter-schedule.csv`)
 
     element.style.display = 'none'
-    document.body.appendChild(element)
+    body.appendChild(element)
 
     element.click()
 
-    document.body.removeChild(element)
+    body.removeChild(element)
 }

@@ -45,7 +45,7 @@ function init_page()
     team.style.boxShadow = "0 0 4px 4px rgba(0, 0, 0, 0.33)"
     team.innerText = teams.join(', ')
 
-    document.getElementById('header_info').append(match, ' - Scouting: ', team)
+    header_info.append(match, ' - Scouting: ', team)
 
     build_page_from_config()
 }
@@ -74,7 +74,7 @@ function build_page_from_config()
 
     let submit = new Button('submit', 'Submit', 'get_results_from_page()')
     let submit_page = new PageFrame('', '', [new ColumnFrame('', '', [submit])])
-    document.body.append(page_frame.element, submit_page.element)
+    body.append(page_frame.element, submit_page.element)
 
     // mark each selected box as such
     for (let id of select_ids)

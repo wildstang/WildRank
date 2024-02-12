@@ -16,7 +16,7 @@ var options_el
  */
 function init_page()
 {
-    document.getElementById('header_info').innerHTML = `Settings`
+    header_info.innerHTML = `Settings`
 
     options_el = document.createElement('div')
     let page = new PageFrame('', '', [options_el,
@@ -25,7 +25,7 @@ function init_page()
         new ColumnFrame('', '', [new Button('', 'Apply', 'apply_config()')])
     ])
     
-    document.getElementById('body').replaceChildren(page.element)
+    body.replaceChildren(page.element)
 
     build_page()
 }
@@ -267,9 +267,9 @@ function download_config()
     element.setAttribute('download', `settings-config.json`)
 
     element.style.display = 'none'
-    document.body.appendChild(element)
+    body.appendChild(element)
 
     element.click()
 
-    document.body.removeChild(element)
+    body.removeChild(element)
 }

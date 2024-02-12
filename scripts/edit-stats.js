@@ -5,7 +5,6 @@
  * date:        2023-02-25
  */
 
-var container
 
 /**
  * function:    init_page
@@ -15,8 +14,6 @@ var container
  */
 function init_page()
 {
-    container = document.createElement('div')
-    document.body.append(container)
     build_buttons()
 }
 
@@ -36,7 +33,7 @@ function build_buttons()
     }
 
     // build template
-    container.replaceChildren(new PageFrame('page', '', [column]).element)
+    body.replaceChildren(new PageFrame('page', '', [column]).element)
 }
 
 /**
