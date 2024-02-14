@@ -41,7 +41,32 @@ class DAL
         }
         if (config != null)
         {
-            let meta = {}
+            let meta = {
+                'results.meta_position': {
+                    name: 'Scouting Position',
+                    type: 'number',
+                    negative: false,
+                    options: [],
+                    options_index: [],
+                    cycle: false
+                },
+                'results.meta_alliance': {
+                    name: 'Alliance',
+                    type: 'string',
+                    negative: false,
+                    options: [],
+                    options_index: [],
+                    cycle: false
+                },
+                'results.meta_match': {
+                    name: 'Match Number',
+                    type: 'number',
+                    negative: false,
+                    options: [],
+                    options_index: [],
+                    cycle: false
+                }
+            }
 
             for (let page of config)
             {
