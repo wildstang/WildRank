@@ -65,6 +65,14 @@ class DAL
                     options: [],
                     options_index: [],
                     cycle: false
+                },
+                'results.meta_driver_station': {
+                    name: 'Driver Station',
+                    type: 'number',
+                    negative: false,
+                    options: [],
+                    options_index: [],
+                    cycle: false
                 }
             }
 
@@ -718,14 +726,13 @@ class DAL
                 if (this.matches.hasOwnProperty(match.meta_match_key))
                 {
                     let match_info = this.matches[match.meta_match_key]
-                    if (match_info.hasOwnProperty('red_score') && match_info.red_score >= 0 &&
-                        match_info.hasOwnProperty('blue_score') && match_info.blue_score >= 0)
+                    if (match_info.blue_alliance.includes(team))
                     {
-                        if (match_info.blue_alliance.includes(team))
+                        if (match_info.hasOwnProperty('red_score') && match_info.red_score >= 0 &&
+                            match_info.hasOwnProperty('blue_score') && match_info.blue_score >= 0)
                         {
                             match.meta_score = match_info.blue_score
                             match.meta_opp_score = match_info.red_score
-                            match.meta_driver_station = match_info.blue_alliance.indexOf(team)
                             if (match_info.score_breakdown !== null)
                             {
                                 for (let key in match_info.score_breakdown.blue)
@@ -738,23 +745,31 @@ class DAL
                                 }
                             }
                         }
-                        else if (match_info.red_alliance.includes(team))
+                        match.meta_driver_station = match_info.blue_alliance.indexOf(team)
+                    }
+                    else if (match_info.red_alliance.includes(team))
+                    {
+                        if (match_info.hasOwnProperty('red_score') && match_info.red_score >= 0 &&
+                            match_info.hasOwnProperty('blue_score') && match_info.blue_score >= 0)
                         {
-                            match.meta_score = match_info.red_score
-                            match.meta_opp_score = match_info.blue_score
-                            match.meta_driver_station = match_info.red_alliance.indexOf(team)
-                            if (match_info.score_breakdown !== null)
+                            if (match_info.red_alliance.includes(team))
                             {
-                                for (let key in match_info.score_breakdown.red)
+                                match.meta_score = match_info.red_score
+                                match.meta_opp_score = match_info.blue_score
+                                if (match_info.score_breakdown !== null)
                                 {
-                                    match[`meta_${key.toLowerCase()}`] = match_info.score_breakdown.red[key]
-                                }
-                                for (let key in match_info.score_breakdown.blue)
-                                {
-                                    match[`meta_opp_${key.toLowerCase()}`] = match_info.score_breakdown.blue[key]
+                                    for (let key in match_info.score_breakdown.red)
+                                    {
+                                        match[`meta_${key.toLowerCase()}`] = match_info.score_breakdown.red[key]
+                                    }
+                                    for (let key in match_info.score_breakdown.blue)
+                                    {
+                                        match[`meta_opp_${key.toLowerCase()}`] = match_info.score_breakdown.blue[key]
+                                    }
                                 }
                             }
                         }
+                        match.meta_driver_station = match_info.red_alliance.indexOf(team)
                     }
                 }
 
