@@ -74,7 +74,7 @@
     font-size: var(--font-size);
 }
 
-.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .status_text, .wr_description {
+.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .wr_status, .wr_description {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
@@ -104,17 +104,45 @@
     color: var(--primary-color);
 }
 
-.wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number, .wr_slider {
+.wr_checkbox, .wr_counter, .wr_button, .wr_string, .wr_number {
     width: calc(var(--input-width) - 2*var(--input-padding));
     min-height: calc(var(--input-height) - 2*var(--input-padding));
 }
 
+.wr_slider {
+    width: var(--input-width);
+    height: var(--input-height);
+    padding: 0;
+}
+
 .wr_slider_range {
-    width: calc(var(--input-width) - 2*var(--input-padding));
-    /* there is an extra 5px of bottom margin that I cannot explain */
-    padding-top: 14px;
-    padding-bottom: 4px;
+    width: var(--input-width);
+    height: var(--input-height);
     margin: 0px;
+    border-radius: var(--border-radius);
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    overflow: hidden;
+}
+
+.wr_slider_range::-moz-range-thumb {
+    width: 35px;
+    height: var(--input-height);
+    border-width: 0;
+    border-radius: var(--border-radius);
+    background-color: var(--active-color);
+    box-shadow: calc(var(--input-width) / -2 - var(--border-radius)) 0 0 calc(var(--input-width) / 2) var(--hover-color);
+}
+
+/* Can't match multiple pseudo elements in one line, must duplicate */
+.wr_slider_range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 35px;
+    height: var(--input-height);
+    border-radius: var(--border-radius);
+    background-color: var(--active-color);
+    box-shadow: calc(var(--input-width) / -2 - var(--border-radius)) 0 0 calc(var(--input-width) / 2) var(--hover-color);
 }
 
 .wr_slider.slim {
@@ -171,7 +199,7 @@
 
 @media (hover: hover) {
     /* this prevents hover from being show on touch screen devices at all, because it tends to linger */
-    .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_slider:hover, .wr_color .color_text:hover {
+    .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_color .color_text:hover {
         background-color: var(--hover-color);
         color: var(--hover-text-color);
     }
