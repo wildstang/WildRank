@@ -26,6 +26,8 @@ const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
  */
 function init_page()
 {
+    header_info.innerText = 'Pivot Table'
+
     let picklist_button = new Button('create_picklist', 'Save to Picklist', 'save_picklist()')
     let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
     let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')

@@ -18,6 +18,8 @@ let title_el, canvas, max_el
  */
 function init_page()
 {
+    header_info.innerText = 'Scatter'
+
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
     let card = new Card('contents_card', [title_el, canvas])

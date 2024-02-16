@@ -19,6 +19,8 @@ let scouters = []
  */
 function init_page()
 {
+    header_info.innerText = 'Note Viewer'
+
     // pull previously selected filters
     let default_teams = ''
     let session_teams = sessionStorage.getItem(SESSION_TEAMS_KEY)

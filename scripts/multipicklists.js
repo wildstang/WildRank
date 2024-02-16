@@ -19,6 +19,8 @@ var avatar_el, team_el, name_el, lists_el
  */
 function init_page()
 {
+    header_info.innerText = 'Picklists'
+
     let first = populate_teams(false)
     if (first)
     {

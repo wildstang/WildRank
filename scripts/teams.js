@@ -21,6 +21,8 @@ var avatar, team_num_hdr, team_name, loc, ranking, photos, stats_container, clea
  */
 function init_page()
 {
+    header_info.innerText = 'Team Profiles'
+
     let first = populate_teams()
     if (first)
     {

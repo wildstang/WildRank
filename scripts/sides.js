@@ -20,7 +20,9 @@ var results_tab, val_el
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
 function init_page()
-{    
+{
+    header_info.innerText = 'Side-by-Side'
+
     let [first, second] = populate_teams(false, false, true)
     if (first)
     {

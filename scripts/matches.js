@@ -23,6 +23,8 @@ include('transfer')
  */
 function init_page()
 {
+    header_info.innerText = 'Match Select'
+
     // override scouting position with that from config
     // TODO: determine if this is actually desired
     if (cfg.get_position(user_id) > -1)

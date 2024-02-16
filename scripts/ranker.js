@@ -19,6 +19,8 @@ var params_el
  */
 function init_page()
 {
+    header_info.innerText = 'Stat Builder'
+
     // build picklist filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'update_params()', true)
 

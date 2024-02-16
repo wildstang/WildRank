@@ -22,6 +22,8 @@ var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab, sho
  */
 function init_page()
 {
+    header_info.innerText = 'Result Viewer'
+
     let title = document.createElement('div')
     avatar = document.createElement('img')
     avatar.className = 'avatar'

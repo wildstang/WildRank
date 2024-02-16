@@ -19,6 +19,8 @@ var playing = false
  */
 function init_page()
 {
+    header_info.innerText = 'Match Summaries'
+
     let first = populate_matches(true, false)
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)

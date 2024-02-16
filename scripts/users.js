@@ -16,6 +16,8 @@ var users = {}
  */
 function init_page()
 {
+    header_info.innerText = 'User Profiles'
+
     let matches = dal.get_results([], false)
     let pits = dal.get_pits([], false)
     if (matches.length > 0 || pits.length > 0)

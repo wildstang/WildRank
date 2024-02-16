@@ -227,6 +227,8 @@ var alliances = new Array(8)
  */
 function init_page()
 {
+    header_info.innerText = 'Double Elims'
+
     if (dal.event.playoff_type !== 10)
     {
         body.innerText = 'Not a double-elimination event.'

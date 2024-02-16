@@ -20,6 +20,8 @@ let title_el, canvas, max_el, key_tab
  */
 function init_page()
 {
+    header_info.innerText = 'Plotter'
+
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
     let card = new Card('contents_card', [title_el, canvas])

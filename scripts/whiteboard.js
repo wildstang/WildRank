@@ -30,6 +30,8 @@ function init_page()
 
     if (first)
     {
+        header_info.innerText = 'Whiteboard'
+
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard(update_sliders)
         let card = new Card('contents_card', [whiteboard.canvas])

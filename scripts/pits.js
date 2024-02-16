@@ -23,6 +23,8 @@ include('transfer')
  */
 function init_page()
 {
+    header_info.innerText = 'Pit Select'
+
     let first = populate_teams(false, true)
     add_button_filter('transfer', 'Export Pit Results', `export_results()`, true)
     if (first)

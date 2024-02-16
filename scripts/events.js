@@ -13,6 +13,8 @@
  */
 function init_page()
 {
+    header_info.innerText = 'Other Events'
+
     let contents = document.createElement('span')
     let summary = document.createElement('div')
     summary.innerText = 'Loading data...'
