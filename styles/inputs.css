@@ -235,6 +235,14 @@
     border-radius: var(--border-radius);
 }
 
+.wr_select .wr_select_option:has(.wr_counter_count) {
+    padding-bottom: 0px;
+}
+
+.wr_counter {
+    padding-bottom: 10px;
+}
+
 .wr_select_filler {
     height: calc(var(--input-height) - 2*var(--input-padding));
     display: table-cell;
