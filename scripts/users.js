@@ -20,8 +20,6 @@ function init_page()
     let pits = dal.get_pits([], false)
     if (matches.length > 0 || pits.length > 0)
     {
-        contents_card.style.display = 'none'
-        
         // build list of scouters
         let match_users = matches.map(m => m.meta_scouter_id).filter(id => typeof id !== 'undefined')
         let note_users = matches.map(m => m.meta_note_scouter_id).filter(id => typeof id !== 'undefined')
@@ -53,7 +51,7 @@ function init_page()
             }            
         }
         users.sort()
-        
+
         let first = populate_other(users, classes)
         if (first !== '')
         {
@@ -62,9 +60,7 @@ function init_page()
     }
     else
     {
-        let header = document.createElement('h2')
-        header.innerText = 'No Results Found'
-        contents_card.append(header)
+        add_error_card('No Results Found')
     }
 }
 
@@ -221,7 +217,7 @@ function open_option(user_id)
     pit_card.limitWidth = true
     let card_col = new ColumnFrame('', '', [pos_card, time_card, pit_card])
 
-    buttons_container.replaceChildren(new PageFrame('', '', [user_col, card_col]).element)
+    preview.replaceChildren(new PageFrame('', '', [user_col, card_col]).element)
 }
 
 /**

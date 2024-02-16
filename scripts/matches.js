@@ -11,7 +11,7 @@ var scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
 const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, photo_el
+var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, photos_el, buttons
 
 include('transfer')
 
@@ -23,9 +23,6 @@ include('transfer')
  */
 function init_page()
 {
-    contents_card.replaceChildren()
-    buttons_container.replaceChildren()
-
     // override scouting position with that from config
     // TODO: determine if this is actually desired
     if (cfg.get_position(user_id) > -1)
@@ -39,13 +36,13 @@ function init_page()
     {
         match_num_el = document.createElement('h2')
         match_time_el = document.createElement('span')
-        contents_card.append(match_num_el, 'Time: ', match_time_el, br(), br())
+        card_elements = [match_num_el, 'Time: ', match_time_el, br(), br()]
         
-        if (scout_mode == MATCH_MODE)
+        if (scout_mode === MATCH_MODE)
         {
             avatar_el = document.createElement('img')
             avatar_el.className = 'avatar'
-            contents_card.append(avatar_el)
+            card_elements.push(avatar_el)
         }
 
         // add scouting position
@@ -62,20 +59,19 @@ function init_page()
         team_pos_el = document.createElement('span')
         team_pos_el.textContent = `(${pos})`
         team.append(team_num_el, ' ', team_name_el, ' ', team_pos_el)
-        contents_card.append(team)
 
         photos_el = document.createElement('span')
-        contents_card.append(photos_el)
+        card_elements.push(team, photos_el)
+
+        buttons = document.createElement('div')
+        let card = new Card('contents_card', card_elements)
+        preview.append(card.element, buttons)
 
         open_option(first)
     }
     else
     {
-        let header = document.createElement('h2')
-        header.textContent = 'No Match Data Found'
-        let details = document.createElement('span')
-        details.textContent = 'Please preload event'
-        contents_card.append(header, details)
+        add_error_card('No Match Data Found', 'Please preload event')
     }
 }
 
@@ -93,7 +89,7 @@ function open_option(match_num)
     {
         document.getElementById('open_result_container').remove()
     }
-    buttons_container.replaceChildren()
+    buttons.replaceChildren()
 
     // select option
     document.getElementById(`match_option_${match_num}`).classList.add('selected')
@@ -129,8 +125,8 @@ function open_option(match_num)
         let scout_button = new Button('scout_match', 'Scout Match')
         let key = match_num.toLowerCase()
         scout_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
-        buttons_container.append(scout_button.element)
-    
+        buttons.append(scout_button.element)
+
         if (dal.is_match_scouted(match_num, team_num))
         {
             let page = new PageFrame()
@@ -158,7 +154,7 @@ function open_option(match_num)
                 page.add_column(new ColumnFrame('', '', [del]))
             }
 
-            buttons_container.append(page.element)
+            buttons.append(page.element)
         }
 
         ws(team_num)
@@ -174,7 +170,7 @@ function open_option(match_num)
         let scout_button = new Button('scout_match', 'Take Notes')
         let key = match_num.toLowerCase()
         scout_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: false})`
-        buttons_container.append(scout_button.element)
+        buttons.append(scout_button.element)
 
         if (dal.is_note_scouted(match_num, team_num))
         {
@@ -203,7 +199,7 @@ function open_option(match_num)
                 page.add_column(new ColumnFrame('', '', [del]))
             }
 
-            buttons_container.append(page.element)
+            buttons.append(page.element)
         }
     }
 }

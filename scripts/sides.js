@@ -20,43 +20,41 @@ var results_tab, val_el
  * description: Fetch simple event matches from localStorage. Initialize page contents.
  */
 function init_page()
-{
-    let type_form = new Select('type_form', 'Sort numeric resuts by', SORT_OPTIONS, 'Mean')
-    type_form.on_change = 'open_both_teams()'
-
-    let scale_max = new Select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair')
-    scale_max.on_change = 'open_both_teams()'
-
-    let page = new PageFrame('', '', [
-        new ColumnFrame('', '', [type_form]),
-        new ColumnFrame('', '', [scale_max])
-    ])
-
-    let column = document.createElement('div')
-    let center = document.createElement('center')
-    results_tab = document.createElement('table')
-    results_tab.style.textAlign = 'center'
-    let card = new Card('res', results_tab)
-    card.add_class('scalable_card')
-    center.append(card.element)
-    column.append(center)
-
-    buttons_container.append(br(), page.element, br(), column)
-    
+{    
     let [first, second] = populate_teams(false, false, true)
     if (first)
     {
         val_el = document.createElement('div')
-        contents_card.append(val_el)
+        let card = new Card('contents_card', [val_el])
         selectedA = first
         selectedB = second
+
+        let type_form = new Select('type_form', 'Sort numeric resuts by', SORT_OPTIONS, 'Mean')
+        type_form.on_change = 'open_both_teams()'
+
+        let scale_max = new Select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair')
+        scale_max.on_change = 'open_both_teams()'
+
+        let page = new PageFrame('', '', [
+            new ColumnFrame('', '', [type_form]),
+            new ColumnFrame('', '', [scale_max])
+        ])
+
+        let column = document.createElement('div')
+        let center = document.createElement('center')
+        results_tab = document.createElement('table')
+        results_tab.style.textAlign = 'center'
+        let tab_card = new Card('res', results_tab)
+        tab_card.add_class('scalable_card')
+        center.append(tab_card.element)
+        column.append(center)
+
+        preview.append(card.element, br(), page.element, br(), column)
         open_both_teams()
     }
     else
     {
-        let header = document.createElement('h2')
-        header.innerText = 'No Results Found'
-        contents_card.append(header)
+        add_error_card('No Results Found')
     }
 }
 

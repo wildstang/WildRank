@@ -31,7 +31,7 @@ function init_page()
         let belongs = document.createElement('h4')
         belongs.innerText = 'Belongs to:'
         lists_el = document.createElement('span')
-        contents_card.append(avatar_el, header, belongs, lists_el)
+        let card = new Card('contents_card', [avatar_el, header, belongs, lists_el])
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)
@@ -44,20 +44,20 @@ function init_page()
         }
 
         // build page
-        let card = new Card('table_card', '')
-        card.add_class('scalable_card')
+        let tab_card = new Card('table_card', '')
+        tab_card.add_class('scalable_card')
         let new_list = new Button('new_list', 'Add to New List', 'new_list()')
         let remove = new Checkbox('remove_teams', 'Remove Teams')
         let export_button = new Button('export', 'Export Lists', 'export_picklists()')
-        let column = new ColumnFrame('', '', [new_list, card, remove, export_button])
-        buttons_container.append(new PageFrame('page', '', [column]).element)
-        
+        let column = new ColumnFrame('', '', [new_list, tab_card, remove, export_button])
+        preview.append(card.element, new PageFrame('page', '', [column]).element)
+
         build_pick_lists()
         open_option(first)
     }
     else
     {
-        contents_card.innerHTML = '<h2>No Team Data Found</h2>Please preload event'
+        add_error_card('No Team Data Found', 'Please preload event')
     }
 }
 

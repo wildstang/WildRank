@@ -40,18 +40,16 @@ function init_page()
         extra_toggle.add_class('slim')
         extra_el = document.createElement('div')
         extra_el.style.display = 'none'
-        contents_card.append(match_num_el, time_el, result_el, extra_toggle.element, extra_el)
+        let card = new Card('contents_card', [match_num_el, time_el, result_el, extra_toggle.element, extra_el])
 
         teams_el = document.createElement('div')
-        buttons_container.append(teams_el)
+        preview.append(card.element, teams_el)
 
         open_option(first)
     }
     else
     {
-        let header = document.createElement('h2')
-        header.innerText = 'No Match Data Found'
-        contents_card.append(header, 'Please preload event')
+        add_error_card('No Match Data Found', 'Please preload event')
     }
 }
 

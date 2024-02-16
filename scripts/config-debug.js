@@ -14,15 +14,15 @@
 function init_page()
 {
     // set header
-    header_info.innerHTML = 'Config Debug'
-    
+    header_info.innerText = 'Config Debug'
+
     let keys = new StatusTile('keys', 'Keys')
     let defaults = new StatusTile('defaults', 'Defaults')
     let theme = new StatusTile('theme', 'Theme')
     let dark_theme = new StatusTile('dark_theme', 'Dark Theme')
     let users = new StatusTile('users', 'Users')
     let settings = new StatusTile('settings', 'Settings')
-    
+
     let pit = new StatusTile('pit', 'Pit')
     let match = new StatusTile('match', 'Match')
     let note = new StatusTile('note', 'Note')
@@ -43,7 +43,7 @@ function init_page()
     users.description = users_result.description
     let settings_result = cfg.validate_settings('settings', true)
     settings.description = settings_result.description
-    
+
     let pit_result = cfg.validate_mode('pit', true)
     pit.description = pit_result.description
     if ('id' in pit_result > 0)
@@ -82,7 +82,7 @@ function init_page()
     let page = new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]),
                                       new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, note, smart_stats, coach, whiteboard, version])]).element
     body.replaceChildren(page)
-    
+
     keys.status = keys_result.result
     defaults.status = defaults_result.result
     theme.status = theme_result.result

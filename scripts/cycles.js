@@ -12,7 +12,7 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, table_el
+var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, table_el, cycle_container
 
 /**
  * function:    init_page
@@ -22,6 +22,8 @@ var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, ta
  */
 function init_page()
 {
+    header_info.innerText = 'Cycle Viewer'
+
     title_el = document.createElement('div')
     avatar_el = document.createElement('img')
     avatar_el.className = 'avatar'
@@ -34,7 +36,9 @@ function init_page()
     ranking_el = document.createElement('h3')
     title_el.append(avatar_el, ' ', result_name, location_el, ranking_el)
     table_el = document.createElement('table')
-    contents_card.append(title_el, table_el)
+    let card = new Card('contents_card', [title_el, table_el])
+    cycle_container = document.createElement('div')
+    preview.append(card.element, cycle_container)
 
     // add filter for teams
     let avail_teams = Object.keys(dal.teams)
@@ -171,7 +175,7 @@ function open_option(option)
 
             page.add_column(column)
         }
-        buttons_container.replaceChildren(page.element)
+        cycle_container.replaceChildren(page.element)
     }
 }
 

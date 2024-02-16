@@ -31,8 +31,8 @@ function init_page()
     let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
 
     results_tab = document.createElement('table')
-    contents_card.replaceChildren(results_tab)
-    buttons_container.replaceChildren(picklist_button.element, export_button.element, import_button.element)
+    let card = new Card('contents_card', [results_tab])
+    preview.append(card.element, picklist_button.element, export_button.element, import_button.element)
     
     // add pick list filter
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)

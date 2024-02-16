@@ -32,7 +32,7 @@ function init_page()
     {
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard(update_sliders)
-        contents_card.append(whiteboard.canvas)
+        let card = new Card('contents_card', [whiteboard.canvas])
         init_canvas()
 
         // create the whiteboard drawing controls and place them in a single column
@@ -70,7 +70,7 @@ function init_page()
         let teams = new ColumnFrame('', '', [teams_container])
 
         // populate the controls below the whiteboard in single column pages
-        buttons_container.append(br(),
+        preview.append(card.element, br(),
             new PageFrame('controls', 'Controls', [controls]).element,
             new PageFrame('playback', 'Playback', [playback]).element,
             new PageFrame('teams_page', 'Teams', [teams]).element)
@@ -80,10 +80,7 @@ function init_page()
     }
     else
     {
-        // display a warning if there is no match data to display
-        let header = document.createElement('h2')
-        header.innerText = 'No Match Data Found'
-        contents_card.append(header, 'Please preload event.')
+        add_error_card('No Match Data Found', 'Please preload event.')
     }
 }
 

@@ -27,6 +27,7 @@
         <div id="header">
             <img id="menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu()" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu()')">
             <h1><a onclick="home(false)" oncontextmenu="home(true); return false" id="title">WildRank</a></h1>
+            <h2 id="header_info"></h2>
             <img id="secondary_menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu(false)" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu(false)')">
         </div>
         <div id="body">
@@ -35,10 +36,7 @@
                 <div id="option_list"></div>
             </div>
             <div id="center">
-                <div id="preview">
-                    <div id="contents_card" class="wr_card"></div>
-                    <div id="buttons_container"></div>
-                </div>
+                <div id="preview"></div>
                 <div id="pick_lists"></div>
             </div>
             <div id="right">

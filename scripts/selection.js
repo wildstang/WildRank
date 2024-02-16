@@ -186,8 +186,7 @@ function enable_secondary_list()
     document.getElementById('secondary_menu_toggle').style.display = 'block'
 }
 
-var contents_card
-var buttons_container
+var header_info, preview
 
 window.addEventListener('load', function()
 {
@@ -203,8 +202,8 @@ window.addEventListener('load', function()
     }
 
     // save elements of body
-    contents_card = document.getElementById('contents_card')
-    buttons_container = document.getElementById('buttons_container')
+    header_info = document.getElementById('header_info')
+    preview = document.getElementById('preview')
 
     // load in configs
     create_config()

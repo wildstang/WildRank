@@ -50,8 +50,7 @@ function init_page()
     edit_stats.link = `open_page('edit-stats')`
     button_col.add_input(edit_stats)
 
-    buttons_container.replaceChildren(page.element)
-    contents_card.style.display = 'none'
+    preview.replaceChildren(page.element)
 
     // build dynamic components
     update_params()

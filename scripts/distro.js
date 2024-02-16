@@ -14,9 +14,11 @@ let title_el, canvas
 
 function init_page()
 {
+    header_info.innerText = 'Distributions'
+
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
-    contents_card.append(title_el, canvas)
+    let card = new Card('contents_card', [title_el, canvas])
 
     let max_bins = new Entry('max_bins', 'Max bins', 5)
     max_bins.entry = 'number'
@@ -25,7 +27,7 @@ function init_page()
     let select = new Select('function', 'Function', FUNCTIONS, 'Mean')
     select.on_change = 'build_plot()'
 
-    buttons_container.append(new ColumnFrame('', '', [max_bins]).element, new ColumnFrame('', '', [select]).element)
+    preview.append(card.element, new ColumnFrame('', '', [max_bins]).element, new ColumnFrame('', '', [select]).element)
 
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
     add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank'], 'filter_stats()', true)
@@ -35,6 +37,10 @@ function init_page()
     {
         init_canvas()
         open_option(first)
+    }
+    else
+    {
+        add_error_card('No Results Found')
     }
 }
 

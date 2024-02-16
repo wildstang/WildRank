@@ -6,8 +6,6 @@
  * date:        2021-09-03
  */
 
-var match_key_el, time_el, table_el
-
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('match')
@@ -20,6 +18,8 @@ const selected = urlParams.get('match')
  */
 function init_page()
 {
+    header_info.innerText = 'Coach View'
+
     // build page
     let first = populate_matches()
     let teams = Object.keys(dal.teams)
@@ -33,16 +33,6 @@ function init_page()
 
     if (first)
     {
-        match_key_el = document.createElement('span')
-        match_key_el.innerText = 'No Match Selected'
-
-        let header = document.createElement('h2')
-        header.append(match_key_el)
-
-        time_el = document.createElement('h3')
-        table_el = document.createElement('table')
-        contents_card.append(header, time_el, table_el)
-
         hide_matches()
 
         if (selected)
@@ -52,13 +42,7 @@ function init_page()
     }
     else
     {
-        let header = document.createElement('h2')
-        header.innerText = "No Match Data Found"
-
-        let description = document.createElement('span')
-        description.innerText = "Please preload event."
-
-        contents_card.append(header, description)
+        add_error_card('No Match Data Found', 'Please preload event')
     }
 }
 
@@ -92,25 +76,23 @@ function open_option(match_key)
     let red_teams = Object.keys(match_teams).filter(k => k.startsWith('red')).map(k => match_teams[k])
     let blue_teams = Object.keys(match_teams).filter(k => k.startsWith('blue')).map(k => match_teams[k])
 
-    // place match number and team to scout on pane
-    match_key_el.innerText = dal.get_match_value(match_key, 'match_name')
-
-    // place match time
+    // place match time and number on title
     let actual = dal.get_match_value(match_key, 'started_time')
     let predicted = dal.get_match_value(match_key, 'predicted_time')
     let time = dal.get_match_value(match_key, 'scheduled_time')
     if (actual > 0)
     {
-        time_el.innerText = unix_to_match_time(actual)
+        time = unix_to_match_time(actual)
     }
     else if (predicted > 0)
     {
-        time_el.innerText = `${unix_to_match_time(predicted)} (Projected)`
+        time = `${unix_to_match_time(predicted)} (Projected)`
     }
     else
     {
-        time_el.innerText = unix_to_match_time(time)
+        time = unix_to_match_time(time)
     }
+    header_info.innerText = `${dal.get_match_value(match_key, 'match_name')} - ${time}`
 
     let red_col = new ColumnFrame('red_alliance', '')
     let blue_col = new ColumnFrame('blue_alliance', '')
@@ -131,21 +113,11 @@ function open_option(match_key)
     custom.link = `open_page('custom-match')`
 
     // build template
-    buttons_container.replaceChildren(page.element, edit.element, custom.element)
+    preview.replaceChildren(page.element, edit.element, custom.element)
 
     // populate cards with tables
     build_table('red', red_teams)
     build_table('blue', blue_teams)
-
-    // make a table of alliance "coach-vals"
-    let stats = '<tr><th></th><th>Red</th><th>Blue</th></tr>'
-    let red_global = dal.compute_global_stats(cfg.coach.map(v => v.key), red_teams)
-    let blue_global = dal.compute_global_stats(cfg.coach.map(v => v.key), blue_teams)
-    for (let v of cfg.coach)
-    {
-        stats += `<tr><th>${dal.get_name(v.key, v.function)}</th><td>${dal.get_global_value(red_global, v.key, v.function, true)}</td><td>${dal.get_global_value(blue_global, v.key, v.function, true)}</td></tr>`
-    }
-    //table_el.innerHTML = stats
 }
 
 /**

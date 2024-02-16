@@ -20,7 +20,8 @@ function init_page()
 {
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
-    contents_card.append(title_el, canvas)
+    let card = new Card('contents_card', [title_el, canvas])
+    preview.append(card.element)
 
     // load keys from localStorage and build list
     let first = populate_dual_keys(dal, false, true)

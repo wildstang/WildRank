@@ -41,7 +41,8 @@ function init_page()
     label.append(show_meta, 'Show Metadata')
 
     results_tab = create_element('table', 'results_tab')
-    contents_card.replaceChildren(title, label, results_tab)
+    let card = new Card('contents_card', [title, label, results_tab])
+    preview.append(card.element)
 
     // add filter for teams
     let avail_teams = Object.keys(dal.teams)

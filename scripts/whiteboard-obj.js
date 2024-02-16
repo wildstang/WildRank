@@ -402,7 +402,7 @@ class Whiteboard
             }
             if (!TBA_KEY)
             {
-                alert('No API key found for TBA!')
+                console.log('No API key found for TBA!')
                 return
             }
         }

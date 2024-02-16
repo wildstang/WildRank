@@ -365,3 +365,19 @@ function add_button_filter(filter_id, text, func, primary_list=true)
     let button = new Button(filter_id, text, func)
     document.getElementById(id).append(button.element)
 }
+
+/**
+ * Creates a new card with a message in the header and a description below it.
+ * 
+ * @param {string} message Header message
+ * @param {string} description Optional extended description
+ */
+function add_error_card(message, description='')
+{
+    let header = document.createElement('h2')
+    header.textContent = message
+    let details = document.createElement('span')
+    details.textContent = description
+    let card = new Card('contents_card', [header, details])
+    preview.append(card.element)
+}

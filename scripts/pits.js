@@ -36,7 +36,7 @@ function init_page()
         team_el.append(team_num_el, ' ', team_name_el)
 
         photos_el = document.createElement('span')
-        contents_card.append(avatar_el, team_el, photos_el)
+        let card = new Card('contents_card', [avatar_el, team_el, photos_el])
 
         let camera_el = document.createElement('div')
         camera_el.style.display = 'none'
@@ -46,7 +46,7 @@ function init_page()
         camera_el.append(preview_el, capture_el)
 
         buttons_el = document.createElement('div')
-        buttons_container.append(buttons_el, camera_el)
+        preview.append(card.element, buttons_el, camera_el)
         
         open_option(first)
 
@@ -83,11 +83,7 @@ function init_page()
     }
     else
     {
-        let header = document.createElement('h2')
-        header.textContent = 'No Team Data Found'
-        let details = document.createElement('span')
-        details.textContent = 'Please preload event'
-        contents_card.append(header, details)
+        add_error_card('No Team Data Found', 'Please preload event')
     }
 }
 

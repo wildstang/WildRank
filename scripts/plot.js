@@ -22,7 +22,7 @@ function init_page()
 {
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
-    contents_card.append(title_el, canvas)
+    let card = new Card('contents_card', [title_el, canvas])
 
     let label = document.createElement('label')
     max_el = document.createElement('b')
@@ -30,7 +30,7 @@ function init_page()
     label.append('Max Value: ', max_el, key_tab)
     let key_card = new Card('key', label)
     key_card.limitWidth = true
-    buttons_container.append(key_card.element)
+    preview.append(card.element, key_card.element)
     
     add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
 
@@ -40,6 +40,10 @@ function init_page()
     {
         open_option(first)
         init_canvas()
+    }
+    else
+    {
+        add_error_card('No Results Found')
     }
 }
 

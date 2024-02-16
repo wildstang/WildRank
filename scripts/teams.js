@@ -39,19 +39,17 @@ function init_page()
         photos = document.createElement('span')
         center.append(photos)
         stats_container = document.createElement('div')
-        contents_card.append(avatar, team_header, loc, ranking, center, stats_container)
+        let card = new Card('contents_card', [avatar, team_header, loc, ranking, center, stats_container])
 
         clear_container = document.createElement('span')
         match_container = document.createElement('div')
-        buttons_container.append(clear_container, match_container)
+        preview.append(card.element, clear_container, match_container)
         
         open_option(first)
     }
     else
     {
-        let header = document.createElement('h2')
-        header.innerText = 'No Team Data Found'
-        contents_card.append(header, 'Please preload event')
+        add_error_card('No Team Data Found', 'Please preload event')
     }
 }
 
