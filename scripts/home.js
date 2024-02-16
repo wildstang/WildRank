@@ -31,11 +31,11 @@ const CONFIGS = {
     'admin': {
         'Configuration': ['settings', 'config-generator', 'config-debug', 'export', 'export_config'],
         'Schedule': ['schedule-importer', 'event-generator', 'scouter-scheduler', 'random', 'open_extras'],
-        'Reset': ['reset', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_config']
+        'Reset': ['reset', 'reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events']
     },
     'advanced': {
         'Management': ['settings', 'transfer-raw', 'progress', 'config-debug', 'cache', 'storage'],
-        'Reset': ['reset_cache', 'reset_storage', 'reset_config']
+        'Reset': ['reset_config', 'reset_cache', 'reset_storage']
     },
     'extras': {
         'Debug': ['misc/test'],
