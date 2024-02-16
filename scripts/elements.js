@@ -13,7 +13,7 @@ class Element
         {
             this.id = id
         }
-        else
+        else if (typeof label === 'string')
         {
             this.id = label.toLowerCase().replaceAll(/ /g, '_')
         }
@@ -303,7 +303,14 @@ class Card extends Element
     get element()
     {
         let label = document.createElement('label')
-        label.append(this.label)
+        if (Array.isArray(this.label))
+        {
+            label.append(...this.label)
+        }
+        else
+        {
+            label.append(this.label)
+        }
 
         let card = document.createElement('div')
         card.id = this.id
@@ -341,7 +348,7 @@ class StatusTile extends Element
     get element()
     {
         let label = document.createElement('label')
-        label.className = 'status_text'
+        label.className = 'status'
         label.append(this.label)
 
         let status = document.createElement('label')
