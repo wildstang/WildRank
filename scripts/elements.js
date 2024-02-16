@@ -348,7 +348,7 @@ class StatusTile extends Element
     get element()
     {
         let label = document.createElement('label')
-        label.className = 'status'
+        label.className = 'color_text'
         label.append(this.label)
 
         let status = document.createElement('label')
