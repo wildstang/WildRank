@@ -1,129 +1,117 @@
 {
-	"version": "wr-3-INDEV",
-	"note": [{
-		"name": "Notes",
-		"id": "note_notes",
-		"columns": [{
-			"name": "TEAM",
-			"id": "note_notes_team",
-			"cycle": false,
-			"inputs": [{
-				"name": "Rank",
-				"id": "note_notes_team_rank",
-				"type": "slider",
-				"options": [1, 3, 1],
-				"default": 1,
-				"negative": true
-			}, {
-				"name": "Notes",
-				"id": "note_notes_team_notes",
-				"type": "text",
-				"default": "none"
-			}]
-		}, {
-			"name": "ALLIANCE",
-			"id": "note_notes_alliance",
-			"cycle": false,
-			"inputs": [{
-				"name": "Max Grid with Supercharge?",
-				"id": "note_notes_alliance_max_grid_with_supercharge",
-				"type": "checkbox",
-				"default": false,
-				"negative": false
-			}]
-		}]
-	}],
-	"pit": [
+    "version": "wr-3-p1",
+    "note": [
+        {
+            "name": "Notes",
+            "id": "note_notes",
+            "columns": [
+                {
+                    "name": "TEAM",
+                    "id": "note_notes_team",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Rank",
+                            "id": "note_notes_team_rank",
+                            "type": "slider",
+                            "options": [
+                                1,
+                                3,
+                                1
+                            ],
+                            "default": 1,
+                            "negative": true
+                        },
+                        {
+                            "name": "Notes",
+                            "id": "note_notes_team_notes",
+                            "type": "text",
+                            "default": "none"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "pit": [
         {
             "name": "Pit",
             "id": "pit_pit",
             "columns": [
-                {
-                    "name": "Measurements",
-                    "id": "pit_pit_measurements",
-                    "cycle": false,
-                    "inputs": [
-                        {
-                            "name": "Name",
-                            "id": "pit_pit_measurements_name",
-                            "type": "string",
-                            "default": " "
-                        },
-                        {
-                            "name": "Weight",
-                            "id": "pit_pit_measurements_weight",
-                            "type": "number",
-                            "disallow_default": true,
-                            "options": [
-                                0,
-                                130
-                            ],
-                            "default": 0,
-                            "negative": false
-                        },
-                        {
-                            "name": "Min Height",
-                            "id": "pit_pit_measurements_min_height",
-                            "type": "number",
-                            "disallow_default": true,
-                            "options": [
-                                0,
-                                50
-                            ],
-                            "default": 0,
-                            "negative": false
-                        },
-                        {
-                            "name": "Width",
-                            "id": "pit_pit_measurements_width",
-                            "type": "number",
-                            "disallow_default": true,
-                            "options": [
-                                0,
-                                50
-                            ],
-                            "default": 0,
-                            "negative": false
-                        },
-                        {
-                            "name": "Length",
-                            "id": "pit_pit_measurements_length",
-                            "type": "number",
-                            "disallow_default": true,
-                            "options": [
-                                0,
-                                50
-                            ],
-                            "default": 0,
-                            "negative": false
-                        }
-                    ]
-                },
                 {
                     "name": "Drive",
                     "id": "pit_pit_drive",
                     "cycle": false,
                     "inputs": [
                         {
-                            "name": "Type",
-                            "id": "pit_pit_drive_type",
+                            "name": "Drive Type",
+                            "id": "pit_pit_drive_drive_type",
                             "type": "dropdown",
-                            "disallow_default": true,
                             "options": [
-                                "Select",
-                                "Swerve",
                                 "Tank",
-                                "Mechanum",
+                                "Swerve",
                                 "Other"
                             ],
-                            "default": "Select"
+                            "default": "Tank"
                         },
                         {
-                            "name": "Details",
-                            "id": "pit_pit_drive_details",
-                            "type": "text",
-                            "disallow_default": true,
-                            "default": "Motor Type: \nNum Motors: \nGear Ratio: "
+                            "name": "Drive Motor",
+                            "id": "pit_pit_drive_drive_motor",
+                            "type": "dropdown",
+                            "options": [
+                                "Falcon",
+                                "Neo",
+                                "Vortex",
+                                "Kraken",
+                                "Other"
+                            ],
+                            "default": "Other"
+                        },
+                        {
+                            "name": "Wheel Type",
+                            "id": "pit_pit_drive_wheel_type",
+                            "type": "dropdown",
+                            "options": [
+                                "KOP",
+                                "Colson",
+                                "Treaded",
+                                "REV",
+                                "TPU",
+                                "Other"
+                            ],
+                            "default": "KOP"
+                        },
+                        {
+                            "name": "Gearing",
+                            "id": "pit_pit_drive_gearing",
+                            "type": "dropdown",
+                            "options": [
+                                "L1-SDS",
+                                "L2-SDS",
+                                "L3-SDS",
+                                "L4-SDS",
+                                "Low-REV",
+                                "Med-REV",
+                                "High-REV",
+                                "ExHigh1-REV",
+                                "ExHigh2-REV",
+                                "ExHigh3-REV",
+                                "ExHigh4-REV",
+                                "ExHigh5-REV",
+                                "Other"
+                            ],
+                            "default": "Other"
+                        },
+                        {
+                            "name": "Other Gearing X:1",
+                            "id": "pit_pit_drive_other_gearing_x1",
+                            "type": "number",
+                            "options": [
+                                0,
+                                10
+                            ],
+                            "default": 0,
+                            "negative": false
                         }
                     ]
                 },
@@ -141,18 +129,11 @@
                                 "Amp",
                                 "Trap"
                             ],
-                            "default": [false, false, false]
-                        },
-                        {
-                            "name": "Climb",
-                            "id": "pit_pit_capabilities_climb",
-                            "type": "multiselect",
-                            "options": [
-                                "Center",
-                                "Edge",
-                                "Lock"
-                            ],
-                            "default": [false, false, false]
+                            "default": [
+                                false,
+                                false,
+                                false
+                            ]
                         },
                         {
                             "name": "Pickup",
@@ -162,7 +143,10 @@
                                 "Floor",
                                 "Source"
                             ],
-                            "default": [false, false]
+                            "default": [
+                                false,
+                                false
+                            ]
                         },
                         {
                             "name": "Notes",
@@ -261,7 +245,7 @@
             ]
         }
     ],
-	"match": [
+    "match": [
         {
             "name": "Auto",
             "id": "match_auto",
@@ -269,53 +253,105 @@
                 {
                     "name": "Scoring",
                     "id": "match_auto_scoring",
-                    "cycle": true,
+                    "cycle": false,
                     "inputs": [
                         {
-                            "name": "Game Piece",
-                            "id": "match_auto_scoring_game_piece",
-                            "type": "select",
-                            "options": [
-                                "PL",
-                                "W1",
-                                "W2",
-                                "W3",
-                                "C1",
-                                "C2",
-                                "C3",
-                                "C4",
-                                "C5"
-                            ],
-                            "default": "PL"
-                        },
-                        {
-                            "name": "Result",
-                            "id": "match_auto_scoring_result",
+                            "name": "Starting Location",
+                            "id": "match_auto_scoring_starting_location",
                             "type": "select",
                             "disallow_default": true,
+                            "colors": [],
+                            "images": [],
                             "options": [
-                                "Choose",
-                                "Failed",
-                                "Held",
-                                "Missed",
+                                "Source",
                                 "Speaker",
-                                "Amp"
+                                "Amp",
+                                "NA"
                             ],
-                            "default": "Choose"
+                            "default": "NA"
+                        },
+                        {
+                            "name": "Notes Attempted",
+                            "id": "match_auto_scoring_notes_attempted",
+                            "type": "multiselect",
+                            "colors": [],
+                            "images": [],
+                            "options": [
+                                "Preload",
+                                "WA",
+                                "CA",
+                                "",
+                                "WB",
+                                "CB",
+                                "",
+                                "WC",
+                                "CC",
+                                "",
+                                "",
+                                "CD",
+                                "",
+                                "",
+                                "CE"
+                            ],
+                            "default": [
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false
+                            ]
                         }
                     ]
                 },
                 {
-                    "name": "Other",
-                    "id": "match_auto_other",
+                    "name": "Scoring",
+                    "id": "match_auto_scoring",
                     "cycle": false,
                     "inputs": [
                         {
-                            "name": "Left",
-                            "id": "match_auto_other_left",
+                            "name": "Leave",
+                            "id": "match_auto_scoring_leave",
                             "type": "checkbox",
                             "default": false,
                             "negative": false
+                        },
+                        {
+                            "name": "Speaker",
+                            "id": "match_auto_scoring_speaker",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                true
+                            ],
+                            "options": [
+                                "Made",
+                                "Missed"
+                            ],
+                            "default": 0
+                        },
+                        {
+                            "name": "Amp",
+                            "id": "match_auto_scoring_amp",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                true
+                            ],
+                            "options": [
+                                "Made",
+                                "Missed"
+                            ],
+                            "default": 0
                         }
                     ]
                 }
@@ -380,45 +416,20 @@
                             "default": 0
                         },
                         {
-                            "name": "Climbed",
-                            "id": "match_teleop_end_game_climbed",
+                            "name": "Climb",
+                            "id": "match_teleop_end_game_climb",
                             "type": "select",
                             "disallow_default": true,
+                            "colors": [],
+                            "images": [],
                             "options": [
-                                "Choose",
-                                "Climbed",
+                                "Climb",
+                                "Park",
                                 "Failed",
-                                "No Attempt"
+                                "No Attempt",
+                                "NA"
                             ],
-                            "default": "Choose"
-                        },
-                        {
-                            "name": "Harmonizing Robots",
-                            "id": "match_teleop_end_game_harmonizing_robots",
-                            "type": "multicounter",
-                            "negative": [
-                                false,
-                                false
-                            ],
-                            "options": [
-                                "Before",
-                                "After"
-                            ],
-                            "default": 0
-                        },
-                        {
-                            "name": "Spotlight",
-                            "id": "match_teleop_end_game_spotlight",
-                            "type": "multicounter",
-                            "negative": [
-                                false,
-                                true
-                            ],
-                            "options": [
-                                "Scored",
-                                "Missed"
-                            ],
-                            "default": 0
+                            "default": "NA"
                         }
                     ]
                 },
@@ -445,51 +456,62 @@
             ]
         }
     ],
-	"smart_stats": [],
-	"coach": [],
-	"whiteboard": {
-		"red_0": {
-			"x": 675,
-			"y": 135,
-			"color": "#FF4136"
-		},
-		"red_1": {
-			"x": 675,
-			"y": 200,
-			"color": "#FF4136"
-		},
-		"red_2": {
-			"x": 675,
-			"y": 300,
-			"color": "#FF4136"
-		},
-		"blue_0": {
-			"x": 70,
-			"y": 135,
-			"color": "#0074D9"
-		},
-		"blue_1": {
-			"x": 70,
-			"y": 200,
-			"color": "#0074D9"
-		},
-		"blue_2": {
-			"x": 70,
-			"y": 300,
-			"color": "#0074D9"
-		},
-		"game_pieces": [{
-			"name": "Note",
-			"image": "2024/note.png"
-		}],
-		"draw_color": "#FFFFFF",
-		"field_width": 750,
-		"field_height": 400,
-		"magnet_size": 50,
-		"line_width": 3,
-		"horizontal_margin": 13,
-		"vertical_margin": 20,
-		"field_height_ft": 27,
-		"field_height_px": 347
-	}
+    "smart_stats": [
+        {
+            "name": "Field Normalized Driver Station",
+            "id": "field_normalized_driver_station",
+            "type": "math",
+            "pit": false,
+            "math": "meta_position>2?-(meta_position-5):meta_position",
+            "negative": false
+        }
+    ],
+    "coach": [],
+    "whiteboard": {
+        "red_0": {
+            "x": 675,
+            "y": 135,
+            "color": "#FF4136"
+        },
+        "red_1": {
+            "x": 675,
+            "y": 200,
+            "color": "#FF4136"
+        },
+        "red_2": {
+            "x": 675,
+            "y": 300,
+            "color": "#FF4136"
+        },
+        "blue_0": {
+            "x": 70,
+            "y": 135,
+            "color": "#0074D9"
+        },
+        "blue_1": {
+            "x": 70,
+            "y": 200,
+            "color": "#0074D9"
+        },
+        "blue_2": {
+            "x": 70,
+            "y": 300,
+            "color": "#0074D9"
+        },
+        "game_pieces": [
+            {
+                "name": "Note",
+                "image": "2024/note.png"
+            }
+        ],
+        "draw_color": "#FFFFFF",
+        "field_width": 750,
+        "field_height": 400,
+        "magnet_size": 50,
+        "line_width": 3,
+        "horizontal_margin": 13,
+        "vertical_margin": 20,
+        "field_height_ft": 27,
+        "field_height_px": 347
+    }
 }
