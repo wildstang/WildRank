@@ -118,6 +118,9 @@ function build_column(cfg_name, file)
         {
             let entry = new Extended(file, 'raw user config', JSON.stringify(config, null, 2))
             column.add_input(entry)
+            let upload = new Button('upload_scouters', 'Upload Scouters', 'upload_scouters()')
+            upload.add_class('slim')
+            column.add_input(upload)
             break
         }
         else if (Array.isArray(val))
@@ -240,6 +243,52 @@ function import_config(event)
             localStorage.setItem(`config-${key}`, JSON.stringify(newConfig[key]))
         }
         cfg.load_configs(0, build_page)
+    }
+}
+
+/**
+ * Opens a prompt to select a CSV file to upload, then imports the scouter info from the file.
+ */
+function upload_scouters()
+{
+    let input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'document/csv'
+    input.addEventListener('change', import_scouters)
+    input.click()
+}
+
+/**
+ * Handles a file upload event by importing a CSV file of scouters.
+ * The file expects data in the format ID,Name,Admin (blank == false),Position (Integer).
+ * Admin and position are optional; no headers are expected.
+ * 
+ * @param {Event} event File upload change event
+ */
+function import_scouters(event)
+{
+    let file = event.target.files[0]
+    let reader = new FileReader()
+    reader.readAsText(file, 'UTF-8')
+    reader.onload = readerEvent => {
+        let lines = readerEvent.target.result.split('\n')
+        let scouters = {}
+        for (let line of lines)
+        {
+            let parts = line.split(',')
+            if (parts.length >= 2)
+            {
+                scouters[parts[0]] = {
+                    name: parts[1],
+                    admin: parts.length >= 3 && parts[2].length > 0
+                }
+                if (parts.length >= 4)
+                {
+                    scouters[parts[0]][position] = parseInt(parts[3])
+                }
+            }
+        }
+        document.getElementById('users').value = JSON.stringify(scouters)
     }
 }
 
