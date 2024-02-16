@@ -368,8 +368,8 @@ async function reset_config()
             }
         }
 
-        // search localStorage for "config-" files and delete them
-        let files = Object.keys(localStorage).filter(f => f.startsWith(`config-`))
+        // search localStorage for "config-20" files and delete them plus "config-users"
+        let files = Object.keys(localStorage).filter(f => f.startsWith('config-20') || f === 'config-users')
         for (let file of files)
         {
             localStorage.removeItem(file)
