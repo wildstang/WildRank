@@ -7,12 +7,13 @@
  */
 
 include('whiteboard-obj')
+include('bracket-obj')
 
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('match')
 
-var carousel, whiteboard_page, whiteboard, controls_column
+var carousel, whiteboard_page, whiteboard, controls_column, bracket, bracket_page
 
 /**
  * function:    init_page
@@ -75,6 +76,13 @@ function init_page()
         let height = preview.offsetHeight - (16 + 32 + 8)
         whiteboard.update_dimensions(width, height)
 
+        // build a Bracket if it is a double elims event
+        let elim_matches = Object.values(dal.matches).filter(m => m.short_match_name.startsWith('M'))
+        if (dal.event.playoff_type === 10 && elim_matches.length > 0)
+        {
+            bracket = new Bracket(dal.event_id, add_bracket)
+        }
+
         hide_matches()
 
         if (selected)
@@ -85,6 +93,33 @@ function init_page()
     else
     {
         add_error_card('No Match Data Found', 'Please preload event')
+    }
+}
+
+/**
+ * Adds the bracket to the current page.
+ */
+function add_bracket()
+{
+    if (bracket)
+    {
+        if (bracket_page)
+        {
+            carousel.removeChild(bracket_page)
+        }
+
+        let team = cfg.settings.team_number
+        let a = 0
+        for (let i in bracket.alliances)
+        {
+            if (bracket.alliances[i].teams.includes(team + ''))
+            {
+                //a = parseInt(i) + 1
+                break
+            }
+        }
+        bracket_page = bracket.build_page(a).element
+        carousel.append(bracket_page)
     }
 }
 
@@ -158,6 +193,7 @@ function open_option(match_key)
 
     // build template
     carousel.replaceChildren(page.element, whiteboard_page.element)
+    add_bracket()
 
     // populate cards with tables
     build_table('red', red_teams)
