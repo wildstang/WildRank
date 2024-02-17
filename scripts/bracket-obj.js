@@ -209,6 +209,17 @@ class Alliance
     }
 }
 
+/**
+ * Determines if a given alliance is valid and can be used.
+ * 
+ * @param {array} alliance Array of team numbers
+ * @returns {boolean} Whether or not the alliance is populated.
+ */
+function alliance_valid(alliance)
+{
+    return alliance.length > 0 && alliance.every(t => parseInt(t) > 0)
+}
+
 
 /**
  * Bracket object which manages the bracket page.
@@ -277,11 +288,11 @@ class Bracket
             let match = dal.matches[key]
             this.matches[i].id = key
             // get alliances from TBA data
-            if (match.red_alliance.length)
+            if (alliance_valid(match.red_alliance))
             {
                 this.matches[i].red_alliance = this.alliances.filter(a => a.is(match.red_alliance))[0].idx
             }
-            if (match.blue_alliance.length)
+            if (alliance_valid(match.blue_alliance))
             {
                 this.matches[i].blue_alliance = this.alliances.filter(a => a.is(match.blue_alliance))[0].idx
             }
