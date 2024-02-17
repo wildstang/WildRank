@@ -401,6 +401,25 @@ function clear_events()
 }
 
 /**
+ * Reset all data from TBA for the current event.
+ */
+function reset_event()
+{
+    if (confirm(`Delete all configuration and results for ${dal.event_id}?`))
+    {
+        // remove all files containing uother event ids
+        let event_id = get_event()
+        let files = Object.keys(localStorage).filter(f => f.includes(event_id))
+        for (let file of files)
+        {
+            localStorage.removeItem(file)
+        }
+
+        window_open('/', '_self')
+    }
+}
+
+/**
  * HELPER FUNCTIONS
  */
 
