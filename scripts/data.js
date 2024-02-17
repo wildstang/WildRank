@@ -441,6 +441,33 @@ class DAL
     }
 
     /**
+     * Adds a new team to the team list with only the team number known.
+     * 
+     * @param {string} team_num Team number
+     */
+    add_unknown_team(team_num)
+    {
+        this.teams[team_num] = {
+            meta: {},
+            rank: {},
+            pit: {},
+            stats: {},
+            matches: [],
+            results: [],
+            pictures: {}
+        }
+
+        // add meta data
+        this.teams[team_num].meta = {
+            name: `Team #${team_num}`,
+            city: 'Unknown',
+            state_prov: 'Unknown',
+            country: 'Unknown',
+            color: cfg.theme['primary-color']
+        }
+    }
+
+    /**
      * function:    build_teams
      * parameters:  print times
      * returns:     teams data structure
@@ -521,6 +548,11 @@ class DAL
             for (let team of tba_ranks)
             {
                 let team_num = team.team_key.substring(3)
+                if (!(team_num in this.teams))
+                {
+                    console.log('Adding missing team', team_num)
+                    this.add_unknown_team(team_num)
+                }
                 this.teams[team_num].rank.rank = team.rank
                 this.teams[team_num].rank.wins = team.record.wins
                 this.teams[team_num].rank.losses = team.record.losses
@@ -876,24 +908,7 @@ class DAL
                 {
                     if (!Object.keys(this.teams).includes(team))
                     {
-                        this.teams[team] = {
-                            meta: {},
-                            rank: {},
-                            pit: {},
-                            stats: {},
-                            matches: [],
-                            results: [],
-                            pictures: {}
-                        }
-
-                        // add meta data
-                        this.teams[team].meta = {
-                            name: `Team #${team}`,
-                            city: 'Unknown',
-                            state_prov: 'Unknown',
-                            country: 'Unknown',
-                            color: cfg.theme['primary-color']
-                        }
+                        this.add_unknown_team(team)
                     }
                 }
             }
