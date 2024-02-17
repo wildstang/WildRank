@@ -103,7 +103,7 @@ function add_bracket()
 {
     if (bracket)
     {
-        if (bracket_page)
+        if (bracket_page && carousel.contains(bracket_page))
         {
             carousel.removeChild(bracket_page)
         }
