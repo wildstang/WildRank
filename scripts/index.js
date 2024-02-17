@@ -422,6 +422,8 @@ function import_config()
     handler.on_complete = callback
     handler.server      = get_upload_addr()
     handler.import_zip_from_file()
+
+    window_open('/', '_self')
 }
 
 /**
