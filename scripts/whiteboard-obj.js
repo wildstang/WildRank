@@ -343,7 +343,7 @@ class Whiteboard
      * 
      * @param {string} match_key Unique match identifier 
      */
-    load_match(match_key)
+    load_match(match_key, fetch_match=true)
     {
         // remove everything from the canvas
         this.clear()
@@ -367,7 +367,7 @@ class Whiteboard
         this.current_match = match_key
 
         // if a set of match traces hasn't been created
-        if (!Object.keys(this.match_traces).includes(match_key))
+        if (fetch_match && !Object.keys(this.match_traces).includes(match_key))
         {
             // attempt to fetch zebra data from TBA
             this.fetch_match_traces(match_key)
