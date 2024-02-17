@@ -6,9 +6,13 @@
  * date:        2021-09-03
  */
 
+include('whiteboard-obj')
+
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('match')
+
+var carousel, whiteboard_page, whiteboard, controls_column
 
 /**
  * function:    init_page
@@ -33,6 +37,44 @@ function init_page()
 
     if (first)
     {
+        carousel = create_element('div', 'scouting-carousel', 'scouting-carousel')
+        preview.replaceChildren(carousel)
+
+        // create page containing whiteboard
+        whiteboard = new Whiteboard(update_sliders)
+        let card = new Card('contents_card', [whiteboard.canvas])
+        let wb_col = new ColumnFrame('', '', [card])
+
+        // create the whiteboard drawing controls and place them in two columns
+        let game_piece = new MultiButton('game_piece', 'Add Game Piece')
+        for (let gp of cfg.whiteboard.game_pieces)
+        {
+            game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
+        }
+        game_piece.on_click = 'add_game_piece()'
+        let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
+        draw_drag.on_click = 'draw_drag()'
+        let clear = new MultiButton('clear', 'Clear', ['Lines', 'All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
+        clear.add_class('slim')
+        let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
+        reset_whiteboard.add_class('slim')
+        let controls = new ColumnFrame('', '', [game_piece, draw_drag])
+        let clears = new ColumnFrame('', '', [clear, reset_whiteboard])
+        whiteboard_page = new PageFrame('', '', [wb_col, controls, clears])
+
+        // create column of buttons for coach page
+        let edit = new Button('edit_coach', 'Edit Values')
+        edit.link = `open_page('edit-coach')`
+        let custom = new Button('custom_match', 'Add Custom Match')
+        custom.link = `open_page('custom-match')`
+        controls_column = new ColumnFrame('', '', [edit, custom])
+
+        // subtract margins from the parent dimensions
+        // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
+        let width = preview.offsetWidth - (16 + 32 + 8)
+        let height = preview.offsetHeight - (16 + 32 + 8)
+        whiteboard.update_dimensions(width, height)
+
         hide_matches()
 
         if (selected)
@@ -45,6 +87,11 @@ function init_page()
         add_error_card('No Match Data Found', 'Please preload event')
     }
 }
+
+/**
+ * Empty function which runs when the whiteboard is updated.
+ */
+function update_sliders(){}
 
 /**
  * function:    hide_matches
@@ -71,6 +118,9 @@ function open_option(match_key)
     deselect_all()
     document.getElementById(`match_option_${match_key}`).classList.add('selected')
 
+    // load the match on the whiteboard, UI updates handled by update_sliders()
+    whiteboard.load_match(match_key, false)
+
     // reorganize teams into single object
     let match_teams = dal.get_match_teams(match_key)
     let red_teams = Object.keys(match_teams).filter(k => k.startsWith('red')).map(k => match_teams[k])
@@ -96,7 +146,7 @@ function open_option(match_key)
 
     let red_col = new ColumnFrame('red_alliance', '')
     let blue_col = new ColumnFrame('blue_alliance', '')
-    let page = new PageFrame('', '', [red_col, blue_col])
+    let page = new PageFrame('', '', [red_col, blue_col, controls_column])
 
     let red_card = new Card(`red_details`, '')
     red_card.add_class('red_box')
@@ -106,14 +156,8 @@ function open_option(match_key)
     blue_card.add_class('blue_box')
     blue_col.add_input(blue_card)
 
-    let edit = new Button('edit_coach', 'Edit Values')
-    edit.link = `open_page('edit-coach')`
-
-    let custom = new Button('custom_match', 'Add Custom Match')
-    custom.link = `open_page('custom-match')`
-
     // build template
-    preview.replaceChildren(page.element, edit.element, custom.element)
+    carousel.replaceChildren(page.element, whiteboard_page.element)
 
     // populate cards with tables
     build_table('red', red_teams)
@@ -179,4 +223,12 @@ function build_table(alliance, teams)
 
     document.getElementById(`${alliance}_details`).replaceChildren(center)
     document.getElementById(`${alliance}_details`).append(...images, table)
+}
+
+/**
+ * Connects the draw on drag checkbox to the whiteboard.
+ */
+function draw_drag()
+{
+    whiteboard.draw_drag = document.getElementById('draw_drag').checked
 }
