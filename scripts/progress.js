@@ -168,14 +168,11 @@ function init_page()
  */
 function import_results()
 {
-    // allow page reload to be run on complete
-    const callback = window.location.reload.bind(window.location)
-
     let handler = new ZipHandler()
     handler.match     = true
     handler.note      = true
     handler.pit       = true
-    handler.on_complete = callback
+    handler.on_complete = init_page
     handler.import_zip_from_file()
 }
 

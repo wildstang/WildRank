@@ -408,9 +408,6 @@ function check_press(id)
  */
 function import_config()
 {
-    // allow page reload to be run on complete
-    const callback = window.location.reload.bind(window.location)
-
     let handler = new ZipHandler()
     handler.event       = true
     handler.config      = true
@@ -419,11 +416,9 @@ function import_config()
     handler.settings    = true
     handler.pictures    = true
     handler.always_overwrite = true
-    handler.on_complete = callback
+    handler.on_complete = process_files
     handler.server      = get_upload_addr()
     handler.import_zip_from_file()
-
-    window_open('/', '_self')
 }
 
 /**
