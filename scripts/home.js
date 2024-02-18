@@ -392,7 +392,7 @@ function import_results()
     handler.pit       = true
     handler.pictures  = true
     handler.picklists = true
-    handler.import_zip_from_file()
+    handler.import_zip_from_file(true)
 }
 
 /**

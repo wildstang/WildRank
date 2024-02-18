@@ -150,7 +150,7 @@ async function import_zip(cache)
     let op = Select.get_selected_option('method')
     if (op === 0)
     {
-        handler.import_zip_from_file()
+        handler.import_zip_from_file(true)
     }
     else if (op === 1)
     {

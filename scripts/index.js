@@ -418,7 +418,7 @@ function import_config()
     handler.always_overwrite = true
     handler.on_complete = process_files
     handler.server      = get_upload_addr()
-    handler.import_zip_from_file()
+    handler.import_zip_from_file(false, true)
 }
 
 /**

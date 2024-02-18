@@ -625,18 +625,33 @@ class ZipHandler
      * returns:     none
      * description: Creates a file prompt to upload a zip of JSON results.
      */
-    import_zip_from_file()
+    import_zip_from_file(select_multiple=false, allow_csv=false)
     {
         let input = document.createElement('input')
         input.type = 'file'
-        input.accept = 'application/zip'
-        input.multiple = true
+        let mime_type = 'application/zip'
+        if (allow_csv)
+        {
+            mime_type += ',application/json'
+        }
+        input.accept = mime_type
+        input.multiple = select_multiple
         let handler = this
         input.addEventListener('change', function (event)
         {
             for (let file of event.target.files)
             {
-                handler.import_zip(file)
+                if (file.hasOwnProperty('name'))
+                {
+                    if (file.name.endsWith('.zip'))
+                    {
+                        handler.import_zip(file)
+                    }
+                    else if (file.name.endsWith('.json'))
+                    {
+                        handler.import_settings(file)
+                    }
+                }
             }
         })
         input.click()
@@ -1016,5 +1031,30 @@ class ZipHandler
 
         // update progress bar for zip complete
         this.on_update(files.length + 1, files.length + 1)
+    }
+
+    /**
+     * Import a complete config JSON file.
+     * 
+     * @param {Event} event Upload Event
+     */
+    import_settings(event)
+    {
+        let file = event.target.files[0]
+        let reader = new FileReader()
+        reader.readAsText(file, 'UTF-8')
+        reader.onload = readerEvent => {
+            let newConfig = JSON.parse(readerEvent.target.result)
+            let keys = Object.keys(newConfig)
+            for (let key of keys)
+            {
+                let name = MODES.includes(key) ? `config-${cfg.year}-${key}` : `config-${key}`
+                localStorage.setItem(name, JSON.stringify(newConfig[key]))
+            }
+            cfg.load_configs(0)
+        }
+    
+        alert('Import Complete')
+        this.on_complete()
     }
 }

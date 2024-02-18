@@ -173,7 +173,7 @@ function import_results()
     handler.note      = true
     handler.pit       = true
     handler.on_complete = init_page
-    handler.import_zip_from_file()
+    handler.import_zip_from_file(true)
 }
 
 /**
