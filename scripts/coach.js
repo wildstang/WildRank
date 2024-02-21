@@ -44,10 +44,10 @@ function init_page()
         // create page containing whiteboard
         whiteboard = new Whiteboard(update_sliders)
         let card = new Card('contents_card', [whiteboard.canvas])
-        let wb_col = new ColumnFrame('', '', [card])
+        card.space_after = false
 
         // create the whiteboard drawing controls and place them in two columns
-        let game_piece = new MultiButton('game_piece', 'Add Game Piece')
+        let game_piece = new MultiButton('game_piece', '')
         for (let gp of cfg.whiteboard.game_pieces)
         {
             game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
@@ -55,13 +55,14 @@ function init_page()
         game_piece.on_click = 'add_game_piece()'
         let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
         draw_drag.on_click = 'draw_drag()'
-        let clear = new MultiButton('clear', 'Clear', ['Lines', 'All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
+        let clear = new MultiButton('clear', '', ['Clear Lines', 'Clear All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
         clear.add_class('slim')
         let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
         reset_whiteboard.add_class('slim')
-        let controls = new ColumnFrame('', '', [game_piece, draw_drag])
-        let clears = new ColumnFrame('', '', [clear, reset_whiteboard])
-        whiteboard_page = new PageFrame('', '', [wb_col, controls, clears])
+
+        let stack = new Stack('', [card, draw_drag, game_piece, clear, reset_whiteboard], true)
+        let wb_col = new ColumnFrame('', '', [stack])
+        whiteboard_page = new PageFrame('', '', [wb_col])
 
         // create column of buttons for coach page
         let edit = new Button('edit_coach', 'Edit Values')

@@ -379,6 +379,7 @@
     border-color: var(--border-color);
     margin: 0 auto var(--input-gap);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: var(--foreground-color);
 }
 
 .stack_top, .stack_middle, .stack_bottom {
@@ -401,6 +402,20 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-top: 1px solid lightgray;
+}
+
+.stack_horizontal {
+    display: inline-block;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.stack_middle .stack_middle {
+    border-top: none;
+}
+
+.stack_bottom .stack_bottom {
+    border-top: none;
 }
 
 .elim_match {

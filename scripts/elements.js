@@ -1654,10 +1654,11 @@ class MatchOption extends Option
 
 class Stack extends Element
 {
-    constructor(id, elements)
+    constructor(id, elements, horizontal=false)
     {
         super(id, '')
         this.elements = elements
+        this.horizontal = horizontal
     }
 
     add_element(element)
@@ -1668,13 +1669,22 @@ class Stack extends Element
     get element()
     {
         this.elements[0].add_class('stack_top')
-        for (let i = 1; i < this.elements.length - 1; i++)
+        for (let i = 1; i < this.elements.length; i++)
         {
             this.elements[i].add_class('slim')
-            this.elements[i].add_class('stack_middle')
+            if (this.horizontal)
+            {
+                this.elements[i].add_class('stack_horizontal')
+            }
+            if (i === this.elements.length - 1)
+            {
+                this.elements[i].add_class('stack_bottom')
+            }
+            else
+            {
+                this.elements[i].add_class('stack_middle')
+            }
         }
-        this.elements[this.elements.length - 1].add_class('slim')
-        this.elements[this.elements.length - 1].add_class('stack_bottom')
 
         let stack = document.createElement('div')
         stack.className = 'stack'
