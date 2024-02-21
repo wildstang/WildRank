@@ -302,7 +302,7 @@ class Card extends Element
 
     get element()
     {
-        let label = document.createElement('label')
+        let label = document.createElement('span')
         if (Array.isArray(this.label))
         {
             label.append(...this.label)
