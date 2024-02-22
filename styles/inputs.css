@@ -1,6 +1,7 @@
 :root {
     --input-width: 275px;
     --input-height: 75px;
+    --slim-height: 54px;
     --input-gap: 16px;
     --border-radius: 4px;
 }
@@ -165,7 +166,7 @@
 }
 
 .wr_dropdown.slim, .wr_select.slim {
-    height: calc(22px + 2*var(--input-padding) + var(--border-radius));
+    height: var(--slim-height);
 }
 
 .wr_dropdown.label {
@@ -210,7 +211,7 @@
 }
 
 .wr_checkbox.slim > *, .wr_counter.slim > *, .wr_button.slim > *, .wr_string.slim > *, .wr_number.slim > * {
-    line-height: calc((var(--input-height) - 2*var(--input-padding))/2);
+    line-height: calc(var(--slim-height) - 2*var(--input-padding));
 }
 
 .wr_counter_count, .wr_number_num {
@@ -262,8 +263,8 @@
 }
 
 .wr_select_option.slim, .wr_select.slim > .wr_select_option {
-    height: calc((var(--input-height) - 2*var(--input-padding))/2);
-    line-height: calc((var(--input-height) - 2*var(--input-padding))/2);
+    height: calc((var(--slim-height) - 2*var(--input-padding)));
+    line-height: calc((var(--slim-height) - 2*var(--input-padding)));
 }
 
 .wr_color, .wr_status {
