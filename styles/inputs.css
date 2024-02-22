@@ -146,9 +146,16 @@
     box-shadow: calc(var(--input-width) / -2 - var(--border-radius)) 0 0 calc(var(--input-width) / 2) var(--hover-color);
 }
 
-.wr_slider.slim {
-    padding-top: 10px;
-    padding-bottom: 5px;
+.wr_slider.slim, .slim .wr_slider_range {
+    height: var(--slim-height);
+}
+
+.slim .wr_slider_range::-moz-range-thumb {
+    height: var(--slim-height);
+}
+
+.slim .wr_slider_range::-webkit-slider-thumb {
+    height: var(--slim-height);
 }
 
 .wr_checkbox.slim, .wr_counter.slim, .wr_button.slim, .wr_string.slim, .wr_number.slim {
