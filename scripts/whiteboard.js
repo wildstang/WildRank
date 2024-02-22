@@ -35,10 +35,11 @@ function init_page()
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard(update_sliders)
         let card = new Card('contents_card', [whiteboard.canvas])
+        card.space_after = false
         init_canvas()
 
-        // create the whiteboard drawing controls and place them in a single column
-        let game_piece = new MultiButton('game_piece', 'Add Game Piece')
+        // create the whiteboard drawing controls and place them in a stack with the whiteboard
+        let game_piece = new MultiButton('game_piece', '')
         for (let gp of cfg.whiteboard.game_pieces)
         {
             game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
@@ -46,11 +47,9 @@ function init_page()
         game_piece.on_click = 'add_game_piece()'
         let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
         draw_drag.on_click = 'draw_drag()'
-        let clear = new MultiButton('clear', 'Clear', ['Lines', 'All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
-        clear.add_class('slim')
+        let clear = new MultiButton('clear', '', ['Clear Lines', 'Clear All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
         let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
-        reset_whiteboard.add_class('slim')
-        let controls = new ColumnFrame('', '', [game_piece, draw_drag, clear, reset_whiteboard])
+        let stack = new Stack('', [card, draw_drag, game_piece, clear, reset_whiteboard], true)
 
         // create the various playback controls and place them in a single column
         let play_match = new Button('play_match', 'Play', 'play_match()')
@@ -72,8 +71,7 @@ function init_page()
         let teams = new ColumnFrame('', '', [teams_container])
 
         // populate the controls below the whiteboard in single column pages
-        preview.append(card.element, br(),
-            new PageFrame('controls', 'Controls', [controls]).element,
+        preview.append(stack.element, br(),
             new PageFrame('playback', 'Playback', [playback]).element,
             new PageFrame('teams_page', 'Teams', [teams]).element)
 

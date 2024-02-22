@@ -46,7 +46,7 @@ function init_page()
         let card = new Card('contents_card', [whiteboard.canvas])
         card.space_after = false
 
-        // create the whiteboard drawing controls and place them in two columns
+        // create the whiteboard drawing controls and place them in a stack with the whiteboard
         let game_piece = new MultiButton('game_piece', '')
         for (let gp of cfg.whiteboard.game_pieces)
         {
