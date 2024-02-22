@@ -56,9 +56,7 @@ function init_page()
         let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
         draw_drag.on_click = 'draw_drag()'
         let clear = new MultiButton('clear', '', ['Clear Lines', 'Clear All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
-        clear.add_class('slim')
         let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
-        reset_whiteboard.add_class('slim')
 
         let stack = new Stack('', [card, draw_drag, game_piece, clear, reset_whiteboard], true)
         let wb_col = new ColumnFrame('', '', [stack])
