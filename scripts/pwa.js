@@ -85,9 +85,6 @@ const CACHE_LIST = [
     '/scripts/misc/team-profile.js',*/
     '/scripts/misc/test.js',
     // assets
-    '/assets/2023/cone.png',
-    '/assets/2023/cube.png',
-    '/assets/2023/field-2023.png',
     '/assets/2024/note.png',
     '/assets/2024/field-2024.png',
     /* icons should be cached when pwa is installed
