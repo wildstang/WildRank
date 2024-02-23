@@ -103,13 +103,13 @@ window.addEventListener('load', event => {
                     {
                         alert(`To prevent future data loss install the app and open it from your app launcher.
     
-    Press the "Install ${cfg.settings.title}" button on the home page.`)
+Press the "Install ${cfg.settings.title}" button on the home page.`)
                     }
                     else if (browser === 'Safari')
                     {
                         alert(`To prevent future data loss add ${cfg.settings.title} to your home screen and open it from there.
     
-    In the share menu (box with up arrow), choose "Add to Home Screen", then press "Add".`)
+In the share menu (box with up arrow), choose "Add to Home Screen", then press "Add".`)
                     }
 
                     // dismiss the warning for this session
