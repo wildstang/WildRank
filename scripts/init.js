@@ -9,6 +9,16 @@
 if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on')
 {
     navigator.serviceWorker.register('pwa.js')
+        .then(reg => {
+            reg.onupdatefound = () => {
+                let notification = document.getElementById('update_notification')
+                notification.innerText = 'Update detected! Click here to apply it now.'
+                notification.style.transform = 'translate(-50%)'
+                notification.onclick = (event) => {
+                    location.reload()
+                }
+            }
+        })
 }
 else if ('serviceWorker' in navigator)
 {
