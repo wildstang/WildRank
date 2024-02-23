@@ -14,7 +14,7 @@ if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) 
                 let notification = document.getElementById('update_notification')
                 notification.innerText = 'Update detected! Click here to apply it now.'
                 notification.style.transform = 'translate(-50%)'
-                notification.onclick = (event) => {
+                notification.onclick = event => {
                     location.reload()
                 }
             }
@@ -58,6 +58,67 @@ else
 // create config object, load in what is available, and set the theme
 cfg.load_configs(2, '')
 apply_theme()
+
+window.addEventListener('load', event => {
+    // basic browser detection
+    let browser = 'Unknown'
+    if (navigator.userAgent.includes('Chrome/'))
+    {
+        browser = 'Chrome'
+    }
+    else if (navigator.userAgent.includes('Firefox/'))
+    {
+        browser = 'Firefox'
+    }
+    else if (navigator.userAgent.includes('Safari/'))
+    {
+        browser = 'Safari'
+    }
+
+    if (browser !== 'Firefox')
+    {
+        // determine if the app is installed correctly
+        let display_mode = 'standalone';
+        if (window.matchMedia('(display-mode: browser)').matches) {
+            display_mode = 'browser'
+        }
+        else if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+            display_mode = 'minimal-ui'
+        }
+        else if (window.matchMedia('(display-mode: fullscreen)').matches) {
+            display_mode = 'fullscreen'
+        }
+
+        // if it's not show a warning notification
+        if (display_mode !== 'standalone')
+        {
+            if (!sessionStorage.getItem('dismiss_warning'))
+            {
+                let notification = document.getElementById('warning_notification')
+                notification.innerText = `${cfg.settings.title} is opened in ${display_mode}. Data may be lost!`
+                notification.style.transform = 'translate(-50%)'
+                notification.onclick = event => {
+                    // on Chrome and Safari give basic instruction on how to install
+                    if (browser === 'Chrome')
+                    {
+                        alert(`To prevent future data loss install the app and open it from your app launcher.
+    
+    Press the "Install ${cfg.settings.title}" button on the home page.`)
+                    }
+                    else if (browser === 'Safari')
+                    {
+                        alert(`To prevent future data loss add ${cfg.settings.title} to your home screen and open it from there.
+    
+    In the share menu (box with up arrow), choose "Add to Home Screen", then press "Add".`)
+                    }
+
+                    // dismiss the warning for this session
+                    sessionStorage.setItem('dismiss_warning', true)
+                }
+            }
+        }
+    }
+  })
 
 var dal
 
