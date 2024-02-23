@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-240217'
+const CACHE_NAME = 'wildrank-240223'
 const CACHE_LIST = [
     // html files
     '/',
@@ -113,12 +113,15 @@ const CACHE_LIST = [
     '/about'
 ]
 
-// store files to cache on install
 self.addEventListener('install', e => {
     e.waitUntil((async () => {
+        // store files to cache on install
         const CACHE = await caches.open(CACHE_NAME)
         await CACHE.addAll(CACHE_LIST)
     })())
+
+    // don't wait for the app to be exited, force activation now
+    self.skipWaiting();
 })
 
 // use cache instead of server
@@ -173,9 +176,12 @@ self.addEventListener('fetch', e => {
     })())
 })
 
-// remove old caches
 self.addEventListener('activate', e => {
     e.waitUntil(caches.keys().then(keyList => {
+        // take over all existing clients
+        clients.claim()
+
+        // remove old caches
         return Promise.all(keyList.map(key => {
             if (key != CACHE_NAME)
             {
