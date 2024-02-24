@@ -187,3 +187,19 @@ self.addEventListener('activate', e => {
         }))
     }))
 })
+
+self.addEventListener('message', e => {
+    if (e.data.msg === 'get_version')
+    {
+        self.clients.matchAll().then(clients => {
+            clients.forEach(client => client.postMessage({msg: 'version', version: CACHE_NAME}));
+        })
+    }
+    else if (e.data.msg === 'get_files')
+    {
+        self.clients.matchAll().then(clients => {
+            clients.forEach(client => client.postMessage({msg: 'files', files: CACHE_LIST}));
+        })
+    }
+    // TODO: technically skipWaiting should get called in response to a message
+})
