@@ -10,13 +10,57 @@ if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) 
 {
     navigator.serviceWorker.register('pwa.js')
         .then(reg => {
-            reg.onupdatefound = () => {
-                // TODO: figure out how to listen for messages from reg.installing to determine new version
+            // check to see if an update is already waiting
+            if (reg.waiting) {
+                // store registration
+                let update = reg.waiting
+
+                // ask the user if they want to switch
                 let notification = document.getElementById('update_notification')
-                notification.innerText = 'Update detected! Click here to apply it now.'
+                notification.innerText = `Update installed! Click here to switch.`
                 notification.style.transform = 'translate(-50%)'
                 notification.onclick = event => {
-                    location.reload()
+                    // send the serviceWorker a message to call self.skipWaiting()
+                    update.postMessage({msg: 'skip_waiting'})
+                    notification.style.transform = 'translate(-50%, 100%)'
+                }
+
+                // reload the page when the waiting version is activated
+                update.onstatechange = () => {
+                    if (update.state === 'activated')
+                    {
+                        location.reload()
+                    }
+                }
+            }
+
+            // listen for updates
+            reg.onupdatefound = () => {
+                if (reg.installing) {
+                    // store registration
+                    let update = reg.installing
+                    let notification = document.getElementById('update_notification')
+                    notification.innerText = 'Update installing!'
+                    notification.style.transform = 'translate(-50%)'
+                    update.onstatechange = () => {
+                        if (update.state === 'installed')
+                        {
+                            // when the install is complete ask the user if they want to switch
+                            let notification = document.getElementById('update_notification')
+                            notification.innerText = `Update installed! Click here to switch.`
+                            notification.style.transform = 'translate(-50%)'
+                            notification.onclick = event => {
+                                // send the serviceWorker a message to call self.skipWaiting()
+                                reg.waiting.postMessage({msg: 'skip_waiting'})
+                                notification.style.transform = 'translate(-50%, 100%)'
+                            }
+                        }
+                        else if (update.state === 'activated')
+                        {
+                            // reload the page when the waiting version is activated
+                            location.reload()
+                        }
+                    }
                 }
             }
         })

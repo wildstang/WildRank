@@ -118,7 +118,7 @@ self.addEventListener('install', e => {
     })())
 
     // don't wait for the app to be exited, force activation now
-    self.skipWaiting()
+    //self.skipWaiting()
 })
 
 // use cache instead of server
@@ -201,5 +201,8 @@ self.addEventListener('message', e => {
             clients.forEach(client => client.postMessage({msg: 'files', files: CACHE_LIST}));
         })
     }
-    // TODO: technically skipWaiting should get called in response to a message
+    else if (e.data.msg === 'skip_waiting')
+    {
+        self.skipWaiting()
+    }
 })
