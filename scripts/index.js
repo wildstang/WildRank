@@ -112,8 +112,24 @@ function init_page()
     let data = new ColumnFrame('data', 'Results')
     data_page.add_column(data)
 
-    let version = new Number('config_version', 'cfg')
-    data.add_input(version)
+    // display a version box only if caching is enabled
+    if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on')
+    {    
+        let version = new Number('app_version', 'version')
+        data.add_input(version)
+
+        // request the current version from the serviceWorker
+        navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
+        navigator.serviceWorker.addEventListener('message', e => {
+            if (e.data.msg === 'version')
+            {
+                document.getElementById('app_version').innerText = e.data.version.replace('wildrank-', '')
+            }
+        })
+    }
+
+    let config = new Number('config_version', 'cfg')
+    data.add_input(config)
 
     let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
     data.add_input(scout_config_valid)
