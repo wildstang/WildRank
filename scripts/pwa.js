@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-240223b'
+const CACHE_NAME = 'wildrank-240223c'
 const CACHE_LIST = [
     // html files
     '/',
@@ -118,7 +118,7 @@ self.addEventListener('install', e => {
     })())
 
     // don't wait for the app to be exited, force activation now
-    self.skipWaiting();
+    self.skipWaiting()
 })
 
 // use cache instead of server

@@ -11,6 +11,7 @@ if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) 
     navigator.serviceWorker.register('pwa.js')
         .then(reg => {
             reg.onupdatefound = () => {
+                // TODO: figure out how to listen for messages from reg.installing to determine new version
                 let notification = document.getElementById('update_notification')
                 notification.innerText = 'Update detected! Click here to apply it now.'
                 notification.style.transform = 'translate(-50%)'
@@ -114,6 +115,7 @@ In the share menu (box with up arrow), choose "Add to Home Screen", then press "
 
                     // dismiss the warning for this session
                     sessionStorage.setItem('dismiss_warning', true)
+                    notification.style.transform = 'translate(-50%, 100%)'
                 }
             }
         }
