@@ -343,11 +343,13 @@ class StatusTile extends Element
     {
         super(id, label)
         this.color = color
+        this.on_click = ''
     }
 
     get element()
     {
         let label = document.createElement('label')
+        label.id = `${this.id}-label`
         label.className = 'color_text'
         label.append(this.label)
 
@@ -355,6 +357,10 @@ class StatusTile extends Element
         status.id = this.id
         status.className = 'color_box'
         status.style.backgroundColor = this.color
+        if (this.on_click)
+        {
+            status.onclick = event => eval(this.on_click)
+        }
 
         let tile = document.createElement('div')
         tile.className = 'wr_status'
@@ -594,6 +600,7 @@ class Entry extends Input
         this.type = 'text'
         this.on_text_change = ''
         this.show_color = false
+        this.show_status = false
     }
 
     set bounds(bounds)
@@ -627,6 +634,10 @@ class Entry extends Input
                 this.value = '#'
             }
         }
+        else if (this.show_status)
+        {
+            this.add_class('color_text')
+        }
         else
         {
             this.add_class('wr_string')
@@ -656,7 +667,7 @@ class Entry extends Input
 
         let container = document.createElement('span')
         container.append(this.header)
-        if (this.show_color)
+        if (this.show_color || this.show_status)
         {
             let color = document.createElement('span')
             color.id = `${this.id}_color`
@@ -698,6 +709,37 @@ class Entry extends Input
         {
             document.getElementById(id).value = `#${color}`
         }
+    }
+
+    /**
+     * function:    set_status
+     * parameters:  element id, boolean/number(-1,0,1) status
+     * returns:     none
+     * description: Updates the color box with the provided color.
+     */
+    static set_status(id, status)
+    {
+        if (typeof status !== 'boolean')
+        {
+            switch (status)
+            {
+                case 1:
+                    status = 'green'
+                    break
+                case 0:
+                    status = 'orange'
+                    break
+                case -1:
+                default:
+                    status = 'red'
+                    break
+            }
+        }
+        else
+        {
+            status = status ? 'green' : 'red'
+        }
+        document.getElementById(id).style.backgroundColor = status
     }
 }
 
