@@ -207,7 +207,7 @@
 
 @media (hover: hover) {
     /* this prevents hover from being show on touch screen devices at all, because it tends to linger */
-    .wr_dropdown:hover, .wr_select_option:hover, .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_color .color_text:hover {
+    .wr_dropdown:hover, .wr_select_option:hover:not(:has(.wr_multi_number_num)), .wr_counter:hover, .wr_checkbox:hover, .wr_button:hover, .wr_string:hover, .wr_text:hover, .wr_color .color_text:hover {
         background-color: var(--hover-color);
         color: var(--hover-text-color);
     }
@@ -221,7 +221,7 @@
     line-height: calc(var(--slim-height) - 2*var(--input-padding));
 }
 
-.wr_counter_count, .wr_number_num {
+.wr_counter_count, .wr_number_num, .wr_multi_number_num {
     font-size: 200%;
 }
 
@@ -243,7 +243,7 @@
     border-radius: var(--border-radius);
 }
 
-.wr_select .wr_select_option:has(.wr_counter_count) {
+.wr_select .wr_select_option:has(.wr_counter_count), .wr_select .wr_select_option:has(.wr_multi_number_num) {
     padding-bottom: 0px;
 }
 

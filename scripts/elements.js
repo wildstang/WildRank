@@ -862,6 +862,86 @@ class MultiButton extends MultiInput
     }
 }
 
+class MultiNumber extends MultiInput
+{
+    constructor(id, label, options=[], values=[])
+    {
+        super(id, label, options, values)
+    }
+
+    add_option(option, value=0)
+    {
+        this.value.push(value)
+        this.options.push(option)
+        this.columns = MultiInput.calc_num_columns(this.options)
+    }
+
+    get option_elements()
+    {
+        let rows = [[]]
+        for (let i in this.options)
+        {
+            let op_name = this.options[i]
+            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            {
+                rows.push([])
+            }
+
+            let dval = this.value
+            if (Array.isArray(this.value) && this.value.length == this.options.length)
+            {
+                dval = this.value[i]
+            }
+            else if (Array.isArray(this.value))
+            {
+                dval = this.value[0]
+            }
+
+            let name = `${this.id}_${op_name.toLowerCase().split().join('_')}`
+            let value = document.createElement('label')
+            value.id = `${name}-value`
+            value.className = 'wr_multi_number_num'
+            value.append(dval)
+
+            let label = document.createElement('label')
+            label.append(op_name)
+
+            let option = document.createElement('span')
+            option.id = `${this.id}-${i}`
+            option.className = 'wr_select_option'
+            option.classList.add(...this.classes)
+            if (this.vertical)
+            {
+                option.classList.add('vertical')
+            }
+            option.append(value)
+            option.append(' ')
+            option.append(label)
+            rows[rows.length - 1].push(option)
+        }
+
+        let options = []
+        if (rows.length > 1)
+        {
+            for (let row of rows)
+            {
+                let container = document.createElement('div')
+                container.style.display = 'table-row'
+                for (let op of row)
+                {
+                    container.append(op)
+                }
+                options.push(container)
+            }
+        }
+        else
+        {
+            options = rows[0]
+        }
+        return options
+    }
+}
+
 class Slider extends Entry
 {
     constructor(id, label, value=0)
