@@ -113,8 +113,8 @@ function init_page()
     data_page.add_column(data)
 
     // display a version box only if caching is enabled
-    if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on')
-    {    
+    if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
+    {
         let version = new Number('app_version', 'version')
         data.add_input(version)
 

@@ -38,24 +38,61 @@ function init_page()
  */
 async function populate_page()
 {
-    let server = parse_server_addr(document.location.href)
-
-    let button_col = new ColumnFrame()
-    button_col.add_input(new Button('cache_pics', 'Cache Pictures', 'cache_pics()'))
-    button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
-
     // make a table for each cache
     let names = await caches.keys()
     if (names.length > 0)
     {
         current = names[0]
+
+        if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
+        {
+            // request the current version and file list from the serviceWorker
+            navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
+            navigator.serviceWorker.controller.postMessage({msg: 'get_files'})
+            navigator.serviceWorker.addEventListener('message', e => {
+                if (e.data.msg === 'version')
+                {
+                    let version = e.data.version
+                    if (!names.includes(version))
+                    {
+                        alert(`Current version "${version}" missing from cache!`)
+                    }
+                    else if (current !== version)
+                    {
+                        alert(`Current version "${version}" is not the default!`)
+                    }
+                }
+                else if (e.data.msg === 'files')
+                {
+                    build_table(names, e.data.files)
+                }
+            })
+        }
+        else
+        {
+            build_table(names)
+        }
     }
     else
     {
         let card = new Card('table', 'No caches found')
+
+        let button_col = new ColumnFrame()
+        button_col.add_input(new Button('cache_pics', 'Cache Pictures', 'cache_pics()'))
+        button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
+    
         let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
         body.replaceChildren(page.element)
     }
+}
+
+async function build_table(names, expected_files=[])
+{
+    let button_col = new ColumnFrame()
+    button_col.add_input(new Button('cache_pics', 'Cache Pictures', 'cache_pics()'))
+    button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
+
+    let server = parse_server_addr(document.location.href)
 
     for (let name of names)
     {
@@ -64,15 +101,15 @@ async function populate_page()
 
         let table = document.createElement('table')
         let header = table.insertRow()
-    
+
         let name_header = document.createElement('th')
         name_header.innerText = name
         header.appendChild(name_header)
-    
+
         header.insertCell().innerHTML = `${keys.length} files`
 
         let cache_str = ''
-        
+
         // add each file in the cache to the table
         for (let key of keys)
         {
@@ -101,7 +138,7 @@ async function populate_page()
                 })
             }
 
-            // create row
+            // get file name
             let file = response.url
             if (file === '')
             {
@@ -111,6 +148,15 @@ async function populate_page()
             {
                 file = file.replace(server, '')
             }
+
+            // remove file from expected files
+            let index = expected_files.indexOf(file)
+            if (index > -1)
+            {
+                expected_files.splice(index, 1)
+            }
+
+            // create row
             let row = table.insertRow()
             row.insertCell().innerText = file
             row.insertCell().innerText = format_bytes(bytes)
@@ -123,13 +169,24 @@ async function populate_page()
 
             cache_str += str
         }
+        // add each missing file from the cache to the table
+        for (let file of expected_files)
+        {
+            // create row
+            let row = table.insertRow()
+            row.style.color = 'red'
+            row.insertCell().innerText = file
+            row.insertCell()
+            row.insertCell().innerText = 'MISSING'
+            row.insertCell()
+        }
         header.insertCell().innerText = hash(cache_str)
 
         let card = new Card('table', table)
         let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
-        body.replaceChildren(page.element)
-
         button_col.add_input(new Button(`purge_${name}`, `Purge ${name}`, `purge_cache('${name}')`))
+
+        body.replaceChildren(page.element)
     }
 }
 
