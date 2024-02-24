@@ -22,9 +22,9 @@ var install
 function init_page()
 {
     let user_page = new PageFrame('scouter', 'Scouter')
-    let data_page = new PageFrame('data', 'Data')
+    let data_page = new PageFrame('data', 'Status')
 
-    let options = new ColumnFrame('options', 'Options')
+    let options = new ColumnFrame('options', '')
     user_page.add_column(options)
 
     let user_id = new Entry('user_id', 'School ID', 111112)
@@ -34,6 +34,12 @@ function init_page()
     user_id.value = get_cookie(USER_COOKIE, cfg.defaults.user_id)
     user_id.description = ' '
     options.add_input(user_id)
+
+    let event_id = new Entry('event_id', 'Event ID')
+    event_id.show_status = true
+    event_id.on_text_change = 'process_files()'
+    event_id.value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    options.add_input(event_id)
 
     let position = new Dropdown('position', 'Position')
     for (let i = 1; i <= dal.alliance_size * 2; i++)
@@ -68,84 +74,63 @@ function init_page()
 
     let note = new Button('note', 'Pit / Note Scouter')
     note.link = `check_press('note')`
+    note.add_class('slim')
     roles.add_input(note)
 
     let drive = new Button('drive', 'Drive Team')
     drive.link = `check_press('drive')`
+    drive.add_class('slim')
     roles.add_input(drive)
 
     let analyst = new Button('analyst', 'Analyst')
     analyst.link = `check_press('analysis')`
+    analyst.add_class('slim')
     roles.add_input(analyst)
 
     let advanced = new Button('advanced', 'Advanced')
     advanced.link = `check_press('advanced')`
+    advanced.add_class('slim')
     roles.add_input(advanced)
 
     let admin = new Button('admin', 'Administrator')
     admin.link = `check_press('admin')`
+    admin.add_class('slim')
     roles.add_input(admin)
 
-    let status = new ColumnFrame('status', 'Event')
+    let status = new ColumnFrame('status', '')
     data_page.add_column(status)
 
-    let event_id = new Entry('event_id', 'Event ID')
-    event_id.on_text_change = 'process_files()'
-    event_id.value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
-    status.add_input(event_id)
+    let config_buttons = new MultiButton('config_buttons', 'Event Config', ['Preload', 'Import'], ['save_options(); preload_event()', 'save_options(); import_config()'])
+    status.add_input(config_buttons)
 
-    let event_data = new StatusTile('event_data', 'Event Data')
-    status.add_input(event_data)
-
-    let teams = new Number('teams', 'Event Teams')
-    status.add_input(teams)
-
-    let matches = new Number('matches', 'Event Matches')
-    status.add_input(matches)
-
-    let preload = new Button('preload_event', 'Preload Event', `save_options(); preload_event()`)
-    status.add_input(preload)
-
-    let transfer = new Button('transfer', 'Import Config', 'save_options(); import_config()')
-    status.add_input(transfer)
-
-    let data = new ColumnFrame('data', 'Results')
-    data_page.add_column(data)
+    let event_counter = new MultiNumber('event_counter', '', ['Teams', 'Matches'])
+    status.add_input(event_counter)
 
     // display a version box only if caching is enabled
     if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
     {
-        let version = new Number('app_version', 'version')
-        data.add_input(version)
-
         // request the current version from the serviceWorker
         navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
         navigator.serviceWorker.addEventListener('message', e => {
             if (e.data.msg === 'version')
             {
-                document.getElementById('app_version').innerText = e.data.version.replace('wildrank-', '')
+                let header = document.getElementById('header_info')
+                header.innerText = e.data.version.replace('wildrank-', '')
+                header.onclick = event => window_open(open_link('about'), '_blank')
             }
         })
     }
 
-    let config = new Number('config_version', 'cfg')
-    data.add_input(config)
-
     let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
-    data.add_input(scout_config_valid)
+    //scout_config_valid.onclick = `window_open('${open_link('config-debug')}', '_self')`
+    status.add_input(scout_config_valid)
 
     let config_valid = new StatusTile('config_valid', 'Settings')
-    data.add_input(config_valid)
+    //config_valid.onclick = `window_open('${open_link('config-debug')}', '_self')`
+    status.add_input(config_valid)
 
-    let pit_results = new Number('pit_results', 'Pit Results')
-    data.add_input(pit_results)
-
-    let match_results = new Number('match_results', 'Match Results')
-    data.add_input(match_results)
-
-    let about = new Button('about', 'About WildRank')
-    about.link = `open_link('about')`
-    data.add_input(about)
+    let result_counter = new MultiNumber('result_counter', 'Results', ['Pit', 'Match'])
+    status.add_input(result_counter)
 
     body.replaceChildren(user_page.element, data_page.element)
 
@@ -197,15 +182,14 @@ function process_files()
     let pits = dal.get_pits([], false).length
 
     // update counters
-    document.getElementById('config_version').innerHTML = cfg.version
-    document.getElementById('teams').innerHTML = Object.keys(dal.teams).length
-    document.getElementById('matches').innerHTML = Object.keys(dal.matches).length
-    document.getElementById('pit_results').innerHTML = pits
-    document.getElementById('match_results').innerHTML = matches
+    document.getElementById('scout_config_valid-label').innerHTML = cfg.version
+    document.getElementById('event_counter_teams-value').innerHTML = Object.keys(dal.teams).length
+    document.getElementById('event_counter_matches-value').innerHTML = Object.keys(dal.matches).length
+    document.getElementById('result_counter_pit-value').innerHTML = pits
+    document.getElementById('result_counter_match-value').innerHTML = matches
 
     // update statuses
-    StatusTile.set_status('event_data', check_event())
-    //StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
+    Entry.set_status('event_id_color', check_event())
     StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
     StatusTile.set_status('config_valid', cfg.validate_settings_configs())
 
