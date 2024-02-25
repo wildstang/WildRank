@@ -122,11 +122,11 @@ function init_page()
     }
 
     let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
-    //scout_config_valid.onclick = `window_open('${open_link('config-debug')}', '_self')`
+    scout_config_valid.on_click = `window_open(open_link('config-debug'), '_self')`
     status.add_input(scout_config_valid)
 
     let config_valid = new StatusTile('config_valid', 'Settings')
-    //config_valid.onclick = `window_open('${open_link('config-debug')}', '_self')`
+    config_valid.on_click = `window_open(open_link('config-debug'), '_self')`
     status.add_input(config_valid)
 
     let result_counter = new MultiNumber('result_counter', 'Results', ['Pit', 'Match'])
