@@ -114,7 +114,8 @@ self.addEventListener('install', e => {
     e.waitUntil((async () => {
         // store files to cache on install
         const CACHE = await caches.open(CACHE_NAME)
-        await CACHE.addAll(CACHE_LIST)
+        let requests = CACHE_LIST.map(url => new Request(url, { cache: 'reload' }))
+        await CACHE.addAll(requests)
     })())
 
     // don't wait for the app to be exited, force activation now
@@ -165,7 +166,8 @@ self.addEventListener('fetch', e => {
             if (url.endsWith(file))
             {
                 let cache = await caches.open(CACHE_NAME)
-                await cache.addAll(CACHE_LIST)
+                let requests = CACHE_LIST.map(url => new Request(url, { cache: 'reload' }))
+                await cache.addAll(requests)
                 break
             }
         }
