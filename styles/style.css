@@ -119,12 +119,10 @@ tr:nth-child(even) {
 .notification {
     position: fixed;
     bottom: 0;
-    left: 50%;
-    transform: translate(-50%, 100%);
+    width: 100%;
+    transform: translate(0%, 100%);
     padding: var(--input-padding);
     transition: transform 1s linear 0s;
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
