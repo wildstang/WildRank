@@ -669,3 +669,14 @@ function create_id_from_name(name)
                .replaceAll(/__+/g, '_')   // prevent repeated underscores
                .replaceAll(/\W+/g, '')    // remove any non-alphanumeric or underscore character
 }
+
+/**
+ * Captialize the first letter of a given word.
+ * 
+ * @param {string} word A string containing a single word.
+ * @returns The given word in lower case with the first character in uppercase.
+ */
+function capitalize(word)
+{
+    return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
+}
