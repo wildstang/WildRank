@@ -1,5 +1,5 @@
 {
-    "version": "wr-3rc1",
+    "version": "wr-3rc2",
     "note": [
         {
             "name": "Notes",
@@ -367,29 +367,46 @@
                     "cycle": false,
                     "inputs": [
                         {
-                            "name": "Speaker",
-                            "id": "match_teleop_scoring_speaker",
+                            "name": "Amp Scoring",
+                            "id": "match_teleop_scoring_amp_scoring",
                             "type": "multicounter",
                             "negative": [
                                 false,
                                 true
                             ],
                             "options": [
-                                "Scored",
+                                "Made",
                                 "Missed"
                             ],
                             "default": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Speaker Cycles",
+                    "id": "match_teleop_speaker_cycles",
+                    "cycle": true,
+                    "inputs": [
+                        {
+                            "name": "Shooting Location",
+                            "id": "match_teleop_speaker_cycles_shooting_location",
+                            "type": "select",
+                            "options": [
+                                "Speaker",
+                                "Long Range"
+                            ],
+                            "default": "Speaker"
                         },
                         {
-                            "name": "Amp",
-                            "id": "match_teleop_scoring_amp",
+                            "name": "Speaker Scoring",
+                            "id": "match_teleop_speaker_cycles_scoring",
                             "type": "multicounter",
                             "negative": [
                                 false,
                                 true
                             ],
                             "options": [
-                                "Scored",
+                                "Made",
                                 "Missed"
                             ],
                             "default": 0
@@ -432,24 +449,30 @@
                             "default": "NA"
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "name": "Post Match",
+            "id": "match_post_match",
+            "columns": [
                 {
                     "name": "Post Match",
-                    "id": "match_teleop_post_match",
+                    "id": "match_post_match_post_match",
                     "cycle": false,
                     "inputs": [
                         {
                             "name": "Broke Down",
-                            "id": "match_teleop_post_match_broke_down",
+                            "id": "match_post_match_post_match_broke_down",
                             "type": "checkbox",
                             "default": false,
                             "negative": true
                         },
                         {
                             "name": "Notes",
-                            "id": "match_teleop_post_match_notes",
+                            "id": "match_post_match_post_match_notes",
                             "type": "text",
-                            "default": " "
+                            "default": "N/A"
                         }
                     ]
                 }
