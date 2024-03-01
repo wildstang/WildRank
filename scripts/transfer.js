@@ -641,7 +641,7 @@ class ZipHandler
         {
             for (let file of event.target.files)
             {
-                if (file.hasOwnProperty('name'))
+                if (file.name)
                 {
                     if (file.name.endsWith('.zip'))
                     {
@@ -1036,11 +1036,10 @@ class ZipHandler
     /**
      * Import a complete config JSON file.
      * 
-     * @param {Event} event Upload Event
+     * @param {File} file Uploaded file
      */
-    import_settings(event)
+    import_settings(file)
     {
-        let file = event.target.files[0]
         let reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
         reader.onload = readerEvent => {
@@ -1051,10 +1050,10 @@ class ZipHandler
                 let name = MODES.includes(key) ? `config-${cfg.year}-${key}` : `config-${key}`
                 localStorage.setItem(name, JSON.stringify(newConfig[key]))
             }
+
             cfg.load_configs(0)
+            alert('Import Complete')
+            this.on_complete()
         }
-    
-        alert('Import Complete')
-        this.on_complete()
     }
 }
