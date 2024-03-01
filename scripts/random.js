@@ -31,7 +31,7 @@ function init_page()
     let right_col = new ColumnFrame('', '')
     page.add_column(right_col)
 
-    let type_form = new Select('type_form', 'Mode', MODES.map(m => m.charAt(0).toUpperCase() + m.substring(1)), 'Match')
+    let type_form = new Select('type_form', 'Mode', MODES.map(m => capitalize(m)), 'Match')
     type_form.on_change = 'hide_buttons()'
     left_col.add_input(type_form)
 

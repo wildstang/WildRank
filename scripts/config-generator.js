@@ -31,7 +31,7 @@ function init_page()
  */
 function build_page()
 {
-    let mode_names = MODES.map(m => m.charAt(0).toUpperCase() + m.substring(1) + ' Scouting')
+    let mode_names = MODES.map(m => capitalize(m) + ' Scouting')
     let mode = new Dropdown('new-element-mode', 'Mode:', mode_names)
     mode.on_change = 'populate_dropdowns()'
     let page = new Dropdown('new-element-page', 'Page:')

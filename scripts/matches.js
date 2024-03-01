@@ -33,7 +33,7 @@ function init_page()
     }
 
     let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
-    add_button_filter('transfer', `Export ${scout_mode} Results`, `export_results()`, true)
+    add_button_filter('transfer', `Export ${capitalize(scout_mode)} Results`, `export_results()`, true)
     if (first)
     {
         match_num_el = document.createElement('h2')
@@ -164,7 +164,7 @@ function open_option(match_num)
     else if (scout_mode === NOTE_MODE)
     {
         // populate team info
-        team_num_el.innerText = `${alliance.charAt(0).toUpperCase()}${alliance.substring(1)} Alliance`
+        team_num_el.innerText = `${capitalize(alliance)} Alliance`
         team_name_el.style.color = color
         team_pos_el.style.color = color
 
