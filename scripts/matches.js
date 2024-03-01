@@ -165,6 +165,7 @@ function open_option(match_num)
     {
         // populate team info
         team_num_el.innerText = `${capitalize(alliance)} Alliance`
+        team_num_el.style.color = color
         team_name_el.style.color = color
         team_pos_el.style.color = color
 
