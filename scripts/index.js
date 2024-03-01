@@ -134,6 +134,9 @@ function init_page()
 
     body.replaceChildren(user_page.element, data_page.element)
 
+    // reset role when returning to homepage
+    set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+
     check_id()
     apply_theme()
     process_files()
