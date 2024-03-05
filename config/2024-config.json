@@ -1,5 +1,5 @@
 {
-    "version": "wr-3rc2",
+    "version": "wr-3rc2a",
     "note": [
         {
             "name": "Notes",
@@ -392,24 +392,22 @@
                             "id": "match_teleop_speaker_cycles_shooting_location",
                             "type": "select",
                             "options": [
-                                "Speaker",
-                                "Long Range"
+                                "Subwoofer",
+                                "Field"
                             ],
                             "default": "Speaker"
                         },
                         {
                             "name": "Speaker Scoring",
                             "id": "match_teleop_speaker_cycles_scoring",
-                            "type": "multicounter",
-                            "negative": [
-                                false,
-                                true
-                            ],
+                            "type": "select",
+                            "disallow_default": true,
                             "options": [
                                 "Made",
-                                "Missed"
+                                "Missed",
+                                "NA"
                             ],
-                            "default": 0
+                            "default": "NA"
                         }
                     ]
                 },
