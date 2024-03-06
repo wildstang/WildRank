@@ -99,6 +99,12 @@ const CACHE_LIST = [
     '/assets/clipboard-edit-outline.png',
     '/assets/dozer.png',
     '/assets/menu-white-18dp.svg',
+    '/assets/wheels/Colson.png',
+    '/assets/wheels/KOP.png',
+    '/assets/wheels/Other.png',
+    '/assets/wheels/REV.png',
+    '/assets/wheels/TPU.png',
+    '/assets/wheels/Treaded.png',
     // configs
     '/config/2023-config.json',
     '/config/2024-config.json',
