@@ -395,7 +395,7 @@
                                 "Subwoofer",
                                 "Field"
                             ],
-                            "default": "Speaker"
+                            "default": "Subwoofer"
                         },
                         {
                             "name": "Speaker Scoring",
