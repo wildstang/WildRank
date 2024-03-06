@@ -1498,6 +1498,8 @@ class Dropdown extends OptionedInput
         select.id = this.id
         select.className = 'wr_dropdown'
         select.classList.add(...this.classes)
+        // NOTE: quick fix for sort taking over in pivot
+        select.onclick = (event) => event.stopPropagation()
         select.onchange = (event) => eval(this.on_change)
         select.append(...this.option_elements)
 
