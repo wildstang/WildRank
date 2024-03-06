@@ -1,5 +1,5 @@
 {
-    "version": "wr-3rc2a",
+    "version": "wr-3rc2b",
     "note": [
         {
             "name": "Notes",
@@ -70,7 +70,15 @@
                         {
                             "name": "Wheel Type",
                             "id": "pit_pit_drive_wheel_type",
-                            "type": "dropdown",
+                            "type": "select",
+                            "images": [
+                                "wheels/KOP.png",
+                                "wheels/Colson.png",
+                                "wheels/Treaded.png",
+                                "wheels/REV.png",
+                                "wheels/TPU.png",
+                                "wheels/Other.png"
+                            ],
                             "options": [
                                 "KOP",
                                 "Colson",
