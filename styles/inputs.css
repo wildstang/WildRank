@@ -259,10 +259,11 @@
 
 .wr_select_img {
     line-height: 0px;
+    padding: 0px;
 }
 
 .wr_select_img > img {
-    height: calc(var(--input-height) - 2*var(--input-padding));
+    height: var(--input-height);
 }
 
 .vertical {
