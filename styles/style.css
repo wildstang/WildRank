@@ -127,6 +127,7 @@ tr:nth-child(even) {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
     color: #000000;
+    visibility: collapse;
 }
 
 #update_notification {

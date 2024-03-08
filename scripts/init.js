@@ -15,6 +15,7 @@ if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) 
                 let notification = document.getElementById('update_notification')
                 notification.innerText = 'Update detected! Click here to apply it now.'
                 notification.style.transform = 'translate(0%)'
+                notification.style.visibility = 'visible'
                 notification.onclick = event => {
                     location.reload()
                 }
@@ -99,6 +100,7 @@ window.addEventListener('load', event => {
                 let notification = document.getElementById('warning_notification')
                 notification.innerText = `${title} is opened in ${display_mode}. Data may be lost!`
                 notification.style.transform = 'translate(0%)'
+                notification.style.visibility = 'visible'
                 notification.onclick = event => {
                     // on Chrome and Safari give basic instruction on how to install
                     if (browser === 'Chrome')
@@ -117,6 +119,7 @@ In the share menu (box with up arrow), choose "Add to Home Screen", then press "
                     // dismiss the warning for this session
                     sessionStorage.setItem('dismiss_warning', true)
                     notification.style.transform = 'translate(0%, 100%)'
+                    notification.style.visibility = 'collapse'
                 }
             }
         }
