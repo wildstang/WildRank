@@ -23,6 +23,11 @@ const CONFIGS = {
         'Drive Team': ['import_results', 'coach', 'whiteboard', 'bracket']
     },
     'analysis': {
+        'Qualitative': ['ranker', 'multipicklists', 'note-viewer'],
+        'Quantitative': ['pivot', 'results', 'plot', 'open_moralysis'],
+        'Results': ['import_results', 'progress', 'export_results']
+    },
+    'moralysis': {
         'Teams': ['ranker', 'sides', 'multipicklists'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
         'Results': ['import_results', 'results', 'cycles', 'note-viewer', 'export_results'],
@@ -66,6 +71,7 @@ const BUTTONS = {
     'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
     'note-viewer':          { name: 'Note Viewer',              limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'open_extras':          { name: 'Extras',                   limits: ['admin'], configs: [] },
+    'open_moralysis':       { name: 'More',                     limits: ['admin'], configs: [] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },
     'pivot':                { name: 'Pivot Table',              limits: ['teams', 'admin', 'any'], configs: ['settings'] },
     'plot':                 { name: 'Plotter',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
@@ -79,7 +85,7 @@ const BUTTONS = {
     'reset_storage':        { name: 'Reset Storage',            limits: [], configs: [] },
     'reset_config':         { name: 'Reset Configuration',      limits: [], configs: [] },
     'reset_event':          { name: 'Reset Event',              limits: [], configs: [] },
-    'results':              { name: 'Results',                  limits: ['event', 'admin', 'results'], configs: ['settings'] },
+    'results':              { name: 'Raw Results',              limits: ['event', 'admin', 'results'], configs: ['settings'] },
     'scatter':              { name: 'Scatter',                  limits: ['teams', 'admin', 'any'], configs: ['settings'] },
     'schedule-importer':    { name: 'Schedule Importer',        limits: ['admin'], configs: [] },
     'settings':             { name: 'Settings Editor',          limits: [], configs: ['settings'] },
@@ -143,6 +149,12 @@ function init_page()
         case 'admin':
             title = 'Administrator'
             break
+        case 'extras':
+            title = 'Extras'
+            break
+        case 'moralysis':
+            title = 'More Analysis'
+            break
     }
     header_info.innerHTML = title
 
@@ -171,6 +183,10 @@ function init_page()
                 button.link = `check_press('${key}')`
             }
             else if (key === 'open_extras')
+            {
+                button.link = `check_press('${key}', ${key})`
+            }
+            else if (key === 'open_moralysis')
             {
                 button.link = `check_press('${key}', ${key})`
             }
@@ -376,6 +392,17 @@ function get_position()
 function open_extras()
 {
     return build_url('index', {'page': 'home', 'role': 'extras'})
+}
+
+/**
+ * function:    open_moralysis
+ * parameters:  none
+ * returns:     none
+ * description: Open the extras home page.
+ */
+function open_moralysis()
+{
+    return build_url('index', {'page': 'home', 'role': 'moralysis'})
 }
 
 /**
