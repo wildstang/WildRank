@@ -68,7 +68,7 @@ function init_page()
     let roles = new ColumnFrame('roles', 'Role')
     user_page.add_column(roles)
 
-    let scout = new Button('scout', 'Scouter')
+    let scout = new Button('scout', 'Match Scout')
     scout.link = `check_press('scout')`
     roles.add_input(scout)
 

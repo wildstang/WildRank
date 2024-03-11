@@ -770,9 +770,6 @@ class ZipHandler
                             }
                         }
                     }
-                    
-                    // update progress bar
-                    this.on_update(++complete, files.length)
                 }
                 else if (name.endsWith('.json'))
                 {
