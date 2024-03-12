@@ -1,5 +1,5 @@
 {
-    "version": "wr-3rc3",
+    "version": "wr-3.0.0",
     "note": [
         {
             "name": "Notes",
@@ -65,6 +65,17 @@
                                 "Other"
                             ],
                             "default": "Tank"
+                        },
+                        {
+                            "name": "Weight - No Battery or Bumpers",
+                            "id": "pit_pit_drive_weight_no_battery_or_bumpers",
+                            "type": "number",
+                            "options": [
+                                0,
+                                125
+                            ],
+                            "default": 0,
+                            "negative": false
                         },
                         {
                             "name": "Drive Motor",
@@ -416,8 +427,8 @@
                             "negative": false
                         },
                         {
-                            "name": "Wire Path Tied Down or Controlled",
-                            "id": "pit_pit_wiring_quality_wire_path_tied_down_or_controlled",
+                            "name": "Wires Tied Down, Appropriate Slack, No Rats' Nest",
+                            "id": "pit_pit_wiring_quality_wires_tied_down_appropriate_slack_no_rats_nest",
                             "type": "slider",
                             "options": [
                                 1,
@@ -440,8 +451,8 @@
                             "negative": false
                         },
                         {
-                            "name": "Wire Path Traceable, No Rats Nest",
-                            "id": "pit_pit_wiring_quality_wire_path_traceable_no_rats_nest",
+                            "name": "Components in Reliable Condition",
+                            "id": "pit_pit_wiring_quality_components_in_reliable_condition",
                             "type": "slider",
                             "options": [
                                 1,
@@ -450,6 +461,19 @@
                             ],
                             "default": 1,
                             "negative": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Notes",
+                    "id": "pit_quality_notes",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "name": "Tech Notes",
+                            "id": "pit_quality_notes_notes",
+                            "type": "text",
+                            "default": " "
                         }
                     ]
                 }
