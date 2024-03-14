@@ -122,7 +122,11 @@ function build_page_from_config()
             if (cycle)
             {
                 // create and populate (if editing) cycle arrays
-                if (edit)
+                if (edit && scout_mode === PIT_MODE)
+                {
+                    cycles[column.id] = dal.get_value(team_num, `pit.${column.id}`)
+                }
+                else if (edit)
                 {
                     cycles[column.id] = dal.get_result_value(team_num, match_num, column.id)
                 }
