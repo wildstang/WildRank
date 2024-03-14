@@ -482,6 +482,7 @@ function check_cycle(column, scout_mode, team='', alliance_color='', alliances={
                 }
                 break
             case 'select':
+            case 'dropdown':
                 def = options.indexOf(def)
             default:
                 if (value[id] !== def)
