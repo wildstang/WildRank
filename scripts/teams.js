@@ -107,7 +107,7 @@ function open_option(team_num)
             {
                 let key = pit_stats[i]
                 row.append(create_header(dal.get_name(key)))
-                pit_cell.innerText = dal.get_value(team_num, key, 'mean', true)
+                pit_cell.innerHTML = dal.get_value(team_num, key, 'mean', true)
             }
             else
             {
@@ -118,7 +118,7 @@ function open_option(team_num)
             {
                 let key = match_stats[i]
                 row.append(create_header(dal.get_name(key)))
-                match_cell.innerText = dal.get_value(team_num, key, 'mean', true)
+                match_cell.innerHTML = dal.get_value(team_num, key, 'mean', true)
             }
             else
             {
