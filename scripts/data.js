@@ -233,6 +233,11 @@ class DAL
         {
             keys = keys.filter(k => !k.startsWith('pit.'))
         }
+        else
+        {
+            let cycles = keys.filter(k => k.startsWith('pit.') && dal.meta[k].cycle)
+            keys = keys.filter(k => !k.startsWith('pit.') || !cycles.some(c => k !== c && k.startsWith(c)))
+        }
         if (!include_ranking)
         {
             keys = keys.filter(k => !k.startsWith('rank.'))
@@ -1745,6 +1750,32 @@ class DAL
     }
 
     /**
+     * Builds an HTML string representing an array of cycles.
+     * 
+     * @param {Array} cycles Array of cycle data
+     * @returns HTML string
+     */
+    build_cycles_string(cycles)
+    {
+        let string = ''
+        for (let i in cycles)
+        {
+            if (i > 0)
+            {
+                string += '<br>'
+            }
+            let cycle = cycles[i]
+            let keys = Object.keys(cycle)
+            for (let key of keys)
+            {
+                // TODO: map this value to something more human readable
+                string += `${this.get_name(`results.${key}`, '')}: ${cycle[key]}<br>`
+            }
+        }
+        return string
+    }
+
+    /**
      * function:    get_result_value
      * parameters:  team number, match id, value id, if it should be a friendly value
      * returns:     requested value
@@ -1771,7 +1802,7 @@ class DAL
                 if (map)
                 {
                     // map to option if available
-                    if ((id === 'meta_scouter_id' || id === 'meta_note_scouter_id') && map)
+                    if ((id === 'meta_scouter_id' || id === 'meta_note_scouter_id'))
                     {
                         return cfg.get_name(val, false)
                     }
@@ -1791,21 +1822,7 @@ class DAL
                     }
                     else if (typeof meta !== 'undefined' && meta.cycle === true)
                     {
-                        let string = ''
-                        for (let i in val)
-                        {
-                            if (i > 0)
-                            {
-                                string += '<br>'
-                            }
-                            let cycle = val[i]
-                            let keys = Object.keys(cycle)
-                            for (let key of keys)
-                            {
-                                string += `${this.get_name(`results.${key}`, '')}: ${cycle[key]}<br>`
-                            }
-                        }
-                        return string
+                        return this.build_cycles_string(val)
                     }
                 }
                 return val
@@ -1828,16 +1845,16 @@ class DAL
         {
             let category = parts[0]
             let key = parts[1]
-            let val = 0
+            let val = this.teams[team][category][key]
 
             // return stat if it exists otherwise raw value
             if (this.teams[team][category].hasOwnProperty(`${key}.${stat}`))
             {
                 val = this.teams[team][category][`${key}.${stat}`]
             }
-            else
+            else if (Array.isArray(val))
             {
-                val = this.teams[team][category][key]
+                val = this.build_cycles_string(val)
             }
 
             // don't return null values
