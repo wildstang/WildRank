@@ -1994,7 +1994,7 @@ class DAL
                 let denominators = Object.values(results).map(result => result[stat.denominator])
                 let numerator = numerators.reduce((partialSum, a) => partialSum + a, 0)
                 let denominator = denominators.reduce((partialSum, a) => partialSum + a, 0)
-                mean_vals = [numerator / denominator]
+                mean_vals = stat.type === 'ratio' ? [numerator / denominator] : [numerator / (numerator + denominator)]
             }
         }
 
