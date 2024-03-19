@@ -2116,7 +2116,7 @@ class DAL
                 {
                     values.push(this.get_value(team, id, stat))
                 }
-                values = values.filter(v => v !== '')
+                values = values.filter(v => v !== '' && !isNaN(v))
 
                 switch (this.meta[id].type)
                 {
