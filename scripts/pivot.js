@@ -263,7 +263,23 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
     }
     else
     {
-        filter_teams.sort((a,b) => dal.get_value(b, key, type) - dal.get_value(a, key, type))
+        filter_teams.sort((a,b) => {
+            let a_val = dal.get_value(a, key, type)
+            let b_val = dal.get_value(b, key, type)
+            if (isNaN(a_val) && isNaN(b_val))
+            {
+                return 0
+            }
+            else if (isNaN(a_val))
+            {
+                return 1
+            }
+            else if (isNaN(b_val))
+            {
+                return -1
+            }
+            return b_val - a_val
+        })
     }
 
     if (reverse)
@@ -341,7 +357,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     sessionStorage.setItem(SESSION_REVERSE_KEY, last_reverse)
 
     // compute totals
-    let global_stats = dal.compute_global_stats(selected, filter_teams)
+    let global_stats = {}
 
     // determine if sort is by team number
     let sort_char = ''
@@ -531,7 +547,10 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
 
         // build cells
         filters_row.insertCell().append(...filter_el)
-        totals_row.insertCell().innerText = dal.get_global_value(global_stats, key, type.toLowerCase(), true)
+
+        let type_key = `${key}.${type.toLowerCase()}`
+        global_stats[type_key] = dal.compute_global_stats([key], filter_teams, type.toLowerCase())
+        totals_row.insertCell().innerText = dal.get_global_value(global_stats[type_key], key, type.toLowerCase(), true)
     }
 
     // build team rows
@@ -562,9 +581,10 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             // compute color
             let color = ''
             let val = dal.get_value(team, key, type)
-            let min = dal.get_global_value(global_stats, key, 'min')
-            let max = dal.get_global_value(global_stats, key, 'max')
-            let mean = dal.get_global_value(global_stats, key, 'mean')
+            let type_key = `${key}.${type.toLowerCase()}`
+            let min = dal.get_global_value(global_stats[type_key], key, 'min')
+            let max = dal.get_global_value(global_stats[type_key], key, 'max')
+            let mean = dal.get_global_value(global_stats[type_key], key, 'mean')
             if (!STATS.includes(type[0].toUpperCase() + type.substring(1)))
             {
                 min = 0
