@@ -165,19 +165,19 @@ function filter_notes()
                     name = dal.matches[key].short_match_name
                 }
                 let row = table.insertRow()
-                row.appendChild(create_header(name), create_header(''))
+                row.appendChild(create_header(name))
+                row.insertCell()
                 for (let note of notes[key])
                 {
                     let row = table.insertRow()
                     row.insertCell()
-                    row.insertCell(note)
+                    row.insertCell().innerText = note
                 }
             }
 
             // add notes to new card
             let card = new Card(team, results_el)
             card.add_class('scalable_card')
-            card.custom_width = 1.5
 
             let page = document.getElementById('notes')
             page.replaceChildren(new ColumnFrame('', '', [card]).element)
