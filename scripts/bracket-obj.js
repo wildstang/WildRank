@@ -335,7 +335,7 @@ class Bracket
             {
                 let card = this.build_match(match)
                 // if the match is set but not started add a button below to preview in coach mode
-                if (match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
+                if (match.id !== -1 && match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
                 {
                     let button = new Button('open_coach', 'Preview Match')
                     button.link = `open_page('coach', {match: '${match.id}'})`
