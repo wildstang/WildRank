@@ -306,6 +306,15 @@ class Bracket
                 this.matches[i].mark_winner(winners[i], this.matches)
             }
         }
+
+        // mark remaining winners using stored values
+        for (let i = match_keys.length; i < this.matches.length; i++)
+        {
+            if (winners[i])
+            {
+                this.matches[i].mark_winner(winners[i], this.matches)
+            }
+        }
     }
 
     /**
