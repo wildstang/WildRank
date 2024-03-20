@@ -46,10 +46,15 @@ function add_bracket()
     }
 
     // build a filter for the alliance
-    let filter = new Dropdown('alliance_filter', 'Alliance Filter', ops, ops[alliance])
-    filter.add_class('slim')
-    filter.on_change = 'build_page()'
-    let filter_page = new PageFrame('', '', [new ColumnFrame('', '', [filter])])
+    let filter_inputs = []
+    if (ops.length > 1)
+    {
+        let filter = new Dropdown('alliance_filter', 'Alliance Filter', ops, ops[alliance])
+        filter.add_class('slim')
+        filter.on_change = 'add_bracket()'
+        filter_inputs = [filter]
+    }
+    let filter_page = new PageFrame('', '', [new ColumnFrame('', '', filter_inputs)])
 
     let page = bracket.build_page(alliance)
     body.replaceChildren(filter_page.element, page.element)
