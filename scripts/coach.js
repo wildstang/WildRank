@@ -13,7 +13,7 @@ include('bracket-obj')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('match')
 
-var carousel, whiteboard_page, whiteboard, controls_column, bracket, bracket_page
+var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page
 
 /**
  * function:    init_page
@@ -63,11 +63,10 @@ function init_page()
         whiteboard_page = new PageFrame('', '', [wb_col])
 
         // create column of buttons for coach page
-        let edit = new Button('edit_coach', 'Edit Values')
+        edit = new Button('edit_coach', 'Edit Values')
         edit.link = `open_page('edit-coach')`
-        let custom = new Button('custom_match', 'Add Custom Match')
+        custom = new Button('custom_match', 'Add Custom Match')
         custom.link = `open_page('custom-match')`
-        controls_column = new ColumnFrame('', '', [edit, custom])
 
         // subtract margins from the parent dimensions
         // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
@@ -179,19 +178,24 @@ function open_option(match_key)
     header_info.innerText = `${dal.get_match_value(match_key, 'match_name')} - ${time}`
 
     let red_col = new ColumnFrame('red_alliance', '')
+    let red_page = new PageFrame('', '', [red_col])
     let blue_col = new ColumnFrame('blue_alliance', '')
-    let page = new PageFrame('', '', [red_col, blue_col, controls_column])
+    let blue_page = new PageFrame('', '', [blue_col])
 
     let red_card = new Card(`red_details`, '')
     red_card.add_class('red_box')
     red_col.add_input(red_card)
+    red_col.add_input(edit)
+    red_col.add_input(custom)
 
     let blue_card = new Card(`blue_details`, '')
     blue_card.add_class('blue_box')
     blue_col.add_input(blue_card)
+    blue_col.add_input(edit)
+    blue_col.add_input(custom)
 
     // build template
-    carousel.replaceChildren(page.element, whiteboard_page.element)
+    carousel.replaceChildren(red_page.element, blue_page.element, whiteboard_page.element)
     add_bracket()
 
     // populate cards with tables
