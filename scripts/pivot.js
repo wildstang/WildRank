@@ -568,6 +568,23 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         let team_num = row.insertCell()
         team_num.innerText = team
         team_num.title = dal.get_value(team, 'meta.name')
+        team_num.onclick = (event) => {
+            if (!Object.keys(dal.picklists).includes('picked'))
+            {
+                dal.picklists.picked = []
+            }
+            if (dal.picklists.picked.includes(team))
+            {
+                let pos = dal.picklists.picked.indexOf(team)
+                dal.picklists.picked.splice(pos, 1)
+            }
+            else
+            {
+                dal.picklists.picked.push(team)
+            }
+            dal.save_picklists()
+            build_table(sort_by, reverse, moved_idx, placed_idx)
+        }
         if (dal.is_unsure(team))
         {
             team_num.classList.add('highlighted')
