@@ -9,7 +9,7 @@
 include('picklists-core')
 include('transfer')
 
-var avatar_el, team_el, name_el, lists_el
+var avatar_el, team_el, name_el, lists_el, mode_el
 
 /**
  * function:    init_page
@@ -49,9 +49,9 @@ function init_page()
         let tab_card = new Card('table_card', '')
         tab_card.add_class('scalable_card')
         let new_list = new Button('new_list', 'Add to New List', 'new_list()')
-        let remove = new Checkbox('remove_teams', 'Remove Teams')
+        mode_el = new Select('mode', '', ['Add', 'Strike', 'Remove'])
         let export_button = new Button('export', 'Export Lists', 'export_picklists()')
-        let column = new ColumnFrame('', '', [new_list, tab_card, remove, export_button])
+        let column = new ColumnFrame('', '', [new_list, tab_card, mode_el, export_button])
         preview.append(card.element, new PageFrame('page', '', [column]).element)
 
         build_pick_lists()
@@ -84,13 +84,18 @@ function new_list()
  */
 function mark_team(list, team)
 {
-    if (document.getElementById('remove_teams').checked)
+    let mode = mode_el.selected_option
+    switch (mode)
     {
-        remove_team(list, team)
-    }
-    else
-    {
-        cross_out(list, team)
+        case 0:
+            add_to(list, team)
+            break
+        case 1:
+            cross_out(list, team)
+            break
+        case 2:
+            remove_team(list, team)
+            break
     }
 }
 
@@ -192,11 +197,8 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                     match_filter.push(team)
                 }
                 let cell = row.insertCell()
-                cell.onclick = (event) => add_to(list, team)
-                cell.oncontextmenu = (event) => { mark_team(list, team); return false }
+                cell.onclick = (event) => mark_team(list, team)
                 cell.classList.add(...classes)
-                cell.ontouchstart = (event) => touch_button(false)
-                cell.ontouchend = (event) => touch_button(`mark_team('${list}', '${team}')`)
                 cell.innerText = team
             }
             else
