@@ -758,6 +758,10 @@ class MultiInput extends Input
         select.id = this.id
         select.className = 'wr_select'
         select.classList.add(...this.classes)
+        if (this.on_click)
+        {
+            select.onclick = (event) => eval(this.on_click)
+        }
         select.append(...this.option_elements)
 
         let container = document.createElement('span')

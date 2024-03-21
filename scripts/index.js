@@ -130,6 +130,7 @@ function init_page()
     status.add_input(config_valid)
 
     let result_counter = new MultiNumber('result_counter', 'Results', ['Pit', 'Match'])
+    result_counter.on_click = `window_open(open_link('progress'), '_self')`
     status.add_input(result_counter)
 
     body.replaceChildren(user_page.element, data_page.element)
