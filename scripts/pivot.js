@@ -550,7 +550,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
 
         let type_key = `${key}.${type.toLowerCase()}`
         global_stats[type_key] = dal.compute_global_stats([key], filter_teams, type.toLowerCase())
-        totals_row.insertCell().innerText = dal.get_global_value(global_stats[type_key], key, type.toLowerCase(), true)
+        totals_row.insertCell().innerHTML = dal.get_global_value(global_stats[type_key], key, type.toLowerCase(), true)
     }
 
     // build team rows
@@ -615,7 +615,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             // build cell
             let cell = row.insertCell()
             cell.style.backgroundColor = color
-            cell.innerText = dal.get_value(team, key, type, true)
+            cell.innerHTML = dal.get_value(team, key, type, true)
         }
     }
 
