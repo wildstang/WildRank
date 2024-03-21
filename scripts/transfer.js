@@ -1040,12 +1040,21 @@ class ZipHandler
         let reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
         reader.onload = readerEvent => {
-            let newConfig = JSON.parse(readerEvent.target.result)
-            let keys = Object.keys(newConfig)
-            for (let key of keys)
+            let jstring = readerEvent.target.result
+            if (file.name.endsWith('-config.json'))
             {
-                let name = MODES.includes(key) ? `config-${cfg.year}-${key}` : `config-${key}`
-                localStorage.setItem(name, JSON.stringify(newConfig[key]))
+                let newConfig = JSON.parse(jstring)
+                let keys = Object.keys(newConfig)
+                for (let key of keys)
+                {
+                    let name = MODES.includes(key) ? `config-${cfg.year}-${key}` : `config-${key}`
+                    localStorage.setItem(name, JSON.stringify(newConfig[key]))
+                }
+            }
+            else
+            {
+                let name = file.name.substring(0, file.name.indexOf('.'))
+                localStorage.setItem(name, jstring)
             }
 
             cfg.load_configs(0)
