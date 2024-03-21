@@ -333,12 +333,22 @@ class Bracket
             let match = this.matches[i]
             if (alliance === 0 || [match.red_alliance, match.blue_alliance].includes(alliance - 1))
             {
-                let card = this.build_match(match)
+                let card = this.build_match(match)  
                 // if the match is set but not started add a button below to preview in coach mode
-                if (match.id !== -1 && match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
+                if (match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
                 {
+                    let match_num = parseInt(i) + 1
+                    let match_key = `${dal.event_id}_sf${match_num}`
+                    if (match.id === -1 && !Object.keys(dal.matches).includes(match_key))
+                    {
+                        // if the match doesn't exist, create it, then open it
+                        let red_teams = this.alliances[match.red_alliance].teams
+                        let blue_teams = this.alliances[match.blue_alliance].teams
+                        add_match(match_num, red_teams, blue_teams)
+                    }
+
                     let button = new Button('open_coach', 'Preview Match')
-                    button.link = `open_page('coach', {match: '${match.id}'})`
+                    button.on_click = `open_option('${match_key}')`
 
                     let stack = new Stack('', [card, button])
                     columns[columns.length - 1].add_input(stack.element)

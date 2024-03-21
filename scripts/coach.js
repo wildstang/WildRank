@@ -79,6 +79,8 @@ function init_page()
         if (dal.event.playoff_type === 10 && elim_matches.length > 0)
         {
             bracket = new Bracket(dal.event_id, add_bracket)
+            // allows selected to include generated matches
+            add_bracket()
         }
 
         hide_matches()
@@ -150,6 +152,7 @@ function open_option(match_key)
     // select option
     deselect_all()
     document.getElementById(`match_option_${match_key}`).classList.add('selected')
+    document.getElementById('scouting-carousel').scrollTo(0, 0)
 
     // load the match on the whiteboard, UI updates handled by update_sliders()
     whiteboard.load_match(match_key, false)
@@ -270,4 +273,30 @@ function build_table(alliance, teams)
 function draw_drag()
 {
     whiteboard.draw_drag = document.getElementById('draw_drag').checked
+}
+
+/**
+ * Temporarily adds an elim match to the DAL so it can be viewed in coach.
+ * 
+ * @param {number} match_num Elim match number
+ * @param {Array} red_teams Array of red alliance team numbers
+ * @param {Array} blue_teams Array of blue alliance team numbers
+ */
+function add_match(match_num, red_teams, blue_teams)
+{
+    // add a new match to the DAL
+    let match_key = `${dal.event_id}_sf${match_num}`
+    dal.matches[match_key] = {
+        blue_alliance: blue_teams,
+        red_alliance: red_teams,
+        comp_level: 'sf',
+        match_name: `Match ${match_num}`,
+        match_number: match_num,
+        set_number: match_num,
+        short_match_name: `M${match_num}`
+    }
+
+    // add the match to the option list
+    let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
+    document.getElementById('option_list').append(option.element)
 }

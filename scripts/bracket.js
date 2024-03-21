@@ -59,3 +59,22 @@ function add_bracket()
     let page = bracket.build_page(alliance)
     body.replaceChildren(filter_page.element, page.element)
 }
+
+/**
+ * Does nothing, 
+ * 
+ * @param {number} match_num Elim match number
+ * @param {Array} red_teams Array of red alliance team numbers
+ * @param {Array} blue_teams Array of blue alliance team numbers
+ */
+function add_match(match_num, red_teams, blue_teams) {}
+
+/**
+ * Opens a given match in the coach view.
+ * 
+ * @param {string} match_key Match key
+ */
+function open_option(match_key)
+{
+    window_open(open_page('coach', {match: match_key}), '_self')
+}
