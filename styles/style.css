@@ -137,3 +137,12 @@ tr:nth-child(even) {
 #warning_notification {
     background-color: var(--error-color);
 }
+
+.crossed_out {
+    text-decoration: line-through;
+    color: red;
+}
+
+.faded {
+    color: #C0C0C0;
+}

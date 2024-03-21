@@ -371,6 +371,12 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         sort_char = ' &#9660'
     }
 
+    let picked_teams = []
+    if (Object.keys(dal.picklists).includes('picked'))
+    {
+        picked_teams = dal.picklists.picked
+    }
+
     // build table headers
     let table = document.createElement('table')
 
@@ -566,6 +572,10 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         {
             team_num.classList.add('highlighted')
         }
+        if (picked_teams.includes(team))
+        {
+            row.classList.add('faded')
+        }
 
         for (let i in selected)
         {
@@ -592,7 +602,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
                 mean = 0.5
             }
             let t = dal.meta[key].type 
-            if (val !== mean && (type !== 'total' || (t !== 'select' || t === 'dropdown')))
+            if (!picked_teams.includes(team) && val !== mean && (type !== 'total' || (t !== 'select' || t === 'dropdown')))
             {
                 let colors = [0,0,0,0]
 

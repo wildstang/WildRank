@@ -319,11 +319,6 @@
     box-shadow: unset;
 }
 
-.crossed_out {
-    text-decoration: line-through;
-    color: red;
-}
-
 .cycle {
     background-color: #FF00FF22;
 }
