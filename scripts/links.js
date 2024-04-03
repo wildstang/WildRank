@@ -44,7 +44,8 @@ var BLANK_PAGES = {
     'misc/international-counter': ['year'],
     'misc/event-planner': ['year'],
     'misc/max-score': ['year'],
-    'misc/top-partners': []
+    'misc/top-partners': [],
+    'misc/verde': ['event']
 }
 
 var SELECTION_PAGES = {

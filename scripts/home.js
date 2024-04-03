@@ -45,7 +45,7 @@ const CONFIGS = {
     'extras': {
         'Debug': ['misc/test'],
         'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score'],
+        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde'],
         'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2023-rp']
     }
 }
@@ -110,7 +110,8 @@ const BUTTONS = {
     'misc/score-counter':           { name: 'Score Counter',            limits: ['admin'], configs: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: ['admin'], configs: [] },
     'misc/test':                    { name: 'Input Tester',             limits: ['admin'], configs: [] },
-    'misc/top-partners':            { name: 'Top Partners',             limits: ['admin'], configs: [] }
+    'misc/top-partners':            { name: 'Top Partners',             limits: ['admin'], configs: [] },
+    'misc/verde':                   { name: 'VerdeRank',                limits: ['admin', 'teams'], configs: [] }
 }
 
 /**
