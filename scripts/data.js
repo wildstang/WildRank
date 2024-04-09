@@ -1852,7 +1852,7 @@ class DAL
             {
                 val = this.teams[team][category][`${key}.${stat}`]
             }
-            else if (Array.isArray(val))
+            else if (Array.isArray(val) && map)
             {
                 val = this.build_cycles_string(val)
             }
