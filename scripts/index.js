@@ -210,7 +210,7 @@ function process_files()
         }
         position.add_option(`${color} ${pos}`)
     }
-    position.def = position.options[get_cookie(POSITION_COOKIE, 0)]
+    position.value = position.options[get_cookie(POSITION_COOKIE, 0)]
     document.getElementById('position').replaceChildren(...position.option_elements)
 }
 
