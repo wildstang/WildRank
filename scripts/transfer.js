@@ -637,7 +637,7 @@ class ZipHandler
         input.accept = mime_type
         input.multiple = select_multiple
         let handler = this
-        input.addEventListener('change', function (event)
+        input.addEventListener('change', async function (event)
         {
             for (let file of event.target.files)
             {
@@ -645,7 +645,9 @@ class ZipHandler
                 {
                     if (file.name.endsWith('.zip'))
                     {
-                        handler.import_zip(file)
+                        // import zips one at a time
+                        // TODO: remove this when imports take into account multiple zips
+                        await handler.import_zip(file)
                     }
                     else if (file.name.endsWith('.json'))
                     {
