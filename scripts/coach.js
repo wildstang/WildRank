@@ -252,7 +252,7 @@ function build_table(alliance, teams)
 
         for (let team of teams)
         {
-            row.insertCell().innerText = dal.get_value(team, v.key, v.function, true)
+            row.insertCell().innerHTML = dal.get_value(team, v.key, v.function, true)
         }
     }
 
