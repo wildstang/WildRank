@@ -131,13 +131,13 @@ function open_option(match_key)
     // place match time
     time_el.innerText = dal.get_match_value(match_key, 'display_time')
 
+    // add match score
+    result_el.replaceChildren(dal.generate_score(match_key))
+
     // generate extras
     let extras = []
     if (dal.get_match_value(match_key, 'complete'))
-    {        
-        // add match score
-        result_el.replaceChildren(dal.generate_score(match_key))
-
+    {
         // add videos
         let videos = dal.get_match_value(match_key, 'videos')
         if (videos && videos.length > 0)
