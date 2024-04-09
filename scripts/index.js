@@ -114,9 +114,11 @@ function init_page()
         navigator.serviceWorker.addEventListener('message', e => {
             if (e.data.msg === 'version')
             {
+                let version = e.data.version.replace('wildrank-', '')
                 let header = document.getElementById('header_info')
-                header.innerText = e.data.version.replace('wildrank-', '')
+                header.innerText = version
                 header.onclick = event => window_open(open_link('about'), '_blank')
+                set_cookie(VERSION_COOKIE, version)
             }
         })
     }

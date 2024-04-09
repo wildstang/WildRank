@@ -10,6 +10,8 @@ const PIT_MODE   = 'pit'
 const NOTE_MODE  = 'note'
 const MODES = [MATCH_MODE, PIT_MODE, NOTE_MODE]
 
+const VERSION_COOKIE = 'version'
+const VERSION_DEFAULT = 'unknown'
 const EVENT_COOKIE = 'event_id'
 const EVENT_DEFAULT = '2022new'
 const USER_COOKIE = 'user_id'

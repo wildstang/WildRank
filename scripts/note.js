@@ -173,6 +173,7 @@ function get_results_from_page()
     results['meta_note_scout_time'] = Math.round(start / 1000)
     results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
     results['meta_config_version'] = cfg.version
+    results['meta_app_version'] = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
 
     // scouting metadata
     results['meta_scout_mode'] = NOTE_MODE
