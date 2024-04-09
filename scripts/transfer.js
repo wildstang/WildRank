@@ -722,6 +722,7 @@ class ZipHandler
         let zip = await JSZip.loadAsync(file)
         let files = Object.keys(zip.files)
         let complete = 0
+        let ignore_all = false
 
         if (files.length == 0)
         {
@@ -840,9 +841,13 @@ class ZipHandler
                             // warn if reported config version does not match
                             let version_key = `config-${cfg.year}-version`
                             let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version
-                            if (write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
+                            if (!ignore_all && write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
                             {
                                 write = confirm(`Config version mismatch on ${n}, continue?`)
+                                if (write)
+                                {
+                                    ignore_all = confirm(`Ignore all version mismatches?`)
+                                }
                             }
                         }
 
