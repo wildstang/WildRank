@@ -100,7 +100,7 @@ function populate_matches()
 
         let elim = new Checkbox('gen_elim', 'Elimination')
         elim.on_click = 'update_titles()'
-        if (document.getElementById('gen_elim') !== null)
+        if (document.getElementById('gen_elim') !== null && document.getElementById('gen_elim').checked)
         {
             elim.value = true
         }
@@ -205,6 +205,11 @@ function generate_teams()
  {
     localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
     localStorage.setItem(`matches-${event_id}`, '[]')
+    localStorage.setItem(`event-${event_id}`, JSON.stringify({
+        playoff_type: 10,
+        year: cfg.year,
+        event_code: dal.event_id.substring(4)
+    }))
 
     dal.build_teams()
     populate_matches()
