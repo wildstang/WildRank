@@ -96,11 +96,20 @@ function populate_matches()
         }
 
         let add_match = new Button('add_match', 'Add Match', 'add_match()')
-        red_col.add_input(add_match)
+        blue_col.add_input(add_match)
 
-        cols = [blue_col.element, red_col.element]
+        let elim = new Checkbox('gen_elim', 'Elimination')
+        elim.on_click = 'update_titles()'
+        if (document.getElementById('gen_elim') !== null)
+        {
+            elim.value = true
+        }
+        red_col.add_input(elim)
+
+        cols = [red_col.element, blue_col.element]
     }
     match_col.replaceChildren(...cols)
+    update_titles()
 }
 
 /**
@@ -297,6 +306,59 @@ function pull_teams(event_id, team_list)
 }
 
 /**
+ * Updates the page and column titles to have the correct match number and alliances.
+ */
+function update_titles()
+{
+    let elim = document.getElementById('gen_elim').checked
+    if (elim)
+    {
+        let matches = Object.values(dal.matches).filter(m => m.comp_level === 'sf').sort((a, b) => a.set_number - b.set_number)
+        let match_num = 1
+        if (matches.length > 0)
+        {
+            match_num = matches[matches.length - 1].set_number + 1
+        }
+        let red, blue = 0
+        switch (match_num)
+        {
+            case 1:
+                red = 1
+                blue = 8
+                break
+            case 2:
+                red = 4
+                blue = 5
+                break
+            case 3:
+                red = 3
+                blue = 6
+                break
+            case 4:
+                red = 2
+                blue = 7
+                break
+            default:
+                document.getElementById('gen_elim').checked = false
+                update_titles()
+                alert("Cannot generate beyond elim match 4")
+                return
+        }
+
+        document.getElementById('match_label').innerText = `Match ${match_num}`
+        document.getElementById('blue_teams_label').innerText = `Alliance ${blue}`
+        document.getElementById('red_teams_label').innerText = `Alliance ${red}`
+    }
+    else
+    {
+        let match_num = Object.values(dal.matches).filter(m => m.comp_level === 'qm').length + 1
+        document.getElementById('match_label').innerText = `Match ${match_num}`
+        document.getElementById('blue_teams_label').innerText = `Blue Alliance`
+        document.getElementById('red_teams_label').innerText = `Red Alliance`
+    }
+}
+
+/**
  * function:    add_match
  * parameters:  none
  * returns:     none
@@ -314,6 +376,16 @@ function add_match()
     }
     let matches = JSON.parse(file)
     let match_number = matches.length + 1
+    let elim = document.getElementById('gen_elim').checked
+    if (elim)
+    {
+        let matches = Object.values(dal.matches).filter(m => m.comp_level === 'sf').sort((a, b) => a.set_number - b.set_number)
+        match_number = 1
+        if (matches.length > 0)
+        {
+            match_number = matches[matches.length - 1].set_number + 1
+        }
+    }
     let red_teams = []
     let blue_teams = []
     for (let pos = 0; pos < alliance_teams; pos++)
@@ -321,6 +393,7 @@ function add_match()
         red_teams.push(`frc${document.getElementById(`red_${pos}`).value}`)
         blue_teams.push(`frc${document.getElementById(`blue_${pos}`).value}`)
     }
+    let comp_level = elim ? "sf" : "qm"
     let time = Date.now() / 1000
     matches.push({
         actual_time: time,
@@ -336,12 +409,12 @@ function add_match()
                 team_keys: red_teams
             }
         },
-        comp_level: "qm",
+        comp_level: comp_level,
         event_key: event_id,
-        key: `${event_id}_qm${match_number}`,
+        key: `${event_id}_${comp_level}${match_number}`,
         match_number: match_number,
         predicted_time: time,
-        set_number: 1,
+        set_number: elim ? match_number : 1,
         time: time
     })
     localStorage.setItem(file_name, JSON.stringify(matches))
