@@ -165,6 +165,7 @@ body {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
+    touch-action: none;
 }
 
 .center_text {
