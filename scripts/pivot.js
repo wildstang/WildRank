@@ -261,6 +261,27 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
     {
         filter_teams.sort((a,b) => dal.get_value(a, key, type).localeCompare(dal.get_value(b, key, type)))
     }
+    else if (type === 'total' && (t === 'select' || t === 'dropdown'))
+    {
+        filter_teams.sort((a,b) => {
+            // total stats are stored as HTML string so some string manipulation is needed
+            let a_val = dal.get_value(a, key, type).split('<br>')[0].split(' ')[1]
+            let b_val = dal.get_value(b, key, type).split('<br>')[0].split(' ')[1]
+            if (isNaN(a_val) && isNaN(b_val))
+            {
+                return 0
+            }
+            else if (isNaN(a_val))
+            {
+                return 1
+            }
+            else if (isNaN(b_val))
+            {
+                return -1
+            }
+            return b_val - a_val
+        })
+    }
     else
     {
         filter_teams.sort((a,b) => {
