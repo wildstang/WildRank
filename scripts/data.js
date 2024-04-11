@@ -1050,6 +1050,16 @@ class DAL
                     display_time = `${unix_to_match_time(match.time)} (Scheduled)`
                 }
 
+                // check that alliances are valid
+                // TODO: check number of teams
+                let red_teams = match.alliances.red.team_keys
+                let blue_teams =  match.alliances.blue.team_keys
+                if (red_teams.length === 0 || blue_teams.length === 0 ||
+                    blue_teams.every(t => t === 0) || red_teams.every(t => t === 0))
+                {
+                    continue
+                }
+
                 let score_str = ''
                 let complete = false
                 let winner = match.winning_alliance
@@ -1071,8 +1081,8 @@ class DAL
                     predicted_time: match.predicted_time,
                     started_time: match.actual_time,
                     display_time: display_time,
-                    red_alliance: match.alliances.red.team_keys.map(k => k.substring(3)),
-                    blue_alliance: match.alliances.blue.team_keys.map(k => k.substring(3)),
+                    red_alliance: red_teams.map(k => k.substring(3)),
+                    blue_alliance: blue_teams.map(k => k.substring(3)),
                     complete: complete,
                     red_score: match.alliances.red.score,
                     blue_score: match.alliances.blue.score,
