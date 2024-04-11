@@ -158,6 +158,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                 {
                     selected = 'selected ' 
                 }
+                row.insertCell()
                 if (rename === list)
                 {
                     let name = create_element('input', `new_name_${list}`)
@@ -182,11 +183,19 @@ function build_pick_lists(highlight='', list_num=0, rename='')
             }
             else if (column.length > i)
             {
+                let avatar_cell = row.insertCell()
+                avatar_cell.onclick = (event) => mark_team(list, team)
+
                 let team = column[i]
                 let classes = []
                 if (i > 1)
                 {
                     classes.push('team_cell')
+
+                    let avatar = document.createElement('img')
+                    avatar.className = 'avatar'
+                    avatar.src = dal.get_value(team, 'pictures.avatar')
+                    avatar_cell.append(avatar)
                 }
                 if (dal.picklists['picked'] && dal.picklists['picked'].includes(team))
                 {
@@ -203,6 +212,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
             }
             else
             {
+                row.insertCell()
                 row.insertCell()
             }
         }
