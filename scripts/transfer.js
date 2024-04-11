@@ -851,6 +851,17 @@ class ZipHandler
                                     ignore_all = confirm(`Ignore all version mismatches?`)
                                 }
                             }
+
+                            // warn if reported app version does not match
+                            version = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
+                            if (!ignore_all && write && version !== VERSION_DEFAULT && 'meta_app_version' in new_json && new_json.meta_app_version !== version)
+                            {
+                                write = confirm(`App version mismatch on ${n}, continue?`)
+                                if (write)
+                                {
+                                    ignore_all = confirm(`Ignore all version mismatches?`)
+                                }
+                            }
                         }
 
                         if (write)
