@@ -970,6 +970,12 @@ function drop_handler(e)
     else
     {
         i = parseInt(dropped_on.split('_')[1]) + 1
+        let x = e.clientX - document.getElementById(dropped_on).getBoundingClientRect().left
+        let middle = document.getElementById(dropped_on).offsetWidth / 2
+        if (x < middle)
+        {
+            i -= 1
+        }
     }
     if (i > old_idx)
     {
