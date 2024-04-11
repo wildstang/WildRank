@@ -42,7 +42,7 @@ function init_page()
     key_row.append(build_key('yellow', 'Note Only'))
     key_row.append(build_key('orange', 'Unsure'))
     key_row.append(build_key('red', 'Unscouted'))
-    key_row.append(build_key('blue', 'Ignored'))
+    key_row.append(build_key('turquoise', 'Ignored'))
 
     // build match result table
     let matches = Object.keys(dal.matches)
@@ -76,7 +76,7 @@ function init_page()
             {
                 if (dal.get_result_value(team, match, 'meta_ignore'))
                 {
-                    color = 'blue'
+                    color = 'turquoise'
                     link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
                 }
                 else if (dal.get_result_value(team, match, 'meta_unsure'))
