@@ -1,5 +1,5 @@
 {
-    "version": "wr-3.1.0",
+    "version": "wr-3.2.0",
     "note": [
         {
             "name": "Notes",
@@ -21,6 +21,22 @@
                             ],
                             "default": 1,
                             "negative": true
+                        },
+                        {
+                            "name": "Role",
+                            "id": "note_notes_team_role",
+                            "type": "select",
+                            "colors": [],
+                            "images": [],
+                            "options": [
+                                "Cycler",
+                                "Cleanup",
+                                "Feeder",
+                                "Source D",
+                                "Blocker",
+                                "None"
+                            ],
+                            "default": "None"
                         },
                         {
                             "name": "Notes",
@@ -492,47 +508,6 @@
                                 "NA"
                             ],
                             "default": "NA"
-                        },
-                        {
-                            "name": "Notes Attempted",
-                            "id": "match_auto_scoring_notes_attempted",
-                            "type": "multiselect",
-                            "colors": [],
-                            "images": [],
-                            "options": [
-                                "Preload",
-                                "WA",
-                                "CA",
-                                "",
-                                "WB",
-                                "CB",
-                                "",
-                                "WC",
-                                "CC",
-                                "",
-                                "",
-                                "CD",
-                                "",
-                                "",
-                                "CE"
-                            ],
-                            "default": [
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false,
-                                false
-                            ]
                         }
                     ]
                 },
