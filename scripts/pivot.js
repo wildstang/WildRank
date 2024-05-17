@@ -447,8 +447,9 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         col_header.onclick = (event) => build_table(i, key == selected_keys[sort_by] && !reverse)
         col_header.onauxclick = (event) => alt_option(key)
         col_header.oncontextmenu = (event) => false
-        col_header.ontouchstart = (event) => touch_button(false)
-        col_header.ontouchend = (event) => touch_button(`alt_option('${key}')`)
+        col_header.ontouchstart = (event) => touch_start()
+        col_header.ontouchmove = (event) => touch_move()
+        col_header.ontouchend = (event) => touch_end(`alt_option('${key}')`)
         keys_row.append(col_header)
 
         // determine column to pull existing stat and filter values from

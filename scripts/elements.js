@@ -249,8 +249,9 @@ class Button extends Element
                 eval(this.on_right)
                 return false
             }
-            button.ontouchstart = (event) => eval(touch_button(false))
-            button.ontouchend = (event) => eval(touch_button(`${this.on_hold}`))
+            button.ontouchstart = (event) => touch_start()
+            button.ontouchmove = (event) => touch_move()
+            button.ontouchend = (event) => touch_end(`${this.on_hold}`)
         }
 
         let container = document.createElement('span')
@@ -838,8 +839,9 @@ class MultiButton extends MultiInput
                 eval(this.on_rights[i])
                 return false
             }
-            option.ontouchstart = (event) => touch_button(false)
-            option.ontouchend = (event) => touch_button(`'${this.on_holds[i]}'`)
+            option.ontouchstart = (event) => touch_start()
+            option.ontouchmove = (event) => touch_move()
+            option.ontouchend = (event) => touch_end(`'${this.on_holds[i]}'`)
             option.append(label)
             rows[rows.length - 1].push(option)
         }
@@ -1095,8 +1097,9 @@ class Counter extends Input
             increment(this.id, true, this.on_decrement)
             return false
         }
-        number.ontouchstart = (event) => touch_button(false)
-        number.ontouchend = (event) => touch_button(`increment('${this.id}', true, '${this.on_decrement.replace(/'/g, '\\\'')}')`)
+        number.ontouchstart = (event) => touch_start()
+        number.ontouchmove = (event) => touch_move()
+        number.ontouchend = (event) => touch_end(`increment('${this.id}', true, '${this.on_decrement.replace(/'/g, '\\\'')}')`)
         number.append(value)
         number.append(' ')
         number.append(label)
@@ -1156,8 +1159,9 @@ class Cycler extends Counter
             increment(`${this.id}-value`, true, on_decr)
             return false
         }
-        back.ontouchstart = (event) => touch_button(false)
-        back.ontouchend = (event) => touch_button(`increment('${this.id}-value', true, '${on_decr}')`)
+        back.ontouchstart = (event) => touch_start()
+        back.ontouchmove = (event) => touch_move()
+        back.ontouchend = (event) => touch_end(`increment('${this.id}-value', true, '${on_decr}')`)
 
         let value = document.createElement('label')
         value.id = `${this.id}-value`
@@ -1189,8 +1193,9 @@ class Cycler extends Counter
             increment(`${this.id}-value`, false, on_incr)
             return false
         }
-        save.ontouchstart = (event) => touch_button(false)
-        save.ontouchend = (event) => touch_button(`increment('${this.id}-value', false, '${on_incr}')`)
+        save.ontouchstart = (event) => touch_start()
+        save.ontouchmove = (event) => touch_move()
+        save.ontouchend = (event) => touch_end(`increment('${this.id}-value', false, '${on_incr}')`)
         save.append(save_text)
 
         let cycler = document.createElement('div')
@@ -1267,8 +1272,9 @@ class MultiCounter extends MultiInput
                 increment(`${name}-value`, true)
                 return false
             }
-            option.ontouchstart = (event) => touch_button(false)
-            option.ontouchend = (event) => touch_button(`increment('${name}-value', true)`)
+            option.ontouchstart = (event) => touch_start()
+            option.ontouchmove = (event) => touch_move()
+            option.ontouchend = (event) => touch_end(`increment('${name}-value', true)`)
             option.append(value)
             option.append(' ')
             option.append(label)
@@ -1698,23 +1704,24 @@ class Option extends Element
             option.id = `${this.type}_${this.id}`
             option.onclick = (event) => open_option(this.id)
             option.onauxclick = (event) => {
-                touch_button(`alt_option('${this.id}')`)
+                touch_end(event, `alt_option('${this.id}')`)
                 return false
             }
-            option.ontouchend = (event) => touch_button(`alt_option('${this.id}')`)
+            option.ontouchend = (event) => touch_end(`alt_option('${this.id}')`)
         }
         else
         {
             option.id = `soption_${this.id}`
             option.onclick = (event) => open_secondary_option(this.id)
             option.onauxclick = (event) => {
-                touch_button(`alt_secondary_option('${this.id}')`)
+                touch_end(event, `alt_secondary_option('${this.id}')`)
                 return false
             }
-            option.ontouchend = (event) => touch_button(`alt_secondary_option('${this.id}')`)
+            option.ontouchend = (event) => touch_end(`alt_secondary_option('${this.id}')`)
         }
         option.oncontextmenu = (event) => false
-        option.ontouchstart = (event) => touch_button(false)
+        option.ontouchstart = (event) => touch_start()
+        option.ontouchmove = (event) => touch_move()
         option.className = this.type
         option.classList.add(...this.classes)
         if (this.selected)
@@ -1842,24 +1849,32 @@ function create_header(label)
 var last_touch = -1
 
 /**
- * function:    touch_button
- * parameters:  secondary click function
- * returns:     none
- * description: Respond to touch screen event on button.
+ * Log the time the screen was touched.
  */
-function touch_button(secondary)
+function touch_start()
 {
-    if (secondary !== false)
+    last_touch = Date.now()
+}
+
+/**
+ * Reset any previous touch.
+ */
+function touch_move()
+{
+    last_touch = -1
+}
+
+/**
+ * Execute a given string if it has been 500ms since the screen was touched.
+ * @param {String} func JS string to evaluate
+ */
+function touch_end(func)
+{
+    if (last_touch > 0 && Date.now() - last_touch > 500)
     {
-        if (Date.now() - last_touch > 500)
-        {
-            eval(secondary)
-        }
+        eval(func)
     }
-    else
-    {
-        last_touch = Date.now()
-    }
+    last_touch = -1
 }
 
 /**

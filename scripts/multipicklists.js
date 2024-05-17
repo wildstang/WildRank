@@ -169,8 +169,9 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                     let cell = row.insertCell()
                     cell.className = selected
                     cell.oncontextmenu = (event) => { remove_list(list); return false }
-                    cell.ontouchstart = (event) => touch_button(false)
-                    cell.ontouchend = (event) => touch_button(`remove_list('${list}')`)
+                    cell.ontouchstart = (event) => touch_start()
+                    cell.ontouchmove = (event) => touch_move()
+                    cell.ontouchend = (event) => touch_end(`remove_list('${list}')`)
                     cell.append(name)
                 }
                 else
