@@ -428,11 +428,11 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     {
         let key = selected[i]
         let sort_char = ''
-        if (key == selected_keys[sort_by] && reverse)
+        if (i === sort_by && reverse)
         {
             sort_char = ' &#9650'
         }
-        else if (key == selected_keys[sort_by] && !reverse)
+        else if (i === sort_by && !reverse)
         {
             sort_char = ' &#9660'
         }
