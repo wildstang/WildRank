@@ -170,6 +170,7 @@
 .wr_dropdown {
     width: var(--input-width);
     height: var(--input-height);
+    -webkit-appearance: none;
 }
 
 .wr_dropdown.slim, .wr_select.slim {
