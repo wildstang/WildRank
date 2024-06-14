@@ -126,10 +126,10 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         {
             first = ''
             scouted = 'scouted'
-            if (dal.get_value(number, 'pit.meta_pit_unsure'))
+            /*if (dal.get_value(number, 'pit.meta_pit_unsure'))
             {
                 scouted = 'highlighted'
-            }
+            }*/
         }
         else if (first == '')
         {

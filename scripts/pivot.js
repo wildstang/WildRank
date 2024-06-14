@@ -607,10 +607,10 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             dal.save_picklists()
             build_table(sort_by, reverse, moved_idx, placed_idx)
         }
-        if (dal.is_unsure(team))
+        /*if (dal.is_unsure(team))
         {
             team_num.classList.add('highlighted')
-        }
+        }*/
         if (picked_teams.includes(team))
         {
             row.classList.add('faded')

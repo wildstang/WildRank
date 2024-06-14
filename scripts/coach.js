@@ -230,10 +230,10 @@ function build_table(alliance, teams)
 
         let team_header = document.createElement('th')
         team_header.innerText = team
-        if (dal.is_unsure(team))
+        /*if (dal.is_unsure(team))
         {
             team_header.classList.add('highlighted')
-        }
+        }*/
         teams_header.append(team_header)
 
         let name = document.createElement('th')
