@@ -15,6 +15,7 @@ let selected_keys = []
 let last_sort = 0
 let last_reverse = false
 var results_tab
+var selected_teams = []
 
 const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
 
@@ -307,6 +308,24 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
     {
         filter_teams.reverse()
     }
+
+    // move selected teams to the top
+    filter_teams.sort((a, b) => {
+        let highlight_a = selected_teams.includes(a)
+        let highlight_b = selected_teams.includes(b)
+        if (highlight_a == highlight_b)
+        {
+            return 0
+        }
+        else if (highlight_a)
+        {
+            return -1
+        }
+        else
+        {
+            return 1
+        }
+    })
 
     return filter_teams
 }
@@ -607,10 +626,17 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             dal.save_picklists()
             build_table(sort_by, reverse, moved_idx, placed_idx)
         }
-        /*if (dal.is_unsure(team))
+        team_num.oncontextmenu = (event) => {
+            toggle_selected_team(team)
+            return false
+        }
+        team_num.ontouchstart = (event) => touch_start()
+        team_num.ontouchmove = (event) => touch_move()
+        team_num.ontouchend = (event) => touch_end(`toggle_selected_team('${team}')`)
+        if (selected_teams.includes(team)) // (dal.is_unsure(team))
         {
             team_num.classList.add('highlighted')
-        }*/
+        }
         if (picked_teams.includes(team))
         {
             row.classList.add('faded')
@@ -671,6 +697,24 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     results_tab.replaceChildren(table)
 
     sessionStorage.setItem(SESSION_TYPES_KEY, JSON.stringify(selected_types))
+}
+
+/**
+ * Toggles whether a given team is selected.
+ * 
+ * @param {String} team_num Team number to toggle
+ */
+function toggle_selected_team(team_num)
+{
+    if (selected_teams.includes(team_num))
+    {
+        selected_teams.splice(selected_teams.indexOf(team_num), 1)
+    }
+    else
+    {
+        selected_teams.push(team_num)
+    }
+    build_table(last_sort, last_reverse)
 }
 
 /**
