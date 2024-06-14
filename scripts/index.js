@@ -356,11 +356,11 @@ function is_blocked(id)
     {
         return 'Please set your school id'
     }
-    if ((id === 'drive' || id === 'analysis' || id === 'admin') && !cfg.is_admin(user))
+    if (id === 'admin' && !cfg.is_admin(user))
     {
         return 'Missing admin privileges'
     }
-    if (id === 'scout' && !has_matches())
+    if ((id === 'drive' || id === 'scout') && !has_matches())
     {
         return 'Missing match data'
     }
