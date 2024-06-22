@@ -29,16 +29,21 @@ function init_page()
 {
     header_info.innerText = 'Pivot Table'
 
+    let picklists = ['None'].concat(Object.keys(dal.picklists))
+
+    let sort_picklist = new Dropdown('sort_picklist', 'Sort By Picklist', picklists)
+    sort_picklist.on_change = `build_table(-1, ${last_reverse})`
     let picklist_button = new Button('create_picklist', 'Save to Picklist', 'save_picklist()')
     let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
     let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
 
     results_tab = document.createElement('table')
     let card = new Card('contents_card', [results_tab])
-    preview.append(card.element, picklist_button.element, export_button.element, import_button.element)
-    
+    preview.append(new PageFrame('', '', [card, new ColumnFrame('', '', [sort_picklist, import_button]),
+                                          new ColumnFrame('', '', [picklist_button, export_button])]).element)
+
     // add pick list filter
-    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
+    add_dropdown_filter('picklist_filter', picklists, 'filter_teams()', false)
     add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true, 'Stats')
 
     // add select button above secondary list
@@ -246,62 +251,86 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
 {
     let filter_teams = get_secondary_selected_keys()
 
-    let key = selected_keys[sort_by]
-    if (typeof key === 'undefined')
+    if (sort_by < 0)
     {
-        key = ''
-    }
-
-    let t = ''
-    if (key in dal.meta)
-    {
-        t = dal.meta[key].type
-    }
-
-    if (t === 'string' || t === 'text')
-    {
-        filter_teams.sort((a,b) => dal.get_value(a, key, type).localeCompare(dal.get_value(b, key, type)))
-    }
-    else if (type === 'total' && (t === 'select' || t === 'dropdown'))
-    {
-        filter_teams.sort((a,b) => {
-            // total stats are stored as HTML string so some string manipulation is needed
-            let a_val = dal.get_value(a, key, type).split('<br>')[0].split(' ')[1]
-            let b_val = dal.get_value(b, key, type).split('<br>')[0].split(' ')[1]
-            if (isNaN(a_val) && isNaN(b_val))
-            {
-                return 0
-            }
-            else if (isNaN(a_val))
-            {
-                return 1
-            }
-            else if (isNaN(b_val))
-            {
-                return -1
-            }
-            return b_val - a_val
-        })
+        let name = document.getElementById('sort_picklist').value
+        if (name in dal.picklists)
+        {
+            let list = dal.picklists[name]
+            filter_teams.sort((a,b) => {
+                let a_idx = list.indexOf(a)
+                if (a_idx < 0)
+                {
+                    a_idx = list.length
+                }
+                let b_idx = list.indexOf(b)
+                if (b_idx < 0)
+                {
+                    b_idx = list.length
+                }
+                return a_idx - b_idx
+            })
+        }
     }
     else
     {
-        filter_teams.sort((a,b) => {
-            let a_val = dal.get_value(a, key, type)
-            let b_val = dal.get_value(b, key, type)
-            if (isNaN(a_val) && isNaN(b_val))
-            {
-                return 0
-            }
-            else if (isNaN(a_val))
-            {
-                return 1
-            }
-            else if (isNaN(b_val))
-            {
-                return -1
-            }
-            return b_val - a_val
-        })
+        let key = selected_keys[sort_by]
+        if (typeof key === 'undefined')
+        {
+            key = ''
+        }
+    
+        let t = ''
+        if (key in dal.meta)
+        {
+            t = dal.meta[key].type
+        }
+    
+        if (t === 'string' || t === 'text')
+        {
+            filter_teams.sort((a,b) => dal.get_value(a, key, type).localeCompare(dal.get_value(b, key, type)))
+        }
+        else if (type === 'total' && (t === 'select' || t === 'dropdown'))
+        {
+            filter_teams.sort((a,b) => {
+                // total stats are stored as HTML string so some string manipulation is needed
+                let a_val = dal.get_value(a, key, type).split('<br>')[0].split(' ')[1]
+                let b_val = dal.get_value(b, key, type).split('<br>')[0].split(' ')[1]
+                if (isNaN(a_val) && isNaN(b_val))
+                {
+                    return 0
+                }
+                else if (isNaN(a_val))
+                {
+                    return 1
+                }
+                else if (isNaN(b_val))
+                {
+                    return -1
+                }
+                return b_val - a_val
+            })
+        }
+        else
+        {
+            filter_teams.sort((a,b) => {
+                let a_val = dal.get_value(a, key, type)
+                let b_val = dal.get_value(b, key, type)
+                if (isNaN(a_val) && isNaN(b_val))
+                {
+                    return 0
+                }
+                else if (isNaN(a_val))
+                {
+                    return 1
+                }
+                else if (isNaN(b_val))
+                {
+                    return -1
+                }
+                return b_val - a_val
+            })
+        }
     }
 
     if (reverse)
