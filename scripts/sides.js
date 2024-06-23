@@ -136,7 +136,7 @@ function open_both_teams()
     val_el.replaceChildren(build_header(selectedA), build_header(selectedB), summary)
 
     results_tab.replaceChildren()
-    results_tab.insertRow().append(create_header('Key'), create_header(selectedA), create_header(selectedB), create_header('Max'))
+    results_tab.append(create_header_row(['Key', selectedA, selectedB, 'Max']))
     let keys = dal.get_keys(true, true, true, false)
     let type = SORT_OPTIONS[Select.get_selected_option('type_form')]
     for (let key of keys)

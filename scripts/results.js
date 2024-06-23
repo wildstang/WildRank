@@ -160,7 +160,7 @@ function open_option(option)
 
     let alliances = dal.build_relative_alliances(team, match)
     results_tab.replaceChildren()
-    results_tab.insertRow().append(document.createElement('th'), create_header('Match Value'))
+    results_tab.append(create_header_row(['', 'Match Value']))
     let keys = Object.keys(result)
     if (!show_meta.checked)
     {

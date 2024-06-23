@@ -96,7 +96,7 @@ function open_option(user_id)
 
     // create table of scouted matches
     let time_table = document.createElement('table')
-    row = time_table.insertRow().append(create_header('Match'), create_header('Team'), create_header('Position'), create_header('Start Delay'), create_header('Duration'))
+    time_table.append(create_header_row(['Match', 'Team', 'Position', 'Start Delay', 'Duration']))
     for (let match of matches)
     {
         let pos = match.meta_position
@@ -116,7 +116,7 @@ function open_option(user_id)
         {
             delays.push(0)
         }
-        row = time_table.insertRow()
+        let row = time_table.insertRow()
         row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
         row.insertCell().innerText = match.meta_team
@@ -146,7 +146,7 @@ function open_option(user_id)
         {
             delays.push(0)
         }
-        row = time_table.insertRow()
+        let row = time_table.insertRow()
         row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
         row.insertCell().innerText = match.meta_alliance
@@ -154,7 +154,7 @@ function open_option(user_id)
         row.insertCell().innerText = `${delays[delays.length - 1]}s`
         row.insertCell().innerHTML = `${match.meta_note_scouting_duration.toFixed()}s`
     }
-    row = time_table.insertRow()
+    let row = time_table.insertRow()
     row.append(create_header('Mean'))
     row.insertCell()
     row.insertCell()
@@ -163,7 +163,7 @@ function open_option(user_id)
 
     // create table of scouted pits
     let pit_table = document.createElement('table')
-    pit_table.insertRow().append(create_header('Team'), create_header('Duration'))
+    pit_table.append(create_header_row(['Team', 'Duration']))
     for (let pit of pits)
     {
         let row = pit_table.insertRow()
@@ -173,7 +173,7 @@ function open_option(user_id)
 
     // create table of scouting positions
     let pos_table = document.createElement('table')
-    pos_table.insertRow().append(create_header('Position'), create_header('Matches Scouted'))
+    pos_table.append(create_header_row(['Position', 'Matches Scouted']))
     for (let pos in pos_counts)
     {
         let row = pos_table.insertRow()

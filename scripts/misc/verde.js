@@ -24,11 +24,8 @@ function init_page()
     contents.append(summary, table)
 
     let year = parseInt(cfg.year)
-    let header = table.insertRow()
-    header.append(create_header('Team'), create_header(''), create_header('HoF'), create_header('Champ'),
-                  create_header('Reigning Champ'), create_header(`${year} Event Impact`), create_header(`${year} Event Wins`),
-                  create_header('Reigning Event Winner'), create_header(`${year} Event Finalists`),
-                  create_header('EI'), create_header(`${year - 1} Event Wins`))
+    table.append(create_header_row(['Team', '', 'HoF', 'Champ', 'Reigning Champ', `${year} Event Impact`, `${year} Event Wins`,
+        'Reigning Event Winner', `${year} Event Finalists`, 'EI', `${year - 1} Event Wins`]))
 
     let card = new Card('card', contents)
     body.append(new PageFrame('', '', [card]).element)

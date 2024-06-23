@@ -158,7 +158,7 @@ function build_plot()
 
     // build key
     key_tab.replaceChildren()
-    key_tab.insertRow().append(create_header('Color'), create_header('Value'))
+    key_tab.append(create_header_row(['Color', 'Value']))
     for (let i in selected_teams)
     {
         let team = selected_teams[i]

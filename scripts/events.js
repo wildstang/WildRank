@@ -22,8 +22,7 @@ function init_page()
     table.style.textAlign = 'left'
     contents.append(summary, table)
 
-    let header = table.insertRow()
-    header.append(create_header('Event'), create_header('Key'), create_header('Start Date'), create_header('Team Count'), create_header('Teams'))
+    table.append(create_header_row(['Event', 'Key', 'Start Date', 'Team Count', 'Teams']))
 
     let card = new Card('card', contents)
     body.append(new PageFrame('', '', [card]).element)

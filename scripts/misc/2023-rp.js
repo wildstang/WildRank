@@ -42,7 +42,7 @@ function process_event()
     let event_id = document.getElementById('event').value
     summary.innerText = 'Loading data....'
 
-    table.insertRow().append(create_header('Team'), create_header('Original Rank'), create_header('Original RPs'), create_header('New Rank'), create_header('New RPs'), create_header('Total Points'))
+    table.append(create_header_row(['Team', 'Original Rank', 'Original RPs', 'New Rank', 'New RPs', 'Total Points']))
 
     if (!TBA_KEY)
     {

@@ -141,7 +141,7 @@ function populate_table()
 {
     let team = document.getElementById('team').value
     summary.innerText = `${team} has won with ${Object.keys(partners).length} unique partners.`
-    table.insertRow().append(create_header('Team'), create_header('Banners'), create_header('Events'))
+    table.append(create_header_row(['Team', 'Banners', 'Events']))
 
     let teams = Object.keys(partners)
     for (let partner of teams)

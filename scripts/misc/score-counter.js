@@ -40,10 +40,10 @@ function init_page()
     summary.innerText = 'Loading data...'
     type_tab = document.createElement('table')
     type_tab.style.textAlign = 'right'
-    type_tab.insertRow().append(create_header('Year'), create_header('Matches'), create_header('Average'), create_header('Winning'), create_header('Losing'), create_header('Share'), create_header('Regional'), create_header('District'), create_header('Dist Champ'), create_header('Champ Div'), create_header('Champ Final'), create_header('Dist Champ Div'))
+    type_tab.append(create_header_row(['Year', 'Matches', 'Average', 'Winning', 'Losing', 'Share', 'Regional', 'District', 'Dist Champ', 'Champ Div', 'Champ Final', 'Dist Champ Div']))
     week_tab = document.createElement('table')
     week_tab.style.textAlign = 'right'
-    week_tab.insertRow().append(create_header('Year'), create_header('Week 0'), create_header('Week 1'), create_header('Week 2'), create_header('Week 3'), create_header('Week 4'), create_header('Week 5'), create_header('Week 6'), create_header('Week 7'), create_header('Week 8'), create_header('Championship'), create_header('Offseason'))
+    week_tab.append(create_header_row(['Year', 'Week 0', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Championship', 'Offseason']))
     card_container.append(summary, type_tab, week_tab)
     let card = new Card('card', card_container)
     let select = new Select('stat', 'Stat', STAT_OPTIONS)

@@ -237,9 +237,7 @@ function process_year(year)
                     {
                         if (!header)
                         {
-                            let row = week_tab.insertRow()
-                            row.insertCell()
-                            row.append(create_header(week))
+                            week_tab.append(create_header_row(['', week]))
                             header = true
                         }
                         count++

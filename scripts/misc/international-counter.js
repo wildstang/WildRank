@@ -47,7 +47,7 @@ function process_year()
     let year = document.getElementById('year').value
     summary.innerText = 'Loading data....'
 
-    table.insertRow().append(create_header('Regional'), create_header('Location'), create_header('Total Teams'), create_header('International Teams'), create_header('Percent International'))
+    table.append(create_header_row(['Regional', 'Location', 'Total Teams', 'International Teams', 'Percent International']))
 
     if (!TBA_KEY)
     {

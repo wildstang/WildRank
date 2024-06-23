@@ -43,7 +43,7 @@ function process_year()
     let year = document.getElementById('year').value
     summary.innerHTML = 'Loading data....'
 
-    table.insertRow().append(create_header('Event'), create_header('Match'), create_header('Red Alliance'), create_header('Red Score'), create_header('Blue Alliance'), create_header('Blue Score'), create_header('Combined Score'))
+    table.append(create_header_row(['Event', 'Match', 'Red Alliance', 'Red Score', 'Blue Alliance', 'Blue Score', 'Combined Score']))
 
     if (!TBA_KEY)
     {

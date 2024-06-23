@@ -50,7 +50,7 @@ function init_page()
     scouters = match_users.concat(note_users, pit_users)
     scouters = [... new Set(scouters)]
     scouters.sort()
-    let names = scouters.map(id => cfg.get_name(id, false))
+    let names = scouters.map(id => '' + cfg.get_name(id, false))
     names = [''].concat(names)
 
     // build filters
@@ -164,9 +164,7 @@ function filter_notes()
                 {
                     name = dal.matches[key].short_match_name
                 }
-                let row = table.insertRow()
-                row.appendChild(create_header(name))
-                row.insertCell()
+                table.append(create_header_row([name, '']))
                 for (let note of notes[key])
                 {
                     let row = table.insertRow()

@@ -165,8 +165,7 @@ function open_option(match_key)
         {
             // create score breakdown header
             let table = document.createElement('table')
-            let row = table.insertRow()
-            row.append(create_header('Key'), create_header('Red'), create_header('Blue'))
+            table.append(create_header_row(['Key', 'Red', 'Blue']))
 
             // add each team
             for (let key of Object.keys(breakdown.red))
@@ -174,7 +173,7 @@ function open_option(match_key)
                 let name = key.replace('tba_', '')
                 name = name[0].toUpperCase() + name.substring(1).split(/(?=[A-Z])/).join(' ')
                 name = name.replace('1', ' 1').replace('2', ' 2').replace('3', ' 3')
-                row = table.insertRow()
+                let row = table.insertRow()
                 row.append(create_header(name))
                 row.insertCell().append(parse_val(breakdown.red[key]))
                 row.insertCell().append(parse_val(breakdown.blue[key]))
