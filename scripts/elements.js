@@ -1846,6 +1846,24 @@ function create_header(label)
     return th
 }
 
+/**
+ * function:    create_header_row
+ * parameters:  labels text
+ * returns:     HTML tr
+ * description: Creates a table row element with a set of headers using the provided label text.
+ */
+function create_header_row(labels)
+{
+    let tr = document.createElement('tr')
+    for (label of labels)
+    {
+        let th = document.createElement('th')
+        th.innerText = label
+        tr.append(th)
+    }
+    return tr
+}
+
 var last_touch = -1
 
 /**
