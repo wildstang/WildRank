@@ -5,21 +5,17 @@
  * date:        2023-04-29
  */
 
-class Element
+class WRElement extends HTMLElement
 {
-    constructor(id, label)
+    constructor()
     {
-        if (id !== '')
-        {
-            this.id = id
-        }
-        else if (typeof label === 'string')
-        {
-            this.id = label.toLowerCase().replaceAll(/ /g, '_')
-        }
-        this.label = label
+        super()
+
         this.description = '' 
+        this.class = ''
         this.classes = []
+
+        this.description_el = document.createElement('small')
     }
 
     add_class(style_class)
@@ -27,53 +23,30 @@ class Element
         this.classes.push(style_class)
     }
 
-    get element()
-    {
-        return document.createElement('div')
-    }
-
-    get label_element()
-    {
-        if (this.label)
-        {
-            let label = document.createElement('h4')
-            label.className = 'input_label'
-            label.id = `${this.id}_label`
-            label.append(this.label)
-            return label
-        }
-        return ''
-    }
-
     get description_element()
     { 
         if (this.description)
         {
-            let description = document.createElement('small')
-            description.className = 'wr_description'
-            description.id = `${this.id}_desc`
-            description.append(this.description)
-            return description
+            this.description_el.className = 'wr_description'
+            this.description_el.id = `${this.id}_desc`
+            this.description_el.append(this.description)
         }
-        return ''
-    }
-    
-    get header()
-    {
-        let header = document.createElement('span')
-        header.append(this.label_element)
-        header.append(this.description_element)
-        return header
+        return this.description_el
     }
 }
 
-class PageFrame extends Element
+class WRPage extends WRElement
 {
-    constructor(id='', label='', columns=[])
+    constructor(label='', columns=[])
     {
-        super(id, label)
+        super()
+
+        this.label = label
         this.columns = columns
         this.top_margin = true
+
+        this.label_el = document.createElement('h2')
+        this.element = document.createElement('div')
     }
 
     add_column(column)
@@ -81,52 +54,44 @@ class PageFrame extends Element
         this.columns.push(column)
     }
 
-    get label_element()
+    connectedCallback()
     {
         if (this.label)
         {
-            let label = document.createElement('h2')
-            label.className = 'page_header'
-            label.id = `${this.id}_label`
-            label.append(this.label)
-            return label
+            this.label_el.className = 'page_header'
+            this.label_el.id = `${this.id}_label`
+            this.label_el.append(this.label)
+            this.element.append(this.label_el)
         }
-        return ''
-    }
 
-    get element()
-    {
-        let page = document.createElement('div')
-        page.id = this.id
-        page.className = 'page'
+        this.element.className = 'page'
         if (!this.top_margin)
         {
-            page.classList.add('no_top_margin')
+            this.element.classList.add('no_top_margin')
         }
-        page.classList.add(...this.classes)
-        page.append(this.label_element)
+        this.element.classList.add(...this.classes)
         for (let c of this.columns)
         {
-            if (c instanceof Element)
-            {
-                page.append(c.element)
-            }
-            else
-            {
-                page.append(c)
-            }
+            this.element.append(c)
         }
-        return page
+
+        this.append(this.element)
     }
 }
 
-class ColumnFrame extends Element
+customElements.define('wr-page', WRPage)
+
+class WRColumn extends WRElement
 {
-    constructor(id='', label='', inputs=[])
+    constructor(label='', inputs=[])
     {
-        super(id, label)
+        super()
+
+        this.label = label
         this.inputs = inputs
         this.max = 0
+
+        this.label_el = document.createElement('h2')
     }
 
     add_input(input)
@@ -134,21 +99,19 @@ class ColumnFrame extends Element
         this.inputs.push(input)
     }
 
-    get label_element()
+    connectedCallback()
     {
         if (this.label)
         {
-            let label = document.createElement('h2')
-            label.className = 'column_header'
-            label.id = `${this.id}_label`
-            label.append(this.label)
-            return label
+            this.label_el.className = 'column_header'
+            this.label_el.id = `${this.id}_label`
+            this.label_el.append(this.label)
         }
-        return ''
-    }
+        else
+        {
+            this.label_el.style.display = 'none'
+        }
 
-    get element()
-    {
         if (this.max > 0 && this.inputs.length > this.max)
         {
             let cols = document.createElement('span')
@@ -158,15 +121,15 @@ class ColumnFrame extends Element
                 col.id = `${this.id}_${i}`
                 col.className = 'column'
                 col.classList.add(...this.classes)
-                col.append(this.label_element)
+                col.append(this.label_el)
                 for (let j = i * this.max; j < (i + 1) * this.max && j < this.inputs.length; j++)
                 {
                     let input = this.inputs[j]
-                    col.append(input instanceof Element ? input.element : input)
+                    col.append(input)
                 }
                 cols.append(col)
             }
-            return cols
+            this.append(cols)
         }
         else
         {
@@ -174,333 +137,319 @@ class ColumnFrame extends Element
             col.id = this.id
             col.className = 'column'
             col.classList.add(...this.classes)
-            col.append(this.label_element)
+            col.append(this.label_el)
             for (let i of this.inputs)
             {
-                col.append(i instanceof Element ? i.element : i)
+                col.append(i)
             }
-            return col
+            this.append(col)
         }
     }
 }
 
-class Input extends Element
-{
-    constructor(id, label, value='')
-    {
-        super(id, label)
-        this.value = value
-    }
+customElements.define('wr-column', WRColumn)
 
-    set default(value)
-    {
-        this.value = value
-    }
-}
-
-class Button extends Element
+class WRButton extends WRElement
 {
-    constructor(id, label, on_click='')
+    constructor(label, on_click)
     {
-        super(id, label)
+        super()
+
+        this.label = label
         this.on_click = on_click
-        this.on_right = ''
-        this.on_hold = ''
+        this.on_right = false
+        this.primary_class = 'wr_button'
+
+        this.label_el = document.createElement('label')
+        this.element = document.createElement('div')
     }
 
-    // NOTE: a function as a string can be passed or a URL wrapped in quotes
-    set link(url)
+    connectedCallback()
     {
-        this.on_click = `window_open(${url}, '_self')`
-        this.on_secondary = `window_open(${url}, '_blank')`
-    }
+        this.label_el.innerText = this.label
 
-    set external_link(url)
-    {
-        this.on_click = `window_open('${url}', '_blank')`
-        this.on_secondary = `window_open('${url}', '_blank')`
-    }
-
-    set on_secondary(on_secondary)
-    {
-        this.on_right = on_secondary
-        this.on_hold = on_secondary
-    }
-
-    get element()
-    {
-        let label = document.createElement('label')
-        label.id = this.id
-        label.append(this.label)
-
-        let button = document.createElement('div')
-        button.id = `${this.id}-container`
-        button.className = 'wr_button'
-        button.classList.add(...this.classes)
-        button.append(label)
-        if (this.on_click)
+        this.element.className = this.primary_class
+        this.element.onclick = this.on_click
+        if (this.on_right)
         {
-            button.onclick = (event) => eval(this.on_click)
+            this.element.oncontextmenu = () => false
+            this.element.onauxclick = this.on_right
+            this.element.ontouchstart = event => touch_start(event)
+            this.element.ontouchend = event => touch_end(event, this.on_right)
         }
-        if (this.on_hold || this.on_right)
-        {
-            button.oncontextmenu = (event) => false
-            button.onauxclick = (event) => {
-                eval(this.on_right)
-                return false
+        this.element.classList.add(...this.classes)
+        this.element.appendChild(this.label_el)
+
+        this.append(this.description_element)
+        this.append(this.element)
+    }
+}
+
+customElements.define('wr-button', WRButton)
+
+class WRLinkButton extends WRButton
+{
+    constructor(label, link, new_tab=false)
+    {
+        let on_click = () => {
+            // It appeared that the new tab opening was triggering a new onclick call on iPad.
+            // So last_touch_time is made negative instead of -1 then we make sure there is a significant delay.
+            let since_last_touch = Date.now() + last_touch_time
+            if (since_last_touch < 400 || since_last_touch > 1000)
+            {
+                window_open(link, new_tab ? '_blank' : '_self')
             }
-            button.ontouchstart = (event) => touch_start()
-            button.ontouchmove = (event) => touch_move()
-            button.ontouchend = (event) => touch_end(`${this.on_hold}`)
         }
+        super(label, on_click)
 
-        let container = document.createElement('span')
-        container.append(this.description_element)
-        container.append(button)
-        return container
+        // TODO: After holding for about 750 ms this code runs but doesn't do anything on iPad.
+        this.on_right = () => window_open(link, '_blank')
     }
 }
 
-class Number extends Input
+customElements.define('wr-link-button', WRLinkButton)
+
+class WRNumber extends WRElement
 {
-    constructor(id, label, value=0)
+    constructor(label, value)
     {
-        super(id, label, value)
+        super()
+
+        this.label = label
+        this.value = value
+        this.primary_class = 'wr_number'
+
+        this.label_el = document.createElement('label')
+        this.value_el = document.createElement('label')
+        this.element = document.createElement('div')
     }
 
-    get element()
+    connectedCallback()
     {
-        let label = document.createElement('label')
-        label.append(this.label)
+        this.label_el.append(this.label)
 
-        let value = document.createElement('label')
-        value.className = 'wr_number_num'
-        value.id = this.id
-        value.append(this.value)
+        this.value_el.className = 'wr_number_num'
+        this.value_el.append(this.value)
 
-        let number = document.createElement('div')
-        number.className = 'wr_number'
-        number.classList.add(...this.classes)
-        number.append(label)
-        number.append(value)
+        this.element.className = this.primary_class
+        this.element.classList.add(...this.classes)
+        this.element.append(this.label_el)
+        this.element.append(this.value_el)
 
-        let container = document.createElement('span')
-        container.append(this.description_element)
-        container.append(number)
-        return container
+        this.append(this.description_element)
+        this.append(this.element)
+    }
+
+    set_value(value)
+    {
+        this.value = value
+        this.value_el.innerHTML = value
     }
 }
 
-class Card extends Element
+customElements.define('wr-number', WRNumber)
+
+class WRCard extends WRElement
 {
-    constructor(id, label)
+    constructor(text)
     {
-        super(id, label)
+        super()
+
+        this.text = text
         this.limitWidth = false
         this.custom_width = 0
         this.space_after = true
+
+        this.text_el = document.createElement('span')
+        this.element = document.createElement('div')
     }
 
-    get element()
+    connectedCallback()
     {
-        let label = document.createElement('span')
-        if (Array.isArray(this.label))
+        if (Array.isArray(this.text))
         {
-            label.append(...this.label)
+            this.text_el.append(...this.text)
         }
         else
         {
-            label.append(this.label)
+            this.text_el.append(this.text)
         }
 
-        let card = document.createElement('div')
-        card.id = this.id
-        card.className = 'wr_card'
-        card.classList.add(...this.classes)
-        card.append(label)
+        this.element.className = 'wr_card'
+        this.element.classList.add(...this.classes)
+        this.element.append(this.text_el)
 
         if (this.limitWidth)
         {
-            card.style.width = 'calc(var(--input-width) - 2*var(--input-padding))'
+            this.element.style.width = 'calc(var(--input-width) - 2*var(--input-padding))'
         }
         else if (this.custom_width > 0)
         {
-            card.style.width = `calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding))`
+            this.element.style.width = `calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding))`
         }
 
-        let container = document.createElement('span')
-        container.append(card)
+        this.append(this.element)
         if (this.space_after)
         {
-            container.append(br())
+            this.append(br())
         }
-        return container
     }
 }
 
-class StatusTile extends Element
+customElements.define('wr-card', WRCard)
+
+class WRStatusTile extends WRElement
 {
-    constructor(id, label, color='red')
+    constructor(label, color='red')
     {
-        super(id, label)
+        super()
+
+        this.label = label
         this.color = color
-        this.on_click = ''
+        this.on_click = false
+
+        this.label_el = document.createElement('label')
+        this.tile = document.createElement('label')
+        this.element = document.createElement('div')
     }
 
-    get element()
+    connectedCallback()
     {
-        let label = document.createElement('label')
-        label.id = `${this.id}-label`
-        label.className = 'color_text'
-        label.append(this.label)
+        this.label_el.className = 'color_text'
+        this.label_el.append(this.label)
 
-        let status = document.createElement('label')
-        status.id = this.id
-        status.className = 'color_box'
-        status.style.backgroundColor = this.color
+        this.tile.className = 'color_box'
+        this.tile.style.backgroundColor = this.color
         if (this.on_click)
         {
-            status.onclick = event => eval(this.on_click)
+            this.tile.onclick = this.on_click
         }
 
-        let tile = document.createElement('div')
-        tile.className = 'wr_status'
-        tile.classList.add(...this.classes)
-        tile.append(label)
-        tile.append(status)
+        this.element.className = 'wr_status'
+        this.element.classList.add(...this.classes)
+        this.element.append(this.label_el)
+        this.element.append(this.tile)
 
-        let container = document.createElement('span')
-        container.append(tile)
-        container.append(this.description_element)
-        return container
+        this.append(this.element)
+        this.append(this.description_element)
     }
 
-    set status(status)
+    set_status(status)
     {
-        StatusTile.set_status(this.id, status)
-    }
+        switch (status)
+        {
+            case -1:
+                this.color = 'red'
+                break
+            case 0:
+                this.color = 'orange'
+                break
+            case 1:
+            default:
+                this.color = 'green'
+                break
+        }
 
-    /**
-     * function:    set_status
-     * parameters:  element id, boolean/number(-1,0,1) status
-     * returns:     none
-     * description: Updates the color box with the provided color.
-     */
-    static set_status(id, status)
-    {
-        if (typeof status !== 'boolean')
-        {
-            switch (status)
-            {
-                case 1:
-                    status = 'green'
-                    break
-                case 0:
-                    status = 'orange'
-                    break
-                case -1:
-                default:
-                    status = 'red'
-                    break
-            }
-        }
-        else
-        {
-            status = status ? 'green' : 'red'
-        }
-        document.getElementById(id).style.backgroundColor = status
+        this.tile.style.backgroundColor = this.color
     }
 }
 
-class Checkbox extends Input
+customElements.define('wr-status-tile', WRStatusTile)
+
+class WRCheckbox extends WRElement
 {
-    constructor(id, label, value=false)
+    constructor(label, value=false)
     {
-        super(id, label, value)
-        this.on_click = ''
+        super()
+
+        this.id = label.toLowerCase().replace(' ', '-')
+        this.label = label
+        this.value = value
+        this.on_click = false
+
+        this.checkbox = document.createElement('input')
+        this.label_el = document.createElement('label')
+        this.element = document.createElement('div')
     }
 
-    get element()
+    connectedCallback()
     {
         if (this.value)
         {
             this.classes.push('selected')
         }
 
-        let box = document.createElement('input')
-        box.id = this.id
-        box.type = 'checkbox'
-        box.checked = this.value
+        this.checkbox.id = this.id
+        this.checkbox.type = 'checkbox'
+        this.checkbox.checked = this.value
 
-        let label = document.createElement('label')
-        label.for = this.id
-        label.append(this.label)
+        this.label_el.for = this.id
+        this.label_el.append(this.label)
 
-        let checkbox = document.createElement('div')
-        checkbox.id = `${this.id}-container`
-        checkbox.className = 'wr_checkbox'
-        checkbox.classList.add(...this.classes)
+        this.element.className = 'wr_checkbox'
+        this.element.classList.add(...this.classes)
         if (this.value)
         {
-            checkbox.classList.add('selected')
+            this.element.classList.add('selected')
         }
-        checkbox.onclick = (event) => {
-            Checkbox.check(this.id)
-            eval(this.on_click)
+        this.element.onclick = event => {
+            this.check(event.target.id)
+            if (this.on_click)
+            {
+                this.on_click()
+            }
         }
-        checkbox.append(box)
-        checkbox.append(' ')
-        checkbox.append(label)
+        this.element.append(this.checkbox)
+        this.element.append(' ')
+        this.element.append(this.label_el)
 
-        box.onclick = (event) => checkbox.click()
-
-        let container = document.createElement('span')
-        container.append(this.description_element)
-        container.append(checkbox)
-        return container
+        this.append(this.description_element)
+        this.append(this.element)
     }
 
-    check()
+    check(target_id='')
     {
-        Checkbox.check(this.id)
-    }
-
-    /**
-     * function:    check
-     * parameters:  ID of checkbox button
-     * returns:     none
-     * description: Toggles a checkbox when clicked on.
-     */
-    static check(id)
-    {
-        let checked = !document.getElementById(id).checked
-        document.getElementById(id).checked = checked
-        if (checked)
+        let checked = this.checkbox.checked
+        if (target_id !== this.id)
         {
-            document.getElementById(`${id}-container`).classList.add('selected')
+            checked = !checked
+            this.checkbox.checked = checked
         }
-        else
+        this.checked = checked
+
+        if (this.checked)
         {
-            document.getElementById(`${id}-container`).classList.remove('selected')
+            this.element.classList.add('selected')
+        }
+        else if (this.element.classList.contains('selected'))
+        {
+            this.element.classList.remove('selected')
         }
     }
 }
 
-class Timer extends Input
+customElements.define('wr-checkbox', WRCheckbox)
+
+class WRTimer extends WRElement
 {
-    constructor(id, label)
+    constructor(label)
     {
-        super(id, label, 0)
-        this.on_incr = ''
-        this.on_decr = ''
+        super()
+
+        this.label = label
         this.start = -1
         this.value = 0
         this.last_touch = -1
+
+        this.label_el = document.createElement('label')
+        this.value_el = document.createElement('label')
+        this.element = document.createElement('div')
     }
 
     on_click()
     {
         let duration = Date.now() - this.last_touch
+        console.log('on click', this, this.last_touch, duration, this.start)
         if (this.last_touch < 0 || duration < 500)
         {
             if (this.start < 0)
@@ -514,7 +463,7 @@ class Timer extends Input
                 this.value = (Date.now() - this.start) / 1000
                 clearInterval(this.counter)
             }
-            document.getElementById(this.id).innerHTML = parseFloat(this.value).toFixed(1)
+            this.value_el.innerHTML = parseFloat(this.value).toFixed(1)
         }
         else if (duration > 500)
         {
@@ -530,7 +479,7 @@ class Timer extends Input
         }
         this.start = -1
         this.value = 0
-        document.getElementById(this.id).innerHTML = this.value
+        this.value_el.innerHTML = this.value
         return false
     }
 
@@ -542,66 +491,83 @@ class Timer extends Input
     update()
     {
         let val = ((Date.now() - this.start) / 1000).toFixed(1)
-        document.getElementById(this.id).innerHTML = val
+        this.value_el.innerHTML = val
     }
 
-    get element()
+    connectedCallback()
     {
-        let label = document.createElement('label')
-        label.append(this.label)
+        this.label_el.append(this.label)
 
-        let value = document.createElement('label')
-        value.id = this.id
-        value.className = 'wr_counter_count'
-        value.append(this.value)
+        this.value_el.className = 'wr_counter_count'
+        this.value_el.append(this.value)
 
-        let timer = document.createElement('div')
-        timer.className = 'wr_counter'
-        timer.classList.add(...this.classes)
-        timer.append(value)
-        timer.append(' ')
-        timer.append(label)
-        timer.onclick = (event) => this.on_click()
-        timer.oncontextmenu = (event) => false
-        timer.onauxclick = (event) => this.on_right_click()
-        timer.ontouchstart = (event) => this.on_touch()
-        return timer
+        this.element.className = 'wr_counter'
+        this.element.classList.add(...this.classes)
+        this.element.append(this.value_el)
+        this.element.append(' ')
+        this.element.append(this.label_el)
+        this.element.onclick = this.on_click.bind(this)
+        this.element.oncontextmenu = () => false
+        this.element.onauxclick = this.on_right_click.bind(this)
+        this.element.ontouchstart = this.on_touch.bind(this)
+
+        this.append(this.element)
     }
 }
 
-class Extended extends Input
+customElements.define('wr-timer', WRTimer)
+
+class WRExtended extends WRElement
 {
-    constructor(id, label, value='')
+    constructor(label, text='')
     {
-        super(id, label, value)
-        this.on_text_change = ''
+        super()
+
+        this.label = label
+        this.text = text
+        this.on_text_change = false
+
+        this.label_el = document.createElement('h4')
+        this.element = document.createElement('textarea')
     }
 
-    get element()
+    connectedCallback()
     {
-        let text = document.createElement('textarea')
-        text.id = this.id
-        text.className = 'wr_text'
-        text.classList.add(...this.classes)
-        text.onkeyup = (event) => eval(this.on_text_change)
-        text.append(this.value)
+        this.label_el.className = 'input_label'
+        this.label_el.append(this.label)
 
-        let container = document.createElement('span')
-        container.append(this.header)
-        container.append(text)
-        return container
+        this.element.className = 'wr_text'
+        this.element.classList.add(...this.classes)
+        if (this.on_text_change)
+        {
+            this.element.onkeyup = this.on_text_change
+        }
+        this.element.append(this.text)
+
+        this.append(this.label_el)
+        this.append(this.description_element)
+        this.append(this.element)
     }
 }
 
-class Entry extends Input
+customElements.define('wr-extended', WRExtended)
+
+class WREntry extends WRElement
 {
-    constructor(id, label, value='')
+    constructor(label, value='')
     {
-        super(id, label, value)
+        super()
+
+        this.label = label
+        this.value = value
         this.type = 'text'
-        this.on_text_change = ''
+        this.on_text_change = false
         this.show_color = false
         this.show_status = false
+
+        this.element = document.createElement('input')
+        this.label_el = document.createElement('h4')
+        this.color_el = document.createElement('span')
     }
 
     set bounds(bounds)
@@ -624,12 +590,15 @@ class Entry extends Input
         }
     }
 
-    get element()
+    connectedCallback()
     {
+        this.label_el.className = 'input_label'
+        this.label_el.append(this.label)
+
         if (this.show_color)
         {
             this.add_class('color_text')
-            this.on_text_change = `Entry.update_color('${this.id}')`
+            this.on_text_change = this.update_color.bind(this)
             if (!this.value)
             {
                 this.value = '#'
@@ -644,139 +613,345 @@ class Entry extends Input
             this.add_class('wr_string')
         }
 
-        let input = document.createElement('input')
-        input.id = this.id
-        input.type = this.type
-        input.value = this.value
-        input.classList.add(...this.classes)
-        input.onkeyup = (event) => eval(this.on_text_change)
+        this.element.id = this.id
+        this.element.type = this.type
+        this.element.value = this.value
+        this.element.classList.add(...this.classes)
+        if (this.on_text_change)
+        {
+            this.element.onkeyup = this.on_text_change
+        }
         if (this.type === 'number')
         {
             if (this.min || this.min === 0)
             {
-                input.min = this.min
+                this.element.min = this.min
             }
             if (this.max || this.max === 0)
             {
-                input.max = this.max
+                this.element.max = this.max
             }
             if (this.incr || this.incr === 0)
             {
-                input.step = this.incr
+                this.element.step = this.incr
             }
         }
 
-        let container = document.createElement('span')
-        container.append(this.header)
+        this.append(this.label_el)
+        this.append(this.description_element)
         if (this.show_color || this.show_status)
         {
-            let color = document.createElement('span')
-            color.id = `${this.id}_color`
-            color.className = 'color_box'
-            color.style.backgroundColor = this.value
+            this.color_el.className = 'color_box'
+            this.color_el.style.backgroundColor = this.value
 
             let color_container = document.createElement('div')
             color_container.className = 'wr_color'
-            color_container.appendChild(input)
-            color_container.appendChild(color)
-            container.append(color_container)
+            color_container.appendChild(this.element)
+            color_container.appendChild(this.color_el)
+            this.append(color_container)
         }
         else
         {
-            container.append(input)
+            this.append(this.element)
         }
-        return container
     }
 
     update_color()
     {
-        Entry.update_color(this.id)
-    }
-
-    /**
-     * function:    update_color
-     * parameters:  element id
-     * returns:     none
-     * description: Updates the color box base on color text.
-     */
-    static update_color(id)
-    {
-        let color = document.getElementById(id).value
+        let color = this.element.value
         if (color.startsWith('#') && color.length === 7)
         {
-            document.getElementById(`${id}_color`).style.backgroundColor = color
+            this.color_el.style.backgroundColor = color
         }
         else if (!color.startsWith('#'))
         {
-            document.getElementById(id).value = `#${color}`
+            this.element.value = `#${color}`
         }
     }
 
-    /**
-     * function:    set_status
-     * parameters:  element id, boolean/number(-1,0,1) status
-     * returns:     none
-     * description: Updates the color box with the provided color.
-     */
-    static set_status(id, status)
+    set_status(status)
     {
-        if (typeof status !== 'boolean')
+        switch (status)
         {
-            switch (status)
-            {
-                case 1:
-                    status = 'green'
-                    break
-                case 0:
-                    status = 'orange'
-                    break
-                case -1:
-                default:
-                    status = 'red'
-                    break
-            }
+            case -1:
+                this.color = 'red'
+                break
+            case 0:
+                this.color = 'orange'
+                break
+            case 1:
+            default:
+                this.color = 'green'
+                break
         }
-        else
-        {
-            status = status ? 'green' : 'red'
-        }
-        document.getElementById(id).style.backgroundColor = status
+
+        this.color_el.style.backgroundColor = this.color
     }
 }
 
-class MultiInput extends Input
+customElements.define('wr-entry', WREntry)
+
+class WRSlider extends WRElement
 {
-    constructor(id, label, options=[], value='')
+    constructor(label, value=0)
     {
-        super(id, label, value)
-        this.options = options
-        this.columns = MultiInput.calc_num_columns(options)
+        super()
+
+        this.label = label
+        this.value = value
+        this.min = 1
+        this.max = 10
+        this.incr = 1
+        this.on_change = false
+
+        this.label_el = document.createElement('h4')
+        this.value_el = document.createElement('span')
+        this.slider = document.createElement('input')
+        this.element = document.createElement('div')
     }
 
-    get element()
+    connectedCallback()
     {
-        let select = document.createElement('div')
-        select.id = this.id
-        select.className = 'wr_select'
-        select.classList.add(...this.classes)
+        if (this.label)
+        {
+            this.value_el.append(this.value)
+
+            this.label_el.className = 'input_label'
+            this.label_el.append(`${this.label} - `)
+            this.label_el.append(this.value_el)
+        }
+
+        this.slider.type = 'range'
+        this.slider.className = 'wr_slider_range'
+        this.slider.value = this.value
+        this.slider.oninput = () => {
+            this.update_text()
+            if (this.on_change)
+            {
+                this.on_change()
+            }
+        }
+        if (this.min || this.min === 0)
+        {
+            this.slider.min = this.min
+        }
+        if (this.max || this.max === 0)
+        {
+            this.slider.max = this.max
+        }
+        if (this.incr || this.incr === 0)
+        {
+            this.slider.step = this.incr
+        }
+
+        this.element.className = 'wr_slider'
+        this.element.classList.add(...this.classes)
+        this.element.append(this.slider)
+
+        this.append(this.label_el)
+        this.append(this.element)
+    }
+
+    set position(value)
+    {
+        this.slider.value = value
+        this.update_text()
+    }
+
+    update_text()
+    {
+        this.value_el.innerHTML = this.slider.value
+    }
+
+    set maximum(max)
+    {
+        this.max = max
+        this.slider.max = max
+    }
+}
+
+customElements.define('wr-slider', WRSlider)
+
+class WRCounter extends WRElement
+{
+    constructor(label, value=0)
+    {
+        super()
+
+        this.label = label
+        this.value = value
+        this.on_increment = false
+        this.on_decrement = false
+        this.primary_class = 'wr_counter'
+
+        this.label_el = document.createElement('label')
+        this.value_el = document.createElement('label')
+        this.element = document.createElement('div')
+    }
+
+    connectedCallback()
+    {
+        this.label_el.append(this.label)
+
+        this.value_el.className = 'wr_counter_count'
+        this.value_el.append(this.value)
+
+        this.element.className = this.primary_class
+        this.element.classList.add(...this.classes)
+        this.element.onclick = () => this.increment(false, this.on_increment)
+        this.element.oncontextmenu = () => false
+        this.element.onauxclick = () => this.increment(true, this.on_decrement)
+        this.element.ontouchstart = event => touch_start(event)
+        this.element.ontouchend = event => touch_end(event, () => this.increment(true, this.on_decrement))
+        this.element.append(this.value_el)
+        this.element.append(' ')
+        this.element.append(this.label_el)
+
+        this.append(this.description_element)
+        this.append(this.element)
+    }
+
+    increment(right, on_increment=false)
+    {
+        if (last_touch > 0 && Date.now() - last_touch > 500 && !right)
+        {
+            return
+        }
+        let current = this.value_el.innerHTML
+        let modifier = right ? -1 : 1
+        if (current > 0 || modifier > 0)
+        {
+            this.value = parseInt(current) + modifier
+            this.value_el.innerHTML = this.value
+        }
+        if (on_increment)
+        {
+            on_increment()
+        }
+    }
+}
+
+customElements.define('wr-counter', WRCounter)
+
+class WRCycler extends WRCounter
+{
+    constructor(label, value=0)
+    {
+        super(label, value)
+
+        this.back_el = document.createElement('span')
+        this.value_el = document.createElement('label')
+        this.max_el = document.createElement('label')
+        this.save_el = document.createElement('span')
+        this.element = document.createElement('div')
+    }
+
+    connectedCallback()
+    {
+        this.back_el.className = 'wr_select_option'
+        this.back_el.style.display = 'table-cell'
+        this.back_el.innerHTML = 'Last'
+        this.back_el.style.display = this.value ? 'table-cell' : 'none'
+        this.back_el.onclick = () => this.increment(true, this.backward.bind(this))
+
+        this.value_el.className = 'wr_counter_count'
+        this.value_el.append(this.value)
+
+        this.max_el.className = 'wr_counter_count'
+        this.max_el.style.display = 'none'
+        this.max_el.append(this.value)
+
+        let count = document.createElement('span')
+        count.className = 'wr_select_option'
+        count.style.display = 'table-cell'
+        count.append(this.value_el)
+        count.append(this.max_el)
+
+        this.save_el.className = 'wr_select_option'
+        this.save_el.style.display = 'table-cell'
+        this.save_el.onclick = () => this.increment(false, this.forward.bind(this))
+        this.save_el.append('Save Cycle')
+        this.save_el.style.fontWeight = 'bold'
+
+        this.element.className = 'wr_select'
+        this.element.classList.add(...this.classes)
+        this.element.append(this.back_el, count, this.save_el)
+
+        this.append(this.description_element)
+        this.append(this.element)
+    }
+
+    forward()
+    {
+        let max = parseInt(this.max_el.innerHTML)
+        if (this.value >= max)
+        {
+            this.max_el.innerHTML = this.value
+            this.save_el.innerHTML = 'Save Cycle'
+        }
+        else
+        {
+            this.save_el.innerHTML = 'Next Cycle'
+        }
+        this.back_el.style.display = 'table-cell'
+    }
+
+    backward()
+    {
+        if (this.value > 0)
+        {
+            this.back_el.style.display = 'table-cell'
+        }
+        else
+        {
+            this.back_el.style.display = 'none'
+        }
+        this.save_el.innerHTML = 'Next Cycle'
+    }
+}
+
+customElements.define('wr-cycler', WRCycler)
+
+class WRMultiInput extends WRElement
+{
+    constructor(label, options=[], value='')
+    {
+        super()
+
+        this.label = label
+        this.value = value
+        this.on_click = false
+        this.options = options
+        this.vertical = false
+        this.columns = WRMultiInput.calc_num_columns(options)
+
+        this.label_el = document.createElement('h4')
+        this.element = document.createElement('div')
+    }
+
+    connectedCallback()
+    {
+        this.label_el.className = 'input_label'
+        this.label_el.append(this.label)
+
+        this.element.className = 'wr_select'
+        this.element.classList.add(...this.classes)
         if (this.on_click)
         {
-            select.onclick = (event) => eval(this.on_click)
+            this.element.onclick = this.on_click
         }
-        select.append(...this.option_elements)
+        this.element.append(...this.option_elements)
 
-        let container = document.createElement('span')
-        container.append(this.header)
-        container.append(select)
-        return container
+        this.append(this.label_el)
+        this.append(this.description_element)
+        this.append(this.element)
     }
 
-    /**
-     * function:    calc_num_columns
-     * parameters:  options
-     * returns:     number of columns
-     * description: Determines the number of columns based on maximum option size.
-     */
+    get option_elements()
+    {
+        return []
+    }
+
     static calc_num_columns(options)
     {
         let max = 0
@@ -792,23 +967,21 @@ class MultiInput extends Input
     }
 }
 
-class MultiButton extends MultiInput
+class WRMultiButton extends WRMultiInput
 {
-    constructor(id, label, options=[], on_clicks=[])
+    constructor(label, options=[], on_clicks=[])
     {
-        super(id, label, options)
+        super(label, options)
         this.on_clicks = on_clicks
         this.on_rights = []
-        this.on_holds = []
     }
 
-    add_option(option, on_click, on_secondary='')
+    add_option(option, on_click, on_secondary=false)
     {
         this.options.push(option)
         this.on_clicks.push(on_click)
-        this.on_rights.push(on_secondary.length > 0 ? on_secondary + '; return false' : '')
-        this.on_holds.push(on_secondary.replace(/'/g, '\\\''))
-        this.columns = MultiInput.calc_num_columns(this.options)
+        this.on_rights.push(on_secondary)
+        this.columns = WRMultiInput.calc_num_columns(this.options)
     }
 
     get option_elements()
@@ -816,33 +989,22 @@ class MultiButton extends MultiInput
         let rows = [[]]
         for (let i in this.options)
         {
-            let op_name = this.options[i]
             if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
                 rows.push([])
             }
 
-            let label = document.createElement('label')
-            label.append(op_name)
-
-            let option = document.createElement('span')
-            option.id = `${this.id}-${i}`
-            option.className = 'wr_select_option'
-            option.classList.add(...this.classes)
+            let option = new WRButton(this.options[i], this.on_clicks[i])
+            option.primary_class = 'wr_select_option'
+            option.on_right = this.on_rights[i]
             if (this.vertical)
             {
                 option.classList.add('vertical')
             }
-            option.onclick = (event) => eval(this.on_clicks[i])
-            option.oncontextmenu = (event) => false
-            option.onauxclick = (event) => {
-                eval(this.on_rights[i])
-                return false
+            else
+            {
+                option.style.display = 'table-cell'
             }
-            option.ontouchstart = (event) => touch_start()
-            option.ontouchmove = (event) => touch_move()
-            option.ontouchend = (event) => touch_end(`'${this.on_holds[i]}'`)
-            option.append(label)
             rows[rows.length - 1].push(option)
         }
 
@@ -868,18 +1030,22 @@ class MultiButton extends MultiInput
     }
 }
 
-class MultiNumber extends MultiInput
+customElements.define('wr-multi-button', WRMultiButton)
+
+class WRMultiNumber extends WRMultiInput
 {
-    constructor(id, label, options=[], values=[])
+    constructor(label, options=[], values=[])
     {
-        super(id, label, options, values)
+        super(label, options, values)
+
+        this.numbers = []
     }
 
     add_option(option, value=0)
     {
         this.value.push(value)
         this.options.push(option)
-        this.columns = MultiInput.calc_num_columns(this.options)
+        this.columns = WRMultiInput.calc_num_columns(this.options.map((op, i) => `${op} - ${i}`))
     }
 
     get option_elements()
@@ -887,7 +1053,6 @@ class MultiNumber extends MultiInput
         let rows = [[]]
         for (let i in this.options)
         {
-            let op_name = this.options[i]
             if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
                 rows.push([])
@@ -903,27 +1068,18 @@ class MultiNumber extends MultiInput
                 dval = this.value[0]
             }
 
-            let name = `${this.id}_${op_name.toLowerCase().split().join('_')}`
-            let value = document.createElement('label')
-            value.id = `${name}-value`
-            value.className = 'wr_multi_number_num'
-            value.append(dval)
-
-            let label = document.createElement('label')
-            label.append(op_name)
-
-            let option = document.createElement('span')
-            option.id = `${this.id}-${i}`
-            option.className = 'wr_select_option'
-            option.classList.add(...this.classes)
+            let option = new WRNumber(this.options[i], dval)
+            option.primary_class = 'wr_multi_option'
             if (this.vertical)
             {
                 option.classList.add('vertical')
             }
-            option.append(value)
-            option.append(' ')
-            option.append(label)
+            else
+            {
+                option.style.display = 'table-cell'
+            }
             rows[rows.length - 1].push(option)
+            this.numbers.push(option)
         }
 
         let options = []
@@ -948,284 +1104,31 @@ class MultiNumber extends MultiInput
     }
 }
 
-class Slider extends Entry
+customElements.define('wr-multi-number', WRMultiNumber)
+
+class WRMultiCounter extends WRMultiInput
 {
-    constructor(id, label, value=0)
+    constructor(label, options=[], value=0)
     {
-        super(id, label, value)
-        this.min = 1
-        this.max = 10
-        this.incr = 1
-        this.type = 'number'
-        this.on_change = ''
-    }
+        super(label, options, value)
 
-    get label_element()
-    {
-        if (this.label)
-        {
-            let count = document.createElement('span')
-            count.id = `${this.id}_value`
-            count.append(this.value)
-
-            let header = document.createElement('h4')
-            header.className = 'input_label'
-            header.id = `${this.id}_label`
-            header.append(`${this.label} - `)
-            header.append(count)
-            return header
-        }
-        return ''
-    }
-
-    get element()
-    {
-        let label = document.createElement('label')
-        label.id = this.id
-        label.append(this.label)
-
-        let slider = document.createElement('input')
-        slider.id = this.id
-        slider.type = 'range'
-        slider.className = 'wr_slider_range'
-        slider.value = this.value
-        slider.oninput = (event) => {
-            Slider.update_slider_text(this.id)
-            eval(this.on_change)
-        }
-        if (this.min || this.min === 0)
-        {
-            slider.min = this.min
-        }
-        if (this.max || this.max === 0)
-        {
-            slider.max = this.max
-        }
-        if (this.incr || this.incr === 0)
-        {
-            slider.step = this.incr
-        }
-
-        let box = document.createElement('div')
-        box.id = `${this.id}-container`
-        box.className = 'wr_slider'
-        box.classList.add(...this.classes)
-        box.append(slider)
-
-        let container = document.createElement('span')
-        container.append(this.header)
-        container.append(box)
-        return container
-    }
-
-    set slider(value)
-    {
-        Slider.set_slider(this.id, value)
-    }
-
-    /**
-     * function:    set_slider
-     * parameters:  slider id, value
-     * returns:     none
-     * description: Set the text and position of a slider.
-     */
-    static set_slider(id, value)
-    {
-        document.getElementById(id).value = value
-        Slider.update_slider_text(id)
-    }
-
-    update_text()
-    {
-        Slider.update_slider_text(this.id)
-    }
-    
-    /**
-     * function:    update_slider_text
-     * parameters:  slider id
-     * returns:     none
-     * description: Update the text for a slider.
-     */
-    static update_slider_text(id)
-    {
-        document.getElementById(`${id}_value`).innerHTML = document.getElementById(id).value
-    }
-
-    set update_max(max)
-    {
-        this.max = max
-        Slider.set_slider_max(this.id, max)
-    }
-    
-    /**
-     * function:    set_slider_max
-     * parameters:  slider id, max
-     * returns:     none
-     * description: Set the maximum value of a slider.
-     */
-    static set_slider_max(id, max)
-    {
-        document.getElementById(id).max = max
-    }
-}
-
-class Counter extends Input
-{
-    constructor(id, label, value=0)
-    {
-        super(id, label, value)
-        this.on_increment = ''
-        this.on_decrement = ''
-    }
-
-    get element()
-    {
-        let label = document.createElement('label')
-        label.append(this.label)
-
-        let value = document.createElement('label')
-        value.id = this.id
-        value.className = 'wr_counter_count'
-        value.append(this.value)
-
-        let number = document.createElement('div')
-        number.className = 'wr_counter'
-        number.classList.add(...this.classes)
-        number.onclick = (event) => increment(this.id, false, this.on_increment)
-        number.oncontextmenu = (event) => false
-        number.onauxclick = (event) => {
-            increment(this.id, true, this.on_decrement)
-            return false
-        }
-        number.ontouchstart = (event) => touch_start()
-        number.ontouchmove = (event) => touch_move()
-        number.ontouchend = (event) => touch_end(`increment('${this.id}', true, '${this.on_decrement.replace(/'/g, '\\\'')}')`)
-        number.append(value)
-        number.append(' ')
-        number.append(label)
-
-        let container = document.createElement('span')
-        container.append(this.description_element)
-        container.append(number)
-        return container
-    }
-}
-
-class Cycler extends Counter
-{
-    static on_increment(id)
-    {
-        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
-        let max = parseInt(document.getElementById(`${id}-max`).innerHTML)
-        if (val >= max)
-        {
-            document.getElementById(`${id}-max`).innerHTML = val
-            document.getElementById(`${id}-label`).innerHTML = 'Save Cycle'
-        }
-        else
-        {
-            document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
-        }
-        document.getElementById(`${id}-back`).style.display = 'table-cell'
-    }
-
-    static on_decrement(id)
-    {
-        let val = parseInt(document.getElementById(`${id}-value`).innerHTML)
-        if (val > 0)
-        {
-            document.getElementById(`${id}-back`).style.display = 'table-cell'
-        }
-        else
-        {
-            document.getElementById(`${id}-back`).style.display = 'none'
-        }
-        document.getElementById(`${id}-label`).innerHTML = 'Next Cycle'
-    }
-
-    get element()
-    {
-        let on_incr = `if (${this.on_increment}) Cycler.on_increment('${this.id}')`
-        let on_decr = `if (${this.on_decrement}) Cycler.on_decrement('${this.id}')`
-
-        let back = document.createElement('span')
-        back.id = `${this.id}-back`
-        back.className = 'wr_select_option'
-        back.innerHTML = 'Last'
-        back.style.display = this.value ? 'table-cell' : 'none'
-        back.onclick = (event) => increment(`${this.id}-value`, true, on_decr)
-        back.oncontextmenu = (event) => false
-        back.onauxclick = (event) => {
-            increment(`${this.id}-value`, true, on_decr)
-            return false
-        }
-        back.ontouchstart = (event) => touch_start()
-        back.ontouchmove = (event) => touch_move()
-        back.ontouchend = (event) => touch_end(`increment('${this.id}-value', true, '${on_decr}')`)
-
-        let value = document.createElement('label')
-        value.id = `${this.id}-value`
-        value.className = 'wr_counter_count'
-        value.append(this.value)
-
-        let max = document.createElement('label')
-        max.id = `${this.id}-max`
-        max.className = 'wr_counter_count'
-        max.style.display = 'none'
-        max.append(this.value)
-
-        let count = document.createElement('span')
-        count.id = `${this.id}-count`
-        count.className = 'wr_select_option'
-        count.append(value)
-        count.append(max)
-
-        let save_text = document.createElement('b')
-        save_text.id = `${this.id}-label`
-        save_text.append('Save Cycle')
-
-        let save = document.createElement('span')
-        save.id = `${this.id}-save`
-        save.className = 'wr_select_option'
-        save.onclick = (event) => increment(`${this.id}-value`, false, on_incr)
-        save.oncontextmenu = (event) => false
-        save.onauxclick = (event) => {
-            increment(`${this.id}-value`, false, on_incr)
-            return false
-        }
-        save.ontouchstart = (event) => touch_start()
-        save.ontouchmove = (event) => touch_move()
-        save.ontouchend = (event) => touch_end(`increment('${this.id}-value', false, '${on_incr}')`)
-        save.append(save_text)
-
-        let cycler = document.createElement('div')
-        cycler.id = this.id
-        cycler.className = 'wr_select'
-        cycler.classList.add(...this.classes)
-        cycler.append(back, count, save)
-
-        let container = document.createElement('span')
-        container.append(this.description_element)
-        container.append(cycler)
-        return container
-    }
-}
-
-class MultiCounter extends MultiInput
-{
-    constructor(id, label, options=[], value=0)
-    {
-        super(id, label, options, value)
+        this.counter = []
     }
 
     add_option(option, value=0)
     {
+        if (this.value === 0 && this.options.length === 0)
+        {
+            this.value = []
+        }
         if (Array.isArray(this.value) && this.value.length === this.options.length)
         {
             this.value.push(value)
         }
         this.options.push(option)
-        this.columns = MultiInput.calc_num_columns(this.options)
+        this.columns = WRMultiInput.calc_num_columns(this.options.map((op, i) => {
+            return `${op} - ${Array.isArray(this.value) ? this.value[i] : this.value}`
+        }))
     }
 
     get option_elements()
@@ -1233,7 +1136,6 @@ class MultiCounter extends MultiInput
         let rows = [[]]
         for (let i in this.options)
         {
-            let op_name = this.options[i]
             if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
             {
                 rows.push([])
@@ -1249,36 +1151,18 @@ class MultiCounter extends MultiInput
                 dval = this.value[0]
             }
 
-            let name = `${this.id}_${op_name.toLowerCase().split().join('_')}`
-            let value = document.createElement('label')
-            value.id = `${name}-value`
-            value.className = 'wr_counter_count'
-            value.append(dval)
-
-            let label = document.createElement('label')
-            label.append(op_name)
-
-            let option = document.createElement('span')
-            option.id = `${this.id}-${i}`
-            option.className = 'wr_select_option'
-            option.classList.add(...this.classes)
+            let option = new WRCounter(this.options[i], dval)
+            option.primary_class = 'wr_multi_option'
             if (this.vertical)
             {
                 option.classList.add('vertical')
             }
-            option.onclick = (event) => increment(`${name}-value`, false)
-            option.oncontextmenu = (event) => false
-            option.onauxclick = (event) => {
-                increment(`${name}-value`, true)
-                return false
+            else
+            {
+                option.style.display = 'table-cell'
             }
-            option.ontouchstart = (event) => touch_start()
-            option.ontouchmove = (event) => touch_move()
-            option.ontouchend = (event) => touch_end(`increment('${name}-value', true)`)
-            option.append(value)
-            option.append(' ')
-            option.append(label)
             rows[rows.length - 1].push(option)
+            this.counters.push(option)
         }
 
         let options = []
@@ -1301,18 +1185,38 @@ class MultiCounter extends MultiInput
         }
         return options
     }
+
+    increment(value, right, on_increment=false)
+    {
+        if (last_touch > 0 && Date.now() - last_touch > 500 && !right)
+        {
+            return
+        }
+        let current = value.innerHTML
+        let modifier = right ? -1 : 1
+        if (current > 0 || modifier > 0)
+        {
+            value.innerHTML = parseInt(current) + modifier
+        }
+        if (on_increment)
+        {
+            on_increment()
+        }
+    }
 }
 
-class OptionedInput extends MultiInput
+customElements.define('wr-multi-counter', WRMultiCounter)
+
+class WROptionedInput extends WRMultiInput
 {
-    constructor(id, label, options=[], value='')
+    constructor(label, options=[], value='')
     {
-        super(id, label, options, value)
+        super(label, options, value)
         if (options.length > 0 && !options.includes(value))
         {
             this.value = options[0]
         }
-        this.on_change = ''
+        this.on_change = false
     }
 
     add_option(option)
@@ -1322,15 +1226,15 @@ class OptionedInput extends MultiInput
             this.value = option
         }
         this.options.push(option)
-        MultiInput.calc_num_columns(this.options)
+        WRMultiInput.calc_num_columns(this.options)
     }
 }
 
-class Select extends OptionedInput
+class WRSelect extends WROptionedInput
 {
-    constructor(id, label, options=[], value='', images=[])
+    constructor(label, options=[], value='', images=[])
     {
-        super(id, label, options, value)
+        super(label, options, value)
         this.images = images
     }
 
@@ -1352,7 +1256,6 @@ class Select extends OptionedInput
 
             let op_name = this.options[i]
             let option = document.createElement('span')
-            option.id = `${this.id}-${i}`
 
             if (op_name.toLowerCase() === this.value.toLowerCase())
             {
@@ -1362,6 +1265,10 @@ class Select extends OptionedInput
             {
                 option.classList.add('vertical')
             }
+            else
+            {
+                option.style.display = 'table-cell'
+            }
             option.classList.add(...this.classes)
 
             // only add labels if the option name isn't empty
@@ -1369,9 +1276,12 @@ class Select extends OptionedInput
             {
                 option.classList.add('wr_select_option')
 
-                option.onclick = (event) => {
-                    Select.select_option(this.id, i)
-                    eval(this.on_change)
+                option.onclick = () => {
+                    this.select_option(parseInt(i))
+                    if (this.on_change)
+                    {
+                        this.on_change()
+                    }
                 }
 
                 let label = document.createElement('label')
@@ -1416,66 +1326,86 @@ class Select extends OptionedInput
         return options
     }
 
-    get selected_option()
+    get selected_index()
     {
-        return Select.get_selected_option(this.id)
-    }
-
-    /**
-     * function:    get_selected_option
-     * parameters:  ID of selected item
-     * returns:     index of selected option
-     * description: Returns the selected index of the given select.
-     */
-    static get_selected_option(id)
-    {
-        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-        let i = 0
-        for (let option of children)
+        let children = this.element.getElementsByClassName('wr_select_option')
+        for (let i = 0; i < children.length; i++)
         {
-            if (option.classList.contains('selected'))
+            if (children[i].classList.contains('selected'))
             {
                 return i
             }
-            ++i
         }
         return -1
     }
 
-    set selected_option(index)
+    get selected_option()
     {
-        if (typeof index === 'number' && index < this.options.length)
+        let idx = this.selected_index
+        if (idx >= 0)
         {
-            Select.select_option(this.id, index)
+            return this.options[idx]
         }
-        else
-        {
-            console.log('Invalid index')
-        }
+        return ''
     }
 
-    /**
-     * function:    select_option
-     * parameters:  ID of the selector, index of the newly selected option
-     * returns:     none
-     * description: Select a given option in a selector.
-     */
-    static select_option(id, index)
+    select_option(index)
     {
-        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-        for (let option of children)
+        let children = this.element.getElementsByClassName('wr_select_option')
+        for (let i = 0; i < children.length; i++)
         {
-            option.classList.remove('selected')
+            children[i].classList.remove('selected')
+            if (i === index)
+            {
+                children[i].classList.add('selected')
+            }
         }
-        document.getElementById(`${id}-${index}`).classList.add('selected')
     }
 }
 
-class Dropdown extends OptionedInput
+customElements.define('wr-select', WRSelect)
+
+class WRMultiSelect extends WRSelect
 {
-    constructor(id, label, options=[], value='')
+    constructor(label, options=[], value='', images=[])
     {
-        super(id, label, options, value)
+        super(label, options, value, images)
+    }
+
+    get selected_indices()
+    {
+        let selected = []
+        let children = this.element.getElementsByClassName('wr_select_option')
+        for (let i = 0; i < children.length; i++)
+        {
+            if (children[i].classList.contains('selected'))
+            {
+                selected.push(i)
+            }
+        }
+        return selected
+    }
+
+    get selected_option()
+    {
+        return this.selected_indices.map(i => this.options[i])
+    }
+
+    select_option(index)
+    {
+        this.element.getElementsByClassName('wr_select_option')[index].classList.toggle('selected')
+    }
+}
+
+customElements.define('wr-multi-select', WRMultiSelect)
+
+class WRDropdown extends WROptionedInput
+{
+    constructor(label, options=[], value='')
+    {
+        super(label, options, value)
+
+        this.element = document.createElement('select')
     }
 
     get option_elements()
@@ -1489,7 +1419,6 @@ class Dropdown extends OptionedInput
         for (let op_name of this.options)
         {
             let option = document.createElement('option')
-            option.id = this.id
             option.className = 'wr_dropdown_op'
             if (op_name.toLowerCase() === this.value.toLowerCase())
             {
@@ -1502,193 +1431,42 @@ class Dropdown extends OptionedInput
         return options
     }
 
-    get element()
+    connectedCallback()
     {
-        let select = document.createElement('select')
-        select.id = this.id
-        select.className = 'wr_dropdown'
-        select.classList.add(...this.classes)
-        // NOTE: quick fix for sort taking over in pivot
-        select.onclick = (event) => event.stopPropagation()
-        select.onchange = (event) => eval(this.on_change)
-        select.append(...this.option_elements)
+        this.label_el.className = 'input_label'
+        this.label_el.append(this.label)
 
-        let container = document.createElement('span')
-        container.append(this.header)
-        container.append(select)
-        return container
+        this.element.className = 'wr_dropdown'
+        this.element.classList.add(...this.classes)
+        this.element.onclick = event => event.stopPropagation()
+        this.element.onchange = this.on_change
+        this.element.append(...this.option_elements)
+
+        this.append(this.label_el)
+        this.append(this.description_element)
+        this.append(this.element)
     }
 }
 
-class MultiSelect extends MultiInput
-{
-    constructor(id, label, options=[], value=[], images=[])
-    {
-        super(id, label, options, value)
-        this.on_change = ''
-        this.images = images
-    }
+customElements.define('wr-dropdown', WRDropdown)
 
-    add_option(option)
-    {
-        if (this.options.length === 0)
-        {
-            this.value = option
-        }
-        this.options.push(option)
-        this.columns = MultiInput.calc_num_columns(options)
-    }
-
-    get option_elements()
-    {
-        let rows = [[]]
-        for (let i in this.options)
-        {
-            let op_name = this.options[i]
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
-            {
-                rows.push([])
-            }
-
-            let option = document.createElement('span')
-            option.id = `${this.id}-${i}`
-            if (this.value.length > i && this.value[i])
-            {
-                option.classList.add('selected')
-            }
-            if (this.vertical)
-            {
-                option.classList.add('vertical')
-            }
-            option.classList.add(...this.classes)
-
-            // only add labels if the option name isn't empty
-            if (op_name)
-            {
-                option.classList.add('wr_select_option')
-
-                option.onclick = (event) => {
-                    MultiSelect.select_option(this.id, i)
-                    eval(this.on_change)
-                }
-
-                let label = document.createElement('label')
-                label.append(op_name)
-
-                if (this.images.length)
-                {
-                    option.classList.add('wr_select_img')
-
-                    label = document.createElement('img')
-                    label.src = this.images[i]
-                }
-
-                option.append(label)
-            }
-            else
-            {
-                option.classList.add('wr_select_filler')
-            }
-
-            rows[rows.length - 1].push(option)
-        }
-
-        let options = []
-        if (rows.length > 1)
-        {
-            for (let row of rows)
-            {
-                let container = document.createElement('div')
-                container.style.display = 'table-row'
-                for (let op of row)
-                {
-                    container.append(op)
-                }
-                options.push(container)
-            }
-        }
-        else
-        {
-            options = rows[0]
-        }
-        return options
-    }
-
-    get selected_options()
-    {
-        return Select.get_selected_option(this.id)
-    }
-
-    /**
-     * function:    get_selected_options
-     * parameters:  ID of selected item
-     * returns:     list of indices of selected options
-     * description: Returns the selected index of the given select.
-     */
-    static get_selected_options(id)
-    {
-        let children = document.getElementById(id).getElementsByClassName('wr_select_option')
-        let i = 0
-        let selected = []
-        for (let option of children)
-        {
-            if (option.classList.contains('selected'))
-            {
-                selected.push(i)
-            }
-            ++i
-        }
-        return selected
-    }
-
-    set selected_option(index)
-    {
-        if (typeof index === 'number' && index < this.options.length)
-        {
-            Select.select_option(this.id, index)
-        }
-        else
-        {
-            console.log('Invalid index')
-        }
-    }
-
-    /**
-     * function:    reset_selection
-     * parameters:  ID of the selector, index of the selected option to reset
-     * returns:     none
-     * description: Clears the option is selected.
-     */
-    static reset_selection(id, index)
-    {
-        document.getElementById(`${id}-${index}`).classList.remove('selected')
-    }
-
-    /**
-     * function:    select_option
-     * parameters:  ID of the selector, index of the newly selected option
-     * returns:     none
-     * description: Select a given option in a selector.
-     */
-    static select_option(id, index)
-    {
-        document.getElementById(`${id}-${index}`).classList.toggle('selected')
-    }
-}
-
-class Option extends Element
+class WROption extends WRElement
 {
     constructor(id, label)
     {
-        super(id, label)
+        super()
+
+        this.id = id
+        this.label = label
         this.primary_list = true
         this.selected = ''
         this.type = 'pit_option'
+
+        this.element = document.createElement('div')
     }
 
     get label_element()
     {
-        let label = document.createElement('span')
         label.className = 'long_option_val'
         // TODO: switch to innerHTML/Text elsewhere instead of append
         // innerHTML so character entities like &nbsp; will encode
@@ -1696,49 +1474,45 @@ class Option extends Element
         return [label]
     }
 
-    get element()
+    connectedCallback()
     {
-        let option = document.createElement('div')
         if (this.primary_list)
         {
-            option.id = `${this.type}_${this.id}`
-            option.onclick = (event) => open_option(this.id)
-            option.onauxclick = (event) => {
-                touch_end(event, `alt_option('${this.id}')`)
+            this.element.id = `${this.type}_${this.id}`
+            this.element.onclick = () => open_option(this.id)
+            this.element.onauxclick = event => {
+                touch_end(event, () => alt_option('${this.id}'))
                 return false
             }
-            option.ontouchend = (event) => touch_end(`alt_option('${this.id}')`)
+            this.element.ontouchend = event => touch_end(event, `alt_option('${this.id}')`)
         }
         else
         {
-            option.id = `soption_${this.id}`
-            option.onclick = (event) => open_secondary_option(this.id)
-            option.onauxclick = (event) => {
-                touch_end(event, `alt_secondary_option('${this.id}')`)
-                return false
-            }
-            option.ontouchend = (event) => touch_end(`alt_secondary_option('${this.id}')`)
+            this.element.id = `soption_${this.id}`
+            this.element.onclick = () => open_secondary_option(this.id)
+            this.element.onauxclick = event => touch_end(event, `alt_secondary_option('${this.id}')`)
+            this.element.ontouchend = event => touch_end(event, `alt_secondary_option('${this.id}')`)
         }
-        option.oncontextmenu = (event) => false
-        option.ontouchstart = (event) => touch_start()
-        option.ontouchmove = (event) => touch_move()
-        option.className = this.type
-        option.classList.add(...this.classes)
+        this.element.oncontextmenu = () => false
+        this.element.ontouchstart = event => touch_start(event)
+        this.element.className = this.type
+        this.element.classList.add(...this.classes)
         if (this.selected)
         {
-            option.classList.add(this.selected)
+            this.element.classList.add(this.selected)
         }
-        option.append(...this.label_element)
-        // TODO: style
-        return option
+        this.element.append(...this.label_element)
     }
 }
 
-class DescriptiveOption extends Option
+customElements.define('wr-option', WROption)
+
+class WRDescriptiveOption extends WROption
 {
     constructor(id, label, description)
     {
         super(id, label)
+
         this.description = description
     }
 
@@ -1756,11 +1530,14 @@ class DescriptiveOption extends Option
     }
 }
 
-class MatchOption extends Option
+customElements.define('wr-descriptive-option', WRDescriptiveOption)
+
+class WRMatchOption extends WROption
 {
     constructor(id, label, red_teams, blue_teams)
     {
         super(id, label)
+
         this.red_teams = red_teams
         this.blue_teams = blue_teams
         this.type = 'match_option'
@@ -1787,13 +1564,18 @@ class MatchOption extends Option
     }
 }
 
-class Stack extends Element
+customElements.define('wr-match-option', WRMatchOption)
+
+class WRStack extends WRElement
 {
-    constructor(id, elements, horizontal=false)
+    constructor(elements=[], horizontal=false)
     {
-        super(id, '')
+        super()
+
         this.elements = elements
         this.horizontal = horizontal
+
+        this.element = document.createElement('div')
     }
 
     add_element(element)
@@ -1801,7 +1583,7 @@ class Stack extends Element
         this.elements.push(element)
     }
 
-    get element()
+    connectedCallback()
     {
         this.elements[0].add_class('stack_top')
         for (let i = 1; i < this.elements.length; i++)
@@ -1821,13 +1603,12 @@ class Stack extends Element
             }
         }
 
-        let stack = document.createElement('div')
-        stack.className = 'stack'
-        stack.append(...this.elements.map(e => e.element))
-
-        return stack
+        this.className = 'stack'
+        this.append(...this.elements.map(e => e.element))
     }
 }
+
+customElements.define('wr-stack', WRStack)
 
 /**
  * Aux Funcs
@@ -1864,35 +1645,33 @@ function create_header_row(labels)
     return tr
 }
 
-var last_touch = -1
+var last_touch
+var last_touch_time = -1
 
 /**
  * Log the time the screen was touched.
  */
-function touch_start()
+function touch_start(event)
 {
-    last_touch = Date.now()
-}
-
-/**
- * Reset any previous touch.
- */
-function touch_move()
-{
-    last_touch = -1
+    last_touch = event
+    last_touch_time = Date.now()
 }
 
 /**
  * Execute a given string if it has been 500ms since the screen was touched.
- * @param {String} func JS string to evaluate
+ * @param {TouchEvent} event Event triggered by touch
+ * @param {Function} func JS function to execute
  */
-function touch_end(func)
+function touch_end(event, func)
 {
-    if (last_touch > 0 && Date.now() - last_touch > 500)
+    let deltaX = Math.abs(last_touch.pageX - event.pageX)
+    let deltaY = Math.abs(last_touch.pageY - event.pageY)
+    if (last_touch_time > 0 && Date.now() - last_touch_time > 400 && deltaX < 10 && deltaY < 10)
     {
-        eval(func)
+        func()
+        event.preventDefault()
     }
-    last_touch = -1
+    last_touch_time = -last_touch_time
 }
 
 /**
