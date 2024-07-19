@@ -1604,7 +1604,7 @@ class WRStack extends WRElement
         }
 
         this.className = 'stack'
-        this.append(...this.elements.map(e => e.element))
+        this.append(...this.elements)
     }
 }
 
