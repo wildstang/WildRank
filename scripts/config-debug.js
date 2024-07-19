@@ -16,20 +16,20 @@ function init_page()
     // set header
     header_info.innerText = 'Config Debug'
 
-    let keys = new StatusTile('keys', 'Keys')
-    let defaults = new StatusTile('defaults', 'Defaults')
-    let theme = new StatusTile('theme', 'Theme')
-    let dark_theme = new StatusTile('dark_theme', 'Dark Theme')
-    let users = new StatusTile('users', 'Users')
-    let settings = new StatusTile('settings', 'Settings')
+    let keys = new WRStatusTile('Keys')
+    let defaults = new WRStatusTile('Defaults')
+    let theme = new WRStatusTile('Theme')
+    let dark_theme = new WRStatusTile('Dark Theme')
+    let users = new WRStatusTile('Users')
+    let settings = new WRStatusTile('Settings')
 
-    let pit = new StatusTile('pit', 'Pit')
-    let match = new StatusTile('match', 'Match')
-    let note = new StatusTile('note', 'Note')
-    let smart_stats = new StatusTile('smart_stats', 'Smart Stats')
-    let coach = new StatusTile('coach', 'Coach')
-    let whiteboard = new StatusTile('whiteboard', 'Whiteboard')
-    let version = new StatusTile('version', 'Version')
+    let pit = new WRStatusTile('Pit')
+    let match = new WRStatusTile('Match')
+    let note = new WRStatusTile('Note')
+    let smart_stats = new WRStatusTile('Smart Stats')
+    let coach = new WRStatusTile('Coach')
+    let whiteboard = new WRStatusTile('Whiteboard')
+    let version = new WRStatusTile('Version')
 
     let keys_result = cfg.validate_keys('keys', true)
     keys.description = keys_result.description
@@ -79,22 +79,22 @@ function init_page()
     let version_result = cfg.validate_version('version', true)
     version.description = version_result.description
 
-    let page = new PageFrame('', '', [new ColumnFrame('settings_col', 'Settings Config', [keys, defaults, theme, dark_theme, users, settings]),
-                                      new ColumnFrame('game_col', `${cfg.year} Config`, [pit, match, note, smart_stats, coach, whiteboard, version])]).element
+    let page = new WRPage('', [new WRColumn('Settings Config', [keys, defaults, theme, dark_theme, users, settings]),
+                               new WRColumn(`${cfg.year} Config`, [pit, match, note, smart_stats, coach, whiteboard, version])])
     body.replaceChildren(page)
 
-    keys.status = keys_result.result
-    defaults.status = defaults_result.result
-    theme.status = theme_result.result
-    dark_theme.status = dark_theme_result.result
-    users.status = users_result.result
-    settings.status = settings_result.result
+    keys.set_status(keys_result.result)
+    defaults.set_status(defaults_result.result)
+    theme.set_status(theme_result.result)
+    dark_theme.set_status(dark_theme_result.result)
+    users.set_status(users_result.result)
+    settings.set_status(settings_result.result)
     
-    pit.status = pit_result.result
-    match.status = match_result.result
-    note.status = note_result.result
-    smart_stats.status = smart_stats_result.result
-    coach.status = coach_result.result
-    whiteboard.status = whiteboard_result.result
-    version.status = version_result.result
+    pit.set_status(pit_result.result)
+    match.set_status(match_result.result)
+    note.set_status(note_result.result)
+    smart_stats.set_status(smart_stats_result.result)
+    coach.set_status(coach_result.result)
+    whiteboard.set_status(whiteboard_result.result)
+    version.set_status(version_result.result)
 }
