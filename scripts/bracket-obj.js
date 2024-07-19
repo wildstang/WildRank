@@ -326,8 +326,8 @@ class Bracket
     build_page(alliance=0)
     {
         // build a column for each round and a card for each match
-        let page = new PageFrame()
-        let columns = [new ColumnFrame('', 'Round 1')]
+        let page = new WRPage()
+        let columns = [new WRColumn('Round 1')]
         for (let i in this.matches)
         {
             let match = this.matches[i]
@@ -347,21 +347,20 @@ class Bracket
                         add_match(match_num, red_teams, blue_teams)
                     }
 
-                    let button = new Button('open_coach', 'Preview Match')
-                    button.on_click = `open_option('${match_key}')`
+                    let button = new WRButton('Preview Match', () => open_option(match_key))
 
-                    let stack = new Stack('', [card, button])
-                    columns[columns.length - 1].add_input(stack.element)
+                    let stack = new WRStack([card, button])
+                    columns[columns.length - 1].add_input(stack)
                 }
                 else
                 {
-                    columns[columns.length - 1].add_input(card.element)
+                    columns[columns.length - 1].add_input(card)
                 }
             }
             if (['3', '7', '9', '11', '12'].includes(i))
             {
                 page.add_column(columns[columns.length - 1])
-                columns.push(new ColumnFrame('', `Round ${columns.length + 1}`))
+                columns.push(new WRColumn(`Round ${columns.length + 1}`))
             }
         }
         page.add_column(columns[columns.length - 1])
@@ -405,9 +404,8 @@ class Bracket
         container.append(title, subtitle, red, blue)
 
         // build card around container
-        let card = new Card('', '')
+        let card = new WRCard(container)
         card.space_after = false
-        card.label = container
         card.add_class('elim_match')
         if (match.winner > -1)
         {

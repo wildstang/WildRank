@@ -13,6 +13,8 @@
 include('transfer')
 include('bracket-obj')
 
+var filter_el
+
 /**
  * Initializes the contents of the page on page load.
  */
@@ -38,26 +40,25 @@ function add_bracket()
 {
     // determine previously selected alliance filter
     let alliance = 0
-    let f = document.getElementById('alliance_filter')
     let ops = ['All'].concat(bracket.alliances.map(a => a.team_str))
-    if (f)
+    if (filter_el)
     {
-        alliance = f.selectedIndex
+        alliance = filter_el.element.selectedIndex
     }
 
     // build a filter for the alliance
     let filter_inputs = []
     if (ops.length > 1)
     {
-        let filter = new Dropdown('alliance_filter', 'Alliance Filter', ops, ops[alliance])
-        filter.add_class('slim')
-        filter.on_change = 'add_bracket()'
-        filter_inputs = [filter]
+        filter_el = new WRDropdown('Alliance Filter', ops, ops[alliance])
+        filter_el.add_class('slim')
+        filter_el.on_change = add_bracket
+        filter_inputs = [filter_el]
     }
-    let filter_page = new PageFrame('', '', [new ColumnFrame('', '', filter_inputs)])
+    let filter_page = new WRPage('', [new WRColumn('', filter_inputs)])
 
     let page = bracket.build_page(alliance)
-    body.replaceChildren(filter_page.element, page.element)
+    body.replaceChildren(filter_page, page)
 }
 
 /**
