@@ -96,7 +96,15 @@ function init_page()
     let status = new WRColumn()
     data_page.add_column(status)
 
-    let config_buttons = new WRMultiButton('Event Config', ['Preload', 'Import'], ['save_options(); preload_event()', 'save_options(); import_config()'])
+    let on_preload = () => {
+        save_options()
+        preload_event()
+    }
+    let on_import = () => {
+        save_options()
+        import_config()
+    }
+    let config_buttons = new WRMultiButton('Event Config', ['Preload', 'Import'], [on_preload, on_import])
     status.add_input(config_buttons)
 
     event_counter_el = new WRMultiNumber('', ['Teams', 'Matches'])
