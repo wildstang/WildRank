@@ -17,46 +17,43 @@ function init_page()
     header_info.innerText = 'About'
 
     // generate page
-    let page = new PageFrame()
-    let about_col = new ColumnFrame('', 'Application')
+    let page = new WRPage()
+    let about_col = new WRColumn('Application')
     page.add_column(about_col)
 
-    let server = new Card('server', 'Server: Unknown')
+    let server = new WRCard('Server: Unknown')
     server.space_after = false
     server.limitWidth = true
     about_col.add_input(server)
 
-    let version = new Card('version', 'Git: Nope')
+    let version = new WRCard('Git: Nope')
     version.space_after = false
     version.limitWidth = true
     about_col.add_input(version)
 
-    let release = new Card('release', 'Release: Nope')
+    let release = new WRCard('Release: Nope')
     release.limitWidth = true
     release.space_after = false
     about_col.add_input(release)
 
-    let config = new Card('config', 'Config: Nope')
+    let config = new WRCard('Config: Nope')
     config.limitWidth = true
     config.space_after = false
     about_col.add_input(config)
 
-    let get_col = new ColumnFrame('', 'Links')
+    let get_col = new WRColumn('Links')
     page.add_column(get_col)
 
-    let source = new Button('source', 'GitHub')
-    source.external_link = `https://github.com/WildStang/WildRank`
+    let source = new WRLinkButton('GitHub', 'https://github.com/WildStang/WildRank', true)
     get_col.add_input(source)
 
-    let demo = new Button('demo', 'Public Demo')
-    demo.external_link = `https://wildrank.app`
+    let demo = new WRLinkButton('Public Demo', 'https://wildrank.app', true)
     get_col.add_input(demo)
 
-    let wildstang = new Button('wildstang', 'WildStang Program')
-    wildstang.external_link = `https://wildstang.org`
+    let wildstang = new WRLinkButton('WildStang Program', 'https://wildstang.org', true)
     get_col.add_input(wildstang)
 
-    body.replaceChildren(page.element)
+    body.replaceChildren(page)
 
     try
     {
@@ -70,12 +67,12 @@ function init_page()
         if (req.responseText.includes('POST server'))
         {
             let words = req.responseText.split(' ')
-            let server = words[words.indexOf('POST') - 1]
-            document.getElementById('server').innerText = `Server: ${server} POST`
+            let server_name = words[words.indexOf('POST') - 1]
+            server.text_el.innerText = `Server: ${server_name} POST`
         }
         else
         {
-            document.getElementById('server').innerText = 'Server: Generic'
+            server.text_el.innerText = 'Server: Generic'
         }
 
         // add git commit and link
@@ -85,22 +82,22 @@ function init_page()
             if (git !== null && git.length > 0)
             {
                 git = git[0]
-                document.getElementById('version').innerHTML = git.substring(0, git.length - 36) + '</a>'
+                version.text_el.innerHTML = git.substring(0, git.length - 36) + '</a>'
             }
         }
         // add pwa version and link
         if (req.responseText.includes('Release:'))
         {
-            let release = /Release: ([^<]*)<br>/g.exec(req.responseText)
-            if (release !== null && release.length > 0)
+            let release_name = /Release: ([^<]*)<br>/g.exec(req.responseText)
+            if (release_name !== null && release_name.length > 0)
             {
-                release = release[0]
-                document.getElementById('release').innerHTML = release.substring(0, release.length)
+                release_name = release_name[0]
+                release.text_el.innerHTML = release_name.substring(0, release_name.length)
             }
         }
         if (cfg.version)
         {
-            document.getElementById('config').innerText = `Config: ${cfg.version}`
+            config.text_el.innerText = `Config: ${cfg.version}`
         }
     }
     catch (e)
