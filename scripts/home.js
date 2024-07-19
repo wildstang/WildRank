@@ -171,67 +171,38 @@ function init_page()
     }
 
     // build core page
-    let page = new PageFrame('page', '')
+    let page = new WRPage()
     for (let col of Object.keys(columns))
     {
-        let column = new ColumnFrame(col, col)
+        let column = new WRColumn(col)
         page.add_column(column)
         for (let key of columns[col])
         {
-            let button = new Button(key, BUTTONS[key].name, `check_press('${key}', ${key})`)
-            if (!key.includes('_') && col !== 'Reset')
+            let button
+            if (is_blocked(key))
             {
-                button.link = `check_press('${key}')`
+                button = new WRButton(BUTTONS[key].name, () => alert(is_blocked(key)))
             }
-            else if (key === 'open_extras')
+            else if (!key.includes('_') && key !== 'reset' || key.startsWith('open_'))
             {
-                button.link = `check_press('${key}', ${key})`
+                button = new WRLinkButton(BUTTONS[key].name, open_page(key))
             }
-            else if (key === 'open_moralysis')
+            else
             {
-                button.link = `check_press('${key}', ${key})`
+                button = new WRButton(BUTTONS[key].name, () => eval(`${key}()`))
             }
             column.add_input(button)
         }
     }
 
     // build sign out button
-    let sign_out_page = new PageFrame('sign_out_page', '')
-    let column = new ColumnFrame('sign_out_col', '')
+    let sign_out_page = new WRPage()
+    let column = new WRColumn()
     sign_out_page.add_column(column)
-    let sign_out = new Button('sign_out', 'Sign Out')
-    sign_out.link = 'sign_out()'
-    column.add_input(sign_out)
+    let sign_out_button = new WRLinkButton('Sign Out', sign_out())
+    column.add_input(sign_out_button)
 
-    body.replaceChildren(page.element, sign_out_page.element)
-}
-
-/**
- * function:    hide_buttons
- * parameters:  none
- * returns:     none
- * description: Dims buttons if their functionality is not currently available to the user.
- */
-function hide_buttons()
-{
-    let columns = CONFIGS[get_cookie(ROLE_COOKIE, ROLE_DEFAULT)]
-    for (let col of Object.keys(columns))
-    {
-        for (let id of columns[col])
-        {
-            let button = document.getElementById(`${id}-container`)
-            if (is_blocked(id))
-            {
-                // dim the button if blocked
-                button.classList.add('disabled')
-            }
-            else
-            {
-                // umdim otherwise
-                button.classList.remove('disabled')
-            }
-        }
-    }
+    body.replaceChildren(page, sign_out_page)
 }
 
 /**
@@ -324,27 +295,6 @@ function is_blocked(id)
         }
     }
     return false
-}
-
-/**
- * function:    check_press
- * parameters:  button container id, button press function
- * returns:     none
- * description: Attempts to operate a button press otherwise explains why not.
- */
-function check_press(id, on_press=open_page)
-{
-    let blocked = is_blocked(id)
-    if (blocked)
-    {
-        // warn the user if the button cannot be used
-        alert(blocked)
-        return ''
-    }
-    else
-    {
-        return on_press(id)
-    }
 }
 
 /**
