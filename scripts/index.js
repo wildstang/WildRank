@@ -70,32 +70,26 @@ function init_page()
     let roles = new WRColumn('Role')
     user_page.add_column(roles)
 
-    let scout = new WRButton('Match Scout')
-    scout.on_click = () => check_press('scout')
+    let scout = new WRButton('Match Scout', () => check_press('scout'))
     roles.add_input(scout)
 
-    let note = new WRButton('Pit / Note Scouter')
-    note.on_click = () => check_press('note')
+    let note = new WRButton('Pit / Note Scouter', () => check_press('note'))
     note.add_class('slim')
     roles.add_input(note)
 
-    let drive = new WRButton('Drive Team')
-    drive.on_click = () => check_press('drive')
+    let drive = new WRButton('Drive Team', () => check_press('drive'))
     drive.add_class('slim')
     roles.add_input(drive)
 
-    let analyst = new WRButton('Analyst')
-    analyst.on_click = () => check_press('analysis')
+    let analyst = new WRButton('Analyst', () => check_press('analysis'))
     analyst.add_class('slim')
     roles.add_input(analyst)
 
-    let advanced = new WRButton('Advanced')
-    advanced.on_click = () => check_press('advanced')
+    let advanced = new WRButton('Advanced', () => check_press('advanced'))
     advanced.add_class('slim')
     roles.add_input(advanced)
 
-    let admin = new WRButton('Administrator')
-    admin.on_click = () => check_press('admin')
+    let admin = new WRButton('Administrator', () => check_press('admin'))
     admin.add_class('slim')
     roles.add_input(admin)
 
@@ -387,7 +381,6 @@ function check_press(id)
     {
         // warn the user if the button cannot be used
         alert(blocked)
-        return ''
     }
     else
     {
