@@ -166,7 +166,7 @@ function init_page()
         let column = Object.values(columns)[0]
         if (column.length === 1)
         {
-            return window_open(check_press(column[0]), '_self')
+            return window_open(open_page(column[0]), '_self')
         }
     }
 
