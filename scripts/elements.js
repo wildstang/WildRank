@@ -15,6 +15,10 @@ class WRElement extends HTMLElement
         this.class = ''
         this.classes = []
 
+        // randomly generated ID that can be used for accessing input
+        // this is designed to be overriden for random access of scouting inputs
+        this.input_id = random_hex(4)
+
         this.description_el = document.createElement('small')
     }
 
@@ -28,7 +32,6 @@ class WRElement extends HTMLElement
         if (this.description)
         {
             this.description_el.className = 'wr_description'
-            this.description_el.id = `${this.id}_desc`
             this.description_el.append(this.description)
         }
         return this.description_el
@@ -46,7 +49,6 @@ class WRPage extends WRElement
         this.top_margin = true
 
         this.label_el = document.createElement('h2')
-        this.element = document.createElement('div')
     }
 
     add_column(column)
@@ -59,23 +61,20 @@ class WRPage extends WRElement
         if (this.label)
         {
             this.label_el.className = 'page_header'
-            this.label_el.id = `${this.id}_label`
             this.label_el.append(this.label)
-            this.element.append(this.label_el)
+            this.append(this.label_el)
         }
 
-        this.element.className = 'page'
+        this.className = 'page'
         if (!this.top_margin)
         {
-            this.element.classList.add('no_top_margin')
+            this.classList.add('no_top_margin')
         }
-        this.element.classList.add(...this.classes)
+        this.classList.add(...this.classes)
         for (let c of this.columns)
         {
-            this.element.append(c)
+            this.append(c)
         }
-
-        this.append(this.element)
     }
 }
 
@@ -104,7 +103,6 @@ class WRColumn extends WRElement
         if (this.label)
         {
             this.label_el.className = 'column_header'
-            this.label_el.id = `${this.id}_label`
             this.label_el.append(this.label)
         }
         else
@@ -118,7 +116,6 @@ class WRColumn extends WRElement
             for (let i = 0; i < Math.ceil(this.inputs.length / this.max); i++)
             {
                 let col = document.createElement('div')
-                col.id = `${this.id}_${i}`
                 col.className = 'column'
                 col.classList.add(...this.classes)
                 col.append(this.label_el)
@@ -134,7 +131,6 @@ class WRColumn extends WRElement
         else
         {
             let col = document.createElement('div')
-            col.id = this.id
             col.className = 'column'
             col.classList.add(...this.classes)
             col.append(this.label_el)
@@ -362,7 +358,6 @@ class WRCheckbox extends WRElement
     {
         super()
 
-        this.id = label.toLowerCase().replace(' ', '-')
         this.label = label
         this.value = value
         this.on_click = false
@@ -379,11 +374,11 @@ class WRCheckbox extends WRElement
             this.classes.push('selected')
         }
 
-        this.checkbox.id = this.id
+        this.checkbox.id = this.input_id
         this.checkbox.type = 'checkbox'
         this.checkbox.checked = this.value
 
-        this.label_el.for = this.id
+        this.label_el.for = this.input_id
         this.label_el.append(this.label)
 
         this.element.className = 'wr_checkbox'
@@ -410,7 +405,7 @@ class WRCheckbox extends WRElement
     check(target_id='')
     {
         let checked = this.checkbox.checked
-        if (target_id !== this.id)
+        if (target_id !== this.input_id)
         {
             checked = !checked
             this.checkbox.checked = checked
@@ -449,7 +444,6 @@ class WRTimer extends WRElement
     on_click()
     {
         let duration = Date.now() - this.last_touch
-        console.log('on click', this, this.last_touch, duration, this.start)
         if (this.last_touch < 0 || duration < 500)
         {
             if (this.start < 0)
@@ -498,6 +492,7 @@ class WRTimer extends WRElement
     {
         this.label_el.append(this.label)
 
+        this.value_el.id = this.input_id
         this.value_el.className = 'wr_counter_count'
         this.value_el.append(this.value)
 
@@ -536,6 +531,7 @@ class WRExtended extends WRElement
         this.label_el.className = 'input_label'
         this.label_el.append(this.label)
 
+        this.element.id = this.input_id
         this.element.className = 'wr_text'
         this.element.classList.add(...this.classes)
         if (this.on_text_change)
@@ -613,7 +609,7 @@ class WREntry extends WRElement
             this.add_class('wr_string')
         }
 
-        this.element.id = this.id
+        this.element.id = this.input_id
         this.element.type = this.type
         this.element.value = this.value
         this.element.classList.add(...this.classes)
@@ -721,6 +717,7 @@ class WRSlider extends WRElement
             this.label_el.append(this.value_el)
         }
 
+        this.slider.id = this.input_id
         this.slider.type = 'range'
         this.slider.className = 'wr_slider_range'
         this.slider.value = this.value
@@ -793,6 +790,7 @@ class WRCounter extends WRElement
     {
         this.label_el.append(this.label)
 
+        this.value_el.id = this.input_id
         this.value_el.className = 'wr_counter_count'
         this.value_el.append(this.value)
 
@@ -839,6 +837,8 @@ class WRCycler extends WRCounter
     {
         super(label, value)
 
+        this.on_advance = false
+
         this.back_el = document.createElement('span')
         this.value_el = document.createElement('label')
         this.max_el = document.createElement('label')
@@ -854,6 +854,7 @@ class WRCycler extends WRCounter
         this.back_el.style.display = this.value ? 'table-cell' : 'none'
         this.back_el.onclick = () => this.increment(true, this.backward.bind(this))
 
+        this.value_el.id = this.input_id
         this.value_el.className = 'wr_counter_count'
         this.value_el.append(this.value)
 
@@ -883,30 +884,56 @@ class WRCycler extends WRCounter
 
     forward()
     {
-        let max = parseInt(this.max_el.innerHTML)
-        if (this.value >= max)
+        let pass = true
+        if (this.on_advance)
         {
-            this.max_el.innerHTML = this.value
-            this.save_el.innerHTML = 'Save Cycle'
+            pass = this.on_advance(this.input_id, false)
         }
-        else
-        {
-            this.save_el.innerHTML = 'Next Cycle'
-        }
-        this.back_el.style.display = 'table-cell'
-    }
 
-    backward()
-    {
-        if (this.value > 0)
+        if (pass)
         {
+            let max = parseInt(this.max_el.innerHTML)
+            if (this.value >= max)
+            {
+                this.max_el.innerHTML = this.value
+                this.save_el.innerHTML = 'Save Cycle'
+            }
+            else
+            {
+                this.save_el.innerHTML = 'Next Cycle'
+            }
             this.back_el.style.display = 'table-cell'
         }
         else
         {
-            this.back_el.style.display = 'none'
+            this.increment(true)
         }
-        this.save_el.innerHTML = 'Next Cycle'
+    }
+
+    backward()
+    {
+        let pass = true
+        if (this.on_advance)
+        {
+            pass = this.on_advance(this.input_id, true)
+        }
+
+        if (pass)
+        {
+            if (this.value > 0)
+            {
+                this.back_el.style.display = 'table-cell'
+            }
+            else
+            {
+                this.back_el.style.display = 'none'
+            }
+            this.save_el.innerHTML = 'Next Cycle'
+        }
+        else
+        {
+            this.increment(false)
+        }
     }
 }
 
@@ -934,6 +961,7 @@ class WRMultiInput extends WRElement
         this.label_el.className = 'input_label'
         this.label_el.append(this.label)
 
+        this.element.id = this.input_id
         this.element.className = 'wr_select'
         this.element.classList.add(...this.classes)
         if (this.on_click)
@@ -1112,7 +1140,7 @@ class WRMultiCounter extends WRMultiInput
     {
         super(label, options, value)
 
-        this.counter = []
+        this.counters = []
     }
 
     add_option(option, value=0)
@@ -1152,6 +1180,7 @@ class WRMultiCounter extends WRMultiInput
             }
 
             let option = new WRCounter(this.options[i], dval)
+            option.input_id = `${this.input_id}_${create_id_from_name(this.options[i])}`
             option.primary_class = 'wr_multi_option'
             if (this.vertical)
             {
@@ -1436,6 +1465,7 @@ class WRDropdown extends WROptionedInput
         this.label_el.className = 'input_label'
         this.label_el.append(this.label)
 
+        this.element.id = this.input_id
         this.element.className = 'wr_dropdown'
         this.element.classList.add(...this.classes)
         this.element.onclick = event => event.stopPropagation()
@@ -1452,21 +1482,36 @@ customElements.define('wr-dropdown', WRDropdown)
 
 class WROption extends WRElement
 {
-    constructor(id, label)
+    constructor(key, label, type='pit_option')
     {
         super()
 
-        this.id = id
+        this.key = key
         this.label = label
         this.primary_list = true
         this.selected = ''
-        this.type = 'pit_option'
+        this.type = type
+
+        this.id = WROption.get_id(this.primary_list, this.type, this.key)
 
         this.element = document.createElement('div')
     }
 
+    static get_id(primary_list, type, key)
+    {
+        if (primary_list)
+        {
+            return `left_${type}_${key}`
+        }
+        else
+        {
+            return `right_${type}_${key}`
+        }
+    }
+
     get label_element()
     {
+        let label = document.createElement('span')
         label.className = 'long_option_val'
         // TODO: switch to innerHTML/Text elsewhere instead of append
         // innerHTML so character entities like &nbsp; will encode
@@ -1478,30 +1523,28 @@ class WROption extends WRElement
     {
         if (this.primary_list)
         {
-            this.element.id = `${this.type}_${this.id}`
-            this.element.onclick = () => open_option(this.id)
-            this.element.onauxclick = event => {
-                touch_end(event, () => alt_option('${this.id}'))
+            this.onclick = () => open_option(this.key)
+            this.onauxclick = event => {
+                touch_end(event, () => alt_option(this.key))
                 return false
             }
-            this.element.ontouchend = event => touch_end(event, `alt_option('${this.id}')`)
+            this.ontouchend = event => touch_end(event, () => alt_option(this.key))
         }
         else
         {
-            this.element.id = `soption_${this.id}`
-            this.element.onclick = () => open_secondary_option(this.id)
-            this.element.onauxclick = event => touch_end(event, `alt_secondary_option('${this.id}')`)
-            this.element.ontouchend = event => touch_end(event, `alt_secondary_option('${this.id}')`)
+            this.onclick = () => open_secondary_option(this.key)
+            this.onauxclick = event => touch_end(event, () => alt_secondary_option(this.key))
+            this.ontouchend = event => touch_end(event, () => alt_secondary_option(this.key))
         }
-        this.element.oncontextmenu = () => false
-        this.element.ontouchstart = event => touch_start(event)
-        this.element.className = this.type
-        this.element.classList.add(...this.classes)
+        this.oncontextmenu = () => false
+        this.ontouchstart = event => touch_start(event)
+        this.className = this.type
+        this.classList.add(...this.classes)
         if (this.selected)
         {
-            this.element.classList.add(this.selected)
+            this.classList.add(this.selected)
         }
-        this.element.append(...this.label_element)
+        this.append(...this.label_element)
     }
 }
 
@@ -1509,9 +1552,9 @@ customElements.define('wr-option', WROption)
 
 class WRDescriptiveOption extends WROption
 {
-    constructor(id, label, description)
+    constructor(key, label, description)
     {
-        super(id, label)
+        super(key, label)
 
         this.description = description
     }
@@ -1534,13 +1577,12 @@ customElements.define('wr-descriptive-option', WRDescriptiveOption)
 
 class WRMatchOption extends WROption
 {
-    constructor(id, label, red_teams, blue_teams)
+    constructor(key, label, red_teams, blue_teams)
     {
-        super(id, label)
+        super(key, label, 'match_option')
 
         this.red_teams = red_teams
         this.blue_teams = blue_teams
-        this.type = 'match_option'
     }
 
     get label_element()
@@ -1672,30 +1714,6 @@ function touch_end(event, func)
         event.preventDefault()
     }
     last_touch_time = -last_touch_time
-}
-
-/**
- * function:    increment
- * parameters:  ID of counter button, whether it was a right click
- * returns:     none
- * description: Increases the value of the counter on click, descreases on right.
- */
-function increment(id, right, on_increment='')
-{
-    if (last_touch > 0 && Date.now() - last_touch > 500 && !right)
-    {
-        return
-    }
-    let current = document.getElementById(id).innerHTML
-    let modifier = right ? -1 : 1
-    if (current > 0 || modifier > 0)
-    {
-        document.getElementById(id).innerHTML = parseInt(current) + modifier
-    }
-    if (on_increment)
-    {
-        eval(on_increment)
-    }
 }
 
 /**
