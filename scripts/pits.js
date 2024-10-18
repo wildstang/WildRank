@@ -26,7 +26,7 @@ function init_page()
     header_info.innerText = 'Pit Select'
 
     let first = populate_teams(false, true)
-    add_button_filter('transfer', 'Export Pit Results', `export_results()`, true)
+    add_button_filter('Export Pit Results', export_results, true)
     if (first)
     {
         avatar_el = document.createElement('img')
@@ -38,7 +38,7 @@ function init_page()
         team_el.append(team_num_el, ' ', team_name_el)
 
         photos_el = document.createElement('span')
-        let card = new Card('contents_card', [avatar_el, team_el, photos_el])
+        let card = new WRCard([avatar_el, team_el, photos_el])
 
         let camera_el = document.createElement('div')
         camera_el.style.display = 'none'
@@ -48,7 +48,7 @@ function init_page()
         camera_el.append(preview_el, capture_el)
 
         buttons_el = document.createElement('div')
-        preview.append(card.element, buttons_el, camera_el)
+        preview.append(card, buttons_el, camera_el)
         
         open_option(first)
 
@@ -103,39 +103,35 @@ function open_option(team_num)
     avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
     team_num_el.innerText = team_num
     team_name_el.innerText = dal.get_value(team_num, 'meta.name')
-    document.getElementById(`pit_option_${team_num}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
     photos_el.replaceChildren(dal.get_photo_carousel(team_num))
     
     // show edit/view result buttons
-    let scout = new Button('scout_pit', 'Scout Pit!')
-    scout.link = `start_scouting('${team_num}', false)`
-    buttons_el.replaceChildren(scout.element)
+    let scout = new WRLinkButton('Scout Pit!', start_scouting(team_num, false))
+    buttons_el.replaceChildren(scout)
     if (dal.is_pit_scouted(team_num))
     {
-        let page = new PageFrame()
+        let page = new WRPage()
 
-        let edit = new Button('edit_result', 'Edit Result')
-        edit.link = `start_scouting('${team_num}', true)`
+        let edit = new WRLinkButton('Edit Result', start_scouting(team_num, true))
         edit.add_class('slim')
-        page.add_column(new ColumnFrame('', '', [edit]))
+        page.add_column(new WRColumn('', [edit]))
 
-        let renumber = new Button('renumber', 'Renumber Result')
-        renumber.link = `renumber_pit('${team_num}')`
+        let renumber = new WRButton('Renumber Result', () => renumber_pit(team_num))
         renumber.add_class('slim')
-        page.add_column(new ColumnFrame('', '', [renumber]))
+        page.add_column(new WRColumn('', [renumber]))
 
-        let del = new Button('delete', 'Delete Result')
-        del.link = `delete_pit('${team_num}')`
+        let del = new WRButton('Delete Result', () => delete_pit(team_num))
         del.add_class('slim')
-        page.add_column(new ColumnFrame('', '', [del]))
+        page.add_column(new WRColumn('', [del]))
 
-        buttons_el.append(page.element)
+        buttons_el.append(page)
     }
 
     // update capture button for new team
-    let capture = new Button('capture', 'Capture', `capture('${team_num}')`)
+    let capture = new WRButton('Capture', () => capture(team_num))
     capture.add_class('slim')
-    capture_el.replaceChildren(capture.element)
+    capture_el.replaceChildren(capture)
 
     ws(team_num)
 }
