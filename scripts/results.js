@@ -12,7 +12,7 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab, show_meta
+var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab, show_meta, team_filter
 
 /**
  * function:    init_page
@@ -43,14 +43,14 @@ function init_page()
     label.append(show_meta, 'Show Metadata')
 
     results_tab = create_element('table', 'results_tab')
-    let card = new Card('contents_card', [title, label, results_tab])
-    preview.append(card.element)
+    let card = new WRCard([title, label, results_tab])
+    preview.append(card)
 
     // add filter for teams
     let avail_teams = Object.keys(dal.teams)
     avail_teams.sort((a,b) => parseInt(a) - parseInt(b))
     avail_teams.unshift('All')
-    add_dropdown_filter('team_filter', avail_teams, 'build_result_list()')
+    team_filter = add_dropdown_filter(avail_teams, build_result_list)
 
     build_result_list()
     setup_picklists()
@@ -67,7 +67,7 @@ function build_result_list()
     let results = dal.get_results()
 
     // get selected team in filter
-    let filter = document.getElementById('team_filter').value
+    let filter = team_filter.element.value
 
     // build list of options, sorted by match
     let options = {}
@@ -107,7 +107,7 @@ function build_result_list()
 function rebuild_result_list()
 {
     let op = document.getElementsByClassName('selected')[0]
-    open_option(op.id.replace('pit_option_', ''))
+    open_option(op.id.replace('left_pit_option_', ''))
 }
 
 /**
@@ -120,7 +120,7 @@ function open_option(option)
 {
     // select the new option
     deselect_all()
-    document.getElementById(`pit_option_${option}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${option}`).classList.add('selected')
 
     // pull match and team out
     let parts = option.split('-')
