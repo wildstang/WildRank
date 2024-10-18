@@ -61,7 +61,7 @@ function build_page_from_config()
     let select_ids = []
     let page = cfg[NOTE_MODE][0]
     let column = page.columns[0]
-    let page_frame = new PageFrame(page.id, page.name)
+    let page_frame = new WRPage(page.name)
     // iterate through each column in the page
     for (let team of teams)
     {
@@ -72,9 +72,9 @@ function build_page_from_config()
         page_frame.add_column(build_column_from_config(page.columns[1], NOTE_MODE, edit, match_num, 'alliance', alliance_color))
     }
 
-    let submit = new Button('submit', 'Submit', 'get_results_from_page()')
-    let submit_page = new PageFrame('', '', [new ColumnFrame('', '', [submit])])
-    body.append(page_frame.element, submit_page.element)
+    let submit = new WRButton('Submit', get_results_from_page)
+    let submit_page = new WRPage('', [new WRColumn('', [submit])])
+    body.append(page_frame, submit_page)
 
     // mark each selected box as such
     for (let id of select_ids)

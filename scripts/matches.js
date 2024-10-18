@@ -172,7 +172,7 @@ function open_option(match_num)
 
         if (dal.is_note_scouted(match_num, team_num))
         {
-            let page = new PageFrame()
+            let page = new WRPage()
 
             let result_button = new WRLinkButton('View Result', open_page('results', {'file': `${key}-${team_num}`}))
             result_button.add_class('slim')
