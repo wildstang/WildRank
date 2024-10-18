@@ -349,7 +349,7 @@ function get_result_from_input(input, scout_mode, team='', alliance_color='', al
             {
                 if (m_children[i].classList.contains('selected'))
                 {
-                    selected.push(parseInt(i))
+                    selected.push(i)
                 }
             }
 
