@@ -205,7 +205,7 @@ body {
     margin: 4px auto;
 }
 
-.selection_filter > wr-button > .wr_dropdown {
+.selection_filter > wr-dropdown > .wr_dropdown {
     width: 299px;
     margin: 4px auto;
 }
