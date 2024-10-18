@@ -166,8 +166,8 @@ function open_option(match_num)
         team_pos_el.style.color = color
 
         // build buttons
-        let scout_button = new WRLinkButton('Take Notes', open_page('note', {match: key, alliance: alliance, edit: false}))
         let key = match_num.toLowerCase()
+        let scout_button = new WRLinkButton('Take Notes', open_page('note', {match: key, alliance: alliance, edit: false}))
         buttons.append(scout_button)
 
         if (dal.is_note_scouted(match_num, team_num))
