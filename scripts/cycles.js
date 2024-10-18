@@ -155,7 +155,7 @@ function open_option(option)
                         item = new Multicounter(id, name, options)
                         for (let op of options)
                         {
-                            let op_id = `${id}_${op.toLowerCase().split().join('_')}`
+                            let op_id = `${id}_${create_id_from_name(op)}`
                             document.getElementById(`${op_id}-value`).innerHTML = c[op_id]
                         }
                         break

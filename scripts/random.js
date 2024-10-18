@@ -211,7 +211,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                             case 'multiselect':
                                 for (let i in options)
                                 {
-                                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                    let name = `${id}_${create_id_from_name(options[i])}`
                                     c[name] = res[i]
                                 }
                                 break
@@ -239,7 +239,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                         case 'multiselect':
                             for (let i in options)
                             {
-                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                let name = `${id}_${create_id_from_name(options[i])}`
                                 results[name] = res[i]
                             }
                             break
