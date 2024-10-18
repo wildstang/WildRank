@@ -95,44 +95,46 @@ function build_input_from_config(input, default_override='', scout_mode='', team
     switch (type)
     {
         case 'checkbox':
-            item = new Checkbox(id, name, default_val)
+            item = new WRCheckbox(name, default_val)
             break
         case 'counter':
-            item = new Counter(id, name, default_val)
+            item = new WRCounter(name, default_val)
             break
         case 'dropdown':
-            item = new Dropdown(id, name, options, default_val)
+            item = new WRDropdown(name, options, default_val)
             break
         case 'multicounter':
-            item = new MultiCounter(id, name, options, default_val)
+            item = new WRMultiCounter(name, options, default_val)
             break
         case 'multiselect':
-            item = new MultiSelect(id, name, options, default_val, images)
+            item = new WRMultiSelect(name, options, default_val, images)
             item.vertical = input.vertical
             break
         case 'number':
-            item = new Entry(id, name, default_val)
+            item = new WREntry(name, default_val)
             item.type = 'number'
             item.bounds = input.options
             break
         case 'select':
-            item = new Select(id, name, options, default_val, images)
+            item = new WRSelect(name, options, default_val, images)
             item.vertical = input.vertical
             break
         case 'slider':
-            item = new Slider(id, name, default_val)
+            item = new WRSlider(name, default_val)
             item.bounds = input.options
             break
         case 'string':
-            item = new Entry(id, name, default_val)
+            item = new WREntry(name, default_val)
             break
         case 'text':
-            item = new Extended(id, name, default_val)
+            item = new WRExtended(name, default_val)
             break
         case 'timer':
-            item = new Timer(id, name)
+            item = new WRTimer(name)
             break
     }
+
+    item.input_id = id
 
     // allow selects to be colored, must be manually entered in config file
     if (type.includes('select'))
@@ -142,7 +144,6 @@ function build_input_from_config(input, default_override='', scout_mode='', team
             let sheet = window.document.styleSheets[1]
             for (let i in options)
             {
-                console.log(`#${id}-${i}`, input.colors[i])
                 sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
             }
         }
@@ -170,7 +171,7 @@ function build_column_from_config(column, scout_mode, fill_results=false, match=
     {
         col_name = col_name.replace('TEAM', team).replace('ALLIANCE', alliance_color)
     }
-    let col_frame = new ColumnFrame(column.id, col_name)
+    let col_frame = new WRColumn(col_name)
     // TODO: explore doing this intelligently
     if (column.id === 'match_auto_auto')
     {
@@ -200,7 +201,7 @@ function build_column_from_config(column, scout_mode, fill_results=false, match=
                     {
                         default_val = input.options.map(function (op)
                         {
-                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            let name = `${id}_${create_id_from_name(op)}`
                             return dal.get_result_value(team, match, name)
                         })
                     }
@@ -215,7 +216,7 @@ function build_column_from_config(column, scout_mode, fill_results=false, match=
                     {
                         default_val = input.options.map(function (op)
                         {
-                            let name = `${id}_${op.toLowerCase().split().join('_')}`
+                            let name = `${id}_${create_id_from_name(op)}`
                             return dal.get_value(team, `pit.${name}`)
                         })
                     }
@@ -251,16 +252,6 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
     {
         case 'checkbox':
             document.getElementById(id).checked = value
-
-            // highlight checkbox
-            if (document.getElementById(id).checked)
-            {
-                document.getElementById(`${id}-container`).classList.add('selected')
-            }
-            else
-            {
-                document.getElementById(`${id}-container`).classList.remove('selected')
-            }
             break
         case 'counter':
             document.getElementById(id).innerHTML = value
@@ -275,17 +266,18 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
             }
             for (let i in options)
             {
-                let op_id = `${id}_${options[i].toLowerCase().split().join('_')}`
-                document.getElementById(`${op_id}-value`).innerHTML = value[i]
+                let op_id = `${id}_${create_id_from_name(options[i])}`
+                document.getElementById(op_id).innerHTML = value[i]
             }
             break
         case 'multiselect':
-            for (let i in options)
+            let mchildren = document.getElementById(id).getElementsByClassName('wr_select_option')
+            for (let i = 0; i < mchildren.length; i++)
             {
-                MultiSelect.reset_selection(id, i)
-                if (value[i])
+                mchildren[i].classList.remove('selected')
+                if (value.contains(i))
                 {
-                    MultiSelect.select_option(id, i)
+                    mchildren[i].classList.add('selected')
                 }
             }
             break
@@ -295,7 +287,15 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
             document.getElementById(id).value = value
             break
         case 'select':
-            Select.select_option(id, value)
+            let children = document.getElementById(id).getElementsByClassName('wr_select_option')
+            for (let i = 0; i < children.length; i++)
+            {
+                children[i].classList.remove('selected')
+                if (i === value)
+                {
+                    children[i].classList.add('selected')
+                }
+            }
             break
         case 'slider':
             Slider.set_slider(id, value)
@@ -337,16 +337,26 @@ function get_result_from_input(input, scout_mode, team='', alliance_color='', al
         case 'multicounter':
             for (let i in options)
             {
-                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                let html_id = `${el_id}_${op_ids[i].toLowerCase().split().join('_')}`
-                result[name] = parseInt(document.getElementById(`${html_id}-value`).innerHTML)
+                let name = `${id}_${create_id_from_name(options[i])}`
+                let html_id = `${el_id}_${create_id_from_name(op_ids[i])}`
+                result[name] = parseInt(document.getElementById(html_id).innerHTML)
             }
             break
         case 'multiselect':
+            let selected = []
+            let m_children = document.getElementById(el_id).getElementsByClassName('wr_select_option')
+            for (let i in Object.keys(m_children))
+            {
+                if (m_children[i].classList.contains('selected'))
+                {
+                    selected.push(parseInt(i))
+                }
+            }
+
             for (let i in options)
             {
-                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
-                result[name] = MultiSelect.get_selected_options(el_id).includes(parseInt(i))
+                let name = `${id}_${create_id_from_name(options[i])}`
+                result[name] = selected.includes(i)
             }
             break
         case 'number':
@@ -428,7 +438,7 @@ function check_column(column, scout_mode, team='', alliance_color='', alliances=
             case 'multiselect':
                 for (let i in options)
                 {
-                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    let name = `${id}_${create_id_from_name(options[i])}`
                     if (value[name] === def[i])
                     {
                         return id
@@ -474,7 +484,7 @@ function check_cycle(column, scout_mode, team='', alliance_color='', alliances={
             case 'multiselect':
                 for (let i in options)
                 {
-                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                    let name = `${id}_${create_id_from_name(options[i])}`
                     if (value[name] !== def[i])
                     {
                         return name
