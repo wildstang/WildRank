@@ -765,6 +765,19 @@ class WRSlider extends WRElement
         this.max = max
         this.slider.max = max
     }
+
+    set bounds(bounds)
+    {
+        if (bounds.length > 1)
+        {
+            this.min = bounds[0]
+            this.max = bounds[1]
+            if (bounds.length > 2)
+            {
+                this.incr = bounds[2]
+            }
+        }
+    }
 }
 
 customElements.define('wr-slider', WRSlider)
