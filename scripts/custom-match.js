@@ -77,8 +77,8 @@ function add_match()
     let blue_teams = []
     for (let pos = 0; pos < dal.max_alliance_size; pos++)
     {
-        red_teams.push(red_col.inputs[pos].element.value)
-        blue_teams.push(blue_col.inputs[pos].element.value)
+        red_teams.push('frc' + red_col.inputs[pos].element.value)
+        blue_teams.push('frc' + blue_col.inputs[pos].element.value)
     }
 
     if ([...new Set(red_teams.concat(blue_teams))].length < dal.max_alliance_size * 2)
