@@ -13,7 +13,7 @@ include('bracket-obj')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('match')
 
-var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page
+var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_card, blue_card
 
 /**
  * function:    init_page
@@ -34,7 +34,7 @@ function init_page()
     {
         default_filter = cfg.settings.team_number.toString()
     }
-    add_dropdown_filter('team_filter', teams, 'hide_matches()', true, default_filter)
+    team_filter = add_dropdown_filter(teams, hide_matches, true, default_filter)
 
     if (first)
     {
@@ -43,30 +43,28 @@ function init_page()
 
         // create page containing whiteboard
         whiteboard = new Whiteboard(update_sliders)
-        let card = new Card('contents_card', [whiteboard.canvas])
+        let card = new WRCard([whiteboard.canvas])
         card.space_after = false
 
         // create the whiteboard drawing controls and place them in a stack with the whiteboard
-        let game_piece = new MultiButton('game_piece', '')
+        let game_piece = new WRMultiButton('')
         for (let gp of cfg.whiteboard.game_pieces)
         {
             game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
         }
         game_piece.on_click = 'add_game_piece()'
-        let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
-        draw_drag.on_click = 'draw_drag()'
-        let clear = new MultiButton('clear', '', ['Clear Lines', 'Clear All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
-        let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
+        let draw_drag = new WRCheckbox('Draw on Drag')
+        draw_drag.on_click = draw_drag
+        let clear = new WRMultiButton('', ['Clear Lines', 'Clear All'], [whiteboard.clear_lines, whiteboard.clear])
+        let reset_whiteboard = new WRButton('Reset Whiteboard', 'whiteboard.reset()')
 
-        let stack = new Stack('', [card, draw_drag, game_piece, clear, reset_whiteboard], true)
-        let wb_col = new ColumnFrame('', '', [stack])
-        whiteboard_page = new PageFrame('', '', [wb_col])
+        let stack = new WRStack([card, draw_drag, game_piece, clear, reset_whiteboard], true)
+        let wb_col = new WRColumn('', [stack])
+        whiteboard_page = new WRPage('', [wb_col])
 
         // create column of buttons for coach page
-        edit = new Button('edit_coach', 'Edit Values')
-        edit.link = `open_page('edit-coach')`
-        custom = new Button('custom_match', 'Add Custom Match')
-        custom.link = `open_page('custom-match')`
+        edit = new WRLinkButton('Edit Values', open_page('edit-coach'))
+        custom = new WRLinkButton('Add Custom Match', open_page('custom-match'))
 
         // subtract margins from the parent dimensions
         // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
@@ -118,7 +116,7 @@ function add_bracket()
                 break
             }
         }
-        bracket_page = bracket.build_page(a).element
+        bracket_page = bracket.build_page(a)
         carousel.append(bracket_page)
     }
 }
@@ -136,7 +134,7 @@ function update_sliders(){}
  */
 function hide_matches()
 {
-    let team = document.getElementById('team_filter').value
+    let team = team_filter.element.value
     let first = populate_matches(true, true, team)
     open_option(first)
 }
@@ -151,7 +149,7 @@ function open_option(match_key)
 {
     // select option
     deselect_all()
-    document.getElementById(`match_option_${match_key}`).classList.add('selected')
+    document.getElementById(`left_match_option_${match_key}`).classList.add('selected')
     document.getElementById('scouting-carousel').scrollTo(0, 0)
 
     // load the match on the whiteboard, UI updates handled by update_sliders()
@@ -180,25 +178,25 @@ function open_option(match_key)
     }
     header_info.innerText = `${dal.get_match_value(match_key, 'match_name')} - ${time}`
 
-    let red_col = new ColumnFrame('red_alliance', '')
-    let red_page = new PageFrame('', '', [red_col])
-    let blue_col = new ColumnFrame('blue_alliance', '')
-    let blue_page = new PageFrame('', '', [blue_col])
+    let red_col = new WRColumn('')
+    let red_page = new WRPage('', [red_col])
+    let blue_col = new WRColumn('')
+    let blue_page = new WRPage('', [blue_col])
 
-    let red_card = new Card(`red_details`, '')
+    red_card = new WRCard('')
     red_card.add_class('red_box')
     red_col.add_input(red_card)
     red_col.add_input(edit)
     red_col.add_input(custom)
 
-    let blue_card = new Card(`blue_details`, '')
+    blue_card = new WRCard('')
     blue_card.add_class('blue_box')
     blue_col.add_input(blue_card)
     blue_col.add_input(edit)
     blue_col.add_input(custom)
 
     // build template
-    carousel.replaceChildren(red_page.element, blue_page.element, whiteboard_page.element)
+    carousel.replaceChildren(red_page, blue_page, whiteboard_page)
     add_bracket()
 
     // populate cards with tables
@@ -263,8 +261,13 @@ function build_table(alliance, teams)
     let center = document.createElement('center')
     center.append(header)
 
-    document.getElementById(`${alliance}_details`).replaceChildren(center)
-    document.getElementById(`${alliance}_details`).append(...images, table)
+    let details = blue_card
+    if (alliance === 'red')
+    {
+        details = red_card
+    }
+    details.element.replaceChildren(center)
+    details.element.append(...images, table)
 }
 
 /**
@@ -298,5 +301,5 @@ function add_match(match_num, red_teams, blue_teams)
 
     // add the match to the option list
     let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
-    document.getElementById('option_list').append(option.element)
+    document.getElementById('option_list').append(option)
 }
