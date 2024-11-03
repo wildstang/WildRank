@@ -9,7 +9,7 @@
 include('picklists-core')
 include('transfer')
 
-var avatar_el, team_el, name_el, lists_el, mode_el
+var avatar_el, team_el, name_el, lists_el, mode_el, table_card
 
 /**
  * function:    init_page
@@ -33,7 +33,8 @@ function init_page()
         let belongs = document.createElement('h4')
         belongs.innerText = 'Belongs to:'
         lists_el = document.createElement('span')
-        let card = new Card('contents_card', [avatar_el, header, belongs, lists_el])
+        let card = new WRCard([avatar_el, header, belongs, lists_el])
+        card.limitWidth = true
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)
@@ -46,13 +47,13 @@ function init_page()
         }
 
         // build page
-        let tab_card = new Card('table_card', '')
-        tab_card.add_class('scalable_card')
-        let new_list = new Button('new_list', 'Add to New List', 'new_list()')
-        mode_el = new Select('mode', '', ['Add', 'Strike', 'Remove'])
-        let export_button = new Button('export', 'Export Lists', 'export_picklists()')
-        let column = new ColumnFrame('', '', [new_list, tab_card, mode_el, export_button])
-        preview.append(card.element, new PageFrame('page', '', [column]).element)
+        table_card = new WRCard('')
+        table_card.add_class('scalable_card')
+        let new_list_el = new WRButton('Add to New List', new_list)
+        mode_el = new WRSelect('', ['Add', 'Strike', 'Remove'])
+        let export_button = new WRButton('Export Lists', export_picklists)
+        let column = new WRColumn('', [new_list_el, table_card, mode_el, export_button])
+        preview.append(card, new WRPage('', [column]))
 
         build_pick_lists()
         open_option(first)
@@ -84,7 +85,8 @@ function new_list()
  */
 function mark_team(list, team)
 {
-    let mode = mode_el.selected_option
+    let mode = mode_el.selected_index
+    console.log(list, team, mode)
     switch (mode)
     {
         case 0:
@@ -122,7 +124,7 @@ function open_option(team_num)
     lists_el.innerHTML = belongs_to.join(', ')
 
     // select team button
-    document.getElementById(`pit_option_${team_num}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
     ws(team_num)
 }
 
@@ -171,7 +173,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
                     cell.oncontextmenu = (event) => { remove_list(list); return false }
                     cell.ontouchstart = (event) => touch_start()
                     cell.ontouchmove = (event) => touch_move()
-                    cell.ontouchend = (event) => touch_end(`remove_list('${list}')`)
+                    cell.ontouchend = (event) => touch_end(() => remove_list(list))
                     cell.append(name)
                 }
                 else
@@ -218,7 +220,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
             }
         }
     }
-    document.getElementById('table_card').replaceChildren(table)
+    table_card.element.replaceChildren(table)
 
     // add secondary list for picklist matches
     let prev_right = 'flex'

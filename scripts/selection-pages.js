@@ -81,7 +81,7 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             }
 
             // build match name
-            let option = new WRMatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
+            let option = new WRMatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams, !secondary)
             option.add_class(scouted)
             document.getElementById(list).append(option)
         }
@@ -212,8 +212,7 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
         for (let team of teams)
         {
             let name = dal.get_value(team, 'meta.name')
-            let op = new WRDescriptiveOption(team, team, name)
-            op.primary_list = false
+            let op = new WRDescriptiveOption(team, team, name, false)
             document.getElementById('secondary_option_list').append(op)
         }
 
@@ -250,10 +249,9 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
         // iterate through result keys
         for (let key of keys)
         {
-            let op = new WROption(key, dal.meta[key].name)
+            let op = new WROption(key, dal.meta[key].name, false)
             op.style = 'font-size:10px'
             document.getElementById('option_list').append(op)
-            op.primary_list = false
             document.getElementById('secondary_option_list').append(op)
         }
 

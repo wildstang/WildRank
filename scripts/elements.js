@@ -1495,13 +1495,13 @@ customElements.define('wr-dropdown', WRDropdown)
 
 class WROption extends WRElement
 {
-    constructor(key, label, type='pit_option')
+    constructor(key, label, primary_list=true, type='pit_option')
     {
         super()
 
         this.key = key
         this.label = label
-        this.primary_list = true
+        this.primary_list = primary_list
         this.selected = ''
         this.type = type
 
@@ -1565,9 +1565,9 @@ customElements.define('wr-option', WROption)
 
 class WRDescriptiveOption extends WROption
 {
-    constructor(key, label, description)
+    constructor(key, label, description, primary_list=true)
     {
-        super(key, label)
+        super(key, label, primary_list)
 
         this.description = description
     }
@@ -1590,9 +1590,9 @@ customElements.define('wr-descriptive-option', WRDescriptiveOption)
 
 class WRMatchOption extends WROption
 {
-    constructor(key, label, red_teams, blue_teams)
+    constructor(key, label, red_teams, blue_teams, primary_list=true)
     {
-        super(key, label, 'match_option')
+        super(key, label, primary_list, 'match_option')
 
         this.red_teams = red_teams
         this.blue_teams = blue_teams
