@@ -183,9 +183,13 @@ function init_page()
             {
                 button = new WRButton(BUTTONS[key].name, () => alert(is_blocked(key)))
             }
-            else if (!key.includes('_') && key !== 'reset' || key.startsWith('open_'))
+            else if (!key.includes('_') && key !== 'reset')
             {
                 button = new WRLinkButton(BUTTONS[key].name, open_page(key))
+            }
+            else if (key.startsWith('open_'))
+            {
+                button = new WRLinkButton(BUTTONS[key].name, eval(`${key}()`))
             }
             else
             {
