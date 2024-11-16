@@ -1368,9 +1368,9 @@ class WRSelect extends WROptionedInput
         return options
     }
 
-    get selected_index()
+    static get_selected_index(element)
     {
-        let children = this.element.getElementsByClassName('wr_select_option')
+        let children = element.getElementsByClassName('wr_select_option')
         for (let i = 0; i < children.length; i++)
         {
             if (children[i].classList.contains('selected'))
@@ -1379,6 +1379,11 @@ class WRSelect extends WROptionedInput
             }
         }
         return -1
+    }
+
+    get selected_index()
+    {
+        return WRSelect.get_selected_index(this.element)
     }
 
     get selected_option()
