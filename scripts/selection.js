@@ -117,10 +117,10 @@ function toggle_select(primary_list=true)
  */
 function filter_by(filter, primary_list=true)
 {
-    let start = 'option_'
+    let start = 'left_pit_option_'
     if (!primary_list)
     {
-        start = 'soption_'
+        start = 'right_pit_option_'
     }
     deselect_all(primary_list)
     for (let f of filter)
