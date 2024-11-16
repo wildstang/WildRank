@@ -19,6 +19,8 @@ var selected_teams = []
 
 const STATS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
 
+var sort_dropdown, picklist_filter, stat_filter
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -29,25 +31,25 @@ function init_page()
 {
     header_info.innerText = 'Pivot Table'
 
-    let picklists = ['None'].concat(Object.keys(dal.picklists))
+    let picklists = [''].concat(Object.keys(dal.picklists))
 
-    let sort_picklist = new Dropdown('sort_picklist', 'Sort By Picklist', picklists)
-    sort_picklist.on_change = `build_table(-1, ${last_reverse})`
-    let picklist_button = new Button('create_picklist', 'Save to Picklist', 'save_picklist()')
-    let export_button = new Button('export_pivot', 'Export as Spreadsheet', 'export_csv()')
-    let import_button = new Button('import_keys', 'Import Keys', 'prompt_csv()')
+    sort_dropdown = new WRDropdown('Sort By Picklist', picklists)
+    sort_dropdown.on_change = () => build_table(-1, last_reverse)
+    let picklist_button = new WRButton('Save to Picklist', save_picklist)
+    let export_button = new WRButton('Export as Spreadsheet', export_csv)
+    let import_button = new WRButton('Import Keys', prompt_csv)
 
     results_tab = document.createElement('table')
-    let card = new Card('contents_card', [results_tab])
-    preview.append(new PageFrame('', '', [card, new ColumnFrame('', '', [sort_picklist, import_button]),
-                                          new ColumnFrame('', '', [picklist_button, export_button])]).element)
+    let card = new WRCard([results_tab])
+    preview.append(new WRPage('', [card, new WRColumn('', [sort_dropdown, import_button]),
+                                   new WRColumn('', [picklist_button, export_button])]))
 
     // add pick list filter
-    add_dropdown_filter('picklist_filter', picklists, 'filter_teams()', false)
-    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank', 'Meta'], 'filter_stats()', true, 'Stats')
+    picklist_filter = add_dropdown_filter(picklists, filter_teams_by_picklist, false)
+    stat_filter = add_dropdown_filter(['All', 'Stats', 'Pit', 'Rank', 'Meta'], filter_stats, true, 'Stats')
 
     // add select button above secondary list
-    add_button_filter('select_toggle', '(De)Select All', 'toggle_select(false); select_none()', false)
+    add_button_filter('(De)Select All', () => {toggle_select(false); select_none()}, false)
 
     // build lists
     populate_keys(dal)
@@ -74,7 +76,7 @@ function init_page()
         for (let i in selected_keys)
         {
             try {
-                document.getElementById(`pit_option_${selected_keys[i]}`).classList.add('selected')
+                document.getElementById(`left_pit_option_${selected_keys[i]}`).classList.add('selected')
             }
             catch {
                 selected_keys.splice(i, 1)
@@ -102,14 +104,11 @@ function init_page()
 }
 
 /**
- * function:    filter_teams
- * parameters:  none
- * returns:     none
- * description: Selects teams based off the selected picklist.
+ * Re-build the table using the selected picklist.
  */
-function filter_teams()
+function filter_teams_by_picklist()
 {
-    let list = document.getElementById('picklist_filter').value
+    let list = picklist_filter.element.value
     if (Object.keys(dal.picklists).includes(list))
     {
         filter_by(dal.picklists[list], false)
@@ -130,11 +129,11 @@ function filter_teams()
  */
 function filter_stats()
 {
-    let filter = document.getElementById('stat_filter').value.toLowerCase()
+    let filter = stat_filter.element.value.toLowerCase()
     let keys = dal.get_keys()
     for (let k of keys)
     {
-        let element = document.getElementById(`pit_option_${k}`)
+        let element = document.getElementById(`left_pit_option_${k}`)
         if (filter !== 'all' && !k.startsWith(filter) && !element.classList.contains('selected'))
         {
             element.style.display = 'none'
@@ -156,14 +155,14 @@ function open_option(key)
 {
     list_name = "Team Number"
     // select team button
-    if (document.getElementById(`pit_option_${key}`).classList.contains('selected'))
+    if (document.getElementById(`left_pit_option_${key}`).classList.contains('selected'))
     {
-        document.getElementById(`pit_option_${key}`).classList.remove('selected')
+        document.getElementById(`left_pit_option_${key}`).classList.remove('selected')
         selected_keys = selected_keys.filter(s => s != key)
     }
     else
     {
-        document.getElementById(`pit_option_${key}`).classList.add('selected')
+        document.getElementById(`left_pit_option_${key}`).classList.add('selected')
         selected_keys.push(key)
     }
 
@@ -204,7 +203,7 @@ function alt_option(key)
  */
 function open_secondary_option(key)
 {
-    let class_list = document.getElementById(`soption_${key}`).classList
+    let class_list = document.getElementById(`right_pit_option_${key}`).classList
     // select team button
     if (class_list.contains('selected'))
     {
@@ -238,7 +237,7 @@ function get_selected_keys()
  */
 function get_secondary_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('s')).map(item => item.id.replace('soption_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('right_')).map(item => item.id.replace('right_pit_option_', ''))
 }
 
 /**
@@ -249,15 +248,18 @@ function get_secondary_selected_keys()
  */
 function get_sorted_teams(sort_by=0, type='mean', reverse=false)
 {
-    let filter_teams = get_secondary_selected_keys()
+    let filtered_teams = get_secondary_selected_keys()
 
-    if (sort_by < 0)
+    let picklist_name = sort_dropdown.element.value
+    let key = selected_keys[sort_by - 1]
+
+    // sort by selected picklist
+    if (sort_by < 0 && picklist_name)
     {
-        let name = document.getElementById('sort_picklist').value
-        if (name in dal.picklists)
+        if (picklist_name in dal.picklists)
         {
-            let list = dal.picklists[name]
-            filter_teams.sort((a,b) => {
+            let list = dal.picklists[picklist_name]
+            filtered_teams.sort((a,b) => {
                 let a_idx = list.indexOf(a)
                 if (a_idx < 0)
                 {
@@ -272,27 +274,24 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
             })
         }
     }
-    else
-    {
-        let key = selected_keys[sort_by]
-        if (typeof key === 'undefined')
-        {
-            key = ''
-        }
-    
+    // sort by selected key
+    else if (sort_by > 0 && typeof key !== 'undefined')
+    {    
         let t = ''
         if (key in dal.meta)
         {
             t = dal.meta[key].type
         }
     
+        // sort strings alphabetically
         if (t === 'string' || t === 'text')
         {
-            filter_teams.sort((a,b) => dal.get_value(a, key, type).localeCompare(dal.get_value(b, key, type)))
+            filtered_teams.sort((a,b) => dal.get_value(a, key, type).localeCompare(dal.get_value(b, key, type)))
         }
+        // sort selectables by
         else if (type === 'total' && (t === 'select' || t === 'dropdown'))
         {
-            filter_teams.sort((a,b) => {
+            filtered_teams.sort((a,b) => {
                 // total stats are stored as HTML string so some string manipulation is needed
                 let a_val = dal.get_value(a, key, type).split('<br>')[0].split(' ')[1]
                 let b_val = dal.get_value(b, key, type).split('<br>')[0].split(' ')[1]
@@ -311,9 +310,10 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
                 return b_val - a_val
             })
         }
+        // sort everything else (numbers) by value
         else
         {
-            filter_teams.sort((a,b) => {
+            filtered_teams.sort((a,b) => {
                 let a_val = dal.get_value(a, key, type)
                 let b_val = dal.get_value(b, key, type)
                 if (isNaN(a_val) && isNaN(b_val))
@@ -332,14 +332,16 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
             })
         }
     }
+    // otherwise maintain sort by team number
 
+    // reverse order if requested
     if (reverse)
     {
-        filter_teams.reverse()
+        filtered_teams.reverse()
     }
 
     // move selected teams to the top
-    filter_teams.sort((a, b) => {
+    filtered_teams.sort((a, b) => {
         let highlight_a = selected_teams.includes(a)
         let highlight_b = selected_teams.includes(b)
         if (highlight_a == highlight_b)
@@ -356,7 +358,73 @@ function get_sorted_teams(sort_by=0, type='mean', reverse=false)
         }
     })
 
-    return filter_teams
+    return filtered_teams
+}
+
+/**
+ * Determine the filter value for a given column.
+ * 
+ * @param {number} column_idx The index of the column to parse filters from.
+ * @returns Type, filter, and less/greater than value.
+ */
+function get_filters(column_idx)
+{
+    // determine previously selected stat
+    let type = 'Mean'
+    if (document.getElementById(`select_${column_idx}`))
+    {
+        type = document.getElementById(`select_${column_idx}`).value
+    }
+
+    // determine previously selected filter
+    let filter = ''
+    if (document.getElementById(`filter_${column_idx}`))
+    {
+        filter = document.getElementById(`filter_${column_idx}`).value
+    }
+
+    // determine previously less/greater
+    let ltgt_def = ''
+    if (document.getElementById(`ltgt_${column_idx}`))
+    {
+        ltgt_def = WRSelect.get_selected_index(document.getElementById(`ltgt_${column_idx}`))
+    }
+
+    return [type, filter, ltgt_def]
+}
+
+/**
+ * Filter out teams from a given list.
+ * 
+ * @param {Array} teams List of teams numbers to be reduced.
+ * @param {string} key Key to filter on.
+ * @param {string} type Type of the key.
+ * @param {filter} filter Selected filter value.
+ * @param {ltgt_def} ltgt_def Selected less/greater than value.
+ * @returns Array of teams to be added to the table.
+ */
+function filter_teams(teams, key, type, filter, ltgt_def)
+{
+    let remove_teams = []
+    for (let team of teams)
+    {
+        let val = dal.get_value(team, key, type)
+        let mapped_val = dal.get_value(team, key, type, true)
+        if (filter !== '' && ((ltgt_def === 0 && val >= parseFloat(filter)) ||
+            (ltgt_def === 1 && val <= parseFloat(filter)) ||
+            (ltgt_def === '' && filter !== mapped_val)))
+        {
+            remove_teams.push(team)
+        }
+    }
+
+    // remove teams that does match
+    for (let team of remove_teams)
+    {
+        teams.splice(teams.indexOf(team), 1)
+    }
+
+    return teams
 }
 
 /**
@@ -403,6 +471,30 @@ function get_selected_type(idx=0)
 }
 
 /**
+ * Determines which if any character should be appended to a column name to indicate sort.
+ * 
+ * @param {number} idx Index of the current column being considered.
+ * @param {number} sort_by Index of the selected column.
+ * @param {boolean} reverse Whether the column has been reveresed.
+ * @returns An up arrow, down arrow, or empty string.
+ */
+function get_sort_indicator(idx, sort_by, reverse)
+{
+    if (idx != sort_by)
+    {
+        return ''
+    }
+    else if (!reverse)
+    {
+        return ' &#9650'
+    }
+    else
+    {
+        return ' &#9660'
+    }
+}
+
+/**
  * function:    build_table
  * parameters:  key to sort by, whether to reverse all
  * returns:     none
@@ -415,7 +507,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
 
     // sort teams based on parameters
     let pos = get_previous_pos(sort_by, moved_idx, placed_idx)
-    let filter_teams = get_sorted_teams(sort_by, get_selected_type(pos), reverse)
+    let sorted_teams = get_sorted_teams(sort_by, get_selected_type(pos), reverse)
 
     let selected_types = {}
 
@@ -428,18 +520,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     // compute totals
     let global_stats = {}
 
-    // determine if sort is by team number
-    let sort_char = ''
-    let sort_team = (sort_by === 0 && selected_keys.length === 0) || sort_by === '' || isNaN(sort_by)
-    if (sort_team && !reverse)
-    {
-        sort_char = ' &#9650'
-    }
-    else if (sort_team && reverse)
-    {
-        sort_char = ' &#9660'
-    }
-
+    // get list of picked teams to fade
     let picked_teams = []
     if (Object.keys(dal.picklists).includes('picked'))
     {
@@ -456,8 +537,8 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     team_header.ondragover = dragover_handler
     team_header.ondragenter = dragenter_handler
     team_header.ondrop = drop_handler
-    team_header.onclick = (event) => build_table('', !reverse)
-    team_header.innerHTML = `Team Number${sort_char}`
+    team_header.onclick = (event) => build_table(0, !reverse)
+    team_header.innerHTML = `Team Number${get_sort_indicator(0, sort_by, reverse)}`
     keys_row.append(team_header)
 
     let filters_row = table.insertRow()
@@ -472,18 +553,16 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
     total_header.innerText = 'All Teams'
     totals_row.append(total_header)
 
+    let filtered_teams = sorted_teams.slice()
+    let selected_key_idx = sort_by - 1
     for (let i in selected)
     {
         let key = selected[i]
-        let sort_char = ''
-        if (i === sort_by && reverse)
-        {
-            sort_char = ' &#9650'
-        }
-        else if (i === sort_by && !reverse)
-        {
-            sort_char = ' &#9660'
-        }
+
+        // filter teams based off this column
+        let from_idx = get_previous_pos(parseInt(i), moved_idx, placed_idx)
+        let [type, filter, ltgt_def] = get_filters(from_idx)
+        filtered_teams = filter_teams(filtered_teams, key, type, filter, ltgt_def)
 
         // add key names
         let col_header = create_element('th', `header_${i}`)
@@ -492,7 +571,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         col_header.ondragover = dragover_handler
         col_header.ondragenter = dragenter_handler
         col_header.ondrop = drop_handler
-        col_header.onclick = (event) => build_table(i, key == selected_keys[sort_by] && !reverse)
+        col_header.onclick = (event) => build_table(parseInt(i) + 1, key == selected_keys[selected_key_idx] && !reverse)
         col_header.onauxclick = (event) => alt_option(key)
         col_header.oncontextmenu = (event) => false
         col_header.ontouchstart = (event) => touch_start()
@@ -500,54 +579,14 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         col_header.ontouchend = (event) => touch_end(`alt_option('${key}')`)
         keys_row.append(col_header)
 
-        // determine column to pull existing stat and filter values from
-        let from_idx = get_previous_pos(parseInt(i), moved_idx, placed_idx)
-
-        // determine previously selected stat
-        let type = 'Mean'
-        if (document.getElementById(`select_${from_idx}`))
-        {
-            type = document.getElementById(`select_${from_idx}`).value
-            selected_types[`select_${i}`] = type
-        }
-
-        // determine previously selected filter
-        let filter = ''
-        if (document.getElementById(`filter_${from_idx}`))
-        {
-            filter = document.getElementById(`filter_${from_idx}`).value
-        }
-
-        // determine previously less/greater
-        let ltgt_def = ''
-        if (document.getElementById(`ltgt_${from_idx}`))
-        {
-            ltgt_def = Select.get_selected_option(`ltgt_${from_idx}`)
-        }
-
-        // find unique values and make array of teams that don't match filter
         let unique = []
-        let remove_teams = []
-        for (let team of filter_teams)
+        for (let team of sorted_teams)
         {
-            let val = dal.get_value(team, key, type)
             let mapped_val = dal.get_value(team, key, type, true)
-            if (filter !== '' && ((ltgt_def === 0 && val >= parseFloat(filter)) ||
-                (ltgt_def === 1 && val <= parseFloat(filter)) ||
-                (ltgt_def === '' && filter !== mapped_val)))
-            {
-                remove_teams.push(team)
-            }
             if (!unique.includes(mapped_val))
             {
                 unique.push(mapped_val)
             }
-        }
-
-        // remove teams that does match
-        for (let team of remove_teams)
-        {
-            filter_teams.splice(filter_teams.indexOf(team), 1)
         }
 
         // sort filter options
@@ -587,15 +626,16 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             {
                 stats = stats.concat(dal.meta[key].options)
             }
-            let dropdown = new Dropdown(`select_${i}`, '', stats, type)
-            dropdown.on_change = `build_table('${sort_by}', ${reverse})`
+            let dropdown = new WRDropdown('', stats, type)
+            dropdown.input_id = `select_${i}`
+            dropdown.on_change = () => build_table(sort_by, reverse)
             dropdown.add_class('label')
             dropdown.add_class('thin')
-            col_header.append(dropdown.element)
+            col_header.append(dropdown)
         }
 
         let col_key = document.createElement('span')
-        col_key.innerHTML = `${dal.get_name(key, '')}${sort_char}`
+        col_key.innerHTML = `${dal.get_name(key, '')}${get_sort_indicator(i, selected_key_idx, reverse)}`
         col_header.append(col_key)
 
         // build dropdown for filter
@@ -604,35 +644,37 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
         // build a select for less/greater than if a number
         if (numeric)
         {
-            let ltgt = new Select(`ltgt_${i}`, '', ['<', '>'], ['<', '>'][ltgt_def])
-            ltgt.on_change = `build_table('${sort_by}', ${reverse})`
+            let ltgt = new WRSelect('', ['<', '>'], ['<', '>'][ltgt_def])
+            ltgt.input_id = `ltgt_${i}`
+            ltgt.on_change = () => build_table(sort_by, reverse)
             ltgt.add_class('slim')
             ltgt.add_class('thin')
             ltgt.add_class('no_input_gap')
-            filter_el.push(new ColumnFrame('', '', [ltgt]).element)
+            filter_el.push(new WRColumn('', [ltgt]))
         }
         if (type !== 'Total')
         {
-            let filter_dd = new Dropdown(`filter_${i}`, '', unique, filter)
-            filter_dd.on_change = `build_table('${sort_by}', ${reverse})`
+            let filter_dd = new WRDropdown('', unique, filter)
+            filter_dd.input_id = `filter_${i}`
+            filter_dd.on_change = () => build_table(sort_by, reverse)
             filter_dd.add_class('slim')
             filter_dd.add_class('thin')
             filter_dd.add_class('no_input_gap')
-            filter_el.push(new ColumnFrame('', '', [filter_dd]).element)
+            filter_el.push(new WRColumn('', [filter_dd]))
         }
 
         // build cells
         filters_row.insertCell().append(...filter_el)
 
         let type_key = `${key}.${type.toLowerCase()}`
-        global_stats[type_key] = dal.compute_global_stats([key], filter_teams, type.toLowerCase())
+        global_stats[type_key] = dal.compute_global_stats([key], filtered_teams, type.toLowerCase())
         totals_row.insertCell().innerHTML = dal.get_global_value(global_stats[type_key], key, type.toLowerCase(), true)
     }
 
     // build team rows
-    for (let idx in filter_teams)
+    for (let idx in filtered_teams)
     {
-        let team = filter_teams[idx]
+        let team = filtered_teams[idx]
         let row = table.insertRow()
         row.insertCell().innerText = parseInt(idx) + 1
         let team_num = row.insertCell()
@@ -755,72 +797,41 @@ function toggle_selected_team(team_num)
 function save_picklist()
 {
     // get selected keys on either side
-    let selected = get_selected_keys()
     let teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
 
+    // filter teams by selected
+    let selected = get_selected_keys()
     for (let i in selected)
     {
         let key = selected[i]
-
-        // determine previously selected stat
-        let type = 'Mean'
-        if (document.getElementById(`select_${i}`))
-        {
-            type = document.getElementById(`select_${i}`).value
-        }
-
-        // determine previously selected filter
-        let filter = ''
-        if (document.getElementById(`filter_${i}`))
-        {
-            filter = document.getElementById(`filter_${i}`).value
-        }
-
-        // determine previously less/greater
-        let ltgt_def = ''
-        if (document.getElementById(`ltgt_${i}`))
-        {
-            ltgt_def = Select.get_selected_option(`ltgt_${i}`)
-        }
-
-        // make array of teams that don't match filter
-        let remove_teams = []
-        for (let team of teams)
-        {
-            let val = dal.get_value(team, key, type)
-            let mapped_val = dal.get_value(team, key, type, true)
-            if (filter !== '' && ((ltgt_def === 0 && val >= parseFloat(filter)) ||
-                (ltgt_def === 1 && val <= parseFloat(filter)) ||
-                (ltgt_def === '' && filter !== mapped_val)))
-            {
-                remove_teams.push(team)
-            }
-        }
-
-        // remove teams that does match
-        for (let team of remove_teams)
-        {
-            teams.splice(teams.indexOf(team), 1)
-        }
+        let [type, filter, ltgt_def] = get_filters(i)
+        teams = filter_teams(teams, key, type, filter, ltgt_def)
     }
 
+    // build picklist name
     let name = ''
-    if (last_sort === 0)
+    if (last_sort < 0)
+    {
+        name = ''
+    }
+    else if (last_sort === 0)
     {
         name = 'Team Number'
     }
     else
     {
-        name = dal.get_name(selected_keys[last_sort])
+        name = dal.get_name(selected_keys[last_sort - 1])
     }
     if (last_reverse)
     {
         name += ' Reversed'
     }
-    if (dal.picklists.hasOwnProperty(name))
+    while (dal.picklists.hasOwnProperty(name))
     {
         name += '+'
     }
+
+    // save picklist
     dal.picklists[name] = teams
     dal.save_picklists()
     alert(`${name} Created`)
@@ -836,23 +847,21 @@ function export_csv()
 {
     // get selected keys on either side
     let selected = get_selected_keys()
-    let filter_teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
+    let filtered_teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
 
     // compute totals
-    let global_stats = dal.compute_global_stats(selected, filter_teams)
+    let global_stats = dal.compute_global_stats(selected, filtered_teams)
 
     // build table headers
+    let types = []
     let table = [['Name'], ['Key'], ['Function'], ['Totals']]
     for (let i in selected)
     {
         let key = selected[i]
-        
-        // determine previously selected stat
-        let type = 'Mean'
-        if (document.getElementById(`select_${i}`))
-        {
-            type = document.getElementById(`select_${i}`).value
-        }
+
+        let [type, filter, ltgt_def] = get_filters(i)
+        types.push(type)
+        filtered_teams = filter_teams(filtered_teams, key, type, filter, ltgt_def)
 
         // add key names and totals
         table[1].push(key)
@@ -868,22 +877,12 @@ function export_csv()
     }
 
     // build team rows
-    for (let team of filter_teams)
+    for (let team of filtered_teams)
     {
         let row = [team]
         for (let i in selected)
         {
-            let key = selected[i]
-
-            // determine previously selected stat
-            let type = 'mean'
-            if (document.getElementById(`select_${i}`))
-            {
-                type = document.getElementById(`select_${i}`).value.toLowerCase()
-            }
-
-            // add cell
-            row.push(dal.get_value(team, key, type, true))
+            row.push(dal.get_value(team, selected[i], types[i], true))
         }
         table.push(row)
     }
@@ -946,7 +945,7 @@ function import_keys(event)
                 if (i > 0)
                 {
                     let key = keys[i].substring(1, keys[i].length - 1)
-                    document.getElementById(`pit_option_${key}`).classList.add('selected')
+                    document.getElementById(`left_pit_option_${key}`).classList.add('selected')
                     selected_keys.push(key)
                 }
             }
