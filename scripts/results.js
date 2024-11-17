@@ -44,6 +44,7 @@ function init_page()
 
     results_tab = create_element('table', 'results_tab')
     let card = new WRCard([title, label, results_tab])
+    card.add_class('result_card')
     preview.append(card)
 
     // add filter for teams

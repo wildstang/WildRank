@@ -71,6 +71,10 @@
     font-size: var(--font-size);
 }
 
+.result_card {
+    display: inline-block;
+}
+
 .scalable_card {
     font-size: var(--font-size);
 }
