@@ -410,9 +410,8 @@ class WRCheckbox extends WRElement
             checked = !checked
             this.checkbox.checked = checked
         }
-        this.checked = checked
 
-        if (this.checked)
+        if (checked)
         {
             this.element.classList.add('selected')
         }
@@ -420,6 +419,11 @@ class WRCheckbox extends WRElement
         {
             this.element.classList.remove('selected')
         }
+    }
+
+    get checked()
+    {
+        return this.checkbox.checked
     }
 }
 
