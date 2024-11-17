@@ -5,6 +5,9 @@
  * date:        2022-06-20
  */
 
+var event_cb, config_cb, results_cb, smart_stats_cb, coach_cb, picklists_cb, pictures_cb, settings_cb, whiteboard_cb, avatars_cb
+var from_entry, to_entry, password_entry
+
 /**
  * function:    init_page
  * parameters:  none
@@ -23,24 +26,34 @@ function init_page()
     }
 
     // add column of checkboxes
-    let check_col = new ColumnFrame()
-    check_col.add_input(new Checkbox('event', 'Event Data'))
-    check_col.add_input(new Checkbox('results', 'Results'))
-    check_col.add_input(new Checkbox('config', 'Scouting Configs'))
-    check_col.add_input(new Checkbox('smart-stats', 'Smart Stats'))
-    check_col.add_input(new Checkbox('coach', 'Coach Config'))
-    check_col.add_input(new Checkbox('settings', 'Settings'))
-    check_col.add_input(new Checkbox('picklists', 'Pick Lists'))
-    check_col.add_input(new Checkbox('whiteboard', 'Whiteboard'))
-    check_col.add_input(new Checkbox('avatars', 'Avatars'))
-    check_col.add_input(new Checkbox('pictures', 'Pictures'))
+    let check_col = new WRColumn()
+    event_cb = new WRCheckbox('Event Data')
+    check_col.add_input(event_cb)
+    config_cb = new WRCheckbox('Scouting Configs')
+    check_col.add_input(config_cb)
+    results_cb = new WRCheckbox('Results')
+    check_col.add_input(results_cb)
+    smart_stats_cb = new WRCheckbox('Smart Stats')
+    check_col.add_input(smart_stats_cb)
+    coach_cb = new WRCheckbox('Coach Config')
+    check_col.add_input(coach_cb)
+    picklists_cb = new WRCheckbox('Pick Lists')
+    check_col.add_input(picklists_cb)
+    pictures_cb = new WRCheckbox('Pictures')
+    check_col.add_input(pictures_cb)
+    settings_cb = new WRCheckbox('Settings')
+    check_col.add_input(settings_cb)
+    whiteboard_cb = new WRCheckbox('Whiteboard')
+    check_col.add_input(whiteboard_cb)
+    avatars_cb = new WRCheckbox('Avatars')
+    check_col.add_input(avatars_cb)
 
-    let from = new Entry('from_server', 'From Server', server)
-    let to = new Entry('to_server', 'To Server')
-    let password = new Entry('password', 'Server Password')
-    let submit = new Button('submit', 'Export', 'submit()')
+    from_entry = new WREntry('From Server', server)
+    to_entry = new WREntry('To Server')
+    password_entry = new WREntry('Server Password')
+    let submit_button = new WRButton('Export', submit)
 
-    let page = new PageFrame('', '', [check_col, new ColumnFrame('', '', [from, to, password, submit])]).element
+    let page = new WRPage('', [check_col, new WRColumn('', [from_entry, to_entry, password_entry, submit_button])])
     body.replaceChildren(page)
 }
 
@@ -53,20 +66,20 @@ function init_page()
 function submit()
 {
     // get fields
-    let from = parse_server_addr(document.getElementById('from_server').value)
-    let to = parse_server_addr(document.getElementById('to_server').value)
-    let password = document.getElementById('password').value
+    let from = parse_server_addr(from_entry.element.value)
+    let to = parse_server_addr(to_entry.element.value)
+    let password = password_entry.element.value
 
-    let use_event       = document.getElementById('event').checked
-    let use_results     = document.getElementById('results').checked
-    let use_config      = document.getElementById('config').checked
-    let use_smart_stats = document.getElementById('smart-stats').checked
-    let use_coach       = document.getElementById('coach').checked
-    let use_settings    = document.getElementById('settings').checked
-    let use_avatars     = document.getElementById('avatars').checked
-    let use_picklists   = document.getElementById('picklists').checked
-    let use_whiteboard  = document.getElementById('whiteboard').checked
-    let use_pictures    = document.getElementById('pictures').checked
+    let use_event       = event_cb.checked
+    let use_results     = results_cb.checked
+    let use_config      = config_cb.checked
+    let use_smart_stats = smart_stats_cb.checked
+    let use_coach       = coach_cb.checked
+    let use_settings    = settings_cb.checked
+    let use_avatars     = avatars_cb.checked
+    let use_picklists   = picklists_cb.checked
+    let use_whiteboard  = whiteboard_cb.checked
+    let use_pictures    = pictures_cb.checked
 
     // check servers
     if (!check_server(from))
