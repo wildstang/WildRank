@@ -8,6 +8,8 @@
 
 const start = Date.now()
 
+var event_entry, alliance_entry, schedule_entry
+
 /**
  * function:    init_page
  * parameters:  none
@@ -19,11 +21,10 @@ function init_page()
     // set header
     header_info.innerHTML = 'Generate Event'
 
-    let col = new ColumnFrame()
-    let setup_page = new PageFrame('', 'Setup', [col])
+    let col = new WRColumn()
+    let setup_page = new WRPage('Setup', [col])
     
-    let event_entry = new Entry('event_id', 'Event ID', dal.event_id)
-    event_entry.on_text_change = 'populate_matches()'
+    event_entry = new WREntry('Event ID', dal.event_id)
     col.add_input(event_entry)
     
     let alliance_size = dal.alliance_size
@@ -31,23 +32,22 @@ function init_page()
     {
         alliance_size = 3
     }
-    let alliance_entry = new Entry('alliance_teams', 'Teams per Alliance', alliance_size, [1, 10])
-    alliance_entry.on_text_change = 'populate_matches()'
+    alliance_entry = new WREntry('Teams per Alliance', alliance_size, [1, 10])
     alliance_entry.type = 'number'
     col.add_input(alliance_entry)
 
-    let generate_button = new Button('generate_teams', 'Generate Event Data', 'generate()')
+    let generate_button = new WRButton('Generate Event Data', generate)
     col.add_input(generate_button)
 
-    let matches_col = new ColumnFrame()
-    let matches_page = new PageFrame('schedule', 'Schedule Text', [matches_col])
+    let matches_col = new WRColumn()
+    let matches_page = new WRPage('Schedule Text', [matches_col])
 
-    let schedule = new Extended('schedule_text', 'PDF Schedule Table')
-    schedule.description = 'Copy and paste the entire event schedule table after the headers.'
-    matches_col.add_input(schedule)
+    schedule_entry = new WRExtended('PDF Schedule Table')
+    schedule_entry.description = 'Copy and paste the entire event schedule table after the headers.'
+    matches_col.add_input(schedule_entry)
 
     // build page
-    body.replaceChildren(setup_page.element, matches_page.element)
+    body.replaceChildren(setup_page, matches_page)
 }
 
 /**
@@ -58,9 +58,9 @@ function init_page()
  */
 function generate()
 {
-    let lines = document.getElementById('schedule_text').value.replaceAll('*', '').trim().split('\n')
-    let event_id = document.getElementById('event_id').value
-    let alliance_teams = parseInt(document.getElementById('alliance_teams').value)
+    let lines = schedule_entry.element.value.replaceAll('*', '').trim().split('\n')
+    let event_id = event_entry.element.value
+    let alliance_teams = parseInt(alliance_entry.element.value)
     
     let teams = []
     let matches = []
