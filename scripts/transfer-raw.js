@@ -11,7 +11,9 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 var urlParams = new URLSearchParams(window.location.search)
 const fromCache = urlParams.get('cache') === 'true'
 
-var progress_el
+var event_cb, config_cb, results_cb, smart_stats_cb, coach_cb, picklists_cb, pictures_cb, settings_cb, whiteboard_cb, avatars_cb
+var server_entry, server_status, source_select, progress_el
+var event_display, event_data_status, teams_display, matches_display, version_display, scout_config_status, settings_status, pit_res_display, match_res_display
 
 include('transfer')
 
@@ -26,29 +28,39 @@ async function init_page()
     // set header
     header_info.innerText = 'Raw Data Zip Transfer'
 
-    let page = new PageFrame()
-    let check_col = new ColumnFrame('', 'Data to Transfer')
+    let page = new WRPage()
+    let check_col = new WRColumn('Data to Transfer')
     page.add_column(check_col)
 
-    check_col.add_input(new Checkbox('event', 'Event Data'))
-    check_col.add_input(new Checkbox('config', 'Scouting Configs'))
-    check_col.add_input(new Checkbox('results', 'Results'))
-    check_col.add_input(new Checkbox('smart-stats', 'Smart Stats'))
-    check_col.add_input(new Checkbox('coach', 'Coach Config'))
-    check_col.add_input(new Checkbox('picklists', 'Pick Lists'))
-    check_col.add_input(new Checkbox('pictures', 'Pictures'))
-    check_col.add_input(new Checkbox('settings', 'Settings'))
-    check_col.add_input(new Checkbox('whiteboard', 'Whiteboard'))
-    check_col.add_input(new Checkbox('avatars', 'Avatars'))
+    event_cb = new WRCheckbox('Event Data')
+    check_col.add_input(event_cb)
+    config_cb = new WRCheckbox('Scouting Configs')
+    check_col.add_input(config_cb)
+    results_cb = new WRCheckbox('Results')
+    check_col.add_input(results_cb)
+    smart_stats_cb = new WRCheckbox('Smart Stats')
+    check_col.add_input(smart_stats_cb)
+    coach_cb = new WRCheckbox('Coach Config')
+    check_col.add_input(coach_cb)
+    picklists_cb = new WRCheckbox('Pick Lists')
+    check_col.add_input(picklists_cb)
+    pictures_cb = new WRCheckbox('Pictures')
+    check_col.add_input(pictures_cb)
+    settings_cb = new WRCheckbox('Settings')
+    check_col.add_input(settings_cb)
+    whiteboard_cb = new WRCheckbox('Whiteboard')
+    check_col.add_input(whiteboard_cb)
+    avatars_cb = new WRCheckbox('Avatars')
+    check_col.add_input(avatars_cb)
 
-    let option_col = new ColumnFrame('', 'Transfer Options')
+    let option_col = new WRColumn('Transfer Options')
     page.add_column(option_col)
 
-    let server = new Entry('server', 'Server URL', parse_server_addr(document.location.href))
-    option_col.add_input(server)
+    server_entry = new WREntry('Server URL', parse_server_addr(document.location.href))
+    option_col.add_input(server_entry)
 
-    let server_type = new StatusTile('server_type', 'Server')
-    option_col.add_input(server_type)
+    server_status = new WRStatusTile('Server')
+    option_col.add_input(server_status)
 
     // get latest cache
     let r = false
@@ -64,22 +76,22 @@ async function init_page()
         r = await cache.match('/import')
     }
 
-    let method = new Select('method', 'Source', ['Local', 'Server'], 'Local')
+    source_select = new WRSelect('Source', ['Local', 'Server'], 'Local')
     if (r)
     {
-        method.columns = 3
-        method.add_option('Cache')
+        source_select.columns = 3
+        source_select.add_option('Cache')
         if (fromCache)
         {
-            method.def = 'Cache'
+            source_select.def = 'Cache'
         }
-        method.description = '<div id="file_name">File shared with WildRank from OS. Use "Cache" to import from this archive.</div>'
+        source_select.description = '<div id="file_name">File shared with WildRank from OS. Use "Cache" to import from this archive.</div>'
     }
-    option_col.add_input(method)
+    option_col.add_input(source_select)
 
-    let direction = new MultiButton('direction', 'Direction')
-    direction.add_option('Import', `import_zip('${current}')`)
-    direction.add_option('Export', 'export_zip()')
+    let direction = new WRMultiButton('Direction')
+    direction.add_option('Import', () => import_zip(current))
+    direction.add_option('Export', export_zip)
     option_col.add_input(direction)
 
     progress_el = create_element('progress', 'progress', 'wr_progress')
@@ -87,37 +99,37 @@ async function init_page()
     progress_el.max = 100
     option_col.add_input(progress_el)
 
-    let status_col = new ColumnFrame('', 'Data Status')
+    let status_col = new WRColumn('Data Status')
     page.add_column(status_col)
 
-    let event = new Number('event_id', 'Event', dal.event_id)
-    status_col.add_input(event)
+    event_display = new WRNumber('Event', dal.event_id)
+    status_col.add_input(event_display)
 
-    let event_data = new StatusTile('event_data', 'Event Data')
-    status_col.add_input(event_data)
+    event_data_status = new WRStatusTile('Event Data')
+    status_col.add_input(event_data_status)
 
-    let teams = new Number('teams', 'Event Teams')
-    status_col.add_input(teams)
+    teams_display = new WRNumber('Event Teams')
+    status_col.add_input(teams_display)
 
-    let matches = new Number('matches', 'Event Matches')
-    status_col.add_input(matches)
+    matches_display = new WRNumber('Event Matches')
+    status_col.add_input(matches_display)
 
-    let version = new Number('config_version', 'cfg')
-    status_col.add_input(version)
+    version_display = new WRNumber('cfg')
+    status_col.add_input(version_display)
 
-    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
-    status_col.add_input(scout_config_valid)
+    scout_config_status = new WRStatusTile('Game Config')
+    status_col.add_input(scout_config_status)
 
-    let config_valid = new StatusTile('config_valid', 'Settings')
-    status_col.add_input(config_valid)
+    settings_status = new WRStatusTile('Settings')
+    status_col.add_input(settings_status)
 
-    let pit_results = new Number('pit_results', 'Pit Results')
-    status_col.add_input(pit_results)
+    pit_res_display = new WRNumber('Pit Results')
+    status_col.add_input(pit_res_display)
 
-    let match_results = new Number('match_results', 'Match Results')
-    status_col.add_input(match_results)
+    match_res_display = new WRNumber('Match Results')
+    status_col.add_input(match_res_display)
 
-    body.replaceChildren(page.element)
+    body.replaceChildren(page)
     process_files()
 }
 
@@ -131,23 +143,23 @@ async function init_page()
 async function import_zip(cache)
 {
     let handler = new ZipHandler()
-    handler.event       = document.getElementById('event').checked
-    handler.match       = document.getElementById('results').checked
-    handler.note        = document.getElementById('results').checked
-    handler.pit         = document.getElementById('results').checked
-    handler.config      = document.getElementById('config').checked
-    handler.smart_stats = document.getElementById('smart-stats').checked
-    handler.coach       = document.getElementById('coach').checked
-    handler.settings    = document.getElementById('settings').checked
-    handler.avatars     = document.getElementById('avatars').checked
-    handler.picklists   = document.getElementById('picklists').checked
-    handler.whiteboard  = document.getElementById('whiteboard').checked
-    handler.pictures    = document.getElementById('pictures').checked
+    handler.event       = event_cb.checked
+    handler.match       = results_cb.checked
+    handler.note        = results_cb.checked
+    handler.pit         = results_cb.checked
+    handler.config      = config_cb.checked
+    handler.smart_stats = smart_stats_cb.checked
+    handler.coach       = coach_cb.checked
+    handler.settings    = settings_cb.checked
+    handler.avatars     = avatars_cb.checked
+    handler.picklists   = picklists_cb.checked
+    handler.whiteboard  = whiteboard_cb.checked
+    handler.pictures    = pictures_cb.checked
     handler.on_update   = update_progress
     handler.on_complete = process_files
     handler.server      = get_upload_addr()
 
-    let op = Select.get_selected_option('method')
+    let op = source_select.selected_index
     if (op === 0)
     {
         handler.import_zip_from_file(true)
@@ -171,24 +183,24 @@ async function import_zip(cache)
 function export_zip()
 {
     let handler = new ZipHandler()
-    handler.event       = document.getElementById('event').checked
-    handler.match       = document.getElementById('results').checked
-    handler.note        = document.getElementById('results').checked
-    handler.pit         = document.getElementById('results').checked
-    handler.config      = document.getElementById('config').checked
-    handler.smart_stats = document.getElementById('smart-stats').checked
-    handler.coach       = document.getElementById('coach').checked
-    handler.settings    = document.getElementById('settings').checked
-    handler.avatars     = document.getElementById('avatars').checked
-    handler.picklists   = document.getElementById('picklists').checked
-    handler.whiteboard  = document.getElementById('whiteboard').checked
-    handler.pictures    = document.getElementById('pictures').checked
+    handler.event       = event_cb.checked
+    handler.match       = results_cb.checked
+    handler.note        = results_cb.checked
+    handler.pit         = results_cb.checked
+    handler.config      = config_cb.checked
+    handler.smart_stats = smart_stats_cb.checked
+    handler.coach       = coach_cb.checked
+    handler.settings    = settings_cb.checked
+    handler.avatars     = avatars_cb.checked
+    handler.picklists   = picklists_cb.checked
+    handler.whiteboard  = whiteboard_cb.checked
+    handler.pictures    = pictures_cb.checked
     handler.on_update   = update_progress
     handler.on_complete = process_files
     handler.server      = get_upload_addr()
     handler.user        = user_id
 
-    handler.export_zip(Select.get_selected_option('method'))
+    handler.export_zip(source_select.selected_index)
 }
 
 function update_progress(complete, total)
@@ -209,7 +221,7 @@ function update_progress(complete, total)
  */
 function get_upload_addr()
 {
-    return parse_server_addr(document.getElementById('server').value)
+    return parse_server_addr(server_entry.element.value)
 }
 
 /**
@@ -228,17 +240,17 @@ function process_files()
     let pits = dal.get_pits([], false).length
 
     // update counters
-    document.getElementById('config_version').innerHTML = cfg.version
-    document.getElementById('teams').innerHTML = Object.keys(dal.teams).length
-    document.getElementById('matches').innerHTML = Object.keys(dal.matches).length
-    document.getElementById('pit_results').innerHTML = pits
-    document.getElementById('match_results').innerHTML = matches
+    version_display.set_value(cfg.version)
+    teams_display.set_value(Object.keys(dal.teams).length)
+    matches_display.set_value(Object.keys(dal.matches).length)
+    pit_res_display.set_value(pits)
+    match_res_display.set_value(matches)
 
     // update statuses
-    StatusTile.set_status('event_data', check_event())
-    StatusTile.set_status('server_type', check_server(get_upload_addr(), false))
-    StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
-    StatusTile.set_status('config_valid', cfg.validate_settings_configs())
+    event_data_status.set_status(check_event())
+    server_status.set_status(check_server(get_upload_addr(), false))
+    scout_config_status.set_status(cfg.validate_game_configs())
+    settings_status.set_status(cfg.validate_settings_configs())
 }
 
 /**
