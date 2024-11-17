@@ -24,17 +24,17 @@ function init_page()
 
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
-    let card = new Card('contents_card', [title_el, canvas])
+    let card = new WRCard([title_el, canvas])
 
     let label = document.createElement('label')
     max_el = document.createElement('b')
     key_tab = document.createElement('table')
     label.append('Max Value: ', max_el, key_tab)
-    let key_card = new Card('key', label)
+    let key_card = new WRCard(label)
     key_card.limitWidth = true
-    preview.append(card.element, key_card.element)
+    preview.append(card, key_card)
     
-    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
+    add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), filter_teams, false)
 
     // load keys from localStorage and build list
     let first = populate_keys(dal, true, true)
@@ -94,7 +94,7 @@ function filter_teams()
 function open_option(key)
 {
     deselect_all(true)
-    document.getElementById(`pit_option_${key}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${key}`).classList.add('selected')
 
     build_plot()
 }
@@ -107,7 +107,7 @@ function open_option(key)
  */
 function open_secondary_option(key)
 {
-    let class_list = document.getElementById(`soption_${key}`).classList
+    let class_list = document.getElementById(`right_pit_option_${key}`).classList
     // select team button
     if (class_list.contains('selected'))
     {
@@ -130,7 +130,7 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('p')).map(item => item.id.replace('pit_option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('left_')).map(item => item.id.replace('left_pit_option_', ''))
 }
 
 /**
@@ -141,7 +141,7 @@ function get_selected_keys()
  */
 function get_secondary_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('s')).map(item => item.id.replace('soption_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('right_')).map(item => item.id.replace('right_pit_option_', ''))
 }
 
 /**
@@ -245,7 +245,7 @@ function build_plot()
     // reset colors of all options
     for (let team of teams)
     {
-        document.getElementById(`soption_${team}`).style.backgroundColor = 'var(--foreground-color)'
+        document.getElementById(`right_pit_option_${team}`).style.backgroundColor = 'var(--foreground-color)'
     }
 
     // plot points and lines
@@ -285,7 +285,7 @@ function build_plot()
             // change selected option text color
             if (team != 'avg')
             {
-                document.getElementById(`soption_${team}`).style.backgroundColor = color
+                document.getElementById(`right_pit_option_${team}`).style.backgroundColor = color
             }
         }
 
