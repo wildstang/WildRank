@@ -6,6 +6,9 @@
  * date:        2023-01-08
  */
 
+var scouters_entry, per_shift_entry, min_break_entry, shift_len_entry
+var shifts_page
+
 /**
  * function:    init_page
  * parameters:  none
@@ -18,27 +21,27 @@ function init_page()
     header_info.innerText = 'Scouter Scheduler'
 
     // build inputs
-    let scouters = new Extended('scouters', 'Enter Scouters')
+    scouters_entry = new WRExtended('Enter Scouters')
     let teams = dal.alliance_size * 2
     if (teams === 0)
     {
         teams = 6
     }
-    let per_shift = new Entry('per_shift', 'Scouters Per Shift', teams)
-    per_shift.type = 'number'
-    per_shift.bounds = [1, 25, 1]
-    let min_break = new Entry('min_break', 'Min Hours Between Shifts', 1)
-    min_break.type = 'number'
-    min_break.bounds = [0, 10, 0.5]
-    let shift_len = new Entry('shift_len', 'Shift Length (Hours)', 1)
-    shift_len.type = 'number'
-    shift_len.bounds = [0, 10, 0.5]
-    let generate = new Button('generate', 'Generate', 'generate_shifts()')
-    let export_shifts = new Button('export', 'Export', 'export_shifts()')
+    per_shift_entry = new WREntry('Scouters Per Shift', teams)
+    per_shift_entry.type = 'number'
+    per_shift_entry.bounds = [1, 25, 1]
+    min_break_entry = new WREntry('Min Hours Between Shifts', 1)
+    min_break_entry.type = 'number'
+    min_break_entry.bounds = [0, 10, 0.5]
+    shift_len_entry = new WREntry('Shift Length (Hours)', 1)
+    shift_len_entry.type = 'number'
+    shift_len_entry.bounds = [0, 10, 0.5]
+    let generate = new WRButton('Generate', generate_shifts)
+    let export_shifts_button = new WRButton('Export', export_shifts)
 
-    let columns = [new ColumnFrame('', '', [scouters, per_shift, min_break, shift_len, generate, export_shifts])]
+    let columns = [new WRColumn('', [scouters_entry, per_shift_entry, min_break_entry, shift_len_entry, generate, export_shifts_button])]
 
-    body.append(new PageFrame('', '', columns).element)
+    body.append(new WRPage('', columns))
 }
 
 /**
@@ -50,10 +53,10 @@ function init_page()
 let shifts = []
 function generate_shifts()
 {
-    let scouters = document.getElementById('scouters').value.split(',').map(s => s.trim())
-    let per_shift = parseInt(document.getElementById('per_shift').value)
-    let min_break = parseFloat(document.getElementById('min_break').value)
-    let shift_len = parseFloat(document.getElementById('shift_len').value)
+    let scouters = scouters_entry.element.value.split(',').map(s => s.trim())
+    let per_shift = parseInt(per_shift_entry.element.value)
+    let min_break = parseFloat(min_break_entry.element.value)
+    let shift_len = parseFloat(shift_len_entry.element.value)
 
     let num_shifts = Math.floor(min_break / shift_len) + 1
     let min_scouters = (num_shifts) * per_shift
@@ -108,91 +111,84 @@ function generate_shifts()
 }
 
 /**
- * function:    swap
- * parameters:  team to swap
- * returns:     none
- * description: Swaps or prepares to swap scouters.
+ * Builds the table of scouter shifts. Also manages swapping scouters between shifts.
+ * 
+ * @param {string} swap Optional team selected to swap
  */
-let swapping = ''
-function swap(team)
+function build_shifts(swap='')
 {
-    if (swapping === '')
+    if (swap !== '')
     {
-        swapping = team
-        for (let shift of shifts)
+        if (swapping === '')
         {
-            for (let scouter of shift)
-            {
-                if (scouter !== team)
-                {
-                    document.getElementById(scouter).innerText = `Swap w/ ${scouter}`
-                }
-                else
-                {
-                    document.getElementById(scouter).innerText = 'Cancel'
-                }
-            }
+            swapping = swap
         }
-        return
-    }
-    else if (swapping !== team)
-    {
-        for (let shift of shifts)
+        else
         {
-            let team_idx = shift.indexOf(team)
-            let swap_idx = shift.indexOf(swapping)
-            if (team_idx >= 0)
-            {
-                shift.splice(team_idx, 1, swapping)
-            }
-            if (swap_idx >= 0)
-            {
-                shift.splice(swap_idx, 1, team)
-            }
-        }
-    }
-    
-    swapping = ''
-    build_shifts()
-}
+            console.log(`Swapping ${swapping} with ${swap}`)
 
-/**
- * function:    build_shifts
- * parameters:  none
- * returns:     none
- * description: Builds the page of shifts.
- */
-function build_shifts()
-{
+            for (let shift of shifts)
+            {
+                let team_idx = shift.indexOf(swap)
+                let swap_idx = shift.indexOf(swapping)
+                if (team_idx >= 0)
+                {
+                    shift.splice(team_idx, 1, swapping)
+                }
+                if (swap_idx >= 0)
+                {
+                    shift.splice(swap_idx, 1, swap)
+                }
+            }
+
+            swapping = ''
+            swap = ''
+        }
+    }
+    else
+    {
+        swapping = ''
+    }
+
     // remove existing shifts page
-    let e = document.getElementById('shifts')
-    if (e)
+    if (shifts_page)
     {
-        e.remove()
+        shifts_page.remove()
     }
 
-    let shifts_page = new PageFrame('shifts')
+    shifts_page = new WRPage()
     for (let i in shifts)
     {
         let shift = shifts[i]
         let name = `Shift ${parseInt(i)+1}`
-        if (shift.length < document.getElementById('per_shift').value)
+        if (shift.length < per_shift_entry.element.value)
         {
             name = 'Spares'
         }
-        let shift_col = new ColumnFrame('', name)
+        let shift_col = new WRColumn(name)
         for (let scouter of shift)
         {
-            let button = new Button(scouter, scouter, `swap('${scouter}')`)
+            let text = scouter
+            let param = scouter
+            if (swap === scouter)
+            {
+                text = 'Cancel'
+                param = ''
+            }
+            else if (swap !== '')
+            {
+                text = `Swap w/ ${scouter}`
+            }
+            let button = new WRButton(text, () => build_shifts(param))
             shift_col.add_input(button)
         }
         shifts_page.add_column(shift_col)
     }
 
     // text area gets cleared, keep it populated
-    let scouters = document.getElementById('scouters').value
-    body.append(shifts_page.element)
-    document.getElementById('scouters').value = scouters
+    let scouters = scouters_entry.element.value
+    body.append(shifts_page)
+    scouters_entry.element.value = scouters
 }
 
 /**
