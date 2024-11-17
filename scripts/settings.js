@@ -19,13 +19,13 @@ function init_page()
     header_info.innerHTML = `Settings`
 
     options_el = document.createElement('div')
-    let page = new PageFrame('', '', [options_el,
-        new ColumnFrame('', '', [new Button('', 'Download', 'download_config()')]),
-        new ColumnFrame('', '', [new Button('', 'Upload', 'upload_config()')]),
-        new ColumnFrame('', '', [new Button('', 'Apply', 'apply_config()')])
+    let page = new WRPage('', [options_el,
+        new WRColumn('', [new WRButton('Download', download_config)]),
+        new WRColumn('', [new WRButton('Upload', upload_config)]),
+        new WRColumn('', [new WRButton('Apply', apply_config)])
     ])
     
-    body.replaceChildren(page.element)
+    body.replaceChildren(page)
 
     build_page()
 }
@@ -38,7 +38,7 @@ function init_page()
  */
 function build_page()
 {
-    let page = new PageFrame('', '', [
+    let page = new WRPage('', [
         build_column('General', 'settings'),
         build_column('Defaults', 'defaults'),
         build_column('Users', 'users'),
@@ -47,7 +47,7 @@ function build_page()
         build_column('Dark Theme', 'dark_theme')
     ])
 
-    options_el.replaceChildren(page.element)
+    options_el.replaceChildren(page)
 }
 
 /**
@@ -59,7 +59,7 @@ function build_page()
 function build_column(cfg_name, file)
 {
     let config = cfg[file]
-    let column = new ColumnFrame(`${file}-column`, cfg_name)
+    let column = new WRColumn(cfg_name)
     let keys = Object.keys(config)
     for (let index in keys)
     {
@@ -69,17 +69,20 @@ function build_column(cfg_name, file)
         let id = `${file}-${key}`
         if (key === 'time_format')
         {
-            let select = new Select(id, name, ['12', '24'], val.toString())
+            let select = new WRSelect(name, ['12', '24'], val.toString())
+            select.input_id = id
             column.add_input(select)
         }
         else if (typeof val === 'boolean')
         {
-            let select = new Select(id, name, ['true', 'false'], val.toString())
+            let select = new WRSelect(name, ['true', 'false'], val.toString())
+            select.input_id = id
             column.add_input(select)
         }
         else if (typeof val === 'number')
         {
-            let entry = new Entry(id, name, val)
+            let entry = new WREntry(name, val)
+            entry.input_id = id
             entry.type = 'number'
             column.add_input(entry)
         }
@@ -87,50 +90,56 @@ function build_column(cfg_name, file)
         {
             if (key.endsWith('color') || (val.length > 0 && val.startsWith('#')))
             {
-                let entry = new Entry(id, name, val)
+                let entry = new WREntry(name, val)
+                entry.input_id = id
                 entry.show_color = true
                 column.add_input(entry)
             }
             else if (key === 'font-size')
             {
-                let entry = new Dropdown(id, name, ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'], val)
+                let entry = new WRDropdown(name, ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'], val)
+                entry.input_id = id
                 column.add_input(entry)
             }
             else if (val.length > 32)
             {
-                let entry = new Extended(id, name, val)
+                let entry = new WRExtended(name, val)
+                entry.input_id = id
                 column.add_input(entry)
             }
             else
             {
-                let entry = new Entry(id, name, val)
+                let entry = new WREntry(name, val)
+                entry.input_id = id
                 column.add_input(entry)
             }
             if (key === 'tba' && val === '')
             {
-                let button = new Button('tba_link', 'Get an API Key')
-                button.external_link = 'https://www.thebluealliance.com/account#submissions-accepted-count-row'
+                let button = new WRLinkButton('Get an API Key', 'https://www.thebluealliance.com/account#submissions-accepted-count-row')
                 button.add_class('slim')
                 column.add_input(button)
             }
         }
         else if (file === 'users')
         {
-            let entry = new Extended(file, 'raw user config', JSON.stringify(config, null, 2))
+            let entry = new WRExtended('raw user config', JSON.stringify(config, null, 2))
+            entry.input_id = file
             column.add_input(entry)
-            let upload = new Button('upload_scouters', 'Upload Scouters', 'upload_scouters()')
+            let upload = new WRButton('Upload Scouters', upload_scouters)
             upload.add_class('slim')
             column.add_input(upload)
             break
         }
         else if (Array.isArray(val))
         {
-            let entry = new Extended(id, name, val.join(', '))
+            let entry = new WRExtended(name, val.join(', '))
+            entry.input_id = id
             column.add_input(entry)
         }
         else
         {
-            let entry = new Extended(id, name, JSON.stringify(val, null, 2))
+            let entry = new WRExtended(name, JSON.stringify(val, null, 2))
+            entry.input_id = id
             column.add_input(entry)
         }
     }
@@ -170,33 +179,34 @@ function build_config(file)
     {
         let key = keys[index]
         let id = `${file}-${key}`
-        if (document.getElementById(id))
+        let el = document.getElementById(id)
+        if (el)
         {
             let val = config[key]
             let new_val = val
             if (key === 'time_format')
             {
-                new_val = Select.get_selected_option(id) == 0 ? 12 : 24
+                new_val = WRSelect.get_selected_index(el) == 0 ? 12 : 24
             }
             else if (typeof val === 'boolean')
             {
-                new_val = Select.get_selected_option(id) == 0
+                new_val = WRSelect.get_selected_index(el) == 0
             }
             else if (typeof val === 'number')
             {
-                new_val = parseInt(document.getElementById(id).value)
+                new_val = parseInt(el.value)
             }
             else if (typeof val === 'string')
             {
-                new_val = document.getElementById(id).value
+                new_val = el.value
             }
             else if (Array.isArray(val))
             {
-                new_val = document.getElementById(id).value.split(',').map(v => parseInt(v.trim()))
+                new_val = el.value.split(',').map(v => parseInt(v.trim()))
             }
             else
             {
-                new_val = JSON.parse(document.getElementById(id).value)
+                new_val = JSON.parse(el.value)
             }
             config[key] = new_val
         }
