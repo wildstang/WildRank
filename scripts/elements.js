@@ -207,7 +207,7 @@ customElements.define('wr-link-button', WRLinkButton)
 
 class WRNumber extends WRElement
 {
-    constructor(label, value)
+    constructor(label, value=0)
     {
         super()
 
