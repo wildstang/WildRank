@@ -9,7 +9,11 @@
 
 const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter', 'Wgtd Rank', 'Map']
 
-var params_el
+var params_el, picklist_filter, name_entry, stat_type
+var math_entry, negative_box, keys_dropdown, constants_dropdown
+var numerator_drop, denominator_drop
+
+var keylist, key_drop, min_or_max
 
 /**
  * function:    init_page
@@ -22,37 +26,36 @@ function init_page()
     header_info.innerText = 'Stat Builder'
 
     // build picklist filter
-    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'update_params()', true)
+    picklist_filter = add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), update_params, true)
 
     // build static components
-    let page = new PageFrame()
-    let builder_col = new ColumnFrame('', 'Build Stat')
+    let page = new WRPage()
+    let builder_col = new WRColumn('Build Stat')
     page.add_column(builder_col)
 
-    let name = new Entry('name', 'Name', 'New Stat')
-    builder_col.add_input(name)
+    name_entry = new WREntry('Name', 'New Stat')
+    builder_col.add_input(name_entry)
 
-    let type = new Select('type', 'Type', STAT_TYPES, 'Math')
-    type.on_change = 'update_params()'
-    builder_col.add_input(type)
+    stat_type = new WRSelect('Type', STAT_TYPES, 'Math')
+    stat_type.on_change = update_params
+    builder_col.add_input(stat_type)
 
     params_el = document.createElement('div')
     builder_col.add_input(params_el)
 
-    let button_col = new ColumnFrame('', 'Save')
+    let button_col = new WRColumn('Save')
     page.add_column(button_col)
 
-    let save_stat = new Button('save_stat', 'Save Stat to Config', 'save_stat()')
-    button_col.add_input(save_stat)
+    let save_stat_el = new WRButton('Save Stat to Config', save_stat)
+    button_col.add_input(save_stat_el)
 
-    let save_list = new Button('save_list', 'Save Rankings as Picklist', 'save_list()')
-    button_col.add_input(save_list)
+    let save_list_el = new WRButton('Save Rankings as Picklist', save_list)
+    button_col.add_input(save_list_el)
 
-    let edit_stats = new Button('edit_stats', 'Edit Stats')
-    edit_stats.link = `open_page('edit-stats')`
+    let edit_stats = new WRLinkButton('Edit Stats', open_page('edit-stats'))
     button_col.add_input(edit_stats)
 
-    preview.replaceChildren(page.element)
+    preview.replaceChildren(page)
 
     // build dynamic components
     update_params()
@@ -66,23 +69,22 @@ function init_page()
  */
 function update_params()
 {
-    let type = STAT_TYPES[Select.get_selected_option('type')]
+    let type = stat_type.selected_option
 
     // add appropriate inputs for the selected type
-    let page = new PageFrame()
+    let page = new WRPage()
     let keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
     let constants = dal.get_keys(false, true, true, true, ['number'])
     switch (type)
     {
         case 'Sum':
-            let left = new ColumnFrame()
-            let right = new ColumnFrame()
+            let left = new WRColumn()
+            let right = new WRColumn()
             page.add_column(left)
             page.add_column(right)
             for (let i in keys)
             {
-                let cb = new Checkbox(keys[i], dal.get_name(keys[i]), false)
-                cb.on_click = 'calculate()'
+                let cb = new WRCheckbox(dal.get_name(keys[i]), false, calculate())
                 // split column in 2
                 if (i < keys.length / 2)
                 {
@@ -95,18 +97,18 @@ function update_params()
             }
             break
         case 'Math':
-            let math = new Extended('math', 'Math Function')
-            math.on_text_change = 'calculate()'
-            let operators = new MultiButton('operators', 'Operators', ['+', '-', '*', '/', '%', 'π', ',', ')', 'b^n', '√x', 'Min', 'Max'],
-                [`add_operator('+')`, `add_operator('-')`, `add_operator('*')`, `add_operator('/')`,
-                `add_operator('%')`, `add_operator('Math.PI')`, `add_operator(',')`, `add_operator(')')`,
-                `add_operator('Math.pow(')`, `add_operator('Math.sqrt(')`, `add_operator('Math.min(')`, `add_operator('Math.max(')`])
+            math_entry = new WRExtended('Math Function')
+            math_entry.on_text_change = calculate
+            let operators = new WRMultiButton('Operators', ['+', '-', '*', '/', '%', 'π', ',', ')', 'b^n', '√x', 'Min', 'Max'],
+                [() => add_operator('+'), () => add_operator('-'), () => add_operator('*'), () => add_operator('/'),
+                 () => add_operator('%'), () => add_operator('Math.PI'), () => add_operator(','), () => add_operator(')'),
+                 () => add_operator('Math.pow('), () => add_operator('Math.sqrt('), () => add_operator('Math.min('), () => add_operator('Math.max(')])
             operators.description = 'Math stats do not exclusively require these operators. Any valid JS operations should work.'
             operators.columns = 4
-            let keys_dropdown = new Dropdown('keys', 'Match Keys', [''])
-            keys_dropdown.on_change = 'add_key_math()'
-            let constants_dropdown = new Dropdown('constants', 'Team Constants', [''])
-            constants_dropdown.on_change = 'add_constant()'
+            keys_dropdown = new WRDropdown('Match Keys', [''])
+            keys_dropdown.on_change = add_key_math
+            constants_dropdown = new WRDropdown('Team Constants', [''])
+            constants_dropdown.on_change = add_constant
             for (let i in keys)
             {
                 keys_dropdown.add_option(dal.get_name(keys[i]))
@@ -115,29 +117,29 @@ function update_params()
             {
                 constants_dropdown.add_option(dal.get_name(constants[i]))
             }
-            let negative = new Checkbox('negative', 'Negative')
-            negative.on_click = 'calculate()'
-            page.add_column(new ColumnFrame('', '', [math]))
-            page.add_column(new ColumnFrame('', '', [operators]))
-            page.add_column(new ColumnFrame('', '', [keys_dropdown, constants_dropdown, negative]))
+            negative_box = new WRCheckbox('Negative')
+            negative_box.on_click = calculate
+            page.add_column(new WRColumn('', [math_entry]))
+            page.add_column(new WRColumn('', [operators]))
+            page.add_column(new WRColumn('', [keys_dropdown, constants_dropdown, negative_box]))
             break
         case 'Percent':
             keys = keys.map(k => dal.get_name(k))
-            let percent = new Dropdown('numerator', 'Percent Value', keys)
-            percent.on_change = 'calculate()'
-            percent.description = 'The value being measured in the percentage.'
-            let remain = new Dropdown('denominator', 'Remaining Value', keys)
-            remain.on_change = 'calculate()'
-            remain.description = 'The remaining value used to complete the percentage.'
-            page.add_column(new ColumnFrame('', '', [percent, remain]))
+            numerator_drop = new WRDropdown('Percent Value', keys)
+            numerator_drop.on_change = calculate
+            numerator_drop.description = 'The value being measured in the percentage.'
+            denominator_drop = new WRDropdown('Remaining Value', keys)
+            denominator_drop.on_change = calculate
+            denominator_drop.description = 'The remaining value used to complete the percentage.'
+            page.add_column(new WRColumn('', [numerator_drop, denominator_drop]))
             break
         case 'Ratio':
             keys = keys.map(k => dal.get_name(k))
-            let numerator = new Dropdown('numerator', 'Numerator', keys)
-            numerator.on_change = 'calculate()'
-            let denominator = new Dropdown('denominator', 'Denominator', keys)
-            denominator.on_change = 'calculate()'
-            page.add_column(new ColumnFrame('', '', [numerator, denominator]))
+            numerator_drop = new WRDropdown('Numerator', keys)
+            numerator_drop.on_change = calculate
+            denominator_drop = new WRDropdown('Denominator', keys)
+            denominator_drop.on_change = calculate
+            page.add_column(new WRColumn('', [numerator_drop, denominator_drop]))
             break
         case 'Where':
             let cycles = dal.get_result_keys(true, ['cycle'])//.map(c => dal.meta[c].name)
@@ -150,16 +152,16 @@ function update_params()
             let counters = dal.get_result_keys(cycle_id, ['counter']).map(c => dal.get_name(c))
             let selects = dal.get_result_keys(cycle_id, ['dropdown', 'select', 'checkbox'])
 
-            let cycle_filter = new Dropdown('cycle', 'Cycle', cycles, cycle)
-            cycle_filter.on_change = 'update_params()'
+            let cycle_filter = new WRDropdown('Cycle', cycles, cycle)
+            cycle_filter.on_change = update_params
             cycle_filter.description = 'The ID of the cycle you would like to count.'
-            let count = new Dropdown('count', 'Count', ['Count'].concat(counters))
-            count.on_change = 'calculate()'
+            let count = new WRDropdown('Count', ['Count'].concat(counters))
+            count.on_change = calculate
             count.description = 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.'
-            let cycle_percent = new Dropdown('denominator', 'Percent: Remaining Value', [''].concat(counters))
-            cycle_percent.on_change = 'calculate()'
+            let cycle_percent = new WRDropdown('Percent: Remaining Value', [''].concat(counters))
+            cycle_percent.on_change = calculate
             cycle_percent.description = 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.'
-            let column = new ColumnFrame('', '', [cycle_filter, count, cycle_percent])
+            let column = new WRColumn('', [cycle_filter, count, cycle_percent])
             for (let s of selects)
             {
                 let options = dal.meta[s].options
@@ -167,55 +169,55 @@ function update_params()
                 {
                     options = ['Yes', 'No']
                 }
-                let filter = new Dropdown(s, dal.get_name(s), [''].concat(options))
-                filter.on_change = 'calculate()'
+                let filter = new WRDropdown(dal.get_name(s), [''].concat(options))
+                filter.on_change = calculate
                 filter.description = 'Optional, choose value of the above select to filter cycles by.'
                 column.add_input(filter)
             }
             page.add_column(column)
             break
         case 'Min/Max':
-            let keylist = new Extended('keys', 'Keys')
-            keylist.on_text_change = 'calculate()'
-            let key = new Dropdown('key_selector', 'Match Keys', [''])
-            key.on_change = 'add_key_minmax()'
+            keylist = new WRExtended('Keys')
+            keylist.on_text_change = calculate
+            key_drop = new WRDropdown('Match Keys', [''])
+            key_drop.on_change = add_key_minmax
             for (let i in keys)
             {
-                key.add_option(dal.get_name(keys[i]))
+                key_drop.add_option(dal.get_name(keys[i]))
             }
             keys = keys.map(k => dal.get_name(k))
-            let select = new Select('minmax', 'Min/Max', ['Min', 'Max'])
-            select.on_change = 'calculate()'
-            page.add_column(new ColumnFrame('', '', [keylist, key, select]))
+            min_or_max = new WRSelect('Min/Max', ['Min', 'Max'])
+            min_or_max.on_change = calculate
+            page.add_column(new WRColumn('', [keylist, key_drop, min_or_max]))
             break
         case 'Filter':
             keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
             keys = keys.map(k => dal.get_name(k))
-            let primary_stat = new Dropdown('primary_stat', 'Primary Stat', keys)
-            primary_stat.on_change = 'calculate()'
-            let filter = new Dropdown('filter_by', 'Filter By', keys)
-            filter.on_change = 'update_filter()'
+            let primary_stat = new WRDropdown('Primary Stat', keys)
+            primary_stat.on_change = calculate
+            let filter = new WRDropdown('Filter By', keys)
+            filter.on_change = update_filter
 
             let filter_ops = create_element('span', 'filter_ops')
-            page.add_column(new ColumnFrame('', '', [primary_stat, filter, filter_ops]))
+            page.add_column(new WRColumn('', [primary_stat, filter, filter_ops]))
             break
         case 'Wgtd Rank':
             keys = keys.map(k => dal.get_name(k))
-            let stat = new Dropdown('stat', 'Stat', keys)
-            stat.on_change = 'calculate()'
-            page.add_column(new ColumnFrame('', '', [stat]))
+            let stat = new WRDropdown('Stat', keys)
+            stat.on_change = calculate
+            page.add_column(new WRColumn('', [stat]))
             break
         case 'Map':
             let select_keys = dal.get_keys(true, true, false, false, ['select', 'dropdown'], false)
             select_keys = select_keys.map(k => dal.get_name(k))
-            let input = new Dropdown('stat', 'Input Stat', select_keys)
-            input.on_change = 'populate_options()'
-            let neg = new Checkbox('negative', 'Negative')
-            neg.on_click = 'calculate()'
-            page.add_column(new ColumnFrame('', '', [input, create_element('div', 'values'), neg]))
+            let input = new WRDropdown('Input Stat', select_keys)
+            input.on_change = populate_options
+            let neg = new WRCheckbox('Negative')
+            neg.on_click = calculate
+            page.add_column(new WRColumn('', [input, create_element('div', 'values'), neg]))
             break
     }
-    params_el.replaceChildren(page.element)
+    params_el.replaceChildren(page)
 
     if (type === 'Filter')
     {
@@ -240,10 +242,10 @@ function populate_options()
     let entries = []
     for (let option of options)
     {
-        let entry = new Entry(option, dal.get_name(option))
+        let entry = new WREntry(dal.get_name(option))
         entry.type = 'number'
-        entry.on_text_change = 'calculate()'
-        entries.push(entry.element)
+        entry.on_text_change = calculate
+        entries.push(entry)
     }
     document.getElementById('values').replaceChildren(...entries)
 }
@@ -256,8 +258,7 @@ function populate_options()
  */
 function add_operator(op)
 {
-    let box = document.getElementById('math')
-    box.value += op
+    math_entry.element.value += op
     calculate()
 }
 
@@ -269,15 +270,14 @@ function add_operator(op)
  */
 function add_key_math()
 {
-    let box = document.getElementById('math')
-    let index = document.getElementById('keys').selectedIndex
+    let index = keys_dropdown.element.selectedIndex
     if (index === 0)
     {
         return
     }
-    box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
+    math_entry.element.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
     calculate()
-    document.getElementById('keys').selectedIndex = 0
+    keys_dropdown.element.selectedIndex = 0
 }
 
 /**
@@ -288,15 +288,14 @@ function add_key_math()
  */
 function add_constant()
 {
-    let box = document.getElementById('math')
-    let index = document.getElementById('constants').selectedIndex
+    let index = constants_dropdown.element.selectedIndex
     if (index === 0)
     {
         return
     }
-    box.value += dal.get_keys(false, true, true, true, ['number'])[index-1]
+    math_entry.element.value += dal.get_keys(false, true, true, true, ['number'])[index-1]
     calculate()
-    document.getElementById('constants').selectedIndex = 0
+    constants_dropdown.element.selectedIndex = 0
 }
 
 /**
@@ -307,19 +306,18 @@ function add_constant()
  */
 function add_key_minmax()
 {
-    let box = document.getElementById('keys')
-    let index = document.getElementById('key_selector').selectedIndex
+    let index = key_drop.element.selectedIndex
     if (index === 0)
     {
         return
     }
-    if (box.value !== '')
+    if (keylist.element.value !== '')
     {
-        box.value += ', '
+        keylist.element.value += ', '
     }
-    box.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
+    keylist.element.value += dal.get_result_keys(false, ['number', 'counter', 'slider'])[index-1].split('.')[1]
     calculate()
-    document.getElementById('key_selector').selectedIndex = 0
+    key_drop.element.selectedIndex = 0
 }
 
 /**
@@ -335,7 +333,7 @@ function update_filter()
     let type = dal.meta[filter].type
 
     comps = ['>', '≥', '=', '≠', '≤', '<']
-    let value = new Entry('value', '')
+    let value = new WREntry('')
     value.on_text_change = 'calculate()'
     switch (type)
     {
@@ -346,24 +344,24 @@ function update_filter()
             break
         case 'checkbox':
             comps = ['=']
-            value = new Select('value', '', ['True', 'False'])
-            value.on_change = 'calculate()'
+            value = new WRSelect('', ['True', 'False'])
+            value.on_change = calculate
             break
         case 'select':
         case 'dropdown':
-            value = new Dropdown('value', '', dal.meta[filter].options)
-            value.on_change = 'calculate()'
+            value = new WRDropdown('', dal.meta[filter].options)
+            value.on_change = calculate
             break
     }
-    let comparitors = new Select('comparitors', 'When', comps)
+    let comparitors = new WRSelect('When', comps)
     comparitors.columns = comps.length
     if (comps.length > 5)
     {
         comparitors.columns = Math.ceil(comps.length / 2)
     }
-    comparitors.on_change = 'calculate()'
+    comparitors.on_change = calculate
 
-    document.getElementById('filter_ops').replaceChildren(comparitors.element, value.element)
+    document.getElementById('filter_ops').replaceChildren(comparitors, value)
     calculate()
 }
 
@@ -376,9 +374,9 @@ function update_filter()
 function build_stat()
 {
     // build core stat object
-    let name = document.getElementById('name').value
+    let name = name_entry.value
     let id = create_id_from_name(name)
-    let type = STAT_TYPES[Select.get_selected_option('type')]
+    let type = STAT_TYPES[stat_type.selected_index]
     let stat = {
         name: name,
         id: id,
@@ -407,7 +405,7 @@ function build_stat()
             stat.keys = keys
             break
         case 'Math':
-            let math_fn = document.getElementById('math').value.replace(/\s/g, '')
+            let math_fn = math_entry.element.value.replace(/\s/g, '')
             // pull constants first so they aren't picked up as 2 keys
             let constants = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
             if (constants)
@@ -420,12 +418,12 @@ function build_stat()
             // determine if pit stat based on if there are any match keys
             stat.pit = math_fn.match(/[a-z][a-z0-9_]+/g) === null
             stat.math = math_fn
-            stat.negative = document.getElementById('negative').checked
+            stat.negative = negative_box.checkbox.checked
             break
         case 'Percent':
         case 'Ratio':
-            let numerator = numeric[document.getElementById('numerator').selectedIndex]
-            let denominator = numeric[document.getElementById('denominator').selectedIndex]
+            let numerator = numeric[numerator_drop.element.selectedIndex]
+            let denominator = numeric[denominator_drop.element.selectedIndex]
             stat.numerator = numerator.replace('results.', '')
             stat.denominator = denominator.replace('results.', '')
             stat.negative = dal.meta[numerator].negative
@@ -466,9 +464,13 @@ function build_stat()
             }
             break
         case 'Min/Max':
-            stat.keys = document.getElementById('keys').value.replace(/\s/g, '').split(',')
-            stat.type = ['min', 'max'][Select.get_selected_option('minmax')]
-            stat.negative = stat.keys.any(k => dal.meta[`results.${k}`].negative) 
+            stat.keys = keylist.element.value.replace(/\s/g, '').split(',')
+            if (stat.keys.length === 1 && !stat.keys[0])
+            {
+                stat.keys = []
+            }
+            stat.type = min_or_max.selected_option.toLowerCase()
+            stat.negative = stat.keys.some(k => dal.meta[`results.${k}`].negative) 
             break
         case 'Filter':
             let ops = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
@@ -524,7 +526,7 @@ function build_stat()
             stat.stat = selected_key.replace('results.', '').replace('pit.', '')
             stat.values = values
             stat.pit = selected_key.startsWith('pit.')
-            stat.negative = document.getElementById('negative').checked
+            stat.negative = negative_box.checkbox.checked
             break
     }
     return stat
@@ -538,7 +540,7 @@ function build_stat()
  */
 function calculate()
 {
-    let name = document.getElementById('name').value
+    let name = name_entry.value
     let id = create_id_from_name(name)
     let stat = build_stat()
     if (!stat)
@@ -665,7 +667,7 @@ function save_stat()
  */
 function save_list()
 {
-    let name = document.getElementById('name').value
+    let name = name_entry.value
     dal.picklists[name] = team_order
     dal.save_picklists()
     alert(`${name} Created`)

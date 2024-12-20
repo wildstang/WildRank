@@ -11,6 +11,9 @@ var config = Array(MODES.length).fill([])
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
+var mode_dd, page_dd, column_dd, type_dd, name_entry
+var preview, options
+
 /**
  * function:    init_page
  * parameters:  none
@@ -32,33 +35,31 @@ function init_page()
 function build_page()
 {
     let mode_names = MODES.map(m => capitalize(m) + ' Scouting')
-    let mode = new Dropdown('new-element-mode', 'Mode:', mode_names)
-    mode.on_change = 'populate_dropdowns()'
-    let page = new Dropdown('new-element-page', 'Page:')
-    page.on_change = 'populate_dropdowns()'
-    let column = new Dropdown('new-element-column', 'Column:')
-    column.on_change = 'populate_dropdowns()'
-    let type = new Dropdown('new-element-type', 'Type:')
-    type.on_change = 'populate_options()'
-    let name = new Entry('new-element-name', 'Name:')
-    name.description = 'A brief description of the input visible to the user.'
+    mode_dd = new WRDropdown('Mode:', mode_names)
+    mode_dd.on_change = populate_dropdowns
+    page_dd = new WRDropdown('Page:')
+    page_dd.on_change = populate_dropdowns
+    column_dd = new WRDropdown('Column:')
+    column_dd.on_change = populate_dropdowns
+    type_dd = new WRDropdown('Type:')
+    type_dd.on_change = populate_options
+    name_entry = new WREntry('Name:')
+    name_entry.description = 'A brief description of the input visible to the user.'
 
-    let preview = document.createElement('span')
-    preview.id = 'preview'
-    let options = document.createElement('div')
-    options.id = 'options'
-    body.replaceChildren(new PageFrame('', 'Add to...', [
-            new ColumnFrame('', '', [mode, page, column, type]),
-            new ColumnFrame('', '', [name]),
-            new ColumnFrame('', '', [options])
-        ]).element,
+    preview = document.createElement('span')
+    options = document.createElement('div')
+    body.replaceChildren(new WRPage('Add to...', [
+            new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
+            new WRColumn('', [name_entry]),
+            new WRColumn('', [options])
+        ]),
         preview,
-        new PageFrame('', '', [
-            new ColumnFrame('', '', [new Button('new-element-reset', 'Reset Config', 'reset_config()')]),
-            new ColumnFrame('', '', [new Button('new-element-download', 'Download Config', 'download_config()')]),
-            new ColumnFrame('', '', [new Button('new-element-upload', 'Upload Config', 'upload_config()')]),
-            new ColumnFrame('', '', [new Button('new-element-apply', 'Apply Config', 'save_config()')])
-        ]).element)
+        new WRPage('', [
+            new WRColumn('', [new WRButton('Reset Config', reset_config)]),
+            new WRColumn('', [new WRButton('Download Config', download_config)]),
+            new WRColumn('', [new WRButton('Upload Config', upload_config)]),
+            new WRColumn('', [new WRButton('Apply Config', save_config)])
+        ]))
 
     populate_dropdowns()
 }
@@ -72,16 +73,16 @@ function build_page()
 function populate_dropdowns()
 {
     // read dropdowns
-    let mode = document.getElementById('new-element-mode').selectedIndex
-    let page = document.getElementById('new-element-page')
-    let column = document.getElementById('new-element-column')
-    let type = document.getElementById('new-element-type')
+    let mode = mode_dd.element.selectedIndex
+    let page = page_dd.element
+    let column = column_dd.element
+    let type = type_dd.element
 
     // reset name and id
-    document.getElementById('new-element-name').value = ''
+    name_entry.element.value = ''
 
-    let page_dd = new Dropdown('new-element-page', 'Page:', config[mode].map(p => p.name).concat(['New']), page.value)
-    page.replaceChildren(...page_dd.option_elements)
+    let new_page_dd = new WRDropdown('Page:', config[mode].map(p => p.name).concat(['New']), page.value)
+    page.replaceChildren(...new_page_dd.option_elements)
 
     // set other dropdown value appropriately
     if (page.value == 'New')
@@ -91,8 +92,8 @@ function populate_dropdowns()
     }
     else
     {
-        let column_dd = new Dropdown('new-element-column', 'Column:', config[mode][page.selectedIndex].columns.map(c => c.name).concat(['New']), column.value)
-        column.replaceChildren(...column_dd.option_elements)
+        let new_column_dd = new WRDropdown('Column:', config[mode][page.selectedIndex].columns.map(c => c.name).concat(['New']), column.value)
+        column.replaceChildren(...new_column_dd.option_elements)
 
         if (column.value == 'New')
         {
@@ -100,13 +101,51 @@ function populate_dropdowns()
         }
         else
         {
-            let type_dd = new Dropdown('new-element-type', 'Type:', INPUTS, type)
-            type.replaceChildren(...type_dd.option_elements)
+            let new_type_dd = new WRDropdown('Type:', INPUTS, type)
+            type.replaceChildren(...new_type_dd.option_elements)
         }
     }
 
     populate_options()
     build_page_from_config()
+}
+
+function build_negative_checkbox()
+{
+    let is_negative = new WRCheckbox('Negative')
+    is_negative.input_id = 'new-element-negative'
+    return is_negative
+}
+
+function build_disallow_checkbox()
+{
+    let disallow_default = new WRCheckbox('Disallow Default')
+    disallow_default.input_id = 'new-element-no-default'
+    return disallow_default
+}
+
+function build_options_entry()
+{
+    let options = new WREntry('Options')
+    options.input_id = 'new-element-options'
+    options.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
+    return options
+}
+
+function build_default_entry(description, number_entry)
+{
+    let value = ''
+    if (number_entry)
+    {
+        value = '0'
+    }
+    let def = new WREntry('Default', value)
+    def.input_id = 'new-element-default'
+    if (number_entry)
+    {
+        def.type = 'number'
+    }
+    def.description = description
 }
 
 /** 
@@ -118,16 +157,16 @@ function populate_dropdowns()
 function populate_options()
 {
     // read dropdowns
-    let page = document.getElementById('new-element-page').value
-    let column = document.getElementById('new-element-column').value
-    let type = document.getElementById('new-element-type').value
-    let options = document.getElementById('options')
+    let column = column_dd.element.value
+    let type = type_dd.element.value
 
     // set options column appropriately
-    let ops = new ColumnFrame()
+    let ops = new WRColumn()
     if (column == 'New')
     {
-        ops.add_input(new Checkbox('new-element-cycle', 'Is Cycle'))
+        let is_cycle = new WRCheckbox('Is Cycle')
+        is_cycle.input_id = 'new-element-cycle'
+        ops.add_input(is_cycle)
     }
     else
     {
@@ -135,67 +174,64 @@ function populate_options()
         switch (type)
         {
             case 'Checkbox':
-                ops.add_input(new Checkbox('new-element-default', 'Default'))
-                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                let is_default = new WRCheckbox('Default')
+                is_default.input_id = 'new-element-default'
+                ops.add_input(is_default)
+                ops.add_input(build_negative_checkbox())
+                ops.add_input(build_disallow_checkbox())
                 break
             case 'Slider':
-                let incr = new Entry('new-element-incr', 'Increment', '1')
+                let incr = new WREntry('Increment', '1')
+                incr.input_id = 'new-element-incr'
                 incr.type = 'number'
                 incr.description = 'The size of a single step.'
                 ops.add_input(incr)
             case 'Number':
-                let min = new Entry('new-element-min', 'Min', '0')
+                let min = new WREntry('Min', '0')
+                min.input_id = 'new-element-min'
                 min.type = 'number'
                 min.description = 'The minimum allowed value.'
                 ops.add_input(min)
-                let max = new Entry('new-element-max', 'Max', '10')
+                let max = new WREntry('Max', '10')
+                max.input_id = 'new-element-max'
                 max.type = 'number'
                 max.description = 'The maximum allowed value.'
                 ops.add_input(max)
             case 'Counter':
-                let def = new Entry('new-element-default', 'Default', '0')
-                def.type = 'number'
-                def.description = 'The default value displayed in the box.'
-                ops.add_input(def)
-                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                ops.add_input(build_default_entry('The default value displayed in the box.', true))
+                ops.add_input(build_negative_checkbox())
+                ops.add_input(build_disallow_checkbox())
                 break
             case 'String':
-                let defs = new Entry('new-element-default', 'Default', '')
-                defs.description = 'The default text displayed in the box, must not be empty.'
-                ops.add_input(defs)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                ops.add_input(build_default_entry('The default text displayed in the box, must not be empty.'))
+                ops.add_input(build_disallow_checkbox())
                 break
             case 'Text':
-                let defe = new Extended('new-element-default', 'Default', '')
+                let defe = new WRExtended('Default', '')
+                defe.input_id = 'new-element-default'
                 defe.description = 'The default text displayed in the box, must not be empty.'
                 ops.add_input(defe)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                ops.add_input(build_disallow_checkbox())
                 break
             case 'Multicounter':
-                let mops = new Entry('new-element-options', 'Options')
-                mops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-                ops.add_input(mops)
-                let neg = new Entry('new-element-negative', 'Negative')
+                ops.add_input(build_options_entry())
+                let neg = new WREntry('Negative')
+                neg.input_id = 'new-element-negative'
                 neg.description = 'A comma-separated list of true/false values for each counter.'
                 ops.add_input(neg)
-                let defm = new Entry('new-element-default', 'Default', '0')
-                defm.type = 'number'
-                defm.description = 'The single default value for all counters.'
-                ops.add_input(defm)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                ops.add_input(build_default_entry('The single default value for all counters.', true))
+                ops.add_input(build_disallow_checkbox())
                 break
             case 'Select':
             case 'Multiselect':
-                colors = new Entry('new-element-colors', 'Colors')
+                colors = new WREntry('Colors')
+                colors.input_id = 'new-element-colors'
                 colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
-                images = new Entry('new-element-images', 'Images')
+                images = new WREntry('Images')
+                images.input_id = 'new-element-images'
                 images.description = 'A comma-separated list of image files available in /assets/, one for each option, all spaces will be deleted.'
             case 'Dropdown':
-                let sops = new Entry('new-element-options', 'Options')
-                sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-                ops.add_input(sops)
+                ops.add_input(build_options_entry())
                 if (typeof colors !== 'undefined')
                 {
                     ops.add_input(colors)
@@ -204,15 +240,13 @@ function populate_options()
                 {
                     ops.add_input(images)
                 }
-                let defo = new Entry('new-element-default', 'Default', '')
-                defo.description = 'The default selected option, must exactly match that option.'
-                ops.add_input(defo)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                ops.add_input(build_default_entry('The default selected option, must exactly match that option.'))
+                ops.add_input(build_disallow_checkbox())
                 break
         }
     }
-    ops.add_input(new Button('new-element-submit', 'Add', 'create_element()'))
-    options.replaceChildren(ops.element)
+    ops.add_input(new WRButton('Add', create_element))
+    options.replaceChildren(ops)
 }
 
 /**
@@ -253,13 +287,13 @@ function parse_list(list)
 function create_element()
 {
     // read dropdowns
-    let mode = document.getElementById('new-element-mode').selectedIndex
-    let page = document.getElementById('new-element-page')
-    let column = document.getElementById('new-element-column')
-    let type = document.getElementById('new-element-type').value
+    let mode = mode_dd.element.selectedIndex
+    let page = page_dd.element
+    let column = column_dd.element
+    let type = type_dd.element.value
 
     // populate name and id
-    let name = document.getElementById('new-element-name').value
+    let name = name_entry.value
     let input = {
         name: name
     }
@@ -599,18 +633,18 @@ function download_config()
  */
 function build_page_from_config()
 {
-    let mode = document.getElementById('new-element-mode').selectedIndex
+    let mode = mode_dd.element.selectedIndex
 
     let select_ids = []
     let pages = []
     // iterate through each page in the mode
     for (let page of config[mode])
     {
-        let selected_page = document.getElementById('new-element-page').value
+        let selected_page = page_dd.element.value
         let page_name = page.name
         if (selected_page == page_name || selected_page == 'New' || selected_page == '')
         {
-            let page_frame = new PageFrame('', page_name)
+            let page_frame = new WRPage(page_name)
             pages.push(page_frame)
             if (selected_page != page_name)
             {
@@ -621,12 +655,12 @@ function build_page_from_config()
             // iterate through each column in the page
             for (let column of page.columns)
             {
-                let selected_col = document.getElementById('new-element-column').value
+                let selected_col = column_dd.element.value
                 let col_name = column.name
                 if (selected_col == col_name || selected_col == 'New' || selected_col == '')
                 {
                     let cycle = column.cycle
-                    let column_frame = new ColumnFrame('', col_name)
+                    let column_frame = new WRColumn(col_name)
                     column_frame.add_input(cycle ? 'cycle' : '')
                     page_frame.add_column(column_frame)
                     if (selected_col != col_name)
@@ -649,13 +683,14 @@ function build_page_from_config()
                     }
                     if (cycle)
                     {
-                        column_frame.add_input(new Counter(`${column.id}_cycles`, 'Cycles', 0))
+                        column_frame.add_input(new WRCounter('Cycles', 0))
+                        column_frame.input_id = `${column.id}_cycles`
                     }
                 }
             }
         }
     }
-    document.getElementById('preview').replaceChildren(...pages.map(p => p.element))
+    preview.replaceChildren(...pages.map(p => p))
 
     // mark each selected box as such
     for (let id of select_ids)
@@ -672,10 +707,10 @@ function build_page_from_config()
  */
 function build_shift_buttons(id)
 {
-    let button = new MultiButton(`${id}_edit`, '')
-    button.add_option('◀', `shift('${id}', 'up')`)
-    button.add_option('X', `shift('${id}', 'rm')`)
-    button.add_option('▶', `shift('${id}', 'down')`)
+    let button = new WRMultiButton('')
+    button.add_option('◀', () => shift(id, 'up'))
+    button.add_option('X', () => shift(id, 'rm'))
+    button.add_option('▶', () => shift(id, 'down'))
     button.add_class('slim')
     button.columns = 3
     return button
