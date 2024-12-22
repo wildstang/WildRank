@@ -249,10 +249,13 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
         // iterate through result keys
         for (let key of keys)
         {
-            let op = new WROption(key, dal.meta[key].name, false)
-            op.style = 'font-size:10px'
-            document.getElementById('option_list').append(op)
-            document.getElementById('secondary_option_list').append(op)
+            let left_op = new WROption(key, dal.meta[key].name, true)
+            left_op.style = 'font-size:10px'
+            document.getElementById('option_list').append(left_op)
+
+            let right_op = new WROption(key, dal.meta[key].name, false)
+            right_op.style = 'font-size:10px'
+            document.getElementById('secondary_option_list').append(right_op)
         }
 
         enable_secondary_list()

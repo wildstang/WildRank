@@ -22,15 +22,15 @@ function init_page()
 
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
-    let card = new Card('contents_card', [title_el, canvas])
-    preview.append(card.element)
+    let card = new WRCard([title_el, canvas])
+    preview.append(card)
 
     // load keys from localStorage and build list
     let first = populate_dual_keys(dal, false, true)
     if (first)
     {
         deselect_all(false)
-        document.getElementById(`soption_${first}`).classList.add('selected')
+        document.getElementById(`right_pit_option_${first}`).classList.add('selected')
         open_option(first)
         init_canvas()
     }
@@ -60,7 +60,7 @@ function init_canvas()
 function open_option(key)
 {
     deselect_all(true)
-    document.getElementById(`pit_option_${key}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${key}`).classList.add('selected')
 
     build_plot()
 }
@@ -74,7 +74,7 @@ function open_option(key)
 function open_secondary_option(key)
 {
     deselect_all(false)
-    document.getElementById(`soption_${key}`).classList.add('selected')
+    document.getElementById(`right_pit_option_${key}`).classList.add('selected')
     
     build_plot()
 }
@@ -87,7 +87,7 @@ function open_secondary_option(key)
  */
 function get_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('p')).map(item => item.id.replace('pit_option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('left_')).map(item => item.id.replace('left_pit_option_', ''))
 }
 
 /**
@@ -98,7 +98,7 @@ function get_selected_keys()
  */
 function get_secondary_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('s')).map(item => item.id.replace('soption_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('right_')).map(item => item.id.replace('right_pit_option_', ''))
 }
 
 /**
