@@ -8,9 +8,9 @@
 
 const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 
-let pwidth, pheight = 0
+var pwidth, pheight = 0
 
-let title_el, canvas
+var title_el, canvas, max_bins_entry, function_select, stat_filter, picklist_filter
 
 function init_page()
 {
@@ -18,19 +18,19 @@ function init_page()
 
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
-    let card = new Card('contents_card', [title_el, canvas])
+    let card = new WRCard([title_el, canvas])
 
-    let max_bins = new Entry('max_bins', 'Max bins', 5)
-    max_bins.entry = 'number'
-    max_bins.on_text_change = 'build_plot()'
+    max_bins_entry = new WREntry('Max bins', 5)
+    max_bins_entry.entry = 'number'
+    max_bins_entry.on_text_change = build_plot
 
-    let select = new Select('function', 'Function', FUNCTIONS, 'Mean')
-    select.on_change = 'build_plot()'
+    function_select = new WRSelect('Function', FUNCTIONS, 'Mean')
+    function_select.on_change = build_plot
 
-    preview.append(card.element, new ColumnFrame('', '', [max_bins]).element, new ColumnFrame('', '', [select]).element)
+    preview.append(card, new WRColumn('', [max_bins_entry]), new WRColumn('', [function_select]))
 
-    add_dropdown_filter('picklist_filter', ['None'].concat(Object.keys(dal.picklists)), 'filter_teams()', false)
-    add_dropdown_filter('stat_filter', ['All', 'Stats', 'Pit', 'Rank'], 'filter_stats()', true)
+    picklist_filter = add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), filter_teams, false)
+    stat_filter = add_dropdown_filter(['All', 'Stats', 'Pit', 'Rank'], filter_stats, true)
 
     let first = populate_keys(dal, false, true)
     if (first !== '')
@@ -69,11 +69,11 @@ function init_canvas()
  */
 function filter_stats()
 {
-    let filter = document.getElementById('stat_filter').value.toLowerCase()
+    let filter = stat_filter.element.value.toLowerCase()
     let keys = dal.get_keys(true, true, true, false, [], false)
     for (let k of keys)
     {
-        let element = document.getElementById(`pit_option_${k}`)
+        let element = document.getElementById(`left_pit_option_${k}`)
         if (filter !== 'all' && !k.startsWith(filter) && !element.classList.contains('selected'))
         {
             element.style.display = 'none'
@@ -87,6 +87,27 @@ function filter_stats()
 
 /**
  * function:    open_option
+ * parameters:  none
+ * returns:     none
+ * description: Selects teams based off the selected picklist.
+ */
+function filter_teams()
+{
+    let list = picklist_filter.element.value
+    if (Object.keys(dal.picklists).includes(list))
+    {
+        filter_by(dal.picklists[list], false)
+    }
+    else
+    {
+        deselect_all(false)
+    }
+
+    init_canvas()
+}
+
+/**
+ * function:    open_option
  * parameters:  Selected key
  * returns:     none
  * description: Selects and opens an option.
@@ -94,8 +115,7 @@ function filter_stats()
 function open_option(key)
 {
     deselect_all(true)
-    document.getElementById(`pit_option_${key}`).classList.add('selected')
-
+    document.getElementById(`left_pit_option_${key}`).classList.add('selected')
     build_plot()
 }
 
@@ -107,7 +127,7 @@ function open_option(key)
  */
 function open_secondary_option(key, rebuild=true)
 {
-    let class_list = document.getElementById(`soption_${key}`).classList
+    let class_list = document.getElementById(`right_pit_option_${key}`).classList
     // select team button
     if (class_list.contains('selected'))
     {
@@ -133,7 +153,7 @@ function open_secondary_option(key, rebuild=true)
  */
 function get_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('p')).map(item => item.id.replace('pit_option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('left_')).map(item => item.id.replace('left_pit_option_', ''))
 }
 
 /**
@@ -144,7 +164,7 @@ function get_selected_keys()
  */
 function get_secondary_selected_keys()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('s')).map(item => item.id.replace('soption_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('right_')).map(item => item.id.replace('right_pit_option_', ''))
 }
 
 /**
@@ -165,8 +185,8 @@ function build_plot()
     let highlights = get_secondary_selected_keys()
     let teams = Object.keys(dal.teams)
 
-    let func = FUNCTIONS[Select.get_selected_option('function')]
-    let num_bins = parseInt(document.getElementById('max_bins').value)
+    let func = FUNCTIONS[function_select.selected_index]
+    let num_bins = parseInt(max_bins_entry.element.value)
 
     title_el.innerText = dal.get_name(key, func)
 
@@ -184,6 +204,7 @@ function build_plot()
         num_bins = max
     }
     let bin_size = (max - min) / num_bins
+    console.log(key, min, max, num_bins, bin_size)
 
     // build list of empty bin counts
     let bins = []
@@ -388,8 +409,8 @@ function find_bin(event)
     let key = keys[0]
     let teams = Object.keys(dal.teams)
 
-    let func = FUNCTIONS[Select.get_selected_option('function')]
-    let num_bins = parseInt(document.getElementById('max_bins').value)
+    let func = FUNCTIONS[function_select.selected_index()]
+    let num_bins = parseInt(max_bins_entry)
 
     // calculate number of bins and what ranges the bins cover
     let global = dal.compute_global_stats(keys, teams, func)
