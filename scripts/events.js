@@ -24,8 +24,8 @@ function init_page()
 
     table.append(create_header_row(['Event', 'Key', 'Start Date', 'Team Count', 'Teams']))
 
-    let card = new Card('card', contents)
-    body.append(new PageFrame('', '', [card]).element)
+    let card = new WRCard(contents)
+    body.append(new WRPage('', [card]))
 
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)
