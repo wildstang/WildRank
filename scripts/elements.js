@@ -162,7 +162,7 @@ class WRButton extends WRElement
 
     connectedCallback()
     {
-        this.label_el.innerText = this.label
+        this.label_el.append(this.label)
 
         this.element.className = this.primary_class
         this.element.onclick = this.on_click
@@ -1485,9 +1485,9 @@ class WRDropdown extends WROptionedInput
     connectedCallback()
     {
         if (this.label)
-    {
-        this.label_el.className = 'input_label'
-        this.label_el.append(this.label)
+        {
+            this.label_el.className = 'input_label'
+            this.label_el.append(this.label)
             this.append(this.label_el)
         }
 
