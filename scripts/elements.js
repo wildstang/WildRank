@@ -402,6 +402,19 @@ class WRCheckbox extends WRElement
         this.append(this.element)
     }
 
+    set_checked(checked)
+    {
+        this.checkbox.checked = checked
+        if (checked)
+        {
+            this.element.classList.add('selected')
+        }
+        else if (this.element.classList.contains('selected'))
+        {
+            this.element.classList.remove('selected')
+        }
+    }
+
     check(target_id='')
     {
         let checked = this.checkbox.checked
