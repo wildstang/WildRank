@@ -8,7 +8,7 @@
 
 include('whiteboard-obj')
 
-var match_num_el, time_el, result_el, extra_el, teams_el, whiteboard
+var match_num_el, time_el, result_el, extra_el, teams_el, whiteboard, team_filter
 var playing = false
 
 /**
@@ -26,7 +26,7 @@ function init_page()
     if (teams.length > 0)
     {
         teams.unshift('')
-        add_dropdown_filter('team_filter', teams, 'hide_matches()')
+        team_filter = add_dropdown_filter(teams, hide_matches)
     }
     if (first)
     {
@@ -38,14 +38,15 @@ function init_page()
         match_num_el.innerText = 'No Match Selected'
         time_el = document.createElement('h3')
         result_el = document.createElement('h3')
-        let extra_toggle = new Button('toggle_extra', 'Show/Hide Extra', 'toggle_extra()')
+        let extra_toggle = new WRButton('Show/Hide Extra', toggle_extra)
         extra_toggle.add_class('slim')
         extra_el = document.createElement('div')
         extra_el.style.display = 'none'
-        let card = new Card('contents_card', [match_num_el, time_el, result_el, extra_toggle.element, extra_el])
+        let card = new WRCard([match_num_el, time_el, result_el, extra_toggle, extra_el])
+        card.add_class('result_card')
 
         teams_el = document.createElement('div')
-        preview.append(card.element, teams_el)
+        preview.append(card, teams_el)
 
         open_option(first)
     }
@@ -108,7 +109,7 @@ async function start_match()
  */
 function hide_matches()
 {
-    let team = document.getElementById('team_filter').value
+    let team = team_filter.value
     let first = populate_matches(true, true, team)
     open_option(first)
 }
@@ -123,7 +124,7 @@ function open_option(match_key)
 {
     // select option
     deselect_all()
-    document.getElementById(`match_option_${match_key}`).classList.add('selected')
+    document.getElementById(`left_match_option_${match_key}`).classList.add('selected')
 
     // place match number and team to scout on pane
     match_num_el.innerText = dal.get_match_value(match_key, 'match_name')
@@ -190,8 +191,8 @@ function open_option(match_key)
     // reorganize teams into single object
     let match_teams = dal.get_match_teams(match_key)
 
-    let red_col = new ColumnFrame('', '')
-    let blue_col = new ColumnFrame('', '')
+    let red_col = new WRColumn('')
+    let blue_col = new WRColumn('')
 
     let positions = Object.keys(match_teams)
     
@@ -208,14 +209,12 @@ function open_option(match_key)
 
         let scout_text = document.createElement('span')
         scout_text.append('Scout ', team)
-        let scout_link = new Button(`scout_${team_num}`, scout_text)
-        scout_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match_key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
+        let scout_link = new WRLinkButton(scout_text, open_page('scout', {type: MATCH_MODE, match: match_key, team: team_num, alliance: alliance, edit: false}))
         if (dal.is_match_scouted(match_key, team_num))
         {
             let result_text = document.createElement('span')
             result_text.append(team, ' Results')
-            scout_link = new Button(`results_${team_num}`, result_text)
-            scout_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
+            scout_link = new WRLinkButton(result_text, open_page('results', {'file': `${match_key}-${team_num}`}))
         }
 
         // add button and description to appropriate column
@@ -224,10 +223,10 @@ function open_option(match_key)
         team_el.className = alliance
         team_el.innerText = team_num
         team_info.append(team_el, br(), dal.get_value(team_num, 'meta.name'), br(), dal.get_rank_str(team_num))
-        let info_card = new Card(`card_${team_num}`, team_info)
+        let info_card = new WRCard(team_info)
         info_card.limitWidth = true
         info_card.space_after = false
-        let stack = new Stack('', [info_card, scout_link])
+        let stack = new WRStack([info_card, scout_link])
         if (alliance === 'red')
         {
             red_col.add_input(stack)
@@ -239,8 +238,8 @@ function open_option(match_key)
     }
 
     // create page
-    let page = new PageFrame('', '', [red_col, blue_col])
-    teams_el.replaceChildren(page.element)
+    let page = new WRPage('', [red_col, blue_col])
+    teams_el.replaceChildren(page)
 
     whiteboard.load_match(match_key)
 }
