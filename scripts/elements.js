@@ -1484,8 +1484,12 @@ class WRDropdown extends WROptionedInput
 
     connectedCallback()
     {
+        if (this.label)
+    {
         this.label_el.className = 'input_label'
         this.label_el.append(this.label)
+            this.append(this.label_el)
+        }
 
         this.element.id = this.input_id
         this.element.className = 'wr_dropdown'
@@ -1494,7 +1498,6 @@ class WRDropdown extends WROptionedInput
         this.element.onchange = this.on_change
         this.element.append(...this.option_elements)
 
-        this.append(this.label_el)
         this.append(this.description_element)
         this.append(this.element)
     }

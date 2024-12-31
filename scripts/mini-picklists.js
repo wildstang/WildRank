@@ -7,6 +7,8 @@
 
 include('picklists-core')
 
+var picklist_dropdown
+
 /**
  * function:    select_list
  * parameters:  selected list name
@@ -18,23 +20,23 @@ function select_list(name='')
     // use first list name if dropdown isn't created
     if (name == '')
     {
-        name = document.getElementById('list_names') == null ? Object.keys(dal.picklists)[0] : document.getElementById('list_names').value
+        name = picklist_dropdown == null ? Object.keys(dal.picklists)[0] : picklist_dropdown.element.value
     }
     // create new dropdown with current selection as default
-    let dropdown = new Dropdown('list_names', '', Object.keys(dal.picklists), name)
-    dropdown.on_change = 'select_list()'
-    dropdown.add_class('slim')
+    picklist_dropdown = new WRDropdown('', Object.keys(dal.picklists), name)
+    picklist_dropdown.on_change = () => select_list()
+    picklist_dropdown.add_class('slim')
     let table = document.getElementById('mpl-teams')
     table.replaceChildren()
     let row = table.insertRow()
-    row.insertCell().append(dropdown.element)
+    row.insertCell().append(picklist_dropdown)
     if (Object.keys(dal.picklists).includes(name))
     {
-        let top = new Button('', 'Add to Top', `add_to('${name}', '')`)
-        top.on_secondary = `remove_team('${name}', '')`
+        let top = new WRButton('Add to Top', () => add_to(name, ''))
+        top.on_right = () => remove_team(name, '')
         top.add_class('pick_item')
         top.add_class('slim')
-        row.insertCell().append(top.element)
+        row.insertCell().append(top)
         for (let team of dal.picklists[name])
         {
             let classes = ['pick_item', 'slim']
@@ -43,13 +45,13 @@ function select_list(name='')
                 classes.push('crossed_out')
             }
             // add team button
-            let entry = new Button('', team, `add_to('${name}', '${team}')`)
-            entry.on_secondary = `remove_team('${name}', '${team}')`
+            let entry = new WRButton(team, () => add_to(name, team))
+            entry.on_right = () => remove_team(name, team)
             for (let c of classes)
             {
                 entry.add_class(c)
             }
-            row.insertCell().append(entry.element)
+            row.insertCell().append(entry)
         }
     }
 }
