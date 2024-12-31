@@ -12,7 +12,7 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, table_el, cycle_container
+var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, table_el, cycle_container, team_filter
 
 /**
  * function:    init_page
@@ -36,15 +36,15 @@ function init_page()
     ranking_el = document.createElement('h3')
     title_el.append(avatar_el, ' ', result_name, location_el, ranking_el)
     table_el = document.createElement('table')
-    let card = new Card('contents_card', [title_el, table_el])
+    let card = new WRCard([title_el, table_el])
     cycle_container = document.createElement('div')
-    preview.append(card.element, cycle_container)
+    preview.append(card, cycle_container)
 
     // add filter for teams
     let avail_teams = Object.keys(dal.teams)
     avail_teams.sort((a,b) => parseInt(a) - parseInt(b))
     avail_teams.unshift('All')
-    add_dropdown_filter('team_filter', avail_teams, 'build_result_list()')
+    team_filter = add_dropdown_filter(avail_teams, build_result_list)
 
     build_result_list()
     setup_picklists()
@@ -61,7 +61,7 @@ function build_result_list()
     let results = dal.get_results()
 
     // get selected team in filter
-    let filter = document.getElementById('team_filter').value
+    let filter = team_filter.value
 
     // build list of options, sorted by match
     let options = {}
@@ -103,7 +103,7 @@ function open_option(option)
 
     // select the new option
     deselect_all()
-    document.getElementById(`pit_option_${option}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${option}`).classList.add('selected')
 
     // pull match and team out
     let parts = option.split('-')
@@ -123,11 +123,11 @@ function open_option(option)
     for (let key of cycles)
     {
         let cycle = dal.get_result_value(team, match, key)
-        let page = new PageFrame(key, dal.get_name(key))
+        let page = new WRPage(dal.get_name(key))
         for (let i in cycle)
         {
             let c = cycle[i]
-            let column = new ColumnFrame('', `#${parseInt(i)+1}`)
+            let column = new WRColumn(`#${parseInt(i)+1}`)
             let inputs = Object.keys(c)
             for (let id of inputs)
             {
@@ -142,17 +142,17 @@ function open_option(option)
                 switch (type)
                 {
                     case 'counter':
-                        item = new Counter(id, name, default_val)
+                        item = new WRCounter(name, default_val)
                         break
                     case 'select':
-                        item = new Select(id, name, options, options[default_val])
+                        item = new WRSelect(name, options, options[default_val])
                         item.vertical = input.vertical
                         break
                     case 'dropdown':
-                        item = new Dropdown(id, name, options, options[default_val])
+                        item = new WRDropdown(name, options, options[default_val])
                         break
                     case 'multicounter':
-                        item = new Multicounter(id, name, options)
+                        item = new WRMultiCounter(name, options)
                         for (let op of options)
                         {
                             let op_id = `${id}_${create_id_from_name(op)}`
@@ -160,22 +160,23 @@ function open_option(option)
                         }
                         break
                     case 'checkbox':
-                        item = new Checkbox(id, name, default_val)
+                        item = new WRCheckbox(name, default_val)
                         break
                     default:
                         continue
                 }
+                item.input_id = id
                 column.add_input(item)
             }
 
             // remove button for cycle
-            let remove = new Button('', 'Remove Cycle', `remove_cycle('${option}', '${match}', '${team}', '${key}', ${i})`)
+            let remove = new WRButton('Remove Cycle', () => remove_cycle(option, match, team, key, i))
             remove.add_class('slim')
             column.add_input(remove)
 
             page.add_column(column)
         }
-        cycle_container.replaceChildren(page.element)
+        cycle_container.replaceChildren(page)
     }
 }
 
