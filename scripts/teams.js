@@ -41,11 +41,11 @@ function init_page()
         photos = document.createElement('span')
         center.append(photos)
         stats_container = document.createElement('div')
-        let card = new Card('contents_card', [avatar, team_header, loc, ranking, center, stats_container])
+        let card = new WRCard([avatar, team_header, loc, ranking, center, stats_container])
 
         clear_container = document.createElement('span')
         match_container = document.createElement('div')
-        preview.append(card.element, clear_container, match_container)
+        preview.append(card, clear_container, match_container)
         
         open_option(first)
     }
@@ -65,7 +65,7 @@ function open_option(team_num)
 {
     // select new option
     deselect_all()
-    document.getElementById(`pit_option_${team_num}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
 
     // populate top
     avatar.src = dal.get_value(team_num, 'pictures.avatar')
@@ -77,15 +77,15 @@ function open_option(team_num)
     // populate ranking
     ranking.innerHTML = dal.get_rank_str(team_num)
 
-    let clear_ignore = new Button('clear_ignore', 'Clear Ignores')
-    clear_ignore.on_click = `clear_ignores('${team_num}')`
+    let clear_ignore = new WRButton('Clear Ignores')
+    clear_ignore.on_click = () => clear_ignores(team_num)
     clear_container.replaceChildren(clear_ignore.element)
 
     // pull pit results
     let pit_button = ''
     if (!dal.is_pit_scouted(team_num))
     {
-        pit_button = new Button('', 'Scout Pit')
+        pit_button = new WRLinkButton('Scout Pit')
         pit_button.link = `open_page('scout', {type: '${PIT_MODE}', team: '${team_num}', alliance: 'white', edit: false})`
     }
 
@@ -175,8 +175,8 @@ function open_option(team_num)
                 ignore_text.append('Ignore Match ', match_num)
 
                 // build ignore checkbox
-                ignore = new Checkbox(`ignore_${match_key}`, ignore_text, dal.get_result_value(team_num, match_key, 'meta_ignore'))
-                ignore.on_click = `ignore_match('${match_key}', '${team_num}')`
+                ignore = new WRCheckbox(ignore_text, dal.get_result_value(team_num, match_key, 'meta_ignore'))
+                ignore.on_click = () => ignore_match(match_key, team_num)
                 ignore.add_class('slim')
 
                 // build text of match button
@@ -184,7 +184,7 @@ function open_option(team_num)
                 match_text.append('Match ', match_num, ' Results')
 
                 // build match button
-                match_link = new Button(`result_${match_key}`, match_text)
+                match_link = new WRLinkButton(match_text)
                 match_link.link = `open_page('results', {'file': '${match_key}-${team_num}'})`
             }
             else
@@ -194,14 +194,14 @@ function open_option(team_num)
                 match_text.append('Scout Match ', match_num)
     
                 // build match button
-                match_link = new Button(`scout_${match_key}`, match_text)
+                match_link = new WRLinkButton(match_text)
                 match_link.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${match_key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
             }
 
-            let card = new Card(`card_${match_key}`, time)
+            let card = new WRCard(time)
             card.space_after = false
 
-            let stack = new Stack('', [card, match_link])
+            let stack = new WRStack('', [card, match_link])
             if (ignore)
             {
                 stack.add_element(ignore)
@@ -216,11 +216,11 @@ function open_option(team_num)
     {
         count++
     }
-    let left_col = new ColumnFrame('', '', cards.splice(0, count))
-    let right_col = new ColumnFrame('', '', cards)
-    let page = new PageFrame('', '', [pit_button, left_col, right_col])
+    let left_col = new WRColumn('', cards.splice(0, count))
+    let right_col = new WRColumn('', cards)
+    let page = new WRPage('', [pit_button, left_col, right_col])
 
-    match_container.replaceChildren(page.element)
+    match_container.replaceChildren(page)
 
     ws(team_num)
 }
