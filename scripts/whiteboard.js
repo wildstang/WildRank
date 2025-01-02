@@ -7,7 +7,7 @@
 
 include('whiteboard-obj')
 
-var whiteboard, teams_container
+var whiteboard, teams_container, team_filter, play_button, time_slider, trail_slider, team_drop, drag_box, speed_slider
 var playing = false
 
 /**
@@ -26,7 +26,7 @@ function init_page()
     }
     let teams = Object.keys(dal.teams)
     teams.unshift('')
-    add_dropdown_filter('team_filter', teams, 'hide_matches()', true, default_filter)
+    team_filter = add_dropdown_filter(teams, hide_matches, true, default_filter)
 
     if (first)
     {
@@ -34,46 +34,46 @@ function init_page()
 
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard(update_sliders)
-        let card = new Card('contents_card', [whiteboard.canvas])
+        let card = new WRCard([whiteboard.canvas])
+        card.add_class('result_card')
         card.space_after = false
         init_canvas()
 
         // create the whiteboard drawing controls and place them in a stack with the whiteboard
-        let game_piece = new MultiButton('game_piece', '')
+        let game_piece = new WRMultiButton('')
         for (let gp of cfg.whiteboard.game_pieces)
         {
-            game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
+            game_piece.add_option(gp.name, () => whiteboard.add_game_piece(gp.name))
         }
-        game_piece.on_click = 'add_game_piece()'
-        let draw_drag = new Checkbox('draw_drag', 'Draw on Drag')
-        draw_drag.on_click = 'draw_drag()'
-        let clear = new MultiButton('clear', '', ['Clear Lines', 'Clear All'], ['whiteboard.clear_lines()', 'whiteboard.clear()'])
-        let reset_whiteboard = new Button('reset_whiteboard', 'Reset Whiteboard', 'whiteboard.reset()')
-        let stack = new Stack('', [card, draw_drag, game_piece, clear, reset_whiteboard], true)
+        drag_box = new WRCheckbox('Draw on Drag')
+        drag_box.on_click = draw_drag
+        let clear = new WRMultiButton('', ['Clear Lines', 'Clear All'], [whiteboard.clear_lines.bind(whiteboard), whiteboard.clear.bind(whiteboard)])
+        let reset_whiteboard = new WRButton('Reset Whiteboard', whiteboard.reset.bind(whiteboard))
+        let stack = new WRStack([card, drag_box, game_piece, clear, reset_whiteboard], true)
 
         // create the various playback controls and place them in a single column
-        let play_match = new Button('play_match', 'Play', 'play_match()')
-        let playback_speed = new Slider('playback_speed', 'Play at', 5)
-        playback_speed.bounds = [1, 10, 1]
-        playback_speed.add_class('slim')
-        let match_time = new Slider('match_time', 'Match Time', 0)
-        match_time.bounds = [0, 0, 1]
-        match_time.on_change = 'update_time()'
-        match_time.add_class('slim')
-        let trail_length = new Slider('trail_length', 'Trail Length', 0)
-        trail_length.bounds = [0, 1, 10]
-        trail_length.on_change = 'update_time()'
-        trail_length.add_class('slim')
-        let playback = new ColumnFrame('', '', [play_match, playback_speed, match_time, trail_length])
+        play_button = new WRButton('Play', play_match)
+        speed_slider = new WRSlider('Play at', 5)
+        speed_slider.bounds = [1, 10, 1]
+        speed_slider.add_class('slim')
+        time_slider = new WRSlider('Match Time', 0)
+        time_slider.bounds = [0, 0, 1]
+        time_slider.on_change = update_time
+        time_slider.add_class('slim')
+        trail_slider = new WRSlider('Trail Length', 0)
+        trail_slider.bounds = [0, 1, 10]
+        trail_slider.on_change = update_time
+        trail_slider.add_class('slim')
+        let playback = new WRColumn('', [play_button, speed_slider, time_slider, trail_slider])
 
         // create a container to place the teams dropdown in
         teams_container = document.createElement('span')
-        let teams = new ColumnFrame('', '', [teams_container])
+        let teams = new WRColumn('', [teams_container])
 
         // populate the controls below the whiteboard in single column pages
-        preview.append(stack.element, br(),
-            new PageFrame('playback', 'Playback', [playback]).element,
-            new PageFrame('teams_page', 'Teams', [teams]).element)
+        preview.append(stack, br(),
+            new WRPage('Playback', [playback]),
+            new WRPage('Teams', [teams]))
 
         // update the match list
         hide_matches()
@@ -105,7 +105,7 @@ function init_canvas()
 function hide_matches()
 {
     // update the match list
-    let team = document.getElementById('team_filter').value
+    let team = team_filter.value
     let first = populate_matches(true, true, team)
 
     // update the right panel
@@ -122,7 +122,7 @@ function open_option(match_key)
 {
     // select option
     deselect_all()
-    document.getElementById(`match_option_${match_key}`).classList.add('selected')
+    document.getElementById(`left_match_option_${match_key}`).classList.add('selected')
 
     // load the match on the whiteboard, UI updates handled by update_sliders()
     whiteboard.load_match(match_key)
@@ -136,19 +136,19 @@ function update_sliders()
 {
     // reset previous match playback
     pause()
-    Slider.set_slider('match_time', 1)
+    time_slider.position = 1
 
     // set the slider limits appropriately
     let length = whiteboard.get_match_length()
-    document.getElementById('match_time').max = length
-    document.getElementById('trail_length').max = length
+    time_slider.maximum = length
+    trail_slider.maximum = length
 
     // populate the dropdown with teams with zebra data
     let teams = Object.keys(whiteboard.match_traces[whiteboard.current_match])
     teams.unshift('None', 'All', 'Blue', 'Red')
-    let team_drop = new Dropdown('team_drop', 'Heatmap', teams, 'None')
-    team_drop.on_change = 'set_draw_team()'
-    teams_container.replaceChildren(team_drop.element)
+    team_drop = new WRDropdown('Heatmap', teams, 'None')
+    team_drop.on_change = set_draw_team
+    teams_container.replaceChildren(team_drop)
 
     // redraw the now reset whiteboard
     update_time()
@@ -159,8 +159,8 @@ function update_sliders()
  */
 function update_time()
 {
-    whiteboard.set_match_time(parseInt(document.getElementById('match_time').value),
-                              parseInt(document.getElementById('trail_length').value))
+    whiteboard.set_match_time(parseInt(time_slider.slider.value),
+                              parseInt(trail_slider.slider.value))
 }
 
 /**
@@ -169,7 +169,7 @@ function update_time()
 function pause()
 {
     playing = false
-    document.getElementById('play_match').innerText = 'Play'
+    play_button.label_el.innerText = 'Play'
 }
 
 /**
@@ -186,11 +186,11 @@ async function play_match()
     }
 
     // change the play button to pause on play
-    document.getElementById('play_match').innerText = 'Pause'
+    play_button.label_el.innerText = 'Pause'
 
     // get the starting time and match length
-    let time = parseInt(document.getElementById('match_time').value)
-    let length = parseInt(document.getElementById('trail_length').max)
+    let time = parseInt(time_slider.slider.value)
+    let length = parseInt(trail_slider.slider.max)
 
     // play the match until complete or externally paused
     playing = true
@@ -200,11 +200,11 @@ async function play_match()
 
         // increment the playback
         time++
-        Slider.set_slider('match_time', time)
+        time_slider.position = time
         update_time()
 
         // determine the interval by the requested speed (in 1/10 seconds)
-        let interval = 100.0 / parseInt(document.getElementById('playback_speed').value)
+        let interval = 100.0 / parseInt(speed_slider.slider.value)
         let delta = Date.now() - start
 
         // sleep until the next frame
@@ -218,7 +218,7 @@ async function play_match()
     pause()
     if (time >= length)
     {
-        Slider.set_slider('match_time', 0)
+        time_slider.position = 0
     }
 }
 
@@ -227,7 +227,7 @@ async function play_match()
  */
 function draw_drag()
 {
-    whiteboard.draw_drag = document.getElementById('draw_drag').checked
+    whiteboard.draw_drag = drag_box.checked
 }
 
 /**
@@ -235,6 +235,6 @@ function draw_drag()
  */
 function set_draw_team()
 {
-    let team = document.getElementById('team_drop').value
+    let team = team_drop.element.value
     whiteboard.set_heatmap_team(team)
 }

@@ -13,7 +13,7 @@ include('bracket-obj')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('match')
 
-var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_card, blue_card
+var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_card, blue_card, drag_box
 
 /**
  * function:    init_page
@@ -50,21 +50,22 @@ function init_page()
         let game_piece = new WRMultiButton('')
         for (let gp of cfg.whiteboard.game_pieces)
         {
-            game_piece.add_option(gp.name, `whiteboard.add_game_piece('${gp.name}')`)
+            game_piece.add_option(gp.name, () => whiteboard.add_game_piece(gp.name))
         }
-        game_piece.on_click = 'add_game_piece()'
-        let draw_drag = new WRCheckbox('Draw on Drag')
-        draw_drag.on_click = draw_drag
-        let clear = new WRMultiButton('', ['Clear Lines', 'Clear All'], [whiteboard.clear_lines, whiteboard.clear])
-        let reset_whiteboard = new WRButton('Reset Whiteboard', 'whiteboard.reset()')
+        drag_box = new WRCheckbox('Draw on Drag')
+        drag_box.on_click = draw_drag
+        let clear = new WRMultiButton('', ['Clear Lines', 'Clear All'], [whiteboard.clear_lines.bind(whiteboard), whiteboard.clear.bind(whiteboard)])
+        let reset_whiteboard = new WRButton('Reset Whiteboard', whiteboard.reset.bind(whiteboard))
 
-        let stack = new WRStack([card, draw_drag, game_piece, clear, reset_whiteboard], true)
+        let stack = new WRStack([card, drag_box, game_piece, clear, reset_whiteboard], true)
         let wb_col = new WRColumn('', [stack])
         whiteboard_page = new WRPage('', [wb_col])
 
         // create column of buttons for coach page
-        edit = new WRLinkButton('Edit Values', open_page('edit-coach'))
-        custom = new WRLinkButton('Add Custom Match', open_page('custom-match'))
+        red_edit = new WRLinkButton('Edit Values', open_page('edit-coach'))
+        red_custom = new WRLinkButton('Add Custom Match', open_page('custom-match'))
+        blue_edit = new WRLinkButton('Edit Values', open_page('edit-coach'))
+        blue_custom = new WRLinkButton('Add Custom Match', open_page('custom-match'))
 
         // subtract margins from the parent dimensions
         // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
@@ -186,14 +187,14 @@ function open_option(match_key)
     red_card = new WRCard('')
     red_card.add_class('red_box')
     red_col.add_input(red_card)
-    red_col.add_input(edit)
-    red_col.add_input(custom)
+    red_col.add_input(red_edit)
+    red_col.add_input(red_custom)
 
     blue_card = new WRCard('')
     blue_card.add_class('blue_box')
     blue_col.add_input(blue_card)
-    blue_col.add_input(edit)
-    blue_col.add_input(custom)
+    blue_col.add_input(blue_edit)
+    blue_col.add_input(blue_custom)
 
     // build template
     carousel.replaceChildren(red_page, blue_page, whiteboard_page)
@@ -275,7 +276,7 @@ function build_table(alliance, teams)
  */
 function draw_drag()
 {
-    whiteboard.draw_drag = document.getElementById('draw_drag').checked
+    whiteboard.draw_drag = drag_box.checked
 }
 
 /**
