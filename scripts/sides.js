@@ -11,7 +11,7 @@ const SORT_OPTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total']
 var selectedA = ''
 var selectedB = ''
 
-var results_tab, val_el
+var results_tab, val_el, type_form, scale_max
 
 /**
  * function:    init_page
@@ -27,31 +27,34 @@ function init_page()
     if (first)
     {
         val_el = document.createElement('div')
-        let card = new Card('contents_card', [val_el])
+        let card = new WRCard([val_el])
+        card.add_class('result_card')
         selectedA = first
         selectedB = second
 
-        let type_form = new Select('type_form', 'Sort numeric resuts by', SORT_OPTIONS, 'Mean')
-        type_form.on_change = 'open_both_teams()'
+        type_form = new WRSelect('Sort numeric resuts by', SORT_OPTIONS, 'Mean')
+        type_form.on_change = open_both_teams
 
-        let scale_max = new Select('scale_max', 'Use maximum of', ['Pair', 'All Teams'], 'Pair')
-        scale_max.on_change = 'open_both_teams()'
+        scale_max = new WRSelect('Use maximum of', ['Pair', 'All Teams'], 'Pair')
+        scale_max.on_change = open_both_teams
 
-        let page = new PageFrame('', '', [
-            new ColumnFrame('', '', [type_form]),
-            new ColumnFrame('', '', [scale_max])
+        let page = new WRPage('', [
+            new WRColumn('', [type_form]),
+            new WRColumn('', [scale_max])
         ])
+        page.top_margin = false
 
         let column = document.createElement('div')
         let center = document.createElement('center')
         results_tab = document.createElement('table')
         results_tab.style.textAlign = 'center'
-        let tab_card = new Card('res', results_tab)
+        let tab_card = new WRCard(results_tab)
+        tab_card.add_class('result_card')
         tab_card.add_class('scalable_card')
-        center.append(tab_card.element)
+        center.append(tab_card)
         column.append(center)
 
-        preview.append(card.element, br(), page.element, br(), column)
+        preview.append(card, page, br(), column)
         open_both_teams()
     }
     else
@@ -123,8 +126,8 @@ function open_both_teams()
     // select teams
     deselect_all()
     deselect_all(false)
-    document.getElementById(`pit_option_${selectedA}`).classList.add('selected')
-    document.getElementById(`soption_${selectedB}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${selectedA}`).classList.add('selected')
+    document.getElementById(`right_pit_option_${selectedB}`).classList.add('selected')
 
     let opponents = dal.find_matches([selectedA], [selectedB])
     let partners = dal.find_matches([selectedA, selectedB])
@@ -138,7 +141,7 @@ function open_both_teams()
     results_tab.replaceChildren()
     results_tab.append(create_header_row(['Key', selectedA, selectedB, 'Max']))
     let keys = dal.get_keys(true, true, true, false)
-    let type = SORT_OPTIONS[Select.get_selected_option('type_form')]
+    let type = SORT_OPTIONS[type_form.selected_index]
     for (let key of keys)
     {
         let aVal = dal.get_value(selectedA, key, type)
@@ -163,7 +166,7 @@ function open_both_teams()
         {
             let aSum = Object.values(aVal).reduce((a, b) => a + b, 0)
             let bSum = Object.values(bVal).reduce((a, b) => a + b, 0)
-            for (let op of meta[key].options)
+            for (let op of dal.meta[key].options)
             {
                 let aPct = 100 * aVal[op] / aSum
                 let bPct = 100 * bVal[op] / bSum
@@ -187,7 +190,7 @@ function build_row(key, aVal, bVal, label='')
 {
     // get max
     let max = Math.max(aVal, bVal)
-    if (Select.get_selected_option('scale_max') === 1)
+    if (scale_max.selected_index === 1)
     {
         let global = dal.compute_global_stats([key], Object.keys(dal.teams))
         max = dal.get_global_value(global, key, 'max')
