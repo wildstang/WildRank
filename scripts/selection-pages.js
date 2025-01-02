@@ -146,7 +146,8 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         document.getElementById('option_list').append(op)
         if (secondary)
         {
-            op.primary_list = false
+            let op = new WRDescriptiveOption(number, number, name, false)
+            op.add_class(scouted)
             document.getElementById('secondary_option_list').append(op)
         }
     }
@@ -171,7 +172,7 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         if (secondary && second !== '')
         {
             enable_secondary_list()
-            scroll_to('secondary_option_list', `right_option_${first}`)
+            scroll_to('secondary_option_list', `right_pit_option_${first}`)
             return [first, second]
         }
     }
@@ -380,6 +381,6 @@ function add_error_card(message, description='')
     header.textContent = message
     let details = document.createElement('span')
     details.textContent = description
-    let card = new Card('contents_card', [header, details])
-    preview.append(card.element)
+    let card = new WRCard([header, details])
+    preview.append(card)
 }
