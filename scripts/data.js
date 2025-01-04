@@ -1185,23 +1185,24 @@ class DAL
                     case 'percent':
                         if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
                         {
-                            result[id] = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
-                            if (isNaN(result[id]))
+                            let res = result[stat.numerator] / (result[stat.numerator] + result[stat.denominator])
+                            if (!isNaN(res))
                             {
-                                result[id] = 0
+                                result[id] = res
                             }
                         }
                         break
                     case 'ratio':
                         if (result.hasOwnProperty(stat.numerator) && result.hasOwnProperty(stat.denominator))
                         {
-                            if (result[stat.denominator] != 0)
+                            let res = result[stat.numerator] / result[stat.denominator]
+                            if (res === Infinity)
                             {
-                                result[id] = result[stat.numerator] / result[stat.denominator]
+                                res = result[stat.numerator]
                             }
-                            else
+                            if (!isNaN(res))
                             {
-                                result[id] = result[stat.numerator]
+                                result[id] = res
                             }
                         }
                         break
