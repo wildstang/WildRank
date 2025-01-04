@@ -25,15 +25,15 @@ function init_page()
  */
 function build_buttons()
 {
-    let column = new ColumnFrame('del_col', 'Delete Smart Stat')
+    let column = new WRColumn('Delete Smart Stat')
     for (let i in cfg.smart_stats)
     {
         let stat = cfg.smart_stats[i]
-        column.add_input(new Button(stat.id, `${stat.name} (${stat.type})`, `delete_val(${i})`))
+        column.add_input(new WRButton(`${stat.name} (${stat.type})`, () => delete_val(i)))
     }
 
     // build template
-    body.replaceChildren(new PageFrame('page', '', [column]).element)
+    body.replaceChildren(new WRPage('', [column]))
 }
 
 /**
