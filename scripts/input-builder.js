@@ -90,6 +90,28 @@ class CheckboxB extends InputBuilder
     }
 }
 
+class ColumnB extends InputBuilder
+{
+    constructor()
+    {
+        super('column')
+
+        this.is_cycle = new WRCheckbox('Is Cycle')
+    }
+
+    build_inputs()
+    {
+        return [this.is_cycle]
+    }
+
+    build_description()
+    {
+        return {
+            cycle: this.is_cycle.checked
+        }
+    }
+}
+
 class CounterB extends InputBuilder
 {
     constructor(name='counter')
@@ -145,18 +167,18 @@ class NumberB extends CounterB
     {
         let desc = super.build_description()
 
-        let min = this.incr.element.value
+        let min = this.min.element.value
         if (min === '')
         {
             min = '1'
         }
-        let max = this.incr.element.value
+        let max = this.max.element.value
         if (max === '')
         {
             max = '10'
         }
 
-        desc.ops = [parseInt(min), parseInt(max)]
+        desc.options = [parseInt(min), parseInt(max)]
         return desc
     }
 }
@@ -187,7 +209,7 @@ class SliderB extends NumberB
             val = '1'
         }
 
-        desc.ops.push(parseInt(val))
+        desc.options.push(parseInt(val))
         return desc
     }
 }
@@ -215,7 +237,7 @@ class StringB extends InputBuilder
         {
             def = 'N/A'
         }
-        desc.default = parseInt(def)
+        desc.default = def
         desc.disallow_default = this.disallow.checked
         return desc
     }
@@ -258,7 +280,7 @@ class MulticounterB extends InputBuilder
         {
             def = '0'
         }
-        desc.negative = this.neg.checked
+        desc.negative = this.parse_list(this.neg.element.value).map(d => d.toLowerCase() === 'true')
         desc.default = parseInt(def)
         desc.disallow_default = this.disallow.checked
         desc.options = this.parse_list(this.options.element.value)
@@ -285,12 +307,7 @@ class DropdownB extends InputBuilder
     build_description()
     {
         let desc = super.build_description()
-        let def = this.def_entry.element.value
-        if (def === '')
-        {
-            def = '0'
-        }
-        desc.default = parseInt(def)
+        desc.default = this.def_entry.element.value
         desc.disallow_default = this.disallow.checked
         desc.options = this.parse_list(this.options.element.value)
         return desc
@@ -319,6 +336,23 @@ class SelectB extends DropdownB
         let desc = super.build_description()
         desc.colors = this.parse_list(this.colors.element.value)
         desc.images = this.parse_list(this.images.element.value)
+        return desc
+    }
+}
+
+class MultiselectB extends DropdownB
+{
+    constructor()
+    {
+        super('multiselect')
+
+        this.def_entry.description = 'A comma-separated list of true/false values for each select.'
+    }
+
+    build_description()
+    {
+        let desc = super.build_description()
+        desc.default = this.parse_list(desc.default).map(d => d.toLowerCase() === 'true')
         return desc
     }
 }

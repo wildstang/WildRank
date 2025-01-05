@@ -13,7 +13,7 @@ var config = Array(MODES.length).fill([])
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var mode_dd, page_dd, column_dd, type_dd, name_entry, builder
+var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry
 var preview, options
 
 /**
@@ -46,13 +46,16 @@ function build_page()
     type_dd = new WRDropdown('Type:')
     type_dd.on_change = populate_options
     name_entry = new WREntry('Name:')
+    name_entry.on_text_change = update_id
     name_entry.description = 'A brief description of the input visible to the user.'
+    id_entry = new WREntry('ID:')
+    id_entry.description = 'Unique identifier, automatically generated.'
 
     preview = document.createElement('span')
     options = document.createElement('div')
     body.replaceChildren(new WRPage('Add to...', [
             new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
-            new WRColumn('', [name_entry]),
+            new WRColumn('', [name_entry, id_entry]),
             new WRColumn('', [options])
         ]),
         preview,
@@ -112,31 +115,6 @@ function populate_dropdowns()
     build_page_from_config()
 }
 
-function build_options_entry()
-{
-    let options = new WREntry('Options')
-    options.input_id = 'new-element-options'
-    options.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-    return options
-}
-
-function build_default_entry(description, number_entry)
-{
-    let value = ''
-    if (number_entry)
-    {
-        value = '0'
-    }
-    let def = new WREntry('Default', value)
-    def.input_id = 'new-element-default'
-    if (number_entry)
-    {
-        def.type = 'number'
-    }
-    def.description = description
-    return def
-}
-
 /** 
  * function:    populate_options
  * parameters:  none
@@ -146,16 +124,19 @@ function build_default_entry(description, number_entry)
 function populate_options()
 {
     // read dropdowns
+    let page = page_dd.element.value
     let column = column_dd.element.value
     let type = type_dd.element.value
 
     // set options column appropriately
     let ops = new WRColumn()
-    if (column == 'New')
+    if (page === 'New')
     {
-        let is_cycle = new WRCheckbox('Is Cycle')
-        is_cycle.input_id = 'new-element-cycle'
-        ops.add_input(is_cycle)
+        builder = null
+    }
+    else if (column === 'New')
+    {
+        builder = new ColumnB()
     }
     else
     {
@@ -186,49 +167,45 @@ function populate_options()
                 builder = new SelectB()
                 break
             case 'Multiselect':
-                builder = new SelectB('multiselect')
+                builder = new MultiselectB()
                 break
             case 'Dropdown':
                 builder = new DropdownB()
                 break
         }
     }
-    let inputs = builder.build_inputs()
-    for (let i of inputs)
+    if (builder !== null)
     {
-        ops.add_input(i)
+        let inputs = builder.build_inputs()
+        for (let i of inputs)
+        {
+            ops.add_input(i)
+        }
     }
     ops.add_input(new WRButton('Add', create_element))
     options.replaceChildren(ops)
 }
 
 /**
- * function:    create_id_from_name
+ * Updates the ID entry by processing what is currently in the name entry.
+ */
+function update_id()
+{
+    let name = name_entry.element.value
+    id_entry.element.value = create_id_from_name(name)
+}
+
+/**
+ * function:    create_full_id
  * parameters:  parent id, name string
  * returns:     sanitized name
  * description: Sanitizes an input name so it can be used for the ID.
  */
-function create_full_id_from_name(parent, name)
+function create_full_id(parent, name)
 {
     let id = create_id_from_name(name)
 
     return `${parent}_${id}`
-}
-
-/**
- * function:    parse_list
- * parameters:  raw inputed list string
- * returns:     array of sanitized strings
- * description: Parses and sanatizes a comma separated list of strings.
- */
-function parse_list(list)
-{
-    let items = list.split(',').map(s => s.trim())
-    if (items.length === 1 && items[0] === '')
-    {
-        return []
-    }
-    return items
 }
 
 /** 
@@ -243,7 +220,7 @@ function create_element()
     let mode = mode_dd.element.selectedIndex
     let page = page_dd.element
     let column = column_dd.element
-    let type = type_dd.element.value
+    let id = id_entry.element.value
 
     // populate name and id
     let name = name_entry.element.value
@@ -257,21 +234,18 @@ function create_element()
         let parent = MODES[mode]
         let input = {
             name: name,
-            id: create_full_id_from_name(parent, name),
+            id: create_full_id(parent, id),
             columns: []
         }
-        console.log(input)
         config[mode].push(input)
     }
     else if (column.value == 'New')
     {
         let parent = config[mode][page.selectedIndex].id
-        let input = {
-            name: name,
-            id: create_full_id_from_name(parent, name),
-            cycle: document.getElementById('new-element-cycle').checked,
-            inputs: []
-        }
+        let input = builder.build_description()
+        input.name = name
+        input.id = create_full_id(parent, id)
+        input.inputs = []
         config[mode][page.selectedIndex].columns.push(input)
     }
     else
@@ -279,8 +253,7 @@ function create_element()
         let input = builder.build_description()
         let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
         input.name = name
-        input.id = create_full_id_from_name(parent, name)
-        console.log(input)
+        input.id = create_full_id(parent, id)
         config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
     }
 
