@@ -8,7 +8,7 @@
 
 const start = Date.now()
 
-var match_page, match_col, event_entry, teams_entry, teams_list, alliance_entry
+var match_page, match_col, event_entry, teams_entry, teams_list, alliance_entry, gen_elim_cb
 
 /**
  * function:    init_page
@@ -100,14 +100,9 @@ function populate_matches()
         let add_match_button = new WRButton('Add Match', add_match)
         blue_col.add_input(add_match_button)
 
-        let elim = new WRCheckbox('Elimination')
-        elim.input_id = 'gen_elim'
-        elim.on_click = update_titles
-        if (document.getElementById('gen_elim') !== null && document.getElementById('gen_elim').checked)
-        {
-            elim.value = true
-        }
-        red_col.add_input(elim)
+        gen_elim_cb = new WRCheckbox('Elimination', gen_elim_cb && gen_elim_cb.checked)
+        gen_elim_cb.on_click = update_titles
+        red_col.add_input(gen_elim_cb)
 
         cols = [red_col, blue_col]
     }
@@ -174,14 +169,14 @@ function generate_match_teams(num_teams, distribute=true)
 function generate_teams()
 {
     let teams = []
-    let team_nums = document.getElementById('team_list').value
-    let event_id = document.getElementById('event_id').value
+    let team_nums = team_list.element.value
+    let event_id = event_entry.element.value
     if (team_nums.includes(','))
     {
         return pull_teams(event_id, team_nums)
     }
     
-    let num_teams = document.getElementById('num_teams').value
+    let num_teams = num_teams.element.value
     for (let team_num = 1; team_num <= num_teams; team_num++)
     {
         teams.push({
@@ -318,7 +313,7 @@ function pull_teams(event_id, team_list)
  */
 function update_titles()
 {
-    let elim = document.getElementById('gen_elim').checked
+    let elim = gen_elim_cb && gen_elim_cb.checked
     if (elim)
     {
         let matches = Object.values(dal.matches).filter(m => m.comp_level === 'sf').sort((a, b) => a.set_number - b.set_number)
@@ -347,7 +342,7 @@ function update_titles()
                 blue = 7
                 break
             default:
-                document.getElementById('gen_elim').checked = false
+                gen_elim_cb.checked = false
                 update_titles()
                 alert("Cannot generate beyond elim match 4")
                 return
@@ -380,7 +375,7 @@ function add_match()
     }
     let matches = JSON.parse(file)
     let match_number = matches.length + 1
-    let elim = document.getElementById('gen_elim').checked
+    let elim = gen_elim_cb.checked
     if (elim)
     {
         let matches = Object.values(dal.matches).filter(m => m.comp_level === 'sf').sort((a, b) => a.set_number - b.set_number)
