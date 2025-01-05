@@ -37,7 +37,7 @@ const CONFIGS = {
         'Admin': ['reset', 'config-generator', 'export', 'random']
     },
     'advanced': {
-        'Configuration': ['settings', 'config-debug', 'export_config'],
+        'Configuration': ['settings', 'config-generator', 'config-debug', 'export_config'],
         'Schedule': ['schedule-importer', 'event-generator', 'scouter-scheduler', 'open_extras'],
         'Management': ['transfer-raw', 'progress', 'cache', 'storage'],
         'Reset': ['reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event']
