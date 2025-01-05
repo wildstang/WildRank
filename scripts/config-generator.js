@@ -5,13 +5,15 @@
  * date:        2020-12-08
  */
 
+include('input-builder')
+
 const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
 var config = Array(MODES.length).fill([])
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
-var mode_dd, page_dd, column_dd, type_dd, name_entry
+var mode_dd, page_dd, column_dd, type_dd, name_entry, builder
 var preview, options
 
 /**
@@ -110,20 +112,6 @@ function populate_dropdowns()
     build_page_from_config()
 }
 
-function build_negative_checkbox()
-{
-    let is_negative = new WRCheckbox('Negative')
-    is_negative.input_id = 'new-element-negative'
-    return is_negative
-}
-
-function build_disallow_checkbox()
-{
-    let disallow_default = new WRCheckbox('Disallow Default')
-    disallow_default.input_id = 'new-element-no-default'
-    return disallow_default
-}
-
 function build_options_entry()
 {
     let options = new WREntry('Options')
@@ -146,6 +134,7 @@ function build_default_entry(description, number_entry)
         def.type = 'number'
     }
     def.description = description
+    return def
 }
 
 /** 
@@ -170,80 +159,44 @@ function populate_options()
     }
     else
     {
-        let colors, images
         switch (type)
         {
             case 'Checkbox':
-                let is_default = new WRCheckbox('Default')
-                is_default.input_id = 'new-element-default'
-                ops.add_input(is_default)
-                ops.add_input(build_negative_checkbox())
-                ops.add_input(build_disallow_checkbox())
+                builder = new CheckboxB()
                 break
             case 'Slider':
-                let incr = new WREntry('Increment', '1')
-                incr.input_id = 'new-element-incr'
-                incr.type = 'number'
-                incr.description = 'The size of a single step.'
-                ops.add_input(incr)
+                builder = new SliderB()
+                break
             case 'Number':
-                let min = new WREntry('Min', '0')
-                min.input_id = 'new-element-min'
-                min.type = 'number'
-                min.description = 'The minimum allowed value.'
-                ops.add_input(min)
-                let max = new WREntry('Max', '10')
-                max.input_id = 'new-element-max'
-                max.type = 'number'
-                max.description = 'The maximum allowed value.'
-                ops.add_input(max)
+                builder = new NumberB()
+                break
             case 'Counter':
-                ops.add_input(build_default_entry('The default value displayed in the box.', true))
-                ops.add_input(build_negative_checkbox())
-                ops.add_input(build_disallow_checkbox())
+                builder = new CounterB()
                 break
             case 'String':
-                ops.add_input(build_default_entry('The default text displayed in the box, must not be empty.'))
-                ops.add_input(build_disallow_checkbox())
+                builder = new StringB()
                 break
             case 'Text':
-                let defe = new WRExtended('Default', '')
-                defe.input_id = 'new-element-default'
-                defe.description = 'The default text displayed in the box, must not be empty.'
-                ops.add_input(defe)
-                ops.add_input(build_disallow_checkbox())
+                builder = new TextB()
                 break
             case 'Multicounter':
-                ops.add_input(build_options_entry())
-                let neg = new WREntry('Negative')
-                neg.input_id = 'new-element-negative'
-                neg.description = 'A comma-separated list of true/false values for each counter.'
-                ops.add_input(neg)
-                ops.add_input(build_default_entry('The single default value for all counters.', true))
-                ops.add_input(build_disallow_checkbox())
+                builder = new MulticounterB()
                 break
             case 'Select':
+                builder = new SelectB()
+                break
             case 'Multiselect':
-                colors = new WREntry('Colors')
-                colors.input_id = 'new-element-colors'
-                colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
-                images = new WREntry('Images')
-                images.input_id = 'new-element-images'
-                images.description = 'A comma-separated list of image files available in /assets/, one for each option, all spaces will be deleted.'
+                builder = new SelectB('multiselect')
+                break
             case 'Dropdown':
-                ops.add_input(build_options_entry())
-                if (typeof colors !== 'undefined')
-                {
-                    ops.add_input(colors)
-                }
-                if (typeof images !== 'undefined')
-                {
-                    ops.add_input(images)
-                }
-                ops.add_input(build_default_entry('The default selected option, must exactly match that option.'))
-                ops.add_input(build_disallow_checkbox())
+                builder = new DropdownB()
                 break
         }
+    }
+    let inputs = builder.build_inputs()
+    for (let i of inputs)
+    {
+        ops.add_input(i)
     }
     ops.add_input(new WRButton('Add', create_element))
     options.replaceChildren(ops)
@@ -293,10 +246,7 @@ function create_element()
     let type = type_dd.element.value
 
     // populate name and id
-    let name = name_entry.value
-    let input = {
-        name: name
-    }
+    let name = name_entry.element.value
 
     // make an identical copy of the config for backup
     let backup = JSON.parse(JSON.stringify(config))
@@ -305,106 +255,33 @@ function create_element()
     if (page.value == 'New')
     {
         let parent = MODES[mode]
-        input.id = create_full_id_from_name(parent, name)
-        input.columns = []
+        let input = {
+            name: name,
+            id: create_full_id_from_name(parent, name),
+            columns: []
+        }
+        console.log(input)
         config[mode].push(input)
+    }
+    else if (column.value == 'New')
+    {
+        let parent = config[mode][page.selectedIndex].id
+        let input = {
+            name: name,
+            id: create_full_id_from_name(parent, name),
+            cycle: document.getElementById('new-element-cycle').checked,
+            inputs: []
+        }
+        config[mode][page.selectedIndex].columns.push(input)
     }
     else
     {
-        if (column.value == 'New')
-        {
-            let parent = config[mode][page.selectedIndex].id
-            input.id = create_full_id_from_name(parent, name)
-            input.cycle = document.getElementById('new-element-cycle').checked
-            input.inputs = []
-            config[mode][page.selectedIndex].columns.push(input)
-        }
-        else
-        {
-            let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
-            input.id = create_full_id_from_name(parent, name)
-            input.type = type.toLowerCase()
-            if (document.getElementById('new-element-no-default').checked)
-            {
-                input.disallow_default = true
-            }
-            let ops = []
-            switch (type)
-            {
-                case 'Checkbox':
-                    input.default = document.getElementById('new-element-default').checked
-                    input.negative = document.getElementById('new-element-negative').checked
-                    break
-                case 'Slider':
-                    let incr = document.getElementById('new-element-incr').value
-                    if (incr === '')
-                    {
-                        incr = '1'
-                    }
-                    ops = [ parseInt(incr) ]
-                case 'Number':
-                    let min = document.getElementById('new-element-min').value
-                    let max = document.getElementById('new-element-max').value
-                    if (min === '')
-                    {
-                        min = '0'
-                    }
-                    if (max === '')
-                    {
-                        max = '10'
-                    }
-                    ops = [ parseInt(min), parseInt(max) ].concat(ops)
-                    input.options = ops
-                case 'Counter':
-                    let def = document.getElementById('new-element-default').value
-                    if (def === '')
-                    {
-                        def = '0'
-                    }
-                    input.default = parseInt(def)
-                    input.negative = document.getElementById('new-element-negative').checked
-                    break
-                case 'Time':
-                    input.negative = document.getElementById('new-element-negative').checked
-                    break
-                case 'Multicounter':
-                    input.negative = parse_list(document.getElementById('new-element-negative').value).map(n => n.toLowerCase() === 'true')
-                case 'Select':
-                case 'Multiselect':
-                    if (type !== 'Multicounter')
-                    {
-                        input.colors = parse_list(document.getElementById('new-element-colors').value)
-                        input.images = parse_list(document.getElementById('new-element-images').value)
-                    }
-                case 'Dropdown':
-                    input.options = parse_list(document.getElementById('new-element-options').value)
-                case 'String':
-                case 'Text':
-                    input.default = document.getElementById('new-element-default').value
-                    if (type === 'Multiselect')
-                    {
-                        input.default = input.default.split(',').map(d => d.toLowerCase() === 'true')
-                        while (input.default.length < input.options.length)
-                        {
-                            input.default.push(false)
-                        }
-                    }
-            }
-            if (type == 'Multicounter')
-            {
-                if (input.default == '')
-                {
-                    input.default = '0'
-                }
-                input.default = parseInt(input.default)
-            }
-            if ((type == 'String' || type == 'Text') && input.default === '')
-            {
-                input.default = 'N/A'
-            }
-            console.log(input)
-            config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
-        }
+        let input = builder.build_description()
+        let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
+        input.name = name
+        input.id = create_full_id_from_name(parent, name)
+        console.log(input)
+        config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
     }
 
     // preserve change for after populate_dropdowns
@@ -467,6 +344,7 @@ function save_config()
 {
     for (let i in MODES)
     {
+        console.log(config[i])
         localStorage.setItem(`config-${cfg.year}-${MODES[i]}`, JSON.stringify(config[i]))
     }
     cfg.load_configs(2)
@@ -796,6 +674,6 @@ function shift(id, direction)
  */
 function reset_config()
 {
-    config = [[], []]
+    config = Array(MODES.length).fill([])
     populate_dropdowns()
 }
