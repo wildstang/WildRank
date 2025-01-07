@@ -75,22 +75,22 @@ async function populate_page()
     }
     else
     {
-        let card = new Card('table', 'No caches found')
+        let card = new WRCard('No caches found')
 
-        let button_col = new ColumnFrame()
-        button_col.add_input(new Button('cache_pics', 'Cache Pictures', 'cache_pics()'))
-        button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
+        let button_col = new WRColumn()
+        button_col.add_input(new WRButton('Cache Pictures', cache_pics))
+        button_col.add_input(new WRButton('Update App from Zip', import_from_zip))
     
-        let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
-        body.replaceChildren(page.element)
+        let page = new WRPage('', [new WRColumn('', [card]), button_col])
+        body.replaceChildren(page)
     }
 }
 
 async function build_table(names, expected_files=[])
 {
-    let button_col = new ColumnFrame()
-    button_col.add_input(new Button('cache_pics', 'Cache Pictures', 'cache_pics()'))
-    button_col.add_input(new Button('import_app', 'Update App from Zip', 'import_from_zip()'))
+    let button_col = new WRColumn()
+    button_col.add_input(new WRButton('Cache Pictures', cache_pics))
+    button_col.add_input(new WRButton('Update App from Zip', import_from_zip))
 
     let server = parse_server_addr(document.location.href)
 
@@ -182,11 +182,11 @@ async function build_table(names, expected_files=[])
         }
         header.insertCell().innerText = hash(cache_str)
 
-        let card = new Card('table', table)
-        let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
-        button_col.add_input(new Button(`purge_${name}`, `Purge ${name}`, `purge_cache('${name}')`))
+        let card = new WRCard(table)
+        let page = new WRPage('', [new WRColumn('', [card]), button_col])
+        button_col.add_input(new WRButton(`Purge ${name}`, () => purge_cache(name)))
 
-        body.replaceChildren(page.element)
+        body.replaceChildren(page)
     }
 }
 

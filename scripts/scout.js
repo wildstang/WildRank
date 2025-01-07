@@ -21,6 +21,8 @@ const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
 var edit = urlParams.get('edit') == 'true'
 
+var unsure
+
 /**
  * function:    init_page
  * parameters:  none
@@ -93,10 +95,10 @@ function check_for_last_page()
     let carousel = document.getElementById('scouting-carousel')
     let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
     let view_start = Math.ceil(carousel.scrollLeft)
-    if (view_start >= final_page && document.getElementById('submit') === null)
+    if (view_start >= final_page && document.getElementById('submit_container').childElementCount === 0)
     {
-        let submit = new Button('submit', 'Submit', 'get_results_from_page()')
-        document.getElementById('submit_container').append(submit.element)
+        let submit = new WRButton('Submit', get_results_from_page)
+        document.getElementById('submit_container').replaceChildren(submit)
     }
 }
 
@@ -113,7 +115,7 @@ function build_page_from_config()
     carousel.onscroll = check_for_last_page
     for (let page of cfg[scout_mode])
     {
-        let page_frame = new PageFrame(page.id, page.name)
+        let page_frame = new WRPage(page.name)
         // iterate through each column in the page
         for (let column of page.columns)
         {
@@ -136,24 +138,24 @@ function build_page_from_config()
                 }
 
                 // create cycle counter, call update_cycle() on change
-                let cycler = new Cycler(`${column.id}_cycles`, 'Cycles', cycles[column.id].length)
+                let cycler = new WRCycler('Cycles', cycles[column.id].length)
+                cycler.input_id = column.id
                 if (cycle)
                 {
-                    cycler.on_increment = `update_cycle('${column.id}', false)`
-                    cycler.on_decrement = `update_cycle('${column.id}', true)`
+                    cycler.on_advance = update_cycle
                 }
                 col_frame.add_input(cycler)
                 col_frame.add_class('cycle')
             }
             page_frame.add_column(col_frame)
         }
-        carousel.append(page_frame.element)
+        carousel.append(page_frame)
     }
 
-    let unsure = new Checkbox('unsure', `Unsure of Results`)
+    unsure = new WRCheckbox(`Unsure of Results`)
     let submit = create_element('span', 'submit_container')
-    let page_options = new PageFrame('', '', [new ColumnFrame('', '', [unsure]), new ColumnFrame('', '', [submit])])
-    body.replaceChildren(carousel, page_options.element)
+    let page_options = new WRPage('', [new WRColumn('', [unsure]), new WRColumn('', [submit])])
+    body.replaceChildren(carousel, page_options)
     check_for_last_page()
 }
 
@@ -166,8 +168,7 @@ function build_page_from_config()
 function update_cycle(cycle, decrement)
 {
     // get selected and total number of cycles
-    let cycles_id = `${cycle}_cycles-value`
-    let counter = document.getElementById(cycles_id)
+    let counter = document.getElementById(cycle)
     let cycle_num = parseInt(counter.innerText)
     let saved_cycles = cycles[cycle].length
 
@@ -194,7 +195,6 @@ function update_cycle(cycle, decrement)
                     let cid = check_column(column, scout_mode, '', '', alliances)
                     if (cid)
                     {
-                        counter.innerText = cycle_num - 1
                         document.getElementById(cid).style['background-color'] = '#FFF2A8'
                         let container = document.getElementById(`${cid}-container`)
                         if (container !== null)
@@ -217,7 +217,6 @@ function update_cycle(cycle, decrement)
                         {
                             container.style['background-color'] = '#FFF2A8'
                         }
-                        counter.innerText = cycle_num + 1
                         return false
                     }
                 }
@@ -247,7 +246,7 @@ function update_cycle(cycle, decrement)
                             }
                             else
                             {
-                                values = ops.map(op => existing_result[`${id}_${op.toLowerCase().split().join('_')}`])
+                                values = ops.map(op => existing_result[`${id}_${create_id_from_name(op)}`])
                             }
                             set_input_value(input, values)
                             break
@@ -317,7 +316,7 @@ function get_results_from_page()
     if (cid)
     {
         document.getElementById(cid).style['background-color'] = '#FFF2A8'
-        let container = document.getElementById(`${cid}-container`)
+        let container = document.getElementById(cid).parentElement.parentElement
         if (container !== null)
         {
             container.style['background-color'] = '#FFF2A8'
@@ -350,11 +349,11 @@ function get_results_from_page()
     results['meta_app_version'] = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
     if (scout_mode === MATCH_MODE)
     {
-        results['meta_unsure'] = document.getElementById('unsure').checked
+        results['meta_unsure'] = unsure.checkbox.checked
     }
     else if (scout_mode === PIT_MODE)
     {
-        results['meta_pit_unsure'] = document.getElementById('unsure').checked
+        results['meta_pit_unsure'] = unsure.checkbox.checked
     }
 
     // scouting metadata
@@ -383,7 +382,7 @@ function get_results_from_page()
             if (column.cycle)
             {
                 let cs = cycles[column.id]
-                let val = cs.length - parseInt(document.getElementById(`${column.id}_cycles-value`).innerHTML)
+                let val = cs.length - parseInt(document.getElementById(column.id).innerHTML)
                 if (val > 0)
                 {
                     if (!confirm(`Are you sure you want to dispose of ${val} cycles (${column.id})`))
@@ -401,6 +400,7 @@ function get_results_from_page()
         }
     }
 
+    console.log(results)
     if (!confirm('Are you sure you want to submit?'))
     {
         return

@@ -7,7 +7,7 @@
 
 const start = Date.now()
 
-var match_col
+var match_col, red_col, blue_col
 
 /**
  * Function used by the application to initialize the custom match page.
@@ -18,11 +18,10 @@ function init_page()
     header_info.innerHTML = 'Custom Match'
 
     match_col = document.createElement('div')
-    let match_page = new PageFrame('match', 'Match')
-    match_page.add_column(match_col)
+    let match_page = new WRPage('New Match', [match_col])
 
     // build page
-    body.replaceChildren(match_page.element)
+    body.replaceChildren(match_page)
 
     populate_matches()
 }
@@ -35,27 +34,28 @@ function populate_matches()
     let teams = Object.keys(dal.teams)
 
     let cols = []
-    if (teams.length > 0)
+    if (teams.length > dal.max_alliance_size * 2)
     {
-        let red_col = new ColumnFrame('', 'Red Teams')
-        let blue_col = new ColumnFrame('', 'Blue Teams')
+        red_col = new WRColumn('Red Teams')
+        blue_col = new WRColumn('Blue Teams')
 
         for (let pos = 0; pos < dal.max_alliance_size; pos++)
         {
-            let red = new Dropdown(`red_${pos}`, `Red ${pos+1}`, teams, teams[pos])
-            let blue = new Dropdown(`blue_${pos}`, `Blue ${pos+1}`, teams, teams[pos + dal.max_alliance_size])
-            red_col.add_input(red)
-            blue_col.add_input(blue)
+            red_col.add_input(new WRDropdown(`Red ${pos+1}`, teams, teams[pos]))
+            blue_col.add_input(new WRDropdown(`Blue ${pos+1}`, teams, teams[pos + dal.max_alliance_size]))
         }
 
-        let custom = new Button('return', 'Return to Coach')
-        custom.link = `open_page('coach')`
+        let custom = new WRLinkButton('Return to Coach', open_page('coach'))
         blue_col.add_input(custom)
 
-        let add_match = new Button('add_match', 'Add Match', 'add_match()')
-        red_col.add_input(add_match)
+        let add_match_button = new WRButton('Add Match', add_match)
+        red_col.add_input(add_match_button)
 
-        cols = [blue_col.element, red_col.element]
+        cols = [blue_col, red_col]
+    }
+    else
+    {
+        cols.push(new WRCard('Not enough teams'))
     }
     match_col.replaceChildren(...cols)
 }
@@ -77,8 +77,8 @@ function add_match()
     let blue_teams = []
     for (let pos = 0; pos < dal.max_alliance_size; pos++)
     {
-        red_teams.push(`frc${document.getElementById(`red_${pos}`).value}`)
-        blue_teams.push(`frc${document.getElementById(`blue_${pos}`).value}`)
+        red_teams.push('frc' + red_col.inputs[pos].element.value)
+        blue_teams.push('frc' + blue_col.inputs[pos].element.value)
     }
 
     if ([...new Set(red_teams.concat(blue_teams))].length < dal.max_alliance_size * 2)

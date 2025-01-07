@@ -33,7 +33,7 @@ function init_page()
     }
 
     let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
-    add_button_filter('transfer', `Export ${capitalize(scout_mode)} Results`, `export_results()`, true)
+    add_button_filter(`Export ${capitalize(scout_mode)} Results`, export_results, true)
     if (first)
     {
         match_num_el = document.createElement('h2')
@@ -66,8 +66,8 @@ function init_page()
         card_elements.push(team, photos_el)
 
         buttons = document.createElement('div')
-        let card = new Card('contents_card', card_elements)
-        preview.append(card.element, buttons)
+        let card = new WRCard(card_elements)
+        preview.append(card, buttons)
 
         open_option(first)
     }
@@ -85,6 +85,7 @@ function init_page()
  */
 function open_option(match_num)
 {
+    console.log(match_num)
     // clear previous selection
     deselect_all()
     if (document.getElementById('open_result_container') !== null)
@@ -94,7 +95,7 @@ function open_option(match_num)
     buttons.replaceChildren()
 
     // select option
-    document.getElementById(`match_option_${match_num}`).classList.add('selected')
+    document.getElementById(`left_match_option_${match_num}`).classList.add('selected')
 
     let red_teams = dal.get_match_value(match_num, 'red_alliance')
     let teams = red_teams.concat(dal.get_match_value(match_num, 'blue_alliance'))
@@ -124,39 +125,34 @@ function open_option(match_num)
         team_pos_el.style.color = color
 
         // build buttons
-        let scout_button = new Button('scout_match', 'Scout Match')
         let key = match_num.toLowerCase()
-        scout_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: false})`
-        buttons.append(scout_button.element)
+        let scout_button = new WRLinkButton('Scout Match', open_page('scout', {type: MATCH_MODE, match: key, team: team_num, alliance: alliance, edit: false}))
+        buttons.append(scout_button)
 
         if (dal.is_match_scouted(match_num, team_num))
         {
-            let page = new PageFrame()
+            let page = new WRPage()
 
-            let result_button = new Button('view_result', 'View Result')
-            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
+            let result_button = new WRLinkButton('View Result', open_page('results', {'file': `${key}-${team_num}`}))
             result_button.add_class('slim')
-            page.add_column(new ColumnFrame('', '', [result_button]))
+            page.add_column(new WRColumn('', [result_button]))
 
             if (can_edit(match_num, team_num))
             {
-                let edit_button = new Button('edit_match', 'Edit Match')
-                edit_button.link = `open_page('scout', {type: '${MATCH_MODE}', match: '${key}', team: '${team_num}', alliance: '${alliance}', edit: true})`
+                let edit_button = new WRLinkButton('Edit Match', open_page('scout', {type: MATCH_MODE, match: key, team: team_num, alliance: alliance, edit: true}))
                 edit_button.add_class('slim')
-                page.add_column(new ColumnFrame('', '', [edit_button]))
+                page.add_column(new WRColumn('', [edit_button]))
 
-                let renumber = new Button('renumber', 'Renumber Result')
-                renumber.link = `renumber_match('${key}', '${team_num}')`
+                let renumber = new WRButton('Renumber Result', () => renumber_match(key, team_num))
                 renumber.add_class('slim')
-                page.add_column(new ColumnFrame('', '', [renumber]))
+                page.add_column(new WRColumn('', [renumber]))
         
-                let del = new Button('delete', 'Delete Result')
-                del.link = `delete_result('${key}', '${team_num}')`
+                let del = new WRButton('Delete Result', () => delete_result(key, team_num))
                 del.add_class('slim')
-                page.add_column(new ColumnFrame('', '', [del]))
+                page.add_column(new WRColumn('', [del]))
             }
 
-            buttons.append(page.element)
+            buttons.append(page)
         }
 
         ws(team_num)
@@ -170,39 +166,34 @@ function open_option(match_num)
         team_pos_el.style.color = color
 
         // build buttons
-        let scout_button = new Button('scout_match', 'Take Notes')
         let key = match_num.toLowerCase()
-        scout_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: false})`
-        buttons.append(scout_button.element)
+        let scout_button = new WRLinkButton('Take Notes', open_page('note', {match: key, alliance: alliance, edit: false}))
+        buttons.append(scout_button)
 
         if (dal.is_note_scouted(match_num, team_num))
         {
-            let page = new PageFrame()
+            let page = new WRPage()
 
-            let result_button = new Button('view_result', 'View Result')
-            result_button.link = `open_page('results', {'file': '${key}-${team_num}'})`
+            let result_button = new WRLinkButton('View Result', open_page('results', {'file': `${key}-${team_num}`}))
             result_button.add_class('slim')
-            page.add_column(new ColumnFrame('', '', [result_button]))
+            page.add_column(new WRColumn('', [result_button]))
 
             if (can_edit(match_num, team_num))
             {
-                let edit_button = new Button('edit_match', 'Edit Notes')
-                edit_button.link = `open_page('note', {match: '${key}', alliance: '${alliance}', edit: true})`
+                let edit_button = new WRLinkButton('Edit Notes', open_page('note', {match: key, alliance: alliance, edit: true}))
                 edit_button.add_class('slim')
-                page.add_column(new ColumnFrame('', '', [edit_button]))
+                page.add_column(new WRColumn('', [edit_button]))
 
-                let renumber = new Button('renumber', 'Renumber Result')
-                renumber.link = `renumber_note('${key}', '${alliance}')`
+                let renumber = new WRButton('Renumber Result', () => renumber_note(key, alliance))
                 renumber.add_class('slim')
-                page.add_column(new ColumnFrame('', '', [renumber]))
+                page.add_column(new WRColumn('', [renumber]))
         
-                let del = new Button('delete', 'Delete Result')
-                del.link = `delete_result('${key}', '${team_num}')`
+                let del = new WRButton('Delete Result', () => delete_result(key, team_num))
                 del.add_class('slim')
-                page.add_column(new ColumnFrame('', '', [del]))
+                page.add_column(new WRColumn('', [del]))
             }
 
-            buttons.append(page.element)
+            buttons.append(page)
         }
     }
 }

@@ -65,6 +65,7 @@ body {
 }
 
 .pit_option {
+    display: block;
     overflow: hidden;
     clear: both;
     font-size: 16px;
@@ -76,6 +77,7 @@ body {
 }
 
 .match_option {
+    display: block;
     margin-bottom: 0;
     overflow: hidden;
     clear: both;
@@ -198,12 +200,12 @@ body {
     text-align: right;
 }
 
-.selection_filter > span > .wr_button {
+.selection_filter > wr-button > .wr_button {
     width: calc(299px - 2*var(--input-padding));
     margin: 4px auto;
 }
 
-.selection_filter > span > .wr_dropdown {
+.selection_filter > wr-dropdown > .wr_dropdown {
     width: 299px;
     margin: 4px auto;
 }

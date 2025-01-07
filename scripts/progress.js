@@ -143,27 +143,27 @@ function init_page()
     }
 
     // add both tables to the page in cards
-    let page = new PageFrame('', '')
+    let page = new WRPage()
 
-    let pit = new ColumnFrame('pit_page', 'Pit Progress')
+    let pit = new WRColumn('Pit Progress')
     page.add_column(pit)
-    let pit_card = new Card('pits', pit_table)
+    let pit_card = new WRCard(pit_table)
     pit.add_input(pit_card)
     
-    let import_all = new Button('import', 'Import All Results', 'import_results()')
+    let import_all = new WRButton('Import All Results', import_results)
     pit.add_input(import_all)
     
-    let export_all = new Button('export', 'Export All Results', 'export_results()')
+    let export_all = new WRButton('Export All Results', export_results)
     pit.add_input(export_all)
 
-    let match = new ColumnFrame('match_page', 'Match Progress')
+    let match = new WRColumn('Match Progress')
     page.add_column(match)
     let match_content = document.createElement('span')
     match_content.append(key, match_table)
-    let match_card = new Card('matches', match_content)
+    let match_card = new WRCard(match_content)
     match.add_input(match_card)
 
-    body.replaceChildren(page.element)
+    body.replaceChildren(page)
 }
 
 /**

@@ -11,6 +11,8 @@ const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 const start = Date.now()
 
+var type_form, user_form, pos_form, min_value, max_value
+
 /**
  * function:    init_page
  * parameters:  none
@@ -25,38 +27,37 @@ function init_page()
     // load in and count qualification matches
     let count = Object.keys(dal.matches).length
 
-    let page = new PageFrame('', '')
-    let left_col = new ColumnFrame('', '')
+    let page = new WRPage()
+    let left_col = new WRColumn()
     page.add_column(left_col)
-    let right_col = new ColumnFrame('', '')
+    let right_col = new WRColumn()
     page.add_column(right_col)
 
-    let type_form = new Select('type_form', 'Mode', MODES.map(m => capitalize(m)), 'Match')
-    type_form.on_change = 'hide_buttons()'
+    type_form = new WRSelect('Mode', MODES.map(m => capitalize(m)), 'Match')
+    type_form.on_change = hide_buttons
     left_col.add_input(type_form)
 
-    let user_form = new Entry('user_id', 'School ID', user_id)
+    user_form = new WREntry('School ID', user_id)
     user_form.bounds = [100000, 999999]
     user_form.type = 'number'
     left_col.add_input(user_form)
 
-    let pos_form = new Dropdown('position', 'Position', ['All'].concat(Object.values(dal.get_team_keys())))
+    pos_form = new WRDropdown('Position', ['All'].concat(Object.values(dal.get_team_keys())))
     right_col.add_input(pos_form)
 
-    let min_value = new Entry('min_value', 'First Match', 1)
+    min_value = new WREntry('First Match', 1)
     min_value.type = 'number'
     right_col.add_input(min_value)
 
-    let max_value = new Entry('max_value', 'Last Match', count)
+    max_value = new WREntry('Last Match', count)
     max_value.type = 'number'
     right_col.add_input(max_value)
 
-    let generate = new Button('generate', 'Generate Results')
-    generate.on_click = 'create_results()'
+    let generate = new WRButton('Generate Results', create_results)
     right_col.add_input(generate)
 
     // build page
-    body.append(page.element)
+    body.append(page)
     hide_buttons()
 }
 
@@ -68,20 +69,20 @@ function init_page()
  */
 function hide_buttons()
 {
-    let mode = MODES[Select.get_selected_option('type_form')]
+    let mode = MODES[type_form.selected_index]
     if (mode === PIT_MODE)
     {
-        document.getElementById('min_value_label').innerText = 'First Team'
-        document.getElementById('max_value_label').innerText = 'Last Team'
-        document.getElementById('min_value').value = 1
-        document.getElementById('max_value').value = Math.max(...Object.keys(dal.teams))
+        min_value.label_el.innerText = 'First Team'
+        max_value.label_el.innerText = 'Last Team'
+        min_value.element.value = 1
+        max_value.element.value = Math.max(...Object.keys(dal.teams))
     }
     else if (mode === MATCH_MODE || mode == NOTE_MODE)
     {
-        document.getElementById('min_value_label').innerText = 'First Match'
-        document.getElementById('max_value_label').innerText = 'Last Match'
-        document.getElementById('min_value').value = 1
-        document.getElementById('max_value').value = Math.max(...Object.values(dal.matches).map(m => m.match_number))
+        min_value.label_el.innerText = 'First Match'
+        max_value.label_el.innerText = 'Last Match'
+        min_value.element.value = 1
+        max_value.element.value = Math.max(...Object.values(dal.matches).map(m => m.match_number))
     }
 }
 
@@ -94,11 +95,11 @@ function hide_buttons()
 function create_results()
 {
     // load in appropriate config
-    let mode = MODES[Select.get_selected_option('type_form')]
-    let pos = document.getElementById('position').selectedIndex
+    let mode = MODES[type_form.selected_index]
+    let pos = pos_form.element.selectedIndex
 
-    let min = parseInt(document.getElementById('min_value').value)
-    let max = parseInt(document.getElementById('max_value').value)
+    let min = min_value.element.value
+    let max = max_value.element.value
     if (mode === PIT_MODE)
     {
         // filter out and generate for each selected team
@@ -211,7 +212,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                             case 'multiselect':
                                 for (let i in options)
                                 {
-                                    let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                    let name = `${id}_${create_id_from_name(options[i])}`
                                     c[name] = res[i]
                                 }
                                 break
@@ -239,7 +240,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                         case 'multiselect':
                             for (let i in options)
                             {
-                                let name = `${id}_${options[i].toLowerCase().split().join('_')}`
+                                let name = `${id}_${create_id_from_name(options[i])}`
                                 results[name] = res[i]
                             }
                             break

@@ -81,9 +81,9 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             }
 
             // build match name
-            let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
+            let option = new WRMatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams, !secondary)
             option.add_class(scouted)
-            document.getElementById(list).append(option.element)
+            document.getElementById(list).append(option)
         }
     }
     // default to first match if no first was selected
@@ -91,10 +91,10 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
     {
         first = first_avail
     }
-    
+
     if (first !== '')
     {
-        scroll_to(list, `match_option_${first}`)
+        scroll_to(list, WROption.get_id(!secondary, 'match_option', first))
     }
     return first
 }
@@ -141,13 +141,14 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         }
         
         // replace placeholders in template and add to screen
-        let op = new DescriptiveOption(number, number, name)
+        let op = new WRDescriptiveOption(number, number, name)
         op.add_class(scouted)
-        document.getElementById('option_list').append(op.element)
+        document.getElementById('option_list').append(op)
         if (secondary)
         {
-            op.primary_list = false
-            document.getElementById('secondary_option_list').append(op.element)
+            let op = new WRDescriptiveOption(number, number, name, false)
+            op.add_class(scouted)
+            document.getElementById('secondary_option_list').append(op)
         }
     }
 
@@ -167,11 +168,11 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
 
     if (first !== '')
     {
-        scroll_to('option_list', `pit_option_${first}`)
+        scroll_to('option_list', `left_pit_option_${first}`)
         if (secondary && second !== '')
         {
             enable_secondary_list()
-            scroll_to('secondary_option_list', `soption_${first}`)
+            scroll_to('secondary_option_list', `right_pit_option_${first}`)
             return [first, second]
         }
     }
@@ -202,9 +203,9 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
         // iterate through result keys
         for (let key of keys)
         {
-            let op = new Option(key, dal.meta[key].name)
+            let op = new WROption(key, dal.meta[key].name)
             op.style = 'font-size:10px'
-            document.getElementById('option_list').append(op.element)
+            document.getElementById('option_list').append(op)
         }
         
         // add second option list of teams
@@ -212,9 +213,8 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
         for (let team of teams)
         {
             let name = dal.get_value(team, 'meta.name')
-            let op = new DescriptiveOption(team, team, name)
-            op.primary_list = false
-            document.getElementById('secondary_option_list').append(op.element)
+            let op = new WRDescriptiveOption(team, team, name, false)
+            document.getElementById('secondary_option_list').append(op)
         }
 
         enable_secondary_list()
@@ -250,11 +250,13 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
         // iterate through result keys
         for (let key of keys)
         {
-            let op = new Option(key, dal.meta[key].name)
-            op.style = 'font-size:10px'
-            document.getElementById('option_list').append(op.element)
-            op.primary_list = false
-            document.getElementById('secondary_option_list').append(op.element)
+            let left_op = new WROption(key, dal.meta[key].name, true)
+            left_op.style = 'font-size:10px'
+            document.getElementById('option_list').append(left_op)
+
+            let right_op = new WROption(key, dal.meta[key].name, false)
+            right_op.style = 'font-size:10px'
+            document.getElementById('secondary_option_list').append(right_op)
         }
 
         enable_secondary_list()
@@ -298,18 +300,18 @@ function populate_other(options, classes={})
 
             // replace placeholders in template and add to screen
             let name = typeof names !== 'undefined' ? names[op] : op
-            let option = new Option(op, name)
+            let option = new WROption(op, name)
             if (classes.hasOwnProperty(op) && classes[op] !== '')
             {
                 option.add_class(classes[op])
             }
-            option_list.push(option.element)
+            option_list.push(option)
         }
         document.getElementById('option_list').replaceChildren(...option_list)
 
         if (first !== '')
         {
-            scroll_to('option_list', `pit_option_${first}`)
+            scroll_to('option_list', `left_pit_option_${first}`)
         }
         return first
     }
@@ -337,16 +339,17 @@ function select_none()
  * returns:     none
  * description: Builds a dropdown in a given filter box.
  */
-function add_dropdown_filter(filter_id, options, func, primary_list=true, default_selection='')
+function add_dropdown_filter(options, func, primary_list=true, default_selection='')
 {
     let id = 'filter'
     if (!primary_list)
     {
         id = 'secondary_filter'
     }
-    let dropdown = new Dropdown(filter_id, '', options, default_selection)
+    let dropdown = new WRDropdown('', options, default_selection)
     dropdown.on_change = func
-    document.getElementById(id).append(dropdown.element)
+    document.getElementById(id).append(dropdown)
+    return dropdown
 }
 
 /**
@@ -355,15 +358,15 @@ function add_dropdown_filter(filter_id, options, func, primary_list=true, defaul
  * returns:     none
  * description: Builds a button in a given filter box.
  */
-function add_button_filter(filter_id, text, func, primary_list=true)
+function add_button_filter(text, func, primary_list=true)
 {
     let id = 'filter'
     if (!primary_list)
     {
         id = 'secondary_filter'
     }
-    let button = new Button(filter_id, text, func)
-    document.getElementById(id).append(button.element)
+    let button = new WRButton(text, func)
+    document.getElementById(id).append(button)
 }
 
 /**
@@ -378,6 +381,6 @@ function add_error_card(message, description='')
     header.textContent = message
     let details = document.createElement('span')
     details.textContent = description
-    let card = new Card('contents_card', [header, details])
-    preview.append(card.element)
+    let card = new WRCard([header, details])
+    preview.append(card)
 }

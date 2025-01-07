@@ -8,6 +8,8 @@
 
 var users = {}
 
+var id_number, name_entry, user_card, admin_box, position_dropdown, pos_card, time_card, pit_card
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -54,6 +56,39 @@ function init_page()
         }
         users.sort()
 
+
+        // user column
+        id_number = new WRNumber('ID Number', '')
+        name_entry = new WREntry('User\'s Name', '')
+        user_card = document.createElement('span')
+        let card = new WRCard(user_card)
+        card.limitWidth = true
+        admin_box = new WRCheckbox('Admin', false)
+        position_dropdown = new WRDropdown('Default Position', [''])
+        for (let i = 1; i <= dal.alliance_size * 2; i++)
+        {
+            let color = 'Red'
+            let pos = i
+            if (i > dal.alliance_size)
+            {
+                color = 'Blue'
+                pos = i - dal.alliance_size
+            }
+            position_dropdown.add_option(`${color} ${pos}`)
+        }
+        let save = new WRButton('Apply Changes', save_user)
+        let user_col = new WRColumn('', [id_number, name_entry, card, admin_box, position_dropdown, save])
+
+        // info column
+        pos_card = new WRCard()
+        pos_card.limitWidth = true
+        time_card = new WRCard()
+        pit_card = new WRCard()
+        pit_card.limitWidth = true
+        let card_col = new WRColumn('', [pos_card, time_card, pit_card])
+
+        preview.replaceChildren(new WRPage('', [user_col, card_col]))
+
         let first = populate_other(users, classes)
         if (first !== '')
         {
@@ -81,7 +116,7 @@ function open_option(user_id)
 
     // select option
     deselect_all()
-    document.getElementById(`pit_option_${user_id}`).classList.add('selected')
+    document.getElementById(`left_pit_option_${user_id}`).classList.add('selected')
 
     // get user's results
     let matches = dal.get_results([], false).filter(m => m.meta_scouter_id === user_id)
@@ -181,62 +216,42 @@ function open_option(user_id)
         row.insertCell().innerText = pos_counts[pos]
     }
 
-    // user column
-    let name = new Entry('name', 'User\'s Name', cfg.get_name(user_id))
-    let user = document.createElement('span')
     let num_matches = document.createElement('b')
     num_matches.innerText = matches.length
     let num_notes = document.createElement('b')
     num_notes.innerText = notes.length / 3
     let num_pits = document.createElement('b')
     num_pits.innerText = pits.length
-    user.append('has scouted:', br(), ' - ', num_matches, ' matches', br(), ' - ', num_notes, ' notes', br(), ' - ', num_pits, ' pits')
-    let card = new Card('user_card', user)
-    card.limitWidth = true
-    let admin = new Checkbox('admin', 'Admin', cfg.is_admin(user_id))
-    let position = new Dropdown('position', 'Default Position', [''])
-    for (let i = 1; i <= dal.alliance_size * 2; i++)
-    {
-        let color = 'Red'
-        let pos = i
-        if (i > dal.alliance_size)
-        {
-            color = 'Blue'
-            pos = i - dal.alliance_size
-        }
-        position.add_option(`${color} ${pos}`)
-    }
+    user_card.replaceChildren('has scouted:', br(), ' - ', num_matches, ' matches', br(), ' - ', num_notes, ' notes', br(), ' - ', num_pits, ' pits')
+
+    id_number.value_el.innerText = user_id
+    name_entry.element.value = cfg.get_name(user_id)
+    admin_box.set_checked(cfg.is_admin(user_id))
     let pos = cfg.get_position(user_id) + 1
-    position.value = position.options[pos]
-    let save = new Button('save', 'Apply Changes', `save_user('${user_id}')`)
-    let user_col = new ColumnFrame('', '', [name, card, admin, position, save])
+    position_dropdown.element.value = position_dropdown.options[pos]
 
-    // info column
-    let pos_card = new Card('pos_card', pos_table)
-    pos_card.limitWidth = true
-    let time_card = new Card('time_card', time_table)
-    let pit_card = new Card('pit_card', pit_table)
-    pit_card.limitWidth = true
-    let card_col = new ColumnFrame('', '', [pos_card, time_card, pit_card])
-
-    preview.replaceChildren(new PageFrame('', '', [user_col, card_col]).element)
+    pos_card.text_el.replaceChildren(pos_table)
+    time_card.text_el.replaceChildren(time_table)
+    pit_card.text_el.replaceChildren(pit_table)
 }
 
 /**
  * function:    save_user
- * parameters:  user_id
+ * parameters:  none
  * returns:     none
  * description: Saves the user inputs to the config.
  */
-function save_user(user_id)
+function save_user()
 {
+    let user_id = id_number.value_el.innerText
+
     let user = {
-        name: document.getElementById('name').value,
-        admin: document.getElementById('admin').checked
+        name: name_entry.element.value,
+        admin: admin_box.checkbox.checked
     }
 
     // add position if selected
-    let position = document.getElementById('position').selectedIndex - 1
+    let position = position_dropdown.element.selectedIndex - 1
     if (position >= 0)
     {
         user.position = position

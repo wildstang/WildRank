@@ -5,11 +5,16 @@
  * date:        2020-12-08
  */
 
+include('input-builder')
+
 const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
 var config = Array(MODES.length).fill([])
 
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
+
+var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry
+var preview, options
 
 /**
  * function:    init_page
@@ -32,33 +37,34 @@ function init_page()
 function build_page()
 {
     let mode_names = MODES.map(m => capitalize(m) + ' Scouting')
-    let mode = new Dropdown('new-element-mode', 'Mode:', mode_names)
-    mode.on_change = 'populate_dropdowns()'
-    let page = new Dropdown('new-element-page', 'Page:')
-    page.on_change = 'populate_dropdowns()'
-    let column = new Dropdown('new-element-column', 'Column:')
-    column.on_change = 'populate_dropdowns()'
-    let type = new Dropdown('new-element-type', 'Type:')
-    type.on_change = 'populate_options()'
-    let name = new Entry('new-element-name', 'Name:')
-    name.description = 'A brief description of the input visible to the user.'
+    mode_dd = new WRDropdown('Mode:', mode_names)
+    mode_dd.on_change = populate_dropdowns
+    page_dd = new WRDropdown('Page:')
+    page_dd.on_change = populate_dropdowns
+    column_dd = new WRDropdown('Column:')
+    column_dd.on_change = populate_dropdowns
+    type_dd = new WRDropdown('Type:')
+    type_dd.on_change = populate_options
+    name_entry = new WREntry('Name:')
+    name_entry.on_text_change = update_id
+    name_entry.description = 'A brief description of the input visible to the user.'
+    id_entry = new WREntry('ID:')
+    id_entry.description = 'Unique identifier, automatically generated.'
 
-    let preview = document.createElement('span')
-    preview.id = 'preview'
-    let options = document.createElement('div')
-    options.id = 'options'
-    body.replaceChildren(new PageFrame('', 'Add to...', [
-            new ColumnFrame('', '', [mode, page, column, type]),
-            new ColumnFrame('', '', [name]),
-            new ColumnFrame('', '', [options])
-        ]).element,
+    preview = document.createElement('span')
+    options = document.createElement('div')
+    body.replaceChildren(new WRPage('Add to...', [
+            new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
+            new WRColumn('', [name_entry, id_entry]),
+            new WRColumn('', [options])
+        ]),
         preview,
-        new PageFrame('', '', [
-            new ColumnFrame('', '', [new Button('new-element-reset', 'Reset Config', 'reset_config()')]),
-            new ColumnFrame('', '', [new Button('new-element-download', 'Download Config', 'download_config()')]),
-            new ColumnFrame('', '', [new Button('new-element-upload', 'Upload Config', 'upload_config()')]),
-            new ColumnFrame('', '', [new Button('new-element-apply', 'Apply Config', 'save_config()')])
-        ]).element)
+        new WRPage('', [
+            new WRColumn('', [new WRButton('Reset Config', reset_config)]),
+            new WRColumn('', [new WRButton('Download Config', download_config)]),
+            new WRColumn('', [new WRButton('Upload Config', upload_config)]),
+            new WRColumn('', [new WRButton('Apply Config', save_config)])
+        ]))
 
     populate_dropdowns()
 }
@@ -72,16 +78,16 @@ function build_page()
 function populate_dropdowns()
 {
     // read dropdowns
-    let mode = document.getElementById('new-element-mode').selectedIndex
-    let page = document.getElementById('new-element-page')
-    let column = document.getElementById('new-element-column')
-    let type = document.getElementById('new-element-type')
+    let mode = mode_dd.element.selectedIndex
+    let page = page_dd.element
+    let column = column_dd.element
+    let type = type_dd.element
 
     // reset name and id
-    document.getElementById('new-element-name').value = ''
+    name_entry.element.value = ''
 
-    let page_dd = new Dropdown('new-element-page', 'Page:', config[mode].map(p => p.name).concat(['New']), page.value)
-    page.replaceChildren(...page_dd.option_elements)
+    let new_page_dd = new WRDropdown('Page:', config[mode].map(p => p.name).concat(['New']), page.value)
+    page.replaceChildren(...new_page_dd.option_elements)
 
     // set other dropdown value appropriately
     if (page.value == 'New')
@@ -91,8 +97,8 @@ function populate_dropdowns()
     }
     else
     {
-        let column_dd = new Dropdown('new-element-column', 'Column:', config[mode][page.selectedIndex].columns.map(c => c.name).concat(['New']), column.value)
-        column.replaceChildren(...column_dd.option_elements)
+        let new_column_dd = new WRDropdown('Column:', config[mode][page.selectedIndex].columns.map(c => c.name).concat(['New']), column.value)
+        column.replaceChildren(...new_column_dd.option_elements)
 
         if (column.value == 'New')
         {
@@ -100,8 +106,8 @@ function populate_dropdowns()
         }
         else
         {
-            let type_dd = new Dropdown('new-element-type', 'Type:', INPUTS, type)
-            type.replaceChildren(...type_dd.option_elements)
+            let new_type_dd = new WRDropdown('Type:', INPUTS, type)
+            type.replaceChildren(...new_type_dd.option_elements)
         }
     }
 
@@ -118,130 +124,88 @@ function populate_dropdowns()
 function populate_options()
 {
     // read dropdowns
-    let page = document.getElementById('new-element-page').value
-    let column = document.getElementById('new-element-column').value
-    let type = document.getElementById('new-element-type').value
-    let options = document.getElementById('options')
+    let page = page_dd.element.value
+    let column = column_dd.element.value
+    let type = type_dd.element.value
 
     // set options column appropriately
-    let ops = new ColumnFrame()
-    if (column == 'New')
+    let ops = new WRColumn()
+    if (page === 'New')
     {
-        ops.add_input(new Checkbox('new-element-cycle', 'Is Cycle'))
+        builder = null
+    }
+    else if (column === 'New')
+    {
+        builder = new ColumnB()
     }
     else
     {
-        let colors, images
         switch (type)
         {
             case 'Checkbox':
-                ops.add_input(new Checkbox('new-element-default', 'Default'))
-                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                builder = new CheckboxB()
                 break
             case 'Slider':
-                let incr = new Entry('new-element-incr', 'Increment', '1')
-                incr.type = 'number'
-                incr.description = 'The size of a single step.'
-                ops.add_input(incr)
+                builder = new SliderB()
+                break
             case 'Number':
-                let min = new Entry('new-element-min', 'Min', '0')
-                min.type = 'number'
-                min.description = 'The minimum allowed value.'
-                ops.add_input(min)
-                let max = new Entry('new-element-max', 'Max', '10')
-                max.type = 'number'
-                max.description = 'The maximum allowed value.'
-                ops.add_input(max)
+                builder = new NumberB()
+                break
             case 'Counter':
-                let def = new Entry('new-element-default', 'Default', '0')
-                def.type = 'number'
-                def.description = 'The default value displayed in the box.'
-                ops.add_input(def)
-                ops.add_input(new Checkbox('new-element-negative', 'Negative'))
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                builder = new CounterB()
                 break
             case 'String':
-                let defs = new Entry('new-element-default', 'Default', '')
-                defs.description = 'The default text displayed in the box, must not be empty.'
-                ops.add_input(defs)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                builder = new StringB()
                 break
             case 'Text':
-                let defe = new Extended('new-element-default', 'Default', '')
-                defe.description = 'The default text displayed in the box, must not be empty.'
-                ops.add_input(defe)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                builder = new TextB()
                 break
             case 'Multicounter':
-                let mops = new Entry('new-element-options', 'Options')
-                mops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-                ops.add_input(mops)
-                let neg = new Entry('new-element-negative', 'Negative')
-                neg.description = 'A comma-separated list of true/false values for each counter.'
-                ops.add_input(neg)
-                let defm = new Entry('new-element-default', 'Default', '0')
-                defm.type = 'number'
-                defm.description = 'The single default value for all counters.'
-                ops.add_input(defm)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                builder = new MulticounterB()
                 break
             case 'Select':
+                builder = new SelectB()
+                break
             case 'Multiselect':
-                colors = new Entry('new-element-colors', 'Colors')
-                colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
-                images = new Entry('new-element-images', 'Images')
-                images.description = 'A comma-separated list of image files available in /assets/, one for each option, all spaces will be deleted.'
+                builder = new MultiselectB()
+                break
             case 'Dropdown':
-                let sops = new Entry('new-element-options', 'Options')
-                sops.description = 'A comma-separated list of selectable options, all spaces will be deleted.'
-                ops.add_input(sops)
-                if (typeof colors !== 'undefined')
-                {
-                    ops.add_input(colors)
-                }
-                if (typeof images !== 'undefined')
-                {
-                    ops.add_input(images)
-                }
-                let defo = new Entry('new-element-default', 'Default', '')
-                defo.description = 'The default selected option, must exactly match that option.'
-                ops.add_input(defo)
-                ops.add_input(new Checkbox('new-element-no-default', 'Disallow Default'))
+                builder = new DropdownB()
                 break
         }
     }
-    ops.add_input(new Button('new-element-submit', 'Add', 'create_element()'))
-    options.replaceChildren(ops.element)
+    if (builder !== null)
+    {
+        let inputs = builder.build_inputs()
+        for (let i of inputs)
+        {
+            ops.add_input(i)
+        }
+    }
+    ops.add_input(new WRButton('Add', create_element))
+    options.replaceChildren(ops)
 }
 
 /**
- * function:    create_id_from_name
+ * Updates the ID entry by processing what is currently in the name entry.
+ */
+function update_id()
+{
+    let name = name_entry.element.value
+    id_entry.element.value = create_id_from_name(name)
+}
+
+/**
+ * function:    create_full_id
  * parameters:  parent id, name string
  * returns:     sanitized name
  * description: Sanitizes an input name so it can be used for the ID.
  */
-function create_full_id_from_name(parent, name)
+function create_full_id(parent, name)
 {
     let id = create_id_from_name(name)
 
     return `${parent}_${id}`
-}
-
-/**
- * function:    parse_list
- * parameters:  raw inputed list string
- * returns:     array of sanitized strings
- * description: Parses and sanatizes a comma separated list of strings.
- */
-function parse_list(list)
-{
-    let items = list.split(',').map(s => s.trim())
-    if (items.length === 1 && items[0] === '')
-    {
-        return []
-    }
-    return items
 }
 
 /** 
@@ -253,16 +217,13 @@ function parse_list(list)
 function create_element()
 {
     // read dropdowns
-    let mode = document.getElementById('new-element-mode').selectedIndex
-    let page = document.getElementById('new-element-page')
-    let column = document.getElementById('new-element-column')
-    let type = document.getElementById('new-element-type').value
+    let mode = mode_dd.element.selectedIndex
+    let page = page_dd.element
+    let column = column_dd.element
+    let id = id_entry.element.value
 
     // populate name and id
-    let name = document.getElementById('new-element-name').value
-    let input = {
-        name: name
-    }
+    let name = name_entry.element.value
 
     // make an identical copy of the config for backup
     let backup = JSON.parse(JSON.stringify(config))
@@ -271,106 +232,29 @@ function create_element()
     if (page.value == 'New')
     {
         let parent = MODES[mode]
-        input.id = create_full_id_from_name(parent, name)
-        input.columns = []
+        let input = {
+            name: name,
+            id: create_full_id(parent, id),
+            columns: []
+        }
         config[mode].push(input)
+    }
+    else if (column.value == 'New')
+    {
+        let parent = config[mode][page.selectedIndex].id
+        let input = builder.build_description()
+        input.name = name
+        input.id = create_full_id(parent, id)
+        input.inputs = []
+        config[mode][page.selectedIndex].columns.push(input)
     }
     else
     {
-        if (column.value == 'New')
-        {
-            let parent = config[mode][page.selectedIndex].id
-            input.id = create_full_id_from_name(parent, name)
-            input.cycle = document.getElementById('new-element-cycle').checked
-            input.inputs = []
-            config[mode][page.selectedIndex].columns.push(input)
-        }
-        else
-        {
-            let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
-            input.id = create_full_id_from_name(parent, name)
-            input.type = type.toLowerCase()
-            if (document.getElementById('new-element-no-default').checked)
-            {
-                input.disallow_default = true
-            }
-            let ops = []
-            switch (type)
-            {
-                case 'Checkbox':
-                    input.default = document.getElementById('new-element-default').checked
-                    input.negative = document.getElementById('new-element-negative').checked
-                    break
-                case 'Slider':
-                    let incr = document.getElementById('new-element-incr').value
-                    if (incr === '')
-                    {
-                        incr = '1'
-                    }
-                    ops = [ parseInt(incr) ]
-                case 'Number':
-                    let min = document.getElementById('new-element-min').value
-                    let max = document.getElementById('new-element-max').value
-                    if (min === '')
-                    {
-                        min = '0'
-                    }
-                    if (max === '')
-                    {
-                        max = '10'
-                    }
-                    ops = [ parseInt(min), parseInt(max) ].concat(ops)
-                    input.options = ops
-                case 'Counter':
-                    let def = document.getElementById('new-element-default').value
-                    if (def === '')
-                    {
-                        def = '0'
-                    }
-                    input.default = parseInt(def)
-                    input.negative = document.getElementById('new-element-negative').checked
-                    break
-                case 'Time':
-                    input.negative = document.getElementById('new-element-negative').checked
-                    break
-                case 'Multicounter':
-                    input.negative = parse_list(document.getElementById('new-element-negative').value).map(n => n.toLowerCase() === 'true')
-                case 'Select':
-                case 'Multiselect':
-                    if (type !== 'Multicounter')
-                    {
-                        input.colors = parse_list(document.getElementById('new-element-colors').value)
-                        input.images = parse_list(document.getElementById('new-element-images').value)
-                    }
-                case 'Dropdown':
-                    input.options = parse_list(document.getElementById('new-element-options').value)
-                case 'String':
-                case 'Text':
-                    input.default = document.getElementById('new-element-default').value
-                    if (type === 'Multiselect')
-                    {
-                        input.default = input.default.split(',').map(d => d.toLowerCase() === 'true')
-                        while (input.default.length < input.options.length)
-                        {
-                            input.default.push(false)
-                        }
-                    }
-            }
-            if (type == 'Multicounter')
-            {
-                if (input.default == '')
-                {
-                    input.default = '0'
-                }
-                input.default = parseInt(input.default)
-            }
-            if ((type == 'String' || type == 'Text') && input.default === '')
-            {
-                input.default = 'N/A'
-            }
-            console.log(input)
-            config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
-        }
+        let input = builder.build_description()
+        let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
+        input.name = name
+        input.id = create_full_id(parent, id)
+        config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
     }
 
     // preserve change for after populate_dropdowns
@@ -433,6 +317,7 @@ function save_config()
 {
     for (let i in MODES)
     {
+        console.log(config[i])
         localStorage.setItem(`config-${cfg.year}-${MODES[i]}`, JSON.stringify(config[i]))
     }
     cfg.load_configs(2)
@@ -599,18 +484,18 @@ function download_config()
  */
 function build_page_from_config()
 {
-    let mode = document.getElementById('new-element-mode').selectedIndex
+    let mode = mode_dd.element.selectedIndex
 
     let select_ids = []
     let pages = []
     // iterate through each page in the mode
     for (let page of config[mode])
     {
-        let selected_page = document.getElementById('new-element-page').value
+        let selected_page = page_dd.element.value
         let page_name = page.name
         if (selected_page == page_name || selected_page == 'New' || selected_page == '')
         {
-            let page_frame = new PageFrame('', page_name)
+            let page_frame = new WRPage(page_name)
             pages.push(page_frame)
             if (selected_page != page_name)
             {
@@ -621,12 +506,12 @@ function build_page_from_config()
             // iterate through each column in the page
             for (let column of page.columns)
             {
-                let selected_col = document.getElementById('new-element-column').value
+                let selected_col = column_dd.element.value
                 let col_name = column.name
                 if (selected_col == col_name || selected_col == 'New' || selected_col == '')
                 {
                     let cycle = column.cycle
-                    let column_frame = new ColumnFrame('', col_name)
+                    let column_frame = new WRColumn(col_name)
                     column_frame.add_input(cycle ? 'cycle' : '')
                     page_frame.add_column(column_frame)
                     if (selected_col != col_name)
@@ -649,13 +534,14 @@ function build_page_from_config()
                     }
                     if (cycle)
                     {
-                        column_frame.add_input(new Counter(`${column.id}_cycles`, 'Cycles', 0))
+                        column_frame.add_input(new WRCounter('Cycles', 0))
+                        column_frame.input_id = `${column.id}_cycles`
                     }
                 }
             }
         }
     }
-    document.getElementById('preview').replaceChildren(...pages.map(p => p.element))
+    preview.replaceChildren(...pages.map(p => p))
 
     // mark each selected box as such
     for (let id of select_ids)
@@ -672,10 +558,10 @@ function build_page_from_config()
  */
 function build_shift_buttons(id)
 {
-    let button = new MultiButton(`${id}_edit`, '')
-    button.add_option('◀', `shift('${id}', 'up')`)
-    button.add_option('X', `shift('${id}', 'rm')`)
-    button.add_option('▶', `shift('${id}', 'down')`)
+    let button = new WRMultiButton('')
+    button.add_option('◀', () => shift(id, 'up'))
+    button.add_option('X', () => shift(id, 'rm'))
+    button.add_option('▶', () => shift(id, 'down'))
     button.add_class('slim')
     button.columns = 3
     return button
@@ -761,6 +647,6 @@ function shift(id, direction)
  */
 function reset_config()
 {
-    config = [[], []]
+    config = Array(MODES.length).fill([])
     populate_dropdowns()
 }

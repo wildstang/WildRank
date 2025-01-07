@@ -13,6 +13,8 @@ include('transfer')
 
 var install
 
+var user_id_el, event_id_el, scout_config_valid_el, config_valid_el, event_counter_el, result_counter_el, theme_el, position_el
+
 /**
  * function:    init_page
  * parameters:  none
@@ -21,27 +23,27 @@ var install
  */
 function init_page()
 {
-    let user_page = new PageFrame('scouter', 'Scouter')
-    let data_page = new PageFrame('data', 'Status')
+    let user_page = new WRPage('Scouter')
+    let data_page = new WRPage('Status')
 
-    let options = new ColumnFrame('options', '')
+    let options = new WRColumn()
     user_page.add_column(options)
 
-    let user_id = new Entry('user_id', 'School ID', 111112)
-    user_id.on_text_change = 'check_id()'
-    user_id.type = 'number'
-    user_id.bounds = [100000, 999999]
-    user_id.value = get_cookie(USER_COOKIE, cfg.defaults.user_id)
-    user_id.description = ' '
-    options.add_input(user_id)
+    user_id_el = new WREntry('School ID', 111112)
+    user_id_el.on_text_change = check_id
+    user_id_el.type = 'number'
+    user_id_el.bounds = [100000, 999999]
+    user_id_el.value = get_cookie(USER_COOKIE, cfg.defaults.user_id)
+    user_id_el.description = ' '
+    options.add_input(user_id_el)
 
-    let event_id = new Entry('event_id', 'Event ID')
-    event_id.show_status = true
-    event_id.on_text_change = 'process_files()'
-    event_id.value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
-    options.add_input(event_id)
+    event_id_el = new WREntry('Event ID')
+    event_id_el.show_status = true
+    event_id_el.on_text_change = process_files
+    event_id_el.value = get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
+    options.add_input(event_id_el)
 
-    let position = new Dropdown('position', 'Position')
+    position_el = new WRDropdown('Position')
     for (let i = 1; i <= dal.alliance_size * 2; i++)
     {
         let color = 'Red'
@@ -51,60 +53,62 @@ function init_page()
             color = 'Blue'
             pos = i - dal.alliance_size
         }
-        position.add_option(`${color} ${pos}`)
+        position_el.add_option(`${color} ${pos}`)
     }
-    position.value = position.options[get_cookie(POSITION_COOKIE, 0)]
-    options.add_input(position)
+    position_el.value = position_el.options[get_cookie(POSITION_COOKIE, 0)]
+    options.add_input(position_el)
 
-    let theme = new Select('theme_switch', 'Theme', ['Light', 'Dark', 'Auto'])
-    theme.on_change = 'switch_theme()'
-    theme.columns = 3
-    theme.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-    options.add_input(theme)
+    theme_el = new WRSelect('Theme', ['Light', 'Dark', 'Auto'])
+    theme_el.on_change = switch_theme
+    theme_el.columns = 3
+    theme_el.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    options.add_input(theme_el)
 
     let install_container = create_element('div', 'install-container')
     options.add_input(install_container)
 
-    let roles = new ColumnFrame('roles', 'Role')
+    let roles = new WRColumn('Role')
     user_page.add_column(roles)
 
-    let scout = new Button('scout', 'Match Scout')
-    scout.link = `check_press('scout')`
+    let scout = new WRButton('Match Scout', () => check_press('scout'))
     roles.add_input(scout)
 
-    let note = new Button('note', 'Pit / Note Scouter')
-    note.link = `check_press('note')`
+    let note = new WRButton('Pit / Note Scouter', () => check_press('note'))
     note.add_class('slim')
     roles.add_input(note)
 
-    let drive = new Button('drive', 'Drive Team')
-    drive.link = `check_press('drive')`
+    let drive = new WRButton('Drive Team', () => check_press('drive'))
     drive.add_class('slim')
     roles.add_input(drive)
 
-    let analyst = new Button('analyst', 'Analyst')
-    analyst.link = `check_press('analysis')`
+    let analyst = new WRButton('Analyst', () => check_press('analysis'))
     analyst.add_class('slim')
     roles.add_input(analyst)
 
-    let advanced = new Button('advanced', 'Advanced')
-    advanced.link = `check_press('advanced')`
+    let advanced = new WRButton('Advanced', () => check_press('advanced'))
     advanced.add_class('slim')
     roles.add_input(advanced)
 
-    let admin = new Button('admin', 'Administrator')
-    admin.link = `check_press('admin')`
+    let admin = new WRButton('Administrator', () => check_press('admin'))
     admin.add_class('slim')
     roles.add_input(admin)
 
-    let status = new ColumnFrame('status', '')
+    let status = new WRColumn()
     data_page.add_column(status)
 
-    let config_buttons = new MultiButton('config_buttons', 'Event Config', ['Preload', 'Import'], ['save_options(); preload_event()', 'save_options(); import_config()'])
+    let on_preload = () => {
+        save_options()
+        preload_event()
+    }
+    let on_import = () => {
+        save_options()
+        import_config()
+    }
+    let config_buttons = new WRMultiButton('Event Config', ['Preload', 'Import'], [on_preload, on_import])
     status.add_input(config_buttons)
 
-    let event_counter = new MultiNumber('event_counter', '', ['Teams', 'Matches'])
-    status.add_input(event_counter)
+    event_counter_el = new WRMultiNumber('', ['Teams', 'Matches'])
+    status.add_input(event_counter_el)
 
     // display a version box only if caching is enabled
     if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
@@ -117,25 +121,25 @@ function init_page()
                 let version = e.data.version.replace('wildrank-', '')
                 let header = document.getElementById('header_info')
                 header.innerText = version
-                header.onclick = event => window_open(open_link('about'), '_blank')
+                header.onclick = () => window_open(open_link('about'), '_blank')
                 set_cookie(VERSION_COOKIE, version)
             }
         })
     }
 
-    let scout_config_valid = new StatusTile('scout_config_valid', 'Game Config')
-    scout_config_valid.on_click = `window_open(open_link('config-debug'), '_self')`
-    status.add_input(scout_config_valid)
+    scout_config_valid_el = new WRStatusTile('Game Config')
+    scout_config_valid_el.on_click = () => window_open(open_link('config-debug'), '_self')
+    status.add_input(scout_config_valid_el)
 
-    let config_valid = new StatusTile('config_valid', 'Settings')
-    config_valid.on_click = `window_open(open_link('config-debug'), '_self')`
-    status.add_input(config_valid)
+    config_valid_el = new WRStatusTile('Settings')
+    config_valid_el.on_click = () => window_open(open_link('config-debug'), '_self')
+    status.add_input(config_valid_el)
 
-    let result_counter = new MultiNumber('result_counter', 'Results', ['Pit', 'Match'])
-    result_counter.on_click = `window_open(open_link('progress'), '_self')`
-    status.add_input(result_counter)
+    result_counter_el = new WRMultiNumber('Results', ['Pit', 'Match'])
+    result_counter_el.on_click = () => window_open(open_link('progress'), '_self')
+    status.add_input(result_counter_el)
 
-    body.replaceChildren(user_page.element, data_page.element)
+    body.replaceChildren(user_page, data_page)
 
     // reset role when returning to homepage
     set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
@@ -148,8 +152,8 @@ function init_page()
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault()
         install = e
-        let button = new Button('install', `Install ${cfg.settings.title}`, 'install_app()')
-        document.getElementById('install-container').replaceChildren(button.element)
+        let button = new WRButton(`Install ${cfg.settings.title}`, install_app)
+        document.getElementById('install-container').replaceChildren(button)
     })
 }
 
@@ -188,19 +192,19 @@ function process_files()
     let pits = dal.get_pits([], false).length
 
     // update counters
-    document.getElementById('scout_config_valid-label').innerHTML = cfg.version
-    document.getElementById('event_counter_teams-value').innerHTML = Object.keys(dal.teams).length
-    document.getElementById('event_counter_matches-value').innerHTML = Object.keys(dal.matches).length
-    document.getElementById('result_counter_pit-value').innerHTML = pits
-    document.getElementById('result_counter_match-value').innerHTML = matches
+    scout_config_valid_el.label_el.innerHTML = cfg.version
+    event_counter_el.numbers[0].set_value(Object.keys(dal.teams).length)
+    event_counter_el.numbers[1].set_value(Object.keys(dal.matches).length)
+    result_counter_el.numbers[0].set_value(pits)
+    result_counter_el.numbers[1].set_value(matches)
 
     // update statuses
-    Entry.set_status('event_id_color', check_event())
-    StatusTile.set_status('scout_config_valid', cfg.validate_game_configs())
-    StatusTile.set_status('config_valid', cfg.validate_settings_configs())
+    event_id_el.set_status(check_event())
+    scout_config_valid_el.set_status(cfg.validate_game_configs())
+    config_valid_el.set_status(cfg.validate_settings_configs())
 
     // rebuild position options
-    let position = new Dropdown('position', 'Position')
+    position_el.options = []
     for (let i = 1; i <= dal.alliance_size * 2; i++)
     {
         let color = 'Red'
@@ -210,10 +214,10 @@ function process_files()
             color = 'Blue'
             pos = i - dal.alliance_size
         }
-        position.add_option(`${color} ${pos}`)
+        position_el.add_option(`${color} ${pos}`)
     }
-    position.value = position.options[get_cookie(POSITION_COOKIE, 0)]
-    document.getElementById('position').replaceChildren(...position.option_elements)
+    position_el.value = position_el.options[get_cookie(POSITION_COOKIE, 0)]
+    position_el.element.replaceChildren(...position_el.option_elements)
 }
 
 /**
@@ -255,17 +259,17 @@ function check_id()
 
     if (pos > -1)
     {
-        document.getElementById('position').selectedIndex = pos
+        position_el.element.selectedIndex = pos
     }
 
-    document.getElementById('user_id_desc').innerHTML = ''
+    user_id_el.description_el.innerHTML = ''
     if (name !== id)
     {
-        document.getElementById('user_id_desc').innerHTML += name + ' '
+        user_id_el.description_el.innerHTML += name + ' '
     }
     if (admin)
     {
-        document.getElementById('user_id_desc').innerHTML += '(Admin)'
+        user_id_el.description_el.innerHTML += '(Admin)'
     }
 }
 
@@ -290,19 +294,7 @@ function save_options()
  */
 function switch_theme()
 {
-    let theme = 'auto'
-    switch (Select.get_selected_option('theme_switch'))
-    {
-        case 0:
-            theme = 'light'
-            break
-        case 1:
-            theme = 'dark'
-            break
-        case 2:
-        default:
-            theme = 'auto'
-    }
+    let theme = theme_el.selected_option.toLowerCase()
     if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
     {
         set_cookie(THEME_COOKIE, theme)
@@ -397,12 +389,13 @@ function check_press(id)
     {
         // warn the user if the button cannot be used
         alert(blocked)
-        return ''
     }
     else
     {
         set_cookie(ROLE_COOKIE, id)
-        return build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(), [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
+        let link = build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(),
+            [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
+        window_open(link, '_self')
     }
 }
 
@@ -439,7 +432,7 @@ function import_config()
  */
 function get_event()
 {
-    return document.getElementById('event_id').value.toLowerCase()
+    return event_id_el.element.value.toLowerCase()
 }
 
 /**
@@ -450,7 +443,7 @@ function get_event()
  */
 function get_user()
 {
-    return document.getElementById('user_id').value
+    return user_id_el.element.value
 }
 
 /**
@@ -461,7 +454,7 @@ function get_user()
  */
 function get_position()
 {
-    return document.getElementById('position').selectedIndex
+    return position_el.element.selectedIndex
 }
 
 /**

@@ -8,7 +8,7 @@
 
 const start = Date.now()
 
-var match_col
+var match_page, match_col, event_entry, teams_entry, teams_list, alliance_entry, gen_elim_cb
 
 /**
  * function:    init_page
@@ -21,11 +21,11 @@ function init_page()
     // set header
     header_info.innerHTML = 'Generate Event'
 
-    let col = new ColumnFrame()
-    let team_page = new PageFrame('', 'Team', [col])
+    let col = new WRColumn()
+    let team_page = new WRPage('Team', [col])
     
-    let event_entry = new Entry('event_id', 'Event ID', dal.event_id)
-    event_entry.on_text_change = 'populate_matches()'
+    event_entry = new WREntry('Event ID', dal.event_id)
+    event_entry.on_text_change = populate_matches
     col.add_input(event_entry)
     
     let num_teams = Object.keys(dal.teams).length
@@ -33,12 +33,12 @@ function init_page()
     {
         num_teams = 6
     }
-    let teams_entry = new Entry('num_teams', 'Number of Teams', num_teams, [6, 100])
+    teams_entry = new WREntry('Number of Teams', num_teams, [6, 100])
     teams_entry.type = 'number'
     col.add_input(teams_entry)
 
     let teams = Object.keys(dal.teams)
-    let team_list = new Extended('team_list', 'Attending Teams', teams.join(','))
+    team_list = new WRExtended('Attending Teams', teams.join(','))
     col.add_input(team_list)
     
     let alliance_size = dal.alliance_size
@@ -46,20 +46,20 @@ function init_page()
     {
         alliance_size = 3
     }
-    let alliance_entry = new Entry('alliance_teams', 'Teams per Alliance', alliance_size, [1, 10])
-    alliance_entry.on_text_change = 'populate_matches()'
+    alliance_entry = new WREntry('Teams per Alliance', alliance_size, [1, 10])
+    alliance_entry.on_text_change = populate_matches
     alliance_entry.type = 'number'
     col.add_input(alliance_entry)
 
-    let generate_button = new Button('generate_teams', 'Generate Teams', 'generate_teams()')
+    let generate_button = new WRButton('Generate Teams', generate_teams)
     col.add_input(generate_button)
 
     match_col = document.createElement('div')
-    let match_page = new PageFrame('match', 'Match')
+    match_page = new WRPage('Match')
     match_page.add_column(match_col)
 
     // build page
-    body.replaceChildren(team_page.element, match_page.element)
+    body.replaceChildren(team_page, match_page)
 
     populate_matches()
 }
@@ -72,7 +72,7 @@ function init_page()
  */
 function populate_matches()
 {
-    let event_id = document.getElementById('event_id').value
+    let event_id = event_entry.element.value
     let teams = Object.keys(dal.teams)
     if (event_id !== dal.event_id)
     {
@@ -80,33 +80,31 @@ function populate_matches()
         teams = dal.build_teams()
     }
     let cols = []
-    let alliance_teams = parseInt(document.getElementById('alliance_teams').value)
+    let alliance_teams = parseInt(alliance_entry.element.value)
     if (teams.length > 0)
     {
-        let red_col = new ColumnFrame('', 'Red Teams')
-        let blue_col = new ColumnFrame('', 'Blue Teams')
+        let red_col = new WRColumn('Red Teams')
+        let blue_col = new WRColumn('Blue Teams')
         
         let match_teams = generate_match_teams(alliance_teams * 2)
         for (let pos = 0; pos < alliance_teams; pos++)
         {
-            let red = new Dropdown(`red_${pos}`, `Red ${pos+1}`, teams, match_teams[pos])
-            let blue = new Dropdown(`blue_${pos}`, `Blue ${pos+1}`, teams, match_teams[pos + alliance_teams])
+            let red = new WRDropdown(`Red ${pos+1}`, teams, match_teams[pos])
+            red.input_id = `red_${pos}`
+            let blue = new WRDropdown(`Blue ${pos+1}`, teams, match_teams[pos + alliance_teams])
+            blue.input_id = `blue_${pos}`
             red_col.add_input(red)
             blue_col.add_input(blue)
         }
 
-        let add_match = new Button('add_match', 'Add Match', 'add_match()')
-        blue_col.add_input(add_match)
+        let add_match_button = new WRButton('Add Match', add_match)
+        blue_col.add_input(add_match_button)
 
-        let elim = new Checkbox('gen_elim', 'Elimination')
-        elim.on_click = 'update_titles()'
-        if (document.getElementById('gen_elim') !== null && document.getElementById('gen_elim').checked)
-        {
-            elim.value = true
-        }
-        red_col.add_input(elim)
+        gen_elim_cb = new WRCheckbox('Elimination', gen_elim_cb && gen_elim_cb.checked)
+        gen_elim_cb.on_click = update_titles
+        red_col.add_input(gen_elim_cb)
 
-        cols = [red_col.element, blue_col.element]
+        cols = [red_col, blue_col]
     }
     match_col.replaceChildren(...cols)
     update_titles()
@@ -125,7 +123,7 @@ function generate_match_teams(num_teams, distribute=true)
     let teams = Object.keys(dal.teams)
 
     let match_num = Object.keys(dal.matches).length // technically last match number
-    document.getElementById('match_label').innerText = `Match ${match_num + 1}`
+    match_page.getElementsByClassName('page_header')[0].innerText = `Match ${match_num + 1}`
 
     // prepopulate unavailable teams with those in last few matches
     // this prevents an uneven distribution of matches
@@ -171,14 +169,14 @@ function generate_match_teams(num_teams, distribute=true)
 function generate_teams()
 {
     let teams = []
-    let team_nums = document.getElementById('team_list').value
-    let event_id = document.getElementById('event_id').value
+    let team_nums = team_list.element.value
+    let event_id = event_entry.element.value
     if (team_nums.includes(','))
     {
         return pull_teams(event_id, team_nums)
     }
     
-    let num_teams = document.getElementById('num_teams').value
+    let num_teams = num_teams.element.value
     for (let team_num = 1; team_num <= num_teams; team_num++)
     {
         teams.push({
@@ -315,7 +313,7 @@ function pull_teams(event_id, team_list)
  */
 function update_titles()
 {
-    let elim = document.getElementById('gen_elim').checked
+    let elim = gen_elim_cb && gen_elim_cb.checked
     if (elim)
     {
         let matches = Object.values(dal.matches).filter(m => m.comp_level === 'sf').sort((a, b) => a.set_number - b.set_number)
@@ -344,22 +342,18 @@ function update_titles()
                 blue = 7
                 break
             default:
-                document.getElementById('gen_elim').checked = false
+                gen_elim_cb.checked = false
                 update_titles()
                 alert("Cannot generate beyond elim match 4")
                 return
         }
 
-        document.getElementById('match_label').innerText = `Match ${match_num}`
-        document.getElementById('blue_teams_label').innerText = `Alliance ${blue}`
-        document.getElementById('red_teams_label').innerText = `Alliance ${red}`
+        match_page.getElementsByClassName('page_header')[0].innerText = `Match ${match_num}`
     }
     else
     {
         let match_num = Object.values(dal.matches).filter(m => m.comp_level === 'qm').length + 1
-        document.getElementById('match_label').innerText = `Match ${match_num}`
-        document.getElementById('blue_teams_label').innerText = `Blue Alliance`
-        document.getElementById('red_teams_label').innerText = `Red Alliance`
+        match_page.getElementsByClassName('page_header')[0].innerText = `Match ${match_num}`
     }
 }
 
@@ -371,8 +365,8 @@ function update_titles()
  */
 function add_match()
 {
-    let event_id = document.getElementById('event_id').value
-    let alliance_teams = document.getElementById('alliance_teams').value
+    let event_id = event_entry.element.value
+    let alliance_teams = alliance_entry.element.value
     let file_name = `matches-${event_id}`
     let file = localStorage.getItem(file_name)
     if (file === null)
@@ -381,7 +375,7 @@ function add_match()
     }
     let matches = JSON.parse(file)
     let match_number = matches.length + 1
-    let elim = document.getElementById('gen_elim').checked
+    let elim = gen_elim_cb.checked
     if (elim)
     {
         let matches = Object.values(dal.matches).filter(m => m.comp_level === 'sf').sort((a, b) => a.set_number - b.set_number)

@@ -682,3 +682,16 @@ function capitalize(word)
 {
     return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
 }
+
+
+/**
+ * Randomly generate a hex string of a given number of characters.
+ *  
+ * @param {int} length Number of hex character to generate.
+ * @returns A hex string of length length.
+ */
+function random_hex(length)
+{
+    let arr = new Array(length).fill(0)
+    return arr.map(() => Math.floor(Math.random(0.999) * 16).toString(16)).join('')
+}

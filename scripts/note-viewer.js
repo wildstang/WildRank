@@ -11,6 +11,8 @@ const SESSION_SEARCH_KEY = 'note-selected-search'
 
 let scouters = []
 
+let team_entry, scouter_drop, search_entry, notes_page
+
 /**
  * function:    init_page
  * parameters:  none
@@ -54,16 +56,17 @@ function init_page()
     names = [''].concat(names)
 
     // build filters
-    let teams = new Entry('teams', 'Teams (comma-separated)', default_teams)
-    teams.on_text_change = 'filter_notes()'
-    let teams_col = new ColumnFrame('', '', [teams])
-    let scouter = new Dropdown('scouter', 'Scouter', names, default_scouter)
-    scouter.on_change = 'filter_notes()'
-    let scouter_col = new ColumnFrame('', '', [scouter])
-    let search = new Entry('search', 'Search', default_search)
-    search.on_text_change = 'filter_notes()'
-    let search_col = new ColumnFrame('', '', [search])
-    body.append(new PageFrame('', '', [teams_col, scouter_col, search_col]).element, new PageFrame('notes', '').element)
+    team_entry = new WREntry('Teams (comma-separated)', default_teams)
+    team_entry.on_text_change = filter_notes
+    let teams_col = new WRColumn('', [team_entry])
+    scouter_drop = new WRDropdown('Scouter', names, default_scouter)
+    scouter_drop.on_change = filter_notes
+    let scouter_col = new WRColumn('', [scouter_drop])
+    search_entry = new WREntry('Search', default_search)
+    search_entry.on_text_change = filter_notes
+    let search_col = new WRColumn('', [search_entry])
+    notes_page = new WRPage()
+    body.append(new WRPage('', [teams_col, scouter_col, search_col]), notes_page)
     filter_notes()
 }
 
@@ -76,19 +79,20 @@ function init_page()
 function filter_notes()
 {
     // read and store filters
-    let teams_str = document.getElementById('teams').value
+    let teams_str = team_entry.element.value
     sessionStorage.setItem(SESSION_TEAMS_KEY, teams_str)
     let teams = teams_str.split(',').map(t => t.trim()) 
-    let scouter_idx = document.getElementById('scouter').selectedIndex - 1
+    let scouter_idx = scouter_drop.element.selectedIndex - 1
     let scouter = ''
     if (scouter_idx >= 0)
     {
         scouter = scouters[scouter_idx]
     }
     sessionStorage.setItem(SESSION_SCOUTER_KEY, scouter)
-    let search = document.getElementById('search').value.trim().toLowerCase()
+    let search = search_entry.element.value.trim().toLowerCase()
     sessionStorage.setItem(SESSION_SEARCH_KEY, search)
 
+    let team_cols = []
     for (let team of teams)
     {
         if (team in dal.teams)
@@ -174,11 +178,11 @@ function filter_notes()
             }
 
             // add notes to new card
-            let card = new Card(team, results_el)
+            let card = new WRCard(results_el)
             card.add_class('scalable_card')
 
-            let page = document.getElementById('notes')
-            page.replaceChildren(new ColumnFrame('', '', [card]).element)
+            team_cols.push(new WRColumn('', [card]))
         }
     }
+    notes_page.replaceChildren(...team_cols)
 }

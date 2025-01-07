@@ -27,8 +27,8 @@ function init_page()
  */
 function populate_page()
 {
-    let button_col = new ColumnFrame()
-    button_col.add_input(new Button('transfer', 'Transfer Data', 'cache_pics()'))
+    let button_col = new WRColumn()
+    button_col.add_input(new WRLinkButton('Transfer Data', open_page('transfer-raw')))
 
     let keys = Object.keys(localStorage).sort()
 
@@ -63,9 +63,9 @@ function populate_page()
     }
     header.insertCell().innerText = hash(cache_str)
 
-    let card = new Card('table', table)
-    let page = new PageFrame('', '', [new ColumnFrame('', '', [card]), button_col])
-    body.replaceChildren(page.element)
+    let card = new WRCard(table)
+    let page = new WRPage('', [new WRColumn('', [card]), button_col])
+    body.replaceChildren(page)
 }
 
 /**
