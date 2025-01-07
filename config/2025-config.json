@@ -1,0 +1,231 @@
+{
+    "version": "2025-kickoff",
+    "smart_stats": [],
+    "coach": [],
+    "whiteboard": {
+        "red_0": {
+            "x": 675,
+            "y": 135,
+            "color": "#FF4136"
+        },
+        "red_1": {
+            "x": 675,
+            "y": 200,
+            "color": "#FF4136"
+        },
+        "red_2": {
+            "x": 675,
+            "y": 300,
+            "color": "#FF4136"
+        },
+        "blue_0": {
+            "x": 70,
+            "y": 135,
+            "color": "#0074D9"
+        },
+        "blue_1": {
+            "x": 70,
+            "y": 200,
+            "color": "#0074D9"
+        },
+        "blue_2": {
+            "x": 70,
+            "y": 300,
+            "color": "#0074D9"
+        },
+        "game_pieces": [
+            {
+                "name": "Coral",
+                "image": "2025/coral.png"
+            },
+            {
+                "name": "Algae",
+                "image": "2025/algae.png"
+            }
+        ],
+        "draw_color": "#FFFFFF",
+        "field_width": 750,
+        "field_height": 400,
+        "magnet_size": 50,
+        "line_width": 3,
+        "horizontal_margin": 13,
+        "vertical_margin": 20,
+        "field_height_ft": 27,
+        "field_height_px": 347
+    },
+    "match": [
+        {
+            "name": "Auto",
+            "id": "match_auto",
+            "columns": [
+                {
+                    "name": "Auto",
+                    "id": "match_auto_auto",
+                    "cycle": false,
+                    "inputs": [
+                        {
+                            "type": "select",
+                            "default": "NA",
+                            "disallow_default": true,
+                            "options": [
+                                "NA",
+                                "No",
+                                "Yes"
+                            ],
+                            "colors": [
+                                "black",
+                                "red",
+                                "green"
+                            ],
+                            "images": [],
+                            "name": "Left",
+                            "id": "match_auto_auto_left"
+                        },
+                        {
+                            "type": "multicounter",
+                            "negative": [],
+                            "default": 0,
+                            "disallow_default": false,
+                            "options": [
+                                "L1",
+                                "L2",
+                                "L3",
+                                "L4"
+                            ],
+                            "name": "Auto Coral Scored",
+                            "id": "match_auto_auto_coral_scored"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Teleop",
+            "id": "match_teleop",
+            "columns": [
+                {
+                    "cycle": false,
+                    "name": "Coral Scoring",
+                    "id": "match_teleop_coral",
+                    "inputs": [
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Level 1",
+                            "id": "match_teleop_coral_level_1"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Level 2",
+                            "id": "match_teleop_coral_level_2"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Level 3",
+                            "id": "match_teleop_coral_level_3"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Level 4",
+                            "id": "match_teleop_coral_level_4"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Algae Scoring",
+                    "id": "match_teleop_algae",
+                    "inputs": [
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Processor",
+                            "id": "match_teleop_algae_processor"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Robot Net",
+                            "id": "match_teleop_algae_robot_net"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Human Net",
+                            "id": "match_teleop_algae_human_net"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Post Match",
+            "id": "match_post_match",
+            "columns": [
+                {
+                    "cycle": false,
+                    "name": "End Game",
+                    "id": "match_post_match_end_game",
+                    "inputs": [
+                        {
+                            "type": "select",
+                            "default": "NA",
+                            "disallow_default": true,
+                            "options": [
+                                "NA",
+                                "No Attempt",
+                                "Failed",
+                                "Shallow",
+                                "Deep"
+                            ],
+                            "colors": [],
+                            "images": [],
+                            "name": "Climb",
+                            "id": "match_post_match_end_game_climb"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Post Match",
+                    "id": "match_post_match_post",
+                    "inputs": [
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": true,
+                            "name": "Broke Down (Add Notes)",
+                            "id": "match_post_match_post_broke_down"
+                        },
+                        {
+                            "type": "text",
+                            "default": " ",
+                            "disallow_default": true,
+                            "name": "Match Notes",
+                            "id": "match_post_match_post_notes"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "pit": [],
+    "note": []
+}
