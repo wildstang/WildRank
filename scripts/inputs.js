@@ -136,19 +136,6 @@ function build_input_from_config(input, default_override='', scout_mode='', team
 
     item.input_id = id
 
-    // allow selects to be colored, must be manually entered in config file
-    if (type.includes('select'))
-    {
-        if (input.hasOwnProperty('colors') && input.colors.length === options.length)
-        {
-            let sheet = window.document.styleSheets[1]
-            for (let i in options)
-            {
-                sheet.insertRule(`#${id}-${i}.selected { background-color: ${input.colors[i]} }`, sheet.cssRules.length)
-            }
-        }
-    }
-
     return item
 }
 

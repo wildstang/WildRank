@@ -320,21 +320,21 @@ class SelectB extends DropdownB
     {
         super(name)
 
-        this.colors = new WREntry('Colors')
-        this.colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
+        //this.colors = new WREntry('Colors')
+        //this.colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
         this.images = new WREntry('Images')
         this.images.description = 'A comma-separated list of image files available in /assets/, one for each option, all spaces will be deleted.'
     }
 
     build_inputs()
     {
-        return [this.options, this.colors, this.images, this.def_entry, this.disallow]
+        return [this.options, this.images, this.def_entry, this.disallow]
     }
 
     build_description()
     {
         let desc = super.build_description()
-        desc.colors = this.parse_list(this.colors.element.value)
+        //desc.colors = this.parse_list(this.colors.element.value)
         desc.images = this.parse_list(this.images.element.value)
         return desc
     }
