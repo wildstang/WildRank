@@ -176,7 +176,10 @@ class WRButton extends WRElement
         this.element.classList.add(...this.classes)
         this.element.appendChild(this.label_el)
 
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 }
@@ -232,7 +235,10 @@ class WRNumber extends WRElement
         this.element.append(this.label_el)
         this.element.append(this.value_el)
 
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 
@@ -332,7 +338,10 @@ class WRStatusTile extends WRElement
         this.element.append(this.tile)
 
         this.append(this.element)
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
     }
 
     set_status(status)
@@ -403,7 +412,10 @@ class WRCheckbox extends WRElement
         this.element.append(' ')
         this.element.append(this.label_el)
 
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 
@@ -563,7 +575,10 @@ class WRExtended extends WRElement
         this.element.append(this.text)
 
         this.append(this.label_el)
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 }
@@ -656,7 +671,10 @@ class WREntry extends WRElement
         }
 
         this.append(this.label_el)
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         if (this.show_color || this.show_status)
         {
             this.color_el.className = 'color_box'
@@ -840,7 +858,10 @@ class WRCounter extends WRElement
         this.element.append(' ')
         this.element.append(this.label_el)
 
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 
@@ -913,7 +934,10 @@ class WRCycler extends WRCounter
         this.element.classList.add(...this.classes)
         this.element.append(this.back_el, count, this.save_el)
 
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 
@@ -993,8 +1017,12 @@ class WRMultiInput extends WRElement
 
     connectedCallback()
     {
-        this.label_el.className = 'input_label'
-        this.label_el.append(this.label)
+        if (this.label)
+        {
+            this.label_el.className = 'input_label'
+            this.label_el.append(this.label)
+            this.append(this.label_el)
+        }
 
         this.element.id = this.input_id
         this.element.className = 'wr_select'
@@ -1005,8 +1033,10 @@ class WRMultiInput extends WRElement
         }
         this.element.append(...this.option_elements)
 
-        this.append(this.label_el)
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 
@@ -1520,7 +1550,10 @@ class WRDropdown extends WROptionedInput
         this.element.onchange = this.on_change
         this.element.append(...this.option_elements)
 
-        this.append(this.description_element)
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
         this.append(this.element)
     }
 }
