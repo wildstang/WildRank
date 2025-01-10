@@ -41,7 +41,7 @@ function init_page()
         photos = document.createElement('span')
         center.append(photos)
         stats_container = document.createElement('div')
-        let card = new WRCard([avatar, team_header, loc, ranking, center, stats_container])
+        let card = new WRCard([avatar, team_header, loc, ranking, center, stats_container], true)
         card.add_class('result_card')
 
         clear_container = document.createElement('span')

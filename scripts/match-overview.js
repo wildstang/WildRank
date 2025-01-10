@@ -42,8 +42,7 @@ function init_page()
         extra_toggle.add_class('slim')
         extra_el = document.createElement('div')
         extra_el.style.display = 'none'
-        let card = new WRCard([match_num_el, time_el, result_el, extra_toggle, extra_el])
-        card.add_class('result_card')
+        let card = new WRCard([match_num_el, time_el, result_el, extra_toggle, extra_el], true)
 
         teams_el = document.createElement('div')
         preview.append(card, teams_el)

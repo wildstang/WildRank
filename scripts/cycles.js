@@ -36,7 +36,7 @@ function init_page()
     ranking_el = document.createElement('h3')
     title_el.append(avatar_el, ' ', result_name, location_el, ranking_el)
     table_el = document.createElement('table')
-    let card = new WRCard([title_el, table_el])
+    let card = new WRCard([title_el, table_el], true)
     cycle_container = document.createElement('div')
     preview.append(card, cycle_container)
 

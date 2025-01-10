@@ -34,8 +34,7 @@ function init_page()
 
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard(update_sliders)
-        let card = new WRCard([whiteboard.canvas])
-        card.add_class('result_card')
+        let card = new WRCard([whiteboard.canvas], true)
         card.space_after = false
         init_canvas()
 

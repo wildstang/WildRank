@@ -27,8 +27,7 @@ function init_page()
     if (first)
     {
         val_el = document.createElement('div')
-        let card = new WRCard([val_el])
-        card.add_class('result_card')
+        let card = new WRCard([val_el], true)
         selectedA = first
         selectedB = second
 
@@ -48,8 +47,7 @@ function init_page()
         let center = document.createElement('center')
         results_tab = document.createElement('table')
         results_tab.style.textAlign = 'center'
-        let tab_card = new WRCard(results_tab)
-        tab_card.add_class('result_card')
+        let tab_card = new WRCard(results_tab, true)
         tab_card.add_class('scalable_card')
         center.append(tab_card)
         column.append(center)

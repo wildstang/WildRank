@@ -33,8 +33,7 @@ function init_page()
         let belongs = document.createElement('h4')
         belongs.innerText = 'Belongs to:'
         lists_el = document.createElement('span')
-        let card = new WRCard([avatar_el, header, belongs, lists_el])
-        card.limitWidth = true
+        let card = new WRCard([avatar_el, header, belongs, lists_el], true)
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)
