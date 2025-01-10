@@ -426,6 +426,10 @@
     border-top: none;
 }
 
+.stack_horizontal_parent {
+    display: inline-flex;
+}
+
 .elim_match {
     text-align: center;
 }

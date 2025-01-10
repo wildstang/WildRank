@@ -1068,6 +1068,10 @@ class WRMultiButton extends WRMultiInput
             {
                 option.style.display = 'table-cell'
             }
+            for (let c of this.classes)
+            {
+                option.add_class(c)
+            }
             rows[rows.length - 1].push(option)
         }
 
@@ -1677,6 +1681,7 @@ class WRStack extends WRElement
             if (this.horizontal)
             {
                 this.elements[i].add_class('stack_horizontal')
+                this.elements[i].classList.add('stack_horizontal_parent')
             }
             if (i === this.elements.length - 1)
             {
