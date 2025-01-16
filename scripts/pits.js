@@ -39,6 +39,7 @@ function init_page()
 
         photos_el = document.createElement('span')
         let card = new WRCard([avatar_el, team_el, photos_el])
+        card.add_class('body_card')
 
         let camera_el = document.createElement('div')
         camera_el.style.display = 'none'

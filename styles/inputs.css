@@ -73,6 +73,7 @@
 
 .body_card {
     display: inline-block;
+    font-size: var(--font-size);
 }
 
 .scalable_card {
