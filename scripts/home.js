@@ -13,11 +13,14 @@ include('transfer')
 
 // role based layouts
 const CONFIGS = {
-    'scout': {
+    'matches': {
         'Scout': ['matches']
     },
-    'note': {
-        'Notes': ['pits', 'notes']
+    'pits': {
+        'Notes': ['pits']
+    },
+    'notes': {
+        'Notes': ['notes']
     },
     'drive': {
         'Drive Team': ['import_results', 'coach', 'whiteboard', 'bracket']

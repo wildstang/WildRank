@@ -186,17 +186,12 @@ function on_config()
  */
 function home(right=false)
 {
-    let url = 'index.html?page=home'
-    if (page == 'home' || page == 'index' || page == '' || page == 'matches' || page == 'pits')
+    // determine whether to redirect to index or home
+    let url = 'index.html'
+    if (!['', 'index', 'home', 'matches', 'pits', 'notes'].includes(page))
     {
-        url = 'index.html' 
+        url += '?page=home'
     }
-    if (!right)
-    {
-        window_open(url, '_self')
-    }
-    else
-    {
-        window_open(url, '_blank')
-    }
+
+    window_open(url, right ? '_blank' : '_self')
 }

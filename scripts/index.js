@@ -70,12 +70,12 @@ function init_page()
     let roles = new WRColumn('Role')
     user_page.add_column(roles)
 
-    let scout = new WRButton('Match Scout', () => check_press('scout'))
-    roles.add_input(scout)
+    let match_scout = new WRButton('Match Scout', () => check_press('matches'))
+    let other_scout = new WRMultiButton('', ['Pit Scout', 'Note Scout'], [() => check_press('pits'), () => check_press('notes')])
+    other_scout.add_class('slim')
 
-    let note = new WRButton('Pit / Note Scouter', () => check_press('note'))
-    note.add_class('slim')
-    roles.add_input(note)
+    let scout = new WRStack([match_scout, other_scout])
+    roles.add_input(scout)
 
     let drive = new WRButton('Drive Team', () => check_press('drive'))
     drive.add_class('slim')
@@ -392,15 +392,35 @@ function check_press(id)
     }
     else
     {
+        let file = 'selection'
+        let params = {
+            'page': id, [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(),
+            [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()
+        }
+        switch (id)
+        {
+            case 'matches':
+                params.page = 'matches'
+                params[TYPE_COOKIE] = 'match'
+                break
+            case 'pits':
+                params.page = 'pits'
+                break
+            case 'notes':
+                params.page = 'matches'
+                params[TYPE_COOKIE] = 'note'
+                break
+            default:
+                file = 'index'
+        }
         set_cookie(ROLE_COOKIE, id)
-        let link = build_url('index', {'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(),
-            [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()})
+        let link = build_url(file, params)
         window_open(link, '_self')
     }
 }
 
 /**
- * function:    import_config
+ * function:    import_configelse
  * parameters:  none
  * returns:     none
  * description: Starts the zip import process for configs and pictures.
