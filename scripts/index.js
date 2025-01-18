@@ -394,7 +394,7 @@ function check_press(id)
     {
         let file = 'selection'
         let params = {
-            'page': id, [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(),
+            'page': 'home', [ROLE_COOKIE]: id, [EVENT_COOKIE]: get_event(),
             [POSITION_COOKIE]: get_position(), [USER_COOKIE]: get_user()
         }
         switch (id)
