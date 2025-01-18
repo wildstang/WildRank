@@ -57,6 +57,35 @@ function init_page()
 }
 
 /**
+ * Populates a cell in the team stats table.
+ * @param {number} team_num Team number
+ * @param {*} row Table row
+ * @param {String} key Stat ID
+ */
+function populate_cell(team_num, row, key)
+{
+    row.append(create_header(dal.get_name(key)))
+    let val = dal.get_value(team_num, key, 'mean', true)
+    let cell = row.insertCell()
+    cell.innerHTML = val
+    // alight numeric values to the right
+    if (!isNaN(val))
+    {
+        cell.style.textAlign = 'right'
+    }
+    // color positive booleans green
+    else if (val === 'Yes' || val == 'No' && dal.meta[key].negative)
+    {
+        cell.style.color = 'green'
+    }
+    // color negative (not positive) booleans red
+    else if (['Yes', 'No'].includes(val))
+    {
+        cell.style.color = 'red'
+    }
+}
+
+/**
  * function:    open_option
  * parameters:  Selected team number
  * returns:     none
@@ -97,32 +126,43 @@ function open_option(team_num)
     let num_match = match_stats.length
     let num_pit = pit_stats.length
     let max_len = num_match > num_pit ? num_match : num_pit
+    let pit_scouted = dal.is_pit_scouted(team_num)
+    let match_scouted = dal.teams[team_num].results.length > 0
     for (let i = 0; i < max_len; ++i)
     {
-        if ((i < num_pit && dal.is_pit_scouted(team_num)) || (i < num_match && dal.teams[team_num].results.length > 0))
+        let row
+        if (pit_scouted)
         {
-            let row = stats_tab.insertRow()
-            let pit_cell = row.insertCell()
-            if (i < num_pit && dal.is_pit_scouted(team_num))
+            row = stats_tab.insertRow()
+
+            if (i < num_pit)
             {
                 let key = pit_stats[i]
-                row.append(create_header(dal.get_name(key)))
-                pit_cell.innerHTML = dal.get_value(team_num, key, 'mean', true)
+                populate_cell(team_num, row, key)
             }
             else
             {
-                row.append(create_header(''))
+                row.insertCell()
+                row.insertCell()
             }
-            let match_cell = row.insertCell()
-            if (i < num_match && dal.teams[team_num].results.length > 0)
+        }
+
+        if (match_scouted)
+        {
+            if (row == null)
+            {
+                row = stats_tab.insertRow()
+            }
+
+            if (i < num_match)
             {
                 let key = match_stats[i]
-                row.append(create_header(dal.get_name(key)))
-                match_cell.innerHTML = dal.get_value(team_num, key, 'mean', true)
+                populate_cell(team_num, row, key)
             }
             else
             {
-                row.append(create_header(''))
+                row.insertCell()
+                row.insertCell()
             }
         }
     }
@@ -208,12 +248,13 @@ function open_option(team_num)
         }
     }
 
-    let count = cards.length/2
-    // prevent time and button from ending up in different columns
-    if (count % 2 === 1)
+    let count = cards.length / 2
+    // prefer more stacks on the left column
+    if (cards.length % 2 === 1)
     {
         count++
     }
+    console.log(cards.length, count)
     let left_col = new WRColumn('', cards.splice(0, count))
     let right_col = new WRColumn('', cards)
     let page = new WRPage('', [pit_button, left_col, right_col])
