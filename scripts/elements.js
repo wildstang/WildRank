@@ -1355,7 +1355,7 @@ class WRSelect extends WROptionedInput
             let op_name = this.options[i]
             let option = document.createElement('span')
 
-            if (op_name.toLowerCase() === this.value.toLowerCase())
+            if (this.is_selected_by_default(op_name))
             {
                 option.classList.add('selected')
             }
@@ -1424,6 +1424,11 @@ class WRSelect extends WROptionedInput
         return options
     }
 
+    is_selected_by_default(op_name)
+    {
+        return op_name.toLowerCase() === this.value.toLowerCase()
+    }
+
     static get_selected_index(element)
     {
         let children = element.getElementsByClassName('wr_select_option')
@@ -1470,9 +1475,16 @@ customElements.define('wr-select', WRSelect)
 
 class WRMultiSelect extends WRSelect
 {
-    constructor(label, options=[], value='', images=[])
+    constructor(label, options=[], values=[], images=[])
     {
-        super(label, options, value, images)
+        super(label, options, options[0], images)
+        // override value, because parent classes don't support an array of defaults
+        this.value = values
+    }
+
+    is_selected_by_default(op_name)
+    {
+        return this.value[this.options.indexOf(op_name)]
     }
 
     get selected_indices()
