@@ -71,7 +71,7 @@ function init_page()
     user_page.add_column(roles)
 
     let match_scout = new WRButton('Match Scout', () => check_press('matches'))
-    let other_scout = new WRMultiButton('', ['Pit Scout', 'Note Scout'], [() => check_press('pits'), () => check_press('notes')])
+    let other_scout = new WRMultiButton('', ['Pit', 'Alliance'], [() => check_press('pits'), () => check_press('notes')])
     other_scout.add_class('slim')
 
     let scout = new WRStack([match_scout, other_scout])
@@ -107,7 +107,7 @@ function init_page()
     let config_buttons = new WRMultiButton('Event Config', ['Preload', 'Import'], [on_preload, on_import])
     status.add_input(config_buttons)
 
-    event_counter_el = new WRMultiNumber('', ['Teams', 'Matches'])
+    event_counter_el = new WRMultiNumber('', ['Team', 'Match'])
     status.add_input(event_counter_el)
 
     // display a version box only if caching is enabled
