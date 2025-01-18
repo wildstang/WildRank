@@ -240,6 +240,10 @@
     float: right;
 }
 
+.wr_select_row {
+    display: flex;
+}
+
 .wr_select_option {
     height: calc(var(--input-height) - 2*var(--input-padding));
     line-height: calc(var(--input-height) - 2*var(--input-padding));

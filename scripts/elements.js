@@ -1106,22 +1106,15 @@ class WRMultiButton extends WRMultiInput
         }
 
         let options = []
-        if (rows.length > 1)
+        for (let row of rows)
         {
-            for (let row of rows)
+            let container = create_element('div', '', 'wr_select_row')
+            for (let op of row)
             {
-                let container = document.createElement('div')
-                container.style.display = 'table-row'
-                for (let op of row)
-                {
-                    container.append(op)
-                }
-                options.push(container)
+                op.style.flex = '1 1 0'
+                container.append(op)
             }
-        }
-        else
-        {
-            options = rows[0]
+            options.push(container)
         }
         return options
     }
@@ -1180,22 +1173,15 @@ class WRMultiNumber extends WRMultiInput
         }
 
         let options = []
-        if (rows.length > 1)
+        for (let row of rows)
         {
-            for (let row of rows)
+            let container = create_element('div', '', 'wr_select_row')
+            for (let op of row)
             {
-                let container = document.createElement('div')
-                container.style.display = 'table-row'
-                for (let op of row)
-                {
-                    container.append(op)
-                }
-                options.push(container)
+                op.style.flex = '1 1 0'
+                container.append(op)
             }
-        }
-        else
-        {
-            options = rows[0]
+            options.push(container)
         }
         return options
     }
@@ -1264,22 +1250,15 @@ class WRMultiCounter extends WRMultiInput
         }
 
         let options = []
-        if (rows.length > 1)
+        for (let row of rows)
         {
-            for (let row of rows)
+            let container = create_element('div', '', 'wr_select_row')
+            for (let op of row)
             {
-                let container = document.createElement('div')
-                container.style.display = 'table-row'
-                for (let op of row)
-                {
-                    container.append(op)
-                }
-                options.push(container)
+                op.style.flex = '1 1 0'
+                container.append(op)
             }
-        }
-        else
-        {
-            options = rows[0]
+            options.push(container)
         }
         return options
     }
@@ -1393,7 +1372,7 @@ class WRSelect extends WROptionedInput
                     label.src = this.images[i]
                 }
 
-                option.append(label)
+                option.append(op_name)
             }
             else
             {
@@ -1404,22 +1383,15 @@ class WRSelect extends WROptionedInput
         }
 
         let options = []
-        if (rows.length > 1)
+        for (let row of rows)
         {
-            for (let row of rows)
+            let container = create_element('div', '', 'wr_select_row')
+            for (let op of row)
             {
-                let container = document.createElement('div')
-                container.style.display = 'table-row'
-                for (let op of row)
-                {
-                    container.append(op)
-                }
-                options.push(container)
+                op.style.flex = '1 1 0'
+                container.append(op)
             }
-        }
-        else
-        {
-            options = rows[0]
+            options.push(container)
         }
         return options
     }
