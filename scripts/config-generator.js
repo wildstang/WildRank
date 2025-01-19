@@ -182,7 +182,7 @@ function populate_options()
             ops.add_input(i)
         }
     }
-    ops.add_input(new WRButton('Add', create_element))
+    ops.add_input(new WRButton('Add', build_element))
     options.replaceChildren(ops)
 }
 
@@ -209,12 +209,12 @@ function create_full_id(parent, name)
 }
 
 /** 
- * function:    create_element
+ * function:    build_element
  * parameters:  none
  * returns:     none
  * description: Adds an element to the config based on dropdowns and options.
  */
-function create_element()
+function build_element()
 {
     // read dropdowns
     let mode = mode_dd.element.selectedIndex
