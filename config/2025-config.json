@@ -1,5 +1,5 @@
 {
-    "version": "2025-kickoff",
+    "version": "2025-week4",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -59,167 +59,203 @@
             "id": "match_auto",
             "columns": [
                 {
-                    "name": "Auto",
-                    "id": "match_auto_auto",
                     "cycle": false,
+                    "name": "Movement",
+                    "id": "match_auto_movement",
                     "inputs": [
                         {
                             "type": "select",
-                            "default": "NA",
-                            "disallow_default": true,
+                            "default": "Center",
+                            "disallow_default": false,
                             "options": [
-                                "NA",
-                                "No",
-                                "Yes"
-                            ],
-                            "colors": [
-                                "black",
-                                "red",
-                                "green"
+                                "Barge Side",
+                                "Center",
+                                "Processor Side"
                             ],
                             "images": [],
-                            "name": "Left",
-                            "id": "match_auto_auto_left"
+                            "name": "Starting Point",
+                            "id": "match_auto_movement_starting_point"
                         },
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false,
+                            "name": "Leave",
+                            "id": "match_auto_movement_leave"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Coral Scoring",
+                    "id": "match_auto_coral_scoring",
+                    "inputs": [
                         {
                             "type": "multicounter",
                             "negative": [],
                             "default": 0,
                             "disallow_default": false,
                             "options": [
-                                "L1",
-                                "L2",
-                                "L3",
-                                "L4"
+                                "Level 1",
+                                "Level 2/3",
+                                "Level 4",
+                                "Dropped/Missed"
                             ],
-                            "name": "Auto Coral Scored",
-                            "id": "match_auto_auto_coral_scored"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Teleop",
-            "id": "match_teleop",
-            "columns": [
-                {
-                    "cycle": false,
-                    "name": "Coral Scoring",
-                    "id": "match_teleop_coral",
-                    "inputs": [
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Level 1",
-                            "id": "match_teleop_coral_level_1"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Level 2",
-                            "id": "match_teleop_coral_level_2"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Level 3",
-                            "id": "match_teleop_coral_level_3"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Level 4",
-                            "id": "match_teleop_coral_level_4"
+                            "name": "Level Scored",
+                            "id": "match_auto_coral_scoring_level_scored"
                         }
                     ]
                 },
                 {
                     "cycle": false,
                     "name": "Algae Scoring",
-                    "id": "match_teleop_algae",
+                    "id": "match_auto_algae_scoring",
                     "inputs": [
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Algae Removed",
+                            "id": "match_auto_algae_scoring_algae_removed"
+                        },
                         {
                             "type": "counter",
                             "default": 0,
                             "negative": false,
                             "disallow_default": false,
                             "name": "Processor",
-                            "id": "match_teleop_algae_processor"
+                            "id": "match_auto_algae_scoring_processor"
                         },
                         {
                             "type": "counter",
                             "default": 0,
                             "negative": false,
                             "disallow_default": false,
-                            "name": "Robot Net",
-                            "id": "match_teleop_algae_robot_net"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Human Net",
-                            "id": "match_teleop_algae_human_net"
+                            "name": "Net",
+                            "id": "match_auto_algae_scoring_net"
                         }
                     ]
                 }
             ]
         },
         {
-            "name": "Post Match",
-            "id": "match_post_match",
+            "name": "Tele-Op",
+            "id": "match_tele_op",
             "columns": [
                 {
                     "cycle": false,
-                    "name": "End Game",
-                    "id": "match_post_match_end_game",
+                    "name": "Coral Scoring",
+                    "id": "match_tele_op_coral_scoring",
                     "inputs": [
                         {
-                            "type": "select",
-                            "default": "NA",
-                            "disallow_default": true,
-                            "options": [
-                                "NA",
-                                "No Attempt",
-                                "Failed",
-                                "Shallow",
-                                "Deep"
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                false,
+                                false,
+                                true
                             ],
-                            "colors": [],
-                            "images": [],
-                            "name": "Climb",
-                            "id": "match_post_match_end_game_climb"
+                            "default": 0,
+                            "disallow_default": false,
+                            "options": [
+                                "Level 4",
+                                "Level 2/3",
+                                "Level 1",
+                                "Dropped/Missed"
+                            ],
+                            "name": "Level Scored",
+                            "id": "match_tele_op_coral_scoring_level_scored"
+                        },
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false,
+                            "name": "Crossed Field?",
+                            "id": "match_tele_op_coral_scoring_crossed_field"
                         }
                     ]
                 },
                 {
                     "cycle": false,
-                    "name": "Post Match",
-                    "id": "match_post_match_post",
+                    "name": "Algae Scoring",
+                    "id": "match_tele_op_algae_scoring",
                     "inputs": [
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Algae Removed",
+                            "id": "match_tele_op_algae_scoring_algae_removed"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Net",
+                            "id": "match_tele_op_algae_scoring_net"
+                        },
+                        {
+                            "type": "counter",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": false,
+                            "name": "Processor",
+                            "id": "match_tele_op_algae_scoring_processor"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Endgame",
+                    "id": "match_tele_op_endgame",
+                    "inputs": [
+                        {
+                            "type": "multiselect",
+                            "default": [
+                                false,
+                                false,
+                                false,
+                                false
+                            ],
+                            "disallow_default": false,
+                            "options": [
+                                "Deep Climb",
+                                "Shallow Climb",
+                                "Failed Climb",
+                                "No Attempt"
+                            ],
+                            "name": "Barge Scoring",
+                            "id": "match_tele_op_endgame_barge_scoring"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Post-Match",
+            "id": "match_post_match",
+            "columns": [
+                {
+                    "cycle": false,
+                    "name": "Post-Match",
+                    "id": "match_post_match_post_match",
+                    "inputs": [
+                        {
+                            "type": "text",
+                            "default": "None",
+                            "disallow_default": false,
+                            "name": "Notes",
+                            "id": "match_post_match_post_match_notes"
+                        },
                         {
                             "type": "checkbox",
                             "default": false,
                             "negative": true,
-                            "name": "Broke Down (Add Notes)",
-                            "id": "match_post_match_post_broke_down"
-                        },
-                        {
-                            "type": "text",
-                            "default": " ",
-                            "disallow_default": true,
-                            "name": "Match Notes",
-                            "id": "match_post_match_post_notes"
+                            "name": "Broke Down?",
+                            "id": "match_post_match_post_match_broke_down"
                         }
                     ]
                 }
