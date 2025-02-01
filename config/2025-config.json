@@ -256,6 +256,19 @@
                             "negative": true,
                             "name": "Broke Down?",
                             "id": "match_post_match_post_match_broke_down"
+                        },
+                        {
+                            "type": "slider",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": true,
+                            "options": [
+                                1,
+                                10,
+                                1
+                            ],
+                            "name": "Driver Skill",
+                            "id": "match_post_match_post_match_driver_skill"
                         }
                     ]
                 }
