@@ -85,8 +85,9 @@ const CACHE_LIST = [
     '/scripts/misc/team-profile.js',*/
     '/scripts/misc/test.js',
     // assets
-    '/assets/2024/note.png',
-    '/assets/2024/field-2024.png',
+    '/assets/2025/algae.png',
+    '/assets/2025/coral.png',
+    '/assets/2025/field-2025.png',
     /* icons should be cached when pwa is installed
     '/assets/icons/icon-192x192-maskable.png',
     '/assets/icons/icon-192x192.png',
@@ -106,8 +107,7 @@ const CACHE_LIST = [
     '/assets/wheels/TPU.png',
     '/assets/wheels/Treaded.png',
     // configs
-    '/config/2023-config.json',
-    '/config/2024-config.json',
+    '/config/2025-config.json',
     '/config/settings-config.json',
     // other files
     '/favicon.ico',
