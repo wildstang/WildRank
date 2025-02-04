@@ -273,6 +273,7 @@ function check_id()
     if (name !== id)
     {
         user_id_el.description_el.innerHTML += name + ' '
+        set_cookie(USER_COOKIE, id)
     }
     if (admin)
     {
