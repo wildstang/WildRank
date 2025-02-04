@@ -183,7 +183,14 @@ function install_app()
  */
 function process_files()
 {
+    // reload config and DAL
     let event = get_event()
+    let year = event.substring(0, 4)
+    if (year !== cfg.year)
+    {
+        cfg = new Config(year)
+        cfg.load_configs()
+    }
     dal = new DAL(event)
     dal.build_teams()
 
