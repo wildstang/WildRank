@@ -80,7 +80,7 @@
     font-size: var(--font-size);
 }
 
-.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .wr_status, .wr_description {
+.wr_checkbox, .wr_counter, .wr_number, .wr_button, .wr_select_option, .page_header, .column_header, .input_label, .match_option, .pit_option, .wr_status, .wr_description, .wr_multi_option {
     user-select: none;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;
