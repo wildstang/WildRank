@@ -851,7 +851,7 @@ class WRCounter extends WRElement
         this.element.classList.add(...this.classes)
         this.element.onclick = () => this.increment(false, this.on_increment)
         this.element.oncontextmenu = () => false
-        this.element.onauxclick = () => this.increment(true, this.on_decrement)
+        this.element.onauxclick = () => this.increment(true, false)
         this.element.ontouchstart = event => touch_start(event)
         this.element.ontouchend = event => touch_end(event, () => this.increment(true, this.on_decrement))
         this.element.append(this.value_el)
