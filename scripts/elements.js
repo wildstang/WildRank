@@ -849,7 +849,8 @@ class WRCounter extends WRElement
 
         this.element.className = this.primary_class
         this.element.classList.add(...this.classes)
-        this.element.onclick = () => this.increment(false, this.on_increment)
+        // this is a kludge to prevent onclick from being called after ontouchend despite preventDefault
+        this.element.onclick = () => {if (Date.now() - last_decrement > 100) { this.increment(false, this.on_increment) }}
         this.element.oncontextmenu = () => false
         this.element.onauxclick = () => this.increment(true, this.on_decrement)
         this.element.ontouchstart = event => touch_start(event)
@@ -1261,24 +1262,6 @@ class WRMultiCounter extends WRMultiInput
             options.push(container)
         }
         return options
-    }
-
-    increment(value, right, on_increment=false)
-    {
-        if (last_touch > 0 && Date.now() - last_touch > 500 && !right)
-        {
-            return
-        }
-        let current = value.innerHTML
-        let modifier = right ? -1 : 1
-        if (current > 0 || modifier > 0)
-        {
-            value.innerHTML = parseInt(current) + modifier
-        }
-        if (on_increment)
-        {
-            on_increment()
-        }
     }
 }
 
@@ -1754,6 +1737,7 @@ function create_header_row(labels)
 
 var last_touch
 var last_touch_time = -1
+var last_decrement = -1
 
 /**
  * Log the time the screen was touched.
@@ -1775,6 +1759,7 @@ function touch_end(event, func)
     let deltaY = Math.abs(last_touch.pageY - event.pageY)
     if (last_touch_time > 0 && Date.now() - last_touch_time > 400 && deltaX < 10 && deltaY < 10)
     {
+        last_decrement = Date.now()
         func()
         event.preventDefault()
     }
