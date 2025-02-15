@@ -65,12 +65,13 @@
                     "inputs": [
                         {
                             "type": "select",
-                            "default": "Center",
-                            "disallow_default": false,
+                            "default": "Unselected",
+                            "disallow_default": true,
                             "options": [
                                 "Barge Side",
                                 "Center",
-                                "Processor Side"
+                                "Processor Side",
+                                "Unselected"
                             ],
                             "images": [],
                             "name": "Starting Point",
@@ -92,13 +93,18 @@
                     "inputs": [
                         {
                             "type": "multicounter",
-                            "negative": [],
+                            "negative": [
+                                false,
+                                false,
+                                false,
+                                true
+                            ],
                             "default": 0,
                             "disallow_default": false,
                             "options": [
-                                "Level 1",
-                                "Level 2/3",
                                 "Level 4",
+                                "Level 2/3",
+                                "Level 1",
                                 "Dropped/Missed"
                             ],
                             "name": "Level Scored",
@@ -112,28 +118,21 @@
                     "id": "match_auto_algae_scoring",
                     "inputs": [
                         {
-                            "type": "counter",
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                false,
+                                false
+                            ],
                             "default": 0,
-                            "negative": false,
                             "disallow_default": false,
-                            "name": "Algae Removed",
-                            "id": "match_auto_algae_scoring_algae_removed"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Processor",
-                            "id": "match_auto_algae_scoring_processor"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Net",
-                            "id": "match_auto_algae_scoring_net"
+                            "options": [
+                                "Removed",
+                                "Processor",
+                                "Net"
+                            ],
+                            "name": "Algae Scored",
+                            "id": "match_auto_algae_scoring_algae"
                         }
                     ]
                 }
@@ -166,7 +165,31 @@
                             ],
                             "name": "Level Scored",
                             "id": "match_tele_op_coral_scoring_level_scored"
-                        },
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Algae Scoring",
+                    "id": "match_tele_op_algae_scoring",
+                    "inputs": [
+                    {
+                        "type": "multicounter",
+                        "negative": [
+                            false,
+                            false,
+                            false
+                        ],
+                        "default": 0,
+                        "disallow_default": false,
+                        "options": [
+                            "Removed",
+                            "Processor",
+                            "Net"
+                        ],
+                        "name": "Algae Scored",
+                        "id": "match_tele_op_algae_scoring_algae"
+                    },
                         {
                             "type": "checkbox",
                             "default": false,
@@ -178,54 +201,19 @@
                 },
                 {
                     "cycle": false,
-                    "name": "Algae Scoring",
-                    "id": "match_tele_op_algae_scoring",
-                    "inputs": [
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Algae Removed",
-                            "id": "match_tele_op_algae_scoring_algae_removed"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Net",
-                            "id": "match_tele_op_algae_scoring_net"
-                        },
-                        {
-                            "type": "counter",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "name": "Processor",
-                            "id": "match_tele_op_algae_scoring_processor"
-                        }
-                    ]
-                },
-                {
-                    "cycle": false,
                     "name": "Endgame",
                     "id": "match_tele_op_endgame",
                     "inputs": [
                         {
-                            "type": "multiselect",
-                            "default": [
-                                false,
-                                false,
-                                false,
-                                false
-                            ],
-                            "disallow_default": false,
+                            "type": "select",
+                            "default": "Unselected",
+                            "disallow_default": true,
                             "options": [
                                 "Deep Climb",
                                 "Shallow Climb",
                                 "Failed Climb",
-                                "No Attempt"
+                                "No Attempt",
+                                "Unselected"
                             ],
                             "name": "Barge Scoring",
                             "id": "match_tele_op_endgame_barge_scoring"
@@ -263,8 +251,8 @@
                             "negative": false,
                             "disallow_default": true,
                             "options": [
-                                1,
-                                10,
+                                0,
+                                5,
                                 1
                             ],
                             "name": "Driver Skill",
