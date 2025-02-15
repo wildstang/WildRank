@@ -56,6 +56,7 @@ function init_page()
         position_el.add_option(`${color} ${pos}`)
     }
     position_el.value = position_el.options[get_cookie(POSITION_COOKIE, 0)]
+    position_el.on_change = () => set_cookie(POSITION_COOKIE, get_position())
     options.add_input(position_el)
 
     theme_el = new WRSelect('Theme', ['Light', 'Dark', 'Auto'])
@@ -193,6 +194,8 @@ function process_files()
     }
     dal = new DAL(event)
     dal.build_teams()
+
+    set_cookie(EVENT_COOKIE, event)
 
     // count results
     let matches = dal.get_results([], false).length
