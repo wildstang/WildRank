@@ -1057,7 +1057,7 @@ class WRMultiInput extends WRElement
             }
         }
 
-        return Math.max(4 - Math.floor(max / 4), 1)
+        return Math.max(4 - Math.floor(max / 3), 1)
     }
 }
 
