@@ -1,5 +1,5 @@
 {
-    "version": "2025-week7",
+    "version": "2025-250218",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -127,9 +127,9 @@
                             "default": 0,
                             "disallow_default": false,
                             "options": [
-                                "Removed",
+                                "Net",
                                 "Processor",
-                                "Net"
+                                "Dropped"
                             ],
                             "name": "Algae Scored",
                             "id": "match_auto_algae_scoring_algae"
@@ -183,9 +183,9 @@
                         "default": 0,
                         "disallow_default": false,
                         "options": [
-                            "Removed",
+                            "Net",
                             "Processor",
-                            "Net"
+                            "Dropped"
                         ],
                         "name": "Algae Scored",
                         "id": "match_tele_op_algae_scoring_algae"
@@ -228,22 +228,36 @@
             "columns": [
                 {
                     "cycle": false,
-                    "name": "Post-Match",
+                    "name": "Breakdown",
                     "id": "match_post_match_post_match",
                     "inputs": [
                         {
-                            "type": "text",
-                            "default": "None",
-                            "disallow_default": false,
-                            "name": "Notes",
-                            "id": "match_post_match_post_match_notes"
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": true,
+                            "name": "Electrical",
+                            "id": "match_post_match_breakdown_elec"
                         },
                         {
                             "type": "checkbox",
                             "default": false,
                             "negative": true,
-                            "name": "Broke Down?",
-                            "id": "match_post_match_post_match_broke_down"
+                            "name": "Mechanical",
+                            "id": "match_post_match_breakdown_mech"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Post-Match",
+                    "id": "match_post_match_post_match",
+                    "inputs": [
+                        {
+                            "type": "text",
+                            "default": " ",
+                            "disallow_default": false,
+                            "name": "Notes",
+                            "id": "match_post_match_post_match_notes"
                         },
                         {
                             "type": "slider",
@@ -270,35 +284,9 @@
             "columns": [
                 {
                     "cycle": false,
-                    "name": "Dimensions",
-                    "id": "pit_pit_dimensions",
+                    "name": "General",
+                    "id": "pit_pit_general",
                     "inputs": [
-                        {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "options": [
-                                1,
-                                50,
-                                1
-                            ],
-                            "name": "Longest Side (in)",
-                            "id": "pit_pit_dimensions_longest_side"
-                        },
-                        {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
-                            "disallow_default": false,
-                            "options": [
-                                1,
-                                50,
-                                1
-                            ],
-                            "name": "Shortest Side (in)",
-                            "id": "pit_pit_dimensions_shortest_side"
-                        },
                         {
                             "type": "slider",
                             "default": 0,
@@ -311,6 +299,33 @@
                             ],
                             "name": "Weight (lbs)",
                             "id": "pit_pit_dimensions_weight"
+                        },
+                        {
+                            "name": "Starting Positions",
+                            "id": "pit_pit_auto_starting_position",
+                            "type": "multiselect",
+                            "disallow_default": false,
+                            "options": [
+                                "Barge",
+                                "Center",
+                                "Processor"
+                            ],
+                            "default": [
+                                false, false, false, false
+                            ]
+                        },
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false,
+                            "name": "Java",
+                            "id": "pit_pit_java"
+                        },
+                        {
+                            "name": "Pit Notes",
+                            "id": "pit_pit_pit_notes",
+                            "type": "text",
+                            "default": " "
                         }
                     ]
                 },
@@ -342,8 +357,7 @@
                             ],
                             "disallow_default": false,
                             "options": [
-                                "L3",
-                                "L4",
+                                "Reef",
                                 "Floor"
                             ],
                             "name": "Algae Intake",
@@ -380,6 +394,20 @@
                             ],
                             "name": "Algae Scoring",
                             "id": "pit_pit_capabilities_algae_scoring"
+                        },
+                        {
+                            "type": "multiselect",
+                            "default": [
+                                false,
+                                false
+                            ],
+                            "disallow_default": false,
+                            "options": [
+                                "Shallow",
+                                "Deep"
+                            ],
+                            "name": "Climb",
+                            "id": "pit_pit_capabilities_clim"
                         }
                     ]
                 },
@@ -415,6 +443,28 @@
                             "images": [],
                             "name": "Drive Motor",
                             "id": "pit_pit_drive_drive_motor"
+                        },
+                        {
+                            "name": "Wheel Type",
+                            "id": "pit_pit_drive_wheel_type",
+                            "type": "select",
+                            "images": [
+                                "wheels/KOP.png",
+                                "wheels/Colson.png",
+                                "wheels/Treaded.png",
+                                "wheels/REV.png",
+                                "wheels/TPU.png",
+                                "wheels/Other.png"
+                            ],
+                            "options": [
+                                "KOP",
+                                "Colson",
+                                "Treaded",
+                                "REV",
+                                "Spikey",
+                                "Other"
+                            ],
+                            "default": "KOP"
                         }
                     ]
                 }
@@ -432,6 +482,13 @@
                     "cycle": false,
                     "inputs": [
                         {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": true,
+                            "name": "Foul Prone",
+                            "id": "note_notes_fouls"
+                        },
+                        {
                             "name": "Rank",
                             "id": "note_notes_team_rank",
                             "type": "slider",
@@ -447,7 +504,7 @@
                             "name": "Notes",
                             "id": "note_notes_team_notes",
                             "type": "text",
-                            "default": "none"
+                            "default": " "
                         }
                     ]
                 }
