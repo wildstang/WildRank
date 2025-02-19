@@ -1,5 +1,5 @@
 {
-    "version": "2025-250218",
+    "version": "2025-250219",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -464,6 +464,144 @@
                                 "Other"
                             ],
                             "default": "KOP"
+                        }
+                    ]
+                },
+                {
+                    "name": "Tech",
+                    "id": "pit_tech",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "Mechanical Quality",
+                            "id": "pit_tech_mech",
+                            "inputs": [
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Accessibility",
+                                    "id": "pit_tech_mech_accessibility"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Construction",
+                                    "id": "pit_tech_mech_construction"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Low CG",
+                                    "id": "pit_tech_mech_low_cg"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Bumper",
+                                    "id": "pit_tech_mech_bumpers"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Electrical Quality",
+                            "id": "pit_tech_elec",
+                            "inputs": [
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Accessibility",
+                                    "id": "pit_tech_elec_accessibility"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Wiring",
+                                    "id": "pit_tech_elec_wiring"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Contact Protection",
+                                    "id": "pit_tech_elec_contact_protection"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Reliable Condition",
+                                    "id": "pit_tech_elec_reliable_condition"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Other",
+                            "id": "pit_tech_other",
+                            "inputs": [
+                                {
+                                    "type": "text",
+                                    "default": " ",
+                                    "disallow_default": false,
+                                    "name": "Notes",
+                                    "id": "pit_tech_other_notes"
+                                }
+                            ]
                         }
                     ]
                 }
