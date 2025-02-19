@@ -268,6 +268,7 @@
 .wr_select_img {
     line-height: 0px;
     padding: 0px;
+    height: var(--input-height);
 }
 
 .wr_select_img > img {

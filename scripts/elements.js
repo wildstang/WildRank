@@ -1355,7 +1355,7 @@ class WRSelect extends WROptionedInput
                     label.src = this.images[i]
                 }
 
-                option.append(op_name)
+                option.append(label)
             }
             else
             {
