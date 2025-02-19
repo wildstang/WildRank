@@ -128,7 +128,7 @@ function get_results_from_page()
     let rankings = []
     for (let team of teams)
     {
-        let rank_slider = document.getElementById(`note_notes_${team}_rank_no_ties`)
+        let rank_slider = document.getElementById(`note_notes_${team}_rank`)
         if (rank_slider !== null)
         {
             rankings.push(rank_slider.value)
