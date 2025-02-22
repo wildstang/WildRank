@@ -175,7 +175,7 @@ function generate_teams()
     {
         return pull_teams(event_id, team_nums)
     }
-    
+
     let num_teams = num_teams.element.value
     for (let team_num = 1; team_num <= num_teams; team_num++)
     {
@@ -202,7 +202,10 @@ function generate_teams()
  function save_teams(event_id, teams)
  {
     localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
-    localStorage.setItem(`matches-${event_id}`, '[]')
+    if (Object.keys(dal.matches).length === 0 || confirm('Matches already exist, erase them?'))
+    {
+        localStorage.setItem(`matches-${event_id}`, '[]')
+    }
     localStorage.setItem(`event-${event_id}`, JSON.stringify({
         playoff_type: 10,
         year: cfg.year,
@@ -231,11 +234,6 @@ function pull_teams(event_id, team_list)
                 TBA_KEY = cfg.keys.tba
             }
         }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
     }
 
     // split up list of teams
@@ -245,51 +243,70 @@ function pull_teams(event_id, team_list)
     let count = 0
     for (let team_num of team_nums)
     {
-        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
-        .then(response => {
-            return response.json()
-        })
-        .then(team => {
-            if ('Error' in team)
-            {
-                throw team.Error
-            }
-            teams.push(team)
-
-            let year = event_id.substr(0, 4)
-            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        if (TBA_KEY)
+        {
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                 .then(response => {
                     return response.json()
                 })
-                .then(data => {
-                    for (let m of data)
+                .then(team => {
+                    if ('Error' in team)
                     {
-                        switch (m.type)
-                        {
-                            case 'avatar':
-                                localStorage.setItem(`avatar-${year}-${team.team_number}`, m.details.base64Image)
-                                break
-                            case 'cdphotothread':
-                            case 'imgur':
-                            // NOTE: instagram does things weird
-                            //case 'instagram-image':
-                            case 'onshape':
-                                dal.add_photo(team.team_number, m.direct_url)
-                                break
+                        throw team.Error
+                    }
+                    teams.push(team)
 
-                        }
+                    let year = event_id.substr(0, 4)
+                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                        .then(response => {
+                            return response.json()
+                        })
+                        .then(data => {
+                            for (let m of data)
+                            {
+                                switch (m.type)
+                                {
+                                    case 'avatar':
+                                        localStorage.setItem(`avatar-${year}-${team.team_number}`, m.details.base64Image)
+                                        break
+                                    case 'cdphotothread':
+                                    case 'imgur':
+                                    // NOTE: instagram does things weird
+                                    //case 'instagram-image':
+                                    case 'onshape':
+                                        dal.add_photo(team.team_number, m.direct_url)
+                                        break
+                                }
+                            }
+                        })
+                        .catch(err => {
+                        })
+                
+                    if (++count === team_nums.length)
+                    {
+                        save_teams(event_id, teams)
                     }
                 })
                 .catch(err => {
+                    console.log(`Could not find team ${team_num}, generating`)
+                    teams.push({
+                        city: 'Generated Team',
+                        country: 'GT',
+                        key: `frc${team_num}`,
+                        name: `Generated Team ${team_num}`,
+                        nickname: `Generated Team ${team_num}`,
+                        state_prov: 'GT',
+                        team_number: team_num
+                    })
+
+                    if (++count === team_nums.length)
+                    {
+                        save_teams(event_id, teams)
+                    }
                 })
-                
-            if (++count === team_nums.length)
-            {
-                save_teams(event_id, teams)
-            }
-        })
-        .catch(err => {
-            console.log(`Could not find team ${team_num}, generating`)
+        }
+        else
+        {
             teams.push({
                 city: 'Generated Team',
                 country: 'GT',
@@ -299,12 +316,12 @@ function pull_teams(event_id, team_list)
                 state_prov: 'GT',
                 team_number: team_num
             })
-                
+
             if (++count === team_nums.length)
             {
                 save_teams(event_id, teams)
             }
-        })
+        }
     }
 }
 
