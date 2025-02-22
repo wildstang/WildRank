@@ -343,11 +343,18 @@ function scroll_to(container, goal)
  */
 function ws(team_num)
 {
-    if (team_num == '111' || team_num == '112')
+    let header = document.getElementById('header')
+    if (team_num == '111')
     {
-        document.getElementById('header').style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840)'
-        document.getElementById('header').style['background-size'] = '3600% 3600%'
-        document.getElementById('header').style.animation = 'rainbow 36s ease infinite'
+        header.style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840)'
+        header.style['background-size'] = '3600% 3600%'
+        header.style.animation = 'rainbow 36s ease infinite'
+    }
+    else if (team_num == '112')
+    {
+        header.style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8)'
+        header.style['background-size'] = '3600% 3600%'
+        header.style.animation = 'rainbow 9s ease infinite'
     }
     else
     {
@@ -356,9 +363,9 @@ function ws(team_num)
         {
             color = dal.get_value(team_num, 'meta.color')
         }
-        document.getElementById('header').style.background = color
-        document.getElementById('header').style['background-size'] = ''
-        document.getElementById('header').style.animation = ''
+        header.style.background = color
+        header.style['background-size'] = ''
+        header.style.animation = ''
     }
 }
 
