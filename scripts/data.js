@@ -128,7 +128,7 @@ class DAL
                         {
                             for (let i in ops)
                             {
-                                meta[`${prefix}${id}_${ops[i].toLowerCase()}`] = {
+                                meta[`${prefix}${id}_${create_id_from_name(ops[i])}`] = {
                                     name: `${name} ${ops[i]}`,
                                     type: 'counter',
                                     negative: neg[i],
@@ -142,7 +142,7 @@ class DAL
                         {
                             for (let i in ops)
                             {
-                                meta[`${prefix}${id}_${ops[i].toLowerCase()}`] = {
+                                meta[`${prefix}${id}_${create_id_from_name(ops[i])}`] = {
                                     name: `${name} ${ops[i]}`,
                                     type: 'checkbox',
                                     negative: neg[i],
@@ -2062,7 +2062,7 @@ class DAL
                         let total = Object.values(counts).reduce((a, b) => a + b)
                         for (let i in options)
                         {
-                            this.teams[team].stats[`${key}.${options[i].toLowerCase()}`] = counts[i] / total
+                            this.teams[team].stats[`${key}.${create_id_from_name(options[i])}`] = counts[i] / total
                         }
                     }
                 }
@@ -2181,7 +2181,7 @@ class DAL
                                 let total = Object.values(counts).reduce((a, b) => a + b)
                                 for (let i in options)
                                 {
-                                    global_stats[`${id}.${options[i].toLowerCase()}`] = counts[i] / total
+                                    global_stats[`${id}.${create_id_from_name(options[i])}`] = counts[i] / total
                                 }
                             }
                         }
