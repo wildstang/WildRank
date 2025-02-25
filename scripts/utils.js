@@ -419,13 +419,13 @@ function parse_server_addr(addr)
     {
         addr = addr.substr(0, addr.lastIndexOf('/'))
     }
-    if (addr.endsWith('/'))
-    {
-        addr = addr.substr(0, addr.length - 1)
-    }
     if (addr.includes('?'))
     {
         addr = addr.substr(0, addr.indexOf('?'))
+    }
+    if (addr.endsWith('/'))
+    {
+        addr = addr.substr(0, addr.length - 1)
     }
     return addr
 }
