@@ -1,5 +1,5 @@
 {
-    "version": "2025-pre-mndu2",
+    "version": "2025-duluth",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -107,7 +107,7 @@
                                 "Level 1",
                                 "Dropped/Missed"
                             ],
-                            "name": "Level Scored",
+                            "name": "Level Scored (A)",
                             "id": "match_auto_coral_scoring_level_scored"
                         }
                     ]
@@ -131,7 +131,7 @@
                                 "Processor",
                                 "Dropped"
                             ],
-                            "name": "Algae Scored",
+                            "name": "Algae Scored (A)",
                             "id": "match_auto_algae_scoring_algae"
                         }
                     ]
@@ -163,7 +163,7 @@
                                 "Level 1",
                                 "Dropped/Missed"
                             ],
-                            "name": "Level Scored",
+                            "name": "Level Scored (T)",
                             "id": "match_tele_op_coral_scoring_level_scored"
                         }
                     ]
@@ -187,7 +187,7 @@
                             "Processor",
                             "Dropped"
                         ],
-                        "name": "Algae Scored",
+                        "name": "Algae Scored (T)",
                         "id": "match_tele_op_algae_scoring_algae"
                     },
                         {
