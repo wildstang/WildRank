@@ -177,14 +177,14 @@ function capture(team_num)
                         if (result.success)
                         {
                             // add image to team photos
-                            dal.add_photo(team_num, `${addr}/${result.name}`, true)
+                            cache_image(`${addr}/${result.name}`, team_num, data)
                             alert('Upload successful!')
                         }
                         else if (result.name === 'Invalid password')
                         {
                             alert('Invalid password!')
+                            cache_image(addr, team_num, data)
                         }
-                        cache_image(addr, team_num, data)
                     })
                     .catch(e => {
                         cache_image(addr, team_num, data)
@@ -211,7 +211,15 @@ function cache_image(server, team_num, base64)
     .then(response => response.blob())
     .then(blob => {
         // assign a number 100-999 to avoid overlap with other devices
-        let url = `${server}/uploads/${team_num}-${Math.floor(899 * Math.random() + 100)}.png`
+        let url = ''
+        if (server.includes(team_num) && server.endsWith('.png'))
+        {
+            url = server
+        }
+        else
+        {
+            url = `${server}/uploads/${team_num}-${Math.floor(899 * Math.random() + 100)}.png`
+        }
         dal.add_photo(team_num, url, true)
         cache_file(url, blob)
         open_option(team_num)
