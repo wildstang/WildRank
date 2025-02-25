@@ -130,9 +130,9 @@ function open_option(team_num)
     }
 
     // update capture button for new team
-    let capture = new WRButton('Capture', () => capture(team_num))
-    capture.add_class('slim')
-    capture_el.replaceChildren(capture)
+    let capture_button = new WRButton('Capture', () => capture(team_num))
+    capture_button.add_class('slim')
+    capture_el.replaceChildren(capture_button)
 
     ws(team_num)
 }
