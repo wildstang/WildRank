@@ -416,6 +416,11 @@ function check_press(id)
                 break
             case 'pits':
                 params.page = 'pits'
+                if (Object.keys(dal.teams).length == 0)
+                {
+                    alert('Missing team data!')
+                    return
+                }
                 break
             case 'notes':
                 params.page = 'matches'
@@ -423,6 +428,12 @@ function check_press(id)
                 break
             default:
                 file = 'index'
+        }
+
+        if (['matches', 'notes'].includes(id) && Object.keys(dal.matches).length == 0)
+        {
+            alert('Missing match data!')
+            return
         }
         set_cookie(ROLE_COOKIE, id)
         let link = build_url(file, params)
