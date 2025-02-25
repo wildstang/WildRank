@@ -712,7 +712,7 @@ class ZipHandler
      */
     async import_zip(file)
     {
-        if (file.hasOwnProperty('name') && !file.name.includes(dal.event_id))
+        if (file['name'] !== undefined && !file.name.includes(dal.event_id))
         {
             if (!confirm(`Warning, zip does not contain "${dal.event_id}" in the name! Continue?`))
             {
