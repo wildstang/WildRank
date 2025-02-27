@@ -43,8 +43,8 @@ function build_page()
         build_column('Defaults', 'defaults'),
         build_column('Users', 'users'),
         build_column('Keys', 'keys'),
-        build_column('Theme', 'theme'),
-        build_column('Dark Theme', 'dark_theme')
+        //build_column('Theme', 'theme'),
+        //build_column('Dark Theme', 'dark_theme')
     ])
 
     options_el.replaceChildren(page)
@@ -158,8 +158,8 @@ function apply_config()
     localStorage.setItem('config-defaults', build_config('defaults'))
     localStorage.setItem('config-users', build_config('users'))
     localStorage.setItem('config-keys', build_config('keys'))
-    localStorage.setItem('config-theme', build_config('theme'))
-    localStorage.setItem('config-dark-theme', build_config('dark_theme'))
+    //localStorage.setItem('config-theme', build_config('theme'))
+    //localStorage.setItem('config-dark-theme', build_config('dark_theme'))
 
     cfg.load_configs(0, build_page)
     alert('Settings Applied')
