@@ -115,7 +115,7 @@ function build_column(cfg_name, file)
             }
             if (key === 'tba' && val === '')
             {
-                let button = new WRLinkButton('Get an API Key', 'https://www.thebluealliance.com/account#submissions-accepted-count-row')
+                let button = new WRLinkButton('Get an API Key', 'https://www.thebluealliance.com/account#submissions-accepted-count-row', true)
                 button.add_class('slim')
                 column.add_input(button)
             }
