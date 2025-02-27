@@ -43,16 +43,18 @@ function step_setup()
     let status_col = new WRColumn('Status', [])
     let event_config = new WRStatusTile(event)
     event_config.set_status((team_count > 0 ? 1 : 0) + (match_count > 0 ? 1 : 0) - 1)
-    status_col.add_input(event_config)
     let event_counts = new WRMultiNumber('', ['Team', 'Match'], [team_count, match_count])
-    status_col.add_input(event_counts)
+    status_col.add_input(new WRStack([event_config, event_counts]))
     scout_config_valid = new WRStatusTile(cfg.version)
     scout_config_valid.set_status(cfg.validate_game_configs())
     status_col.add_input(scout_config_valid)
-    status_col.add_input(new WRButton('Import Config', import_config))
     if (TBA_KEY || cfg.keys.hasOwnProperty('tba'))
     {
-        status_col.add_input(new WRButton('Load from TBA', preload_event))
+        status_col.add_input(new WRMultiButton('', ['Import Config', 'Load from TBA'], [import_config, preload_event]))
+    }
+    else
+    {
+        status_col.add_input(new WRButton('Import Config', import_config))
     }
 
     // button used to trigger a fresh start of the setup
@@ -60,7 +62,7 @@ function step_setup()
     reset.add_class('slim')
 
     // if an invalid event ID is provided prompt for it first
-    if (event_id.length < 8)
+    if (event_id.length < 7)
     {
         event_id_el = new WREntry('Event ID')
         event_id_el.value = event_id
@@ -96,16 +98,17 @@ function step_setup()
                 pos = i - dal.alliance_size
             }
             position_el.add_option(`${color} ${pos}`)
+            if (position == i - 1)
+            {
+                position_el.value = position_el.options[position]
+            }
         }
-        position_el.value = position_el.options[0]
         setup_col.add_input(position_el)
 
         let match_scout = new WRButton('Match Scout', () => scout('matches'))
-        let other_scout = new WRMultiButton('', ['Pit', 'Alliance'], [() => scout('pits', () => scout('notes'))])
+        let other_scout = new WRMultiButton('', ['Pit', 'Alliance'], [() => scout('pits'), () => scout('notes')])
         other_scout.add_class('slim')
-
-        let scout = new WRStack([match_scout, other_scout])
-        setup_col.add_input(scout)
+        setup_col.add_input(new WRStack([match_scout, other_scout]))
 
         let roles = new WRButton('Other Roles', () => window_open('index.html', '_self'))
         roles.add_class('slim')
@@ -216,30 +219,49 @@ function scout(mode)
     let match_count = Object.keys(dal.matches).length
 
     position = position_el.element.selectedIndex
-    if (position > 0 && ['matches', 'notes'].includes(mode))
+    if (position >= 0 && ['matches', 'notes'].includes(mode))
     {
         set_cookie(POSITION_COOKIE, position)
         if (team_count && match_count)
         {
-            if (mode === 'matches')
-            {
+            let scout_type = mode === 'notes' ? 'note' : 'match'
+            let params = {
+                'page': 'matches', [ROLE_COOKIE]: mode, [EVENT_COOKIE]: event_id,
+                [POSITION_COOKIE]: position, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_type
+            }
 
-            }
-            else
-            {
-                alert('No matches available!')
-            }
-        }
-    }
-    else if (mode === 'pit')
-    {
-        if (team_count)
-        {
+            set_cookie(ROLE_COOKIE, mode)
+            window_open(build_url('selection', params), '_self')
         }
         else
         {
             alert('No matches available!')
         }
+    }
+    else if (mode === 'pits')
+    {
+        if (team_count)
+        {
+            let params = {
+                'page': 'pits', [ROLE_COOKIE]: mode, [EVENT_COOKIE]: event_id,
+                [POSITION_COOKIE]: position, [USER_COOKIE]: user_id, [TYPE_COOKIE]: 'pit'
+            }
+
+            set_cookie(ROLE_COOKIE, mode)
+            window_open(build_url('selection', params), '_self')
+        }
+        else
+        {
+            alert('No teams available!')
+        }
+    }
+    else if (!(team_count && match_count))
+    {
+        alert('No matches available!')
+    }
+    else
+    {
+        alert('Select a position!')
     }
 }
 
