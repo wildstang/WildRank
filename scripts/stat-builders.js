@@ -507,12 +507,15 @@ class WhereStat extends Stat
         let cycles = this.cycles.map(c => dal.meta[c].name)
 
         this.cycle_filter = new WRDropdown('Cycle', cycles)
-        this.cycle_filter.on_change = this.select_cycle.bind(this)
         this.cycle_filter.description = 'The ID of the cycle you would like to count.'
 
         this.container = document.createElement('div')
 
-        this.initialize = this.select_cycle
+        if (cycles.length > 0)
+        {
+            this.cycle_filter.on_change = this.select_cycle.bind(this)
+            this.initialize = this.select_cycle
+        }
     }
 
     build_interface()
@@ -554,6 +557,11 @@ class WhereStat extends Stat
 
     build_stat()
     {
+        if (this.cycle_filter.element.selectedIndex < 0)
+        {
+            return {}
+        }
+
         let cycle = this.cycles[this.cycle_filter.element.selectedIndex].replace('results.', '')
         let count = this.count.element.selectedIndex
         let wdenominator = this.cycle_percent.element.selectedIndex
