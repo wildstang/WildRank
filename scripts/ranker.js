@@ -123,7 +123,7 @@ function build_stat()
 {
     stat = stat_builder.build_stat()
 
-    let name = name_entry.value
+    let name = name_entry.element.value
     stat.name = name
     stat.id = create_id_from_name(name)
 
@@ -138,7 +138,7 @@ function build_stat()
  */
 function calculate()
 {
-    let name = name_entry.value
+    let name = name_entry.element.value
     let id = create_id_from_name(name)
     let stat = build_stat()
     if (!stat)
@@ -265,7 +265,7 @@ function save_stat()
  */
 function save_list()
 {
-    let name = name_entry.value
+    let name = name_entry.element.value
     dal.picklists[name] = team_order
     dal.save_picklists()
     alert(`${name} Created`)
