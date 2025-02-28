@@ -93,7 +93,7 @@ function init_page()
                     document.getElementById(key).value = selected_types[key]
                 }
                 catch {
-                    delete selected_types[key]
+                    document.getElementById(key).value = 'Main'
                 }
             }
         }
@@ -719,9 +719,15 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
 
             // determine previously selected stat
             let type = 'mean'
-            if (`select_${i}` in selected_types)
+            let type_select = document.getElementById(`select_${i}`)
+            if (type_select !== null)
             {
-                type = selected_types[`select_${i}`].toLowerCase()
+                type = type_select.value.toLowerCase()
+                selected_types[`select_${i}`] = type_select.value
+            }
+            else
+            {
+                selected_types[`select_${i}`] = 'Mean'
             }
 
             // compute color
