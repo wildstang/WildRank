@@ -1,5 +1,5 @@
 {
-    "version": "2025-duluth",
+    "version": "2025-duluth.1",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -60,34 +60,6 @@
             "columns": [
                 {
                     "cycle": false,
-                    "name": "Movement",
-                    "id": "match_auto_movement",
-                    "inputs": [
-                        {
-                            "type": "select",
-                            "default": "Unselected",
-                            "disallow_default": true,
-                            "options": [
-                                "Barge Side",
-                                "Center",
-                                "Processor Side",
-                                "Unselected"
-                            ],
-                            "images": [],
-                            "name": "Starting Point",
-                            "id": "match_auto_movement_starting_point"
-                        },
-                        {
-                            "type": "checkbox",
-                            "default": false,
-                            "negative": false,
-                            "name": "Leave",
-                            "id": "match_auto_movement_leave"
-                        }
-                    ]
-                },
-                {
-                    "cycle": false,
                     "name": "Coral Scoring",
                     "id": "match_auto_coral_scoring",
                     "inputs": [
@@ -133,6 +105,34 @@
                             ],
                             "name": "Algae Scored (A)",
                             "id": "match_auto_algae_scoring_algae"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "Movement",
+                    "id": "match_auto_movement",
+                    "inputs": [
+                        {
+                            "type": "select",
+                            "default": "Unselected",
+                            "disallow_default": true,
+                            "options": [
+                                "Barge Side",
+                                "Center",
+                                "Processor Side",
+                                "Unselected"
+                            ],
+                            "images": [],
+                            "name": "Starting Point",
+                            "id": "match_auto_movement_starting_point"
+                        },
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false,
+                            "name": "Leave",
+                            "id": "match_auto_movement_leave"
                         }
                     ]
                 }
