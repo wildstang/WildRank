@@ -507,7 +507,7 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
 
     // sort teams based on parameters
     let pos = get_previous_pos(sort_by, moved_idx, placed_idx)
-    let sorted_teams = get_sorted_teams(sort_by, get_selected_type(pos), reverse)
+    let sorted_teams = get_sorted_teams(sort_by, get_selected_type(pos - 1), reverse)
 
     let selected_types = {}
 
@@ -718,17 +718,8 @@ function build_table(sort_by=0, reverse=false, moved_idx=-1, placed_idx=-1)
             let key = selected[i]
 
             // determine previously selected stat
-            let type = 'mean'
-            let type_select = document.getElementById(`select_${i}`)
-            if (type_select !== null)
-            {
-                type = type_select.value.toLowerCase()
-                selected_types[`select_${i}`] = type_select.value
-            }
-            else
-            {
-                selected_types[`select_${i}`] = 'Mean'
-            }
+            let type = get_selected_type(i)
+            selected_types[`select_${i}`] = type[0].toUpperCase() + type.substring(1)
 
             // compute color
             let color = ''
@@ -803,7 +794,7 @@ function toggle_selected_team(team_num)
 function save_picklist()
 {
     // get selected keys on either side
-    let teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
+    let teams = get_sorted_teams(last_sort, get_selected_type(last_sort - 1), last_reverse)
 
     // filter teams by selected
     let selected = get_selected_keys()
@@ -853,7 +844,7 @@ function export_csv()
 {
     // get selected keys on either side
     let selected = get_selected_keys()
-    let filtered_teams = get_sorted_teams(last_sort, get_selected_type(last_sort), last_reverse)
+    let filtered_teams = get_sorted_teams(last_sort, get_selected_type(last_sort - 1), last_reverse)
 
     // compute totals
     let global_stats = dal.compute_global_stats(selected, filtered_teams)
