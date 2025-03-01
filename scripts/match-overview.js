@@ -108,7 +108,7 @@ async function start_match()
  */
 function hide_matches()
 {
-    let team = team_filter.value
+    let team = team_filter.element.value
     let first = populate_matches(true, true, team)
     open_option(first)
 }
