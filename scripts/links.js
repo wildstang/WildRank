@@ -155,18 +155,6 @@ function open_page(page, params={})
 }
 
 /**
- * function:    sign_out
- * parameters:  none
- * returns:     none
- * description: Return to the role selection (index) page.
- */
-function sign_out()
-{
-    set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
-    return 'index.html'
-}
-
-/**
  * keyboard shortcuts
  */
 document.onkeydown = function (e)

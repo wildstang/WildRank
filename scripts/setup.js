@@ -47,15 +47,11 @@ function step_setup()
     status_col.add_input(new WRStack([event_config, event_counts]))
     scout_config_valid = new WRStatusTile(cfg.version)
     scout_config_valid.set_status(cfg.validate_game_configs())
-    status_col.add_input(scout_config_valid)
-    if (TBA_KEY || cfg.keys.hasOwnProperty('tba'))
-    {
-        status_col.add_input(new WRMultiButton('', ['Import Config', 'Load from TBA'], [import_config, preload_event]))
-    }
-    else
-    {
-        status_col.add_input(new WRButton('Import Config', import_config))
-    }
+    status_col.add_input(new WRStack([
+        scout_config_valid,
+        new WRButton('Import Config', import_config),
+        new WRButton('Load from TBA', preload_event)
+    ]))
 
     // button used to trigger a fresh start of the setup
     let reset = new WRButton('Restart Setup', restart_setup)
@@ -110,7 +106,7 @@ function step_setup()
         other_scout.add_class('slim')
         setup_col.add_input(new WRStack([match_scout, other_scout]))
 
-        let roles = new WRButton('Other Roles', () => window_open('index.html', '_self'))
+        let roles = new WRButton('Other Roles', () => window_open('index.html?page=home', '_self'))
         roles.add_class('slim')
         setup_col.add_input(roles)
 

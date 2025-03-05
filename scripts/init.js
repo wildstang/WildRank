@@ -42,7 +42,7 @@ let script = document.createElement('script')
 script.src = `scripts/${page}.js`
 if (!page)
 {
-    script.src = `scripts/index.js`
+    script.src = `scripts/setup.js`
 }
 document.head.appendChild(script)
 
@@ -186,11 +186,21 @@ function on_config()
  */
 function home(right=false)
 {
-    // determine whether to redirect to index or home
+    let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
+
+    // determine whether to redirect to setup or home
     let url = 'index.html'
-    if (!['', 'index', 'home', 'matches', 'pits', 'notes'].includes(page))
+    if (page === 'setup' || (page === 'home' && role == ROLE_DEFAULT))
+    {
+        url += '?page=setup'
+    }
+    else
     {
         url += '?page=home'
+        if (page === 'home')
+        {
+            set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+        }
     }
 
     window_open(url, right ? '_blank' : '_self')

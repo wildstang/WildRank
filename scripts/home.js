@@ -129,10 +129,39 @@ function init_page()
     let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
     if (role === ROLE_DEFAULT || typeof role === 'undefined')
     {
-        window.open('index.html?page=index', '_self')
-        return
+        open_role_selector()
     }
+    else
+    {
+        open_role(role)
+    }
+}
 
+/**
+ * Populates the page with a list of roles to choose from.
+ */
+function open_role_selector()
+{
+    header_info.innerHTML = 'Select Role'
+
+    // build core page
+    let page = new WRPage('', [new WRColumn('', [
+        new WRButton('Drive Team', () => open_role('drive')),
+        new WRButton('Analyst', () => open_role('analysis')),
+        new WRButton('Advanced', () => open_role('advanced')),
+        new WRButton('Administrator', () => open_role('admin')),
+        new WRLinkButton('Setup', 'index.html?page=setup')
+    ])])
+
+    body.replaceChildren(page)
+}
+
+/**
+ * Populates the page with either a given role or a stored role.
+ * @param {string} role Selected role
+ */
+function open_role(role)
+{
     let title = role
     switch (role)
     {
@@ -153,6 +182,11 @@ function init_page()
             break
         case 'admin':
             title = 'Administrator'
+            if (!cfg.is_admin(get_user()))
+            {
+                alert('User is not an admin!')
+                return
+            }
             break
         case 'extras':
             title = 'Extras'
@@ -160,6 +194,28 @@ function init_page()
         case 'moralysis':
             title = 'More Analysis'
             break
+    }
+
+    if (title === role)
+    {
+        if (role === 'open_moralysis')
+        {
+            role = 'moralysis'
+            title = 'More Analysis'
+        }
+        else if (role === 'open_extras')
+        {
+            role = 'extras'
+            title = 'Extras'
+        }
+        else
+        {
+            open_role_selector()
+        }
+    }
+    else
+    {
+        set_cookie(ROLE_COOKIE, role)
     }
     header_info.innerHTML = title
 
@@ -170,7 +226,8 @@ function init_page()
         let column = Object.values(columns)[0]
         if (column.length === 1)
         {
-            return window_open(open_page(column[0]), '_self')
+            window_open(open_page(column[0]), '_self')
+            return
         }
     }
 
@@ -193,7 +250,7 @@ function init_page()
             }
             else if (key.startsWith('open_'))
             {
-                button = new WRLinkButton(BUTTONS[key].name, eval(`${key}()`))
+                button = new WRButton(BUTTONS[key].name, () => open_role(key))
             }
             else
             {
@@ -207,7 +264,7 @@ function init_page()
     let sign_out_page = new WRPage()
     let column = new WRColumn()
     sign_out_page.add_column(column)
-    let sign_out_button = new WRLinkButton('Sign Out', sign_out())
+    let sign_out_button = new WRButton('Sign Out', sign_out)
     column.add_input(sign_out_button)
 
     body.replaceChildren(page, sign_out_page)
@@ -216,6 +273,15 @@ function init_page()
 /**
  * HELPER FUNCTIONS
  */
+
+/**
+ * Clears the role cookie and opens the role selector.
+ */
+function sign_out()
+{
+    set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+    open_role_selector()
+}
 
 /**
  * function:    has_event
@@ -340,28 +406,6 @@ function get_user()
 function get_position()
 {
     return get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
-}
-
-/**
- * function:    open_extras
- * parameters:  none
- * returns:     none
- * description: Open the extras home page.
- */
-function open_extras()
-{
-    return build_url('index', {'page': 'home', 'role': 'extras'})
-}
-
-/**
- * function:    open_moralysis
- * parameters:  none
- * returns:     none
- * description: Open the extras home page.
- */
-function open_moralysis()
-{
-    return build_url('index', {'page': 'home', 'role': 'moralysis'})
 }
 
 /**
