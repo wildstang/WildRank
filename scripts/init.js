@@ -190,8 +190,9 @@ function home(right=false)
 
     // determine whether to redirect to setup or home
     let url = 'index.html'
-    if (page === 'setup' || (page === 'home' && role == ROLE_DEFAULT))
+    if (['setup', 'matches', 'pits'].includes(page) || (page === 'home' && role == ROLE_DEFAULT))
     {
+        set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
         url += '?page=setup'
     }
     else
