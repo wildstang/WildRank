@@ -174,10 +174,6 @@ function open_option(match_num)
         {
             let page = new WRPage()
 
-            let result_button = new WRLinkButton('View Result', open_page('results', {'file': `${key}-${team_num}`}))
-            result_button.add_class('slim')
-            page.add_column(new WRColumn('', [result_button]))
-
             if (can_edit(match_num, team_num))
             {
                 let edit_button = new WRLinkButton('Edit Notes', open_page('note', {match: key, alliance: alliance, edit: true}))
