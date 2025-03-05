@@ -35,8 +35,15 @@ function preload_event()
         }
         if (!TBA_KEY)
         {
-            alert('No API key found for TBA!')
-            return
+            if (confirm('No API key found for TBA! Do you want to open TBA?'))
+            {
+                window_open('https://www.thebluealliance.com/account#submissions-accepted-count-row', '_blank')
+                TBA_KEY = prompt('Enter your TBA key:')
+            }
+            else
+            {
+                return
+            }
         }
     }
     
