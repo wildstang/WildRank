@@ -370,6 +370,27 @@ function add_button_filter(text, func, primary_list=true)
 }
 
 /**
+ * Builds a checkbox in a given filter box.
+ * 
+ * @param {string} text Label for checkbox
+ * @param {Function} func Function to call on change
+ * @param {boolean} primary_list Whether to display for primary list (vs secondary).
+ * @returns The WRCheckbox object.
+ */
+function add_checkbox_filter(text, func, primary_list=true)
+{
+    let id = 'filter'
+    if (!primary_list)
+    {
+        id = 'secondary_filter'
+    }
+    let checkbox = new WRCheckbox(text, false)
+    checkbox.on_click = func
+    document.getElementById(id).append(checkbox)
+    return checkbox
+}
+
+/**
  * Creates a new card with a message in the header and a description below it.
  * 
  * @param {string} message Header message

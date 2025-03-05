@@ -209,3 +209,8 @@ body {
     width: 299px;
     margin: 4px auto;
 }
+
+.selection_filter > wr-checkbox > .wr_checkbox {
+    width: calc(299px - 2*var(--input-padding));
+    margin: 4px auto;
+}

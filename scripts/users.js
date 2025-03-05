@@ -6,9 +6,9 @@
  * date:        2020-06-13
  */
 
-var users = {}
+var users, scouters = []
 
-var id_number, name_entry, user_card, admin_box, position_dropdown, pos_card, time_card, pit_card
+var id_number, name_entry, user_card, admin_box, position_dropdown, pos_card, time_card, pit_card, filter_box
 
 /**
  * function:    init_page
@@ -28,12 +28,11 @@ function init_page()
         let match_users = matches.map(m => m.meta_scouter_id).filter(id => typeof id !== 'undefined')
         let note_users = matches.map(m => m.meta_note_scouter_id).filter(id => typeof id !== 'undefined')
         let pit_users = pits.map(p => p.meta_scouter_id).filter(id => typeof id !== 'undefined')
-        let scouters = match_users.concat(note_users, pit_users)
+        scouters = match_users.concat(note_users, pit_users)
         scouters = [... new Set(scouters)]
 
         // get list of users
-        let users = Object.keys(cfg.users)
-
+        users = Object.keys(cfg.users)
         for (let user of scouters)
         {
             if (!users.includes(user.toString()))
@@ -41,21 +40,6 @@ function init_page()
                 users.push(user)
             }
         }
-
-        let classes = {}
-        for (let user of users)
-        {
-            if (cfg.is_admin(user))
-            {
-                classes[user] = 'highlighted'
-            }
-            else if (!scouters.includes(parseInt(user)))
-            {
-                classes[user] = 'scouted'
-            }            
-        }
-        users.sort()
-
 
         // user column
         id_number = new WRNumber('ID Number', '')
@@ -89,15 +73,43 @@ function init_page()
 
         preview.replaceChildren(new WRPage('', [user_col, card_col]))
 
-        let first = populate_other(users, classes)
-        if (first !== '')
-        {
-            open_option(first)
-        }
+        filter_box = add_checkbox_filter('Show All Users', build_options)
+        build_options()
     }
     else
     {
         add_error_card('No Results Found')
+    }
+}
+
+function build_options()
+{
+    let show_non_scouters = filter_box !== undefined && filter_box.checked
+
+    let classes = {}
+    let display_users = []
+    for (let user of users)
+    {
+        if (cfg.is_admin(user))
+        {
+            classes[user] = 'highlighted'
+        }
+        else if (!scouters.includes(parseInt(user)))
+        {
+            classes[user] = 'scouted'
+        }
+
+        if (show_non_scouters || scouters.includes(parseInt(user)))
+        {
+            display_users.push(user)
+        }
+    }
+    display_users.sort()
+
+    let first = populate_other(display_users, classes)
+    if (first !== '')
+    {
+        open_option(first)
     }
 }
 
