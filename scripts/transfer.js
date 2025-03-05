@@ -724,7 +724,8 @@ class ZipHandler
         let zip = await JSZip.loadAsync(file)
         let files = Object.keys(zip.files)
         let complete = 0
-        let ignore_all = false
+        let ignore_app = false
+        let ignore_cfg = false
 
         if (files.length == 0)
         {
@@ -843,23 +844,23 @@ class ZipHandler
                             // warn if reported config version does not match
                             let version_key = `config-${cfg.year}-version`
                             let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version
-                            if (!ignore_all && write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
+                            if (!ignore_cfg && write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
                             {
                                 write = confirm(`Config version mismatch on ${n}, continue?`)
                                 if (write)
                                 {
-                                    ignore_all = confirm(`Ignore all version mismatches?`)
+                                    ignore_cfg = confirm(`Ignore all config version mismatches?`)
                                 }
                             }
 
                             // warn if reported app version does not match
                             version = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
-                            if (!ignore_all && write && version !== VERSION_DEFAULT && 'meta_app_version' in new_json && new_json.meta_app_version !== version)
+                            if (!ignore_app && write && version !== VERSION_DEFAULT && 'meta_app_version' in new_json && new_json.meta_app_version !== version)
                             {
                                 write = confirm(`App version mismatch on ${n}, continue?`)
                                 if (write)
                                 {
-                                    ignore_all = confirm(`Ignore all version mismatches?`)
+                                    ignore_app = confirm(`Ignore all app version mismatches?`)
                                 }
                             }
                         }
