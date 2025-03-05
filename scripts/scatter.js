@@ -22,6 +22,7 @@ function init_page()
 
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
+    canvas.style.background = 'white'
     let card = new WRCard([title_el, canvas])
     preview.append(card)
 
@@ -175,21 +176,14 @@ function build_plot()
     {
         let val = (i / 10 * max_b).toFixed(1)
         let y = pheight - bottom_margin - val * (pheight - 50) / max_b
-        ctx.fillText(val, 25, y + font_size)
-        ctx.fillRect(25, y, pwidth, 1)
+        ctx.fillText(val, 25, y + font_size / 2)
+        ctx.fillRect(left_margin, y, pwidth, 1)
 
         val = (i / 10 * max_a).toFixed(1)
         let x = left_margin + val * (pwidth - 50) / max_a
         ctx.fillText(val, x - 5 * val.toString().length, pheight - 30)
         ctx.fillRect(x, 0, 1, pheight - bottom_margin)
     }
-    ctx.fill()
-
-    // fill margins
-    ctx.beginPath()
-    ctx.fillStyle = 'gray'
-    ctx.fillRect(0, 0, left_margin, pheight)
-    ctx.fillRect(0, pheight - bottom_margin, pwidth, bottom_margin)
     ctx.fill()
 
     // set tooltip on hover over dot

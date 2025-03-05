@@ -24,6 +24,7 @@ function init_page()
 
     title_el = document.createElement('h2')
     canvas = document.createElement('canvas')
+    canvas.style.background = 'white'
     let card = new WRCard([title_el, canvas])
 
     let label = document.createElement('label')
@@ -307,15 +308,8 @@ function build_plot()
     {
         let val = i * max / 10
         let y = pheight - bottom_margin - val * (pheight - 50) / max
-        ctx.fillText(val.toFixed(1), 5, y + font_size)
-        ctx.fillRect(0, y, pwidth, 1)
+        ctx.fillText(val.toFixed(1), 5, y + font_size / 2)
+        ctx.fillRect(left_margin, y, pwidth, 1)
     }
-    ctx.fill()
-
-    // fill margins
-    ctx.beginPath()
-    ctx.fillStyle = 'gray'
-    ctx.fillRect(0, 0, left_margin, pheight)
-    ctx.fillRect(0, pheight - bottom_margin, pwidth, bottom_margin)
     ctx.fill()
 }
