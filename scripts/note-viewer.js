@@ -11,7 +11,7 @@ const SESSION_SEARCH_KEY = 'note-selected-search'
 
 let scouters = []
 
-let team_entry, scouter_drop, search_entry, notes_page
+let team_entry, scouter_drop, search_entry, mode_drop, notes_page
 
 /**
  * function:    init_page
@@ -62,11 +62,14 @@ function init_page()
     scouter_drop = new WRDropdown('Scouter', names, default_scouter)
     scouter_drop.on_change = filter_notes
     let scouter_col = new WRColumn('', [scouter_drop])
+    mode_drop = new WRDropdown('Scout Mode', ['All', 'Pit', 'Match', 'Alliance'], default_scouter)
+    mode_drop.on_change = filter_notes
+    let mode_col = new WRColumn('', [mode_drop])
     search_entry = new WREntry('Search', default_search)
     search_entry.on_text_change = filter_notes
     let search_col = new WRColumn('', [search_entry])
     notes_page = new WRPage()
-    body.append(new WRPage('', [teams_col, scouter_col, search_col]), notes_page)
+    body.append(new WRPage('', [teams_col, scouter_col, mode_col, search_col]), notes_page)
     filter_notes()
 }
 
@@ -88,6 +91,7 @@ function filter_notes()
     {
         scouter = scouters[scouter_idx]
     }
+    let scout_mode = mode_drop.element.selectedIndex
     sessionStorage.setItem(SESSION_SCOUTER_KEY, scouter)
     let search = search_entry.element.value.trim().toLowerCase()
     sessionStorage.setItem(SESSION_SEARCH_KEY, search)
@@ -108,43 +112,69 @@ function filter_notes()
             }
             for (let result of results)
             {
-                // only look at pit notes from the filtered scouter
-                if (result.meta_scout_mode !== PIT_MODE || (scouter === '' || result.meta_scouter_id === scouter))
+                let keys = Object.keys(result)
+                for (let key of keys)
                 {
-                    let keys = Object.keys(result)
-                    for (let key of keys)
+                    // only look at results ending in "notes" that use at least 5 characters
+                    if (!key.endsWith('notes') || result[key].length < 5)
                     {
-                        // find results ending in notes from the filtered scouter
-                        if (key.endsWith('notes') && result[key].length > 5 && (scouter === '' ||
-                            (!key.startsWith(NOTE_MODE) && result.meta_scouter_id === scouter) ||
-                            (key.startsWith(NOTE_MODE) && result.meta_note_scouter_id === scouter)))
+                        continue
+                    }
+
+                    // skip if the selected scouter did not take the note
+                    if (scouter !== ''  && ((key.startsWith(PIT_MODE) && result.meta_scouter_id !== scouter) ||
+                                            (key.startsWith(MATCH_MODE) && result.meta_scouter_id !== scouter) ||
+                                            (key.startsWith(NOTE_MODE) && result.meta_note_scouter_id !== scouter)))
+                    {
+                        continue
+                    }
+
+                    // skip if the result is not the selected mode
+                    if (scout_mode > 0 && ((scout_mode === 1 && !key.startsWith(PIT_MODE)) ||
+                                            (scout_mode === 2 && !key.startsWith(MATCH_MODE)) ||
+                                            (scout_mode === 3 && !key.startsWith(NOTE_MODE))))
+                    {
+                        continue
+                    }
+
+                    // skip teams that don't match search
+                    if (search !== '' && !result[key].toLowerCase().includes(search))
+                    {
+                        continue
+                    }
+
+                    // determine note ID
+                    let result_key = PIT_MODE
+                    if (result.meta_scout_mode !== PIT_MODE)
+                    {
+                        result_key = result.meta_match_key
+                    }
+
+                    // collect note
+                    if (!(result_key in notes))
+                    {
+                        notes[result_key] = []
+                    }
+
+                    let name = ''
+                    if (scouter === '')
+                    {
+                        if (!key.startsWith(NOTE_MODE))
                         {
-                            // skip teams that don't match search
-                            if (search !== '' && !result[key].toLowerCase().includes(search))
-                            {
-                                continue
-                            }
-
-                            // determine note ID
-                            let result_key = PIT_MODE
-                            if (result.meta_scout_mode !== PIT_MODE)
-                            {
-                                result_key = result.meta_match_key
-                            }
-
-                            // collect note
-                            if (!(result_key in notes))
-                            {
-                                notes[result_key] = []
-                            }
-                            let note = result[key]
-                            if (result.meta_scout_mode !== NOTE_MODE && result.meta_unsure)
-                            {
-                                note = `[UNSURE] ${note}`
-                            }
-                            notes[result_key].push(note)
+                            name = cfg.get_name(result.meta_scouter_id)
+                        }
+                        else if (key.startsWith(NOTE_MODE))
+                        {
+                            name = cfg.get_name(result.meta_note_scouter_id)
                         }
                     }
+
+                    let note = result[key]
+                    if (result.meta_scout_mode !== NOTE_MODE && result.meta_unsure)
+                    {
+                        note = `[UNSURE] ${note}`
+                    }
+                    notes[result_key].push([name, note, key.startsWith(NOTE_MODE)])
                 }
             }
 
@@ -166,14 +196,14 @@ function filter_notes()
                 let name = PIT_MODE
                 if (key in dal.matches)
                 {
-                    name = dal.matches[key].short_match_name
+                    name = `Match ${dal.matches[key].short_match_name}`
                 }
-                table.append(create_header_row([name, '']))
+                table.append(create_header_row(['', name]))
                 for (let note of notes[key])
                 {
                     let row = table.insertRow()
-                    row.insertCell()
-                    row.insertCell().innerText = note
+                    row.insertCell().innerHTML = note[2] ? `<i>${note[0]}</i>` : note[0]
+                    row.insertCell().innerText = note[1]
                 }
             }
 
