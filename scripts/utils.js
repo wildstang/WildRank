@@ -113,26 +113,26 @@ function set_cookie(cname, cvalue)
  */
 function get_cookie(cname, dvalue)
 {
-    var name = `${cname}=`;
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++)
+    var name = `${cname}=`
+    var decodedCookie = decodeURIComponent(document.cookie)
+    var ca = decodedCookie.split(';')
+    for(var i = 0; i < ca.length; i++)
     {
-        var c = ca[i];
+        var c = ca[i]
         while (c.charAt(0) == ' ')
         {
-            c = c.substring(1);
+            c = c.substring(1)
         }
         if (c.indexOf(name) == 0)
         {
-            return c.substring(name.length, c.length);
+            return c.substring(name.length, c.length)
         }
     }
     if (typeof dvalue !== 'undefined')
     {
         set_cookie(cname, dvalue)
     }
-    return dvalue;
+    return dvalue
 }
 
 /**
