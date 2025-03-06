@@ -20,6 +20,23 @@ function init_page()
     user_id = get_cookie(USER_COOKIE, '')
     position = get_cookie(POSITION_COOKIE, -1)
 
+    // display a version box only if caching is enabled
+    if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
+    {
+        // request the current version from the serviceWorker
+        navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
+        navigator.serviceWorker.addEventListener('message', e => {
+            if (e.data.msg === 'version')
+            {
+                let version = e.data.version.replace('wildrank-', '')
+                let header = document.getElementById('header_info')
+                header.innerText = version
+                header.onclick = () => window_open('index.html?page=about', '_blank')
+                set_cookie(VERSION_COOKIE, version)
+            }
+        })
+    }
+
     step_setup()
 }
 
