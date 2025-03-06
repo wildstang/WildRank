@@ -206,3 +206,17 @@ function home(right=false)
 
     window_open(url, right ? '_blank' : '_self')
 }
+
+// open the updater page when u is pressed 5 times
+var u_count = 0
+document.onkeydown = function (e)
+{
+    if (e.key === 'u')
+    {
+        u_count++
+        if (u_count === 5)
+        {
+            window_open('updater.html', '_self')
+        }
+    }
+}

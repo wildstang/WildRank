@@ -11,109 +11,16 @@
             <h1>WildRank Updater</h1>
         </div>
         <input type="submit" onclick="update()" value="Update">
+        <input type="submit" onclick="reset_cache()" value="Reset Cache">
+        <input type="submit" onclick="reset_cookies()" value="Reset Cookies">
+        <input type="submit" onclick="reset_storage()" value="Reset Storage">
         <table id="missing"></table>
         <table id="files"></table>
+        <table id="cookies"></table>
+        <table id="storage"></table>
     </body>
+    <script src="/scripts/pwa.js"></script>
     <script>
-        const CACHE_LIST = [
-            // html files
-            '/',
-            '/index.html',
-            '/selection.html',
-            // styles
-            '/styles/style.css',
-            '/styles/inputs.css',
-            '/styles/selection.css',
-            // scripts
-            '/scripts/about.js',
-            '/scripts/blank.js',
-            '/scripts/bracket.js',
-            '/scripts/cache.js',
-            '/scripts/coach.js',
-            '/scripts/config-debug.js',
-            '/scripts/config-generator.js',
-            '/scripts/config.js',
-            '/scripts/cycles.js',
-            '/scripts/data.js',
-            '/scripts/distro.js',
-            '/scripts/edit-coach.js',
-            '/scripts/edit-stats.js',
-            '/scripts/event-generator.js',
-            '/scripts/events.js',
-            '/scripts/export.js',
-            '/scripts/home.js',
-            '/scripts/index.js',
-            '/scripts/init.js',
-            '/scripts/inputs.js',
-            '/scripts/keys.js',
-            '/scripts/links.js',
-            '/scripts/match-overview.js',
-            '/scripts/matches.js',
-            '/scripts/mini-picklists.js',
-            '/scripts/multipicklists.js',
-            '/scripts/note.js',
-            '/scripts/note-viewer.js',
-            '/scripts/picklists-core.js',
-            '/scripts/pits.js',
-            '/scripts/pivot.js',
-            '/scripts/plot.js',
-            '/scripts/progress.js',
-            '/scripts/random.js',
-            '/scripts/ranker.js',
-            '/scripts/results.js',
-            '/scripts/scatter.js',
-            '/scripts/schedule-importer.js',
-            '/scripts/scout.js',
-            '/scripts/scouter-scheduler.js',
-            '/scripts/selection-pages.js',
-            '/scripts/selection.js',
-            '/scripts/settings.js',
-            '/scripts/sides.js',
-            '/scripts/storage.js',
-            '/scripts/teams.js',
-            '/scripts/transfer-raw.js',
-            '/scripts/transfer.js',
-            '/scripts/users.js',
-            '/scripts/utils.js',
-            '/scripts/whiteboard.js',
-            '/scripts/libs/jszip.min.js',
-            '/scripts/libs/Vibrant.min.js',
-            //'/scripts/misc/2022-score-estimator.js',
-            '/scripts/misc/2023-score-estimator.js',
-            /* don't cache misc scripts that rely on tba
-            '/scripts/misc/district-counter.js',
-            '/scripts/misc/event-planner.js',
-            '/scripts/misc/international-counter.js',
-            '/scripts/misc/match-counter.js',
-            '/scripts/misc/revival-counter.js',
-            '/scripts/misc/score-counter.js',
-            '/scripts/misc/team-profile.js',*/
-            '/scripts/misc/test.js',
-            // assets
-            '/assets/2023/cone.png',
-            '/assets/2023/cube.png',
-            '/assets/2023/field-2023.png',
-            /* icons should be cached when pwa is installed
-            '/assets/icons/icon-192x192-maskable.png',
-            '/assets/icons/icon-192x192.png',
-            '/assets/icons/icon-256x256-maskable.png',
-            '/assets/icons/icon-256x256.png',
-            '/assets/icons/icon-384x384-maskable.png',
-            '/assets/icons/icon-384x384.png',
-            '/assets/icons/icon-512x512-maskable.png',
-            '/assets/icons/icon-512x512.png',*/
-            '/assets/clipboard-edit-outline.png',
-            '/assets/dozer.png',
-            '/assets/menu-white-18dp.svg',
-            // configs
-            '/config/2023-config.json',
-            '/config/settings-config.json',
-            // other files
-            '/favicon.ico',
-            '/manifest.webmanifest',
-            //'/pwa.js',
-            '/about'
-        ]
 
         /**
          * function:    parse_server_addr
@@ -159,6 +66,47 @@
         }
 
         /**
+         * Delete all files in localStorage.
+         */
+        function reset_storage()
+        {
+            localStorage.clear()
+        }
+
+        /**
+         * Delete all cookies.
+         */
+        function reset_cookies()
+        {
+            let cookies = document.cookie.split(';')
+            for (let i = 0; i < cookies.length; i++)
+            {
+                let cookie = cookies[i]
+                let eqPos = cookie.indexOf('=')
+                let name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie
+                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`
+            }
+        }
+
+        /**
+         * Delete all cached files.
+         */
+        async function reset_cache()
+        {
+            if (typeof caches !== 'undefined')
+            {
+                if (typeof caches !== 'undefined')
+                {
+                    let keys = await caches.keys()
+                    for (let key of keys)
+                    {
+                        caches.delete(key)
+                    }
+                }
+            }
+        }
+
+        /**
          * function:    delete_file
          * parameters:  cache name, file name
          * returns:     none
@@ -181,71 +129,100 @@
         {
             let text = ''
             let missing = [...CACHE_LIST]
-            let names = await caches.keys()
-            let server = parse_server_addr(document.location.href)
-            for (let name of names)
+
+            if ('serviceWorker' in navigator)
             {
-                let cache = await caches.open(name)
-                let keys = await cache.keys()
-                let table = `<table><tr><th>${name}</th><td>${keys.length} files</td></tr>`
-                let cache_str = ''
-                
-                // add each file in the cache to the table
-                for (let key of keys)
+                let names = await caches.keys()
+                let server = parse_server_addr(document.location.href)
+                for (let name of names)
                 {
-                    // add up all bytes in file
-                    let response = await cache.match(key)
-                    let reader = response.body.getReader()
-                    let full = false
-                    let bytes = 0
-                    let str = ''
-                    while (!full)
+                    let cache = await caches.open(name)
+                    let keys = await cache.keys()
+                    let table = `<table><tr><th>${name}</th><td>${keys.length} files</td></tr>`
+                    let cache_str = ''
+                    
+                    // add each file in the cache to the table
+                    for (let key of keys)
                     {
-                        await reader.read().then(({done, value}) =>
+                        // add up all bytes in file
+                        let response = await cache.match(key)
+                        let reader = response.body.getReader()
+                        let full = false
+                        let bytes = 0
+                        let str = ''
+                        while (!full)
                         {
-                            if (!done)
+                            await reader.read().then(({done, value}) =>
                             {
-                                bytes += value.length
-                                for (let c of value)
+                                if (!done)
                                 {
-                                    str += String.fromCharCode(c)
+                                    bytes += value.length
+                                    for (let c of value)
+                                    {
+                                        str += String.fromCharCode(c)
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                full = true
-                            }
-                        })
-                    }
+                                else
+                                {
+                                    full = true
+                                }
+                            })
+                        }
 
-                    // create row
-                    let file = response.url
-                    if (file === '')
-                    {
-                        file = key.url
+                        // create row
+                        let file = response.url
+                        if (file === '')
+                        {
+                            file = key.url
+                        }
+                        if (file.startsWith(server))
+                        {
+                            file = file.replace(server, '')
+                        }
+                        if (missing.includes(file))
+                        {
+                            missing.splice(missing.indexOf(file), 1)
+                        }
+                        table += `<tr><td>${file}</td><td><a onclick="delete_file('${name}', '${file}')">delete</a></td></tr>`
+                        cache_str += str
                     }
-                    if (file.startsWith(server))
-                    {
-                        file = file.replace(server, '')
-                    }
-                    if (missing.includes(file))
-                    {
-                        missing.splice(missing.indexOf(file), 1)
-                    }
-                    table += `<tr><td>${file}</td><td><a onclick="delete_file('${name}', '${file}')">delete</a></td></tr>`
-                    cache_str += str
+                    text += table + '</table>'
                 }
-                text += table + '</table>'
-            }
-            document.getElementById('files').innerHTML = text
+                document.getElementById('files').innerHTML = text
 
-            let missing_tab = missing.map(f => `<tr><td>${f}</td><td></td></tr>`)
-            text = missing_tab.join('')
-            if (missing_tab.length > 0)
-            {
-                text = `<tr><th>Missing Files</th><td>${missing_tab.length} Files</td></tr>${text}`
+                let missing_tab = missing.map(f => `<tr><td>${f}</td><td></td></tr>`)
+                text = missing_tab.join('')
+                if (missing_tab.length > 0)
+                {
+                    text = `<tr><th>Missing Files</th><td>${missing_tab.length} Files</td></tr>${text}`
+                }
+                document.getElementById('missing').innerHTML = text
             }
-            document.getElementById('missing').innerHTML = text
+            else
+            {
+                document.getElementById('files').innerHTML = 'Caching not supported'
+            }
+
+            let cookies = document.cookie.split(';')
+            let table = `<table><tr><th>Cookie</th><td>${cookies.length}</td></tr>`
+            for (c of cookies)
+            {
+                let cookie = c.split('=')
+                if (cookie.length > 1)
+                {
+                    table += `<tr><td>${cookie[0]}</td><td>${cookie[1]}</td></tr>`
+                }
+            }
+            document.getElementById('cookies').innerHTML = table
+
+            console.log('update')
+            let files = Object.keys(localStorage).sort()
+            table = `<table><tr><th>File</th><td>${files.length}</td></tr>`
+            for (f of files)
+            {
+                table += `<tr><td>${f}</td><td><a onclick="localStorage.removeItem('${f}')">delete</a></td></tr>`
+            }
+            document.getElementById('storage').innerHTML = table
         }
 
         // update the page once per second

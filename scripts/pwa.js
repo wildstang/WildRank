@@ -11,6 +11,7 @@ const CACHE_LIST = [
     '/',
     '/index.html',
     '/selection.html',
+    '/updater.html',
     // styles
     '/styles/style.css',
     '/styles/inputs.css',

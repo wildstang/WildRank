@@ -41,17 +41,14 @@ function init_page()
     config.space_after = false
     about_col.add_input(config)
 
-    let get_col = new WRColumn('Links')
+    about_col.add_input(new WRLinkButton('Updater', 'updater.html', true))
+
+    let get_col = new WRColumn('Links', [
+        new WRLinkButton('GitHub', 'https://github.com/WildStang/WildRank', true),
+        new WRLinkButton('Public Demo', 'https://wildrank.app', true),
+        new WRLinkButton('WildStang Program', 'https://wildstang.org', true)
+    ])
     page.add_column(get_col)
-
-    let source = new WRLinkButton('GitHub', 'https://github.com/WildStang/WildRank', true)
-    get_col.add_input(source)
-
-    let demo = new WRLinkButton('Public Demo', 'https://wildrank.app', true)
-    get_col.add_input(demo)
-
-    let wildstang = new WRLinkButton('WildStang Program', 'https://wildstang.org', true)
-    get_col.add_input(wildstang)
 
     body.replaceChildren(page)
 
