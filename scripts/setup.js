@@ -60,14 +60,16 @@ function step_setup()
     let status_col = new WRColumn('Status', [])
     let event_config = new WRStatusTile(event)
     event_config.set_status((team_count > 0 ? 1 : 0) + (match_count > 0 ? 1 : 0) - 1)
-    let event_counts = new WRMultiNumber('', ['Team', 'Match'], [team_count, match_count])
-    status_col.add_input(new WRStack([event_config, event_counts]))
+    status_col.add_input(new WRStack([
+        event_config,
+        new WRMultiNumber('', ['Team', 'Match'], [team_count, match_count]),
+        new WRButton('Load from TBA', preload_event)
+    ]))
     scout_config_valid = new WRStatusTile(cfg.version)
     scout_config_valid.set_status(cfg.validate_game_configs())
     status_col.add_input(new WRStack([
         scout_config_valid,
-        new WRButton('Import Config', import_config),
-        new WRButton('Load from TBA', preload_event)
+        new WRButton('Import Config', import_config)
     ]))
 
     // button used to trigger a fresh start of the setup
