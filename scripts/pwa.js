@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-4.0.2'
+const CACHE_NAME = 'wildrank-250307'
 const CACHE_LIST = [
     // html files
     '/',
