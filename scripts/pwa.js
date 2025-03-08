@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-250307'
+const CACHE_NAME = 'wildrank-250308'
 const CACHE_LIST = [
     // html files
     '/',
@@ -85,6 +85,7 @@ const CACHE_LIST = [
     '/scripts/misc/revival-counter.js',
     '/scripts/misc/score-counter.js',
     '/scripts/misc/team-profile.js',*/
+    '/scripts/misc/2025-score-calculator.js',
     '/scripts/misc/test.js',
     // assets
     '/assets/2025/algae.png',

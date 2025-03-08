@@ -68,6 +68,7 @@ function step_setup()
     ]))
     scout_config_valid = new WRStatusTile(cfg.version)
     scout_config_valid.set_status(cfg.validate_game_configs())
+    scout_config_valid.on_click = () => window_open(build_url('index', {'page': 'config-debug'}), '_self')
     status_col.add_input(new WRStack([
         scout_config_valid,
         new WRButton('Import Config', import_config)
@@ -93,6 +94,7 @@ function step_setup()
         user_id_el.type = 'number'
         user_id_el.bounds = [100000, 999999]
         user_id_el.value = user_id
+        user_id_el.on_text_change = () => user_id = user_id_el.element.value
         setup_col.add_input(user_id_el)
 
         setup_col.add_input(new WRButton('Next', set_user_id))
@@ -208,6 +210,7 @@ function restart_setup()
     event_id = ''
     user_id = ''
     position = -1
+    scouter = true
     step_setup()
 }
 
@@ -338,4 +341,17 @@ function process_files()
     dal.build_teams()
 
     step_setup()
+}
+
+/**
+ * Override the WildRank link to handle moralysis and extras pages.
+ * @param {Boolean} right 
+ */
+function home(right=false)
+{
+    if (!scouter)
+    {
+        scouter = true
+        step_setup()
+    }
 }
