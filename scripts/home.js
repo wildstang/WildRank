@@ -119,6 +119,8 @@ const BUTTONS = {
     'misc/verde':                   { name: 'VerdeRank',                limits: [, 'teams'], configs: [] }
 }
 
+var role_page = ROLE_DEFAULT
+
 /**
  * function:    init_page
  * parameters:  none
@@ -128,33 +130,14 @@ const BUTTONS = {
 function init_page()
 {
     let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
-    if (role === ROLE_DEFAULT || typeof role === 'undefined')
-    {
-        open_role_selector()
-    }
-    else
+    if (typeof role !== 'undefined' && role !== ROLE_DEFAULT)
     {
         open_role(role)
     }
-}
-
-/**
- * Populates the page with a list of roles to choose from.
- */
-function open_role_selector()
-{
-    header_info.innerHTML = 'Select Role'
-
-    // build core page
-    let page = new WRPage('', [new WRColumn('', [
-        new WRButton('Drive Team', () => open_role('drive')),
-        new WRButton('Analyst', () => open_role('analysis')),
-        new WRButton('Advanced', () => open_role('advanced')),
-        new WRButton('Administrator', () => open_role('admin')),
-        new WRLinkButton('Setup', 'index.html?page=setup')
-    ])])
-
-    body.replaceChildren(page)
+    else
+    {
+        sign_out()
+    }
 }
 
 /**
@@ -211,14 +194,15 @@ function open_role(role)
         }
         else
         {
-            open_role_selector()
+            sign_out()
         }
     }
     else
     {
         set_cookie(ROLE_COOKIE, role)
     }
-    header_info.innerHTML = title
+    header_info.innerText = title
+    role_page = role
 
     // redirect if there is only 1 option on the page
     let columns = CONFIGS[role]
@@ -281,7 +265,7 @@ function open_role(role)
 function sign_out()
 {
     set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
-    open_role_selector()
+    window_open(build_url('index', {'page': 'setup'}), '_self')
 }
 
 /**
@@ -460,4 +444,21 @@ function export_config()
     handler.pictures    = true
     handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
     handler.export_zip()
+}
+
+/**
+ * Override the WildRank link to handle moralysis and extras pages.
+ * @param {Boolean} right 
+ */
+function home(right=false)
+{
+    let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
+    if (role_page !== role)
+    {
+        open_role(role)
+    }
+    else
+    {
+        window_open('index.html?page=setup', right ? '_blank' : '_self')
+    }
 }

@@ -186,11 +186,9 @@ function on_config()
  */
 function home(right=false)
 {
-    let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
-
     // determine whether to redirect to setup or home
     let url = 'index.html'
-    if (['setup', 'matches', 'pits'].includes(page) || (page === 'home' && role == ROLE_DEFAULT))
+    if (['setup', 'matches', 'pits'].includes(page))
     {
         set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
         url += '?page=setup'
@@ -198,10 +196,6 @@ function home(right=false)
     else
     {
         url += '?page=home'
-        if (page === 'home')
-        {
-            set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
-        }
     }
 
     window_open(url, right ? '_blank' : '_self')

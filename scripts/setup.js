@@ -11,6 +11,7 @@ var event_id_el, user_id_el, position_el
 
 var user_id = ''
 var position = -1
+var scouter = true
 
 /**
  * Initializes necessary variables and calls the first page setup.
@@ -100,7 +101,7 @@ function step_setup()
         columns.push(status_col)
     }
     // the final page continues to show event status and prompts for position and scouting type
-    else
+    else if (scouter)
     {
         position_el = new WRDropdown(`${cfg.get_name(user_id)}'s Position`)
         for (let i = 1; i <= dal.alliance_size * 2; i++)
@@ -125,9 +126,23 @@ function step_setup()
         other_scout.add_class('slim')
         setup_col.add_input(new WRStack([match_scout, other_scout]))
 
-        let roles = new WRButton('Other Roles', () => window_open('index.html?page=home', '_self'))
+        let roles = new WRButton('Other Roles', other_roles)
         roles.add_class('slim')
         setup_col.add_input(roles)
+
+        setup_col.add_input(reset)
+
+        columns.push(status_col)
+    }
+    else
+    {
+        setup_col.add_input(new WRButton('Drive Team', () => open_role('drive')))
+        setup_col.add_input(new WRButton('Analyst', () => open_role('analysis')))
+        setup_col.add_input(new WRButton('Advanced', () => open_role('advanced')))
+
+        let admin = new WRButton('Administrator', () => open_role('admin'))
+        admin.add_class('slim')
+        setup_col.add_input(admin)
 
         setup_col.add_input(reset)
 
@@ -277,6 +292,32 @@ function scout(mode)
     else
     {
         alert('Select a position!')
+    }
+}
+
+/**
+ * Callback when other roles button is selected.
+ */
+function other_roles()
+{
+    scouter = false
+    step_setup()
+}
+
+/**
+ * Opens the home page for the given role.
+ * @param {String} role Role name to open.
+ */
+function open_role(role)
+{
+    if (role === 'admin' && !cfg.is_admin(user_id))
+    {
+        alert('Admin access required!')
+    }
+    else
+    {
+        set_cookie(ROLE_COOKIE, mode)
+        window_open(build_url('index', {'page': 'home', [ROLE_COOKIE]: role}), '_self')
     }
 }
 
