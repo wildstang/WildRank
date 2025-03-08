@@ -23,7 +23,7 @@ const CONFIGS = {
         'Notes': ['notes']
     },
     'drive': {
-        'Drive Team': ['import_results', 'coach', 'whiteboard', 'bracket']
+        'Drive Team': ['import_results', 'coach', 'misc/2025-score-calculator', 'whiteboard', 'bracket']
     },
     'analysis': {
         'Qualitative': ['ranker', 'multipicklists', 'note-viewer'],
@@ -49,7 +49,7 @@ const CONFIGS = {
         'Debug': ['misc/test'],
         'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter'],
         'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde'],
-        'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2023-rp']
+        'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2025-score-calculator', 'misc/2023-rp']
     }
 }
 
@@ -105,6 +105,7 @@ const BUTTONS = {
     'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: [], configs: [] },
     'misc/2023-rp':                 { name: '2023 RP Adjustment',       limits: [], configs: [] },
     'misc/2023-score-estimator':    { name: '2023 Score Estimator',     limits: [], configs: [] },
+    'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [], configs: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: [], configs: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [], configs: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: [], configs: [] },

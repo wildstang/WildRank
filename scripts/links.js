@@ -35,6 +35,7 @@ var BLANK_PAGES = {
     'misc/2022-score-estimator': [],
     'misc/2023-rp': [],
     'misc/2023-score-estimator': [],
+    'misc/2025-score-calculator': [],
     'misc/match-counter': [],
     'misc/score-counter': [],
     'misc/revival-counter': [],
