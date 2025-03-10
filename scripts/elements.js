@@ -5,6 +5,24 @@
  * date:        2023-04-29
  */
 
+class WRSpacer extends HTMLElement
+{
+    constructor(height=25)
+    {
+        super()
+
+        this.height = height
+    }
+
+    connectedCallback()
+    {
+        this.classList.add('wr_spacer')
+        this.style.height = `${this.height}px`
+    }
+}
+
+customElements.define('wr-spacer', WRSpacer)
+
 class WRElement extends HTMLElement
 {
     constructor()

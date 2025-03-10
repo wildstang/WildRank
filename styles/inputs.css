@@ -151,6 +151,12 @@
     box-shadow: calc(var(--input-width) / -2 - var(--border-radius)) 0 0 calc(var(--input-width) / 2) var(--hover-color);
 }
 
+
+.wr_spacer {
+    display: block;
+    width: var(--input-width);
+}
+
 .wr_slider.slim, .slim .wr_slider_range {
     height: var(--slim-height);
 }
