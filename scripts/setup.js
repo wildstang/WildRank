@@ -132,7 +132,7 @@ function step_setup()
         roles.add_class('slim')
         setup_col.add_input(roles)
 
-        setup_col.add_input(reset)
+        status_col.add_input(reset)
 
         columns.push(status_col)
     }
@@ -146,7 +146,12 @@ function step_setup()
         admin.add_class('slim')
         setup_col.add_input(admin)
 
-        setup_col.add_input(reset)
+        setup_col.add_input(new WRSpacer())
+        let back = new WRButton('Back', home)
+        back.add_class('slim')
+        setup_col.add_input(back)
+
+        status_col.add_input(reset)
 
         columns.push(status_col)
     }
