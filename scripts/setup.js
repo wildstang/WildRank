@@ -39,6 +39,23 @@ function init_page()
     }
 
     step_setup()
+
+    document.addEventListener("keyup", event => {
+        if(event.key !== "Enter")
+        {
+            return
+        }
+        if (event_id_el !== null)
+        {
+            set_event_id()
+            event.preventDefault()
+        }
+        else if (user_id_el !== null)
+        {
+            set_user_id()
+            event.preventDefault()
+        }
+    })
 }
 
 /**
@@ -46,6 +63,9 @@ function init_page()
  */
 function step_setup()
 {
+    delete event_id_el
+    delete user_id_el
+
     // use the event short name, if not available use the ID
     let event = dal.event && dal.event.short_name !== undefined ? dal.event.short_name : event_id
 
