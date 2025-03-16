@@ -37,10 +37,10 @@ const page = urlParams.get('page')
 
 // load in requested page
 var script = document.createElement('script')
-script.src = `scripts/${page}.js`
+script.src = `scripts/pages/${page}.js`
 if (!page)
 {
-    script.src = `scripts/setup.js`
+    script.src = `scripts/pages/setup.js`
 }
 document.head.appendChild(script)
 

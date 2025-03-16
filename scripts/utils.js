@@ -43,35 +43,25 @@ function window_open(url, option)
         window.open(url, option)
     }
 }
-/**
- * function:    build_url
- * parameters:  page, map of query keys to values
- * returns:     url string
- * description: Builds a url string from a query given object.
- */
-function build_url(page, query)
-{
-    return `${page}.html${build_query(query)}`
-}
+
+var selection_pages = ['coach', 'cycles', 'distro', 'match-overview', 'matches', 'multipicklists', 'pits',
+    'pivot', 'plot', 'ranker', 'results', 'scatter', 'sides', 'teams', 'users', 'whiteboard']
 
 /**
- * function:    build_query
- * parameters:  map of query keys to values
- * returns:     query string
- * description: Builds a query string from a given object.
+ * Assembles a URL path for within the application.
+ * 
+ * @param {String} page Name of the page to load.
+ * @param {Object} parameters Key value pairs to include in the query string.
+ * @returns An assembled URL path.
  */
-function build_query(query)
+function build_url(page, parameters={})
 {
-    let str = '?'
-    for (var key in query)
+    let query = ''
+    for (let key in parameters)
     {
-        if (str != '?')
-        {
-            str += '&'
-        }
-        str += `${key}=${query[key]}`
+        query += `&${key}=${parameters[key]}`
     }
-    return str
+    return `${selection_pages.includes(page) ? 'selection.html' : 'index.html'}?page=${page}${query}`
 }
 
 /**

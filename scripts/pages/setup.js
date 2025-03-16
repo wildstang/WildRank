@@ -53,7 +53,7 @@ function step_setup()
     ]))
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     //scout_config_valid.set_status(cfg.validate_game_configs())
-    scout_config_valid.on_click = () => window_open(build_url('index', {'page': 'config-debug'}), '_self')
+    scout_config_valid.on_click = () => window_open(build_url('config-debug'), '_self')
     status_col.add_input(new WRStack([
         scout_config_valid,
         new WRButton('Import Config', import_config)
@@ -252,15 +252,11 @@ function scout(mode)
 
         if (team_count && match_count)
         {
-            let scout_type = mode === 'notes' ? 'note' : 'match'
-            let params = {
-                'page': 'matches', [TYPE_COOKIE]: scout_type
-            }
-
             cfg.user.state.role = mode
             cfg.store_user_config()
 
-            window_open(build_url('selection', params), '_self')
+            let scout_type = mode === 'notes' ? 'note' : 'match'
+            window_open(build_url('matches', {'type': scout_type}), '_self')
         }
         else
         {
@@ -271,14 +267,10 @@ function scout(mode)
     {
         if (team_count)
         {
-            let params = {
-                'page': 'pits', [TYPE_COOKIE]: 'pit'
-            }
-
             cfg.user.state.role = mode
             cfg.store_user_config()
 
-            window_open(build_url('selection', params), '_self')
+            window_open(build_url('pits'), '_self')
         }
         else
         {
@@ -318,7 +310,8 @@ function open_role(role)
     {
         cfg.user.state.role = role
         cfg.store_user_config()
-        window_open(build_url('index', {'page': 'home'}), '_self')
+
+        window_open(build_url('home'), '_self')
     }
 }
 
