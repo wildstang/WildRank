@@ -21,19 +21,15 @@ include('libs/jszip.min')
 function preload_event()
 {
     // get event id from the text box
-    let event_id = get_event()
+    let event_id = cfg.user.state.event_id
 
     if (!TBA_KEY)
     {
-        let file = cfg.keys
-        if (file != null)
+        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
         {
-            if (cfg.keys.hasOwnProperty('tba'))
-            {
-                TBA_KEY = cfg.keys.tba
-            }
+            TBA_KEY = cfg.user.settings.tba_key
         }
-        if (!TBA_KEY)
+        else
         {
             if (confirm('No API key found for TBA! Do you want to open TBA?'))
             {
@@ -108,7 +104,7 @@ function preload_event()
                 // fetch team's avatar for whiteboard
                 for (let team of teams)
                 {
-                    let year = get_event().substr(0, 4)
+                    let year = cfg.year
                     fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
                         .then(response => {
                             return response.json()
@@ -230,7 +226,7 @@ function preload_event()
  */
 function download_csv()
 {
-    let event = get_event()
+    let event = cfg.user.state.event_id
     let element = document.createElement('a')
     element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(event)))
     element.setAttribute('download', `${get_user()}-${event}-export.csv`)
@@ -398,8 +394,7 @@ function clear_events()
     if (confirm('Delete all configuration and results for other events?'))
     {
         // remove all files containing uother event ids
-        let event_id = get_event()
-        let files = Object.keys(localStorage).filter(f => !f.includes(event_id))
+        let files = Object.keys(localStorage).filter(f => !f.includes(cfg.user.state.event_id))
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -415,8 +410,7 @@ function reset_event()
     if (confirm(`Delete all configuration and results for ${dal.event_id}?`))
     {
         // remove all files containing uother event ids
-        let event_id = get_event()
-        let files = Object.keys(localStorage).filter(f => f.includes(event_id))
+        let files = Object.keys(localStorage).filter(f => f.includes(cfg.user.state.event_id))
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -786,17 +780,18 @@ class ZipHandler
                 {
                     // import everything else as strings to localStorage
                     // determine which files to use
+                    let year = cfg.year
                     if ((n.includes(dal.event_id) &&
                         ((this.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
                         (this.match && n.startsWith(`${MATCH_MODE}-`) ||
                         (this.pit && n.startsWith(`${PIT_MODE}-`) ||
                         (this.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
-                        (this.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === `config-${cfg.year}-version`)) ||
-                        (this.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
-                        (this.coach && n === `config-${cfg.year}-coach`) ||
-                        (this.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
+                        (this.config && (MODES.some(m => n === `config-${year}-${m}`) || n === `config-${year}-version`)) ||
+                        (this.smart_stats && n === `config-${year}-smart_stats`) ||
+                        (this.coach && n === `config-${year}-coach`) ||
+                        (this.settings && n.startsWith('config-') && !n.startsWith(`config-${year}`)) ||
                         (this.picklists && n.startsWith('picklists-')) ||
-                        (this.whiteboard && n === `config-${cfg.year}-whiteboard`))
+                        (this.whiteboard && n === `config-${year}-whiteboard`))
                     {
                         let text = await content.text()
                         let write = true
@@ -850,7 +845,7 @@ class ZipHandler
 
                             // warn if reported config version does not match
                             let version_key = `config-${cfg.year}-version`
-                            let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version
+                            let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version // TODO
                             if (!ignore_cfg && write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
                             {
                                 write = confirm(`Config version mismatch on ${n}, continue?`)
@@ -930,18 +925,19 @@ class ZipHandler
         let handler = this
         let files = Object.keys(localStorage).filter(function(file)
         {
+            let year = cfg.year
             return (file.includes(dal.event_id) &&
                 ((handler.event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
                 (handler.match && file.startsWith(`${MATCH_MODE}-`)) ||
                 (handler.pit && file.startsWith(`${PIT_MODE}-`)) ||
                 (handler.note && file.startsWith(`${NOTE_MODE}-`)))) ||
-                (handler.config && (MODES.some(m => file === `config-${cfg.year}-${m}`) || file === `config-${cfg.year}-version`)) ||
-                (handler.smart_stats && file === `config-${cfg.year}-smart_stats`) ||
-                (handler.coach && file === `config-${cfg.year}-coach`) ||
-                (handler.settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
+                (handler.config && (MODES.some(m => file === `config-${year}-${m}`) || file === `config-${year}-version`)) ||
+                (handler.smart_stats && file === `config-${year}-smart_stats`) ||
+                (handler.coach && file === `config-${year}-coach`) ||
+                (handler.settings && file.startsWith('config-') && !file.startsWith(`config-${year}`)) ||
                 (handler.avatars && file.startsWith('avatar-')) ||
                 (handler.picklists && file.startsWith('picklists-')) ||
-                (handler.whiteboard && file === `config-${cfg.year}-whiteboard`)
+                (handler.whiteboard && file === `config-${year}-whiteboard`)
         })
         let num_uploads = files.length
 
@@ -1016,12 +1012,12 @@ class ZipHandler
         }
         else if (op === 1) // upload
         {
-            if (check_server(this.server))
+            if (check_server(this.server) && cfg.user.settings)
             {                    
                 // post string to server
                 let formData = new FormData()
                 formData.append('upload', blob)
-                fetch(`${this.server}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                fetch(`${this.server}/?password=${cfg.user.settings.server_key}`, {method: 'POST', body: formData})
                     .then(response => response.json())
                     .then(result => {
                         if (result.success && result.count === num_uploads)
@@ -1057,6 +1053,7 @@ class ZipHandler
     }
 
     /**
+     * TODO
      * Import a complete config JSON file.
      * 
      * @param {File} file Uploaded file

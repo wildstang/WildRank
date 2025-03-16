@@ -16,21 +16,11 @@ var scouter = true
  */
 function init_page()
 {
-    // display a version box only if caching is enabled
-    if ('serviceWorker' in navigator && cfg.user.settings.use_offline && navigator.serviceWorker.controller != null)
-    {
-        // request the current version from the serviceWorker
-        navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
-        navigator.serviceWorker.addEventListener('message', e => {
-            if (e.data.msg === 'version')
-            {
-                let version = e.data.version.replace('wildrank-', '')
-                let header = document.getElementById('header_info')
-                header.innerText = version
-                header.onclick = () => window_open('index.html?page=about', '_blank')
-                cfg.app_version = version
-            }
-        })
+    // if an app version becomes available add it to the header
+    cfg.on_app_version = () => {
+        let header = document.getElementById('header_info')
+        header.innerText = cfg.app_version
+        header.onclick = () => window_open('index.html?page=about', '_blank')
     }
 
     step_setup()
@@ -100,20 +90,35 @@ function step_setup()
     // the final page continues to show event status and prompts for position and scouting type
     else if (scouter)
     {
-        position_el = new WRDropdown(`${cfg.get_name(cfg.user.state.user_id)}'s Position`)
-        for (let i = 1; i <= dal.alliance_size * 2; i++)
+        position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
+        let cfg_pos = cfg.get_position()
+        if (cfg_pos && cfg_pos < dal.alliance_size * 2)
         {
             let color = 'Red'
-            let pos = i
-            if (i > dal.alliance_size)
+            let pos = cfg_pos
+            if (pos > dal.alliance_size)
             {
                 color = 'Blue'
-                pos = i - dal.alliance_size
+                pos = pos - dal.alliance_size
             }
             position_el.add_option(`${color} ${pos}`)
-            if (cfg.user.state.position === i - 1)
+        }
+        else
+        {
+            for (let i = 1; i <= dal.alliance_size * 2; i++)
             {
-                position_el.value = position_el.options[cfg.user.state.position]
+                let color = 'Red'
+                let pos = i
+                if (i > dal.alliance_size)
+                {
+                    color = 'Blue'
+                    pos = i - dal.alliance_size
+                }
+                position_el.add_option(`${color} ${pos}`)
+                if (cfg.user.state.position === i - 1)
+                {
+                    position_el.value = position_el.options[cfg.user.state.position]
+                }
             }
         }
         setup_col.add_input(position_el)
@@ -216,15 +221,12 @@ function set_user_id()
         cfg.user.state.user_id = id
         cfg.store_user_config()
 
-        let name = cfg.get_name(id)
-        if (cfg.is_admin(id))
+        let name = cfg.get_name()
+        if (cfg.is_admin())
         {
             name += ' (Admin)'
         }
-        if (name !== cfg.get_name())
-        {
-            alert(`Welcome ${name}!`)
-        }
+        alert(`Welcome ${name}!`)
 
         step_setup()
     }
