@@ -1,14 +1,20 @@
 {
+	"version": "user-concept",
 	"settings": {
 		"team_number": 111,
 		"time_format": 12,
 		"use_images": true,
 		"use_team_color": true,
 		"use_offline": true,
-		"auto_hide_right": false
+		"auto_hide_right": false,
+		"tba_key": false,
+		"server_key": false
 	},
-	"keys": {
-		"tba": "",
-		"server": ""
+	"state": {
+		"event_id": "",
+		"user_id": "",
+		"position": -1,
+		"theme": "",
+		"role": ""
 	}
 }
