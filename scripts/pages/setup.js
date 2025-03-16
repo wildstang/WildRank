@@ -92,7 +92,7 @@ function step_setup()
     {
         position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
         let cfg_pos = cfg.get_position()
-        if (cfg_pos && cfg_pos < dal.alliance_size * 2)
+        if (cfg_pos >= 0 && cfg_pos < dal.alliance_size * 2)
         {
             let color = 'Red'
             let pos = cfg_pos

@@ -54,7 +54,7 @@ function init_page()
         open_option(first)
 
         // setup camera feed
-        if (cfg.settings.use_images && navigator.mediaDevices)
+        if (cfg.user.settings.use_images && navigator.mediaDevices)
         {    
             // get video stream
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
@@ -171,7 +171,7 @@ function capture(team_num)
                 // post string to server
                 let formData = new FormData()
                 formData.append('upload', blob)
-                fetch(`${addr}/photo/${team_num}?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                fetch(`${addr}/photo/${team_num}?password=${cfg.user.settings.server_key}`, {method: 'POST', body: formData})
                     .then(response => response.json())
                     .then(result => {
                         if (result.success)
@@ -234,7 +234,7 @@ function cache_image(server, team_num, base64)
  */
 function open_result(file)
 {
-    return build_url('selection', {'page': 'results', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, 'file': file})
+    return build_url('results', {'file': file})
 }
 
 /**
@@ -245,7 +245,7 @@ function open_result(file)
  */
 function start_scouting(team_num, edit)
 {
-    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit })
+    return build_url('scout', {[TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', 'edit': edit })
 }
 
 /**

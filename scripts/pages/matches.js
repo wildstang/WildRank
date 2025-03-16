@@ -26,8 +26,7 @@ function init_page()
 
     // override scouting position with that from config
     // TODO: determine if this is actually desired
-    let user_pos = cfg.get_position()
-    scout_pos = user_pos >= 0 ? user_pos : cfg.user.state.position
+    scout_pos = cfg.get_selected_position()
 
     let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
     add_button_filter(`Export ${capitalize(scout_mode)} Results`, export_results, true)

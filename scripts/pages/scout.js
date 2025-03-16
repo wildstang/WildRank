@@ -11,11 +11,8 @@ var cycles = {}
 var alliances = {}
 
 // read parameters from URL
-const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-
 var urlParams = new URLSearchParams(window.location.search)
+const scout_mode = urlParams.get('type')
 const match_num = urlParams.get('match')
 const team_num = urlParams.get('team')
 const alliance_color = urlParams.get('alliance')
@@ -66,7 +63,7 @@ function init_page()
             team_box.style.color = 'white'
             break
         case MATCH_MODE:
-            let pos = 1 + parseInt(scout_pos)
+            let pos = 1 + parseInt(cfg.get_selected_position())
             if (pos > dal.alliance_size)
             {
                 pos -= dal.alliance_size
@@ -93,7 +90,7 @@ function init_page()
 function check_for_last_page()
 {
     let carousel = document.getElementById('scouting-carousel')
-    let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
+    let final_page = carousel.clientWidth * (cfg.get_scout_config(scout_mode).pages.length - 1)
     let view_start = Math.ceil(carousel.scrollLeft)
     if (view_start >= final_page && document.getElementById('submit_container').childElementCount === 0)
     {
@@ -113,7 +110,7 @@ function build_page_from_config()
     // iterate through each page in the mode
     let carousel = create_element('div', 'scouting-carousel', 'scouting-carousel')
     carousel.onscroll = check_for_last_page
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         let page_frame = new WRPage(page.name)
         // iterate through each column in the page
@@ -182,7 +179,7 @@ function update_cycle(cycle, decrement)
     }
 
     // iterate through each column in the page
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -286,7 +283,7 @@ function update_cycle(cycle, decrement)
 function check_cycles()
 {
     // iterate through each column in the page
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -342,11 +339,11 @@ function get_results_from_page()
     results = {}
 
     // scouter metadata
-    results['meta_scouter_id'] = parseInt(user_id)
+    results['meta_scouter_id'] = parseInt(cfg.user.state.user_id)
     results['meta_scout_time'] = Math.round(start / 1000)
     results['meta_scouting_duration'] = (Date.now() - start) / 1000
-    results['meta_config_version'] = cfg.version
-    results['meta_app_version'] = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
+    results['meta_config_version'] = cfg.scout.version
+    results['meta_app_version'] = cfg.app_version
     if (scout_mode === MATCH_MODE)
     {
         results['meta_unsure'] = unsure.checkbox.checked
@@ -358,7 +355,7 @@ function get_results_from_page()
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode
-    results['meta_position'] = parseInt(scout_pos)
+    results['meta_position'] = parseInt(cfg.get_selected_position())
     results['meta_event_id'] = event_id
 
     // match metadata
@@ -374,7 +371,7 @@ function get_results_from_page()
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         for (let column of page.columns)
         {
@@ -416,13 +413,12 @@ function get_results_from_page()
     
     if (scout_mode === PIT_MODE)
     {
-        query = {'page': 'pits', [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id}
+        window.location.href = build_url('pits')
     }
     else
     {
-        query = {'page': 'matches', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}
+        window.location.href = build_url('matches', {'type': 'match'})
     }
-    window.location.href = build_url('selection', query)
 }
 
 /**
@@ -434,7 +430,7 @@ function get_results_from_page()
 function check_results()
 {
     // get each result
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         for (let column of page.columns)
         {
