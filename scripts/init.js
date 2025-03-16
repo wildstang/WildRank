@@ -46,20 +46,11 @@ if (!page)
 }
 document.head.appendChild(script)
 
-// pull in event id and determine game year
-var event_id = get_parameter(EVENT_COOKIE, undefined)
-if (typeof event_id === 'undefined')
-{
-    var cfg = new Config()
-}
-else
-{
-    var cfg = new Config(event_id.substring(0, 4))
-}
-
 // create config object, load in what is available, and set the theme
-cfg.load_configs(2, '')
-apply_theme()
+var cfg = new Config()
+cfg.load_configs(on_config)
+
+var dal
 
 window.addEventListener('load', event => {
     // basic browser detection
@@ -96,9 +87,8 @@ window.addEventListener('load', event => {
         {
             if (!sessionStorage.getItem('dismiss_warning'))
             {
-                let title = typeof cfg.settings.title === 'undefined' ? 'WildRank' : cfg.settings.title
                 let notification = document.getElementById('warning_notification')
-                notification.innerText = `${title} is opened in ${display_mode}. Data may be lost!`
+                notification.innerText = `${cfg.title} is opened in ${display_mode}. Data may be lost!`
                 notification.style.transform = 'translate(0%)'
                 notification.style.visibility = 'visible'
                 notification.onclick = event => {
@@ -107,11 +97,11 @@ window.addEventListener('load', event => {
                     {
                         alert(`To prevent future data loss install the app and open it from your app launcher.
     
-Press the "Install ${title}" button on the home page.`)
+Press the "Install ${cfg.title}" button on the home page.`)
                     }
                     else if (browser === 'Safari')
                     {
-                        alert(`To prevent future data loss add ${title} to your home screen and open it from there.
+                        alert(`To prevent future data loss add ${cfg.title} to your home screen and open it from there.
     
 In the share menu (box with up arrow), choose "Add to Home Screen", then press "Add".`)
                     }
@@ -126,21 +116,6 @@ In the share menu (box with up arrow), choose "Add to Home Screen", then press "
     }
   })
 
-var dal
-
-/**
- * function:    create_config()
- * parameters:  none
- * returns:     none
- * description: Load in Config, then calls on_config() when complete.
- *              This function is required to be called by all HTML pages after page load.
- */
-function create_config()
-{
-    // load in configs
-    cfg.load_configs(0, on_config)
-}
-
 /**
  * function:    on_config()
  * parameters:  none
@@ -152,27 +127,9 @@ function on_config()
     apply_theme()
     // listen for dark mode changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
-
-    if (cfg.settings.use_offline)
-    {
-        set_cookie(OFFLINE_COOKIE, 'on')
-    }
-    else if (cfg.settings.use_offline === false)
-    {
-        set_cookie(OFFLINE_COOKIE, 'off')
-    }
-    else
-    {
-        set_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT)
-    }
-
-    if (typeof event_id === 'undefined')
-    {
-        event_id = cfg.defaults.event_id
-    }
     
     // load in data
-    dal = new DAL(event_id)
+    dal = new DAL(cfg.user.state.event_id)
     dal.build_teams()
 
     init_page()
@@ -190,7 +147,8 @@ function home(right=false)
     let url = 'index.html'
     if (['setup', 'matches', 'pits'].includes(page))
     {
-        set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+        cfg.user.state.role = ''
+        cfg.store_configs()
         url += '?page=setup'
     }
     else

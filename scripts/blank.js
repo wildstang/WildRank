@@ -14,6 +14,4 @@ window.addEventListener('load', function()
     // save elements of body
     header_info = document.getElementById('header_info')
     body = document.getElementById('body')
-
-    create_config()
 })

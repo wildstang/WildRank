@@ -9,8 +9,6 @@ include('transfer')
 
 var event_id_el, user_id_el, position_el
 
-var user_id = ''
-var position = -1
 var scouter = true
 
 /**
@@ -18,11 +16,8 @@ var scouter = true
  */
 function init_page()
 {
-    user_id = get_cookie(USER_COOKIE, '')
-    position = get_cookie(POSITION_COOKIE, -1)
-
     // display a version box only if caching is enabled
-    if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
+    if ('serviceWorker' in navigator && cfg.user.settings.use_offline && navigator.serviceWorker.controller != null)
     {
         // request the current version from the serviceWorker
         navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
@@ -33,7 +28,7 @@ function init_page()
                 let header = document.getElementById('header_info')
                 header.innerText = version
                 header.onclick = () => window_open('index.html?page=about', '_blank')
-                set_cookie(VERSION_COOKIE, version)
+                cfg.app_version = version
             }
         })
     }
@@ -47,7 +42,7 @@ function init_page()
 function step_setup()
 {
     // use the event short name, if not available use the ID
-    let event = dal.event && dal.event.short_name !== undefined ? dal.event.short_name : event_id
+    let event = dal.event && dal.event.short_name !== undefined ? dal.event.short_name : cfg.user.state.event_id
 
     // the primary column for performing setup
     let setup_col = new WRColumn('Setup')
@@ -66,8 +61,8 @@ function step_setup()
         new WRMultiNumber('', ['Team', 'Match'], [team_count, match_count]),
         new WRButton('Load from TBA', preload_event)
     ]))
-    scout_config_valid = new WRStatusTile(cfg.version)
-    scout_config_valid.set_status(cfg.validate_game_configs())
+    scout_config_valid = new WRStatusTile(cfg.scout.version)
+    //scout_config_valid.set_status(cfg.validate_game_configs())
     scout_config_valid.on_click = () => window_open(build_url('index', {'page': 'config-debug'}), '_self')
     status_col.add_input(new WRStack([
         scout_config_valid,
@@ -79,22 +74,22 @@ function step_setup()
     reset.add_class('slim')
 
     // if an invalid event ID is provided prompt for it first
-    if (event_id.length < 7)
+    if (cfg.user.state.event_id.length < 7)
     {
         event_id_el = new WREntry('Event ID')
-        event_id_el.value = event_id
+        event_id_el.value = cfg.user.state.event_id
         setup_col.add_input(event_id_el)
 
         setup_col.add_input(new WRButton('Next', set_event_id))
     }
     // if an invalid user ID is provided prompt for it second, also add the event status column
-    else if (user_id.length !== 6)
+    else if (cfg.user.state.user_id.length !== 6)
     {
         user_id_el = new WREntry('School ID', 111112)
         user_id_el.type = 'number'
         user_id_el.bounds = [100000, 999999]
-        user_id_el.value = user_id
-        user_id_el.on_text_change = () => user_id = user_id_el.element.value
+        user_id_el.value = cfg.user.state.user_id
+        user_id_el.on_text_change = () => cfg.user.state.user_id = user_id_el.element.value
         setup_col.add_input(user_id_el)
 
         setup_col.add_input(new WRButton('Next', set_user_id))
@@ -105,7 +100,7 @@ function step_setup()
     // the final page continues to show event status and prompts for position and scouting type
     else if (scouter)
     {
-        position_el = new WRDropdown(`${cfg.get_name(user_id)}'s Position`)
+        position_el = new WRDropdown(`${cfg.get_name(cfg.user.state.user_id)}'s Position`)
         for (let i = 1; i <= dal.alliance_size * 2; i++)
         {
             let color = 'Red'
@@ -116,9 +111,9 @@ function step_setup()
                 pos = i - dal.alliance_size
             }
             position_el.add_option(`${color} ${pos}`)
-            if (position == i - 1)
+            if (cfg.user.state.position === i - 1)
             {
-                position_el.value = position_el.options[position]
+                position_el.value = position_el.options[cfg.user.state.position]
             }
         }
         setup_col.add_input(position_el)
@@ -167,13 +162,9 @@ function set_event_id()
     let id = event_id_el.element.value
     if (id.length >= 8)
     {
-        event_id = id
-        set_cookie(EVENT_COOKIE, event_id)
+        cfg.update_event_id(id)
 
-        let year = event_id.substring(0, 4)
-        cfg = new Config(year)
-        cfg.load_configs()
-        dal = new DAL(event_id)
+        dal = new DAL(id)
         dal.build_teams()
 
         step_setup()
@@ -207,9 +198,9 @@ function import_config()
  */
 function restart_setup()
 {
-    event_id = ''
-    user_id = ''
-    position = -1
+    cfg.user.state.event_id = ''
+    cfg.user.state.user_id = ''
+    cfg.user.state.position = -1
     scouter = true
     step_setup()
 }
@@ -222,8 +213,8 @@ function set_user_id()
     let id = user_id_el.element.value
     if (id.length === 6)
     {
-        user_id = id
-        set_cookie(USER_COOKIE, user_id)
+        cfg.user.state.user_id = id
+        cfg.store_user_config()
 
         let name = cfg.get_name(id)
         if (cfg.is_admin(id))
@@ -251,19 +242,22 @@ function scout(mode)
     let team_count = Object.keys(dal.teams).length
     let match_count = Object.keys(dal.matches).length
 
-    position = position_el.element.selectedIndex
+    let position = position_el.element.selectedIndex
     if (position >= 0 && ['matches', 'notes'].includes(mode))
     {
-        set_cookie(POSITION_COOKIE, position)
+        cfg.user.state.position = position
+        cfg.store_user_config()
+
         if (team_count && match_count)
         {
             let scout_type = mode === 'notes' ? 'note' : 'match'
             let params = {
-                'page': 'matches', [ROLE_COOKIE]: mode, [EVENT_COOKIE]: event_id,
-                [POSITION_COOKIE]: position, [USER_COOKIE]: user_id, [TYPE_COOKIE]: scout_type
+                'page': 'matches', [TYPE_COOKIE]: scout_type
             }
 
-            set_cookie(ROLE_COOKIE, mode)
+            cfg.user.state.role = mode
+            cfg.store_user_config()
+
             window_open(build_url('selection', params), '_self')
         }
         else
@@ -276,11 +270,12 @@ function scout(mode)
         if (team_count)
         {
             let params = {
-                'page': 'pits', [ROLE_COOKIE]: mode, [EVENT_COOKIE]: event_id,
-                [POSITION_COOKIE]: position, [USER_COOKIE]: user_id, [TYPE_COOKIE]: 'pit'
+                'page': 'pits', [TYPE_COOKIE]: 'pit'
             }
 
-            set_cookie(ROLE_COOKIE, mode)
+            cfg.user.state.role = mode
+            cfg.store_user_config()
+
             window_open(build_url('selection', params), '_self')
         }
         else
@@ -313,23 +308,16 @@ function other_roles()
  */
 function open_role(role)
 {
-    if (role === 'admin' && !cfg.is_admin(user_id))
+    if (role === 'admin' && !cfg.is_admin(cfg.user.state.user_id))
     {
         alert('Admin access required!')
     }
     else
     {
-        set_cookie(ROLE_COOKIE, mode)
-        window_open(build_url('index', {'page': 'home', [ROLE_COOKIE]: role}), '_self')
+        cfg.user.state.role = role
+        cfg.store_user_config()
+        window_open(build_url('index', {'page': 'home'}), '_self')
     }
-}
-
-/**
- * Used by external functions to get the current event ID.
- */
-function get_event()
-{
-    return event_id
 }
 
 /**
@@ -337,7 +325,7 @@ function get_event()
  */
 function process_files()
 {
-    dal = new DAL(event_id)
+    dal = new DAL(cfg.user.state.event_id)
     dal.build_teams()
 
     step_setup()

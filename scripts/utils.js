@@ -525,26 +525,13 @@ function include(name)
 function apply_theme()
 {
     // read title from config
-    document.title = cfg.settings.title
+    document.title = cfg.title
     if (document.getElementById('title') !== null)
     {
-        document.getElementById('title').innerHTML = cfg.settings.title
+        document.getElementById('title').innerHTML = cfg.title
     }
 
     let theme = cfg.theme
-    let theme_name = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-    if (theme_name === 'auto')
-    {
-        theme_name = 'light'
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        {
-            theme_name = 'dark'
-        }
-    }
-    if (theme_name === 'dark')
-    {
-        theme = cfg.dark_theme
-    }
     let keys = Object.keys(theme)
     for (let key of keys)
     {

@@ -101,6 +101,14 @@ async def javascript(file_path):
 async def config(file):
     return f'config/{file}.json'
 
+@app.get('/config/{year}/{file}.json', response_class=FileResponse)
+async def year_config(year, file):
+    return f'config/{year}/{file}.json'
+
+@app.get('/config/users.csv', response_class=FileResponse)
+async def users():
+    return f'config/users.csv'
+
 @app.get('/uploads/{file}.json', response_class=FileResponse)
 async def upload(file):
     return f'uploads/{file}.json'
