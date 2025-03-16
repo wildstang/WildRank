@@ -223,6 +223,26 @@ class Config
         return -1
     }
 
+    /**
+     * Determines the current scouters selected position, enforcing position set in user-list.
+     * 
+     * @returns The current scouter's selected position.
+     */
+    get_selected_position()
+    {
+        let pos = -1
+        let user_id = this.user.state.user_id
+        if (Object.keys(this.users).includes(user_id))
+        {
+            pos = this.users[user_id].position
+        }
+        if (pos < 0)
+        {
+            pos = this.user.state.position
+        }
+        return pos
+    }
+
     //
     // Config Storage Functions
     //
