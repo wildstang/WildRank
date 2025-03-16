@@ -105,9 +105,9 @@ async def config(file):
 async def year_config(year, file):
     return f'config/{year}/{file}.json'
 
-@app.get('/config/users.csv', response_class=FileResponse)
+@app.get('/config/user-list.csv', response_class=FileResponse)
 async def users():
-    return f'config/users.csv'
+    return f'config/user-list.csv'
 
 @app.get('/uploads/{file}.json', response_class=FileResponse)
 async def upload(file):

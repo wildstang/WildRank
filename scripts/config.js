@@ -7,6 +7,20 @@
 
 let init = {}
 
+APP_CONFIG = 'app-config'
+USER_CONFIG = 'user-config'
+USER_LIST = 'user-list'
+BASE_SCOUT_CONFIG = 'scout-config'
+BASE_ANALYSIS_CONFIG = 'analysis-config'
+GAME_CONFIG = 'game-config'
+
+/**
+ * Loads a JSON config file from the server and passes the contents as an object to the given callback.
+ * 
+ * @param {String} name Config name (use one of the above constants).
+ * @param {Function} on_received Function to call when valid JSON is received.
+ * @param {String} year Config year to load if loading a game config.
+ */
 function load_config(name, on_received, year='')
 {
     let path = year ? `/config/${year}` : '/config'
@@ -17,19 +31,12 @@ function load_config(name, on_received, year='')
         .then(on_received)
 }
 
-APP_CONFIG = 'app-config'
-USER_CONFIG = 'user-config'
-USER_LIST = 'user-list'
-BASE_SCOUT_CONFIG = 'scout-config'
-BASE_ANALYSIS_CONFIG = 'analysis-config'
-GAME_CONFIG = 'game-config'
-
 class Config
 {
-
     constructor()
     {
-        this.app_version = ''
+        this._app_version = ''
+        this._on_app_version = () => {}
 
         this.app = {}
         this.user = {}
@@ -42,6 +49,38 @@ class Config
         this.include_game_config = true
     }
 
+    /**
+     * The current app version from the serviceWorker.
+     */
+    get app_version()
+    {
+        return this._app_version
+    }
+
+    /**
+     * Sets the app version number and calls the callback.
+     */
+    set app_version(version)
+    {
+        this._app_version = version
+        this._on_app_version()
+    }
+
+    /**
+     * Sets a callback for when the app version is set. Calls it if it is already set.
+     */
+    set on_app_version(func)
+    {
+        this._on_app_version = func
+        if (this._app_version)
+        {
+            func()
+        }
+    }
+
+    /**
+     * The year for the current event, or zero if no event exists.
+     */
     get year()
     {
         if (this.user.state && this.user.state.event_id)
@@ -51,6 +90,9 @@ class Config
         return 0
     }
 
+    /**
+     * The currently selected theme, selected from the OS configuration if auto is selected.
+     */
     get theme()
     {
         // determine selected theme from config and system if auto is selected
@@ -75,6 +117,9 @@ class Config
         }
     }
 
+    /**
+     * The title of the application, or WildRank if that configuration isn't available.
+     */
     get title()
     {
         if (this.app.config && this.app.config.title)
@@ -84,12 +129,55 @@ class Config
         return 'WildRank'
     }
 
+    /**
+     * A list of all available scouting mode IDs.
+     */
+    get scouting_modes()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.map(m => m.id)
+        }
+        return []
+    }
+
+    /**
+     * Finds a scouting mode using a given ID.
+     * 
+     * @param {String} mode Scouting mode id
+     * @returns The requested scouting mode configuration or an empty object if a match couldn't be found.
+     */
+    get_scout_config(mode)
+    {
+        if (this.scout.configs)
+        {
+            for (let c of this.scout.configs)
+            {
+                if (c.id === mode)
+                {
+                    return c
+                }
+            }
+        }
+        return {}
+    }
+
     //
     // User Functions
     //
 
-    get_name(user_id)
+    /**
+     * Finds the name of a user from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The name of the requested user or "Unknown User".
+     */
+    get_name(user_id='')
     {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
         if (Object.keys(this.users).includes(user_id))
         {
             return this.users[user_id].name
@@ -97,8 +185,18 @@ class Config
         return 'Unknown User'
     }
 
-    is_admin(user_id)
+    /**
+     * Determines if a user is an admin from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The name admin status of a user.
+     */
+    is_admin(user_id='')
     {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
         if (Object.keys(this.users).includes(user_id))
         {
             return this.users[user_id].admin
@@ -106,8 +204,18 @@ class Config
         return false
     }
 
-    get_position(user_id)
+    /**
+     * Finds a user's position from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The position index of a user or -1.
+     */
+    get_position(user_id='')
     {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
         if (Object.keys(this.users).includes(user_id))
         {
             return this.users[user_id].position
@@ -116,14 +224,23 @@ class Config
     }
 
     //
-    // Config Loading/Storage Functions
+    // Config Storage Functions
     //
 
+    /**
+     * Saves the current user config to localStorage.
+     */
     store_user_config()
     {
         localStorage.setItem(USER_CONFIG, JSON.stringify(this.user))
     }
 
+    /**
+     * Updates the event ID, saves the configuration, and reloads the game configs if the year changed.
+     * 
+     * @param {String} event_id Event ID
+     * @returns Whether the year changed, used to trigger DAL updates.
+     */
     update_event_id(event_id)
     {
         let old_year = this.year
@@ -134,19 +251,30 @@ class Config
         if (this.year !== old_year)
         {
             this.load_game_configs()
+            return true
         }
+        return false
     }
 
+    /**
+     * Builds the scout config name for localStorage using the current year.
+     */
     get SCOUT_CONFIG()
     {
         return `${this.year}-${BASE_SCOUT_CONFIG}`
     }
 
+    /**
+     * Builds the analysis config name for localStorage using the current year.
+     */
     get ANALYSIS_CONFIG()
     {
         return `${this.year}-${BASE_ANALYSIS_CONFIG}`
     }
 
+    /**
+     * Saves all user-modifiable configs to localStorage.
+     */
     store_configs()
     {
         if (Object.keys(this.user).length)
@@ -163,6 +291,7 @@ class Config
         }
         if (Object.keys(this.users).length)
         {
+            // convert users object to a CSV
             let user_list = ''
             for (let key in this.users)
             {
@@ -172,6 +301,16 @@ class Config
         }
     }
 
+    //
+    // Config Loading Function (in sequence)
+    //
+
+    /**
+     * Triggers configuration loading sequence.
+     * 
+     * @param {Function} on_complete Function to call when loading is complete.
+     * @param {Boolean} game_config Whether to load game configs.
+     */
     load_configs(on_complete=() => console.log('Config loaded'), game_config=true)
     {
         this.include_game_config = game_config
@@ -179,17 +318,28 @@ class Config
         this.load_app_config()
     }
 
+    /**
+     * Triggers loading the app config from server/cache.
+     */
     load_app_config()
     {
         load_config(APP_CONFIG, this.handle_app_config.bind(this))
     }
 
+    /**
+     * Handles successfully loaded in app config, then steps to loading user config.
+     * 
+     * @param {Object} app_config Loaded app config.
+     */
     handle_app_config(app_config)
     {
         this.app = app_config
         this.load_user_config()
     }
 
+    /**
+     * Attempts to load the user config from localStorage, if unavailable, triggers load from server/cache.
+     */
     load_user_config()
     {
         let user_config = localStorage.getItem(USER_CONFIG)
@@ -204,12 +354,20 @@ class Config
         }
     }
 
+    /**
+     * Handles successfully loaded in user config, then steps to loading user list.
+     * 
+     * @param {Object} user_config Loaded user config.
+     */
     handle_user_config(user_config)
     {
         this.user = user_config
         this.load_user_list()
     }
 
+    /**
+     * Attempts to load the user list from localStorage, if unavailable, triggers load from server/cache.
+     */
     load_user_list()
     {
         let user_list = localStorage.getItem(USER_LIST)
@@ -231,6 +389,11 @@ class Config
         }
     }
 
+    /**
+     * Handles successfully loaded in user list, then steps to loading game configs, if enabled.
+     * 
+     * @param {Object} user_list Loaded user list.
+     */
     handle_user_list(user_list)
     {
         this.users = {}
@@ -259,6 +422,9 @@ class Config
         }
     }
 
+    /**
+     * Trigger game config loading sequence if a valid year is available.
+     */
     load_game_configs()
     {
         if (this.year)
@@ -272,6 +438,9 @@ class Config
         }
     }
 
+    /**
+     * Attempts to load the scout config from localStorage, if unavailable, triggers load from server/cache.
+     */
     load_scout_config()
     {
         let scout_config = localStorage.getItem(this.SCOUT_CONFIG)
@@ -286,12 +455,20 @@ class Config
         }
     }
 
+    /**
+     * Handles successfully loaded in scout config, then steps to loading analysis config.
+     * 
+     * @param {Object} scout_config Loaded scout config.
+     */
     handle_scout_config(scout_config)
     {
         this.scout = scout_config
         this.load_analysis_config()
     }
 
+    /**
+     * Attempts to load the analysis config from localStorage, if unavailable, triggers load from server/cache.
+     */
     load_analysis_config()
     {
         let analysis_config = localStorage.getItem(this.ANALYSIS_CONFIG)
@@ -306,17 +483,30 @@ class Config
         }
     }
 
+    /**
+     * Handles successfully loaded in analysis config, then steps to loading game config.
+     * 
+     * @param {Object} analysis_config Loaded analysis config.
+     */
     handle_analysis_config(analysis_config)
     {
         this.analysis = analysis_config
         this.load_game_config()
     }
 
+    /**
+     * Triggers loading the game config from server/cache.
+     */
     load_game_config()
     {
         load_config(GAME_CONFIG, this.handle_game_config.bind(this), this.year)
     }
 
+    /**
+     * Handles successfully loaded in game config, then triggers the completion callback.
+     * 
+     * @param {Object} game_config Loaded game config.
+     */
     handle_game_config(game_config)
     {
         this.game = game_config
