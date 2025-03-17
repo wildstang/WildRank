@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-250310'
+const CACHE_NAME = 'wildrank-250317'
 const CACHE_LIST = [
     // html files
     '/',
@@ -19,8 +19,8 @@ const CACHE_LIST = [
     // scripts
     '/scripts/about.js',
     '/scripts/blank.js',
-    '/scripts/bracket.js',
     '/scripts/bracket-obj.js',
+    '/scripts/bracket.js',
     '/scripts/cache.js',
     '/scripts/coach.js',
     '/scripts/config-debug.js',
@@ -38,6 +38,7 @@ const CACHE_LIST = [
     '/scripts/export.js',
     '/scripts/home.js',
     '/scripts/init.js',
+    '/scripts/input-builder.js',
     '/scripts/inputs.js',
     '/scripts/keys.js',
     '/scripts/links.js',
@@ -45,8 +46,8 @@ const CACHE_LIST = [
     '/scripts/matches.js',
     '/scripts/mini-picklists.js',
     '/scripts/multipicklists.js',
-    '/scripts/note.js',
     '/scripts/note-viewer.js',
+    '/scripts/note.js',
     '/scripts/picklists-core.js',
     '/scripts/pits.js',
     '/scripts/pivot.js',
@@ -71,8 +72,8 @@ const CACHE_LIST = [
     '/scripts/transfer.js',
     '/scripts/users.js',
     '/scripts/utils.js',
-    '/scripts/whiteboard.js',
     '/scripts/whiteboard-obj.js',
+    '/scripts/whiteboard.js',
     '/scripts/libs/jszip.min.js',
     '/scripts/libs/Vibrant.min.js',
     /* don't cache misc scripts that rely on tba
