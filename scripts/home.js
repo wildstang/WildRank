@@ -48,7 +48,7 @@ const CONFIGS = {
     'extras': {
         'Debug': ['misc/test'],
         'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde'],
+        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde', 'misc/socials'],
         'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2025-score-calculator', 'misc/2023-rp']
     }
 }
