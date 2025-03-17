@@ -7,7 +7,7 @@
 
 include('transfer')
 
-var event_id_el, user_id_el, position_el
+var event_id_el, user_id_el, position_el, theme_el
 
 var user_id = ''
 var position = -1
@@ -151,6 +151,12 @@ function step_setup()
         let roles = new WRButton('Other Roles', other_roles)
         roles.add_class('slim')
         setup_col.add_input(roles)
+
+        theme_el = new WRSelect('Theme', ['Light', 'Dark', 'Auto'])
+        theme_el.on_change = switch_theme
+        theme_el.columns = 3
+        theme_el.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+        setup_col.add_input(theme_el)
 
         status_col.add_input(reset)
 
@@ -378,5 +384,18 @@ function home(right=false)
     {
         scouter = true
         step_setup()
+    }
+}
+
+/**
+ * Callback when a new theme is chosen.
+ */
+function switch_theme()
+{
+    let theme = theme_el.selected_option.toLowerCase()
+    if (theme != get_cookie(THEME_COOKIE, THEME_DEFAULT))
+    {
+        set_cookie(THEME_COOKIE, theme)
+        apply_theme()
     }
 }
