@@ -97,9 +97,9 @@ async def styles(file):
 async def javascript(file_path):
     return f'scripts/{file_path}.js'
 
-@app.get('/config/{file}.json', response_class=FileResponse)
-async def config(file):
-    return f'config/{file}.json'
+@app.get('/config/{file_path:path}', response_class=FileResponse)
+async def config(file_path):
+    return f'config/{file_path}'
 
 @app.get('/uploads/{file}.json', response_class=FileResponse)
 async def upload(file):
