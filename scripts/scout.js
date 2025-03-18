@@ -350,6 +350,15 @@ function get_results_from_page()
     if (scout_mode === MATCH_MODE)
     {
         results['meta_unsure'] = unsure.checkbox.checked
+        if (unsure.checkbox.checked)
+        {
+            let answer = prompt('Why are you unsure?')
+            if (!answer)
+            {
+                return
+            }
+            results['meta_unsure_reason'] = answer
+        }
     }
     else if (scout_mode === PIT_MODE)
     {
