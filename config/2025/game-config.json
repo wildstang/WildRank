@@ -1,0 +1,22 @@
+{
+    "version": "game-concept",
+    "whiteboard": {
+        "red_color": "#FF4136",
+        "red_xs": [675, 675, 675],
+        "red_ys": [135, 200, 300],
+        "blue_color": "#0074D9",
+        "blue_xs": [70, 70, 70],
+        "blue_ys": [135, 200, 300],
+        "draw_color": "#FFFFFF",
+        "gp_names": ["Coral", "Algae"],
+        "gp_images": ["coral.png", "algae.png"],
+        "field_width": 750,
+        "field_height": 400,
+        "magnet_size": 50,
+        "line_width": 3,
+        "horizontal_margin": 13,
+        "vertical_margin": 20,
+        "field_height_ft": 27,
+        "field_height_px": 347
+    }
+}
