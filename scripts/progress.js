@@ -71,6 +71,7 @@ function init_page()
             let alliance = team_key.substring(0, team_key.indexOf('_'))
             let color = 'red'
             let link = ''
+            let tooltip = ''
             let match_scouted = dal.is_match_scouted(match, team)
             let note_scouted = dal.is_note_scouted(match, team)
             if (match_scouted || note_scouted)
@@ -86,6 +87,7 @@ function init_page()
                     key_counts[3]++
                     color = 'orange'
                     link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
+                    tooltip = dal.get_result_value(team, match, 'meta_unsure_reason')
                 }
                 else if (match_scouted && note_scouted)
                 {
@@ -115,6 +117,7 @@ function init_page()
 
             let td = row.insertCell()
             td.innerText = team
+            td.title = tooltip
             td.style.backgroundColor = color
             td.onclick = (event) => window_open(link, '_self')
         }

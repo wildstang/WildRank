@@ -141,7 +141,6 @@ function open_option(user_id)
     let durations = []
     let delays = []
     let unsure_count = 0
-    let unsure_notes = 0
 
     // create table of scouted matches
     let time_table = document.createElement('table')
@@ -180,7 +179,9 @@ function open_option(user_id)
         row.insertCell().innerText = match.meta_position
         row.insertCell().innerText = `${delays[delays.length - 1]}s`
         row.insertCell().innerText = `${match.meta_scouting_duration.toFixed()}s`
-        row.insertCell().innerText = unsure
+        let cell = row.insertCell()
+        cell.innerText = unsure
+        cell.title = dal.get_result_value(match.meta_team, match.meta_match_key, 'meta_unsure_reason')
     }
 
     // create table of notes
@@ -205,13 +206,6 @@ function open_option(user_id)
             delays.push(0)
         }
 
-        let unsure = ''
-        if (dal.get_result_value(match.meta_team, match.meta_match_key, 'meta_unsure'))
-        {
-            unsure_notes++
-            unsure = 'Unsure'
-        }
-
         let row = time_table.insertRow()
         row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
@@ -219,7 +213,7 @@ function open_option(user_id)
         row.insertCell().innerText = match.meta_note_position
         row.insertCell().innerText = `${delays[delays.length - 1]}s`
         row.insertCell().innerText = `${match.meta_note_scouting_duration.toFixed()}s`
-        row.insertCell().innerText = unsure
+        row.insertCell().innerText = ''
     }
     let row = time_table.insertRow()
     row.append(create_header('Mean'))
@@ -227,7 +221,7 @@ function open_option(user_id)
     row.insertCell()
     row.insertCell().innerText = `${mean(delays).toFixed()}s`
     row.insertCell().innerText = `${mean(durations).toFixed()}s`
-    row.insertCell().innerText = unsure_count + unsure_notes
+    row.insertCell().innerText = unsure_count
 
     // create table of scouted pits
     let pit_table = document.createElement('table')
