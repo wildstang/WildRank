@@ -5,7 +5,7 @@
  * date:        2022-04-30
  */
 
-include('libs/Vibrant.min')
+include('external/Vibrant.min')
 
 class DAL
 {

@@ -511,7 +511,7 @@ function include(name)
     }
     else
     {
-        s.src = `scripts/${name}.js`
+        s.src = `scripts/lib/${name}.js`
     }
     document.head.appendChild(s)
 }

@@ -35,15 +35,15 @@ else if ('serviceWorker' in navigator)
 
 // determine the desired page
 var urlParams = new URLSearchParams(window.location.search)
-const page = urlParams.get('page')
+var page = urlParams.get('page')
+if (!page)
+{
+    page = 'setup'
+}
 
 // load in requested page
 let script = document.createElement('script')
-script.src = `scripts/${page}.js`
-if (!page)
-{
-    script.src = `scripts/setup.js`
-}
+script.src = `scripts/page/${page}.js`
 document.head.appendChild(script)
 
 // pull in event id and determine game year

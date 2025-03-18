@@ -5,7 +5,7 @@
  * date:        2021-05-24
  */
 
-include('libs/jszip.min')
+include('external/jszip.min')
 
 /**
  * BUTTON RESPONSES
