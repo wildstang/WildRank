@@ -140,10 +140,12 @@ function open_option(user_id)
     let pos_counts = {}
     let durations = []
     let delays = []
+    let unsure_count = 0
+    let unsure_notes = 0
 
     // create table of scouted matches
     let time_table = document.createElement('table')
-    time_table.append(create_header_row(['Match', 'Team', 'Position', 'Start Delay', 'Duration']))
+    time_table.append(create_header_row(['Match', 'Team', 'Position', 'Start Delay', 'Duration', 'Unsure']))
     for (let match of matches)
     {
         let pos = match.meta_position
@@ -163,13 +165,22 @@ function open_option(user_id)
         {
             delays.push(0)
         }
+
+        let unsure = ''
+        if (dal.get_result_value(match.meta_team, match.meta_match_key, 'meta_unsure'))
+        {
+            unsure_count++
+            unsure = 'Unsure'
+        }
+
         let row = time_table.insertRow()
         row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
         row.insertCell().innerText = match.meta_team
         row.insertCell().innerText = match.meta_position
         row.insertCell().innerText = `${delays[delays.length - 1]}s`
-        row.insertCell().innerHTML = `${match.meta_scouting_duration.toFixed()}s`
+        row.insertCell().innerText = `${match.meta_scouting_duration.toFixed()}s`
+        row.insertCell().innerText = unsure
     }
 
     // create table of notes
@@ -193,13 +204,22 @@ function open_option(user_id)
         {
             delays.push(0)
         }
+
+        let unsure = ''
+        if (dal.get_result_value(match.meta_team, match.meta_match_key, 'meta_unsure'))
+        {
+            unsure_notes++
+            unsure = 'Unsure'
+        }
+
         let row = time_table.insertRow()
         row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
         row.insertCell().innerText = match.meta_alliance
         row.insertCell().innerText = match.meta_note_position
         row.insertCell().innerText = `${delays[delays.length - 1]}s`
-        row.insertCell().innerHTML = `${match.meta_note_scouting_duration.toFixed()}s`
+        row.insertCell().innerText = `${match.meta_note_scouting_duration.toFixed()}s`
+        row.insertCell().innerText = unsure
     }
     let row = time_table.insertRow()
     row.append(create_header('Mean'))
@@ -207,6 +227,7 @@ function open_option(user_id)
     row.insertCell()
     row.insertCell().innerText = `${mean(delays).toFixed()}s`
     row.insertCell().innerText = `${mean(durations).toFixed()}s`
+    row.insertCell().innerText = unsure_count + unsure_notes
 
     // create table of scouted pits
     let pit_table = document.createElement('table')
@@ -230,11 +251,16 @@ function open_option(user_id)
 
     let num_matches = document.createElement('b')
     num_matches.innerText = matches.length
+    let unsure_pct = ''
+    if (matches.length)
+    {
+        unsure_pct = ` (${Math.round(100 * unsure_count / matches.length)}% unsure)`
+    }
     let num_notes = document.createElement('b')
     num_notes.innerText = notes.length / 3
     let num_pits = document.createElement('b')
     num_pits.innerText = pits.length
-    user_card.replaceChildren('has scouted:', br(), ' - ', num_matches, ' matches', br(), ' - ', num_notes, ' notes', br(), ' - ', num_pits, ' pits')
+    user_card.replaceChildren('has scouted:', br(), ' - ', num_matches, ` matches${unsure_pct}`, br(), ' - ', num_notes, ' notes', br(), ' - ', num_pits, ' pits')
 
     id_number.value_el.innerText = user_id
     name_entry.element.value = cfg.get_name(user_id)
