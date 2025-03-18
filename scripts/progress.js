@@ -43,6 +43,7 @@ function init_page()
     key_row.append(build_key('orange', 'Unsure'))
     key_row.append(build_key('red', 'Unscouted'))
     key_row.append(build_key('turquoise', 'Ignored'))
+    let key_counts = Array(6).fill(0)
 
     // build match result table
     let matches = Object.keys(dal.matches)
@@ -76,32 +77,38 @@ function init_page()
             {
                 if (dal.get_result_value(team, match, 'meta_ignore'))
                 {
+                    key_counts[5]++
                     color = 'turquoise'
                     link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
                 }
                 else if (dal.get_result_value(team, match, 'meta_unsure'))
                 {
+                    key_counts[3]++
                     color = 'orange'
                     link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
                 }
                 else if (match_scouted && note_scouted)
                 {
+                    key_counts[0]++
                     color = 'green'
                     link = open_page('results', {'file': `${match}-${team}`})
                 }
                 else if (match_scouted)
                 {
+                    key_counts[1]++
                     color = 'yellowgreen'
                     link = open_page('results', {'file': `${match}-${team}`})
                 }
                 else if (note_scouted)
                 {
+                    key_counts[2]++
                     color = 'yellow'
                     link = open_page('results', {'file': `${match}-${team}`})
                 }
             }
             else
             {
+                key_counts[4]++
                 color = 'red'
                 link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: false})
             }
@@ -111,6 +118,13 @@ function init_page()
             td.style.backgroundColor = color
             td.onclick = (event) => window_open(link, '_self')
         }
+    }
+
+    // add counts and percent of each type below key
+    key_row = key.insertRow()
+    for (let c of key_counts)
+    {
+        key_row.insertCell().innerText = `${c} (${Math.round(100 * c / matches.length / 6)}%)`
     }
 
     // build pit result table
