@@ -28,7 +28,7 @@ const CONFIGS = {
     'analysis': {
         'Qualitative': ['ranker', 'multipicklists', 'note-viewer'],
         'Quantitative': ['pivot', 'results', 'plot', 'open_moralysis'],
-        'Results': ['import_results', 'progress', 'export_results']
+        'Results': ['import_results', 'result_count', 'export_results']
     },
     'moralysis': {
         'Teams': ['ranker', 'sides', 'multipicklists'],
@@ -225,7 +225,15 @@ function open_role(role)
         for (let key of columns[col])
         {
             let button
-            if (is_blocked(key))
+            if (key === 'result_count')
+            {
+                let matches = dal.get_results([], false).length
+                let pits = dal.get_pits([], false).length
+
+                button = new WRMultiNumber('', ['P', 'M'], [pits, matches])
+                button.on_click = () => window_open(open_page('progress'), '_self')
+            }
+            else if (is_blocked(key))
             {
                 button = new WRButton(BUTTONS[key].name, () => alert(is_blocked(key)))
             }
@@ -407,6 +415,7 @@ function import_results()
     handler.pit       = true
     handler.pictures  = true
     handler.picklists = true
+    handler.on_complete = init_page
     handler.import_zip_from_file(true)
 }
 

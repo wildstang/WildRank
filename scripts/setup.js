@@ -83,16 +83,19 @@ function step_setup()
     event_config.set_status((team_count > 0 ? 1 : 0) + (match_count > 0 ? 1 : 0) - 1)
     status_col.add_input(new WRStack([
         event_config,
-        new WRMultiNumber('', ['Team', 'Match'], [team_count, match_count]),
         new WRButton('Load from TBA', preload_event)
     ]))
     scout_config_valid = new WRStatusTile(cfg.version)
     scout_config_valid.set_status(cfg.validate_game_configs())
-    scout_config_valid.on_click = () => window_open(build_url('index', {'page': 'config-debug'}), '_self')
+    scout_config_valid.on_click = () => window_open(build_url('index', {'page': 'config-debug'}), '_self')   
     status_col.add_input(new WRStack([
         scout_config_valid,
         new WRButton('Import Config', import_config)
     ]))
+    theme_el = new WRSelect('', ['Light', 'Dark', 'Auto'])
+    theme_el.on_change = switch_theme
+    theme_el.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
+    status_col.add_input(theme_el)
 
     // button used to trigger a fresh start of the setup
     let reset = new WRButton('Restart Setup', restart_setup)
@@ -151,12 +154,6 @@ function step_setup()
         let roles = new WRButton('Other Roles', other_roles)
         roles.add_class('slim')
         setup_col.add_input(roles)
-
-        theme_el = new WRSelect('Theme', ['Light', 'Dark', 'Auto'])
-        theme_el.on_change = switch_theme
-        theme_el.columns = 3
-        theme_el.value = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-        setup_col.add_input(theme_el)
 
         status_col.add_input(reset)
 
