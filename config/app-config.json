@@ -1,0 +1,60 @@
+{
+	"version": "app-concept",
+	"config": {
+		"title": "WildRank"
+	},
+	"defaults": {
+		"event_id": "2025mndu2",
+		"user_id": 111112
+	},
+	"theme": {
+		"primary-color": "#000080",
+		"primary-text-color": "#FFFFFF",
+		"secondary-color": "#FFB30F",
+		"secondary-text-color": "#000000",
+		"background-color": "#F0F0F0",
+		"background-text-color": "#000000",
+		"foreground-color": "#FFFFFF",
+		"foreground-text-color": "#000000",
+		"active-color": "#1E90FF",
+		"active-text-color": "#FFFFFF",
+		"disabled-color": "#F0F0F0",
+		"disabled-text-color": "#000000",
+		"hover-color": "#ADD8E6",
+		"hover-text-color": "#000000",
+		"border-color": "#000000",
+		"inactive-color": "#C0C0C0",
+		"inactive-text-color": "#FFFFFF",
+		"red-alliance-color": "#FF4136",
+		"blue-alliance-color": "#0074D9",
+		"green-alliance-color": "#2ECC40",
+		"alt-table-color": "#F2F2F2",
+		"highlight-color": "#FFF2A8",
+		"font": "mono, courier"
+	},
+    "dark_theme": {
+		"primary-color": "#000080",
+		"primary-text-color": "#F0F0F0",
+		"secondary-color": "#FFB30F",
+		"secondary-text-color": "#000000",
+		"background-color": "#121212",
+		"background-text-color": "#F0F0F0",
+		"foreground-color": "#1F1A24",
+		"foreground-text-color": "#F0F0F0",
+		"disabled-color": "#121212",
+		"disabled-text-color": "#F0F0F0",
+		"active-color": "#BB86FC",
+		"active-text-color": "#F0F0F0",
+		"hover-color": "#332940",
+		"hover-text-color": "#F0F0F0",
+		"border-color": "#000000",
+		"inactive-color": "#332940",
+		"inactive-text-color": "#F0F0F0",
+		"red-alliance-color": "#FF4136",
+		"blue-alliance-color": "#0074D9",
+		"green-alliance-color": "#2ECC40",
+		"alt-table-color": "#332940",
+		"highlight-color": "#FFF2A8",
+		"font": "mono, courier"
+	}
+}

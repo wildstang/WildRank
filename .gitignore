@@ -1,6 +1,5 @@
 python/__pycache__
 scripts/keys.js
-*.csv
 *.xlsx
 *.pyc
 *.zip
