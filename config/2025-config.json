@@ -1,5 +1,5 @@
 {
-    "version": "2025-duluth.1",
+    "version": "2025-midwest",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -479,53 +479,81 @@
                     "id": "pit_tech_mech",
                     "inputs": [
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Accessibility",
                             "id": "pit_tech_mech_accessibility"
                         },
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Construction",
                             "id": "pit_tech_mech_construction"
                         },
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Low CG",
                             "id": "pit_tech_mech_low_cg"
                         },
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Bumper",
                             "id": "pit_tech_mech_bumpers"
@@ -538,53 +566,81 @@
                     "id": "pit_tech_elec",
                     "inputs": [
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Accessibility",
                             "id": "pit_tech_elec_accessibility"
                         },
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Wiring",
                             "id": "pit_tech_elec_wiring"
                         },
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Contact Protection",
                             "id": "pit_tech_elec_contact_protection"
                         },
                         {
-                            "type": "slider",
-                            "default": 0,
-                            "negative": false,
+                            "type": "select",
+                            "default": "-",
+                            "negative": true,
                             "disallow_default": true,
                             "options": [
-                                0,
-                                5,
-                                1
+                                "-",
+                                "3",
+                                "2",
+                                "1"
+                            ],
+                            "colors": [
+                                "",
+                                "red",
+                                "yellow",
+                                "green"
                             ],
                             "name": "Reliable Condition",
                             "id": "pit_tech_elec_reliable_condition"
