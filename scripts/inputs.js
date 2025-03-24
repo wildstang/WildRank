@@ -118,6 +118,10 @@ function build_input_from_config(input, default_override='', scout_mode='', team
         case 'select':
             item = new WRSelect(name, options, default_val, images)
             item.vertical = input.vertical
+            if (input.colors)
+            {
+                item.colors = input.colors
+            }
             break
         case 'slider':
             item = new WRSlider(name, default_val)

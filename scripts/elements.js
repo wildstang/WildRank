@@ -1314,6 +1314,7 @@ class WRSelect extends WROptionedInput
     {
         super(label, options, value)
         this.images = images
+        this.colors = []
     }
 
     get option_elements()
@@ -1439,6 +1440,14 @@ class WRSelect extends WROptionedInput
             if (i === index)
             {
                 children[i].classList.add('selected')
+                if (this.colors.length === this.options.length)
+                {
+                    children[i].style.backgroundColor = this.colors[i]
+                }
+            }
+            else
+            {
+                children[i].style.backgroundColor = ''
             }
         }
     }
