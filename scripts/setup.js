@@ -45,12 +45,12 @@ function init_page()
         {
             return
         }
-        if (event_id_el !== null)
+        if (event_id_el !== null && event_id_el !== undefined)
         {
             set_event_id()
             event.preventDefault()
         }
-        else if (user_id_el !== null)
+        else if (user_id_el !== null && user_id_el !== undefined)
         {
             set_user_id()
             event.preventDefault()
