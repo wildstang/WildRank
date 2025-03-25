@@ -911,6 +911,8 @@ class ZipHandler
         }
 
         alert('Import Complete')
+        cfg = new Config(cfg.year)
+        cfg.load_configs(2)
         dal = new DAL(event_id)
         dal.build_teams()
         this.on_complete()
