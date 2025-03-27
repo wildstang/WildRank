@@ -213,4 +213,8 @@ document.onkeydown = function (e)
             window_open('updater.html', '_self')
         }
     }
+    else
+    {
+        u_count = 0
+    }
 }
