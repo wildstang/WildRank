@@ -67,7 +67,8 @@ var SELECTION_PAGES = {
     scatter: ['event', 'user'],
     coach: ['event', 'user'],
     results: ['event'], // file
-    cycles: ['event'] // file
+    cycles: ['event'], // file
+    'misc/2025-audit': []
 }
 
 function open_page(page, params={})

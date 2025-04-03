@@ -37,7 +37,7 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
     },
     'admin': {
-        'Admin': ['reset', 'config-generator', 'export', 'random']
+        'Admin': ['reset', 'config-generator', 'export', 'random', 'misc/2025-audit']
     },
     'advanced': {
         'Configuration': ['settings', 'config-generator', 'config-debug', 'export_config'],
@@ -105,6 +105,7 @@ const BUTTONS = {
     'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: [], configs: [] },
     'misc/2023-rp':                 { name: '2023 RP Adjustment',       limits: [], configs: [] },
     'misc/2023-score-estimator':    { name: '2023 Score Estimator',     limits: [], configs: [] },
+    'misc/2025-audit':              { name: '2025 Audit',               limits: [], configs: [] },
     'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [], configs: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: [], configs: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [], configs: [] },
