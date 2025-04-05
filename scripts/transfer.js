@@ -787,7 +787,7 @@ class ZipHandler
                     // import everything else as strings to localStorage
                     // determine which files to use
                     if ((n.includes(dal.event_id) &&
-                        ((this.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
+                        ((this.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-') || n.startsWith('event-'))) ||
                         (this.match && n.startsWith(`${MATCH_MODE}-`) ||
                         (this.pit && n.startsWith(`${PIT_MODE}-`) ||
                         (this.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
@@ -933,7 +933,7 @@ class ZipHandler
         let files = Object.keys(localStorage).filter(function(file)
         {
             return (file.includes(dal.event_id) &&
-                ((handler.event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
+                ((handler.event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-') || file.startsWith('event-'))) ||
                 (handler.match && file.startsWith(`${MATCH_MODE}-`)) ||
                 (handler.pit && file.startsWith(`${PIT_MODE}-`)) ||
                 (handler.note && file.startsWith(`${NOTE_MODE}-`)))) ||
