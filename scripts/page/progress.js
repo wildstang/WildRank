@@ -48,7 +48,7 @@ function init_page()
     // build match result table
     let matches = Object.keys(dal.matches)
     matches.sort((a, b) => dal.get_match_value(a, 'scheduled_time') - dal.get_match_value(b, 'scheduled_time'))
-    let keys = Object.values(dal.get_team_keys(event_id))
+    let keys = dal.get_position_names()
     let header_row = match_table.insertRow()
     header_row.insertCell()
     for (let k of keys)

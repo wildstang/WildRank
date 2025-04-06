@@ -426,21 +426,76 @@ class DAL
     }
 
     /**
-     * function:    get_team_keys
-     * parameters:  none
-     * returns:     none
-     * description: Returns a map of position keys to names.
+     * Determines the alliance scouted for the given position.
+     * 
+     * @param {Number} position Current scouting position.
+     * @returns Alliance to scout for the given match.
      */
-    get_team_keys()
+    get_scouting_alliance(position)
     {
-        let positions = {}
+        if (position < this.max_alliance_size)
+        {
+            return 'red'
+        }
+        else
+        {
+            return 'blue'
+        }
+    }
+
+    /**
+     * Builds a list of all teams in the scouted alliance.
+     * 
+     * @param {String} match_key Match key to get team number from.
+     * @param {Number} position Current scouting position.
+     * @returns A list of team numbers.
+     */
+    get_alliance_teams(match_key, position)
+    {
+        if (position < this.max_alliance_size)
+        {
+            return this.get_match_value(match_key, 'red_alliance')
+        }
+        else
+        {
+            return this.get_match_value(match_key, 'blue_alliance')
+        }
+    }
+
+    /**
+     * Determines the team scouted for the given match and position.
+     * 
+     * @param {String} match_key Match key to get team number from.
+     * @param {Number} position Current scouting position.
+     * @returns Team to scout for the given match.
+     */
+    get_scouting_team(match_key, position)
+    {
+        if (position < this.max_alliance_size)
+        {
+            return this.get_match_value(match_key, 'red_alliance')[position]
+        }
+        else
+        {
+            return this.get_match_value(match_key, 'blue_alliance')[position - this.max_alliance_size]
+        }
+    }
+
+    /**
+     * Builds a list of all scouting position names.
+     * 
+     * @returns A list of position names.
+     */
+    get_position_names()
+    {
+        let positions = []
         for (let i = 0; i < this.max_alliance_size; i++)
         {
-            positions[`red_${i}`] = `Red ${i+1}`
+            positions.push(`Red ${i+1}`)
         }
         for (let i = 0; i < this.max_alliance_size; i++)
         {
-            positions[`blue_${i}`] = `Blue ${i+1}`
+            positions.push(`Blue ${i+1}`)
         }
         return positions
     }
@@ -1738,6 +1793,28 @@ class DAL
             }
         }
         return false
+    }
+
+    /**
+     * Determines if a given match ID exists in the event's matches.
+     * 
+     * @param {String} match_id Unique identifier for a match.
+     * @returns True if the match_id represents a known match.
+     */
+    is_match(match_id)
+    {
+        return this.matches.hasOwnProperty(match_id)
+    }
+
+    /**
+     * Determines if a given team number exists in the event's teams.
+     * 
+     * @param {Number} team Unique team number.
+     * @returns True if the team number represents a known team.
+     */
+    is_team(team)
+    {
+        return this.teams.hasOwnProperty(team.toString())
     }
 
     /**

@@ -7,9 +7,7 @@
  */
 
 // read parameters from URL
-var scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
+const scout_mode = get_parameter(MODE_QUERY, '')
 
 var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, photos_el, buttons
 var scout_pos

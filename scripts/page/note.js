@@ -8,11 +8,11 @@
 const start = Date.now()
 
 var teams = []
+var alliance_color
 
 // read parameters from 
 var urlParams = new URLSearchParams(window.location.search)
 const match_num = urlParams.get('match')
-const alliance_color = urlParams.get('alliance')
 var edit = urlParams.get('edit') == 'true'
 
 /**
@@ -24,14 +24,8 @@ var edit = urlParams.get('edit') == 'true'
 function init_page()
 {
     let pos = cfg.get_selected_position()
-    let match_teams = dal.get_match_teams(match_num)
-    for (let pos of Object.keys(match_teams))
-    {
-        if (pos.startsWith(alliance_color))
-        {
-            teams.push(match_teams[pos])
-        }
-    }
+    teams = dal.get_alliance_teams(match_num, pos)
+    alliance_color = dal.get_scouting_alliance(pos)
 
     // build the page from config for the desired mode
     let match = document.createElement('span')

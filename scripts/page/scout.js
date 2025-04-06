@@ -60,7 +60,7 @@ function init_page()
             // populate the header with the match and team
             match_box.innerText = dal.get_match_value(match_key, 'match_name')
             team_box.innerText = `${team_num} (${pos})`
-            team_box.style.color = alliance_color
+            team_box.style.color = dal.get_scouting_alliance(pos)
             team_box.style.backgroundColor = 'rgba(0, 0, 0, 0.33)'
             team_box.style.boxShadow = '0 0 4px 4px rgba(0, 0, 0, 0.33)'
             break
@@ -389,7 +389,7 @@ function get_results_from_page()
         results['meta_comp_level'] = dal.get_match_value(match_key, 'comp_level')
         results['meta_set_number'] = parseInt(dal.get_match_value(match_key, 'set_number'))
         results['meta_match'] = parseInt(dal.get_match_value(match_key, 'match_number'))
-        results['meta_alliance'] = alliance_color
+        results['meta_alliance'] = dal.get_scouting_alliance()
         results['meta_ignore'] = false
     }
     results['meta_team'] = parseInt(team_num)

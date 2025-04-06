@@ -39,7 +39,7 @@ function init_page()
     user_form.type = 'number'
     left_col.add_input(user_form)
 
-    pos_form = new WRDropdown('Position', ['All'].concat(Object.values(dal.get_team_keys())))
+    pos_form = new WRDropdown('Position', ['All'].concat(dal.get_position_names()))
     right_col.add_input(pos_form)
 
     min_value = new WREntry('First Match', 1)
