@@ -702,3 +702,45 @@ function random_hex(length)
     let arr = new Array(length).fill(0)
     return arr.map(() => Math.floor(Math.random(0.999) * 16).toString(16)).join('')
 }
+
+/**
+ * Determines the browser based on the userAgent.
+ */
+function get_browser()
+{
+    let browser = 'Unknown'
+    if (navigator.userAgent.includes('Chrome/'))
+    {
+        browser = 'Chrome'
+    }
+    else if (navigator.userAgent.includes('Firefox/'))
+    {
+        browser = 'Firefox'
+    }
+    else if (navigator.userAgent.includes('Safari/'))
+    {
+        browser = 'Safari'
+    }
+    return browser
+}
+
+/**
+ * Determines which display-mode the web app is opened in.
+ */
+function get_display_mode()
+{
+    let display_mode = 'standalone'
+    if (window.matchMedia('(display-mode: browser)').matches)
+    {
+        display_mode = 'browser'
+    }
+    else if (window.matchMedia('(display-mode: minimal-ui)').matches)
+    {
+        display_mode = 'minimal-ui'
+    }
+    else if (window.matchMedia('(display-mode: fullscreen)').matches)
+    {
+        display_mode = 'fullscreen'
+    }
+    return display_mode
+}
