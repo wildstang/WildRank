@@ -10,9 +10,6 @@ const start = Date.now()
 var teams = []
 
 // read parameters from 
-const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 var urlParams = new URLSearchParams(window.location.search)
 const match_num = urlParams.get('match')
 const alliance_color = urlParams.get('alliance')
@@ -26,6 +23,7 @@ var edit = urlParams.get('edit') == 'true'
  */
 function init_page()
 {
+    let pos = cfg.get_selected_position()
     let match_teams = dal.get_match_teams(match_num)
     for (let pos of Object.keys(match_teams))
     {
@@ -59,7 +57,7 @@ function init_page()
 function build_page_from_config()
 {
     let select_ids = []
-    let page = cfg[NOTE_MODE][0]
+    let page = cfg.get_scout_config(NOTE_MODE).pages[0]
     let column = page.columns[0]
     let page_frame = new WRPage(page.name)
     // iterate through each column in the page
@@ -91,7 +89,7 @@ function build_page_from_config()
  */
 function check_results()
 {
-    let page = cfg[NOTE_MODE][0]
+    let page = cfg.get_scout_config(NOTE_MODE).pages[0]
     let column = page.columns[0]
 
     if (page.columns.length > 1)
@@ -158,7 +156,7 @@ function get_results_from_page()
         return
     }
 
-    let page = cfg[NOTE_MODE][0]
+    let page = cfg.get_scout_config(NOTE_MODE).pages[0]
     let column = page.columns[0]
     let results = {}
 
@@ -169,16 +167,16 @@ function get_results_from_page()
     }
 
     // scouter metadata
-    results['meta_note_scouter_id'] = parseInt(user_id)
+    results['meta_note_scouter_id'] = parseInt(cfg.user.state.user_id)
     results['meta_note_scout_time'] = Math.round(start / 1000)
     results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
-    results['meta_config_version'] = cfg.version
-    results['meta_app_version'] = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
+    results['meta_config_version'] = cfg.scout.version
+    results['meta_app_version'] = cfg.app_version
 
     // scouting metadata
     results['meta_scout_mode'] = NOTE_MODE
-    results['meta_note_position'] = parseInt(scout_pos)
-    results['meta_event_id'] = event_id
+    results['meta_note_position'] = cfg.get_selected_position()
+    results['meta_event_id'] = cfg.user.state.event_id
     results['meta_match_key'] = match_num
     results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
     results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))

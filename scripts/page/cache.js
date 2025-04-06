@@ -44,7 +44,7 @@ async function populate_page()
     {
         current = names[0]
 
-        if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on' && navigator.serviceWorker.controller != null)
+        if ('serviceWorker' in navigator && cfg.user.settings.use_offline && navigator.serviceWorker.controller != null)
         {
             // request the current version and file list from the serviceWorker
             navigator.serviceWorker.controller.postMessage({msg: 'get_version'})

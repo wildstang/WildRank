@@ -6,9 +6,6 @@
  * date:        2021-09-06
  */
 
-// read parameters from URL
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 const start = Date.now()
 
 var type_form, user_form, pos_form, min_value, max_value
@@ -37,7 +34,7 @@ function init_page()
     type_form.on_change = hide_buttons
     left_col.add_input(type_form)
 
-    user_form = new WREntry('School ID', user_id)
+    user_form = new WREntry('School ID', cfg.user.state.user_id)
     user_form.bounds = [100000, 999999]
     user_form.type = 'number'
     left_col.add_input(user_form)
@@ -159,13 +156,13 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
     // scouter metadata
     if (scout_mode != NOTE_MODE)
     {
-        results['meta_scouter_id'] = parseInt(user_id)
+        results['meta_scouter_id'] = parseInt(cfg.user.state.user_id)
         results['meta_scout_time'] = Math.round(start / 1000)
         results['meta_scouting_duration'] = (Date.now() - start) / 1000
     }
     else
     {
-        results['meta_note_scouter_id'] = parseInt(user_id)
+        results['meta_note_scouter_id'] = parseInt(cfg.user.state.user_id)
         results['meta_note_scout_time'] = Math.round(start / 1000)
         results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
     }

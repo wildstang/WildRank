@@ -20,9 +20,9 @@ function init_page()
 
     // create a dropdown filter for the match list and set the default value to the configured team
     let default_filter = ''
-    if (cfg.settings.hasOwnProperty('team_number'))
+    if (cfg.user.settings.hasOwnProperty('team_number'))
     {
-        default_filter = cfg.settings.team_number.toString()
+        default_filter = cfg.user.settings.team_number.toString()
     }
     let teams = Object.keys(dal.teams)
     teams.unshift('')
@@ -40,7 +40,7 @@ function init_page()
 
         // create the whiteboard drawing controls and place them in a stack with the whiteboard
         let game_piece = new WRMultiButton('')
-        for (let gp of cfg.whiteboard.game_pieces)
+        for (let gp of cfg.game.whiteboard.game_pieces)
         {
             game_piece.add_option(gp.name, () => whiteboard.add_game_piece(gp.name))
         }

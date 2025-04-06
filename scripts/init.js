@@ -5,35 +5,33 @@
  * date:        2022-06-05
  */
 
-// register service workers for PWA
-if ('serviceWorker' in navigator && get_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT) === 'on')
+// create config object, load in what is available, and set the theme
+var cfg = new Config()
+cfg.load_configs(on_config)
+
+/**
+ * Executes after the configuration has successfully loaded.
+ */
+function on_config()
 {
-    navigator.serviceWorker.register('pwa.js')
-        .then(reg => {
-            reg.onupdatefound = () => {
-                // TODO: figure out how to listen for messages from reg.installing to determine new version
-                let notification = document.getElementById('update_notification')
-                notification.innerText = 'Update detected! Click here to apply it now.'
-                notification.style.transform = 'translate(0%)'
-                notification.style.visibility = 'visible'
-                notification.onclick = event => {
-                    location.reload()
-                }
-            }
-        })
-}
-else if ('serviceWorker' in navigator)
-{
-    navigator.serviceWorker.getRegistrations().then(function(registrations)
-    {
-        for(let registration of registrations)
-        {
-            registration.unregister()
-        }
-    })
+    register_service_worker()
+
+    run_after_load(trigger_install_warning)
+
+    apply_theme()
+    // listen for dark mode changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
+    
+    // load in data
+    dal = new DAL(cfg.user.state.event_id)
+    dal.build_teams()
+
+    run_after_load(init_page)
 }
 
-// determine the desired page
+var dal
+
+// determine the requested page
 var urlParams = new URLSearchParams(window.location.search)
 var page = urlParams.get('page')
 if (!page)
@@ -42,147 +40,120 @@ if (!page)
 }
 
 // load in requested page
-let script = document.createElement('script')
+var script = document.createElement('script')
 script.src = `scripts/page/${page}.js`
 document.head.appendChild(script)
 
-// pull in event id and determine game year
-var event_id = get_parameter(EVENT_COOKIE, undefined)
-if (typeof event_id === 'undefined')
-{
-    var cfg = new Config()
-}
-else
-{
-    var cfg = new Config(event_id.substring(0, 4))
-}
-
-// create config object, load in what is available, and set the theme
-cfg.load_configs(2, '')
-apply_theme()
-
-window.addEventListener('load', event => {
-    // basic browser detection
-    let browser = 'Unknown'
-    if (navigator.userAgent.includes('Chrome/'))
-    {
-        browser = 'Chrome'
-    }
-    else if (navigator.userAgent.includes('Firefox/'))
-    {
-        browser = 'Firefox'
-    }
-    else if (navigator.userAgent.includes('Safari/'))
-    {
-        browser = 'Safari'
-    }
-
-    if (browser !== 'Firefox')
-    {
-        // determine if the app is installed correctly
-        let display_mode = 'standalone';
-        if (window.matchMedia('(display-mode: browser)').matches) {
-            display_mode = 'browser'
-        }
-        else if (window.matchMedia('(display-mode: minimal-ui)').matches) {
-            display_mode = 'minimal-ui'
-        }
-        else if (window.matchMedia('(display-mode: fullscreen)').matches) {
-            display_mode = 'fullscreen'
-        }
-
-        // if it's not show a warning notification
-        if (display_mode !== 'standalone')
-        {
-            if (!sessionStorage.getItem('dismiss_warning'))
-            {
-                let title = typeof cfg.settings.title === 'undefined' ? 'WildRank' : cfg.settings.title
-                let notification = document.getElementById('warning_notification')
-                notification.innerText = `${title} is opened in ${display_mode}. Data may be lost!`
-                notification.style.transform = 'translate(0%)'
-                notification.style.visibility = 'visible'
-                notification.onclick = event => {
-                    // on Chrome and Safari give basic instruction on how to install
-                    if (browser === 'Chrome')
-                    {
-                        alert(`To prevent future data loss install the app and open it from your app launcher.
-    
-Press the "Install ${title}" button on the home page.`)
-                    }
-                    else if (browser === 'Safari')
-                    {
-                        alert(`To prevent future data loss add ${title} to your home screen and open it from there.
-    
-In the share menu (box with up arrow), choose "Add to Home Screen", then press "Add".`)
-                    }
-
-                    // dismiss the warning for this session
-                    sessionStorage.setItem('dismiss_warning', true)
-                    notification.style.transform = 'translate(0%, 100%)'
-                    notification.style.visibility = 'collapse'
-                }
-            }
-        }
-    }
-  })
-
-var dal
+// create a listener just to track whether page has been loaded
+var page_loaded = false
+window.addEventListener('load', _ => page_loaded = true)
 
 /**
- * function:    create_config()
- * parameters:  none
- * returns:     none
- * description: Load in Config, then calls on_config() when complete.
- *              This function is required to be called by all HTML pages after page load.
+ * Creates an event listener to run a given function onload, or immediately calls it if the page has already been loaded.
+ * 
+ * @param {Function} func Function to run after the page has been loaded.
  */
-function create_config()
+function run_after_load(func)
 {
-    // load in configs
-    cfg.load_configs(0, on_config)
-}
-
-/**
- * function:    on_config()
- * parameters:  none
- * returns:     none
- * description: Load in DAL and build page once there is a config, called by create_config().
- */
-function on_config()
-{
-    apply_theme()
-    // listen for dark mode changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
-
-    if (cfg.settings.use_offline)
+    if (page_loaded)
     {
-        set_cookie(OFFLINE_COOKIE, 'on')
-    }
-    else if (cfg.settings.use_offline === false)
-    {
-        set_cookie(OFFLINE_COOKIE, 'off')
+        func()
     }
     else
     {
-        set_cookie(OFFLINE_COOKIE, OFFLINE_DEFAULT)
+        window.addEventListener('load', func)
     }
-
-    if (typeof event_id === 'undefined')
-    {
-        event_id = cfg.defaults.event_id
-    }
-    
-    // load in data
-    dal = new DAL(event_id)
-    dal.build_teams()
-
-    init_page()
 }
 
 /**
- * function:    home()
- * parameters:  right click
- * returns:     none
- * description: Opens the appropriate home page, based on the current page.
+ * If the app is configured to run offline, register the serviceWorker and trigger a notification for any updates.
+ * Otherwise, unregister the serviceWorker.
+ */
+function register_service_worker()
+{
+    if ('serviceWorker' in navigator && cfg.user.settings.use_offline)
+    {
+        navigator.serviceWorker.register('pwa.js')
+            .then(reg => {
+                reg.onupdatefound = () => {
+                    console.log('update detected, triggering banner')
+
+                    // TODO: figure out how to listen for messages from reg.installing to determine new version
+                    let notification = document.getElementById('update_notification')
+                    notification.innerText = 'Update detected! Click here to apply it now.'
+                    notification.style.transform = 'translate(0%)'
+                    notification.style.visibility = 'visible'
+                    notification.onclick = event => {
+                        location.reload()
+                    }
+                }
+            })
+
+        console.log('serviceWorker registered')
+
+        // request the current version from the serviceWorker
+        if (navigator.serviceWorker.controller != null)
+        {
+            navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
+            navigator.serviceWorker.addEventListener('message', e => {
+                if (e.data.msg === 'version')
+                {
+                    cfg.app_version = e.data.version.replace('wildrank-', '')
+                }
+            })
+        }
+    }
+    else if ('serviceWorker' in navigator)
+    {
+        navigator.serviceWorker.getRegistrations().then(function(registrations)
+        {
+            for(let registration of registrations)
+            {
+                registration.unregister()
+                console.log('serviceWorker unregistered')
+            }
+        })
+    }
+}
+
+/**
+ * Triggers a warning banner if the app isn't installed properly.
+ */
+function trigger_install_warning()
+{
+    if (get_browser() !== 'Firefox' && get_display_mode() !== 'standalone' && !sessionStorage.getItem('dismiss_warning'))
+    {
+        let notification = document.getElementById('warning_notification')
+        notification.innerText = `${cfg.title} is not properly installed. Data may be lost!`
+        notification.style.transform = 'translate(0%)'
+        notification.style.visibility = 'visible'
+        notification.onclick = _ => {
+            // on Chrome and Safari give basic instruction on how to install
+            if (browser === 'Chrome')
+            {
+                alert(`To prevent future data loss install the app and open it from your app launcher.
+
+To install, press the "Install ${cfg.title}" button on the address bar.`)
+            }
+            else if (browser === 'Safari')
+            {
+                alert(`To prevent future data loss add ${cfg.title} to your home screen and open it from there.
+
+In the share menu (box with up arrow), choose "Add to Home Screen", then press "Add".`)
+            }
+
+            // dismiss the warning for this session
+            sessionStorage.setItem('dismiss_warning', true)
+            notification.style.transform = 'translate(0%, 100%)'
+            notification.style.visibility = 'collapse'
+        }
+    }
+}
+
+/**
+ * Handles clicking on the app title to navigate to the role/overall homepage based on current page.
+ * 
+ * @param {Boolean} right Whether a right click was used.
  */
 function home(right=false)
 {
@@ -190,7 +161,8 @@ function home(right=false)
     let url = 'index.html'
     if (['setup', 'matches', 'pits'].includes(page))
     {
-        set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+        cfg.user.state.role = ''
+        cfg.store_configs()
         url += '?page=setup'
     }
     else

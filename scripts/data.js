@@ -33,7 +33,7 @@ class DAL
     load_config(mode)
     {
         // go over each input in config
-        let config = cfg[mode]
+        let config = cfg.get_scout_config(mode).pages
         let prefix = `${mode}.`
         if (mode === MATCH_MODE || mode === NOTE_MODE)
         {
@@ -170,7 +170,7 @@ class DAL
             // add on smart stats
             if (mode == MATCH_MODE)
             {
-                let stats = cfg.smart_stats
+                let stats = cfg.analysis.smart_stats
                 for (let stat of stats)
                 {
                     let neg = stat.negative
@@ -721,7 +721,7 @@ class DAL
         this.load_config(NOTE_MODE)
 
         // add match results
-        let stats = cfg.smart_stats
+        let stats = cfg.analysis.smart_stats
         let match_files = files.filter(f => f.startsWith(`match-${this.event_id}`))
         for (let file of match_files)
         {
@@ -1545,7 +1545,7 @@ class DAL
      */
     get_photo(team_num)
     {
-        if (cfg.settings.use_images && this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
+        if (cfg.user.settings.use_images && this.teams.hasOwnProperty(team_num) && this.teams[team_num].pictures.hasOwnProperty('photos'))
         {
             let pics = this.teams[team_num].pictures.photos
             if (pics.length > 0)
@@ -1565,7 +1565,7 @@ class DAL
     get_photo_carousel(team_nums, width='500px')
     {
         let center = document.createElement('center')
-        if (cfg.settings.use_images)
+        if (cfg.user.settings.use_images)
         {
             // if a single team string was given, put it in an array
             if (!Array.isArray(team_nums))
@@ -1987,7 +1987,7 @@ class DAL
         let mean_vals = values
 
         // calculate where and percent smart stats differently
-        let stats = cfg.smart_stats
+        let stats = cfg.analysis.smart_stats
         let matches = stats.filter(s => s.id === key)
         if (matches.length === 1)
         {

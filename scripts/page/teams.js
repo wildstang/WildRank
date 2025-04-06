@@ -8,9 +8,6 @@
 
 include('mini-picklists')
 
-// read parameters from URL
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 var avatar, team_num_hdr, team_name, loc, ranking, photos, stats_container, clear_container, match_container
 
 /**

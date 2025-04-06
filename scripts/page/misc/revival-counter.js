@@ -40,13 +40,9 @@ async function process_teams()
 {
     if (!TBA_KEY)
     {
-        let file = cfg.keys
-        if (file != null)
+        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
         {
-            if (cfg.keys.hasOwnProperty('tba'))
-            {
-                TBA_KEY = cfg.keys.tba
-            }
+            TBA_KEY = cfg.user.settings.tba_key
         }
         if (!TBA_KEY)
         {

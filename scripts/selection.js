@@ -179,7 +179,7 @@ function toggle_menu(primary_list=true)
  */
 function enable_secondary_list()
 {
-    if (!cfg.settings.auto_hide_right)
+    if (!cfg.user.settings.auto_hide_right)
     {
         document.getElementById('right').style.display = 'flex'
     }
@@ -188,7 +188,7 @@ function enable_secondary_list()
 
 var header_info, preview
 
-window.addEventListener('load', function()
+run_after_load(function()
 {
     // fix for selection pages being cut off by notch/home bar
     let iPad = navigator.userAgent.match(/iPad/) ||
@@ -204,7 +204,4 @@ window.addEventListener('load', function()
     // save elements of body
     header_info = document.getElementById('header_info')
     preview = document.getElementById('preview')
-
-    // load in configs
-    create_config()
 })

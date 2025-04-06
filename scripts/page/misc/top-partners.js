@@ -19,7 +19,7 @@ var summary, table
  */
 function init_page()
 {
-    let team = new Entry('team', 'Team', cfg.settings.team_number)
+    let team = new Entry('team', 'Team', cfg.user.settings.team_number)
     team.type = 'number'
     let entry_col = new ColumnFrame('', '', [team])
     let run = new Button('run', 'Run', 'handle_team()')
@@ -50,13 +50,9 @@ function handle_team()
 
     if (!TBA_KEY)
     {
-        let file = cfg.keys
-        if (file != null)
+        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
         {
-            if (cfg.keys.hasOwnProperty('tba'))
-            {
-                TBA_KEY = cfg.keys.tba
-            }
+            TBA_KEY = cfg.user.settings.tba_key
         }
         if (!TBA_KEY)
         {

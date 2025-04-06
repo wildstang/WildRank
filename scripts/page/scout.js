@@ -11,17 +11,14 @@ var cycles = {}
 var alliances = {}
 
 // read parameters from URL
-const scout_pos = get_parameter(POSITION_COOKIE, POSITION_DEFAULT)
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
-
 var urlParams = new URLSearchParams(window.location.search)
-const match_num = urlParams.get('match')
-const team_num = urlParams.get('team')
-const alliance_color = urlParams.get('alliance')
-var edit = urlParams.get('edit') == 'true'
+const scout_mode = urlParams.get(MODE_QUERY)
+const index = urlParams.get('index')
+var edit = urlParams.get('edit').toLowerCase() == 'true'
 
 var unsure
+var team_num
+var match_key
 
 /**
  * function:    init_page
@@ -31,55 +28,70 @@ var unsure
  */
 function init_page()
 {
-    // check if result exists to be edited
-    if (edit)
-    {
-        switch (scout_mode)
-        {
-            case MATCH_MODE:
-                edit = dal.is_match_scouted(match_num, team_num)
-                break
-            case PIT_MODE:
-                edit = dal.is_pit_scouted(team_num)
-                break
-            default:
-                console.log('Invalid mode')
-                edit = false
-                break
-        }
-        if (!edit)
-        {
-            console.log(`Existing result, could not be found`)
-        }
-    }
-
+    // build a structure for the header
     let match_box = document.createElement('span')
     let team_box = document.createElement('span')
     header_info.append(match_box, ' - Scouting: ', team_box)
 
-    // build the page from config for the desired mode
     switch (scout_mode)
     {
-        case PIT_MODE:
-            match_box.innerText = 'Pit'
-            team_box.innerText = team_num
-            team_box.style.color = 'white'
-            break
         case MATCH_MODE:
-            let pos = 1 + parseInt(scout_pos)
-            if (pos > dal.alliance_size)
+            // validate that the index is a valid match ID
+            match_key = index
+            if (!dal.is_match(match_key))
             {
-                pos -= dal.alliance_size
+                alert(`Invalid match key "${match_key}"`)
+                header_info.innerText = 'Error'
+                return
             }
-            match_box.innerText = dal.get_match_value(match_num, 'match_name')
+
+            // determine team numbers for match
+            let pos = cfg.get_selected_position()
+            team_num = dal.get_scouting_team(match_key, pos)
+            alliances = dal.build_relative_alliances(team_num, match_key)
+
+            // disable editing if the match hasn't been scouted
+            if (edit && !dal.is_match_scouted(match_key, team_num))
+            {
+                alert(`Could not find result "${match_key}-${team_num}"`)
+                edit = false
+            }
+
+            // populate the header with the match and team
+            match_box.innerText = dal.get_match_value(match_key, 'match_name')
             team_box.innerText = `${team_num} (${pos})`
             team_box.style.color = alliance_color
             team_box.style.backgroundColor = 'rgba(0, 0, 0, 0.33)'
             team_box.style.boxShadow = '0 0 4px 4px rgba(0, 0, 0, 0.33)'
-
-            alliances = dal.build_relative_alliances(team_num, match_num)
             break
+        case PIT_MODE:
+            // validate that the index is a valid team number
+            team_num = index
+            if (!dal.is_team(team_num))
+            {
+                alert(`Invalid team "${team_num}"`)
+                header_info.innerText = 'Error'
+                return
+            }
+
+            // disable editing if the team hasn't been scouted
+            if (edit && !dal.is_pit_scouted(team_num))
+            {
+                alert(`Could not find result "${team_num}"`)
+                edit = false
+            }
+
+            // populate the header with the team
+            match_box.innerText = 'Pit'
+            team_box.innerText = team_num
+            team_box.style.color = 'white'
+            break
+        default:
+            alert(`Invalid mode "${scout_mode}"`)
+            header_info.innerText = 'Error'
+            return
     }
+
     ws(team_num)
     build_page_from_config()
 }
@@ -93,7 +105,7 @@ function init_page()
 function check_for_last_page()
 {
     let carousel = document.getElementById('scouting-carousel')
-    let final_page = carousel.clientWidth * (cfg[scout_mode].length - 1)
+    let final_page = carousel.clientWidth * (cfg.get_scout_config(scout_mode).pages.length - 1)
     let view_start = Math.ceil(carousel.scrollLeft)
     if (view_start >= final_page && document.getElementById('submit_container').childElementCount === 0)
     {
@@ -113,14 +125,14 @@ function build_page_from_config()
     // iterate through each page in the mode
     let carousel = create_element('div', 'scouting-carousel', 'scouting-carousel')
     carousel.onscroll = check_for_last_page
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         let page_frame = new WRPage(page.name)
         // iterate through each column in the page
         for (let column of page.columns)
         {
             let cycle = column.cycle
-            let col_frame = build_column_from_config(column, scout_mode, edit && !cycle, match_num, team_num, '', alliances)
+            let col_frame = build_column_from_config(column, scout_mode, edit && !cycle, match_key, team_num, '', alliances)
             if (cycle)
             {
                 // create and populate (if editing) cycle arrays
@@ -130,7 +142,7 @@ function build_page_from_config()
                 }
                 else if (edit)
                 {
-                    cycles[column.id] = dal.get_result_value(team_num, match_num, column.id)
+                    cycles[column.id] = dal.get_result_value(team_num, match_key, column.id)
                 }
                 else
                 {
@@ -182,7 +194,7 @@ function update_cycle(cycle, decrement)
     }
 
     // iterate through each column in the page
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -286,7 +298,7 @@ function update_cycle(cycle, decrement)
 function check_cycles()
 {
     // iterate through each column in the page
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         // iterate through each column in the page
         for (let column of page.columns)
@@ -342,11 +354,11 @@ function get_results_from_page()
     results = {}
 
     // scouter metadata
-    results['meta_scouter_id'] = parseInt(user_id)
+    results['meta_scouter_id'] = parseInt(cfg.user.state.user_id)
     results['meta_scout_time'] = Math.round(start / 1000)
     results['meta_scouting_duration'] = (Date.now() - start) / 1000
-    results['meta_config_version'] = cfg.version
-    results['meta_app_version'] = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
+    results['meta_config_version'] = cfg.scout.version
+    results['meta_app_version'] = cfg.app_version
     if (scout_mode === MATCH_MODE)
     {
         results['meta_unsure'] = unsure.checkbox.checked
@@ -367,23 +379,23 @@ function get_results_from_page()
 
     // scouting metadata
     results['meta_scout_mode'] = scout_mode
-    results['meta_position'] = parseInt(scout_pos)
-    results['meta_event_id'] = event_id
+    results['meta_position'] = parseInt(cfg.get_selected_position())
+    results['meta_event_id'] = cfg.user.state.event_id
 
     // match metadata
-    if (scout_mode != PIT_MODE)
+    if (scout_mode == MATCH_MODE)
     {
-        results['meta_match_key'] = match_num
-        results['meta_comp_level'] = dal.get_match_value(match_num, 'comp_level')
-        results['meta_set_number'] = parseInt(dal.get_match_value(match_num, 'set_number'))
-        results['meta_match'] = parseInt(dal.get_match_value(match_num, 'match_number'))
+        results['meta_match_key'] = match_key
+        results['meta_comp_level'] = dal.get_match_value(match_key, 'comp_level')
+        results['meta_set_number'] = parseInt(dal.get_match_value(match_key, 'set_number'))
+        results['meta_match'] = parseInt(dal.get_match_value(match_key, 'match_number'))
         results['meta_alliance'] = alliance_color
         results['meta_ignore'] = false
     }
     results['meta_team'] = parseInt(team_num)
 
     // get each result
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         for (let column of page.columns)
         {
@@ -416,10 +428,10 @@ function get_results_from_page()
     }
 
     // get result name
-    let file = `pit-${event_id}-${team_num}`
+    let file = `pit-${cfg.user.state.event_id}-${team_num}`
     if (scout_mode === MATCH_MODE)
     {
-        file = `match-${match_num}-${team_num}`
+        file = `match-${match_key}-${team_num}`
     }
     localStorage.setItem(file, JSON.stringify(results))
     
@@ -443,7 +455,7 @@ function get_results_from_page()
 function check_results()
 {
     // get each result
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         for (let column of page.columns)
         {

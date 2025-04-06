@@ -119,7 +119,7 @@ const BUTTONS = {
     'misc/verde':                   { name: 'VerdeRank',                limits: [, 'teams'], configs: [] }
 }
 
-var role_page = ROLE_DEFAULT
+var role_page = ''
 
 /**
  * function:    init_page
@@ -129,10 +129,9 @@ var role_page = ROLE_DEFAULT
  */
 function init_page()
 {
-    let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
-    if (typeof role !== 'undefined' && role !== ROLE_DEFAULT)
+    if (cfg.user.state.role)
     {
-        open_role(role)
+        open_role(cfg.user.state.role)
     }
     else
     {
@@ -166,7 +165,7 @@ function open_role(role)
             break
         case 'admin':
             title = 'Administrator'
-            if (!cfg.is_admin(get_user()))
+            if (!cfg.is_admin())
             {
                 alert('User is not an admin!')
                 return
@@ -199,7 +198,8 @@ function open_role(role)
     }
     else
     {
-        set_cookie(ROLE_COOKIE, role)
+        cfg.user.state.role = role
+        cfg.store_user_config()
     }
     header_info.innerText = title
     role_page = role
@@ -268,11 +268,11 @@ function open_role(role)
  */
 
 /**
- * Clears the role cookie and opens the role selector.
+ * Clears the role and opens the role selector.
  */
 function sign_out()
 {
-    set_cookie(ROLE_COOKIE, ROLE_DEFAULT)
+    cfg.set_role('')
     window_open(build_url('index', {'page': 'setup'}), '_self')
 }
 
@@ -317,8 +317,6 @@ function has_matches()
  */
 function is_blocked(id)
 {
-    let event = get_event()
-    let year = event.substr(0,4)
     let limits = BUTTONS[id].limits
     let configs = BUTTONS[id].configs
 
@@ -339,7 +337,7 @@ function is_blocked(id)
     {
         return `Missing match data.`
     }
-    if (limits.includes('admin') && !cfg.is_admin(get_user()))
+    if (limits.includes('admin') && !cfg.is_admin())
     {
         return `Admin access required.`
     }
@@ -362,43 +360,6 @@ function is_blocked(id)
         }
     }
     return false
-}
-
-/**
- * INPUT VALUE FUNCTIONS
- */
-
-/**
- * function:    get_event
- * parameters:  none
- * returns:     Currently entered event ID.
- * description: Returns text in event id box.
- */
-function get_event()
-{
-    return get_cookie(EVENT_COOKIE, cfg.defaults.event_id)
-}
-
-/**
- * function:    get_user
- * parameters:  none
- * returns:     Currently entered user ID.
- * description: Returns text in user id box.
- */
-function get_user()
-{
-    return get_cookie(USER_COOKIE, cfg.defaults.user_id)
-}
-
-/**
- * function:    get_position
- * parameters:  none
- * returns:     Currently selected scouting position index.
- * description: Returns currently selected scouting position index.
- */
-function get_position()
-{
-    return get_cookie(POSITION_COOKIE, POSITION_DEFAULT)
 }
 
 /**
@@ -432,7 +393,7 @@ function export_results()
     handler.note      = true
     handler.pit       = true
     handler.pictures  = true
-    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.user = cfg.user.state.user_id
     handler.export_zip()
 }
 
@@ -451,7 +412,7 @@ function export_config()
     handler.coach       = true
     handler.settings    = true
     handler.pictures    = true
-    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.user = cfg.user.state.user_id
     handler.export_zip()
 }
 
@@ -461,7 +422,7 @@ function export_config()
  */
 function home(right=false)
 {
-    let role = get_parameter(ROLE_COOKIE, ROLE_DEFAULT)
+    let role = cfg.user.state.role
     if (role_page !== role)
     {
         open_role(role)

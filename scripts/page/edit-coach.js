@@ -35,9 +35,9 @@ function build_buttons()
     let button = new WRButton('Add Coach Value', create)
 
     let column = new WRColumn('Delete Coach Value')
-    for (let i in cfg.coach)
+    for (let i in cfg.analysis.coach)
     {
-        let c = cfg.coach[i]
+        let c = cfg.analysis.coach[i]
         column.add_input(new WRButton(dal.get_name(c.key, c.function), () => delete_val(i)))
     }
 
@@ -62,8 +62,8 @@ function create()
         function: func,
         key: key
     }
-    cfg.coach.push(coach)
-    localStorage.setItem(`config-${cfg.year}-coach`, JSON.stringify(cfg.coach))
+    cfg.analysis.coach.push(coach)
+    cfg.store_analysis_config()
 
     build_buttons()
 }
@@ -76,8 +76,8 @@ function create()
  */
 function delete_val(idx)
 {
-    cfg.coach.splice(idx, 1)
-    localStorage.setItem(`config-${cfg.year}-coach`, JSON.stringify(cfg.coach))
+    cfg.analysis.coach.splice(idx, 1)
+    cfg.store_analysis_config()
 
     build_buttons()
 }

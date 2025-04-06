@@ -26,9 +26,9 @@ function init_page()
 function build_buttons()
 {
     let column = new WRColumn('Delete Smart Stat')
-    for (let i in cfg.smart_stats)
+    for (let i in cfg.analysis.smart_stats)
     {
-        let stat = cfg.smart_stats[i]
+        let stat = cfg.analysis.smart_stats[i]
         column.add_input(new WRButton(`${stat.name} (${stat.type})`, () => delete_val(i)))
     }
 
@@ -44,8 +44,8 @@ function build_buttons()
  */
 function delete_val(idx)
 {
-    cfg.smart_stats.splice(idx, 1)
-    localStorage.setItem(`config-${cfg.year}-smart_stats`, JSON.stringify(cfg.smart_stats))
+    cfg.analysis.smart_stats.splice(idx, 1)
+    cfg.store_analysis_config()
 
     build_buttons()
 }

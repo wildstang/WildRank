@@ -359,7 +359,7 @@ function ws(team_num)
     else
     {
         let color = cfg.theme['primary-color']
-        if (cfg.settings.use_team_color)
+        if (cfg.user.settings.use_team_color)
         {
             color = dal.get_value(team_num, 'meta.color')
         }
@@ -390,7 +390,7 @@ function unix_to_match_time(unix_time)
     }
     let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
     let part = ''
-    if (cfg.settings.time_format === 12)
+    if (cfg.user.settings.time_format === 12)
     {
         if (hours > 12)
         {
@@ -525,10 +525,10 @@ function include(name)
 function apply_theme()
 {
     // read title from config
-    document.title = cfg.settings.title
+    document.title = cfg.title
     if (document.getElementById('title') !== null)
     {
-        document.getElementById('title').innerHTML = cfg.settings.title
+        document.getElementById('title').innerHTML = cfg.title
     }
 
     let theme = cfg.theme

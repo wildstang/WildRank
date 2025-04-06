@@ -164,7 +164,7 @@ function build_plot()
     {
         let team = selected_teams[i]
         let color = COLORS[i % COLORS.length]
-        if (team !== 'avg' && cfg.settings.use_team_color)
+        if (team !== 'avg' && cfg.user.settings.use_team_color)
         {
             color = dal.get_value(team, 'meta.color')
         }
@@ -261,7 +261,7 @@ function build_plot()
             let team = selected_teams[j]
             ctx.beginPath()
             let color = COLORS[j % COLORS.length]
-            if (team !== 'avg' && cfg.settings.use_team_color)
+            if (team !== 'avg' && cfg.user.settings.use_team_color)
             {
                 color = dal.get_value(team, 'meta.color')
             }

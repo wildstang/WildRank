@@ -12,6 +12,7 @@ const scout_mode = get_parameter(TYPE_COOKIE, TYPE_DEFAULT)
 const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
 
 var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, photos_el, buttons
+var scout_pos
 
 include('transfer')
 
@@ -27,10 +28,7 @@ function init_page()
 
     // override scouting position with that from config
     // TODO: determine if this is actually desired
-    if (cfg.get_position(user_id) > -1)
-    {
-        scout_pos = cfg.get_position(user_id)
-    }
+    scout_pos = cfg.get_selected_position()
 
     let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
     add_button_filter(`Export ${capitalize(scout_mode)} Results`, export_results, true)
@@ -202,7 +200,7 @@ function open_option(match_num)
  */
 function can_edit(match_num, team_num)
 {
-    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === parseInt(user_id) || cfg.is_admin(user_id)
+    return dal.get_result_value(team_num, match_num, 'meta_scouter_id') === parseInt(cfg.user.state.user_id) || cfg.is_admin()
 }
 
 /**
@@ -231,7 +229,7 @@ function export_results()
     let handler = new ZipHandler()
     handler.match = scout_mode === MATCH_MODE
     handler.note = scout_mode === NOTE_MODE
-    handler.user = user_id
+    handler.user = cfg.user.state.user_id
     handler.export_zip()
 }
 

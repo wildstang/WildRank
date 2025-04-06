@@ -212,6 +212,6 @@ function export_results()
     handler.note      = true
     handler.pit       = true
     handler.pictures  = true
-    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.user = cfg.user.state.user_id
     handler.export_zip()
 }

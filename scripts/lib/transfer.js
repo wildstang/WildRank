@@ -21,19 +21,15 @@ include('external/jszip.min')
 function preload_event()
 {
     // get event id from the text box
-    let event_id = get_event()
+    let event_id = cfg.user.state.event_id
 
     if (!TBA_KEY)
     {
-        let file = cfg.keys
-        if (file != null)
+        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
         {
-            if (cfg.keys.hasOwnProperty('tba'))
-            {
-                TBA_KEY = cfg.keys.tba
+            TBA_KEY = cfg.user.settings.tba_key
             }
-        }
-        if (!TBA_KEY)
+        else
         {
             if (confirm('No API key found for TBA! Do you want to open TBA?'))
             {
@@ -47,9 +43,12 @@ function preload_event()
         }
     }
     
+    let api_endpoint = `https://www.thebluealliance.com/api/v3`
+    let key_query = `?${TBA_AUTH_KEY}=${TBA_KEY}`
+    
     let count = 0
     // fetch simple event matches
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/matches${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`${api_endpoint}/event/${event_id}/matches${key_query}`)
         .then(response => {
             if (response.status == 401) {
                 alert('Invalid API Key Suspected')
@@ -87,7 +86,7 @@ function preload_event()
         })
 
     // fetch simple event teams
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`${api_endpoint}/event/${event_id}/teams/simple${key_query}`)
         .then(response => {
             return response.json()
         })
@@ -108,8 +107,8 @@ function preload_event()
                 // fetch team's avatar for whiteboard
                 for (let team of teams)
                 {
-                    let year = get_event().substr(0, 4)
-                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    let year = cfg.year
+                    fetch(`${api_endpoint}/team/frc${team.team_number}/media/${year}${key_query}`)
                         .then(response => {
                             return response.json()
                         })
@@ -152,7 +151,7 @@ function preload_event()
         })
 
         // fetch event rankings
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/rankings${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        fetch(`${api_endpoint}/event/${event_id}/rankings${key_query}`)
             .then(response => {
                 return response.json()
             })
@@ -183,7 +182,7 @@ function preload_event()
             })
 
         // fetch event data
-        fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        fetch(`${api_endpoint}/event/${event_id}${key_query}`)
             .then(response => {
                 return response.json()
             })
@@ -230,7 +229,7 @@ function preload_event()
  */
 function download_csv()
 {
-    let event = get_event()
+    let event = cfg.user.state.event_id
     let element = document.createElement('a')
     element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(event)))
     element.setAttribute('download', `${get_user()}-${event}-export.csv`)
@@ -398,8 +397,7 @@ function clear_events()
     if (confirm('Delete all configuration and results for other events?'))
     {
         // remove all files containing uother event ids
-        let event_id = get_event()
-        let files = Object.keys(localStorage).filter(f => !f.includes(event_id))
+        let files = Object.keys(localStorage).filter(f => !f.includes(cfg.user.state.event_id))
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -415,8 +413,7 @@ function reset_event()
     if (confirm(`Delete all configuration and results for ${dal.event_id}?`))
     {
         // remove all files containing uother event ids
-        let event_id = get_event()
-        let files = Object.keys(localStorage).filter(f => f.includes(event_id))
+        let files = Object.keys(localStorage).filter(f => f.includes(cfg.user.state.event_id))
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -575,13 +572,13 @@ class ZipHandler
     {
         // start name with user ID if available
         let name = ''
-        if (this.user !== '')
+        if (cfg.user.state.user_id)
         {
-            name = `${this.user}-`
+            name = `${cfg.user.state.user_id}-`
         }
 
         // add event ID
-        name += event_id
+        name += cfg.user.state.event_id
 
         // add a suffix based on what is exported
         let suffix = ''
@@ -911,9 +908,11 @@ class ZipHandler
         }
 
         alert('Import Complete')
-        dal = new DAL(event_id)
+        cfg.load_configs(() => {
+            dal = new DAL(cfg.user.state.event_id)
         dal.build_teams()
         this.on_complete()
+        })
     }
 
     /**
@@ -1016,12 +1015,12 @@ class ZipHandler
         }
         else if (op === 1) // upload
         {
-            if (check_server(this.server))
+            if (check_server(this.server) && cfg.user.settings)
             {                    
                 // post string to server
                 let formData = new FormData()
                 formData.append('upload', blob)
-                fetch(`${this.server}/?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                fetch(`${this.server}/?password=${cfg.user.settings.server_key}`, {method: 'POST', body: formData})
                     .then(response => response.json())
                     .then(result => {
                         if (result.success && result.count === num_uploads)

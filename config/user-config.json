@@ -7,15 +7,15 @@
 		"use_team_color": true,
 		"use_offline": true,
 		"auto_hide_right": false,
-		"tba_key": false,
-		"server_key": false,
+		"tba_key": "",
+		"server_key": "",
 		"font-size": "medium"
 	},
 	"state": {
 		"event_id": "",
 		"user_id": "",
 		"position": -1,
-		"theme": "",
+		"theme": "light",
 		"role": ""
 	}
 }

@@ -260,6 +260,6 @@ function export_picklists()
 {
     let handler = new ZipHandler()
     handler.picklists = true
-    handler.user = get_cookie(USER_COOKIE, USER_DEFAULT)
+    handler.user = cfg.user.state.user_id
     handler.export_zip()
 }

@@ -30,9 +30,9 @@ function init_page()
     let teams = Object.keys(dal.teams)
     teams.unshift('')
     let default_filter = ''
-    if (selected === '' && cfg.settings.hasOwnProperty('team_number'))
+    if (selected === '' && cfg.user.settings.hasOwnProperty('team_number'))
     {
-        default_filter = cfg.settings.team_number.toString()
+        default_filter = cfg.user.settings.team_number.toString()
     }
     team_filter = add_dropdown_filter(teams, hide_matches, true, default_filter)
 
@@ -48,7 +48,7 @@ function init_page()
 
         // create the whiteboard drawing controls and place them in a stack with the whiteboard
         let game_piece = new WRMultiButton('')
-        for (let gp of cfg.whiteboard.game_pieces)
+        for (let gp of cfg.user.whiteboard.game_pieces)
         {
             game_piece.add_option(gp.name, () => whiteboard.add_game_piece(gp.name))
         }
@@ -107,7 +107,7 @@ function add_bracket()
             carousel.removeChild(bracket_page)
         }
 
-        let team = cfg.settings.team_number
+        let team = cfg.user.settings.team_number
         let a = 0
         for (let i in bracket.alliances)
         {
@@ -240,7 +240,7 @@ function build_table(alliance, teams)
         names.append(name)
     }
 
-    for (let v of cfg.coach)
+    for (let v of cfg.user.coach)
     {
         let row = table.insertRow()
         table.append(row)

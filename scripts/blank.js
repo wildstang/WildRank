@@ -9,11 +9,9 @@ var header_info
 var body
 
 // load in config on page load
-window.addEventListener('load', function()
+run_after_load(function()
 {
     // save elements of body
     header_info = document.getElementById('header_info')
     body = document.getElementById('body')
-
-    create_config()
 })

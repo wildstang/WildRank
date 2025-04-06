@@ -2,986 +2,568 @@
  * file:        config.js
  * description: Contains config object for importing and accessing config files.
  * author:      Liam Fruzyna
- * date:        2022-05-01
+ * date:        2025-03-16
  */
+
+APP_CONFIG = 'app-config'
+USER_CONFIG = 'user-config'
+USER_LIST = 'user-list'
+BASE_SCOUT_CONFIG = 'scout-config'
+BASE_ANALYSIS_CONFIG = 'analysis-config'
+GAME_CONFIG = 'game-config'
+
+/**
+ * Loads a JSON config file from the server and passes the contents as an object to the given callback.
+ * 
+ * @param {String} name Config name (use one of the above constants).
+ * @param {Function} on_received Function to call when valid JSON is received.
+ * @param {String} year Config year to load if loading a game config.
+ */
+function load_config(name, on_received, year='')
+{
+    let path = year ? `/config/${year}` : '/config'
+    fetch(`${path}/${name}.json`)
+        .then(response => {
+            return response.json()
+        })
+        .then(on_received)
+}
 
 class Config
 {
-    constructor(year='')
+    constructor()
     {
-        this.year = year
+        this._app_version = ''
+        this._on_app_version = () => {}
 
-        // build empty settings data structures
-        this.keys = {}
-        this.defaults = {}
-        this.theme = {}
-        this.dark_theme = {}
+        this.app = {}
+        this.user = {}
         this.users = {}
-        this.settings = {}
 
-        // build empty game data structures
-        for (let mode of MODES)
-        {
-            // pit, match, note
-            this[mode] = []
-        }
-        this.smart_stats = []
-        this.coach = []
-        this.whiteboard = []
-        this.version = 'none'
+        this.scout = {}
+        this.analysis = {}
+        this.game = {}
+
+        this.include_game_config = true
     }
 
     /**
-     * function:    load_configs
-     * parameters:  fetch configs on failure
-     * returns:     none
-     * description: Loads configs in from localStorage.
+     * The current app version from the serviceWorker.
      */
-    load_configs(fetch_on_fail=0, on_load='')
+    get app_version()
     {
-        // load in settings configs
-        this.keys = this.load_config('keys')
-        this.defaults = this.load_config('defaults')
-        this.theme = this.load_config('theme')
-        this.dark_theme = this.load_config('dark-theme')
-        this.users = this.load_config('users')
-        this.settings = this.load_config('settings')
+        return this._app_version
+    }
 
-        // if any failed to load re-fetch them
-        if (fetch_on_fail < 1 && (this.keys === false || this.defaults === false || this.theme === false ||
-            this.dark_theme === false || this.users === false || this.settings === false))
-        {
-            this.fetch_settings_config(true, on_load)
-            return
-        }
+    /**
+     * Sets the app version number and calls the callback.
+     */
+    set app_version(version)
+    {
+        this._app_version = version
+        this._on_app_version()
+    }
 
-        // if no year has been set, pull from config default
-        if (this.year === '' && typeof this.defaults.event_id !== 'undefined')
+    /**
+     * Sets a callback for when the app version is set. Calls it if it is already set.
+     */
+    set on_app_version(func)
+    {
+        this._on_app_version = func
+        if (this._app_version)
         {
-            this.year = this.defaults.event_id.substring(0, 4)
+            func()
         }
+    }
 
-        // load in game configs
-        for (let mode of MODES)
+    /**
+     * The year for the current event, or zero if no event exists.
+     */
+    get year()
+    {
+        if (this.user.state && this.user.state.event_id)
         {
-            this[mode] = this.load_config(`${this.year}-${mode}`)
+            return parseInt(this.user.state.event_id.substring(0, 4))
         }
-        this.smart_stats = this.load_config(`${this.year}-smart_stats`)
-        this.coach = this.load_config(`${this.year}-coach`)
-        this.whiteboard = this.load_config(`${this.year}-whiteboard`)
-        this.version = this.load_config(`${this.year}-version`)
+        return 0
+    }
 
-        // if any failed to load re-fetch them
-        if (fetch_on_fail < 2 && (MODES.some(m => this[m] === false) || this.smart_stats === false ||
-            this.coach === false || this.whiteboard === false) && this.year !== '')
+    /**
+     * The currently selected theme, selected from the OS configuration if auto is selected.
+     */
+    get theme()
+    {
+        // determine selected theme from config and system if auto is selected
+        let theme_name = cfg.user.state.theme.toLowerCase()
+        if (theme_name === 'auto')
         {
-            this.fetch_game_config(true, on_load)
-            return
-        }
-        else if (MODES.every(m => this[m] === false) && this.smart_stats === false &&
-            this.coach === false && this.whiteboard === false)
-        {
-            // if the game config was never found, fill in with empty config so the page loads
-            for (let mode of MODES)
+            theme_name = 'light'
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
             {
-                this[mode] = []
+                theme_name = 'dark'
             }
-            this.smart_stats = []
-            this.coach = []
-            this.whiteboard = {}
-            this.version = 'NO-CONFIG-FOUND'
         }
 
-        if (on_load !== '')
+        // return the corresponding theme config
+        if (theme_name === 'dark')
         {
-            on_load()
+            return cfg.app.dark_theme
+        }
+        else
+        {
+            return cfg.app.theme
         }
     }
 
     /**
-     * function:    load_config
-     * parameters:  config name
-     * returns:     none
-     * description: Loads a single config in from localStorage.
+     * The title of the application, or WildRank if that configuration isn't available.
      */
-    load_config(name)
+    get title()
     {
-        let file = localStorage.getItem(`config-${name}`)
-        if (file !== null)
+        if (this.app.config && this.app.config.title)
         {
-            return JSON.parse(file)
+            return cfg.app.config.title
+        }
+        return 'WildRank'
+    }
+
+    /**
+     * A list of all available scouting mode IDs.
+     */
+    get scouting_modes()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.map(m => m.id)
+        }
+        return []
+    }
+
+    /**
+     * Finds a scouting mode using a given ID.
+     * 
+     * @param {String} mode Scouting mode id
+     * @returns The requested scouting mode configuration or an empty object if a match couldn't be found.
+     */
+    get_scout_config(mode)
+    {
+        if (this.scout.configs)
+        {
+            for (let c of this.scout.configs)
+            {
+                if (c.id === mode)
+                {
+                    return c
+                }
+            }
+        }
+        return {}
+    }
+
+    //
+    // User Functions
+    //
+
+    /**
+     * Finds the name of a user from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The name of the requested user or "Unknown User".
+     */
+    get_name(user_id='')
+    {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
+        if (Object.keys(this.users).includes(user_id))
+        {
+            return this.users[user_id].name
+        }
+        return 'Unknown User'
+    }
+
+    /**
+     * Determines if a user is an admin from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The name admin status of a user.
+     */
+    is_admin(user_id='')
+    {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
+        if (Object.keys(this.users).includes(user_id))
+        {
+            return this.users[user_id].admin
         }
         return false
     }
 
     /**
-     * function:    fetch_settings_config
-     * parameters:  override cache
-     * returns:     none
-     * description: Pulls the settings config file from server into localStorage.
+     * Finds a user's position from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The position index of a user or -1.
      */
-    fetch_settings_config(force=false, on_load='')
+    get_position(user_id='')
     {
-        console.log('Fetching settings config')
-
-        // force reload config if requested
-        let init = {}
-        if (force)
+        if (!user_id)
         {
-            let headers = new Headers()
-            headers.append('pragma', 'no-cache')
-            headers.append('cache-control', 'no-cache')
-            init = {
-                method: 'GET',
-                headers: headers
-            }
+            user_id = this.user.state.user_id
         }
-    
-        // fetch general config
-        fetch('/config/settings-config.json', init)
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
-                let keys = Object.keys(data)
-                for (let section of keys)
-                {
-                    localStorage.setItem(`config-${section}`, JSON.stringify(data[section]))
-                }
-                this.load_configs(1, on_load)
-            })
-            .catch(err => {
-                console.log(`Error fetching settings config file, ${err}`)
-            })
-    }
-
-    /**
-     * function:    fetch_game_config
-     * parameters:  override cache
-     * returns:     none
-     * description: Pulls the game config file from server into localStorage.
-     */
-    fetch_game_config(force=false, on_load='')
-    {
-        console.log('Fetching game config')
-
-        // force reload config if requested
-        let init = {}
-        if (force)
+        if (Object.keys(this.users).includes(user_id))
         {
-            let headers = new Headers()
-            headers.append('pragma', 'no-cache')
-            headers.append('cache-control', 'no-cache')
-            init = {
-                method: 'GET',
-                headers: headers
-            }
-        }
-    
-        // fetch game config
-        fetch(`/config/${this.year}-config.json`, init)
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
-                let keys = Object.keys(data)
-                for (let section of keys)
-                {
-                    localStorage.setItem(`config-${this.year}-${section}`, JSON.stringify(data[section]))
-                }
-                this.load_configs(2, on_load)
-            })
-            .catch(err => {
-                console.log(`Error fetching ${this.year} config file, ${err}`)
-                this.load_configs(2, on_load)
-            })
-    }
-
-    /**
-     * function:    is_admin
-     * parameters:  user id
-     * returns:     if the user is an admin
-     * description: Returns whether the user is an administrator.
-     */
-    is_admin(id)
-    {
-        return cfg.users.hasOwnProperty(id) && cfg.users[id].hasOwnProperty('admin') && cfg.users[id].admin
-    }
-
-    /**
-     * function:    get_name
-     * parameters:  user id, return "Unknown User"
-     * returns:     the users name or id number
-     * description: Returns a users name or ID number if name is not provided.
-     */
-    get_name(id, allow_unknown=true)
-    {
-        if (cfg.users.hasOwnProperty(id))
-        {
-            if (cfg.users[id].hasOwnProperty('name'))
-            {
-                return cfg.users[id].name
-            }
-        }
-        if (allow_unknown)
-        {
-            return 'Unknown User'
-        }
-        else
-        {
-            return id
-        }
-    }
-
-    /**
-     * function:    get_position
-     * parameters:  user id
-     * returns:     the users scouting position
-     * description: Returns the users scouting position
-     */
-    get_position(id)
-    {
-        if (cfg.users.hasOwnProperty(id) && cfg.users[id].hasOwnProperty('position'))
-        {
-            return cfg.users[id].position
+            return this.users[user_id].position
         }
         return -1
     }
 
     /**
-     * Validates all settings configuration sections.
+     * Determines the current scouters selected position, enforcing position set in user-list.
      * 
-     * @returns {boolean} Whether all sections are valid.
+     * @returns The current scouter's selected position.
      */
-    validate_settings_configs()
+    get_selected_position()
     {
-        return [this.validate_theme('theme'), this.validate_theme('dark_theme'), this.validate_keys('keys'),
-            this.validate_users('users'), this.validate_defaults('defaults'), this.validate_settings('settings')].every(r => r.result)
-    }
-
-    /**
-     * Handles a validation result. Prints any errors to the console, then builds a result object using the arguments.
-     * 
-     * @param {boolean} result Whether the validation passed.
-     * @param {string} description Reason why the validation failed, ignored if passed.
-     * @param {string} id An identifier associated with the failure.
-     * @returns {object} An object containing the result, description, and id.
-     */
-    static return_description(result, description='', id='')
-    {
-        if (result)
+        let pos = -1
+        let user_id = this.user.state.user_id
+        if (Object.keys(this.users).includes(user_id))
         {
-            description = ''
+            pos = this.users[user_id].position
         }
-        else if (description !== '')
+        if (pos < 0)
         {
-            console.log(description)
+            pos = this.user.state.position
         }
+        return pos
+    }
 
-        let res = {
-            'result': result,
-            'description': description
-        }
-        if (id !== '')
+    //
+    // Config Storage Functions
+    //
+
+    /**
+     * Builds the scout config name for localStorage using the current year.
+     */
+    get SCOUT_CONFIG()
+    {
+        return `${this.year}-${BASE_SCOUT_CONFIG}`
+    }
+
+    /**
+     * Builds the analysis config name for localStorage using the current year.
+     */
+    get ANALYSIS_CONFIG()
+    {
+        return `${this.year}-${BASE_ANALYSIS_CONFIG}`
+    }
+
+    /**
+     * Saves the current user config to localStorage.
+     */
+    store_user_config()
+    {
+        localStorage.setItem(USER_CONFIG, JSON.stringify(this.user))
+    }
+
+    /**
+     * Sets the role and stores the config.
+     */
+    set_role(role)
+    {
+        cfg.user.state.role = role
+        cfg.store_user_config()
+    }
+
+    /**
+     * Saves the current scout config to localStorage.
+     */
+    store_scout_config()
+    {
+        localStorage.setItem(this.SCOUT_CONFIG, JSON.stringify(this.scout))
+    }
+
+    /**
+     * Saves the current analysis config to localStorage.
+     */
+    store_analysis_config()
+    {
+        localStorage.setItem(this.ANALYSIS_CONFIG, JSON.stringify(this.analysis))
+    }
+
+    /**
+     * Saves the current user list to localStorage.
+     */
+    store_user_list()
+    {
+        // convert users object to a CSV
+        let user_list = ''
+        for (let key in this.users)
         {
-            res.id = id
+            user_list += `${key},${this.users[key].name},${this.users[key].admin},${this.users[key].position}\n`
         }
-        return res
+        localStorage.setItem(USER_LIST, user_list)
     }
 
     /**
-     * Builds a passing validation result.
+     * Updates the event ID, saves the configuration, and reloads the game configs if the year changed.
      * 
-     * @returns {object} A validation result
+     * @param {String} event_id Event ID
+     * @returns Whether the year changed, used to trigger DAL updates.
      */
-    static return_pass()
+    update_event_id(event_id)
     {
-        return Config.return_description(true)
-    }
+        let old_year = this.year
+        this.user.state.event_id = event_id
+        this.store_user_config()
 
-    /**
-     * Builds a failing validation result.
-     * 
-     * @param {string} description Reason why the validation failed, ignored if passed.
-     * @param {string} id An identifier associated with the failure.
-     * @returns {object} A validation result
-     */
-    static return_fail(description, id='')
-    {
-        return Config.return_description(false, description, id)
-    }
-
-    /**
-     * Validates a theme configuration section.
-     * 
-     * @param {object} config Theme config name 
-     * @returns {object} Validation result
-     */
-    validate_theme(config)
-    {
-        let c = this[config]
-        if (typeof c === 'object')
+        // load in new game configs if the year has changed
+        if (this.year !== old_year)
         {
-            return Config.return_pass()
+            this.load_game_configs()
+            return true
         }
-        return Config.return_fail(`should be an object, but found ${typeof c}`)
+        return false
     }
 
     /**
-     * Validates a keys configuration section.
-     * 
-     * @param {object} config Keys config name 
-     * @returns {object} Validation result
+     * Saves all user-modifiable configs to localStorage.
      */
-    validate_keys(config)
+    store_configs()
     {
-        let c = this[config]
-        if (typeof c === 'object')
+        if (Object.keys(this.user).length)
         {
-            return Config.check_properties(c, {'tba': 'string', 'server': 'string'}, '', false)
+            this.store_user_config()
         }
-        return Config.return_fail(`should be an object, but found ${typeof c}`)
-    }
-
-    /**
-     * Validates a users configuration section.
-     * 
-     * @param {object} config Users config name 
-     * @returns {object} Validation result
-     */
-    validate_users(config)
-    {
-        let c = this[config]
-        if (typeof c === 'object')
+        if (Object.keys(this.scout).length)
         {
-            return Config.return_pass()
+            this.store_scout_config()
         }
-        return Config.return_description(typeof c !== 'object', `should be an object, but found ${typeof c}`)
-    }
-
-    /**
-     * Validates a defaults configuration section.
-     * 
-     * @param {object} config Defaults config name 
-     * @returns {object} Validation result
-     */
-    validate_defaults(config)
-    {
-        let c = this[config]
-        if (typeof c === 'object')
+        if (Object.keys(this.analysis).length)
         {
-            return Config.check_properties(c, {'event_id': 'string', 'upload_url': 'string', 'user_id': 'number'})
+            this.store_analysis_config()
         }
-        return Config.return_fail(`should be an object, but found ${typeof c}`)
-    }
-
-    /**
-     * Validates a settings configuration section.
-     * 
-     * @param {object} config Settings config name 
-     * @returns {object} Validation result
-     */
-    validate_settings(config)
-    {
-        let c = this[config]
-        if (typeof c === 'object')
+        if (Object.keys(this.users).length)
         {
-            return Config.check_properties(c, {'title': 'string', 'team_number': 'number', 'time_format': 'number',
-                                               'use_images': 'boolean', 'use_team_color': 'boolean', 'use_offline': 'boolean'})
+            this.store_user_list()
         }
-        return Config.return_fail(`should be an object, but found ${typeof c}`)
+    }
+
+    //
+    // Config Loading Function (in sequence)
+    //
+
+    /**
+     * Triggers configuration loading sequence.
+     * 
+     * @param {Function} on_complete Function to call when loading is complete.
+     * @param {Boolean} game_config Whether to load game configs.
+     */
+    load_configs(on_complete=() => console.log('Config loaded'), game_config=true)
+    {
+        this.include_game_config = game_config
+        this.on_complete = on_complete
+        this.load_app_config()
     }
 
     /**
-     * Validates all game configuration sections.
-     * 
-     * @returns {boolean} Whether all sections are valid.
+     * Triggers loading the app config from server/cache.
      */
-    validate_game_configs()
+    load_app_config()
     {
-        return [this.validate_version('version'), this.validate_coach('coach'), this.validate_whiteboard('whiteboard'),
-            this.validate_smart_stats('smart_stats')].every(r => r.result) && MODES.every(m => this.validate_mode(m).result)
+        load_config(APP_CONFIG, this.handle_app_config.bind(this))
     }
 
     /**
-     * Validates a version configuration section.
+     * Handles successfully loaded in app config, then steps to loading user config.
      * 
-     * @param {object} config Version config name 
-     * @returns {object} Validation result
+     * @param {Object} app_config Loaded app config.
      */
-    validate_version(config)
+    handle_app_config(app_config)
     {
-        let c = this[config]
-        if (typeof c !== 'string')
+        this.app = app_config
+        this.load_user_config()
+    }
+
+    /**
+     * Attempts to load the user config from localStorage, if unavailable, triggers load from server/cache.
+     */
+    load_user_config()
+    {
+        let user_config = localStorage.getItem(USER_CONFIG)
+        if (user_config === null)
         {
-            return Config.return_fail(`should be a string, but found ${typeof c}`)
+            console.log('user-config does not exist, pulling from server/cache')
+            load_config(USER_CONFIG, this.handle_user_config.bind(this))
         }
-        return Config.return_pass()
+        else
+        {
+            this.handle_user_config(JSON.parse(user_config))
+        }
     }
 
     /**
-     * Validates a coach configuration section.
+     * Handles successfully loaded in user config, then steps to loading user list.
      * 
-     * @param {object} config Coach config name 
-     * @returns {object} Validation result
+     * @param {Object} user_config Loaded user config.
      */
-    validate_coach(config)
+    handle_user_config(user_config)
     {
-        let c = this[config]
-        if (Array.isArray(c))
+        this.user = user_config
+        this.load_user_list()
+    }
+
+    /**
+     * Attempts to load the user list from localStorage, if unavailable, triggers load from server/cache.
+     */
+    load_user_list()
+    {
+        let user_list = localStorage.getItem(USER_LIST)
+        if (user_list === null)
         {
-            let keys = dal.get_keys()
-            for (let coach of c)
+            console.log('user-list does not exist, pulling from server/cache')
+            fetch(`/config/${USER_LIST}.csv`, init)
+                .then(response => {
+                    return response.text()
+                })
+                .then(this.handle_user_list.bind(this))
+                .catch(err => {
+                    console.log(`Error fetching ${name} config, ${err}`)
+                })
+        }
+        else
+        {
+            this.handle_user_list(user_list)
+        }
+    }
+
+    /**
+     * Handles successfully loaded in user list, then steps to loading game configs, if enabled.
+     * 
+     * @param {Object} user_list Loaded user list.
+     */
+    handle_user_list(user_list)
+    {
+        this.users = {}
+        for (let row of user_list.split('\n'))
+        {
+            let cells = row.split(',')
+            if (cells.length >= 2)
             {
-                let result = Config.check_properties(coach, {'function': 'string', 'key': 'string'}, coach.key)
-                if (!result.result)
-                {
-                    return result
-                }
-                if (!['mean', 'median', 'mode', 'min', 'max', 'total'].includes(coach.function))
-                {
-                    return Config.return_fail(`invalid function ${coach.function}`, coach.key)
-                }
-                if (!keys.includes(coach.key))
-                {
-                    return Config.return_fail(`key ${coach.key} does not exist`, coach.key)
-                }
-            }
-            return Config.return_pass()
-        }
-        return Config.return_fail(`should be an array`)
-    }
-
-    /**
-     * Validates a whiteboard configuration section.
-     * 
-     * @param {object} config Whiteboard config name 
-     * @returns {object} Validation result
-     */
-    validate_whiteboard(config)
-    {
-        let c = this[config]
-        if (typeof c === 'object')
-        {
-            if (!c.hasOwnProperty('game_pieces'))
-            {
-                return Config.return_fail(`missing property game_pieces`)
-            }
-            if (!Array.isArray(c.game_pieces))
-            {
-                return Config.return_fail(`property game_pieces should be an array`)
-            }
-            return Config.check_properties(c, {'draw_color': 'string', 'field_height': 'number', 'field_height_ft': 'number', 'field_height_px': 'number',
-                'field_width': 'number', 'horizontal_margin': 'number', 'line_width': 'number', 'magnet_size': 'number', 'vertical_margin': 'number',
-                'blue_0': 'object', 'blue_1': 'object', 'blue_2': 'object', 'red_0': 'object', 'red_1': 'object', 'red_2': 'object'})
-        }
-        return Config.return_fail(`should be an object, but found ${typeof c}`)
-    }
-
-    /**
-     * Validates a smart stats configuration section.
-     * 
-     * @param {object} config Smart stats config name 
-     * @returns {object} Validation result
-     */
-    validate_smart_stats(config)
-    {
-        let numeric_keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
-
-        let c = this[config]
-        if (Array.isArray(c))
-        {
-            for (let stat of c)
-            {
-                let result = Config.check_properties(stat, {'id': 'string', 'type': 'string', 'name': 'string', 'negative': 'boolean'}, stat.id)
-                if (!result.result)
-                {
-                    return result
-                }
-                switch (stat.type)
-                {
-                    case 'min':
-                    case 'max':
-                    case 'sum':
-                        result = Config.check_array(stat, 'keys', 'string', 0, true, numeric_keys.map(k => k.split('.')[1]))
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        break
-
-                    case 'percent':
-                    case 'ratio':
-                        result = Config.check_properties(stat, {'numerator': 'string', 'denominator': 'string'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        // confirm the numerator and denominator are valid numeric keys
-                        if (!numeric_keys.includes(`results.${stat.numerator}`))
-                        {
-                            return Config.return_fail(`unexpected value "${stat.numerator}" in numerator`, stat.id)
-                        }
-                        if (!numeric_keys.includes(`results.${stat.denominator}`))
-                        {
-                            return Config.return_fail(`unexpected value "${stat.denominator}" in denominator`, stat.id)
-                        }
-                        break
-
-                    case 'where':
-                        result = Config.check_properties(stat, {'cycle': 'string', 'conditions': 'object'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        result = Config.check_properties(stat, {'sum': 'string', 'denominator': 'string'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        // check cycle keys
-                        let cycles = dal.get_result_keys(true, ['cycle'])//.map(c => dal.meta[c].name)
-                        if (!cycles.includes(`results.${stat.cycle}`))
-                        {
-                            return Config.return_fail(`cycle "${stat.cycle}" for where does not exist`, stat.id)
-                        }
-                        // check condition select keys
-                        let selects = dal.get_result_keys(stat.cycle, ['dropdown', 'select', 'checkbox'])
-                        let conditions = Object.keys(stat.conditions)
-                        for (let key of conditions)
-                        {
-                            let id = `results.${key}`
-                            if (!selects.includes(id))
-                            {
-                                return Config.return_fail(`condition ${key} for where does not exist`, stat.id)
-                            }
-                            // get list of valid options
-                            let options = [true, false]
-                            if (dal.meta[id].type !== 'checkbox')
-                            {
-                                options = dal.meta[`results.${key}`].options
-                            }
-                            // determine if condition value is in the options
-                            if (!options.includes(stat.conditions[key]))
-                            {
-                                return Config.return_fail(`condition ${key} does not have option ${stat.conditions[key]} for where`, stat.id)
-                            }
-                        }
-                        // check values of optional keys, sum and denominator
-                        let counters = dal.get_result_keys(stat.cycle, ['counter'])
-                        if ('sum' in stat && !counters.includes(`results.${stat.sum}`))
-                        {
-                            return Config.return_fail(`unexpected value "${stat.sum}" in sum`, stat.id)
-                        }
-                        if ('denominator' in stat && !counters.includes(`results.${stat.denominator}`))
-                        {
-                            return Config.return_fail(`unexpected value "${stat.denominator}" in denominator`, stat.id)
-                        }
-                        break
-
-                    case 'math':
-                        result = Config.check_properties(stat, {'math': 'string', 'pit': 'boolean'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        // not doing any detailed checking on math stats because they are so complex
-                        break
-
-                    case 'filter':
-                        result = Config.check_properties(stat, {'key': 'string', 'filter': 'string', 'compare_type': 'number'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        // value could be on of many types based on the key
-                        if (!stat.hasOwnProperty('value'))
-                        {
-                            return Config.return_fail(`stat missing property value`, stat.id)
-                        }
-                        // confirm the key and filter are valid keys
-                        let keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
-                        if (!keys.includes(`results.${stat.key}`))
-                        {
-                            return Config.return_fail(`unexpected value "${v}" in key`, stat.id)
-                        }
-                        if (!keys.includes(`results.${stat.filter}`))
-                        {
-                            return Config.return_fail(`unexpected value "${v}" in filter`, stat.id)
-                        }
-                        break
-
-                    case 'wrank':
-                        result = Config.check_properties(stat, {'stat': 'string'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        if (!numeric_keys.includes(`results.${stat.stat}`))
-                        {
-                            return Config.return_fail(`unexpected value "${stat.stat}" in stat`, stat.id)
-                        }
-                        break
-
-                    case 'map':
-                        result = Config.check_properties(stat, {'stat': 'string', 'pit': 'boolean'}, stat.id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        result = Config.check_array(stat, 'values', 'number', 0, true)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-                        // confirm the stat is a valid select key
-                        let select_keys = dal.get_keys(true, true, false, false, ['select', 'dropdown'], false).map(k => k.split('.')[1])
-                        if (!select_keys.includes(stat.stat))
-                        {
-                            return Config.return_fail(`unexpected value "${stat.stat}" in stat`, stat.id)
-                        }
-                        break
-
-                    default:
-                        return Config.return_fail(`Unknown type, ${stat.type}`, stat.id)
-                }
-            }
-            return Config.return_pass()
-        }
-        return Config.return_fail(`should be an array`)
-    }
-
-    /**
-     * Validates a given mode configuration section.
-     * 
-     * @param {object} config Mode config name 
-     * @returns {object} Validation result
-     */
-    validate_mode(config)
-    {
-        return Config.validate_mode_raw(this[config])
-    }
-
-    /**
-     * Validates a given mode configuration section.
-     * 
-     * @param {object} config Mode config object 
-     * @returns {object} Validation result
-     */
-    static validate_mode_raw(c)
-    {
-        let ids = []
-        if (Array.isArray(c))
-        {
-            for (let page of c)
-            {
-                let result = Config.check_properties(page, {'name': 'string', 'id': 'string'}, page.id)
-                if (!result.result)
-                {
-                    return result
-                }
-
-                result = Config.check_array(page, 'columns', 'object', -1, false)
-                if (!result.result)
-                {
-                    return result
-                }
-
-                for (let column of page.columns)
-                {
-                    result = Config.check_properties(column, {'name': 'string', 'id': 'string'}, column.id)
-                    if (!result.result)
-                    {
-                        return result
-                    }
-
-                    result = Config.check_array(column, 'inputs', 'object', -1, false)
-                    if (!result.result)
-                    {
-                        return result
-                    }
-
-                    result = Config.check_properties(column, {'cycle': 'boolean'}, column.id, false)
-                    if (!result.result)
-                    {
-                        return result
-                    }
-
-                    for (let input of column.inputs)
-                    {
-                        let id = input.id
-                        let type = input.type
-                        let options = input.options
-
-                        result = Config.check_properties(input, {'name': 'string', 'id': 'string', 'type': 'string'}, id)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-
-                        // check for overlapping IDs
-                        if (ids.includes(id))
-                        {
-                            return Config.return_fail(`Repeat id "${id}"`, id)
-                        }
-                        ids.push(id)
-
-                        // check options first because it's values are used in future checking
-                        if (['dropdown', 'select', 'multiselect', 'multicounter'].includes(type))
-                        {
-                            result = Config.check_array(input, 'options', 'string', 0, true)
-                            if (!result.result)
-                            {
-                                return result
-                            }
-
-                            let multi = type.startsWith('multi')
-                            // check for overlapping IDs
-                            for (let option of options)
-                            {
-                                if (!type.endsWith('select') && !option)
-                                {
-                                    return Config.return_fail('Options may not be blank', id)
-                                }
-                                if (multi && option !== '')
-                                {
-                                    let sid = `${id}_${option.toLowerCase()}`
-                                    if (ids.includes(sid))
-                                    {
-                                        return Config.return_fail(`Repeat id "${sid}"`, id)
-                                    }
-                                    ids.push(sid)
-                                }
-                            }
-                        }
-
-                        switch (type)
-                        {
-                            case 'select':
-                                let num_options = options.length
-                                result = Config.check_array(input, 'images', 'string', num_options, false)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-
-                                result = Config.check_array(input, 'colors', 'string', num_options, false)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-
-                            case 'dropdown':
-                                result = Config.check_properties(input, {'default': 'string'}, id)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-                                // ensure "default" exists in options
-                                else if (!options.includes(input.default))
-                                {
-                                    return Config.return_fail(`default "${input.default}" not found in options`, id)
-                                }
-
-                            case 'multiselect':
-                                // require only multiselect to have a "default" array
-                                if (type === 'multiselect')
-                                {
-                                    result = Config.check_array(input, 'default', 'boolean', options.length, true)
-                                    if (!result.result)
-                                    {
-                                        return result
-                                    }
-                                }
-                                break
-
-                            case 'multicounter':
-                                result = Config.check_properties(input, {'default': 'number'}, id)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-
-                                // allow multicounter to have an "negative" array
-                                result = Config.check_array(input, 'negative', 'boolean', options.length, false)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-                                break
-
-                            case 'checkbox':
-                                result = Config.check_properties(input, {'default': 'boolean'}, id)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-                                break
-
-                            case 'string':
-                            case 'text':
-                                result = Config.check_properties(input, {'default': 'string'}, id)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-                                break
-
-                            case 'slider':
-                                // this is checked later in number because either 2 or 3 is allowed
-                                result = Config.check_array(input, 'options', 'number', 3, false)
-
-                                if (result.result && 'options' in input)
-                                {
-                                    // ensure incr > 0
-                                    if (options[2] <= 0)
-                                    {
-                                        return Config.return_fail('increment must be positive', id)
-                                    }
-                                    // ensure incr <= max - min
-                                    if (options[2] > options[1] - options[0])
-                                    {
-                                        return Config.return_fail('increment may not be greater than the gap between minimum and maximum', input.id)
-                                    }
-                                }
-
-                            case 'number':
-                                // if slider has already passed don't bother checking 2 options
-                                if (type === 'number' || !result.result)
-                                {
-                                    result = Config.check_array(input, 'options', 'number', 2, false)
-                                }
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-                                // ensure max >= min
-                                else if ('options' in input && options[1] < options[0])
-                                {
-                                    return Config.return_fail('maximum may not be less than minimum', id)
-                                }
-
-                            case 'counter':
-                                result = Config.check_properties(input, {'default': 'number'}, id)
-                                if (!result.result)
-                                {
-                                    return result
-                                }
-                                break
-
-                            // prevent all other types
-                            default:
-                                return Config.return_fail(`Invalid type "${type}"`, id)
-                        }
-
-                        // allow all inputs to have a "disallow_default" boolean
-                        result = Config.check_properties(input, {'disallow_default': 'boolean'}, id, false)
-                        if (!result.result)
-                        {
-                            return result
-                        }
-
-                        // allow "negative" to be a boolean for all but multicounter
-                        if (type !== 'multicounter')
-                        {
-                            result = Config.check_properties(input, {'negative': 'boolean'}, id, false)
-                            if (!result.result)
-                            {
-                                return result
-                            } 
-                        }
-                    }
-                }
-            }
-            return Config.return_pass()
-        }
-        return Config.return_fail('Invalid mode object')
-    }
-
-    /**
-     * Validates a object has a set of keys and values.
-     * 
-     * @param {object} types A map of keys to value types.
-     * @param {string} id An optional ID associated with the object.
-     * @param {boolean} required Whether the given keys are required.
-     * @returns {object} Validation result
-     */
-    static check_properties(object, types, id='', required=true)
-    {
-        let keys = Object.keys(types)
-        let fails = []
-        for (let key of keys)
-        {
-            let type = types[key]
-            if (!key in object && required)
-            {
-                fails.push(`missing property "${key}" of type ${type}`)
-            }
-            else if (key in object && typeof object[key] !== type)
-            {
-                fails.push(`${key} should be a ${type}, but found ${typeof object[key]}`)
-            }
-            else if (type === 'string' && object[key] === '' && required)
-            {
-                fails.push(`missing property "${key}" of type ${type}`)
-            }
-        }
-        if (fails.length > 0)
-        {
-            return Config.return_fail(fails.join('; '), id)
-        }
-        return Config.return_pass()
-    }
-
-    /**
-     * Validate that an array adheres to its required criteria.
-     * 
-     * @param {object} input Input/column/page that should contain the array.
-     * @param {string} key Key representing the array in the input.
-     * @param {string} type String type that values should be.
-     * @param {number} expected_len The required number of entries in the array, <= 0 implies no requirement.
-     * @param {boolean} require Whether the array's presents and expected length are required.
-     * @returns {object} Validation object
-     */
-    static check_array(input, key, type, expected_len=0, require=false, valid_values=[])
-    {
-        let id = input.id
-        if (key in input)
-        {
-            let value = input[key]
-            if (!Array.isArray(value))
-            {
-                return Config.return_fail(`${key} must be an array`, id)
-            }
-            // ensure non-zero lengths match the expected length (if provided)
-            else if (value.length > 0 && expected_len > 0 && value.length !== expected_len)
-            {
-                return Config.return_fail(`${key} must have ${expected_len} values`, id)
-            }
-            // ensure required keys have non-zero lengths
-            else if (value.length === 0 && require)
-            {
-                return Config.return_fail(`${key} must have ${expected_len > 0 ? expected_len : '> 0 '} values`, id)
-            }
-            
-            // check that each value conforms to the type
-            for (let v of value)
-            {
-                if (typeof v !== type)
-                {
-                    return Config.return_fail(`value "${v}" in ${key} must be of type ${type}`, id)
-                }
-                else if (valid_values.length > 0 && !valid_values.includes(v))
-                {
-                    return Config.return_fail(`unexpected value "${v}" in ${key}`, id)
+                let admin = cells.length >= 3 ? cells[2].toLowerCase() === 'true' : false
+                let position = cells.length >= 4 ? parseInt(cells[3]) : -1
+                this.users[cells[0]] = {
+                    "name": cells[1],
+                    "admin": admin,
+                    "position": position
                 }
             }
         }
-        else if (require)
-        {
-            return Config.return_fail(`${key} is required`, id)
-        }
 
-        return Config.return_pass()
+        if (this.include_game_config)
+        {
+            this.load_game_configs()
+        }
+        else
+        {
+            this.store_configs()
+            this.on_complete()
+        }
+    }
+
+    /**
+     * Trigger game config loading sequence if a valid year is available.
+     */
+    load_game_configs()
+    {
+        if (this.year)
+        {
+            this.load_scout_config()
+        }
+        else
+        {
+            console.log('event_id not found, skipping game configs')
+            this.store_configs()
+            this.on_complete()
+        }
+    }
+
+    /**
+     * Attempts to load the scout config from localStorage, if unavailable, triggers load from server/cache.
+     */
+    load_scout_config()
+    {
+        let scout_config = localStorage.getItem(this.SCOUT_CONFIG)
+        if (scout_config === null)
+        {
+            console.log(`${this.SCOUT_CONFIG} does not exist, pulling from server/cache`)
+            load_config(BASE_SCOUT_CONFIG, this.handle_scout_config.bind(this), this.year)
+        }
+        else
+        {
+            this.handle_scout_config(JSON.parse(scout_config))
+        }
+    }
+
+    /**
+     * Handles successfully loaded in scout config, then steps to loading analysis config.
+     * 
+     * @param {Object} scout_config Loaded scout config.
+     */
+    handle_scout_config(scout_config)
+    {
+        this.scout = scout_config
+        this.load_analysis_config()
+    }
+
+    /**
+     * Attempts to load the analysis config from localStorage, if unavailable, triggers load from server/cache.
+     */
+    load_analysis_config()
+    {
+        let analysis_config = localStorage.getItem(this.ANALYSIS_CONFIG)
+        if (analysis_config === null)
+        {
+            console.log(`${this.ANALYSIS_CONFIG} does not exist, pulling from server/cache`)
+            load_config(BASE_ANALYSIS_CONFIG, this.handle_analysis_config.bind(this), this.year)
+        }
+        else
+        {
+            this.handle_analysis_config(JSON.parse(analysis_config))
+        }
+    }
+
+    /**
+     * Handles successfully loaded in analysis config, then steps to loading game config.
+     * 
+     * @param {Object} analysis_config Loaded analysis config.
+     */
+    handle_analysis_config(analysis_config)
+    {
+        this.analysis = analysis_config
+        this.load_game_config()
+    }
+
+    /**
+     * Triggers loading the game config from server/cache.
+     */
+    load_game_config()
+    {
+        load_config(GAME_CONFIG, this.handle_game_config.bind(this), this.year)
+    }
+
+    /**
+     * Handles successfully loaded in game config, then triggers the completion callback.
+     * 
+     * @param {Object} game_config Loaded game config.
+     */
+    handle_game_config(game_config)
+    {
+        this.game = game_config
+        this.store_configs()
+        this.on_complete()
     }
 }

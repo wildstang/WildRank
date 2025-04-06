@@ -92,9 +92,9 @@ function init_page()
                 release.text_el.innerHTML = release_name.substring(0, release_name.length)
             }
         }
-        if (cfg.version)
+        if (cfg.scout.version)
         {
-            config.text_el.innerText = `Config: ${cfg.version}`
+            config.text_el.innerText = `Config: ${cfg.scout.version}`
         }
     }
     catch (e)

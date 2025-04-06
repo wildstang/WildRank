@@ -166,16 +166,16 @@ class Whiteboard
     update_dimensions(width, height)
     {
         // determine scaling factor for magnets and lines
-        let horizontal_scale_factor = cfg.whiteboard.field_width / width
-        let vertical_scale_factor = cfg.whiteboard.field_height / height
+        let horizontal_scale_factor = cfg.game.whiteboard.field_width / width
+        let vertical_scale_factor = cfg.game.whiteboard.field_height / height
         let prev_scale_factor = this.scale_factor
         this.scale_factor = Math.max(horizontal_scale_factor, vertical_scale_factor)
 
         // determine actual canvas, magnet, and line dimensions
-        this.field_height = cfg.whiteboard.field_height / this.scale_factor
-        this.field_width = cfg.whiteboard.field_width / this.scale_factor
-        this.magnet_size = cfg.whiteboard.magnet_size / this.scale_factor
-        this.line_width = cfg.whiteboard.line_width / this.scale_factor
+        this.field_height = cfg.game.whiteboard.field_height / this.scale_factor
+        this.field_width = cfg.game.whiteboard.field_width / this.scale_factor
+        this.magnet_size = cfg.game.whiteboard.magnet_size / this.scale_factor
+        this.line_width = cfg.game.whiteboard.line_width / this.scale_factor
 
         // rescale any existing lines and magents
         let rescale_factor = prev_scale_factor / this.scale_factor
@@ -292,7 +292,7 @@ class Whiteboard
         y = y < 0 ? this.field_height / 2 : 0
 
         // find the image in the config
-        let gp = cfg.whiteboard.game_pieces.filter(p => p.name === name)
+        let gp = cfg.game.whiteboard.game_pieces.filter(p => p.name === name)
         if (gp.length > 0)
         {
             let image = new Image()
@@ -320,11 +320,11 @@ class Whiteboard
         image.src = dal.get_value(team_num, 'pictures.avatar')
 
         // create a magnet to scale using the configured color and position
-        let x = cfg.whiteboard.field_width / 2
-        let y = cfg.whiteboard.field_height / 2
-        if (Object.keys(cfg.whiteboard).includes(`${alliance}_${position}`))
+        let x = cfg.game.whiteboard.field_width / 2
+        let y = cfg.game.whiteboard.field_height / 2
+        if (Object.keys(cfg.game.whiteboard).includes(`${alliance}_${position}`))
         {
-            let c = cfg.whiteboard[`${alliance}_${position}`]
+            let c = cfg.game.whiteboard[`${alliance}_${position}`]
             x = c.x
             y = c.y
             alliance = c.color
@@ -360,7 +360,7 @@ class Whiteboard
             image.src = dal.get_value(team, 'pictures.avatar')
 
             // create a magnet to scale using the configured color
-            let c = cfg.whiteboard[key]
+            let c = cfg.game.whiteboard[key]
             this.magnets.push(new Magnet(team, image, c.x / this.scale_factor, c.y / this.scale_factor, c.color))
         }
 
@@ -392,13 +392,9 @@ class Whiteboard
         // grab TBA API key from config
         if (!TBA_KEY)
         {
-            let file = cfg.keys
-            if (file != null)
+            if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
             {
-                if (cfg.keys.hasOwnProperty('tba'))
-                {
-                    TBA_KEY = cfg.keys.tba
-                }
+                TBA_KEY = cfg.user.settings.tba_key
             }
             if (!TBA_KEY)
             {
@@ -463,9 +459,9 @@ class Whiteboard
      */
     scale_coords(xs, ys, add_margin=true, invert_x=true)
     {
-        let xm = add_margin ? cfg.whiteboard.horizontal_margin : 0
-        let ym = add_margin ? cfg.whiteboard.vertical_margin : 0
-        let ft2px = cfg.whiteboard.field_height_px / cfg.whiteboard.field_height_ft
+        let xm = add_margin ? cfg.game.whiteboard.horizontal_margin : 0
+        let ym = add_margin ? cfg.game.whiteboard.vertical_margin : 0
+        let ft2px = cfg.game.whiteboard.field_height_px / cfg.game.whiteboard.field_height_ft
         xs = xs.map(x => this.scale_point(x, xm, ft2px, invert_x))
         ys = ys.map(y => this.scale_point(y, ym, ft2px, false))
         return [xs, ys]
@@ -485,7 +481,7 @@ class Whiteboard
     {
         let sp = (margin + p * ft2px) / this.scale_factor
         if (invert) {
-            sp = cfg.whiteboard.field_width / this.scale_factor - sp
+            sp = cfg.game.whiteboard.field_width / this.scale_factor - sp
         }
         return sp
     }
@@ -687,8 +683,8 @@ class Whiteboard
                     context.globalAlpha = alpha
 
                     // draw heatmap values, account for margin
-                    let h_margin = cfg.whiteboard.horizontal_margin / this.scale_factor
-                    let v_margin = cfg.whiteboard.vertical_margin / this.scale_factor
+                    let h_margin = cfg.game.whiteboard.horizontal_margin / this.scale_factor
+                    let v_margin = cfg.game.whiteboard.vertical_margin / this.scale_factor
                     let width = (this.field_width - h_margin * 2) / 18
                     let height = (this.field_height - v_margin * 2) / 9
                     context.fillRect(x * width + h_margin, y * height + v_margin, width, height)

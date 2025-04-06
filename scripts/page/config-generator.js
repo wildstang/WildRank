@@ -11,8 +11,6 @@ const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Mu
 
 var config = Array(MODES.length).fill([])
 
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry
 var preview, options
 
@@ -320,7 +318,7 @@ function save_config()
         console.log(config[i])
         localStorage.setItem(`config-${cfg.year}-${MODES[i]}`, JSON.stringify(config[i]))
     }
-    cfg.load_configs(2)
+    cfg.load_configs()
 
     alert('Scouting config updated')
 }
@@ -453,10 +451,10 @@ function import_config(event)
 function download_config()
 {
     let contents = {
-        version: `${user_id}-${new Date().toISOString().split('T')[0]}`,
-        smart_stats: cfg.smart_stats,
-        coach: cfg.coach,
-        whiteboard: cfg.whiteboard
+        version: `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`,
+        smart_stats: cfg.analysis.smart_stats,
+        coach: cfg.analysis.coach,
+        whiteboard: cfg.game.whiteboard
     }
     for (let i in MODES)
     {

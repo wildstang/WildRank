@@ -6,9 +6,6 @@
  * date:        2020-02-15
  */
 
-// read parameters from URL
-const user_id = get_parameter(USER_COOKIE, USER_DEFAULT)
-
 var streaming = false
 
 var avatar_el, team_num_el, team_name_el, photos_el, buttons_el, preview_el, capture_el
@@ -54,7 +51,7 @@ function init_page()
         open_option(first)
 
         // setup camera feed
-        if (cfg.settings.use_images && navigator.mediaDevices)
+        if (cfg.user.settings.use_images && navigator.mediaDevices)
         {    
             // get video stream
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
@@ -171,7 +168,7 @@ function capture(team_num)
                 // post string to server
                 let formData = new FormData()
                 formData.append('upload', blob)
-                fetch(`${addr}/photo/${team_num}?password=${cfg.keys.server}`, {method: 'POST', body: formData})
+                fetch(`${addr}/photo/${team_num}?password=${cfg.user.settings.server_key}`, {method: 'POST', body: formData})
                     .then(response => response.json())
                     .then(result => {
                         if (result.success)
@@ -299,7 +296,7 @@ function export_results()
     let handler = new ZipHandler()
     handler.pit = true
     handler.pictures = true
-    handler.user = user_id
+    handler.user = cfg.user.state.user_id
     handler.server = parse_server_addr(document.location.href)
     handler.export_zip()
 }
