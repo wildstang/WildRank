@@ -208,12 +208,12 @@ function open_option(match_key)
 
         let scout_text = document.createElement('span')
         scout_text.append('Scout ', team)
-        let scout_link = new WRLinkButton(scout_text, open_page('scout', {type: MATCH_MODE, match: match_key, team: team_num, alliance: alliance, edit: false}))
+        let scout_link = new WRLinkButton(scout_text, build_url('scout', {type: MATCH_MODE, match: match_key, team: team_num, alliance: alliance, edit: false}))
         if (dal.is_match_scouted(match_key, team_num))
         {
             let result_text = document.createElement('span')
             result_text.append(team, ' Results')
-            scout_link = new WRLinkButton(result_text, open_page('results', {'file': `${match_key}-${team_num}`}))
+            scout_link = new WRLinkButton(result_text, build_url('results', {'file': `${match_key}-${team_num}`}))
         }
 
         // add button and description to appropriate column

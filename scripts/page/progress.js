@@ -80,39 +80,39 @@ function init_page()
                 {
                     key_counts[5]++
                     color = 'turquoise'
-                    link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
+                    link = build_url('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
                 }
                 else if (dal.get_result_value(team, match, 'meta_unsure'))
                 {
                     key_counts[3]++
                     color = 'orange'
-                    link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
+                    link = build_url('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: true})
                     tooltip = dal.get_result_value(team, match, 'meta_unsure_reason')
                 }
                 else if (match_scouted && note_scouted)
                 {
                     key_counts[0]++
                     color = 'green'
-                    link = open_page('results', {'file': `${match}-${team}`})
+                    link = build_url('results', {file: `${match}-${team}`})
                 }
                 else if (match_scouted)
                 {
                     key_counts[1]++
                     color = 'yellowgreen'
-                    link = open_page('results', {'file': `${match}-${team}`})
+                    link = build_url('results', {file: `${match}-${team}`})
                 }
                 else if (note_scouted)
                 {
                     key_counts[2]++
                     color = 'yellow'
-                    link = open_page('results', {'file': `${match}-${team}`})
+                    link = build_url('results', {file: `${match}-${team}`})
                 }
             }
             else
             {
                 key_counts[4]++
                 color = 'red'
-                link = open_page('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: false})
+                link = build_url('scout', {type: MATCH_MODE, match: match, team: team, alliance: alliance, edit: false})
             }
 
             let td = row.insertCell()
@@ -145,12 +145,12 @@ function init_page()
         if (dal.is_pit_scouted(teams[i]))
         {
             color = 'green'
-            link = open_page('scout', {type: PIT_MODE, team: teams[i], edit: true})
+            link = build_url('scout', {type: PIT_MODE, team: teams[i], edit: true})
         }
         else
         {
             color = 'red'
-            link = open_page('scout', {type: PIT_MODE, team: teams[i], edit: false})
+            link = build_url('scout', {type: PIT_MODE, team: teams[i], edit: false})
         }
 
         let td = pit_row.insertCell()

@@ -185,6 +185,5 @@ function get_results_from_page()
         localStorage.setItem(`${NOTE_MODE}-${match_num}-${team}`, JSON.stringify(result))
     }
 
-    query = {'page': 'matches', [TYPE_COOKIE]: NOTE_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}
-    window.location.href = build_url('selection', query)
+    window.location.href = build_url('matches', {[MODE_QUERY]: NOTE_MODE})
 }

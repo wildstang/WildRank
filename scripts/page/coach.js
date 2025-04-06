@@ -62,10 +62,10 @@ function init_page()
         whiteboard_page = new WRPage('', [wb_col])
 
         // create column of buttons for coach page
-        red_edit = new WRLinkButton('Edit Values', open_page('edit-coach'))
-        red_custom = new WRLinkButton('Add Custom Match', open_page('custom-match'))
-        blue_edit = new WRLinkButton('Edit Values', open_page('edit-coach'))
-        blue_custom = new WRLinkButton('Add Custom Match', open_page('custom-match'))
+        red_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
+        red_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
+        blue_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
+        blue_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
 
         // subtract margins from the parent dimensions
         // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom

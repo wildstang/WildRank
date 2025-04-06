@@ -10,25 +10,8 @@ const PIT_MODE   = 'pit'
 const NOTE_MODE  = 'note'
 const MODES = [MATCH_MODE, PIT_MODE, NOTE_MODE]
 
-const VERSION_COOKIE = 'version'
-const VERSION_DEFAULT = 'unknown'
-const EVENT_COOKIE = 'event_id'
-const EVENT_DEFAULT = '2022new'
-const USER_COOKIE = 'user_id'
-const USER_DEFAULT = '120001'
-const TYPE_COOKIE = 'type'
-const TYPE_DEFAULT = MATCH_MODE
-const POSITION_COOKIE = 'position'
-const POSITION_DEFAULT = 0
-const UPLOAD_COOKIE = 'upload_url'
-const UPLOAD_DEFAULT = 'http://localhost:8000'
+const MODE_QUERY = 'scout-mode'
 const TBA_AUTH_KEY = 'X-TBA-Auth-Key'
-const THEME_COOKIE = 'theme'
-const THEME_DEFAULT = 'auto'
-const ROLE_COOKIE = 'role'
-const ROLE_DEFAULT = 'index'
-const OFFLINE_COOKIE = 'offline'
-const OFFLINE_DEFAULT = 'on'
 
 /**
  * function:    window_open
@@ -43,42 +26,32 @@ function window_open(url, option)
         window.open(url, option)
     }
 }
-/**
- * function:    build_url
- * parameters:  page, map of query keys to values
- * returns:     url string
- * description: Builds a url string from a query given object.
- */
-function build_url(page, query)
-{
-    return `${page}.html${build_query(query)}`
-}
+
+var selection_pages = ['coach', 'cycles', 'distro', 'match-overview', 'matches', 'multipicklists', 'pits',
+    'pivot', 'plot', 'ranker', 'results', 'scatter', 'sides', 'teams', 'users', 'whiteboard']
 
 /**
- * function:    build_query
- * parameters:  map of query keys to values
- * returns:     query string
- * description: Builds a query string from a given object.
+ * Assembles a URL path for within the application.
+ * 
+ * @param {String} page Name of the page to load.
+ * @param {Object} parameters Key value pairs to include in the query string.
+ * @returns An assembled URL path.
  */
-function build_query(query)
+function build_url(page, parameters={})
 {
-    let str = '?'
-    for (var key in query)
+    let query = ''
+    for (let key in parameters)
     {
-        if (str != '?')
-        {
-            str += '&'
-        }
-        str += `${key}=${query[key]}`
+        query += `&${key}=${parameters[key]}`
     }
-    return str
+    return `${selection_pages.includes(page) ? 'selection.html' : 'index.html'}?page=${page}${query}`
 }
 
 /**
  * function:    get_parameter
  * parameters:  desired key of parameter, default value of parameter
  * returns:     value of desired parameter or default
- * description: Attempt to get a parameter first as a URLSearchParam, then as a cookie.
+ * description: Attempt to get a parameter first as a URLSearchParam, otherwise return default.
  */
 function get_parameter(key, dvalue)
 {
@@ -87,50 +60,6 @@ function get_parameter(key, dvalue)
     if (typeof value !== 'undefined' && value)
     {
         return value
-    }
-    return get_cookie(key, dvalue)
-}
-
-/**
- * function:    set_cookie
- * parameters:  name of cookie, value of cookie
- * returns:     none
- * description: Creates a cookie with a given name and value, expires in 1 week.
- */
-function set_cookie(cname, cvalue)
-{
-    var d = new Date();
-    d.setTime(d.getTime() + (7*24*60*60*1000))
-    var expires = `expires=${d.toUTCString()}`
-    document.cookie = `${cname}=${cvalue};${expires};path=/;SameSite=Strict`
-}
-
-/**
- * function:    get_cookie
- * parameters:  name of cookie, default value
- * returns:     value of named cookie or default value
- * description: Returns the value of the requested cookie.
- */
-function get_cookie(cname, dvalue)
-{
-    var name = `${cname}=`
-    var decodedCookie = decodeURIComponent(document.cookie)
-    var ca = decodedCookie.split(';')
-    for(var i = 0; i < ca.length; i++)
-    {
-        var c = ca[i]
-        while (c.charAt(0) == ' ')
-        {
-            c = c.substring(1)
-        }
-        if (c.indexOf(name) == 0)
-        {
-            return c.substring(name.length, c.length)
-        }
-    }
-    if (typeof dvalue !== 'undefined')
-    {
-        set_cookie(cname, dvalue)
     }
     return dvalue
 }
@@ -532,19 +461,6 @@ function apply_theme()
     }
 
     let theme = cfg.theme
-    let theme_name = get_cookie(THEME_COOKIE, THEME_DEFAULT)
-    if (theme_name === 'auto')
-    {
-        theme_name = 'light'
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        {
-            theme_name = 'dark'
-        }
-    }
-    if (theme_name === 'dark')
-    {
-        theme = cfg.dark_theme
-    }
     let keys = Object.keys(theme)
     for (let key of keys)
     {

@@ -112,7 +112,7 @@ function open_option(team_num)
     let pit_button = ''
     if (!dal.is_pit_scouted(team_num))
     {
-        pit_button = new WRLinkButton('Scout Pit', open_page('scout', {type: PIT_MODE, team: team_num, alliance: 'white', edit: false}))
+        pit_button = new WRLinkButton('Scout Pit', build_url('scout', {type: PIT_MODE, team: team_num, alliance: 'white', edit: false}))
     }
 
     // build stats table
@@ -221,7 +221,7 @@ function open_option(team_num)
                 match_text.append('Match ', match_num, ' Results')
 
                 // build match button
-                match_link = new WRLinkButton(match_text, open_page('results', {'file': `${match_key}-${team_num}`}))
+                match_link = new WRLinkButton(match_text, build_url('results', {file: `${match_key}-${team_num}`}))
             }
             else
             {
@@ -230,7 +230,7 @@ function open_option(team_num)
                 match_text.append('Scout Match ', match_num)
     
                 // build match button
-                match_link = new WRLinkButton(match_text, open_page('scout', {type: MATCH_MODE, match: match_key, team: team_num, alliance: alliance, edit: false}))
+                match_link = new WRLinkButton(match_text, build_url('scout', {type: MATCH_MODE, match: match_key, team: team_num, alliance: alliance, edit: false}))
             }
 
             let card = new WRCard(time)

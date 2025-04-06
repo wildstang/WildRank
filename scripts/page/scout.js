@@ -437,13 +437,12 @@ function get_results_from_page()
     
     if (scout_mode === PIT_MODE)
     {
-        query = {'page': 'pits', [EVENT_COOKIE]: event_id, [USER_COOKIE]: user_id}
+        window.location.href = build_url('pits')
     }
     else
     {
-        query = {'page': 'matches', [TYPE_COOKIE]: MATCH_MODE, [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: scout_pos, [USER_COOKIE]: user_id}
+        window.location.href = build_url('matches', {'type': 'match'})
     }
-    window.location.href = build_url('selection', query)
 }
 
 /**

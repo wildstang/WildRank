@@ -231,7 +231,7 @@ function cache_image(server, team_num, base64)
  */
 function open_result(file)
 {
-    return build_url('selection', {'page': 'results', [TYPE_COOKIE]: PIT_MODE, [EVENT_COOKIE]: event_id, 'file': file})
+    return build_url('results', {'file': file})
 }
 
 /**
@@ -242,7 +242,7 @@ function open_result(file)
  */
 function start_scouting(team_num, edit)
 {
-    return build_url('index', {'page': 'scout', [TYPE_COOKIE]: PIT_MODE, 'team': team_num, 'alliance': 'white', [EVENT_COOKIE]: event_id, [POSITION_COOKIE]: 0, [USER_COOKIE]: user_id, 'edit': edit })
+    return build_url('scout', {[MODE_QUERY]: PIT_MODE, index: team_num, edit: edit})
 }
 
 /**

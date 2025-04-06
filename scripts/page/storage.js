@@ -28,7 +28,7 @@ function init_page()
 function populate_page()
 {
     let button_col = new WRColumn()
-    button_col.add_input(new WRLinkButton('Transfer Data', open_page('transfer-raw')))
+    button_col.add_input(new WRLinkButton('Transfer Data', build_url('transfer-raw')))
 
     let keys = Object.keys(localStorage).sort()
 

@@ -173,7 +173,7 @@ function open_option(user_id)
         }
 
         let row = time_table.insertRow()
-        row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
+        row.onclick = (event) => window_open(build_url('results', {file: `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
         row.insertCell().innerText = match.meta_team
         row.insertCell().innerText = match.meta_position
@@ -207,7 +207,7 @@ function open_option(user_id)
         }
 
         let row = time_table.insertRow()
-        row.onclick = (event) => window_open(open_page('results', {'file': `${match.meta_match_key}-${match.meta_team}`}), '_self')
+        row.onclick = (event) => window_open(build_url('results', {file: `${match.meta_match_key}-${match.meta_team}`}), '_self')
         row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
         row.insertCell().innerText = match.meta_alliance
         row.insertCell().innerText = match.meta_note_position

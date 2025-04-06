@@ -211,7 +211,7 @@ function open_role(role)
         let column = Object.values(columns)[0]
         if (column.length === 1)
         {
-            window_open(open_page(column[0]), '_self')
+            window_open(build_url(column[0]), '_self')
             return
         }
     }
@@ -231,7 +231,7 @@ function open_role(role)
                 let pits = dal.get_pits([], false).length
 
                 button = new WRMultiNumber('', ['P', 'M'], [pits, matches])
-                button.on_click = () => window_open(open_page('progress'), '_self')
+                button.on_click = () => window_open(build_url('progress'), '_self')
             }
             else if (is_blocked(key))
             {
@@ -239,7 +239,7 @@ function open_role(role)
             }
             else if (!key.includes('_') && key !== 'reset')
             {
-                button = new WRLinkButton(BUTTONS[key].name, open_page(key))
+                button = new WRLinkButton(BUTTONS[key].name, build_url(key))
             }
             else if (key.startsWith('open_'))
             {
@@ -273,7 +273,7 @@ function open_role(role)
 function sign_out()
 {
     cfg.set_role('')
-    window_open(build_url('index', {'page': 'setup'}), '_self')
+    window_open(build_url('setup'), '_self')
 }
 
 /**
@@ -429,6 +429,6 @@ function home(right=false)
     }
     else
     {
-        window_open('index.html?page=setup', right ? '_blank' : '_self')
+        window_open(build_url('setup'), right ? '_blank' : '_self')
     }
 }

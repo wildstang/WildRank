@@ -50,7 +50,7 @@ function init_page()
     let save_list_el = new WRButton('Save Rankings as Picklist', save_list)
     button_col.add_input(save_list_el)
 
-    let edit_stats = new WRLinkButton('Edit Stats', open_page('edit-stats'))
+    let edit_stats = new WRLinkButton('Edit Stats', build_url('edit-stats'))
     button_col.add_input(edit_stats)
 
     preview.replaceChildren(page)

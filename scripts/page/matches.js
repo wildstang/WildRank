@@ -122,20 +122,20 @@ function open_option(match_num)
 
         // build buttons
         let key = match_num.toLowerCase()
-        let scout_button = new WRLinkButton('Scout Match', open_page('scout', {type: MATCH_MODE, match: key, team: team_num, alliance: alliance, edit: false}))
+        let scout_button = new WRLinkButton('Scout Match', build_url('scout', {[MODE_QUERY]: MATCH_MODE, index: key, edit: false}))
         buttons.append(scout_button)
 
         if (dal.is_match_scouted(match_num, team_num))
         {
             let page = new WRPage()
 
-            let result_button = new WRLinkButton('View Result', open_page('results', {'file': `${key}-${team_num}`}))
+            let result_button = new WRLinkButton('View Result', build_url('results', {'file': `${key}-${team_num}`}))
             result_button.add_class('slim')
             page.add_column(new WRColumn('', [result_button]))
 
             if (can_edit(match_num, team_num))
             {
-                let edit_button = new WRLinkButton('Edit Match', open_page('scout', {type: MATCH_MODE, match: key, team: team_num, alliance: alliance, edit: true}))
+                let edit_button = new WRLinkButton('Edit Match', build_url('scout', {[MODE_QUERY]: MATCH_MODE, index: key, edit: true}))
                 edit_button.add_class('slim')
                 page.add_column(new WRColumn('', [edit_button]))
 
@@ -163,7 +163,7 @@ function open_option(match_num)
 
         // build buttons
         let key = match_num.toLowerCase()
-        let scout_button = new WRLinkButton('Take Notes', open_page('note', {match: key, alliance: alliance, edit: false}))
+        let scout_button = new WRLinkButton('Take Notes', build_url('note', {match: key, edit: false}))
         buttons.append(scout_button)
 
         if (dal.is_note_scouted(match_num, team_num))
@@ -172,7 +172,7 @@ function open_option(match_num)
 
             if (can_edit(match_num, team_num))
             {
-                let edit_button = new WRLinkButton('Edit Notes', open_page('note', {match: key, alliance: alliance, edit: true}))
+                let edit_button = new WRLinkButton('Edit Notes', build_url('note', {match: key, edit: true}))
                 edit_button.add_class('slim')
                 page.add_column(new WRColumn('', [edit_button]))
 

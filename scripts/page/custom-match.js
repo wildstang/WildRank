@@ -45,7 +45,7 @@ function populate_matches()
             blue_col.add_input(new WRDropdown(`Blue ${pos+1}`, teams, teams[pos + dal.max_alliance_size]))
         }
 
-        let custom = new WRLinkButton('Return to Coach', open_page('coach'))
+        let custom = new WRLinkButton('Return to Coach', build_url('coach'))
         blue_col.add_input(custom)
 
         let add_match_button = new WRButton('Add Match', add_match)

@@ -77,5 +77,5 @@ function add_match(match_num, red_teams, blue_teams) {}
  */
 function open_option(match_key)
 {
-    window_open(open_page('coach', {match: match_key}), '_self')
+    window_open(build_url('coach', {match: match_key}), '_self')
 }
