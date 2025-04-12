@@ -1,5 +1,5 @@
 {
-    "version": "2025-midwest",
+    "version": "2025-champs",
     "smart_stats": [],
     "coach": [],
     "whiteboard": {
@@ -114,18 +114,20 @@
                     "id": "match_auto_movement",
                     "inputs": [
                         {
-                            "type": "select",
-                            "default": "Unselected",
-                            "disallow_default": true,
-                            "options": [
-                                "Barge Side",
-                                "Center",
-                                "Processor Side",
-                                "Unselected"
+                            "type": "multiselect",
+                            "default": [
+                                false,
+                                false,
+                                false
                             ],
-                            "images": [],
-                            "name": "Starting Point",
-                            "id": "match_auto_movement_starting_point"
+                            "disallow_default": false,
+                            "options": [
+                                "Front",
+                                "Side",
+                                "Back"
+                            ],
+                            "name": "Reef Scoring Location",
+                            "id": "match_auto_movement_reef_scoring_location"
                         },
                         {
                             "type": "checkbox",
@@ -173,29 +175,22 @@
                     "name": "Algae Scoring",
                     "id": "match_tele_op_algae_scoring",
                     "inputs": [
-                    {
-                        "type": "multicounter",
-                        "negative": [
-                            false,
-                            false,
-                            false
-                        ],
-                        "default": 0,
-                        "disallow_default": false,
-                        "options": [
-                            "Net",
-                            "Processor",
-                            "Dropped"
-                        ],
-                        "name": "Algae Scored (T)",
-                        "id": "match_tele_op_algae_scoring_algae"
-                    },
                         {
-                            "type": "checkbox",
-                            "default": false,
-                            "negative": false,
-                            "name": "Crossed Field?",
-                            "id": "match_tele_op_coral_scoring_crossed_field"
+                            "type": "multicounter",
+                            "negative": [
+                                false,
+                                false,
+                                false
+                            ],
+                            "default": 0,
+                            "disallow_default": false,
+                            "options": [
+                                "Net",
+                                "Processor",
+                                "Dropped"
+                            ],
+                            "name": "Algae Scored (T)",
+                            "id": "match_tele_op_algae_scoring_algae"
                         }
                     ]
                 },
@@ -283,49 +278,49 @@
             "id": "pit_pit",
             "columns": [
                 {
-                    "cycle": false,
-                    "name": "General",
-                    "id": "pit_pit_general",
+                    "cycle": true,
+                    "name": "Autos",
+                    "id": "pit_pit_autos",
                     "inputs": [
                         {
-                            "type": "slider",
+                            "type": "multiselect",
+                            "default": [
+                                false,
+                                false,
+                                false
+                            ],
+                            "disallow_default": false,
+                            "options": [
+                                "Front",
+                                "Side",
+                                "Back"
+                            ],
+                            "name": "Reef Sides",
+                            "id": "pit_pit_autos_reef_sides"
+                        },
+                        {
+                            "type": "number",
                             "default": 0,
                             "negative": false,
                             "disallow_default": false,
                             "options": [
-                                1,
-                                120,
-                                1
+                                0,
+                                10
                             ],
-                            "name": "Weight (lbs)",
-                            "id": "pit_pit_dimensions_weight"
+                            "name": "Coral Scored",
+                            "id": "pit_pit_autos_coral_scored"
                         },
                         {
-                            "name": "Starting Positions",
-                            "id": "pit_pit_auto_starting_position",
-                            "type": "multiselect",
+                            "type": "number",
+                            "default": 0,
+                            "negative": false,
                             "disallow_default": false,
                             "options": [
-                                "Barge",
-                                "Center",
-                                "Processor"
+                                0,
+                                10
                             ],
-                            "default": [
-                                false, false, false
-                            ]
-                        },
-                        {
-                            "type": "checkbox",
-                            "default": false,
-                            "negative": false,
-                            "name": "Java",
-                            "id": "pit_pit_java"
-                        },
-                        {
-                            "name": "Pit Notes",
-                            "id": "pit_pit_pit_notes",
-                            "type": "text",
-                            "default": " "
+                            "name": "Algae Scored",
+                            "id": "pit_pit_autos_algae_scored"
                         }
                     ]
                 },
@@ -361,52 +356,6 @@
                             ],
                             "name": "Algae Intake",
                             "id": "pit_pit_capabilities_algae_intake"
-                        },
-                        {
-                            "type": "multiselect",
-                            "default": [
-                                false,
-                                false,
-                                false,
-                                false
-                            ],
-                            "disallow_default": false,
-                            "options": [
-                                "L1",
-                                "L2",
-                                "L3",
-                                "L4"
-                            ],
-                            "name": "Coral Scoring",
-                            "id": "pit_pit_capabilities_coral_scoring"
-                        },
-                        {
-                            "type": "multiselect",
-                            "default": [
-                                false,
-                                false
-                            ],
-                            "disallow_default": false,
-                            "options": [
-                                "Processor",
-                                "Net"
-                            ],
-                            "name": "Algae Scoring",
-                            "id": "pit_pit_capabilities_algae_scoring"
-                        },
-                        {
-                            "type": "multiselect",
-                            "default": [
-                                false,
-                                false
-                            ],
-                            "disallow_default": false,
-                            "options": [
-                                "Shallow",
-                                "Deep"
-                            ],
-                            "name": "Climb",
-                            "id": "pit_pit_capabilities_clim"
                         }
                     ]
                 },
@@ -464,6 +413,31 @@
                                 "Other"
                             ],
                             "default": "KOP"
+                        }
+                    ]
+                },
+                {
+                    "cycle": false,
+                    "name": "General",
+                    "id": "pit_pit_general",
+                    "inputs": [
+                        {
+                            "type": "number",
+                            "default": 0,
+                            "negative": false,
+                            "disallow_default": true,
+                            "options": [
+                                0,
+                                30
+                            ],
+                            "name": "Number of Batteries",
+                            "id": "pit_pit_general_number_of_batteries"
+                        },
+                        {
+                            "name": "Pit Notes",
+                            "id": "pit_pit_pit_notes",
+                            "type": "text",
+                            "default": " "
                         }
                     ]
                 }
@@ -675,11 +649,20 @@
                     "cycle": false,
                     "inputs": [
                         {
-                            "type": "checkbox",
-                            "default": false,
-                            "negative": true,
-                            "name": "Foul Prone",
-                            "id": "note_notes_fouls"
+                            "type": "multiselect",
+                            "default": [
+                                false,
+                                false,
+                                false
+                            ],
+                            "disallow_default": false,
+                            "options": [
+                                "Front",
+                                "Side",
+                                "Back"
+                            ],
+                            "name": "Auto Reef Scoring Location",
+                            "id": "note_notes_team_auto_reef_scoring_location"
                         },
                         {
                             "name": "Rank",
@@ -692,6 +675,33 @@
                             ],
                             "default": 1,
                             "negative": true
+                        },
+                        {
+                            "type": "slider",
+                            "default": 1,
+                            "negative": true,
+                            "disallow_default": false,
+                            "options": [
+                                1,
+                                3,
+                                1
+                            ],
+                            "name": "Speed",
+                            "id": "note_notes_team_speed"
+                        },
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false,
+                            "name": "Good?",
+                            "id": "note_notes_team_good"
+                        },
+                        {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": true,
+                            "name": "Foul Prone",
+                            "id": "note_notes_fouls"
                         },
                         {
                             "name": "Notes",
