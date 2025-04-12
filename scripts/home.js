@@ -113,6 +113,7 @@ const BUTTONS = {
     'misc/max-score':               { name: 'Max Score',                limits: [], configs: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: [], configs: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: [], configs: [] },
+    'misc/socials':                 { name: 'Teams Socials',            limits: [], configs: [] },
     'misc/sponsor-counter':         { name: 'Sponsor Counter',          limits: [], configs: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: [], configs: [] },
     'misc/test':                    { name: 'Input Tester',             limits: [], configs: [] },
@@ -225,6 +226,10 @@ function open_role(role)
         page.add_column(column)
         for (let key of columns[col])
         {
+            if (!Object.keys(BUTTONS).includes(key))
+            {
+                continue
+            }
             let button
             if (key === 'result_count')
             {
@@ -318,6 +323,10 @@ function has_matches()
  */
 function is_blocked(id)
 {
+    if (!Object.keys(BUTTONS).includes(id))
+    {
+        return 'Invalid button'
+    }
     let event = get_event()
     let year = event.substr(0,4)
     let limits = BUTTONS[id].limits

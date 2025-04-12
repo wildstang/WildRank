@@ -46,7 +46,8 @@ var BLANK_PAGES = {
     'misc/event-planner': ['year'],
     'misc/max-score': ['year'],
     'misc/top-partners': [],
-    'misc/verde': ['event']
+    'misc/verde': ['event'],
+    'misc/socials': ['event']
 }
 
 var SELECTION_PAGES = {

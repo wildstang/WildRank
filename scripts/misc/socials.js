@@ -6,6 +6,7 @@
  */
 
 var summary, table, event_entry
+var csv
 
 /**
  * function:    init_page
@@ -18,18 +19,17 @@ function init_page()
     header_info.innerText = 'Team Socials'
     event_entry = new WREntry('Event ID', event_id)
     let entry_col = new WRColumn('', [event_entry])
-    let run = new WRButton('Run', process_event)
     let label = document.createElement('h4')
     label.className = 'input_label'
     label.innerHTML = '&nbsp;'
-    let button_col = new WRColumn('', [label, run])
+    let button_col = new WRColumn('', [label, new WRButton('Run', process_event)])
     let card_contents = document.createElement('span')
     summary = document.createElement('summary')
     table = document.createElement('table')
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
     let card = new WRCard(card_contents)
-    body.append(new WRPage('', [entry_col, button_col, card]))
+    body.append(new WRPage('', [entry_col, button_col, card, new WRButton('Download CSV', download_csv)]))
 }
 
 
@@ -71,7 +71,6 @@ function process_event()
             return response.json()
         })
         .then(teams => {
-            console.log(teams)
             for (let team of teams)
             {
                 fetch(`https://www.thebluealliance.com/api/v3/team/${team}/social_media${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
@@ -99,7 +98,7 @@ function process_event()
 
                         if (Object.keys(team_socials).length === teams.length)
                         {
-                            let csv = ''
+                            csv = ''
                             let team_keys = Object.keys(team_socials).sort()
                             for (let team of team_keys)
                             {
@@ -127,7 +126,6 @@ function process_event()
 
                                 csv += '\n'
                             }
-                            console.log(csv)
                             summary.innerText = ''
                         }
                     })
@@ -139,4 +137,27 @@ function process_event()
         .catch(err => {
             console.log(`Error fetching ${event_id} teams, ${err}`)
         })
+}
+
+/**
+ * Downloads the generated table as a CSV
+ */
+function download_csv()
+{
+    if (!csv)
+    {
+        alert('Press run first')
+        return
+    }
+
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
+    element.setAttribute('download', `${event_entry.element.value}`)
+
+    element.style.display = 'none'
+    body.appendChild(element)
+
+    element.click()
+
+    body.removeChild(element)
 }
