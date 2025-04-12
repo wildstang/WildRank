@@ -193,7 +193,7 @@ function step_setup()
 function set_event_id()
 {
     let id = event_id_el.element.value
-    if (id.length >= 8)
+    if (id.length >= 7)
     {
         event_id = id
         set_cookie(EVENT_COOKIE, event_id)
