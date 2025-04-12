@@ -266,7 +266,7 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
             for (let i = 0; i < mchildren.length; i++)
             {
                 mchildren[i].classList.remove('selected')
-                if (value.contains(i))
+                if (value[i])
                 {
                     mchildren[i].classList.add('selected')
                 }
