@@ -164,10 +164,11 @@ function build_plot()
     {
         let team = selected_teams[i]
         let color = COLORS[i % COLORS.length]
-        if (team !== 'avg' && cfg.settings.use_team_color)
+        // TODO: disabled while team colors are disabled
+        /*if (team !== 'avg' && cfg.settings.use_team_color)
         {
             color = dal.get_value(team, 'meta.color')
-        }
+        }*/
         let row = key_tab.insertRow()
         let color_cell = row.insertCell()
         color_cell.style.backgroundColor = color
@@ -261,10 +262,11 @@ function build_plot()
             let team = selected_teams[j]
             ctx.beginPath()
             let color = COLORS[j % COLORS.length]
-            if (team !== 'avg' && cfg.settings.use_team_color)
+            // TODO: disabled while team colors are disabled
+            /*if (team !== 'avg' && cfg.settings.use_team_color)
             {
                 color = dal.get_value(team, 'meta.color')
-            }
+            }*/
             ctx.fillStyle = color
             
             // points

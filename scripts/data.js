@@ -5,7 +5,7 @@
  * date:        2022-04-30
  */
 
-include('libs/Vibrant.min')
+//include('libs/Vibrant.min')
 
 class DAL
 {
@@ -668,8 +668,9 @@ class DAL
             {
                 avatar = `data:image/png;base64,${avatar}`
 
+                // TODO: find a way to store this instead of spending 3s on each payload
                 // pull out color from avatar
-                let img = document.createElement('img')
+                /*let img = document.createElement('img')
                 img.setAttribute('src', avatar)
                 img.addEventListener('load', () => {
                     try {
@@ -681,7 +682,7 @@ class DAL
                         }
                     }
                     catch {}
-                })
+                })*/
             }
 
             let photos = []
