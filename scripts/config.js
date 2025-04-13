@@ -44,7 +44,8 @@ class Config
         this.analysis = {}
         this.game = {}
 
-        this.include_game_config = true
+        this.configs_loaded = 0
+        this.expected_configs = 0
     }
 
     /**
@@ -312,9 +313,10 @@ class Config
      * Updates the event ID, saves the configuration, and reloads the game configs if the year changed.
      * 
      * @param {String} event_id Event ID
+     * @param {Function} on_complete Function to call when loading is complete.
      * @returns Whether the year changed, used to trigger DAL updates.
      */
-    update_event_id(event_id)
+    update_event_id(event_id, on_complete=() => console.log('Game config reloaded'))
     {
         let old_year = this.year
         this.user.state.event_id = event_id
@@ -323,7 +325,7 @@ class Config
         // load in new game configs if the year has changed
         if (this.year !== old_year)
         {
-            this.load_game_configs()
+            this.load_game_configs(on_complete)
             return true
         }
         return false
@@ -362,11 +364,56 @@ class Config
      * @param {Function} on_complete Function to call when loading is complete.
      * @param {Boolean} game_config Whether to load game configs.
      */
-    load_configs(on_complete=() => console.log('Config loaded'), game_config=true)
+    load_configs(on_complete=() => console.log('Config loaded'))
     {
-        this.include_game_config = game_config
+        this.configs_loaded = 0
+        this.expected_configs = 3
         this.on_complete = on_complete
         this.load_app_config()
+        this.load_user_config()
+        this.load_user_list()
+    }
+
+    /**
+     * Triggers configuration loading sequence for only the game configs.
+     * 
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    load_game_configs(on_complete=() => console.log('Game config loaded'))
+    {
+        this.configs_loaded = 0
+        this.expected_configs = 0
+        this.on_complete = on_complete
+        this.add_game_configs()
+    }
+
+    /**
+     * Triggers configuration loading sequence for only the game configs.
+     */
+    add_game_configs()
+    {
+        this.expected_configs += 3
+        this.load_scout_config()
+        this.load_analysis_config()
+        this.load_game_config()
+    }
+
+    /**
+     * Helper function to count a config as loaded and perform actions on completion.
+     */
+    tally_config()
+    {
+        if (++this.configs_loaded === this.expected_configs)
+        {
+            this.store_configs()
+            this.on_complete()
+            this.expected_configs = 0
+            this.configs_loaded = 0
+        }
+        else if (this.expected_configs === 0)
+        {
+            this.store_configs()
+        }
     }
 
     /**
@@ -385,7 +432,7 @@ class Config
     handle_app_config(app_config)
     {
         this.app = app_config
-        this.load_user_config()
+        this.tally_config()
     }
 
     /**
@@ -413,7 +460,11 @@ class Config
     handle_user_config(user_config)
     {
         this.user = user_config
-        this.load_user_list()
+        if (this.year)
+        {
+            this.add_game_configs()
+        }
+        this.tally_config()
     }
 
     /**
@@ -425,13 +476,13 @@ class Config
         if (user_list === null)
         {
             console.log('user-list does not exist, pulling from server/cache')
-            fetch(`/config/${USER_LIST}.csv`, init)
+            fetch(`/config/${USER_LIST}.csv`)
                 .then(response => {
                     return response.text()
                 })
                 .then(this.handle_user_list.bind(this))
                 .catch(err => {
-                    console.log(`Error fetching ${name} config, ${err}`)
+                    console.log(`Error fetching ${USER_LIST} config, ${err}`)
                 })
         }
         else
@@ -463,32 +514,7 @@ class Config
             }
         }
 
-        if (this.include_game_config)
-        {
-            this.load_game_configs()
-        }
-        else
-        {
-            this.store_configs()
-            this.on_complete()
-        }
-    }
-
-    /**
-     * Trigger game config loading sequence if a valid year is available.
-     */
-    load_game_configs()
-    {
-        if (this.year)
-        {
-            this.load_scout_config()
-        }
-        else
-        {
-            console.log('event_id not found, skipping game configs')
-            this.store_configs()
-            this.on_complete()
-        }
+        this.tally_config()
     }
 
     /**
@@ -516,7 +542,7 @@ class Config
     handle_scout_config(scout_config)
     {
         this.scout = scout_config
-        this.load_analysis_config()
+        this.tally_config()
     }
 
     /**
@@ -544,7 +570,7 @@ class Config
     handle_analysis_config(analysis_config)
     {
         this.analysis = analysis_config
-        this.load_game_config()
+        this.tally_config()
     }
 
     /**
@@ -563,7 +589,6 @@ class Config
     handle_game_config(game_config)
     {
         this.game = game_config
-        this.store_configs()
-        this.on_complete()
+        this.tally_config()
     }
 }
