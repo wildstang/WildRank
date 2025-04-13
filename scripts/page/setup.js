@@ -174,14 +174,15 @@ function step_setup()
 function set_event_id()
 {
     let id = event_id_el.element.value
-    if (id.length >= 8)
+    if (id.length >= 7)
     {
-        cfg.update_event_id(id)
+        cfg.update_event_id(id, () => {
+            dal = new DAL(id)
+            dal.build_teams()
+    
+            step_setup()
+        })
 
-        dal = new DAL(id)
-        dal.build_teams()
-
-        step_setup()
     }
     else
     {
