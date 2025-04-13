@@ -117,6 +117,35 @@ class Config
     }
 
     /**
+     * Returns the current TBA key. If one is not configured, helps the user get one.
+     */
+    get tba_key()
+    {
+        if (cfg.user.settings && cfg.user.settings.tba_key)
+        {
+            return cfg.user.settings.tba_key
+        }
+        else
+        {
+            if (confirm('No API key found for TBA! Do you want to open TBA?'))
+            {
+                window_open('https://www.thebluealliance.com/account#submissions-accepted-count-row', '_blank')
+                let key = prompt('Enter your TBA key:')
+                if (key)
+                {
+                    cfg.user.settings.tba_key = key
+                    this.store_user_config()
+                }
+                return key
+            }
+            else
+            {
+                return ''
+            }
+        }
+    }
+
+    /**
      * The title of the application, or WildRank if that configuration isn't available.
      */
     get title()

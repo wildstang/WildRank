@@ -23,28 +23,15 @@ function preload_event()
     // get event id from the text box
     let event_id = cfg.user.state.event_id
 
-    if (!TBA_KEY)
-    {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-            }
-        else
-        {
-            if (confirm('No API key found for TBA! Do you want to open TBA?'))
+    let key = cfg.tba_key
+    if (!key)
             {
-                window_open('https://www.thebluealliance.com/account#submissions-accepted-count-row', '_blank')
-                TBA_KEY = prompt('Enter your TBA key:')
-            }
-            else
-            {
+        alert('TBA key required to preload')
                 return
-            }
-        }
     }
     
     let api_endpoint = `https://www.thebluealliance.com/api/v3`
-    let key_query = `?${TBA_AUTH_KEY}=${TBA_KEY}`
+    let key_query = `?${TBA_AUTH_KEY}=${key}`
     
     let count = 0
     // fetch simple event matches
