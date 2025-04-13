@@ -26,7 +26,8 @@ function on_config()
     dal = new DAL(cfg.user.state.event_id)
     dal.build_teams()
 
-    run_after_load(init_page)
+    // don't directly pass in init_page to ensure that init_page isn't accessed before the page is loaded in
+    run_after_load(() => init_page())
 }
 
 var dal
