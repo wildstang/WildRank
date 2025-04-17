@@ -48,7 +48,7 @@ const CONFIGS = {
     'extras': {
         'Debug': ['misc/test'],
         'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde', 'misc/socials'],
+        'Events': ['misc/live', 'misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde', 'misc/socials'],
         'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2025-score-calculator', 'misc/2023-rp']
     }
 }
@@ -111,6 +111,7 @@ const BUTTONS = {
     'misc/district-counter':        { name: 'District Counter',         limits: [], configs: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [], configs: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: [], configs: [] },
+    'misc/live':                    { name: 'Live',                     limits: [], configs: [] },
     'misc/max-score':               { name: 'Max Score',                limits: [], configs: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: [], configs: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: [], configs: [] },
