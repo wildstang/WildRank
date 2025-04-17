@@ -88,6 +88,7 @@ const BUTTONS = {
     'reset_storage':        { name: 'Reset Storage',            limits: [], configs: [] },
     'reset_config':         { name: 'Reset Configuration',      limits: [], configs: [] },
     'reset_event':          { name: 'Reset Event',              limits: [], configs: [] },
+    'result_count':         { name: 'Result Count',             limits: [], configs: [] },
     'results':              { name: 'Raw Results',              limits: ['event', 'results'], configs: ['settings'] },
     'scatter':              { name: 'Scatter',                  limits: ['teams', 'any'], configs: ['settings'] },
     'schedule-importer':    { name: 'Schedule Importer',        limits: [], configs: [] },
