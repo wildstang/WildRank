@@ -283,6 +283,13 @@
                     "id": "pit_pit_autos",
                     "inputs": [
                         {
+                            "type": "checkbox",
+                            "default": false,
+                            "negative": false,
+                            "name": "Needs Their Human Player",
+                            "id": "pit_pit_autos_needs_their_human_player"
+                        },
+                        {
                             "type": "multiselect",
                             "default": [
                                 false,
@@ -432,6 +439,13 @@
                             ],
                             "name": "Number of Batteries",
                             "id": "pit_pit_general_number_of_batteries"
+                        },
+                        {
+                            "type": "text",
+                            "default": " ",
+                            "disallow_default": false,
+                            "name": "Changes for Champs",
+                            "id": "pit_pit_general_changes_for_champs"
                         },
                         {
                             "name": "Pit Notes",
