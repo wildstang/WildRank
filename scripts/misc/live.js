@@ -100,9 +100,9 @@ function update_matches()
                             : 0
                 })
 
-                // filter matches by complete and upcoming, based on whether there is a winner
-                let complete = matches.filter(m => m.winning_alliance)
-                let upcoming = matches.filter(m => !m.winning_alliance)
+                // filter matches by complete and upcoming, based on whether there is a result posted time
+                let complete = matches.filter(m => m.post_result_time)
+                let upcoming = matches.filter(m => !m.post_result_time)
 
                 // create an entry for the last 5 complete matches
                 let elements = []
