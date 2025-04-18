@@ -12,6 +12,7 @@ const selected = urlParams.get('file')
 var match_el, results_tab
 var matches = {}
 var scouters = {}
+var teams = {}
 
 /**
  * Generates the page template, computes audit, and opens the summary.
@@ -122,6 +123,20 @@ function open_option(match)
             row.insertCell().innerText = (scouters[id].climbs / matches).toFixed(1)
             row.insertCell().innerText = (scouters[id].game_pieces / 3).toFixed(1)
             row.insertCell().innerText = (scouters[id].game_pieces / matches / 3).toFixed(1)
+        }
+
+        // add a third table of team data
+        results_tab.append(create_header_row(['', 'Matches', 'Climb Errors', 'Per Match', 'GP Errors', 'Per Match']))
+        for (let team of Object.keys(teams))
+        {
+            let matches = teams[team].matches
+            let row = results_tab.insertRow()
+            row.insertCell().innerText = team
+            row.insertCell().innerText = matches
+            row.insertCell().innerText = teams[team].climbs
+            row.insertCell().innerText = (teams[team].climbs / matches).toFixed(1)
+            row.insertCell().innerText = (teams[team].game_pieces / 3).toFixed(1)
+            row.insertCell().innerText = (teams[team].game_pieces / matches / 3).toFixed(1)
         }
     }
     // populate with match data
@@ -268,9 +283,19 @@ function add_match(match)
                 matches: 0,
             }
         }
+        if (!Object.keys(teams).includes(team))
+        {
+            teams[team] = {
+                climbs: 0,
+                game_pieces: 0,
+                matches: 0,
+            }
+        }
         red_scouters.push(id)
         scouters[id].climbs += climbs_match ? 0 : 1
         scouters[id].matches++
+        teams[team].climbs += climbs_match ? 0 : 1
+        teams[team].matches++
     }
 
     // complete blue climbs
@@ -306,9 +331,19 @@ function add_match(match)
                 matches: 0
             }
         }
+        if (!Object.keys(teams).includes(team))
+        {
+            teams[team] = {
+                climbs: 0,
+                game_pieces: 0,
+                matches: 0,
+            }
+        }
         blue_scouters.push(id)
         scouters[id].climbs += climbs_match ? 0 : 1
         scouters[id].matches++
+        teams[team].climbs += climbs_match ? 0 : 1
+        teams[team].matches++
     }
 
     // add all stats to dictionary
@@ -358,11 +393,19 @@ function add_match(match)
     {
         scouters[id].game_pieces += red_gp_error
     }
+    for (let team of red_alliance)
+    {
+        teams[team].game_pieces += red_gp_error
+    }
 
     let blue_gp_error = add_deltas(matches[match], ['Blue Processor', 'Blue Net', 'Blue Total L1', 'Blue Total L2/3', 'Blue Total L4'])
     for (let id of blue_scouters)
     {
         scouters[id].game_pieces += blue_gp_error
+    }
+    for (let team of blue_alliance)
+    {
+        teams[team].game_pieces += blue_gp_error
     }
 }
 
