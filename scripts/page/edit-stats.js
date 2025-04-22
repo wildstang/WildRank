@@ -45,7 +45,7 @@ function build_buttons()
 function delete_val(idx)
 {
     cfg.analysis.smart_stats.splice(idx, 1)
-    cfg.store_analysis_config()
+    cfg.analysis.store_config()
 
     build_buttons()
 }

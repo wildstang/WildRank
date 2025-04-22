@@ -6,7 +6,6 @@
  */
 
 include('transfer')
-include('validate')
 
 var event_id_el, user_id_el, position_el, theme_el
 
@@ -52,7 +51,7 @@ function step_setup()
         new WRButton('Load from TBA', preload_event)
     ]))
     scout_config_valid = new WRStatusTile(cfg.scout.version)
-    scout_config_valid.set_status(validate_all().length === 0 ? 1 : -1)
+    scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'), '_self')
     status_col.add_input(new WRStack([
         scout_config_valid,
@@ -229,14 +228,13 @@ function set_user_id()
     if (id.length === 6)
     {
         cfg.user.state.user_id = id
-        cfg.store_user_config()
+        cfg.user.store_config()
 
         let name = cfg.get_name()
         if (cfg.is_admin())
         {
             name += ' (Admin)'
         }
-        alert(`Welcome ${name}!`)
 
         step_setup()
     }
@@ -258,7 +256,7 @@ function scout(mode)
     if (position >= 0 && ['matches', 'notes'].includes(mode))
     {
         cfg.user.state.position = position
-        cfg.store_user_config()
+        cfg.user.store_config()
 
         if (team_count && match_count)
         {
@@ -355,7 +353,7 @@ function switch_theme()
     if (theme != cfg.user.state.theme)
     {
         cfg.user.state.theme = theme
-        cfg.store_user_config()
+        cfg.user.store_config()
         apply_theme()
     }
 }

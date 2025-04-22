@@ -84,7 +84,6 @@ const CACHE_LIST = [
     '/scripts/init.js',
     '/scripts/inputs.js',
     '/scripts/keys.js',
-    '/scripts/links.js',
     '/scripts/selection-pages.js',
     '/scripts/selection.js',
     '/scripts/utils.js',
@@ -111,8 +110,12 @@ const CACHE_LIST = [
     '/assets/wheels/TPU.png',
     '/assets/wheels/Treaded.png',
     // configs
-    '/config/2025-config.json',
-    '/config/settings-config.json',
+    '/config/2025/analysis-config.json',
+    '/config/2025/game-config.json',
+    '/config/2025/scout-config.json',
+    '/config/app-config.json',
+    '/config/user-config.json',
+    '/config/user-list.csv',
     // other files
     '/favicon.ico',
     '/manifest.webmanifest',

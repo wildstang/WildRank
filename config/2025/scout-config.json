@@ -4,6 +4,7 @@
         {
             "name": "Match",
             "id": "match",
+            "type": "match-team",
             "pages": [
                 {
                     "name": "Auto",
@@ -75,6 +76,7 @@
                                         "Unselected"
                                     ],
                                     "images": [],
+                                    "vertical": false,
                                     "name": "Starting Point",
                                     "id": "match_auto_movement_starting_point"
                                 },
@@ -82,6 +84,7 @@
                                     "type": "checkbox",
                                     "default": false,
                                     "negative": false,
+                                    "disallow_default": false,
                                     "name": "Leave",
                                     "id": "match_auto_movement_leave"
                                 }
@@ -124,26 +127,27 @@
                             "name": "Algae Scoring",
                             "id": "match_tele_op_algae_scoring",
                             "inputs": [
-                            {
-                                "type": "multicounter",
-                                "negative": [
-                                    false,
-                                    false,
-                                    false
-                                ],
-                                "default": 0,
-                                "disallow_default": false,
-                                "options": [
-                                    "Net",
-                                    "Processor",
-                                    "Dropped"
-                                ],
-                                "name": "Algae Scored (T)",
-                                "id": "match_tele_op_algae_scoring_algae"
-                            },
+                                {
+                                    "type": "multicounter",
+                                    "negative": [
+                                        false,
+                                        false,
+                                        false
+                                    ],
+                                    "default": 0,
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Net",
+                                        "Processor",
+                                        "Dropped"
+                                    ],
+                                    "name": "Algae Scored (T)",
+                                    "id": "match_tele_op_algae_scoring_algae"
+                                },
                                 {
                                     "type": "checkbox",
                                     "default": false,
+                                    "disallow_default": false,
                                     "negative": false,
                                     "name": "Crossed Field?",
                                     "id": "match_tele_op_coral_scoring_crossed_field"
@@ -166,6 +170,8 @@
                                         "No Attempt",
                                         "Unselected"
                                     ],
+                                    "images": [],
+                                    "vertical": false,
                                     "name": "Barge Scoring",
                                     "id": "match_tele_op_endgame_barge_scoring"
                                 }
@@ -185,6 +191,7 @@
                                 {
                                     "type": "checkbox",
                                     "default": false,
+                                    "disallow_default": false,
                                     "negative": true,
                                     "name": "Electrical",
                                     "id": "match_post_match_breakdown_elec"
@@ -192,6 +199,7 @@
                                 {
                                     "type": "checkbox",
                                     "default": false,
+                                    "disallow_default": false,
                                     "negative": true,
                                     "name": "Mechanical",
                                     "id": "match_post_match_breakdown_mech"
@@ -232,6 +240,7 @@
         {
             "name": "Pit",
             "id": "pit",
+            "type": "team",
             "pages": [
                 {
                     "name": "Pit",
@@ -266,12 +275,16 @@
                                         "Processor"
                                     ],
                                     "default": [
-                                        false, false, false
-                                    ]
+                                        false,
+                                        false,
+                                        false
+                                    ],
+                                    "vertical": false
                                 },
                                 {
                                     "type": "checkbox",
                                     "default": false,
+                                    "disallow_default": false,
                                     "negative": false,
                                     "name": "Java",
                                     "id": "pit_pit_java"
@@ -280,7 +293,8 @@
                                     "name": "Pit Notes",
                                     "id": "pit_pit_pit_notes",
                                     "type": "text",
-                                    "default": " "
+                                    "default": " ",
+                                    "disallow_default": true
                                 }
                             ]
                         },
@@ -301,7 +315,8 @@
                                         "Floor"
                                     ],
                                     "name": "Coral Intake",
-                                    "id": "pit_pit_capabilities_coral_intake"
+                                    "id": "pit_pit_capabilities_coral_intake",
+                                    "vertical": false
                                 },
                                 {
                                     "type": "multiselect",
@@ -315,7 +330,8 @@
                                         "Floor"
                                     ],
                                     "name": "Algae Intake",
-                                    "id": "pit_pit_capabilities_algae_intake"
+                                    "id": "pit_pit_capabilities_algae_intake",
+                                    "vertical": false
                                 },
                                 {
                                     "type": "multiselect",
@@ -333,7 +349,8 @@
                                         "L4"
                                     ],
                                     "name": "Coral Scoring",
-                                    "id": "pit_pit_capabilities_coral_scoring"
+                                    "id": "pit_pit_capabilities_coral_scoring",
+                                    "vertical": false
                                 },
                                 {
                                     "type": "multiselect",
@@ -347,7 +364,8 @@
                                         "Net"
                                     ],
                                     "name": "Algae Scoring",
-                                    "id": "pit_pit_capabilities_algae_scoring"
+                                    "id": "pit_pit_capabilities_algae_scoring",
+                                    "vertical": false
                                 },
                                 {
                                     "type": "multiselect",
@@ -361,7 +379,8 @@
                                         "Deep"
                                     ],
                                     "name": "Climb",
-                                    "id": "pit_pit_capabilities_clim"
+                                    "id": "pit_pit_capabilities_clim",
+                                    "vertical": false
                                 }
                             ]
                         },
@@ -381,7 +400,8 @@
                                     ],
                                     "images": [],
                                     "name": "Drivetrain",
-                                    "id": "pit_pit_drive_drivetrain"
+                                    "id": "pit_pit_drive_drivetrain",
+                                    "vertical": false
                                 },
                                 {
                                     "type": "select",
@@ -396,7 +416,8 @@
                                     ],
                                     "images": [],
                                     "name": "Drive Motor",
-                                    "id": "pit_pit_drive_drive_motor"
+                                    "id": "pit_pit_drive_drive_motor",
+                                    "vertical": false
                                 },
                                 {
                                     "name": "Wheel Type",
@@ -418,7 +439,9 @@
                                         "Spikey",
                                         "Other"
                                     ],
-                                    "default": "KOP"
+                                    "default": "KOP",
+                                    "disallow_default": false,
+                                    "vertical": false
                                 }
                             ]
                         }
@@ -567,6 +590,7 @@
         {
             "name": "Alliance",
             "id": "note",
+            "type": "match-alliance",
             "pages": [
                 {
                     "name": "Notes",
@@ -580,6 +604,7 @@
                                 {
                                     "type": "checkbox",
                                     "default": false,
+                                    "disallow_default": false,
                                     "negative": true,
                                     "name": "Foul Prone",
                                     "id": "note_notes_fouls"
@@ -593,12 +618,14 @@
                                         3,
                                         1
                                     ],
-                                    "default": 1,
+                                    "default": 0,
+                                    "disallow_default": false,
                                     "negative": true
                                 },
                                 {
                                     "name": "Notes",
                                     "id": "note_notes_team_notes",
+                                    "disallow_default": true,
                                     "type": "text",
                                     "default": " "
                                 }

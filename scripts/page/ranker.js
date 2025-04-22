@@ -250,7 +250,7 @@ function save_stat()
     else
     {
         cfg.analysis.smart_stats.push(stat)
-        cfg.store_analysis()
+        cfg.analysis.store_config()
         dal.build_teams()
         update_params()
         alert(`${stat.name} Created`)

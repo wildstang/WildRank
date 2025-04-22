@@ -63,7 +63,7 @@ function create()
         key: key
     }
     cfg.analysis.coach.push(coach)
-    cfg.store_analysis_config()
+    cfg.analysis.store_config()
 
     build_buttons()
 }
@@ -77,7 +77,7 @@ function create()
 function delete_val(idx)
 {
     cfg.analysis.coach.splice(idx, 1)
-    cfg.store_analysis_config()
+    cfg.analysis.store_config()
 
     build_buttons()
 }

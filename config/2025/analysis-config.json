@@ -1,5 +1,44 @@
 {
-    "version": "analyst-concept",
-    "smart_stats": [],
-    "coach": []
+    "version": "analyst-concept-2",
+    "fms_stats": [
+        {
+            "id": "autoLineRobot",
+            "name": "Leave",
+            "type": "yes_no",
+            "negative": false
+        },
+        {
+            "id": "endGameRobot",
+            "name": "Barge Scoring",
+            "type": "state",
+            "options": [
+                "DeepCage",
+                "ShallowCage",
+                "Parked",
+                "None"
+            ]
+        },
+        {
+            "id": "g428Penalty",
+            "name": "Cage Interference",
+            "type": "boolean",
+            "negative": true
+        },
+        {
+            "id": "totalPoints",
+            "name": "Score",
+            "type": "int",
+            "negative": false
+        }
+    ],
+    "smart_stats": [{
+        "type": "math",
+        "pit": false,
+        "math": "result.tele_coral+result.match_tele_op_algae_scoring_algae_net+result.match_tele_op_algae_scoring_algae_processor",
+        "negative": false,
+        "name": "Tele Scored",
+        "id": "tele_scored"
+    }],
+    "coach": [],
+    "favorites": []
 }

@@ -199,7 +199,7 @@ function open_role(role)
     else
     {
         cfg.user.state.role = role
-        cfg.store_user_config()
+        cfg.user.store_config()
     }
     header_info.innerText = title
     role_page = role

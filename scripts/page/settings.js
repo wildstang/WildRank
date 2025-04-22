@@ -131,9 +131,11 @@ function build_setting(key, val)
  */
 function apply_config()
 {
-    update_config()
-    cfg.store_configs()
-    alert('Settings Applied')
+    if (update_config())
+    {
+        cfg.user.store_config()
+        alert('Settings Applied')
+    }
 }
 
 /**
@@ -177,6 +179,14 @@ function update_config()
             cfg.user.settings[key] = new_val
         }
     }
+
+    let tests = cfg.user.validate(cfg.user, false).filter(t => t !== true)
+    if (tests.length > 0)
+    {
+        alert('Config error!\n\n' + tests.join('\n\n'))
+        return false
+    }
+    return true
 }
 
 /**
@@ -201,8 +211,17 @@ function import_config(event)
     let reader = new FileReader()
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
-        cfg.user = JSON.parse(readerEvent.target.result)
-        init_page()
+        let user_cfg = JSON.parse(readerEvent.target.result)
+        let tests = cfg.user.validate(user_cfg, false).filter(t => t !== true)
+        if (tests.length > 0)
+        {
+            alert('Invalid config!\n\n' + tests.join('\n\n'))
+        }
+        else
+        {
+            cfg.user.handle_config(user_cfg)
+            init_page()
+        }
     }
 }
 
@@ -211,17 +230,17 @@ function import_config(event)
  */
 function download_config()
 {
-    update_config()
-    let str = JSON.stringify(cfg.user)
-
-    let element = document.createElement('a')
-    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
-    element.setAttribute('download', `user-config.json`)
-
-    element.style.display = 'none'
-    body.appendChild(element)
-
-    element.click()
-
-    body.removeChild(element)
+    if (update_config())
+    {
+        let element = document.createElement('a')
+        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(cfg.user.as_string))
+        element.setAttribute('download', `user-config.json`)
+    
+        element.style.display = 'none'
+        body.appendChild(element)
+    
+        element.click()
+    
+        body.removeChild(element)
+    }
 }
