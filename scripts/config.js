@@ -981,7 +981,7 @@ class Stat
         {
             return obj.options.map(op => {
                 let instance = Object.assign(new Stat(), {
-                    id: `${obj.id}.${create_id_from_name(op)}`,
+                    id: `${obj.id}_${create_id_from_name(op)}`,
                     name: op,
                     default: obj.default,
                     disallow_default: obj.disallow_default
@@ -1264,7 +1264,7 @@ class Config
                 }
                 break
             case 'fms':
-                for (let stat of this.scout.fms_stats)
+                for (let stat of this.analysis.fms_stats)
                 {
                     if (stat.id === sub_key)
                     {
@@ -1273,7 +1273,7 @@ class Config
                 }
                 break
             case 'smart_stat':
-                for (let stat of this.scout.smart_stats)
+                for (let stat of this.analysis.smart_stats)
                 {
                     if (stat.id === sub_key)
                     {
