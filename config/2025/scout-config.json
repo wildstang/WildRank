@@ -66,25 +66,27 @@
                             "id": "match_auto_movement",
                             "inputs": [
                                 {
-                                    "type": "select",
-                                    "default": "Unselected",
-                                    "disallow_default": true,
-                                    "options": [
-                                        "Barge Side",
-                                        "Center",
-                                        "Processor Side",
-                                        "Unselected"
+                                    "type": "multiselect",
+                                    "default": [
+                                        false,
+                                        false,
+                                        false
                                     ],
-                                    "images": [],
-                                    "vertical": false,
-                                    "name": "Starting Point",
-                                    "id": "match_auto_movement_starting_point"
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Front",
+                                        "Side",
+                                        "Back"
+                                    ],
+                                    "name": "Reef Scoring Location",
+                                    "id": "match_auto_movement_reef_scoring_location",
+                                    "vertical": false
                                 },
                                 {
                                     "type": "checkbox",
                                     "default": false,
-                                    "negative": false,
                                     "disallow_default": false,
+                                    "negative": false,
                                     "name": "Leave",
                                     "id": "match_auto_movement_leave"
                                 }
@@ -118,7 +120,8 @@
                                         "Dropped/Missed"
                                     ],
                                     "name": "Level Scored (T)",
-                                    "id": "match_tele_op_coral_scoring_level_scored"
+                                    "id": "match_tele_op_coral_scoring_level_scored",
+                                    "vertical": false
                                 }
                             ]
                         },
@@ -142,15 +145,8 @@
                                         "Dropped"
                                     ],
                                     "name": "Algae Scored (T)",
-                                    "id": "match_tele_op_algae_scoring_algae"
-                                },
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "disallow_default": false,
-                                    "negative": false,
-                                    "name": "Crossed Field?",
-                                    "id": "match_tele_op_coral_scoring_crossed_field"
+                                    "id": "match_tele_op_algae_scoring_algae",
+                                    "vertical": false
                                 }
                             ]
                         },
@@ -170,10 +166,10 @@
                                         "No Attempt",
                                         "Unselected"
                                     ],
-                                    "images": [],
-                                    "vertical": false,
                                     "name": "Barge Scoring",
-                                    "id": "match_tele_op_endgame_barge_scoring"
+                                    "id": "match_tele_op_endgame_barge_scoring",
+                                    "vertical": false,
+                                    "images": []
                                 }
                             ]
                         }
@@ -247,54 +243,58 @@
                     "id": "pit_pit",
                     "columns": [
                         {
-                            "cycle": false,
-                            "name": "General",
-                            "id": "pit_pit_general",
+                            "cycle": true,
+                            "name": "Autos",
+                            "id": "pit_pit_autos",
                             "inputs": [
-                                {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "options": [
-                                        1,
-                                        120,
-                                        1
-                                    ],
-                                    "name": "Weight (lbs)",
-                                    "id": "pit_pit_dimensions_weight"
-                                },
-                                {
-                                    "name": "Starting Positions",
-                                    "id": "pit_pit_auto_starting_position",
-                                    "type": "multiselect",
-                                    "disallow_default": false,
-                                    "options": [
-                                        "Barge",
-                                        "Center",
-                                        "Processor"
-                                    ],
-                                    "default": [
-                                        false,
-                                        false,
-                                        false
-                                    ],
-                                    "vertical": false
-                                },
                                 {
                                     "type": "checkbox",
                                     "default": false,
                                     "disallow_default": false,
                                     "negative": false,
-                                    "name": "Java",
-                                    "id": "pit_pit_java"
+                                    "name": "Needs Their Human Player",
+                                    "id": "pit_pit_autos_needs_their_human_player"
                                 },
                                 {
-                                    "name": "Pit Notes",
-                                    "id": "pit_pit_pit_notes",
-                                    "type": "text",
-                                    "default": " ",
-                                    "disallow_default": true
+                                    "type": "multiselect",
+                                    "default": [
+                                        false,
+                                        false,
+                                        false
+                                    ],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Front",
+                                        "Side",
+                                        "Back"
+                                    ],
+                                    "name": "Reef Sides",
+                                    "id": "pit_pit_autos_reef_sides",
+                                    "vertical": false
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        10
+                                    ],
+                                    "name": "Coral Scored",
+                                    "id": "pit_pit_autos_coral_scored"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        10
+                                    ],
+                                    "name": "Algae Scored",
+                                    "id": "pit_pit_autos_algae_scored"
                                 }
                             ]
                         },
@@ -331,55 +331,6 @@
                                     ],
                                     "name": "Algae Intake",
                                     "id": "pit_pit_capabilities_algae_intake",
-                                    "vertical": false
-                                },
-                                {
-                                    "type": "multiselect",
-                                    "default": [
-                                        false,
-                                        false,
-                                        false,
-                                        false
-                                    ],
-                                    "disallow_default": false,
-                                    "options": [
-                                        "L1",
-                                        "L2",
-                                        "L3",
-                                        "L4"
-                                    ],
-                                    "name": "Coral Scoring",
-                                    "id": "pit_pit_capabilities_coral_scoring",
-                                    "vertical": false
-                                },
-                                {
-                                    "type": "multiselect",
-                                    "default": [
-                                        false,
-                                        false
-                                    ],
-                                    "disallow_default": false,
-                                    "options": [
-                                        "Processor",
-                                        "Net"
-                                    ],
-                                    "name": "Algae Scoring",
-                                    "id": "pit_pit_capabilities_algae_scoring",
-                                    "vertical": false
-                                },
-                                {
-                                    "type": "multiselect",
-                                    "default": [
-                                        false,
-                                        false
-                                    ],
-                                    "disallow_default": false,
-                                    "options": [
-                                        "Shallow",
-                                        "Deep"
-                                    ],
-                                    "name": "Climb",
-                                    "id": "pit_pit_capabilities_clim",
                                     "vertical": false
                                 }
                             ]
@@ -444,6 +395,39 @@
                                     "vertical": false
                                 }
                             ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "General",
+                            "id": "pit_pit_general",
+                            "inputs": [
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        30
+                                    ],
+                                    "name": "Number of Batteries",
+                                    "id": "pit_pit_general_number_of_batteries"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": " ",
+                                    "disallow_default": false,
+                                    "name": "Changes for Champs",
+                                    "id": "pit_pit_general_changes_for_champs"
+                                },
+                                {
+                                    "name": "Pit Notes",
+                                    "id": "pit_pit_pit_notes",
+                                    "type": "text",
+                                    "default": " ",
+                                    "disallow_default": false
+                                }
+                            ]
                         }
                     ]
                 },
@@ -457,56 +441,92 @@
                             "id": "pit_tech_mech",
                             "inputs": [
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Accessibility",
-                                    "id": "pit_tech_mech_accessibility"
+                                    "id": "pit_tech_mech_accessibility",
+                                    "vertical": false,
+                                    "images": []
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Construction",
-                                    "id": "pit_tech_mech_construction"
+                                    "id": "pit_tech_mech_construction",
+                                    "vertical": false,
+                                    "images": []
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Low CG",
-                                    "id": "pit_tech_mech_low_cg"
+                                    "id": "pit_tech_mech_low_cg",
+                                    "vertical": false,
+                                    "images": []
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Bumper",
-                                    "id": "pit_tech_mech_bumpers"
+                                    "id": "pit_tech_mech_bumpers",
+                                    "vertical": false,
+                                    "images": []
                                 }
                             ]
                         },
@@ -516,56 +536,92 @@
                             "id": "pit_tech_elec",
                             "inputs": [
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Accessibility",
-                                    "id": "pit_tech_elec_accessibility"
+                                    "id": "pit_tech_elec_accessibility",
+                                    "vertical": false,
+                                    "images": []
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Wiring",
-                                    "id": "pit_tech_elec_wiring"
+                                    "id": "pit_tech_elec_wiring",
+                                    "vertical": false,
+                                    "images": []
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Contact Protection",
-                                    "id": "pit_tech_elec_contact_protection"
+                                    "id": "pit_tech_elec_contact_protection",
+                                    "vertical": false,
+                                    "images": []
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
+                                    "type": "select",
+                                    "default": "-",
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "-",
+                                        "3",
+                                        "2",
+                                        "1"
+                                    ],
+                                    "colors": [
+                                        "",
+                                        "red",
+                                        "yellow",
+                                        "green"
                                     ],
                                     "name": "Reliable Condition",
-                                    "id": "pit_tech_elec_reliable_condition"
+                                    "id": "pit_tech_elec_reliable_condition",
+                                    "vertical": false,
+                                    "images": []
                                 }
                             ]
                         },
@@ -602,12 +658,21 @@
                             "cycle": false,
                             "inputs": [
                                 {
-                                    "type": "checkbox",
-                                    "default": false,
+                                    "type": "multiselect",
+                                    "default": [
+                                        false,
+                                        false,
+                                        false
+                                    ],
                                     "disallow_default": false,
-                                    "negative": true,
-                                    "name": "Foul Prone",
-                                    "id": "note_notes_fouls"
+                                    "options": [
+                                        "Front",
+                                        "Side",
+                                        "Back"
+                                    ],
+                                    "name": "Auto Reef Scoring Location",
+                                    "id": "note_notes_team_auto_reef_scoring_location",
+                                    "vertical": false
                                 },
                                 {
                                     "name": "Rank",
@@ -618,16 +683,45 @@
                                         3,
                                         1
                                     ],
-                                    "default": 0,
+                                    "default": 1,
                                     "disallow_default": false,
                                     "negative": true
                                 },
                                 {
+                                    "type": "slider",
+                                    "default": 1,
+                                    "negative": true,
+                                    "disallow_default": false,
+                                    "options": [
+                                        1,
+                                        3,
+                                        1
+                                    ],
+                                    "name": "Speed",
+                                    "id": "note_notes_team_speed"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Good?",
+                                    "id": "note_notes_team_good"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "disallow_default": false,
+                                    "negative": true,
+                                    "name": "Foul Prone",
+                                    "id": "note_notes_fouls"
+                                },
+                                {
                                     "name": "Notes",
                                     "id": "note_notes_team_notes",
-                                    "disallow_default": true,
                                     "type": "text",
-                                    "default": " "
+                                    "default": " ",
+                                    "disallow_default": false
                                 }
                             ]
                         }
