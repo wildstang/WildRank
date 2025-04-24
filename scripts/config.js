@@ -1007,7 +1007,7 @@ class Stat
             return obj.options.map(op => {
                 let instance = Object.assign(new Stat(), {
                     id: `${obj.id}_${create_id_from_name(op)}`,
-                    name: op,
+                    name: `${obj.name} ${op}`,
                     default: obj.default,
                     disallow_default: obj.disallow_default
                 })
