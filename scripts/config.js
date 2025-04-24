@@ -1183,6 +1183,48 @@ class Stat
     }
 
     /**
+     * Cleans a given value based on the stat type to make it more human readable.
+     */
+    clean_value(value)
+    {
+        switch(this.type)
+        {
+            case 'yes_no':
+                value = value === 'yes'
+            case 'boolean':
+            case 'checkbox':
+                return value ? 'Yes' : 'No'
+
+            case 'counter':
+            case 'filter':
+            case 'int':
+            case 'map':
+            case 'math':
+            case 'number':
+            case 'slider':
+            case 'timer':
+            case 'where':
+            case 'wrank':
+                return value
+
+            case 'column':
+            case 'string':
+            case 'text':
+                return value
+
+            case 'dropdown':
+            case 'select':
+                return this.options[value]
+
+            case 'max':
+            case 'min':
+            case 'state':
+                return value
+        }
+        return value
+    }
+
+    /**
      * Creates a full ID using both the kind and the ID.
      */
     get full_id()
