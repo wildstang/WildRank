@@ -1549,15 +1549,24 @@ class Config
      * @param {String} user_id User ID number
      * @returns The name of the requested user or "Unknown User".
      */
-    get_name(user_id='')
+    get_name(user_id='', id_fallback=false)
     {
         if (!user_id)
         {
             user_id = this.user.state.user_id
         }
+        if (typeof user_id !== 'string')
+        {
+            user_id = user_id.toString()
+        }
+
         if (Object.keys(this.users).includes(user_id))
         {
             return this.users[user_id].name
+        }
+        else if (id_fallback)
+        {
+            return user_id
         }
         return 'Unknown User'
     }
