@@ -1042,6 +1042,146 @@ class Stat
     }
 
     /**
+     * Returns an array of available statistical measures available for the given stat.
+     */
+    get available_stats()
+    {
+        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'map', 'math', 'number',
+            'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
+        {
+            return ['max', 'mean', 'median', 'mid', 'min', 'mode', 'stddev', 'sum']
+        }
+        else if (['dropdown', 'max', 'min', 'select', 'state'])
+        {
+            return ['count', 'mode']
+        }
+        else
+        {
+            return []
+        }
+    }
+
+    /**
+     * Computes a stat from a given set of results.
+     */
+    compute_stat(results, stat='')
+    {
+        switch(this.type)
+        {
+            case 'yes_no':
+                results = results.map(r => r === 'yes')
+            case 'boolean':
+            case 'checkbox':
+                results = results.map(r => r ? 1 : 0)
+            case 'counter':
+            case 'filter':
+            case 'int':
+            case 'map':
+            case 'math':
+            case 'number':
+            case 'slider':
+            case 'timer':
+            case 'where':
+            case 'wrank':
+                if (!stat)
+                {
+                    stat = 'mean'
+                }
+                switch (stat)
+                {
+                    case 'max':
+                        return Math.max(...results)
+                    case 'mean':
+                        return results.reduce((sum, v) => sum + v) / results.length
+                    case 'median':
+                        let sorted = results.sort()
+                        if (sorted.length % 2 === 0)
+                        {
+                            const mid = sorted.length / 2
+                            return (sorted[mid] + sorted[mid - 1]) / 2
+                        }
+                        else
+                        {
+                            return sorted[Math.floor(sorted.length / 2)]
+                        }
+                    case 'mid':
+                        return (Math.min(...results) + Math.max(...results)) / 2
+                    case 'min':
+                        return Math.min(...results)
+                    case 'mode':
+                        let max = results[0]
+                        let counts = {}
+                        for (let val of results)
+                        {
+                            if (!Object.keys(counts).includes(val.toString()))
+                            {
+                                counts[val] = 0
+                            }
+                            if (++counts[val] > counts[max])
+                            {
+                                max = val
+                            }
+                        }
+                        return max
+                    case 'stddev':
+                        if (results.length == 0)
+                        {
+                            return 0
+                        }
+                        let mean = results.reduce((sum, v) => sum + v) / results.length
+                        return Math.sqrt(results.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / results.length)
+                    case 'sum':
+                        return results.reduce((sum, v) => sum + v)
+                    default:
+                        console.log(`Unrecognized mode ${stat}, returning null`)
+                }
+
+            case 'column':
+            case 'string':
+            case 'text':
+                return '---'
+
+            case 'dropdown':
+            case 'select':
+                results = results.map(r => this.options[r])
+            case 'max':
+            case 'min':
+            case 'state':
+                let max = results[0]
+                let counts = {}
+                for (let val of results)
+                {
+                    if (!Object.keys(counts).includes(val))
+                    {
+                        counts[val] = 0
+                    }
+                    if (++counts[val] > counts[max])
+                    {
+                        max = val
+                    }
+                }
+                if (!stat || stat === 'mode')
+                {
+                    return max
+                }
+                else if (stat === 'count')
+                {
+                    let options = ['min', 'max'].includes(this.type) ? this.stats : this.options
+                    return options.sort((a, b) => {
+                        let a_count = a in counts ? counts[a] : 0
+                        let b_count = b in counts ? counts[a] : 0
+                        return b_count - a_count
+                    }).map(op => `${op}: ${op in counts ? counts[op] : 0}`).join('\n')
+                }
+                else
+                {
+                    console.log(`Unrecognized mode ${stat}, returning null`)
+                }
+        }
+        return null
+    }
+
+    /**
      * Creates a full ID using both the kind and the ID.
      */
     get full_id()
@@ -1210,6 +1350,30 @@ class Config
         if (this.scout.configs)
         {
             return this.scout.configs.map(m => m.id)
+        }
+        return []
+    }
+
+    /**
+     * A list of match scouting mode IDs.
+     */
+    get match_scouting_modes()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.filter(m => m.type.startsWith('match')).map(m => m.id)
+        }
+        return []
+    }
+
+    /**
+     * A list of team scouting mode IDs.
+     */
+    get team_scouting_modes()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.filter(m => m.type.startsWith('team')).map(m => m.id)
         }
         return []
     }
