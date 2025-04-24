@@ -191,7 +191,7 @@ body {
     right: 0;
 }
 
-#pick_list_table td, th {
+#pick_list_table td, #pick_list_table th {
     text-align: center;
     padding: 16px;
 }
