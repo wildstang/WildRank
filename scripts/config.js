@@ -912,15 +912,39 @@ class Stat
                     break
 
                 case 'multiselect':
+                    let ms_has_vertical = has_bool(tag, obj, 'vertical')
+                    if (!obj.hasOwnProperty('vertical'))
+                    {
+                        obj.vertical = false
+                        ms_has_vertical = true
+                    }
                     tests.push(has_array(tag, obj, 'options', 'string'),
                         has_array(tag, obj, 'default', 'boolean'),
                         has_bool(tag, obj, 'disallow_default'),
-                        has_bool(tag, obj, 'vertical'))
+                        ms_has_vertical)
                     break
 
                 case 'select':
-                    tests.push(has_array(tag, obj, 'images', 'string'),
-                        has_bool(tag, obj, 'vertical'))
+                    let has_images = has_array(tag, obj, 'images', 'string')
+                    if (!obj.hasOwnProperty('images'))
+                    {
+                        obj.images = []
+                        has_images = true
+                    }
+                    let has_colors = has_array(tag, obj, 'colors', 'string')
+                    if (!obj.hasOwnProperty('colors'))
+                    {
+                        obj.colors = []
+                        has_colors = true
+                    }
+                    let has_vertical = has_bool(tag, obj, 'vertical')
+                    if (!obj.hasOwnProperty('vertical'))
+                    {
+                        obj.vertical = false
+                        has_vertical = true
+                    }
+                    tests.push(has_images, has_colors, has_vertical)
+                    break
                 case 'dropdown':
                     tests.push(has_string(tag, obj, 'default'),
                         has_bool(tag, obj, 'disallow_default'))
