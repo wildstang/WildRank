@@ -822,7 +822,8 @@ class ScoutConfig
             {
                 if (column.cycle)
                 {
-                    inputs.push(...Stat.from_object(input))
+                    column.type = 'column'
+                    inputs.push(...Stat.from_object(column))
                 }
                 else
                 {
