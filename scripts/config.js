@@ -24,6 +24,10 @@ function load_config(name, on_received, year='')
         .then(on_received)
 }
 
+//
+// Validation Helpers
+//
+
 /**
  * Validates that a given object has a given key and a corresponding int.
  * @param {String} name Name describing the object
@@ -134,6 +138,10 @@ function has_object(name, obj, key)
     return true
 }
 
+//
+// Config Objects
+//
+
 class UserConfig
 {
     BASE_NAME = 'user-config'
@@ -209,7 +217,6 @@ class UserConfig
      */
     static validate(user_config, summarize=true)
     {
-
         let tests = [
             has_string(UserConfig.BASE_NAME, user_config, 'version'),
             has_object(UserConfig.BASE_NAME, user_config, 'settings'),
@@ -272,6 +279,96 @@ class UserConfig
 
     /**
      * Stores the config into localStorage.
+     */
+    store_config()
+    {
+        if (this.loaded)
+        {
+            localStorage.setItem(this.name, this.as_string)
+        }
+        else
+        {
+            console.log('No loaded user config to store')
+        }
+    }
+}
+
+class UserList
+{
+    BASE_NAME = 'user-list'
+
+    constructor()
+    {
+        this.loaded = false
+        this.name = this.BASE_NAME
+
+        this.users = {}
+    }
+
+    /**
+     * Load in the user list, first from localStorage, then from server/cache. Triggers handle_config.
+     */
+    load()
+    {
+        let user_list = localStorage.getItem(this.name)
+        if (user_list === null)
+        {
+            console.log(`${this.name} does not exist, pulling from server/cache`)
+            fetch(`/config/${this.name}.csv`, { cache: "reload" })
+                .then(response => {
+                    return response.text()
+                })
+                .then(this.handle_config.bind(this))
+                .catch(err => {
+                    console.log(`Error fetching ${this.name} config, ${err}`)
+                })
+        }
+        else
+        {
+            this.handle_config(user_list)
+        }
+    }
+
+    /**
+     * Handles a given user list string, runs validation, and applies contents to class.
+     * @param {String} user_list User config as raw object
+     */
+    handle_config(user_list)
+    {
+        this.users = {}
+        for (let row of user_list.split('\n'))
+        {
+            let cells = row.split(',')
+            if (cells.length >= 2)
+            {
+                let admin = cells.length >= 3 ? cells[2].toLowerCase() === 'true' : false
+                let position = cells.length >= 4 ? parseInt(cells[3]) : -1
+                this.users[cells[0]] = {
+                    "name": cells[1],
+                    "admin": admin,
+                    "position": position
+                }
+            }
+        }
+        this.loaded = true
+    }
+
+    /**
+     * Returns the object as a CSV string.
+     */
+    get as_string()
+    {
+        // convert users object to a CSV
+        let user_list = ''
+        for (let key in this.users)
+        {
+            user_list += `${key},${this.users[key].name},${this.users[key].admin},${this.users[key].position}\n`
+        }
+        return user_list
+    }
+
+    /**
+     * Stores the list into localStorage.
      */
     store_config()
     {
@@ -498,8 +595,9 @@ class AnalysisConfig
         this.loaded = false
 
         this.version = null
-        this.fms_stats = []
-        this.smart_stats = []
+        this.fms_breakdown_results = []
+        this.fms_ranking_results = []
+        this.smart_results = []
         this.coach = []
         this.favorites = []
     }
@@ -534,8 +632,9 @@ class AnalysisConfig
         if (AnalysisConfig.validate(analysis_config))
         {
             this.version = analysis_config.version
-            this.fms_stats = analysis_config.fms_stats.map(s => Stat.from_object(s)[0])
-            this.smart_stats = analysis_config.smart_stats.map(s => Stat.from_object(s)[0])
+            this.fms_breakdown_results = analysis_config.fms_breakdown_results.map(s => Result.from_object(s)[0])
+            this.fms_ranking_results = analysis_config.fms_ranking_results.map(s => Result.from_object(s)[0])
+            this.smart_results = analysis_config.smart_results.map(s => Result.from_object(s)[0])
             this.coach = analysis_config.coach
             this.favorites = analysis_config.favorites
             this.loaded = true
@@ -552,8 +651,9 @@ class AnalysisConfig
     {
         let tests = [
             has_string(AnalysisConfig.BASE_NAME, analysis_config, 'version'),
-            has_array(AnalysisConfig.BASE_NAME, analysis_config, 'fms_stats', 'object'),
-            has_array(AnalysisConfig.BASE_NAME, analysis_config, 'smart_stats', 'object'),
+            has_array(AnalysisConfig.BASE_NAME, analysis_config, 'fms_breakdown_results', 'object'),
+            has_array(AnalysisConfig.BASE_NAME, analysis_config, 'fms_ranking_results', 'object'),
+            has_array(AnalysisConfig.BASE_NAME, analysis_config, 'smart_results', 'object'),
             has_array(AnalysisConfig.BASE_NAME, analysis_config, 'coach', 'object'),
             has_array(AnalysisConfig.BASE_NAME, analysis_config, 'favorites', 'string')
         ]
@@ -563,11 +663,15 @@ class AnalysisConfig
         }
         if (tests[2] === true)
         {
-            tests.push(...analysis_config.fms_stats.map(s => Stat.validate(s, false)).flat())
+            tests.push(...analysis_config.fms_breakdown_results.map(s => Result.validate(s, false)).flat())
         }
         if (tests[3] === true)
         {
-            tests.push(...analysis_config.smart_stats.map(s => Stat.validate(s, false)).flat())
+            tests.push(...analysis_config.fms_ranking_results.map(s => Result.validate(s, false)).flat())
+        }
+        if (tests[4] === true)
+        {
+            tests.push(...analysis_config.smart_results.map(s => Result.validate(s, false)).flat())
         }
 
         if (summarize)
@@ -597,8 +701,9 @@ class AnalysisConfig
     {
         return JSON.stringify({
             version: this.version,
-            fms_stats: this.fms_stats,
-            smart_stats: this.smart_stats,
+            fms_breakdown_results: this.fms_breakdown_results,
+            fms_ranking_results: this.fms_ranking_results,
+            smart_results: this.smart_results,
             coach: this.coach,
             favorites: this.favorites
         })
@@ -652,8 +757,8 @@ class ScoutConfig
         this.version = null
         this.configs = []
 
-        this.team_stats = []
-        this.match_stats = []
+        this.team_results = []
+        this.match_results = []
     }
 
     get name() { return `${this.year}-${this.BASE_NAME}` }
@@ -687,8 +792,8 @@ class ScoutConfig
         {
             this.version = user_config.version
             this.configs = user_config.configs
-            this.team_stats = [].concat(...user_config.configs.filter(m => m.type === 'team').map(m => ScoutConfig.build_stats(m)))
-            this.match_stats = [].concat(...user_config.configs.filter(m => m.type.startsWith('match')).map(m => ScoutConfig.build_stats(m)))
+            this.team_results = [].concat(...user_config.configs.filter(m => m.type === 'team').map(m => ScoutConfig.build_results(m)))
+            this.match_results = [].concat(...user_config.configs.filter(m => m.type.startsWith('match')).map(m => ScoutConfig.build_results(m)))
             this.loaded = true
         }
     }
@@ -795,7 +900,7 @@ class ScoutConfig
                         {
                             for (let input of column.inputs)
                             {
-                                tests.push(Stat.validate(input, false))
+                                tests.push(Result.validate(input, false))
                             }
                         }
                     }
@@ -813,7 +918,7 @@ class ScoutConfig
         }
     }
 
-    static build_stats(obj)
+    static build_results(obj)
     {
         let inputs = []
         for (let page of obj.pages)
@@ -823,13 +928,13 @@ class ScoutConfig
                 if (column.cycle)
                 {
                     column.type = 'column'
-                    inputs.push(...Stat.from_object(column))
+                    inputs.push(...Result.from_object(column))
                 }
                 else
                 {
                     for (let input of column.inputs)
                     {
-                        inputs.push(...Stat.from_object(input))
+                        inputs.push(...Result.from_object(input))
                     }
                 }
             }
@@ -839,11 +944,11 @@ class ScoutConfig
     }
 }
 
-class Stat
+class Result
 {
     /**
-     * Validates a given stat config object.
-     * @param {Object} obj Scouting input, FMS stat, or smart stat raw config object.
+     * Validates a given result config object.
+     * @param {Object} obj Scouting input, FMS result, or smart result raw config object.
      * @param {Boolean} summarize Whether a boolean or list of tests should be returned
      * @returns If summarize, a boolean, otherwise a list of trues and failure cases for each test.
      */
@@ -881,15 +986,15 @@ class Stat
                     break
 
                 case 'filter':
-                    tests.push(has_string(tag, obj, 'stat'),
+                    tests.push(has_string(tag, obj, 'result'),
                         has_string(tag, obj, 'filter'),
-                        has_int(tag, obj, 'compare_type'),
+                        has_int(tag, obj, 'compare_type', [0, 1, 2, 3, 4, 5]),
                         obj.hasOwnProperty('value'),
                         has_bool(tag, obj, 'negative'))
                     break
 
                 case 'map':
-                    tests.push(has_string(tag, obj, 'stat'),
+                    tests.push(has_string(tag, obj, 'result'),
                         has_array(tag, obj, 'values', 'number'),
                         has_bool(tag, obj, 'negative'))
                     break
@@ -901,7 +1006,7 @@ class Stat
 
                 case 'max':
                 case 'min':
-                    tests.push(has_array(tag, obj, 'stats', 'string'))
+                    tests.push(has_array(tag, obj, 'results', 'string'))
                     break
 
                 case 'multicounter':
@@ -964,12 +1069,11 @@ class Stat
 
                 case 'where':
                     tests.push(has_string(tag, obj, 'cycle'),
-                        has_array(tag, obj, 'conditions', 'object'),
-                        has_string(tag, obj, 'stat'))
+                        has_array(tag, obj, 'conditions', 'object'))
                     break
 
                 case 'wrank':
-                    tests.push(has_string(tag, obj, 'stat'),
+                    tests.push(has_string(tag, obj, 'result'),
                         has_bool(tag, obj, 'negative'))
                     break
             }
@@ -986,26 +1090,26 @@ class Stat
     }
 
     /**
-     * Validates the current stat config object.
+     * Validates the current result config object.
      * @param {Boolean} summarize Whether a boolean or list of tests should be returned
      * @returns If summarize, a boolean, otherwise a list of trues and failure cases for each test.
      */
     validate(summarize=true)
     {
-        return Stat.validate(this, summarize)
+        return Result.validate(this, summarize)
     }
 
     /**
-     * Creates a new instance of stat (or multiple if a multi-input) based on the given config object.
-     * @param {Object} obj Scouting input, FMS stat, or smart stat raw config object.
-     * @returns A new instance of Stat populated by the given objects attributes.
+     * Creates a new instance of result (or multiple if a multi-input) based on the given config object.
+     * @param {Object} obj Scouting input, FMS result, or smart result raw config object.
+     * @returns A new instance of Result populated by the given objects attributes.
      */
     static from_object(obj)
     {
         if (obj.type.startsWith('multi'))
         {
             return obj.options.map(op => {
-                let instance = Object.assign(new Stat(), {
+                let instance = Object.assign(new Result(), {
                     id: `${obj.id}_${create_id_from_name(op)}`,
                     name: `${obj.name} ${op}`,
                     default: obj.default,
@@ -1026,12 +1130,12 @@ class Stat
         }
         else
         {
-            return [Object.assign(new Stat(), obj)]
+            return [Object.assign(new Result(), obj)]
         }
     }
 
     /**
-     * Determines whether a stat is a result, fms, or smart stat based on its type.
+     * Determines whether a result is a result, fms, or smart result based on its type.
      */
     get kind()
     {
@@ -1067,7 +1171,7 @@ class Stat
     }
 
     /**
-     * Returns an array of available statistical measures available for the given stat.
+     * Returns an array of available statistical measures available for the given result.
      */
     get available_stats()
     {
@@ -1091,6 +1195,11 @@ class Stat
      */
     compute_stat(results, stat='')
     {
+        if (results.length === 0)
+        {
+            return null
+        }
+
         switch(this.type)
         {
             case 'yes_no':
@@ -1168,7 +1277,6 @@ class Stat
 
             case 'dropdown':
             case 'select':
-                results = results.map(r => this.options[r])
             case 'max':
             case 'min':
             case 'state':
@@ -1191,7 +1299,7 @@ class Stat
                 }
                 else if (stat === 'count')
                 {
-                    let options = ['min', 'max'].includes(this.type) ? this.stats : this.options
+                    let options = ['min', 'max'].includes(this.type) ? this.results : this.options
                     return options.sort((a, b) => {
                         let a_count = a in counts ? counts[a] : 0
                         let b_count = b in counts ? counts[a] : 0
@@ -1207,7 +1315,212 @@ class Stat
     }
 
     /**
-     * Cleans a given value based on the stat type to make it more human readable.
+     * Computes the current smart result based on the given result, or all results if no result is given.
+     * @param {Result} result Match or team result or null
+     * @returns The smart result value.
+     */
+    compute_smart_result(result, teams='all')
+    {
+        teams = parse_team_list(teams)
+
+        const get_value = (key) => {
+            return result !== null ? result.get_value(key) : dal.compute_stat(key, teams)
+        }
+        switch(this.type)
+        {
+            case 'filter':
+                let filter_val = get_value(this.filter)
+                if (filter_val !== null)
+                {
+                    let passes = false
+                    switch (this.compare_type)
+                    {
+                        case 0:
+                            passes = filter_val > this.value
+                            break
+                        case 1:
+                            passes = filter_val >= this.value
+                            break
+                        case 2:
+                            passes = filter_val === this.value
+                            break
+                        case 3:
+                            passes = filter_val !== this.value
+                            break
+                        case 4:
+                            passes = filter_val <= this.value
+                            break
+                        case 5:
+                            passes = filter_val < this.value
+                            break
+                    }
+                    if (passes)
+                    {
+                        return get_value(this.result)
+                    }
+                }
+                break
+
+            case 'map':
+                let map_val = get_value(this.result)
+                if (map_val !== null)
+                {
+                    return this.values[map_val]
+                }
+                break
+
+            case 'math':
+                let math_fn = this.math
+                let team_keys = cfg.get_team_keys()
+                let match_keys = cfg.get_match_keys()
+                let keys = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
+                if (keys)
+                {
+                    for (let k of keys)
+                    {
+                        if (match_keys.includes(k))
+                        {
+                            let val = get_value(k)
+                            if (val === null)
+                            {
+                                return null
+                            }
+                            math_fn = math_fn.replace(k, val)
+                        }
+                        else if (team_keys.includes(k))
+                        {
+                            let val = result !== null ? dal.compute_stat(k, result.team_num) : dal.compute_stat(k, teams)
+                            if (val === null)
+                            {
+                                return null
+                            }
+                            math_fn = math_fn.replace(k, val)
+                        }
+                    }
+                }
+                try
+                {
+                    let res = eval(math_fn)
+                    return res
+                }
+                catch (err)
+                {
+                    return null
+                }
+
+            case 'max':
+                let max_values = this.results.map(s => get_value(s))
+                return this.results[max_values.indexOf(Math.max(...max_values))]
+            case 'min':
+                let min_values = this.results.map(s => get_value(s))
+                return this.results[min_values.indexOf(Math.min(...min_values))]
+
+            case 'where':
+                let count = 0
+                let denominator = 0
+                let calc_percent = typeof this.denominator !== 'undefined'
+                let count_result = typeof this.result === 'undefined' || !this.result
+                let cycles = get_value(this.cycle)
+                if (cycles !== null)
+                {
+                    for (let cycle of cycles)
+                    {
+                        if (typeof cycle === 'undefined')
+                        {
+                            break
+                        }
+    
+                        let passed = true
+                        for (let key of Object.keys(this.conditions))
+                        {
+                            if (cycle.hasOwnProperty(key))
+                            {
+                                if (cycle[key] !== this.conditions[key])
+                                {
+                                    passed = false
+                                }
+                            }
+                        }
+                        if (passed)
+                        {
+                            if (count_result)
+                            {
+                                count++
+                            }
+                            else if (cycle.hasOwnProperty(this.result))
+                            {
+                                count += cycle[this.result]
+                            }
+                            if (calc_percent && cycle.hasOwnProperty(this.denominator))
+                            {
+                                denominator += cycle[this.denominator]
+                            }
+                        }
+                    }
+
+                    // store smart result
+                    if (calc_percent)
+                    {
+                        let percent = count / (count + denominator)
+                        if (isNaN(percent))
+                        {
+                            return 0
+                        }
+                        return percent
+                    }
+                    else
+                    {
+                        return count
+                    }
+                }
+                break
+
+            case 'wrank':
+                /**
+                 * This result is a special case, but I am building it to be as flexible as possible.
+                 * To calculate Thee WildRank we first need to compute a ranking offset for each match.
+                 * That is the average partner ranking minus the expected partner ranking.
+                 * Then we add that difference to the team's ranking for the current match to get the weight rank.
+                 * When these rated ranks are averaged we get the WildRank.
+                 * Technically this smart result mode can be used with any numeric result, however,
+                 * if that result isn't a number 1 -> alliance_size it will likely produce meaningless values.
+                 */
+                let partners = []
+                let red_teams = dal.matches[result.match_key]
+                let blue_teams = dal.matches[result.match_key]
+                if (red_teams.includes(result.team_num))
+                {
+                    partners = red_teams.filter(t => t != result.team_num)
+                }
+                else
+                {
+                    partners = blue_teams.filter(t => t != result.team_num)
+                }
+
+                // sum each partner's event average
+                let total_partner_rank = 0
+                for (let team_num in partners)
+                {
+                    total_partner_rank += this.compute_stat(stat.result, team_num, 'mean')
+                }
+
+                // calculate the weighted result
+                let num_partners = 2
+                let expected_partner_rank = (num_partners / 2 + 1) * num_partners
+                let partner_weight = total_partner_rank - expected_partner_rank
+                let match_rank = get_value(this.result)
+                if (match_rank !== null)
+                {
+                    return match_rank + partner_weight
+                }
+                break
+
+        }
+        return null
+    }
+
+    /**
+     * Cleans a given value based on the result type to make it more human readable.
      */
     clean_value(value)
     {
@@ -1229,7 +1542,7 @@ class Stat
             case 'timer':
             case 'where':
             case 'wrank':
-                return value
+                return value === Math.round(value) ? value : value.toFixed(2)
 
             case 'column':
             case 'string':
@@ -1257,29 +1570,37 @@ class Stat
     }
 
     /**
-     * Determines if the stat is a smart stat using only team results.
+     * Determines if the result is a smart result using only team results.
      */
-    get is_team_smart_stat()
+    get is_team_smart_result()
     {
-        const team_keys = cfg.scout.team_stats.map(s => s.full_id)
-        const smart_stat_keys = cfg.analysis.smart_stats.map(s => s.full_id)
-        const is_team_smart_stat = key => team_keys.includes(key) || (smart_stat_keys.includes(key) && cfg.get_stat_from_key(key).is_team_smart_stat())
+        const team_keys = cfg.scout.team_results.map(s => s.full_id)
+        const smart_result_keys = cfg.analysis.smart_results.map(s => s.full_id)
+        const is_team_smart_result = key => team_keys.includes(key) || (smart_result_keys.includes(key) && cfg.get_result_from_key(key).is_team_smart_result())
         switch(this.type)
         {
             case 'map':
             case 'wrank':
-                return is_team_smart_stat(this.stat)
+                return is_team_smart_result(this.result)
             case 'math':
                 let keys = this.math.match(/[a-z]+\.[a-z0-9_]+/g)
                 keys = keys === null ? [] : keys
-                return keys.every(s => is_team_smart_stat(s))
+                return keys.every(s => is_team_smart_result(s))
             case 'max':
             case 'min':
-                return this.stats.every(s => is_team_smart_stat(s))
+                return this.results.every(s => is_team_smart_result(s))
             case 'where':
                 return team_keys.includes(this.cycle)
         }
         return false
+    }
+
+    /**
+     * Whether the given smart result type needs to be recomputed when calculating a stat across matches.
+     */
+    get recompute()
+    {
+        return ['math', 'max', 'min', 'where'].includes(this.type)
     }
 }
 
@@ -1289,11 +1610,10 @@ class Config
     {
         this._app_version = ''
         this._on_app_version = () => {}
-        this._users_loaded = false
 
         this.app = new AppConfig()
         this.user = new UserConfig()
-        this.users = {}
+        this.user_list = new UserList()
 
         this.scout = new ScoutConfig()
         this.analysis = new AnalysisConfig()
@@ -1468,47 +1788,54 @@ class Config
     }
 
     /**
-     * Fetches the Stat for the given key.
-     * @param {String} key Full key/ID of the desired stat.
-     * @returns Stat object corresponding to the key.
+     * Fetches the Result for the given key.
+     * @param {String} key Full key/ID of the desired result.
+     * @returns Result object corresponding to the key.
      */
-    get_stat_from_key(key)
+    get_result_from_key(key)
     {
         let level = key.substring(0, key.indexOf('.'))
         let sub_key = key.substring(level.length + 1)
         switch (level)
         {
             case 'result':
-                for (let stat of this.scout.match_stats)
+                for (let result of this.scout.match_results)
                 {
-                    if (stat.id === sub_key)
+                    if (result.id === sub_key)
                     {
-                        return stat
+                        return result
                     }
                 }
-                for (let stat of this.scout.team_stats)
+                for (let result of this.scout.team_results)
                 {
-                    if (stat.id === sub_key)
+                    if (result.id === sub_key)
                     {
-                        return stat
+                        return result
                     }
                 }
                 break
             case 'fms':
-                for (let stat of this.analysis.fms_stats)
+                for (let result of this.analysis.fms_breakdown_results)
                 {
-                    if (stat.id === sub_key)
+                    if (result.id === sub_key)
                     {
-                        return stat
+                        return result
+                    }
+                }
+                for (let result of this.analysis.fms_ranking_results)
+                {
+                    if (result.id === sub_key)
+                    {
+                        return result
                     }
                 }
                 break
-            case 'smart_stat':
-                for (let stat of this.analysis.smart_stats)
+            case 'smart':
+                for (let result of this.analysis.smart_results)
                 {
-                    if (stat.id === sub_key)
+                    if (result.id === sub_key)
                     {
-                        return stat
+                        return result
                     }
                 }
                 break
@@ -1522,23 +1849,23 @@ class Config
      * Gets an array of all match keys.
      * @param {Boolean} results Whether to get result keys.
      * @param {Boolean} fms Whether to get FMS keys.
-     * @param {Boolean} smart_stats Whether to get smart stat keys.
+     * @param {Boolean} smart Whether to get smart result keys.
      * @returns An array of keys.
      */
-    get_match_keys(results=true, fms=true, smart_stats=true)
+    get_match_keys(results=true, fms=true, smart=true)
     {
         let keys = []
         if (results)
         {
-            keys.push(...this.scout.match_stats.map(s => s.full_id))
+            keys.push(...this.scout.match_results.map(s => s.full_id))
         }
         if (fms)
         {
-            keys.push(...this.analysis.fms_stats.map(s => s.full_id))
+            keys.push(...this.analysis.fms_breakdown_results.map(s => s.full_id))
         }
-        if (smart_stats)
+        if (smart)
         {
-            keys.push(...this.analysis.smart_stats.filter(s => !s.is_team_smart_stat).map(s => s.full_id))
+            keys.push(...this.analysis.smart_results.filter(s => !s.is_team_smart_result).map(s => s.full_id))
         }
         return keys
     }
@@ -1546,19 +1873,24 @@ class Config
     /**
      * Gets an array of all team keys.
      * @param {Boolean} results Whether to get result keys.
-     * @param {Boolean} smart_stats Whether to get smart stat keys.
+     * @param {Boolean} fms Whether to get FMS keys.
+     * @param {Boolean} smart Whether to get smart result keys.
      * @returns An array of keys.
      */
-    get_team_keys(results=true, smart_stats=true)
+    get_team_keys(results=true, fms=true, smart=true)
     {
         let keys = []
         if (results)
         {
-            keys.push(...this.scout.team_stats.map(s => s.full_id))
+            keys.push(...this.scout.team_results.map(s => s.full_id))
         }
-        if (smart_stats)
+        if (fms)
         {
-            keys.push(...this.analysis.smart_stats.filter(s => s.is_team_smart_stat).map(s => s.full_id))
+            keys.push(...this.analysis.fms_ranking_results.map(s => s.full_id))
+        }
+        if (smart)
+        {
+            keys.push(...this.analysis.smart_results.filter(s => s.is_team_smart_result).map(s => s.full_id))
         }
         return keys
     }
@@ -1566,6 +1898,14 @@ class Config
     //
     // User Functions
     //
+
+    /**
+     * Fetches the user list from UserList
+     */
+    get users()
+    {
+        return this.user_list.users
+    }
 
     /**
      * Finds the name of a user from their ID number.
@@ -1667,20 +2007,6 @@ class Config
     }
 
     /**
-     * Saves the current user list to localStorage.
-     */
-    store_user_list()
-    {
-        // convert users object to a CSV
-        let user_list = ''
-        for (let key in this.users)
-        {
-            user_list += `${key},${this.users[key].name},${this.users[key].admin},${this.users[key].position}\n`
-        }
-        localStorage.setItem(USER_LIST, user_list)
-    }
-
-    /**
      * Updates the event ID, saves the configuration, and reloads the game configs if the year changed.
      * 
      * @param {String} event_id Event ID
@@ -1710,11 +2036,7 @@ class Config
         this.user.store_config()
         this.scout.store_config()
         this.analysis.store_config()
-
-        if (Object.keys(this.users).length)
-        {
-            this.store_user_list()
-        }
+        this.user_list.store_config()
     }
 
     //
@@ -1731,12 +2053,12 @@ class Config
     {
         this.app.load()
         this.user.load()
-        this.load_user_list()
+        this.user_list.load()
 
         new Promise((resolve, reject) => {
             const start = performance.now()
             const loop = () => {
-                if (this.app.loaded && this.user.loaded && this._users_loaded)
+                if (this.app.loaded && this.user.loaded && this.user_list.loaded)
                 {
                     resolve()
                 }
@@ -1752,10 +2074,7 @@ class Config
             loop()
         }).then(() => {
             this.user.store_config()
-            if (Object.keys(this.users).length)
-            {
-                this.store_user_list()
-            }
+            this.user_list.store_config()
 
             if (this.year)
             {
@@ -1816,55 +2135,6 @@ class Config
             console.log('timeout loading game configs')
             on_complete()
         })
-    }
-
-    /**
-     * Attempts to load the user list from localStorage, if unavailable, triggers load from server/cache.
-     */
-    load_user_list()
-    {
-        let user_list = localStorage.getItem(USER_LIST)
-        if (user_list === null)
-        {
-            console.log('user-list does not exist, pulling from server/cache')
-            fetch(`/config/${USER_LIST}.csv`, { cache: "reload" })
-                .then(response => {
-                    return response.text()
-                })
-                .then(this.handle_user_list.bind(this))
-                .catch(err => {
-                    console.log(`Error fetching ${USER_LIST} config, ${err}`)
-                })
-        }
-        else
-        {
-            this.handle_user_list(user_list)
-        }
-    }
-
-    /**
-     * Handles successfully loaded in user list, then steps to loading game configs, if enabled.
-     * 
-     * @param {Object} user_list Loaded user list.
-     */
-    handle_user_list(user_list)
-    {
-        this.users = {}
-        for (let row of user_list.split('\n'))
-        {
-            let cells = row.split(',')
-            if (cells.length >= 2)
-            {
-                let admin = cells.length >= 3 ? cells[2].toLowerCase() === 'true' : false
-                let position = cells.length >= 4 ? parseInt(cells[3]) : -1
-                this.users[cells[0]] = {
-                    "name": cells[1],
-                    "admin": admin,
-                    "position": position
-                }
-            }
-        }
-        this._users_loaded = true
     }
 
     /**
