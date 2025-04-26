@@ -264,6 +264,7 @@ class Data
         this.teams = {}
         this.matches = {}
         this.cache = {}
+        this.picklists = {}
     }
 
     //
@@ -282,6 +283,7 @@ class Data
         this.load_matches()
         this.load_results()
         this.compute_smart_results()
+        this.load_picklists()
     }
 
     /**
@@ -547,6 +549,29 @@ class Data
                 result.compute_smart_results()
             }
         }
+    }
+
+    /**
+     * Loads picklists in from localStorage.
+     */
+    load_picklists()
+    {
+        const picklist_file = `picklists-${this.event_id}`
+        const picklists = JSON.parse(localStorage.getItem(picklist_file))
+        if (picklists === null)
+        {
+            console.log(`No picklist file "${picklist_file}"`)
+            return
+        }
+
+        this.picklists = picklists
+    }
+    /**
+     * Store picklists into localStorage.
+     */
+    save_picklists()
+    {
+        localStorage.setItem(`picklists-${this.event_id}`, JSON.stringify(this.picklists))
     }
 
     //
