@@ -1,6 +1,6 @@
 {
-    "version": "analyst-concept-2",
-    "fms_stats": [
+    "version": "concept2",
+    "fms_breakdown_results": [
         {
             "id": "autoLineRobot",
             "name": "Leave",
@@ -31,13 +31,91 @@
             "negative": false
         }
     ],
-    "smart_stats": [{
-        "type": "math",
-        "pit": false,
-        "math": "result.tele_coral+result.match_tele_op_algae_scoring_algae_net+result.match_tele_op_algae_scoring_algae_processor",
+    "fms_ranking_results": [
+        {
+            "id": "rank",
+            "name": "Rank",
+            "type": "int",
+            "negative": true
+        },
+        {
+            "id": "matches_played",
+            "name": "Matches Played",
+            "type": "int",
+            "negative": false
+        },
+        {
+            "id": "sort_orders_0",
+            "name": "Ranking Points",
+            "type": "int",
+            "negative": false
+        },
+        {
+            "id": "record_wins",
+            "name": "Wins",
+            "type": "int",
+            "negative": false
+        }
+    ],
+    "smart_results": [{
+        "type": "map",
+        "result": "result.match_tele_op_endgame_barge_scoring",
+        "values": [10, 4, 0, 0, 0],
         "negative": false,
-        "name": "Tele Scored",
-        "id": "tele_scored"
+        "name": "Endgame Points",
+        "id": "endgame_points"
+    },
+    {
+        "type": "map",
+        "result": "result.pit_pit_drive_drive_motor",
+        "values": [3, 4, 2, 5, 1],
+        "negative": false,
+        "name": "Motor Rating",
+        "id": "motor_rating"
+    },
+    {
+        "type": "max",
+        "results": ["result.match_tele_op_coral_scoring_level_scored_level_4",
+            "result.match_tele_op_coral_scoring_level_scored_level_23",
+            "result.match_tele_op_coral_scoring_level_scored_level_1"
+        ],
+        "negative": false,
+        "name": "Preferred Tele Level",
+        "id": "preferred_tele_level"
+    },
+    {
+        "type": "math",
+        "math": "result.match_tele_op_coral_scoring_level_scored_level_4+result.match_tele_op_coral_scoring_level_scored_level_23+result.match_tele_op_coral_scoring_level_scored_level_1",
+        "negative": false,
+        "name": "Tele Total Coral",
+        "id": "tele_total_coral"
+    },
+    {
+        "type": "math",
+        "math": "result.note_notes_team_speed/smart.motor_rating",
+        "negative": false,
+        "name": "Motor Adjusted Speed",
+        "id": "motor_adjusted_speed"
+    },
+    {
+        "type": "filter",
+        "result": "smart.tele_total_coral",
+        "filter": "result.match_tele_op_endgame_barge_scoring",
+        "compare_type": 2,
+        "value": 0,
+        "negative": false,
+        "name": "Total Coral w/ Climb",
+        "id": "total_coral_w_climb"
+    },
+    {
+        "type": "where",
+        "cycle": "result.pit_pit_autos",
+        "conditions": [
+            {"pit_pit_autos_needs_their_human_player": true}
+        ],
+        "negative": false,
+        "name": "Num HP Cycles",
+        "id": "num_hp_cycles"
     }],
     "coach": [],
     "favorites": []
