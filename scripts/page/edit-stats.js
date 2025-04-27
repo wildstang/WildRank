@@ -1,16 +1,13 @@
 /**
  * file:        edit-stats.js
- * description: Allows deleting smart stats
+ * description: Allows deleting smart results.
  * author:      Liam Fruzyna
  * date:        2023-02-25
  */
 
 
 /**
- * function:    init_page
- * parameters:  none
- * returns:     none
- * description: Populate body
+ * Populates the body of the page.
  */
 function init_page()
 {
@@ -18,17 +15,14 @@ function init_page()
 }
 
 /**
- * function:    build_buttons
- * parameters:  none
- * returns:     none
- * description: Populates the body with buttons to create and delete coach values.
+ * Populates the body of the page with a single column of buttons, one to delete each smart result.
  */
 function build_buttons()
 {
-    let column = new WRColumn('Delete Smart Stat')
-    for (let i in cfg.analysis.smart_stats)
+    let column = new WRColumn('Delete Smart Result')
+    for (let i in cfg.analysis.smart_results)
     {
-        let stat = cfg.analysis.smart_stats[i]
+        let stat = cfg.analysis.smart_results[i]
         column.add_input(new WRButton(`${stat.name} (${stat.type})`, () => delete_val(i)))
     }
 
@@ -37,14 +31,12 @@ function build_buttons()
 }
 
 /**
- * function:    delete_val
- * parameters:  index of coach value
- * returns:     none
- * description: Delete a coach value of a given index.
+ * Deletes the smart result corresponding to the given index, then rebuilds the page.
+ * @param {Number} idx Index of smart result
  */
 function delete_val(idx)
 {
-    cfg.analysis.smart_stats.splice(idx, 1)
+    cfg.analysis.smart_results.splice(idx, 1)
     cfg.analysis.store_config()
 
     build_buttons()
