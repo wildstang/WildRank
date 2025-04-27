@@ -55,68 +55,68 @@ const CONFIGS = {
 
 // requirements for each button
 const BUTTONS = {
-    'bracket':              { name: 'Double Elims',             limits: ['event'], configs: ['settings', 'coach'] },
-    'cache':                { name: 'Cache Manager',            limits: [], configs: [] },
-    'clear_events':         { name: 'Clear Other Events',       limits: [], configs: [] },
-    'coach':                { name: 'Coach View',               limits: ['event', 'results'], configs: ['settings', 'coach'] },
-    'config-debug':         { name: 'Config Debugger',          limits: [], configs: [] },
-    'config-generator':     { name: 'Config Builder',           limits: ['admin'], configs: [] },
-    'cycles':               { name: 'Cycles',                   limits: ['event', 'results'], configs: ['settings'] },
-    'distro':               { name: 'Distributions',            limits: ['teams', 'any'], configs: ['settings'] },
-    'download_csv':         { name: 'Export Results as Sheet',  limits: ['event', 'any'], configs: [] },
-    'event-generator':      { name: 'Event Generator',          limits: [], configs: [] },
-    'events':               { name: 'Other Events',             limits: ['teams'], configs: [] },
-    'export':               { name: 'Server Exporter',          limits: ['admin'], configs: [] },
-    'export_results':       { name: 'Export All Results',       limits: [], configs: [] },
-    'match-overview':       { name: 'Match Summaries',          limits: ['event'], configs: ['settings'] },
-    'matches':              { name: 'Scout',                    limits: ['event'], configs: [MATCH_MODE, 'settings'] },
-    'multipicklists':       { name: 'Pick Lists',               limits: ['teams'], configs: ['settings'] },
-    'notes':                { name: 'Note Scout',               limits: ['teams'], configs: [NOTE_MODE, 'settings'] },
-    'note-viewer':          { name: 'Note Viewer',              limits: ['event', 'results'], configs: ['settings'] },
-    'open_extras':          { name: 'Extras',                   limits: [], configs: [] },
-    'open_moralysis':       { name: 'More',                     limits: [], configs: [] },
-    'pits':                 { name: 'Pit Scout',                limits: ['teams'], configs: [PIT_MODE, 'settings'] },
-    'pivot':                { name: 'Pivot Table',              limits: ['teams', 'any'], configs: ['settings'] },
-    'plot':                 { name: 'Plotter',                  limits: ['event', 'results'], configs: ['settings'] },
-    'preload_event':        { name: 'Preload Event',            limits: [], configs: [] },
-    'progress':             { name: 'Scouting Progress',        limits: ['teams'], configs: [] },
-    'random':               { name: 'Random Result Generator',  limits: ['admin'], configs: ['settings'] },
-    'ranker':               { name: 'Stat Builder',             limits: ['teams', 'any'], configs: ['settings'] },
-    'reset':                { name: 'Reset App',                limits: ['admin'], configs: [] },
-    'reset_cache':          { name: 'Reset Cache',              limits: [], configs: [] },
-    'reset_results':        { name: 'Reset Results',            limits: [], configs: [] },
-    'reset_storage':        { name: 'Reset Storage',            limits: [], configs: [] },
-    'reset_config':         { name: 'Reset Configuration',      limits: [], configs: [] },
-    'reset_event':          { name: 'Reset Event',              limits: [], configs: [] },
-    'results':              { name: 'Raw Results',              limits: ['event', 'results'], configs: ['settings'] },
-    'scatter':              { name: 'Scatter',                  limits: ['teams', 'any'], configs: ['settings'] },
-    'schedule-importer':    { name: 'Schedule Importer',        limits: [], configs: [] },
-    'settings':             { name: 'Settings Editor',          limits: [], configs: ['settings'] },
-    'sides':                { name: 'Side-by-Side',             limits: ['teams', 'any'], configs: ['settings'] },
-    'storage':              { name: 'Storage Manager',          limits: [], configs: [] },
-    'teams':                { name: 'Team Profiles',            limits: ['teams'], configs: ['settings'] },
-    'transfer-raw':         { name: 'Transfer Raw Data',        limits: [], configs: [] },
-    'import_results':       { name: 'Import All Results',       limits: [], configs: [] },
-    'export_config':        { name: 'Export Config',            limits: [], configs: [] },
-    'users':                { name: 'User Profiles',            limits: ['admin', 'any'], configs: [] },
-    'whiteboard':           { name: 'Whiteboard',               limits: ['matches'], configs: ['whiteboard', 'settings'] },
-    'scouter-scheduler':    { name: 'Scouter Scheduler',        limits: [], configs: [] },
-    'misc/match-counter':   { name: 'Match Counter',            limits: [], configs: [] },
-    'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: [], configs: [] },
-    'misc/2023-rp':                 { name: '2023 RP Adjustment',       limits: [], configs: [] },
-    'misc/2023-score-estimator':    { name: '2023 Score Estimator',     limits: [], configs: [] },
-    'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [], configs: [] },
-    'misc/district-counter':        { name: 'District Counter',         limits: [], configs: [] },
-    'misc/event-planner':           { name: 'Event Planner',            limits: [], configs: [] },
-    'misc/international-counter':   { name: 'International Counter',    limits: [], configs: [] },
-    'misc/max-score':               { name: 'Max Score',                limits: [], configs: [] },
-    'misc/revival-counter':         { name: 'Revival Counter',          limits: [], configs: [] },
-    'misc/score-counter':           { name: 'Score Counter',            limits: [], configs: [] },
-    'misc/sponsor-counter':         { name: 'Sponsor Counter',          limits: [], configs: [] },
-    'misc/team-profile':            { name: 'Team Profile',             limits: [], configs: [] },
-    'misc/test':                    { name: 'Input Tester',             limits: [], configs: [] },
-    'misc/top-partners':            { name: 'Top Partners',             limits: [], configs: [] },
-    'misc/verde':                   { name: 'VerdeRank',                limits: [, 'teams'], configs: [] }
+    'bracket':              { name: 'Double Elims',             limits: ['matches'] },
+    'cache':                { name: 'Cache Manager',            limits: [] },
+    'clear_events':         { name: 'Clear Other Events',       limits: [] },
+    'coach':                { name: 'Coach View',               limits: ['matches'] },
+    'config-debug':         { name: 'Config Debugger',          limits: [] },
+    'config-generator':     { name: 'Config Builder',           limits: ['admin'] },
+    'cycles':               { name: 'Cycles',                   limits: ['matches', 'results'] },
+    'distro':               { name: 'Distributions',            limits: ['teams', 'any'] },
+    'download_csv':         { name: 'Export Results as Sheet',  limits: ['matches', 'any'] },
+    'event-generator':      { name: 'Event Generator',          limits: [] },
+    'events':               { name: 'Other Events',             limits: ['teams'] },
+    'export':               { name: 'Server Exporter',          limits: ['admin'] },
+    'export_results':       { name: 'Export All Results',       limits: [] },
+    'match-overview':       { name: 'Match Summaries',          limits: ['matches'] },
+    'matches':              { name: 'Scout',                    limits: ['matches'] },
+    'multipicklists':       { name: 'Pick Lists',               limits: ['teams'] },
+    'notes':                { name: 'Note Scout',               limits: ['teams'] },
+    'note-viewer':          { name: 'Note Viewer',              limits: ['teams', 'any'] },
+    'open_extras':          { name: 'Extras',                   limits: [] },
+    'open_moralysis':       { name: 'More',                     limits: [] },
+    'pits':                 { name: 'Pit Scout',                limits: ['teams'] },
+    'pivot':                { name: 'Pivot Table',              limits: ['teams', 'any'] },
+    'plot':                 { name: 'Plotter',                  limits: ['matches', 'results'] },
+    'preload_event':        { name: 'Preload Event',            limits: [] },
+    'progress':             { name: 'Scouting Progress',        limits: ['teams'] },
+    'random':               { name: 'Random Result Generator',  limits: ['admin', 'teams'] },
+    'ranker':               { name: 'Stat Builder',             limits: ['teams', 'any'] },
+    'reset':                { name: 'Reset App',                limits: ['admin'] },
+    'reset_cache':          { name: 'Reset Cache',              limits: [] },
+    'reset_results':        { name: 'Reset Results',            limits: [] },
+    'reset_storage':        { name: 'Reset Storage',            limits: [] },
+    'reset_config':         { name: 'Reset Configuration',      limits: [] },
+    'reset_event':          { name: 'Reset Event',              limits: [] },
+    'results':              { name: 'Raw Results',              limits: ['matches', 'results'] },
+    'scatter':              { name: 'Scatter',                  limits: ['teams', 'any'] },
+    'schedule-importer':    { name: 'Schedule Importer',        limits: [] },
+    'settings':             { name: 'Settings Editor',          limits: [] },
+    'sides':                { name: 'Side-by-Side',             limits: ['teams', 'any'] },
+    'storage':              { name: 'Storage Manager',          limits: [] },
+    'teams':                { name: 'Team Profiles',            limits: ['teams'] },
+    'transfer-raw':         { name: 'Transfer Raw Data',        limits: [] },
+    'import_results':       { name: 'Import All Results',       limits: [] },
+    'export_config':        { name: 'Export Config',            limits: [] },
+    'users':                { name: 'User Profiles',            limits: ['admin'] },
+    'whiteboard':           { name: 'Whiteboard',               limits: ['matches'] },
+    'scouter-scheduler':    { name: 'Scouter Scheduler',        limits: [] },
+    'misc/match-counter':   { name: 'Match Counter',            limits: [] },
+    'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: [] },
+    'misc/2023-rp':                 { name: '2023 RP Adjustment',       limits: [] },
+    'misc/2023-score-estimator':    { name: '2023 Score Estimator',     limits: [] },
+    'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [] },
+    'misc/district-counter':        { name: 'District Counter',         limits: [] },
+    'misc/event-planner':           { name: 'Event Planner',            limits: [] },
+    'misc/international-counter':   { name: 'International Counter',    limits: [] },
+    'misc/max-score':               { name: 'Max Score',                limits: [] },
+    'misc/revival-counter':         { name: 'Revival Counter',          limits: [] },
+    'misc/score-counter':           { name: 'Score Counter',            limits: [] },
+    'misc/sponsor-counter':         { name: 'Sponsor Counter',          limits: [] },
+    'misc/team-profile':            { name: 'Team Profile',             limits: [] },
+    'misc/test':                    { name: 'Input Tester',             limits: [] },
+    'misc/top-partners':            { name: 'Top Partners',             limits: [] },
+    'misc/verde':                   { name: 'VerdeRank',                limits: [, 'teams'] }
 }
 
 var role_page = ''
@@ -227,10 +227,7 @@ function open_role(role)
             let button
             if (key === 'result_count')
             {
-                let matches = dal.get_results([], false).length
-                let pits = dal.get_pits([], false).length
-
-                button = new WRMultiNumber('', ['P', 'M'], [pits, matches])
+                button = new WRMultiNumber('', ['T', 'M'], [dal.count_team_results(), dal.count_match_results()])
                 button.on_click = () => window_open(build_url('progress'), '_self')
             }
             else if (is_blocked(key))
@@ -277,17 +274,6 @@ function sign_out()
 }
 
 /**
- * function:    has_event
- * parameters:  none
- * returns:     If the current event is loaded
- * description: Determines if the current event is loaded.
- */
-function has_event()
-{
-    return has_matches() && has_teams()
-}
-
-/**
  * function:    has_teams
  * parameters:  none
  * returns:     If the current event teams are loaded
@@ -306,7 +292,7 @@ function has_teams()
  */
 function has_matches()
 {
-    return Object.keys(dal.matches).length > 0
+    return has_teams() && Object.keys(dal.matches).length > 0
 }
  
 /**
@@ -321,14 +307,9 @@ function is_blocked(id)
     let configs = BUTTONS[id].configs
 
     // count results
-    let matches = dal.get_results([], false).length
-    let pits = dal.get_pits([], false).length
-
+    let matches = dal.count_match_results()
+    let teams = dal.count_team_results()
     // check each provided limiting parameter
-    if (limits.includes('event') && !has_event())
-    {
-        return `Missing event data.`
-    }
     if (limits.includes('teams') && !has_teams())
     {
         return `Missing team data.`
@@ -345,19 +326,9 @@ function is_blocked(id)
     {
         return `No results found.`
     }
-    if (limits.includes('any') && pits === 0 && matches === 0)
+    if (limits.includes('any') && teams === 0 && matches === 0)
     {
         return `No results found.`
-    }
-
-    // check that all necessary configs are present
-    for (let i = 0; i < configs.length; ++i)
-    {
-        let config = configs[i]
-        if (!cfg.hasOwnProperty(config))
-        {
-            return `Missing ${config} configuration.`
-        }
     }
     return false
 }

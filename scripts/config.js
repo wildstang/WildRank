@@ -1610,7 +1610,7 @@ class Result
     {
         const team_keys = cfg.scout.team_results.map(s => s.full_id)
         const smart_result_keys = cfg.analysis.smart_results.map(s => s.full_id)
-        const is_team_smart_result = key => team_keys.includes(key) || (smart_result_keys.includes(key) && cfg.get_result_from_key(key).is_team_smart_result())
+        const is_team_smart_result = key => team_keys.includes(key) || (smart_result_keys.includes(key) && cfg.get_result_from_key(key).is_team_smart_result)
         switch(this.type)
         {
             case 'map':

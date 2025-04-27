@@ -290,7 +290,7 @@ function ws(team_num)
         let color = cfg.theme['primary-color']
         if (cfg.user.settings.use_team_color)
         {
-            color = dal.get_value(team_num, 'meta.color')
+            //color = dal.get_value(team_num, 'meta.color')
         }
         header.style.background = color
         header.style['background-size'] = ''
@@ -476,7 +476,7 @@ function apply_theme()
  */
 function to_hex(value)
 {
-    let hex = value.toString(16)
+    let hex = Math.round(value).toString(16)
     if (hex.length < 2)
     {
         hex = '0' + hex

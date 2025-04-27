@@ -44,7 +44,7 @@ function step_setup()
 
     // build a second column for viewing status info on the event and pulling in new configs
     let status_col = new WRColumn('Status', [])
-    let event_config = new WRStatusTile(event)
+    let event_config = new WRStatusTile(dal.event_name)
     event_config.set_status((team_count > 0 ? 1 : 0) + (match_count > 0 ? 1 : 0) - 1)
     status_col.add_input(new WRStack([
         event_config,
@@ -55,7 +55,7 @@ function step_setup()
     scout_config_valid.on_click = () => window_open(build_url('config-debug'), '_self')
     status_col.add_input(new WRStack([
         scout_config_valid,
-        new WRButton('Import Config', import_config)
+        new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
     ]))
     theme_el = new WRSelect('', ['Light', 'Dark', 'Auto'])
     theme_el.on_change = switch_theme
@@ -175,36 +175,13 @@ function set_event_id()
     let id = event_id_el.element.value
     if (id.length >= 7)
     {
-        cfg.update_event_id(id, () => {
-            dal = new DAL(id)
-            dal.build_teams()
-    
-            step_setup()
-        })
+        cfg.update_event_id(id, process_files)
 
     }
     else
     {
         alert('Invalid event ID')
     }
-}
-
-/**
- * Callback for when the import button is clicked. Starts the ZipHandler.
- */
-function import_config()
-{
-    let handler = new ZipHandler()
-    handler.event       = true
-    handler.config      = true
-    handler.smart_stats = true
-    handler.coach       = true
-    handler.settings    = true
-    handler.pictures    = true
-    handler.always_overwrite = true
-    handler.on_complete = step_setup
-    handler.server      = parse_server_addr(document.location.href)
-    handler.import_zip_from_file(false, true)
 }
 
 /**
@@ -325,9 +302,7 @@ function open_role(role)
  */
 function process_files()
 {
-    dal = new DAL(cfg.user.state.event_id)
-    dal.build_teams()
-
+    dal = new Data(cfg.user.state.event_id)
     step_setup()
 }
 

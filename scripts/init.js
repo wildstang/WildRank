@@ -23,8 +23,8 @@ function on_config()
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
     
     // load in data
-    dal = new DAL(cfg.user.state.event_id)
-    dal.build_teams()
+    dal = new Data(cfg.user.state.event_id)
+    dal.load_data()
 
     // don't directly pass in init_page to ensure that init_page isn't accessed before the page is loaded in
     run_after_load(() => init_page())
