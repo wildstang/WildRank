@@ -8,16 +8,14 @@
  */
 include('stat-builders')
 
-const STAT_TYPES = ['Math', 'Percent', 'Ratio', 'Where', 'Min/Max', 'Filter', 'Wgtd Rank', 'Map']
+const STAT_TYPES = ['Filter', 'Map', 'Math', 'Min/Max', 'Wgtd Rank', 'Where']
 
 var stat_builder
 var params_el, picklist_filter, name_entry, stat_type
+var team_order = []
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch results from localStorage. Initialize page contents.
+ * Populates the core elements of the page.
  */
 function init_page()
 {
@@ -34,7 +32,7 @@ function init_page()
     name_entry = new WREntry('Name', 'New Stat')
     builder_col.add_input(name_entry)
 
-    stat_type = new WRSelect('Type', STAT_TYPES, 'Math')
+    stat_type = new WRSelect('Type', STAT_TYPES, 'Filter')
     stat_type.on_change = update_params
     builder_col.add_input(stat_type)
 
@@ -60,10 +58,7 @@ function init_page()
 }
 
 /**
- * function:    update_params
- * parameters:  none
- * returns:     none
- * description: Updates the inputs at the bottom of the page corresponding to the static inputs' values.
+ * Updates the inputs at the bottom of the page corresponding to the static inputs' values.
  */
 function update_params()
 {
@@ -73,32 +68,23 @@ function update_params()
     let page = new WRPage()
     switch (type)
     {
-        case 'Sum':
-            stat_builder = new SumStat()
+        case 'Filter':
+            stat_builder = new FilterStat()
+            break
+        case 'Map':
+            stat_builder = new MapStat()
             break
         case 'Math':
             stat_builder = new MathStat()
             break
-        case 'Percent':
-            stat_builder = new PercentStat()
-            break
-        case 'Ratio':
-            stat_builder = new RatioStat()
-            break
-        case 'Where':
-            stat_builder = new WhereStat()
-            break
         case 'Min/Max':
             stat_builder = new MinMaxStat()
-            break
-        case 'Filter':
-            stat_builder = new FilterStat()
             break
         case 'Wgtd Rank':
             stat_builder = new WeightedRankStat()
             break
-        case 'Map':
-            stat_builder = new MapStat()
+        case 'Where':
+            stat_builder = new WhereStat()
             break
     }
     for (let c of stat_builder.build_interface())
@@ -114,12 +100,10 @@ function update_params()
 }
 
 /**
- * function:    build_stat
- * parameters:  none
- * returns:     smart stat object
- * description: Builds a smart stat object corresponding to the inputs selected on the page.
+ * Builds a new smart result based on the selected options.
+ * @returns Result representing the smart result designed on the page.
  */
-function build_stat()
+function build_smart_result()
 {
     stat = stat_builder.build_stat()
 
@@ -127,121 +111,119 @@ function build_stat()
     stat.name = name
     stat.id = create_id_from_name(name)
 
-    return stat
+    return Result.from_object(stat)[0]
 }
 
 /**
- * function:    calculate
- * parameters:  none
- * returns:     none
- * description: Calculates each team's stat based on the current inputs.
+ * Populates the selection column with teams and values, in order by computed smart result value.
  */
 function calculate()
 {
-    let name = name_entry.element.value
-    let id = create_id_from_name(name)
-    let stat = build_stat()
-    if (!stat)
+    let result = build_smart_result()
+    if (!result)
     {
         return
     }
-    console.log(stat)
 
     // filter teams
-    let picklist = []
+    let team_nums = dal.team_numbers
     if (Object.keys(dal.picklists).length > 0)
     {
         let selected = picklist_filter.element.value
         if (selected !== 'None')
         {
-            picklist = dal.picklists[selected]
+            team_nums = dal.picklists[selected]
         }    
     }
 
-    // get team smart stat results
-    let team_res = {}
-    let result_names = stat.pit ? dal.get_pits(picklist) : dal.get_results(picklist)
-    for (let res of result_names)
-    {
-        if (typeof team_res[res.meta_team] === 'undefined')
-        {
-            team_res[res.meta_team] = [] 
-        }
-        let result = dal.add_smart_stats(res, [stat], stat.pit ? 'pit' : 'results')[id]
-        if (typeof result !== 'undefined')
-        {
-            team_res[res.meta_team].push(result)
-        }
-    }
-
-    // average each set of team results
+    // compute smart result for each team
     let team_vals = {}
-    for (let team of Object.keys(team_res))
+    for (let team_num of team_nums)
     {
-        if (stat.type !== 'min' && stat.type !== 'max')
+        if (stat.is_team_smart_result)
         {
-            team_vals[team] = mean(team_res[team])
+            let value = result.compute_smart_result(dal.teams[team_num])
+            if (value !== null)
+            {
+                team_vals[team_num] = value
+            }
         }
         else
         {
-            team_vals[team] = median(team_res[team])
+            if (result.recompute)
+            {
+                let value = result.compute_smart_result(null, team_num)
+                if (value !== null)
+                {
+                    team_vals[team_num] = value
+                }
+            }
+            else
+            {
+                let match_results = []
+                for (let match_key of dal.teams[team_num].matches)
+                {
+                    let value = result.compute_smart_result(dal.get_match_result(match_key, team_num))
+                    if (value !== null)
+                    {
+                        match_results.push(value)
+                    }
+                }
+                if (match_results.length > 0)
+                {
+                    team_vals[team_num] = result.compute_stat(match_results)
+                }
+            }
         }
     }
     
     // sort teams and populate left
-    let teams = Object.keys(team_vals)
-    teams.sort((a,b) => team_vals[b] - team_vals[a])
-    team_order = [...teams]
-    teams = teams.map(function (t, i)
+    team_order = Object.keys(team_vals).sort((a,b) => team_vals[b] - team_vals[a])
+    let options = team_order.map(function (t, i)
     {
-        let val = team_vals[t]
-        if (stat.type !== 'min' && stat.type !== 'max')
-        {
-            val = val.toFixed(2)
-            if (isNaN(val))
-            {
-                val = '0.0'
-            }
-        }
+        let val = result.clean_value(team_vals[t])
+
         if (++i < 10)
         {
             i = `&nbsp;${i}`
         }
         if (t < 10)
         {
-            t = `&nbsp;&nbsp;&nbsp;${t}`
+            t = `&nbsp;&nbsp;&nbsp;&nbsp;${t}`
         }
         else if (t < 100)
         {
-            t = `&nbsp;&nbsp;${t}`
+            t = `&nbsp;&nbsp;&nbsp;${t}`
         }
         else if (t < 1000)
+        {
+            t = `&nbsp;&nbsp;${t}`
+        }
+        else if (t < 10000)
         {
             t = `&nbsp;${t}`
         }
         return `${i} ${t} ${val}`
     })
 
-    if (stat.negative)
+    if (result.negative)
     {
-        teams.reverse()
+        options.reverse()
     }
 
-    populate_other(teams)
+    populate_other(options)
 }
 
+
 /**
- * function:    save_stat
- * parameters:  none
- * returns:     none
- * description: Adds the current smart stat to the config for use in other pages.
+ * Adds the current smart result to the config and triggers it to save to localStorage.
  */
 function save_stat()
 {
-    let stat = build_stat()
-    if (dal.meta.hasOwnProperty(`results.${stat.id}`))
+    let stat = build_smart_result()
+    if (cfg.get_keys().includes(stat.full_id))
     {
-        alert('Stat already exists!')
+        alert('Smart result already exists!')
     }
     else if (!stat)
     {
@@ -249,19 +231,16 @@ function save_stat()
     }
     else
     {
-        cfg.analysis.smart_stats.push(stat)
+        cfg.analysis.smart_results.push(stat)
         cfg.analysis.store_config()
-        dal.build_teams()
+        dal.load_data()
         update_params()
         alert(`${stat.name} Created`)
     }
 }
 
 /**
- * function:    save_list
- * parameters:  none
- * returns:     none
- * description: Saves the current order of teams as a picklist.
+ * Saves the current sort order as a picklist.
  */
 function save_list()
 {

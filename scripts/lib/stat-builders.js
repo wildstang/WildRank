@@ -15,63 +15,6 @@ class Stat
     initialize() {}
 }
 
-class SumStat extends Stat
-{
-    constructor()
-    {
-        super('sum')
-
-        this.keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
-        this.checkboxes = []
-        for (let k of keys)
-        {
-            this.checkboxes.push(new WRCheckbox(dal.get_name(k), false, calculate))
-        }
-    }
-
-    build_interface()
-    {
-        let left = new WRColumn()
-        let right = new WRColumn()
-        for (let i in this.checkboxes)
-        {
-            if (i < this.checkboxes.length / 2)
-            {
-                left.add_input(this.checkboxes[i])
-            }
-            else
-            {
-                right.add_input(this.checkboxes[i])
-            }
-        }
-        return [left, right]
-    }
-
-    build_stat()
-    {
-        let keys = []
-        let pos = false
-        for (let i in this.keys)
-        {
-            if (this.checkboxes[i].checked)
-            {
-                let k = this.keys[i]
-                keys.push(k.replace('results.', ''))
-                if (typeof dal.meta[k].negative === 'undefined' || !dal.meta[k].negative)
-                {
-                    pos = true
-                }
-            }
-        }
-
-        return {
-            type: this.name.toLowerCase(),
-            negative: !pos,
-            keys: keys
-        }
-    }
-}
-
 class MathStat extends Stat
 {
     constructor()
@@ -89,21 +32,15 @@ class MathStat extends Stat
         this.operators.description = 'Math stats do not exclusively require these operators. Any valid JS operations should work.'
         this.operators.columns = 4
 
-        this.keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
-        this.keys_dropdown = new WRDropdown('Match Keys', [''])
+        this.keys = cfg.filter_keys(cfg.get_match_keys(), ['number'])
+        let keys = cfg.get_names(this.keys)
+        this.keys_dropdown = new WRDropdown('Match Keys', [''].concat(keys))
         this.keys_dropdown.on_change = this.add_key.bind(this)
-        for (let k of this.keys)
-        {
-            this.keys_dropdown.add_option(dal.get_name(k))
-        }
 
-        this.constants = dal.get_keys(false, true, true, true, ['number'])
-        this.constants_dropdown = new WRDropdown('Team Constants', [''])
+        this.constants = cfg.filter_keys(cfg.get_team_keys(), ['number'])
+        let constants = cfg.get_names(this.constants)
+        this.constants_dropdown = new WRDropdown('Team Constants', [''].concat(constants))
         this.constants_dropdown.on_change = this.add_constant.bind(this)
-        for (let c of this.constants)
-        {
-            this.constants_dropdown.add_option(dal.get_name(c))
-        }
 
         this.negative_box = new WRCheckbox('Negative')
         this.negative_box.on_click = calculate
@@ -131,7 +68,7 @@ class MathStat extends Stat
         {
             return
         }
-        this.math_entry.element.value += this.keys[index-1].split('.')[1]
+        this.math_entry.element.value += this.keys[index-1]
         calculate()
         this.keys_dropdown.element.selectedIndex = 0
     }
@@ -150,78 +87,11 @@ class MathStat extends Stat
 
     build_stat()
     {
-        let math_fn = this.math_entry.element.value.replace(/\s/g, '')
-
-        // pull constants first so they aren't picked up as 2 keys
-        let no_constants = math_fn
-        let constants = no_constants.match(/[a-z]+\.[a-z0-9_]+/g)
-        if (constants)
-        {
-            for (let c of constants)
-            {
-                no_constants = no_constants.replace(c, '')
-            }
-        }
-
         return {
             type: this.name.toLowerCase(),
-            // determine if pit stat based on if there are any match keys
-            pit: no_constants.match(/[a-z][a-z0-9_]+/g) === null,
-            math: math_fn,
+            math: this.math_entry.element.value.replace(/\s/g, ''),
             negative: this.negative_box.checkbox.checked
         }
-    }
-}
-
-class RatioStat extends Stat
-{
-    constructor()
-    {
-        super('ratio')
-
-        this.keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
-        let names = this.keys.map(k => dal.get_name(k))
-
-        this.numerator_drop = new WRDropdown('Numerator', names)
-        this.numerator_drop.on_change = calculate
-
-        this.denominator_drop = new WRDropdown('Denominator', names)
-        this.denominator_drop.on_change = calculate
-    }
-
-    build_interface()
-    {
-        return [
-            new WRColumn('', [this.numerator_drop, this.denominator_drop])
-        ]
-    }
-
-    build_stat()
-    {
-        let numerator = this.keys[this.numerator_drop.element.selectedIndex]
-        let denominator = this.keys[this.denominator_drop.element.selectedIndex]
-
-        return {
-            type: this.name.toLowerCase(),
-            numerator: numerator.replace('results.', ''),
-            denominator: denominator.replace('results.', ''),
-            negative: dal.meta[numerator].negative
-        }
-    }
-}
-
-class PercentStat extends RatioStat
-{
-    constructor()
-    {
-        super()
-        this.name = 'percent'
-
-        this.numerator_drop.label = 'Percent Value'
-        this.numerator_drop.description = 'The value being measured in the percentage.'
-
-        this.denominator_drop.label = 'Remaining Value'
-        this.denominator_drop.description = 'The remaining value used to complete the percentage.'
     }
 }
 
@@ -234,14 +104,10 @@ class MinMaxStat extends Stat
         this.keylist = new WRExtended('Keys')
         this.keylist.on_text_change = calculate
 
-        this.keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
-        this.key_drop = new WRDropdown('Match Keys', [''])
+        this.keys = cfg.filter_keys(cfg.get_match_keys(), ['number'])
+        let keys = cfg.get_names(this.keys)
+        this.key_drop = new WRDropdown('Match Keys', [''].concat(keys))
         this.key_drop.on_change = this.add_key.bind(this)
-        for (let k of this.keys)
-        {
-            this.key_drop.add_option(dal.get_name(k))
-        }
-        //keys = keys.map(k => dal.get_name(k))
         
         this.min_or_max = new WRSelect('Min/Max', ['Min', 'Max'])
         this.min_or_max.on_change = calculate
@@ -266,7 +132,7 @@ class MinMaxStat extends Stat
         {
             this.keylist.element.value += ', '
         }
-        this.keylist.element.value += this.keys[index-1].split('.')[1]
+        this.keylist.element.value += this.keys[index-1]
         calculate()
         this.key_drop.element.selectedIndex = 0
     }
@@ -274,15 +140,14 @@ class MinMaxStat extends Stat
     build_stat()
     {
         let keys = this.keylist.element.value.replace(/\s/g, '').split(',')
-        if (keys.length === 1 && !keys[0])
+        if (keys.length === 1 && keys[0].length === 0)
         {
-            keys = []
+            return false
         }
 
         return {
             type: this.min_or_max.selected_option.toLowerCase(),
-            keys: keys,
-            negative: keys.some(k => dal.meta[`results.${k}`].negative) 
+            results: keys
         }
     }
 }
@@ -293,8 +158,8 @@ class WeightedRankStat extends Stat
     {
         super('wrank')
         
-        this.keys = dal.get_result_keys(false, ['number', 'counter', 'slider'])
-        let keys = this.keys.map(k => dal.get_name(k))
+        this.keys = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['number'])
+        let keys = cfg.get_names(this.keys)
         this.stat = new WRDropdown('Stat', keys)
         this.stat.on_change = calculate
     }
@@ -311,8 +176,8 @@ class WeightedRankStat extends Stat
         let key = this.keys[this.stat.element.selectedIndex]
         return {
             type: this.name,
-            stat: key.replace('results.', ''),
-            negative: dal.meta[key].negative
+            result: key,
+            negative: cfg.get_result_from_key(key).negative
         }
     }
 }
@@ -323,10 +188,8 @@ class MapStat extends Stat
     {
         super('map')
         
-        this.select_keys = dal.get_result_keys(false, ['select', 'dropdown']).concat(
-            dal.get_keys(false, true, false, false, ['select', 'dropdown'], false)
-        )
-        let select_keys = this.select_keys.map(k => dal.get_name(k))
+        this.select_keys = cfg.filter_keys(cfg.get_keys(), ['boolean', 'int-option', 'str-option'])
+        let select_keys = cfg.get_names(this.select_keys)
 
         this.input = new WRDropdown('Input Stat', select_keys)
         this.input.on_change = this.populate_options.bind(this)
@@ -350,16 +213,14 @@ class MapStat extends Stat
 
     populate_options()
     {
-        let key = this.select_keys[this.input.element.selectedIndex]
-        let options = dal.meta[key].options
-        this.entries = []
-        for (let option of options)
-        {
-            let entry = new WREntry(dal.get_name(option))
+        let result = cfg.get_result_from_key(this.select_keys[this.input.element.selectedIndex])
+        let options = result.value_type === 'boolean' ? ['True', 'False'] : result.options
+        this.entries = options.map(op => {
+            let entry = new WREntry(op)
             entry.type = 'number'
             entry.on_text_change = calculate
-            this.entries.push(entry)
-        }
+            return entry
+        })
         this.values.replaceChildren(...this.entries)
     }
 
@@ -382,9 +243,8 @@ class MapStat extends Stat
 
         return {
             type: this.name,
-            stat: selected_key.replace('results.', '').replace('pit.', ''), // TODO: key has stats
+            result: selected_key,
             values: values,
-            pit: selected_key.startsWith('pit.'),
             negative: this.neg.checked
         }
     }
@@ -396,13 +256,15 @@ class FilterStat extends Stat
     {
         super('filter')
 
-        this.keys = dal.get_result_keys(false, ['number', 'counter', 'slider', 'checkbox', 'select', 'dropdown'])
-        let keys = this.keys.map(k => dal.get_name(k))
+        this.primary_keys = cfg.get_match_keys()
+        let primary_keys = cfg.get_names(this.primary_keys)
 
-        this.primary_stat = new WRDropdown('Primary Stat', keys)
+        this.primary_stat = new WRDropdown('Primary Stat', primary_keys)
         this.primary_stat.on_change = calculate
 
-        this.filter_stat = new WRDropdown('Filter By', keys)
+        this.filter_keys = cfg.filter_keys(this.primary_keys, ['boolean', 'int-option', 'number', 'str-option'])
+        let filter_keys = cfg.get_names(this.filter_keys)
+        this.filter_stat = new WRDropdown('Filter By', filter_keys)
         this.filter_stat.on_change = this.update_filter.bind(this)
 
         this.filter_ops = document.createElement('span')
@@ -422,27 +284,26 @@ class FilterStat extends Stat
 
     update_filter()
     {
-        let filter = this.keys[this.filter_stat.element.selectedIndex]
-        let type = dal.meta[filter].type
+        let filter = cfg.get_result_from_key(this.filter_keys[this.filter_stat.element.selectedIndex])
 
         let comps = ['>', '≥', '=', '≠', '≤', '<']
-        switch (type)
+        switch (filter.value_type)
         {
-            case 'number':
-            case 'counter':
-            case 'slider':
-                this.filter_value = new WREntry('')
-                this.filter_value.on_text_change = calculate
-                this.filter_value.type = 'number'
-                break
-            case 'checkbox':
+            case 'boolean':
                 comps = ['=']
                 this.filter_value = new WRSelect('', ['True', 'False'])
                 this.filter_value.on_change = calculate
                 break
-            case 'select':
-            case 'dropdown':
-                this.filter_value = new WRDropdown('', dal.meta[filter].options)
+
+            case 'number':
+                this.filter_value = new WREntry('')
+                this.filter_value.on_text_change = calculate
+                this.filter_value.type = 'number'
+                break
+
+            case 'int-option':
+            case 'str-option':
+                this.filter_value = new WRDropdown('', filter.options)
                 this.filter_value.on_change = calculate
                 break
         }
@@ -461,36 +322,40 @@ class FilterStat extends Stat
 
     build_stat()
     {
-        let primary = this.keys[this.primary_stat.element.selectedIndex]
-        let filter = this.keys[this.filter_stat.element.selectedIndex]
+        let primary = cfg.get_result_from_key(this.primary_keys[this.primary_stat.element.selectedIndex])
+        let filter = cfg.get_result_from_key(this.filter_keys[this.filter_stat.element.selectedIndex])
          
         // parse string value
         let value = 0
         let compare_type = 0
-        switch (dal.meta[filter].type)
+        switch (filter.value_type)
         {
-            case 'number':
-            case 'counter':
-            case 'slider':
-                value = parseFloat(this.filter_value.element.value)
-                compare_type = this.filter_comparison.selected_index
-                break
-            case 'checkbox':
+            case 'boolean':
                 value = this.filter_value.selected_index === 0
                 compare_type = 2
                 break
-            case 'select':
-            case 'dropdown':
-                value = dal.meta[filter].options.indexOf(this.filter_value.selected_index)
+
+            case 'number':
+                value = parseFloat(this.filter_value.element.value)
+                compare_type = this.filter_comparison.selected_index
+                break
+
+            case 'int-option':
+                value = this.filter_value.element.selectedIndex
+                compare_type = this.filter_comparison.selected_index
+                break
+
+            case 'str-option':
+                value = filter.options[this.filter_value.element.selectedIndex]
                 compare_type = this.filter_comparison.selected_index
                 break
         }
 
         return {
             type: this.name,
-            key: primary.replace('results.', ''),
-            filter: filter.replace('results.', ''),
-            negative: dal.meta[primary].negative,
+            result: primary.full_id,
+            filter: filter.full_id,
+            negative: primary.negative,
             compare_type: compare_type,
             value: value
         }
@@ -503,8 +368,8 @@ class WhereStat extends Stat
     {
         super('where')
 
-        this.cycles = dal.get_result_keys(true, ['cycle'])
-        let cycles = this.cycles.map(c => dal.meta[c].name)
+        this.cycles = cfg.filter_keys(cfg.get_keys(), 'cycle')
+        let cycles = cfg.get_names(this.cycles)
 
         this.cycle_filter = new WRDropdown('Cycle', cycles)
         this.cycle_filter.description = 'The ID of the cycle you would like to count.'
@@ -562,7 +427,7 @@ class WhereStat extends Stat
             return {}
         }
 
-        let cycle = this.cycles[this.cycle_filter.element.selectedIndex].replace('results.', '')
+        let cycle = this.cycles[this.cycle_filter.element.selectedIndex]
         let count = this.count.element.selectedIndex
         let wdenominator = this.cycle_percent.element.selectedIndex
         let vals = {}
@@ -576,7 +441,7 @@ class WhereStat extends Stat
                 {
                     val = val === 'Yes'
                 }
-                vals[s.replace('results.', '')] = val
+                vals[s] = val
             }
         }
 
@@ -587,7 +452,7 @@ class WhereStat extends Stat
         }
         if (count != 0)
         {
-            stat.sum = this.counters[count-1].replace('results.', '')
+            stat.sum = this.counters[count-1]
             stat.negative = dal.meta[this.counters[count-1]].negative
         }
         else
@@ -596,7 +461,7 @@ class WhereStat extends Stat
         }
         if (wdenominator != 0)
         {
-            stat.denominator = this.counters[wdenominator-1].replace('results.', '')
+            stat.denominator = this.counters[wdenominator-1]
         }
         return stat
     }
