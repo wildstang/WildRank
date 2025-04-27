@@ -11,10 +11,7 @@ const start = Date.now()
 var type_form, user_form, pos_form, min_value, max_value
 
 /**
- * function:    init_page
- * parameters:  none
- * returns:     none
- * description: Runs onload to fill out the page.
+ * Populates the contents of the page.
  */
 function init_page()
 {
@@ -59,10 +56,7 @@ function init_page()
 }
 
 /**
- * function:    hide_buttons
- * parameters:  none
- * returns:     none
- * description: Toggle between match and team options depending on if pit mode is selected.
+ * Toggle between match and team options depending on if pit mode is selected.
  */
 function hide_buttons()
 {
@@ -84,10 +78,7 @@ function hide_buttons()
 }
 
 /**
- * function:    create_results
- * parameters:  none
- * returns:     none
- * description: Processes inputs to generate results.
+ * Processes inputs to generate results.
  */
 function create_results()
 {
@@ -144,47 +135,45 @@ function create_results()
 }
 
 /**
- * function:    create_random_result
- * parameters:  scouting mode, scouting position, match number, team number
- * returns:     none
- * description: Generates and saves a new random result
+ * Generates a new random result for the given parameters.
+ * @param {String} scout_mode Scouting mode
+ * @param {Number} scout_pos Scouting position
+ * @param {String} match_key Match key to generate
+ * @param {String} team_num Team number to generate
  */
-function create_random_result(scout_mode, scout_pos, match_key, team_num, alliance_color)
+function create_random_result(scout_mode, scout_pos, match_key, team_num)
 {
-    results = {}
-
-    // scouter metadata
-    if (scout_mode != NOTE_MODE)
-    {
-        results['meta_scouter_id'] = parseInt(cfg.user.state.user_id)
-        results['meta_scout_time'] = Math.round(start / 1000)
-        results['meta_scouting_duration'] = (Date.now() - start) / 1000
+    results = {
+        meta: {
+            result: {
+                scout_mode: scout_mode,
+                event_id: cfg.user.state.event_id,
+                team_num: parseInt(team_num)
+            },
+            scouter: {
+                user_id: parseInt(cfg.user.state.user_id),
+                position: scout_pos,
+                start_time: Math.round(start / 1000),
+                duration: Math.round((Date.now() - start) / 1000),
+                config_version: cfg.scout.version,
+                app_version: cfg.app_version
+            },
+            status: {
+                unsure: false,
+                unsure_reason: '',
+                ignore: false
+            }
+        },
+        result: {}
     }
-    else
-    {
-        results['meta_note_scouter_id'] = parseInt(cfg.user.state.user_id)
-        results['meta_note_scout_time'] = Math.round(start / 1000)
-        results['meta_note_scouting_duration'] = (Date.now() - start) / 1000
-    }
 
-    // scouting metadata
-    results['meta_scout_mode'] = scout_mode
-    results['meta_position'] = parseInt(scout_pos)
-    results['meta_event_id'] = event_id
-
-    // match metadata
-    if (scout_mode != PIT_MODE)
+    if (scout_mode !== PIT_MODE)
     {
-        results['meta_match_key'] = match_key
-        results['meta_comp_level'] = dal.get_match_value(match_key, 'comp_level')
-        results['meta_set_number'] = parseInt(dal.get_match_value(match_key, 'set_number'))
-        results['meta_match'] = dal.get_match_value(match_key, 'match_number')
-        results['meta_alliance'] = alliance_color
+        results.meta.result.match_key = match_key
     }
-    results['meta_team'] = parseInt(team_num)
 
     // get each result
-    for (let page of cfg[scout_mode])
+    for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         for (let column of page.columns)
         {
@@ -220,7 +209,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                     }
                     cycle.push(c)
                 }
-                results[column.id] = cycle
+                results.result[column.id] = cycle
             }
             else
             {
@@ -238,11 +227,11 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                             for (let i in options)
                             {
                                 let name = `${id}_${create_id_from_name(options[i])}`
-                                results[name] = res[i]
+                                results.result[name] = res[i]
                             }
                             break
                         default:
-                            results[id] = res
+                            results.result[id] = res
                             break
                     }
 
@@ -253,11 +242,11 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
                         if (red < 0)
                         {
                             let blue = dal.matches[match_key].blue_alliance.sort().indexOf(team_num)
-                            results[id] = blue + 1
+                            results.result[id] = blue + 1
                         }
                         else
                         {
-                            results[id] = red + 1
+                            results.result[id] = red + 1
                         }
                     }
                 }
@@ -265,11 +254,5 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num, allian
         }
     }
 
-    // get result name and save
-    let file = `pit-${event_id}-${team_num}`
-    if (scout_mode === MATCH_MODE || scout_mode === NOTE_MODE)
-    {
-        file = `${scout_mode}-${match_key}-${team_num}`
-    }
-    localStorage.setItem(file, JSON.stringify(results))
+    localStorage.setItem(`result-${(new Date()).getTime()}${Math.floor(Math.random() * 1000)}`, JSON.stringify(results))
 }
