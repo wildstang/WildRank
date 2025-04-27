@@ -118,17 +118,17 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
     // iterate through team objs
     for (let number of teams)
     {
-        let name = dal.get_value(number, 'meta.name')
+        let name = dal.teams[number].name
         // determine if the team has already been scouted
         let scouted = 'not_scouted'
-        if (complete && dal.is_pit_scouted(number))
+        if (complete && dal.is_team_scouted(number, 'pit'))
         {
             first = ''
             scouted = 'scouted'
-            /*if (dal.get_value(number, 'pit.meta_pit_unsure'))
+            if (dal.teams[number].unsure)
             {
                 scouted = 'highlighted'
-            }*/
+            }
         }
         else if (first == '')
         {

@@ -6,12 +6,11 @@
  */
 
 /**
- * function:    remove_team
- * parameters:  list name, team number, list position
- * returns:     none
- * description: Removes the clicked team from the containing list.
+ * Removes a given team from the given list.
+ * @param {String} name Picklist name
+ * @param {Number} team Team number
  */
-function remove_team(name, team, i=0)
+function remove_team(name, team)
 {
     if (team !== '')
     {
@@ -21,16 +20,15 @@ function remove_team(name, team, i=0)
     {
         delete dal.picklists[name]
     }
-    build_pick_lists(name, i)
+    build_pick_lists(name)
 }
 
 /**
- * function:    add_to
- * parameters:  list name, team number, list position
- * returns:     none
- * description: Adds the selected team to the selected list after the clicked team.
+ * Adds the current team to the given list after the given team.
+ * @param {String} name Picklist name
+ * @param {Number} after_team Team number to follow
  */
-function add_to(name, after_team, i=0)
+function add_to(name, after_team)
 {
     let team_num = document.getElementById('team_num').innerHTML
     if (team_num == after_team)
@@ -43,16 +41,15 @@ function add_to(name, after_team, i=0)
     }
     // insert team in list after clicked button (list name will return index of -1 so 0)
     dal.picklists[name].splice(dal.picklists[name].indexOf(after_team)+1, 0, team_num)
-    build_pick_lists(name, i)
+    build_pick_lists(name)
 }
 
 /**
- * function:    cross_out
- * parameters:  list name, team number, list position
- * returns:     none
- * description: Toggles the selected team's crossed out status across all picklists.
+ * Crosses out a given team to the given list.
+ * @param {String} name Picklist name
+ * @param {Number} team Team number
  */
-function cross_out(name, team, i=0)
+function cross_out(name, team)
 {
     if (!Object.keys(dal.picklists).includes('picked'))
     {
@@ -68,14 +65,12 @@ function cross_out(name, team, i=0)
         dal.picklists['picked'].push(team)
     }
 
-    build_pick_lists(name, i)
+    build_pick_lists(name)
 }
 
+
 /**
- * function:    create_list
- * parameters:  none
- * returns:     none
- * description: Creates a new list, if it doesn't already exist.
+ * Creates a new picklist.
  */
 function create_list()
 {
@@ -93,12 +88,10 @@ function create_list()
 }
 
 /**
- * function:    rename_list
- * parameters:  original list name, list position
- * returns:     none
- * description: Renames the current picklist.
+ * Renames the given picklist to the currently entered name.
+ * @param {String} old_name List to be renamed.
  */
-function rename_list(old_name, i=0)
+function rename_list(old_name)
 {
     let new_name = document.getElementById(`new_name_${old_name}`).value
     if (Object.keys(dal.picklists).includes(new_name))
@@ -110,15 +103,12 @@ function rename_list(old_name, i=0)
         // add empty array of list name
         dal.picklists[new_name] = dal.picklists[old_name]
         delete dal.picklists[old_name]
-        build_pick_lists(new_name, i)
+        build_pick_lists(new_name)
     }
 }
 
 /**
- * function:    setup_picklists
- * parameters:  none
- * returns:     none
- * description: Fetches picklists from localstorage and populates picklist div.
+ * Deletes empty picklists and triggers building of the interface.
  */
 function setup_picklists()
 {

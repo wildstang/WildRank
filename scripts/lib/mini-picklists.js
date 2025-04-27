@@ -10,10 +10,8 @@ include('picklists-core')
 var picklist_dropdown
 
 /**
- * function:    select_list
- * parameters:  selected list name
- * returns:     none
- * description: Display a list's teams when selected.
+ * Opens a given picklist at the bottom of the page.
+ * @param {String} name Picklist name
  */
 function select_list(name='')
 {
@@ -57,12 +55,10 @@ function select_list(name='')
 }
 
 /**
- * function:    build_pick_lists
- * parameters:  selected list name, list number
- * returns:     none
- * description: Builds HTML elements of all pick lists with buttons.
+ * Populates the bottom picklist viewer with available picklists.
+ * @param {String} list_name Picklist to default to
  */
-function build_pick_lists(list_name='first_default', i=0)
+function build_pick_lists(list_name='first_default')
 {
     // don't show picklists UI if there are no lists
     if (Object.keys(dal.picklists).length > 0)

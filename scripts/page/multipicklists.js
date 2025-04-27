@@ -12,10 +12,7 @@ include('transfer')
 var avatar_el, team_el, name_el, lists_el, mode_el, table_card
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
+ * Populates the page with basic contents.
  */
 function init_page()
 {
@@ -64,28 +61,23 @@ function init_page()
 }
 
 /**
- * function:    new_list
- * parameters:  none
- * returns:     none
- * description: Creates a new list containing the current team.
+ * Creates a new list called "New List".
  */
 function new_list()
 {
     let team = team_el.innerText
     dal.picklists['New List'] = [team]
-    build_pick_lists('New List', 0, 'New List')
+    build_pick_lists('New List', 'New List')
 }
 
 /**
- * function:    mark_team
- * parameters:  pick list name, team number
- * returns:     none
- * description: Cross off or remove a team based on the remove checkbox.
+ * Marks a team (add, cross out, remove) based on the current mode.
+ * @param {String} list List name
+ * @param {Number} team Team number
  */
 function mark_team(list, team)
 {
     let mode = mode_el.selected_index
-    console.log(list, team, mode)
     switch (mode)
     {
         case 0:
@@ -100,20 +92,19 @@ function mark_team(list, team)
     }
 }
 
+
 /**
- * function:    open_option
- * parameters:  Selected team number
- * returns:     none
- * description: Completes right info pane for a given team number.
+ * Opens the given team number.
+ * @param {Number} team_num Team number
  */
 function open_option(team_num)
 {
     deselect_all()
 
     // build team header
-    avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
+    avatar_el.src = dal.teams[team_num].avatar
     team_el.innerHTML = team_num
-    name_el.innerHTML = dal.get_value(team_num, 'meta.name')
+    name_el.innerHTML = dal.teams[team_num].name
 
     let belongs_to = []
     if (Object.keys(dal.picklists).length > 0)
@@ -127,7 +118,12 @@ function open_option(team_num)
     ws(team_num)
 }
 
-function build_pick_lists(highlight='', list_num=0, rename='')
+/**
+ * Builds a table of all the pick lists.
+ * @param {String} highlight Selected picklist
+ * @param {String} rename List currently selected to be renamed
+ */
+function build_pick_lists(highlight='', rename='')
 {
     let columns = []
     let longest = 2
@@ -196,7 +192,7 @@ function build_pick_lists(highlight='', list_num=0, rename='')
 
                     let avatar = document.createElement('img')
                     avatar.className = 'avatar'
-                    avatar.src = dal.get_value(team, 'pictures.avatar')
+                    avatar.src = dal.teams[team].avatar
                     avatar_cell.append(avatar)
                 }
                 if (dal.picklists['picked'] && dal.picklists['picked'].includes(team))
@@ -236,10 +232,8 @@ function build_pick_lists(highlight='', list_num=0, rename='')
 }
 
 /**
- * function:    remove_list
- * parameters:  list name
- * returns:     none
- * description: Removes a given list and rebuilds the page.
+ * Deletes the given picklist.
+ * @param {String} list List name
  */
 function remove_list(list)
 {
@@ -251,10 +245,8 @@ function remove_list(list)
 }
 
 /**
- * function:    export_picklists
- * parameters:  none
- * returns:     none
- * description: Starts the zip export process for picklists.
+ * Exports the picklists to a zip.
+ * TODO: maybe just export a json file and add an import button
  */
 function export_picklists()
 {
