@@ -663,15 +663,15 @@ class AnalysisConfig
         }
         if (tests[2] === true)
         {
-            tests.push(...analysis_config.fms_breakdown_results.map(s => Result.validate(s, false)).flat())
+            tests.push(...analysis_config.fms_breakdown_results.map(s => Result.validate(s, 'fms', false)).flat())
         }
         if (tests[3] === true)
         {
-            tests.push(...analysis_config.fms_ranking_results.map(s => Result.validate(s, false)).flat())
+            tests.push(...analysis_config.fms_ranking_results.map(s => Result.validate(s, 'fms', false)).flat())
         }
         if (tests[4] === true)
         {
-            tests.push(...analysis_config.smart_results.map(s => Result.validate(s, false)).flat())
+            tests.push(...analysis_config.smart_results.map(s => Result.validate(s, 'smart', false)).flat())
         }
 
         if (summarize)
@@ -900,7 +900,7 @@ class ScoutConfig
                         {
                             for (let input of column.inputs)
                             {
-                                tests.push(Result.validate(input, false))
+                                tests.push(Result.validate(input, 'input', false))
                             }
                         }
                     }
@@ -927,7 +927,7 @@ class ScoutConfig
             {
                 if (column.cycle)
                 {
-                    column.type = 'column'
+                    column.type = 'cycle'
                     inputs.push(...Result.from_object(column))
                 }
                 else
@@ -946,22 +946,38 @@ class ScoutConfig
 
 class Result
 {
+    VALID_INPUTS = ['checkbox', 'counter', 'dropdown', 'multicounter', 'multiselect', 'number', 'select', 'slider', 'string',
+        'text', 'timer']
+    VALID_FMS = ['filter', 'map', 'math', 'max', 'min', 'where', 'wrank']
+    VALID_SMARTS = ['boolean', 'int', 'state', 'yes_no']
+
     /**
      * Validates a given result config object.
      * @param {Object} obj Scouting input, FMS result, or smart result raw config object.
      * @param {Boolean} summarize Whether a boolean or list of tests should be returned
      * @returns If summarize, a boolean, otherwise a list of trues and failure cases for each test.
      */
-    static validate(obj, summarize=true)
+    static validate(obj, result_type, summarize=true)
     {
         let tag = obj.hasOwnProperty('id') ? obj.id : 'input'
         let tests = [
             has_string(tag, obj, 'id'),
-            has_string(tag, obj, 'name'),
-            has_string(tag, obj, 'type', ['checkbox', 'counter', 'dropdown', 'multicounter', 'multiselect',
-                'number', 'select', 'slider', 'string', 'text', 'timer', 'boolean', 'int', 'state', 'yes_no',
-                'filter', 'map', 'math', 'max', 'min', 'where', 'wrank'])
+            has_string(tag, obj, 'name')
         ]
+
+        // validate type based on type of result
+        if (result_type === 'input')
+        {
+            tests.push(has_string(tag, obj, 'type', Result.VALID_INPUTS))
+        }
+        else if (result_type === 'fms')
+        {
+            tests.push(has_string(tag, obj, 'type', Result.VALID_FMS))
+        }
+        else if (result_type === 'smart')
+        {
+            tests.push(has_string(tag, obj, 'type', Result.VALID_SMARTS))
+        }
 
         if (tests[2] === true)
         {
@@ -1139,35 +1155,19 @@ class Result
      */
     get kind()
     {
-        switch(this.type)
+        if (['checkbox', 'cycle', 'counter', 'dropdown', 'number', 'select', 'slider', 'string', 'text', 'timer'].includes(this.type))
         {
-            case 'checkbox':
-            case 'column':
-            case 'counter':
-            case 'dropdown':
-            case 'number':
-            case 'select':
-            case 'slider':
-            case 'string':
-            case 'text':
-            case 'timer':
-                return 'result'
-
-            case 'boolean':
-            case 'int':
-            case 'state':
-            case 'yes_no':
-                return 'fms'
-
-            case 'filter':
-            case 'map':
-            case 'math':
-            case 'max':
-            case 'min':
-            case 'where':
-            case 'wrank':
-                return 'smart'
+            return 'result'
         }
+        else if (['boolean', 'int', 'state', 'yes_no'].includes(this.type))
+        {
+            return 'fms'
+        }
+        else if (['filter', 'map', 'math', 'max', 'min', 'where', 'wrank'].includes(this.type))
+        {
+            return 'smart'
+        }
+        return 'unknown'
     }
 
     /**
@@ -1203,7 +1203,6 @@ class Result
         switch(this.type)
         {
             case 'yes_no':
-                results = results.map(r => r === 'yes')
             case 'boolean':
             case 'checkbox':
                 results = results.map(r => r ? 1 : 0)
@@ -1270,7 +1269,7 @@ class Result
                         console.log(`Unrecognized mode ${stat}, returning null`)
                 }
 
-            case 'column':
+            case 'cycle':
             case 'string':
             case 'text':
                 return '---'
@@ -1316,7 +1315,7 @@ class Result
 
     /**
      * Computes the current smart result based on the given result, or all results if no result is given.
-     * @param {Result} result Match or team result or null
+     * @param {BaseResult} result Match or team result or null
      * @returns The smart result value.
      */
     compute_smart_result(result, teams='all')
@@ -1365,7 +1364,20 @@ class Result
                 let map_val = get_value(this.result)
                 if (map_val !== null)
                 {
-                    return this.values[map_val]
+                    let result = cfg.get_result_from_key(this.result)
+                    let value_type = result.value_type
+                    if (value_type === 'str-option')
+                    {
+                        return this.values[result.options.indexOf(map_val)]
+                    }
+                    else if (value_type === 'boolean')
+                    {
+                        return this.values[map_val ? 0 : 1]
+                    }
+                    else if (value_type === 'int-option')
+                    {
+                        return this.values[map_val]
+                    }
                 }
                 break
 
@@ -1373,7 +1385,7 @@ class Result
                 let math_fn = this.math
                 let team_keys = cfg.get_team_keys()
                 let match_keys = cfg.get_match_keys()
-                let keys = math_fn.match(/[a-z]+\.[a-z0-9_]+/g)
+                let keys = math_fn.match(/(result|fms|smart)\.[a-zA-Z0-9_]+/g)
                 if (keys)
                 {
                     for (let k of keys)
@@ -1398,6 +1410,10 @@ class Result
                         }
                     }
                 }
+                if (math_fn.trim().length === 0)
+                {
+                    return null
+                }
                 try
                 {
                     let res = eval(math_fn)
@@ -1409,11 +1425,15 @@ class Result
                 }
 
             case 'max':
-                let max_values = this.results.map(s => get_value(s))
-                return this.results[max_values.indexOf(Math.max(...max_values))]
             case 'min':
-                let min_values = this.results.map(s => get_value(s))
-                return this.results[min_values.indexOf(Math.min(...min_values))]
+                let m_values = this.results.map(s => get_value(s))
+                let extreme = this.type === 'max' ? Math.max(...m_values) : Math.min(...m_values)
+                let extreme_id = this.results[m_values.indexOf(extreme)]
+                if (extreme_id)
+                {
+                    return cfg.get_result_from_key(extreme_id).name
+                }
+                break
 
             case 'where':
                 let count = 0
@@ -1486,8 +1506,8 @@ class Result
                  * if that result isn't a number 1 -> alliance_size it will likely produce meaningless values.
                  */
                 let partners = []
-                let red_teams = dal.matches[result.match_key]
-                let blue_teams = dal.matches[result.match_key]
+                let red_teams = dal.matches[result.match_key].red_alliance
+                let blue_teams = dal.matches[result.match_key].blue_alliance
                 if (red_teams.includes(result.team_num))
                 {
                     partners = red_teams.filter(t => t != result.team_num)
@@ -1499,9 +1519,9 @@ class Result
 
                 // sum each partner's event average
                 let total_partner_rank = 0
-                for (let team_num in partners)
+                for (let team_num of partners)
                 {
-                    total_partner_rank += this.compute_stat(stat.result, team_num, 'mean')
+                    total_partner_rank += dal.compute_stat(stat.result, team_num, 'mean')
                 }
 
                 // calculate the weighted result
@@ -1524,41 +1544,55 @@ class Result
      */
     clean_value(value)
     {
-        switch(this.type)
+        switch(this.value_type)
         {
-            case 'yes_no':
-                value = value === 'yes'
             case 'boolean':
-            case 'checkbox':
                 return value ? 'Yes' : 'No'
 
-            case 'counter':
-            case 'filter':
-            case 'int':
-            case 'map':
-            case 'math':
-            case 'number':
-            case 'slider':
-            case 'timer':
-            case 'where':
-            case 'wrank':
-                return value === Math.round(value) ? value : value.toFixed(2)
-
-            case 'column':
-            case 'string':
-            case 'text':
-                return value
-
-            case 'dropdown':
-            case 'select':
+            case 'int-option':
                 return this.options[value]
 
-            case 'max':
-            case 'min':
-            case 'state':
+            case 'number':
+                return value.toFixed(2)
+
+            case 'object':
+            case 'string':
+            case 'str-option':
                 return value
         }
         return value
+    }
+
+    /**
+     * Determines the corresponding data type to the current type.
+     */
+    get value_type()
+    {
+        if (['yes_no', 'boolean', 'checkbox'].includes(this.type))
+        {
+            return 'boolean'
+        }
+        else if (['counter', 'filter', 'int', 'map', 'math', 'number', 'slider', 'timer', 'where', 'wrank'].includes(this.type))
+        {
+            return 'number'
+        }
+        else if (['string', 'text'].includes(this.type))
+        {
+            return 'string'
+        }
+        else if (['dropdown', 'select'].includes(this.type))
+        {
+            return 'int-option'
+        }
+        else if (['max', 'min', 'state'].includes(this.type))
+        {
+            return 'str-option'
+        }
+        else if (this.type === 'cycle')
+        {
+            return 'object'
+        }
+        return ''
     }
 
     /**
@@ -1893,6 +1927,39 @@ class Config
             keys.push(...this.analysis.smart_results.filter(s => s.is_team_smart_result).map(s => s.full_id))
         }
         return keys
+    }
+
+    /**
+     * Gets an array of all keys.
+     * @param {Boolean} results Whether to get result keys.
+     * @param {Boolean} fms Whether to get FMS keys.
+     * @param {Boolean} smart Whether to get smart result keys.
+     * @returns An array of keys.
+     */
+    get_keys(results=true, fms=true, smart=true)
+    {
+        return this.get_team_keys(results, fms, smart).concat(this.get_match_keys(results, fms, smart))
+    }
+
+    /**
+     * Filters a given Array of keys by the given allowed value types.
+     * @param {Array} keys Array of keys
+     * @param {Array} allowed_values Array of allowed value types
+     * @returns Filtered version of keys
+     */
+    filter_keys(keys, allowed_values)
+    {
+        return keys.filter(k => allowed_values.includes(this.get_result_from_key(k).value_type))
+    }
+
+    /**
+     * Converts a list of keys to a list of Result names.
+     * @param {Array} keys Array of keys
+     * @returns Array of names
+     */
+    get_names(keys)
+    {
+        return keys.map(k => cfg.get_result_from_key(k).name)
     }
 
     //

@@ -166,7 +166,12 @@ class BaseResult
             case 'fms':
                 if (this.fms_results.hasOwnProperty(sub_key))
                 {
-                    return this.fms_results[sub_key]
+                    let value = this.fms_results[sub_key]
+                    if (cfg.get_result_from_key(key).type === 'yes_no')
+                    {
+                        return value === 'Yes'
+                    }
+                    return value
                 }
                 break
             case 'smart':

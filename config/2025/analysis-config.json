@@ -3,13 +3,13 @@
     "fms_breakdown_results": [
         {
             "id": "autoLineRobot",
-            "name": "Leave",
+            "name": "FMS Leave",
             "type": "yes_no",
             "negative": false
         },
         {
             "id": "endGameRobot",
-            "name": "Barge Scoring",
+            "name": "FMS Barge Scoring",
             "type": "state",
             "options": [
                 "DeepCage",
