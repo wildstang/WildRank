@@ -146,3 +146,8 @@ tr:nth-child(even) {
 .faded {
     color: #C0C0C0;
 }
+
+.meta_table {
+    font-size: small;
+    margin: 0 auto;
+}
