@@ -12,13 +12,10 @@ include('mini-picklists')
 var urlParams = new URLSearchParams(window.location.search)
 const selected = urlParams.get('file')
 
-var avatar, result_name, team_el, name_el, match_el, loc, rank, results_tab, show_meta, team_filter
+var avatar, result_name, team_el, name_el, match_el, rank_el, team_filter, results_box
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch results from localStorage. Initialize page contents.
+ * Fetch results from localStorage. Initialize page contents.
  */
 function init_page()
 {
@@ -32,22 +29,17 @@ function init_page()
     name_el = document.createElement('name_el')
     match_el = document.createElement('label')
     result_name.append(team_el, ': ', name_el, ', ', match_el)
-    loc = document.createElement('h3')
-    rank = document.createElement('h3')
-    title.append(avatar, ' ', result_name, loc, rank)
+    rank_el = document.createElement('h3')
+    title.append(avatar, ' ', result_name, rank_el)
 
-    let label = document.createElement('label')
-    show_meta = create_element('input', 'show_meta')
-    show_meta.type = 'checkbox'
-    show_meta.onclick = (event) => rebuild_result_list()
-    label.append(show_meta, 'Show Metadata')
-
-    results_tab = create_element('table', 'results_tab')
-    let card = new WRCard([title, label, results_tab], true)
+    let card = new WRCard([title], true)
     preview.append(card)
 
+    results_box = document.createElement('div')
+    preview.append(results_box)
+
     // add filter for teams
-    let avail_teams = Object.keys(dal.teams)
+    let avail_teams = dal.team_numbers
     avail_teams.sort((a,b) => parseInt(a) - parseInt(b))
     avail_teams.unshift('All')
     team_filter = add_dropdown_filter(avail_teams, build_result_list)
@@ -57,36 +49,33 @@ function init_page()
 }
 
 /**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select result pane with results.
+ * Completes left select result pane with results.
  */
 function build_result_list()
 {
-    let results = dal.get_results()
-
     // get selected team in filter
     let filter = team_filter.element.value
 
     // build list of options, sorted by match
     let options = {}
     let classes = {}
-    for (let result of results)
+    for (let match_key of dal.match_keys)
     {
-        let team = result.meta_team
-        let match = result.meta_match_key
-        if (((selected === '' || selected === null) || `${match}-${result.meta_team}` === selected) &&
-            (filter === 'All' || team.toString() === filter))
+        for (let team_num in dal.matches[match_key].results)
         {
-            let spaces = 4 - team.toString().length
-            let disp_team = team
-            for (let i = 0; i < spaces; i++)
+            // TODO: support selecting based off of file name? from query
+            if (filter === 'All' || team_num.toString() === filter)
             {
-                disp_team = `&nbsp;${disp_team}`
+                let result = dal.get_match_result(match_key, team_num)
+                let spaces = 5 - team_num.toString().length
+                let disp_team = team_num
+                for (let i = 0; i < spaces; i++)
+                {
+                    disp_team = `&nbsp;${disp_team}`
+                }
+                options[`${match_key}-${team_num}`] = `${dal.matches[match_key].short_name} ${disp_team}`
+                classes[`${match_key}-${team_num}`] = result.unsure ? 'highlighted' : ''
             }
-            options[`${match}-${team}`] = `${dal.get_match_value(match, 'short_match_name')} ${disp_team}`
-            classes[`${match}-${team}`] = dal.get_result_value(team, match, 'meta_unsure') ? 'highlighted' : ''
         }
     }
 
@@ -99,10 +88,7 @@ function build_result_list()
 }
 
 /**
- * function:    rebuild_team_list
- * parameters:  none
- * returns:     none
- * description: Calls open_option with the current result.
+ * Calls open_option with the current result.
  */
 function rebuild_result_list()
 {
@@ -111,66 +97,97 @@ function rebuild_result_list()
 }
 
 /**
- * function:    open_option
- * parameters:  selected option
- * returns:     none
- * description: Selects the given option and populate the page.
+ * Populates the body of the page for the selected result.
+ * @param {String} option Selected result ID
  */
 function open_option(option)
 {
     // select the new option
     deselect_all()
     document.getElementById(`left_pit_option_${option}`).classList.add('selected')
+    results_box.replaceChildren()
 
     // pull match and team out
     let parts = option.split('-')
-    let match = parts[0]
-    let team = parts[1].trim()
-    let result = dal.teams[team].results.filter(r => r.meta_match_key === match)[0]
-
-    // highlight config mismatches with red text
-    let version = dal.get_result_value(team, match, 'meta_config_version', true)
-    let color = 'black'
-    if (version !== '' && version !== cfg.version)
-    {
-        color = 'red'
-    }
-    result_name.style.color = color
+    let match_key = parts[0]
+    let team_num = parts[1].trim()
 
     // setup header
-    avatar.src = dal.get_value(team, 'pictures.avatar')
-    team_el.innerText = team
-    name_el.innerText = dal.get_value(team, 'meta.name')
-    match_el.innerText = dal.get_match_value(match, 'match_name')
-    loc.innerText = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
-    rank.innerText = dal.get_rank_str(team)
-
-    // build a list of opponents to prepare for replacing opponentX in names TODO?
-    let red = dal.matches[match].red_alliance
-    let blue = dal.matches[match].blue_alliance
-    let opponents = []
-    if (red.includes(team))
+    avatar.src = dal.teams[team_num].avatar
+    team_el.innerText = team_num
+    name_el.innerText = dal.teams[team_num].name
+    match_el.innerText = dal.matches[match_key].name
+    let rank = dal.get_team_value(team_num, 'fms.rank')
+    if (rank !== null)
     {
-        opponents = blue
-    }
-    else if (blue.includes(team))
-    {
-        opponents = red
+        rank_el.innerText = `Rank #${rank} (${dal.get_team_value(team_num, 'fms.sort_orders_0')} RP)`
     }
 
-    let alliances = dal.build_relative_alliances(team, match)
-    results_tab.replaceChildren()
-    results_tab.append(create_header_row(['', 'Match Value']))
-    let keys = Object.keys(result)
-    if (!show_meta.checked)
+    let result = dal.get_match_result(match_key, team_num)
+    for (let scout_mode in result.results)
     {
-        keys = keys.filter(k => !k.startsWith('meta_'))
+        for (let i in result.results[scout_mode])
+        {
+            add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i])
+        }
     }
-    for (let key of keys)
+}
+
+/**
+ * Builds a card and adds it to the page for the given scouting mode in the given result.
+ * @param {String} scout_mode Scouting mode
+ * @param {Object} match_result Match result for scouting mode
+ * @param {Object} meta Match result metadata for scouting mode
+ */
+function add_result_card(scout_mode, match_result, meta)
+{
+    let config = cfg.get_scout_config(scout_mode)
+
+    let result_name = document.createElement('h3')
+    result_name.innerText = `${config.name} Result`
+
+    let meta_tab = document.createElement('table')
+    meta_tab.className = 'meta_table'
+    let user_row = meta_tab.insertRow()
+    user_row.append(create_header('Scouter'))
+    user_row.insertCell().innerText = cfg.get_name(meta.scouter.user_id, true)
+    let match_time_row = meta_tab.insertRow()
+    match_time_row.append(create_header('Match Time'))
+    let match_time = dal.matches[meta.result.match_key].time * 1000
+    match_time_row.insertCell().innerText = new Date(match_time).toLocaleTimeString("en-US")
+    let scout_time_row = meta_tab.insertRow()
+    scout_time_row.append(create_header('Scout Time'))
+    let scout_time = meta.scouter.start_time * 1000
+    let delta_secs = (match_time - scout_time) / 1000
+    let abs_secs = Math.abs(delta_secs)
+    let delta = `${abs_secs.toFixed(0)} secs`
+    if (abs_secs >= 60)
     {
-        let name = dal.fill_team_numbers(dal.get_name('stats.' + key, ''), alliances)
-        let row = results_tab.insertRow()
-        row.append(create_header(name))
-        row.insertCell().innerHTML = dal.get_result_value(team, match, key, true)
+        delta = `${(abs_secs / 60).toFixed(0)} mins`
     }
+    scout_time_row.insertCell().innerText = `${new Date(scout_time).toLocaleTimeString("en-US")} (${delta} ${delta_secs > 0 ? 'early' : 'late'})`
+    let ignore_box = document.createElement('input')
+    ignore_box.type = 'checkbox'
+    ignore_box.checked = meta.status.ignore
+    // TODO: handle ignore box
+    let ignore_row = meta_tab.insertRow()
+    ignore_row.append(create_header('Ignored'))
+    ignore_row.insertCell().append(ignore_box)
+    let unsure_row = meta_tab.insertRow()
+    unsure_row.append(create_header('Unsure'))
+    unsure_row.insertCell().innerText = meta.status.unsure ? meta.status.unsure_reason : '-'
+
+    let result_tab = document.createElement('table')
+    for (let key in match_result)
+    {
+        let result = cfg.get_result_from_key(`result.${key}`)
+        let row = result_tab.insertRow()
+        row.append(create_header(result.name))
+        row.insertCell().innerText = result.clean_value(match_result[key])
+        row.insertCell().innerText = result.clean_value(dal.compute_stat(`result.${key}`, meta.result.team_num))
+        row.insertCell().innerText = result.clean_value(dal.compute_stat(`result.${key}`))
+    }
+
+    let card = new WRCard([result_name, meta_tab, result_tab], true)
+    results_box.append(card)
 }

@@ -41,10 +41,9 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
     }
     document.getElementById(list).innerHTML = ''
     
-    let matches = Object.keys(dal.matches)
+    let matches = dal.match_keys
     let first = ''
     let first_avail = ''
-    matches.sort((a, b) => dal.matches[a].scheduled_time - dal.matches[b].scheduled_time)
 
     // determine if event has been completed outside of WildRank
     let completes = matches.map(m => dal.matches[m].winner !== null)
@@ -65,7 +64,7 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             let scouted = 'not_scouted'
             let level = match.comp_level.toUpperCase()
             let teams = red_teams.concat(blue_teams)
-            let is_scouted = (!note && dal.is_match_scouted(match_key, teams[scout_pos])) || (note && dal.is_note_scouted(match_key, teams[scout_pos]))
+            let is_scouted = (!note && dal.is_match_scouted(match_key, teams[scout_pos], 'match')) || (note && dal.is_match_scouted(match_key, teams[scout_pos], 'note'))
             if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_scouted && level == 'QM')))
             {
                 scouted = 'scouted'
@@ -81,7 +80,7 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             }
 
             // build match name
-            let option = new WRMatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams, !secondary)
+            let option = new WRMatchOption(match_key, dal.matches[match_key].short_name, red_teams, blue_teams, !secondary)
             option.add_class(scouted)
             document.getElementById(list).append(option)
         }
