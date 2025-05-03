@@ -300,6 +300,7 @@ function open_role(role)
 function process_files()
 {
     dal = new Data(cfg.user.state.event_id)
+    dal.load_data()
     step_setup()
 }
 
