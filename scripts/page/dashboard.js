@@ -28,10 +28,10 @@ function init_page()
     event_config.set_status((teams.length > 0 ? 1 : 0) + (matches.length > 0 ? 1 : 0) - 1)
     let scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
-    scout_config_valid.on_click = () => window_open(build_url('config-debug'), '_self')
+    scout_config_valid.on_click = () => window_open(build_url('config-debug'))
     let analysis_config_valid = new WRStatusTile(cfg.analysis.version)
     analysis_config_valid.set_status(cfg.validate() ? 1 : -1)
-    analysis_config_valid.on_click = () => window_open(build_url('config-debug'), '_self')
+    analysis_config_valid.on_click = () => window_open(build_url('config-debug'))
     let status_stack = new WRStack([event_config, scout_config_valid, analysis_config_valid])
 
     // create result summary card
@@ -178,7 +178,7 @@ function populate()
             td.style.backgroundColor = get_completion_color(scouted_modes, match_modes.length)
             if (scouted_modes > 0)
             {
-                td.onclick = (event) => window_open(build_url('results', {'match': match, 'team': team}), '_self')
+                td.onclick = (event) => window_open(build_url('results', {'match': match, 'team': team}))
             }
         }
     }
@@ -221,7 +221,7 @@ function populate()
         td.innerText = team
         if (scouted_modes > 0)
         {
-            td.onclick = (event) => window_open(build_url('teams', {'team': team}), '_self')
+            td.onclick = (event) => window_open(build_url('teams', {'team': team}))
         }
     }
 

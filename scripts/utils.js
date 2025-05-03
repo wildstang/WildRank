@@ -19,11 +19,11 @@ const TBA_AUTH_KEY = 'X-TBA-Auth-Key'
  * returns:     none
  * description: Opens in window if url is not empty.
  */
-function window_open(url, option)
+function window_open(url, new_tab=false)
 {
     if (url != '')
     {
-        window.open(url, option)
+        window.open(url, new_tab ? '_blank' : '_self')
     }
 }
 

@@ -171,7 +171,7 @@ function home(right=false)
         url += '?page=home'
     }
 
-    window_open(url, right ? '_blank' : '_self')
+    window_open(url, right)
 }
 
 // open the updater page when u is pressed 5 times
@@ -183,7 +183,7 @@ document.onkeydown = function (e)
         u_count++
         if (u_count === 5)
         {
-            window_open('updater.html', '_self')
+            window_open('updater.html')
         }
     }
 }

@@ -214,13 +214,13 @@ class WRLinkButton extends WRButton
             let since_last_touch = Date.now() + last_touch_time
             if (since_last_touch < 400 || since_last_touch > 1000)
             {
-                window_open(link, new_tab ? '_blank' : '_self')
+                window_open(link, new_tab)
             }
         }
         super(label, on_click)
 
         // TODO: After holding for about 750 ms this code runs but doesn't do anything on iPad.
-        this.on_right = () => window_open(link, '_blank')
+        this.on_right = () => window_open(link, true)
     }
 }
 

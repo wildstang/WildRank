@@ -1735,7 +1735,7 @@ class Config
         {
             if (confirm('No API key found for TBA! Do you want to open TBA?'))
             {
-                window_open('https://www.thebluealliance.com/account#submissions-accepted-count-row', '_blank')
+                window_open('https://www.thebluealliance.com/account#submissions-accepted-count-row', true)
                 let key = prompt('Enter your TBA key:')
                 if (key)
                 {

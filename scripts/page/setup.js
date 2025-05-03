@@ -20,7 +20,7 @@ function init_page()
     cfg.on_app_version = () => {
         let header = document.getElementById('header_info')
         header.innerText = cfg.app_version
-        header.onclick = () => window_open('index.html?page=about', '_blank')
+        header.onclick = () => window_open('index.html?page=about', true)
     }
 
     step_setup()
@@ -31,9 +31,6 @@ function init_page()
  */
 function step_setup()
 {
-    // use the event short name, if not available use the ID
-    let event = dal.event && dal.event.short_name !== undefined ? dal.event.short_name : cfg.user.state.event_id
-
     // the primary column for performing setup
     let setup_col = new WRColumn('Setup')
     let columns = [setup_col]
@@ -52,7 +49,7 @@ function step_setup()
     ]))
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
-    scout_config_valid.on_click = () => window_open(build_url('config-debug'), '_self')
+    scout_config_valid.on_click = () => window_open(build_url('config-debug'))
     status_col.add_input(new WRStack([
         scout_config_valid,
         new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
@@ -127,7 +124,9 @@ function step_setup()
         setup_col.add_input(position_el)
 
         let match_scout = new WRButton('Match Scout', () => scout('matches'))
+        match_scout.on_right = () => scout('matches', true)
         let other_scout = new WRMultiButton('', ['Pit', 'Alliance'], [() => scout('pits'), () => scout('notes')])
+        other_scout.on_rights = [() => scout('pits', true), () => scout('notes', true)]
         other_scout.add_class('slim')
         setup_col.add_input(new WRStack([match_scout, other_scout]))
 
@@ -141,6 +140,7 @@ function step_setup()
     }
     else
     {
+        setup_col.add_input(new WRLinkButton('Dashboard', build_url('dashboard')))
         setup_col.add_input(new WRButton('Drive Team', () => open_role('drive')))
         setup_col.add_input(new WRButton('Analyst', () => open_role('analysis')))
         setup_col.add_input(new WRButton('Advanced', () => open_role('advanced')))
@@ -224,7 +224,7 @@ function set_user_id()
 /**
  * Callback for when the scout buttons are pressed. Reads in the position and goes to the appropriate selection page.
  */
-function scout(mode)
+function scout(mode, right_click)
 {
     let team_count = Object.keys(dal.teams).length
     let match_count = Object.keys(dal.matches).length
@@ -240,7 +240,7 @@ function scout(mode)
             cfg.set_role(mode)
 
             let scout_type = mode === 'notes' ? 'note' : 'match'
-            window_open(build_url('matches', {[MODE_QUERY]: scout_type}), '_self')
+            window_open(build_url('matches', {[MODE_QUERY]: scout_type}), right_click)
         }
         else
         {
@@ -253,7 +253,7 @@ function scout(mode)
         {
             cfg.set_role(mode)
 
-            window_open(build_url('pits', {[MODE_QUERY]: 'pit'}), '_self')
+            window_open(build_url('pits', {[MODE_QUERY]: 'pit'}), right_click)
         }
         else
         {
@@ -293,7 +293,7 @@ function open_role(role)
     {
         cfg.set_role(role)
 
-        window_open(build_url('home'), '_self')
+        build_url('home')
     }
 }
 

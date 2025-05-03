@@ -211,7 +211,7 @@ function open_role(role)
         let column = Object.values(columns)[0]
         if (column.length === 1)
         {
-            window_open(build_url(column[0]), '_self')
+            window_open(build_url(column[0]))
             return
         }
     }
@@ -228,7 +228,7 @@ function open_role(role)
             if (key === 'result_count')
             {
                 button = new WRMultiNumber('', ['T', 'M'], [dal.count_team_results(), dal.count_match_results()])
-                button.on_click = () => window_open(build_url('dashboard'), '_self')
+                button.on_click = () => window_open(build_url('dashboard'))
             }
             else if (is_blocked(key))
             {
@@ -270,7 +270,7 @@ function open_role(role)
 function sign_out()
 {
     cfg.set_role('')
-    window_open(build_url('setup'), '_self')
+    window_open(build_url('setup'))
 }
 
 /**
@@ -400,6 +400,6 @@ function home(right=false)
     }
     else
     {
-        window_open(build_url('setup'), right ? '_blank' : '_self')
+        window_open(build_url('setup'), right)
     }
 }
