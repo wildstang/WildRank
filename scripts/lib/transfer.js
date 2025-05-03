@@ -26,11 +26,11 @@ function preload_event(on_complete=null)
     // request the TBA key if it doesn't already exist
     let key = cfg.tba_key
     if (!key)
-            {
+    {
         alert('TBA key required to preload')
-                return
+        return
     }
-    
+
     passes = []
     fails = []
     api_endpoint = `https://www.thebluealliance.com/api/v3`
@@ -132,16 +132,16 @@ function count_data(result)
 function handle_matches(matches)
 {
     if (matches.length > 0)
-            {
-                // sort match objs by match number
+    {
+        // sort match objs by match number
         matches = matches.sort(function (a, b)
-                {
-                    return b.match_number < a.match_number ? 1
-                            : b.match_number > a.match_number ? -1
-                            : 0
-                })
+        {
+            return b.match_number < a.match_number ? 1
+                    : b.match_number > a.match_number ? -1
+                    : 0
+        })
 
-                // store matches as JSON string in matches-[event-id]
+        // store matches as JSON string in matches-[event-id]
         localStorage.setItem(`matches-${cfg.user.state.event_id}`, JSON.stringify(matches))
         return 'matches-true'
     }
@@ -156,22 +156,22 @@ function handle_matches(matches)
 function handle_teams(teams)
 {
     if (teams.length > 0)
-            {
-                // sort team objs by team number
+    {
+        // sort team objs by team number
         teams = teams.sort(function (a, b)
-                {
-                    return b.team_number < a.team_number ? 1
-                        : b.team_number > a.team_number ? -1
-                            : 0;
-                })
-                // store teams as JSON string in teams-[event_id]
+        {
+            return b.team_number < a.team_number ? 1
+                : b.team_number > a.team_number ? -1
+                    : 0;
+        })
+        // store teams as JSON string in teams-[event_id]
         localStorage.setItem(`teams-${cfg.user.state.event_id}`, JSON.stringify(teams))
 
-                // fetch team's avatar for whiteboard
-                for (let team of teams)
-                {
-                    let year = cfg.year
-                    fetch(`${api_endpoint}/team/frc${team.team_number}/media/${year}${key_query}`)
+        // fetch team's avatar for whiteboard
+        for (let team of teams)
+        {
+            let year = cfg.year
+            fetch(`${api_endpoint}/team/frc${team.team_number}/media/${year}${key_query}`)
                 .then(response => response.json())
                 .then(handle_media)
                 .catch(err => console.error(err))
@@ -189,22 +189,22 @@ function handle_teams(teams)
 function handle_media(media, team_num)
 {
     for (let m of media)
-                            {
-                                switch (m.type)
-                                {
-                                    case 'avatar':
+    {
+        switch (m.type)
+        {
+            case 'avatar':
                 localStorage.setItem(`avatar-${cfg.year}-${team_num}`, m.details.base64Image)
-                                        break
-                                    case 'cdphotothread':
-                                    case 'imgur':
-                                    // NOTE: instagram does things weird
-                                    //case 'instagram-image':
-                                    case 'onshape':
+                break
+            case 'cdphotothread':
+            case 'imgur':
+            // NOTE: instagram does things weird
+            //case 'instagram-image':
+            case 'onshape':
                 // TODO: handle pictures
                 //dal.add_photo(team.team_number, m.direct_url)
-                                        break
-                                }
-                            }
+                break
+        }
+    }
 }
 
 /**
@@ -214,17 +214,17 @@ function handle_media(media, team_num)
  */
 function handle_rankings(data)
 {
-                if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
-                {
-                    // sort rankings objs by team number
+    if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
+    {
+        // sort rankings objs by team number
         let rankings = data.rankings.sort(function (a, b)
-                    {
-                        return b.rank < a.rank ? 1
-                                : b.rank > a.rank ? -1
-                                : 0;
-                    })
+        {
+            return b.rank < a.rank ? 1
+                    : b.rank > a.rank ? -1
+                    : 0;
+        })
 
-                    // store rankings as JSON string in rankings-[event_id]
+        // store rankings as JSON string in rankings-[event_id]
         localStorage.setItem(`rankings-${cfg.user.state.event_id}`, JSON.stringify(rankings))
         return 'rankings-true'
     }
@@ -239,8 +239,8 @@ function handle_rankings(data)
 function handle_event(event)
 {
     if (event)
-                {
-                    // store event as JSON string
+    {
+        // store event as JSON string
         localStorage.setItem(`event-${cfg.user.state.event_id}`, JSON.stringify(event))
         return 'event-true'
     }
@@ -253,17 +253,17 @@ function handle_event(event)
  */
 function handle_photos(photos)
 {
-            // add each picture to config
+    // add each picture to config
     let teams = Object.keys(photos)
-            for (let team of teams)
-            {
+    for (let team of teams)
+    {
         let team_pics = photos[team]
         for (let i in team_pics)
-                {
+        {
             // TODO: handle pictures
             //dal.add_photo(team, `${server}/uploads/${team_pics[i]}`, i === 0)
-                }
-            }
+        }
+    }
 }
 
 /**
@@ -287,11 +287,9 @@ function download_csv()
     document.body.removeChild(element)
 }
 
+
 /**
- * function:    reset
- * parameters:  none
- * returns:     none
- * description: Reset the entire app.
+ * Prompts the user to delete all data in localStorage and cache.
  */
 async function reset()
 {
@@ -300,38 +298,22 @@ async function reset()
         // clear storage
         localStorage.clear()
 
-        // clear cookies
-        let cookies = document.cookie.split(';')
-        for (let i = 0; i < cookies.length; i++)
-        {
-            let cookie = cookies[i]
-            let eqPos = cookie.indexOf('=')
-            let name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`
-        }
-
         // clear offline pages
         if (typeof caches !== 'undefined')
         {
-            if (typeof caches !== 'undefined')
+            let keys = await caches.keys()
+            for (let key of keys)
             {
-                let keys = await caches.keys()
-                for (let key of keys)
-                {
-                    caches.delete(key)
-                }
+                caches.delete(key)
             }
         }
 
-        window_open('/', '_self')
+        window_open('/')
     }
 }
 
 /**
- * function:    reset_cache
- * parameters:  none
- * returns:     none
- * description: Reset app cache.
+ * Prompts the user to delete all data in cache.
  */
 async function reset_cache()
 {
@@ -345,7 +327,7 @@ async function reset_cache()
                 caches.delete(key)
             }
 
-            window_open('/', '_self')
+            window_open('/')
         }
     }
     else
@@ -355,10 +337,7 @@ async function reset_cache()
 }
 
 /**
- * function:    reset_storage
- * parameters:  none
- * returns:     none
- * description: Reset local storage.
+ * Prompts the user to delete all data in localStorage.
  */
 function reset_storage()
 {
@@ -367,22 +346,19 @@ function reset_storage()
         // clear storage
         localStorage.clear()
 
-        window_open('/', '_self')
+        window_open('/')
     }
 }
 
 /**
- * function:    reset_results
- * parameters:  none
- * returns:     none
- * description: Reset results in local storage.
+ * Prompts the user to delete all results from localStorage.
  */
 function reset_results()
 {
     if (confirm('Delete all results?'))
     {
         // remove all match and pit results
-        let files = Object.keys(localStorage).filter(f => f.startsWith(`match-`) || f.startsWith(`note-`) || f.startsWith(`pit-`))
+        let files = Object.keys(localStorage).filter(f => f.startsWith(`result-`))
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -391,10 +367,7 @@ function reset_results()
 }
 
 /**
- * function:    reset_config
- * parameters:  none
- * returns:     none
- * description: Reset settings files.
+ * Remove all WR config files from both localStorage and cache.
  */
 async function reset_config()
 {
@@ -410,43 +383,46 @@ async function reset_config()
                 let files = await cache.keys()
                 for (let file of files)
                 {
-                    if (file.url.endsWith('-config.json'))
+                    if (file.url.endsWith('-config.json') || file.url === `${USER_LIST}.csv`)
                     {
                         cache.delete(file)
-                        console.log('removed', key)
                     }
                 }
             }
         }
 
         // search localStorage for "config-20" files and delete them plus "config-users"
-        let files = Object.keys(localStorage).filter(f => f.startsWith('config-20') || f === 'config-users')
+        let files = Object.keys(localStorage).filter(f => f.endsWith('-config') || f === USER_LIST)
         for (let file of files)
         {
             localStorage.removeItem(file)
-            console.log('removed', file)
         }
 
-        window_open('/', '_self')
+        window_open('/')
     }
 }
 
 /**
- * function:    clear_events
- * parameters:  none
- * returns:     none
- * description: Clear other events from local storage.
+ * Reset all data from TBA for other events.
  */
 function clear_events()
 {
     if (confirm('Delete all configuration and results for other events?'))
     {
-        // remove all files containing uother event ids
-        let files = Object.keys(localStorage).filter(f => !f.includes(cfg.user.state.event_id))
+        // remove all files for other event ids
+        let event_id = dal.event_id
+        let files = Object.keys(localStorage).filter(f => !f.includes(event_id))
         for (let file of files)
         {
-            localStorage.removeItem(file)
+            if (file.startsWith('event-') || file.startsWith('matches-') || file.startsWith('picklists-') ||
+                file.startsWith('rankings-') || file.startsWith('teams-') ||
+                (file.startsWith('result-') && JSON.parse(localStorage.getItem(file)).meta.result.event_id !== event_id))
+            {
+                localStorage.removeItem(file)
+            }
         }
+
+        window_open('/')
     }
 }
 
@@ -455,16 +431,21 @@ function clear_events()
  */
 function reset_event()
 {
-    if (confirm(`Delete all configuration and results for ${dal.event_id}?`))
+    let event_id = dal.event_id
+    if (confirm(`Delete all configuration and results for ${event_id}?`))
     {
         // remove all files containing uother event ids
-        let files = Object.keys(localStorage).filter(f => f.includes(cfg.user.state.event_id))
+        let files = Object.keys(localStorage)
         for (let file of files)
         {
-            localStorage.removeItem(file)
+            if (file.includes(event_id) ||
+                (file.startsWith('result-') && JSON.parse(localStorage.getItem(file)).meta.result.event_id === event_id))
+            {
+                localStorage.removeItem(file)
+            }
         }
 
-        window_open('/', '_self')
+        window_open('/')
     }
 }
 

@@ -290,7 +290,7 @@ function open_role(role)
     {
         cfg.set_role(role)
 
-        build_url('home')
+        window_open(build_url('home'))
     }
 }
 
