@@ -7,10 +7,9 @@
 
 include('transfer')
 
+var event_config, scout_config_valid, analysis_config_valid
 var summary_card, buttons
 var breakdown_table, team_table, match_table
-
-var teams, matches
 
 /**
  * Builds the page components, but does not populate them.
@@ -19,30 +18,23 @@ function init_page()
 {
     header_info.innerText = 'Dashboard'
 
-    // get lists of teams and matches
-    teams = dal.team_numbers
-    matches = dal.match_keys
-
     // produce status tiles
-    let event_config = new WRStatusTile(dal.event_name)
-    event_config.set_status((teams.length > 0 ? 1 : 0) + (matches.length > 0 ? 1 : 0) - 1)
-    let scout_config_valid = new WRStatusTile(cfg.scout.version)
-    scout_config_valid.set_status(cfg.validate() ? 1 : -1)
+    event_config = new WRStatusTile(dal.event_name)
+    scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
-    let analysis_config_valid = new WRStatusTile(cfg.analysis.version)
-    analysis_config_valid.set_status(cfg.validate() ? 1 : -1)
+    analysis_config_valid = new WRStatusTile(cfg.analysis.version)
     analysis_config_valid.on_click = () => window_open(build_url('config-debug'))
     let status_stack = new WRStack([event_config, scout_config_valid, analysis_config_valid])
 
     // create result summary card
-    summary_card = new WRMultiNumber('', ['Pits', 'Pictures', 'Matches', 'Latest Match'], ['A/B', 'C/D', 'E/F', 'MATCH'])
-    let transfer_funcs = [preload_event, ZipHandler.export_setup, ZipHandler.import_results, ZipHandler.export_data]
+    summary_card = new WRMultiNumber('', ['Pits', 'Pictures', 'Matches', 'Latest Match'], ['-', '-', '-', '-'])
+    let transfer_funcs = [() => preload_event(populate), ZipHandler.export_setup, ZipHandler.import_results, ZipHandler.export_data]
     buttons = new WRMultiButton('', ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data'], transfer_funcs)
 
     // create result breakdown card
     let breakdown_contents = document.createElement('div')
     let breakdown_header = document.createElement('h2')
-    breakdown_header.innerText = 'Teams'
+    breakdown_header.innerText = 'Breakdown'
     breakdown_table = document.createElement('table')
     breakdown_contents.append(breakdown_header, breakdown_table)
     let breakdown_card = new WRCard(breakdown_contents)
@@ -76,6 +68,23 @@ function init_page()
  */
 function populate()
 {
+    dal.load_data()
+
+    // clear tables
+    breakdown_table.replaceChildren()
+    team_table.replaceChildren()
+    match_table.replaceChildren()
+
+    // get lists of teams and matches
+    let teams = dal.team_numbers
+    let matches = dal.match_keys
+
+    // update status tiles
+    event_config.label_el.innerText = dal.event_name
+    event_config.set_status((teams.length > 0 ? 1 : 0) + (matches.length > 0 ? 1 : 0) - 1)
+    scout_config_valid.set_status(cfg.validate() ? 1 : -1)
+    analysis_config_valid.set_status(cfg.validate() ? 1 : -1)
+
     // count team results
     let team_modes = cfg.team_scouting_modes
     summary_card.numbers[0].value_el.innerText = `${dal.count_team_results()}/${teams.length * team_modes.length}`
@@ -108,7 +117,10 @@ function populate()
             }
         }
     }
-    summary_card.numbers[3].value_el.innerText = dal.matches[last_match].short_name
+    if (last_match.length > 0)
+    {
+        summary_card.numbers[3].value_el.innerText = dal.matches[last_match].short_name
+    }
 
     // create object to count scouting mode breakdowns
     let all_modes = cfg.scouting_modes

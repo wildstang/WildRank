@@ -11,18 +11,19 @@ include('external/jszip.min')
  * BUTTON RESPONSES
  */
 
+// global properties for handling preloaded data
+var passes, fails, api_endpoint, key_query, on_preload
+
 /**
- * function:    preload_event
- * parameters:  none
- * returns:     none
- * description: Fetch simple event matches and team from TBA.
- *              Store results in localStorage.
+ * Preloads data from TBA and images from the server.
+ * @param {Function} on_complete Optional function to call when preloading is complete
  */
-function preload_event()
+function preload_event(on_complete=null)
 {
     // get event id from the text box
     let event_id = cfg.user.state.event_id
 
+    // request the TBA key if it doesn't already exist
     let key = cfg.tba_key
     if (!key)
             {
@@ -30,23 +31,110 @@ function preload_event()
                 return
     }
     
-    let api_endpoint = `https://www.thebluealliance.com/api/v3`
-    let key_query = `?${TBA_AUTH_KEY}=${key}`
-    
-    let count = 0
+    passes = []
+    fails = []
+    api_endpoint = `https://www.thebluealliance.com/api/v3`
+    key_query = `?${TBA_AUTH_KEY}=${key}`
+    on_preload = on_complete
+
     // fetch simple event matches
     fetch(`${api_endpoint}/event/${event_id}/matches${key_query}`)
-        .then(response => {
-            if (response.status == 401) {
-                alert('Invalid API Key Suspected')
-            }
-            return response.json()
+        .then(response => response.json())
+        .then(handle_matches)
+        .then(count_data)
+        .catch(err => {
+            count_data('matches-false')
+            console.error(err)
         })
-        .then(data => {
-            if (data.length > 0)
+
+    // fetch simple event teams
+    fetch(`${api_endpoint}/event/${event_id}/teams/simple${key_query}`)
+        .then(response => response.json())
+        .then(handle_teams)
+        .then(count_data)
+        .catch(err => {
+            count_data('teams-false')
+            console.error(err)
+        })
+
+    // fetch event rankings
+    fetch(`${api_endpoint}/event/${event_id}/rankings${key_query}`)
+        .then(response => response.json())
+        .then(handle_rankings)
+        .then(count_data)
+        .catch(err => {
+            count_data('rankings-false')
+            console.error(err)
+        })
+
+    // fetch event data
+    fetch(`${api_endpoint}/event/${event_id}${key_query}`)
+        .then(response => response.json())
+        .then(handle_event)
+        .then(count_data)
+        .catch(err => {
+            count_data('event-false')
+            console.error(err)
+        })
+
+    // fetch list of server pictures
+    let server = parse_server_addr(document.location.href)
+    fetch(`${server}/listPics`)
+        .then(response => response.json())
+        .then(handle_photos)
+        .catch(err => console.error(err))
+}
+
+/**
+ * Counts a result and whether it passed or failed, calls on_preload if all are complete.
+ * @param {String} result Result formatted type-pass
+ */
+function count_data(result)
+{
+    // parse result string
+    let parts = result.split('-')
+    let mode = parts[0]
+    let pass = parts[1] === 'true'
+    if (pass)
+    {
+        passes.push(mode)
+    }
+    else
+    {
+        fails.push(mode)
+    }
+    console.log(mode, pass)
+
+    // alert when complete
+    if (passes.length + fails.length === 4)
+    {
+        if (fails.length === 0)
+        {
+            alert('Event pulled!')
+        }
+        else
+        {
+            alert(`Failed to pull ${fails.join(', ')}`)
+        }
+
+        if (on_preload !== null)
+        {
+            on_preload()
+        }
+    }
+}
+
+/**
+ * Handles matches after fetching from TBA.
+ * @param {Array} matches Raw array of matches
+ * @returns Description of completion
+ */
+function handle_matches(matches)
+{
+    if (matches.length > 0)
             {
                 // sort match objs by match number
-                let matches = data.sort(function (a, b)
+        matches = matches.sort(function (a, b)
                 {
                     return b.match_number < a.match_number ? 1
                             : b.match_number > a.match_number ? -1
@@ -54,158 +142,128 @@ function preload_event()
                 })
 
                 // store matches as JSON string in matches-[event-id]
-                localStorage.setItem(`matches-${event_id}`, JSON.stringify(matches))
-                process_files()
-                if (++count === 3)
-                {
-                    alert('Preload complete!')
-                    dal.build_teams()
-                }
-            }
-            else
-            {
-                alert('No matches received!')
-            }
-        })
-        .catch(err => {
-            alert('Error loading matches!')
-            console.log(err)
-        })
+        localStorage.setItem(`matches-${cfg.user.state.event_id}`, JSON.stringify(matches))
+        return 'matches-true'
+    }
+    return 'matches-false'
+}
 
-    // fetch simple event teams
-    fetch(`${api_endpoint}/event/${event_id}/teams/simple${key_query}`)
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            if (data.length > 0)
+/**
+ * Handles teams after fetching from TBA.
+ * @param {Array} teams Raw array of teams
+ * @returns Description of completion
+ */
+function handle_teams(teams)
+{
+    if (teams.length > 0)
             {
                 // sort team objs by team number
-                let teams = data.sort(function (a, b)
+        teams = teams.sort(function (a, b)
                 {
                     return b.team_number < a.team_number ? 1
                         : b.team_number > a.team_number ? -1
                             : 0;
                 })
                 // store teams as JSON string in teams-[event_id]
-                localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
-                process_files()
+        localStorage.setItem(`teams-${cfg.user.state.event_id}`, JSON.stringify(teams))
 
                 // fetch team's avatar for whiteboard
                 for (let team of teams)
                 {
                     let year = cfg.year
                     fetch(`${api_endpoint}/team/frc${team.team_number}/media/${year}${key_query}`)
-                        .then(response => {
-                            return response.json()
-                        })
-                        .then(data => {
-                            for (let m of data)
+                .then(response => response.json())
+                .then(handle_media)
+                .catch(err => console.error(err))
+        }
+        return 'teams-true'
+    }
+    return 'teams-false'
+}
+
+/**
+ * Handles media after fetching from TBA.
+ * @param {Array} media Raw array of media
+ * @param {Number} team_num Team number
+ */
+function handle_media(media, team_num)
+{
+    for (let m of media)
                             {
                                 switch (m.type)
                                 {
                                     case 'avatar':
-                                        localStorage.setItem(`avatar-${year}-${team.team_number}`, m.details.base64Image)
+                localStorage.setItem(`avatar-${cfg.year}-${team_num}`, m.details.base64Image)
                                         break
                                     case 'cdphotothread':
                                     case 'imgur':
                                     // NOTE: instagram does things weird
                                     //case 'instagram-image':
                                     case 'onshape':
-                                        dal.add_photo(team.team_number, m.direct_url)
+                // TODO: handle pictures
+                //dal.add_photo(team.team_number, m.direct_url)
                                         break
-
                                 }
                             }
-                        })
-                        .catch(err => {
-                        })
-                }
-                if (++count === 3)
-                {
-                    alert('Preload complete!')
-                    dal.build_teams()
-                }
-            }
-            else
-            {
-                alert('No teams received!')
-            }
-        })
-        .catch(err => {
-            alert('Error loading teams!')
-            console.log(err)
-        })
+}
 
-        // fetch event rankings
-        fetch(`${api_endpoint}/event/${event_id}/rankings${key_query}`)
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
+/**
+ * Handles rankings after fetching from TBA.
+ * @param {Array} data Raw array of rankings
+ * @returns Description of completion
+ */
+function handle_rankings(data)
+{
                 if (data && data.hasOwnProperty('rankings') && data.rankings.length > 0)
                 {
-                    data = data.rankings
-    
                     // sort rankings objs by team number
-                    let rankings = data.sort(function (a, b)
+        let rankings = data.rankings.sort(function (a, b)
                     {
                         return b.rank < a.rank ? 1
                                 : b.rank > a.rank ? -1
                                 : 0;
                     })
-                    // store rankings as JSON string in rankings-[event_id]
-                    localStorage.setItem(`rankings-${event_id}`, JSON.stringify(rankings))
-                }
-                if (++count === 3)
-                {
-                    alert('Preload complete!')
-                    dal.build_teams()
-                }
-            })
-            .catch(err => {
-                alert('Error loading rankings!')
-                console.log(err)
-            })
 
-        // fetch event data
-        fetch(`${api_endpoint}/event/${event_id}${key_query}`)
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
-                if (data)
+                    // store rankings as JSON string in rankings-[event_id]
+        localStorage.setItem(`rankings-${cfg.user.state.event_id}`, JSON.stringify(rankings))
+        return 'rankings-true'
+    }
+    return 'rankings-false'
+}
+
+/**
+ * Handles event data after fetching from TBA.
+ * @param {Object} event Raw event data object
+ * @returns Description of completion
+ */
+function handle_event(event)
+{
+    if (event)
                 {
                     // store event as JSON string
-                    localStorage.setItem(`event-${event_id}`, JSON.stringify(data))
-                }
-            })
-            .catch(err => {
-                console.log(err)
-            })
+        localStorage.setItem(`event-${cfg.user.state.event_id}`, JSON.stringify(event))
+        return 'event-true'
+    }
+    return 'event-false'
+}
 
-    // fetch list of server pictures
-    let server = parse_server_addr(document.location.href)
-    fetch(`${server}/listPics`)
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
+/**
+ * Handles photos are fetching from TBA.
+ * @param {Array} photos Raw array of photos
+ */
+function handle_photos(photos)
+{
             // add each picture to config
-            let teams = Object.keys(data)
+    let teams = Object.keys(photos)
             for (let team of teams)
             {
-                let pics = data[team]
-                for (let i in pics)
+        let team_pics = photos[team]
+        for (let i in team_pics)
                 {
-                    dal.add_photo(team, `${server}/uploads/${pics[i]}`, i === 0)
+            // TODO: handle pictures
+            //dal.add_photo(team, `${server}/uploads/${team_pics[i]}`, i === 0)
                 }
             }
-        })
-        .catch(err => {
-            alert('Error loading pictures!')
-            console.log(err)
-        })
 }
 
 /**

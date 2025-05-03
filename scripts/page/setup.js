@@ -43,14 +43,11 @@ function step_setup()
     let status_col = new WRColumn('Status', [])
     let event_config = new WRStatusTile(dal.event_name)
     event_config.set_status((team_count > 0 ? 1 : 0) + (match_count > 0 ? 1 : 0) - 1)
-    status_col.add_input(new WRStack([
-        event_config,
-        new WRButton('Load from TBA', preload_event)
-    ]))
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
     status_col.add_input(new WRStack([
+        event_config,
         scout_config_valid,
         new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
     ]))
