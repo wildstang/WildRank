@@ -377,7 +377,7 @@ class Data
         const tba_teams = JSON.parse(localStorage.getItem(team_file))
         if (tba_teams === null)
         {
-            console.log(`No team file "${event_file}"`)
+            console.log(`No team file "${team_file}"`)
             return
         }
 
