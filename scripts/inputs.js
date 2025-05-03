@@ -6,87 +6,22 @@
  */
 
 /**
- * Fills team numbers into a given name.
- * 
- * @param {string} scout_mode Scouting mode, only applies to MATCH mode.
- * @param {string} name Input name to check for keywords.
- * @param {object} alliances Map of alliance keys to team numbers.
- * @returns {string} Updated name
- */
-function fill_name(scout_mode, name, alliances)
-{
-    if (scout_mode === MATCH_MODE && alliances && Object.keys(alliances).length > 0)
-    {
-        // replace opponentsX with the team's opponent team numbers
-        return dal.fill_team_numbers(name, alliances)
-    }
-    return name
-}
-
-/**
- * Fills team numbers into a given set of options.
- * 
- * @param {string} scout_mode Scouting mode, only applies to MATCH mode.
- * @param {string} name Input name to check for keywords.
- * @param {array} options Options to check for keywords.
- * @param {object} alliances Map of alliance keys to team numbers.
- * @returns {string} Updated options
- */
-function fill_options(scout_mode, options, alliances)
-{
-    if (scout_mode === MATCH_MODE && alliances && Object.keys(alliances).length > 0)
-    {
-        // replace opponentsX with the team's opponent team numbers
-        if (options instanceof Array && options.length > 0)
-        {
-            return options.map(op => dal.fill_team_numbers(op, alliances))
-        }
-    }
-    return options
-}
-
-/**
- * Fills a team number and alliance color into a given ID.
- * 
- * @param {string} scout_mode Scouting mode, only applies to MATCH mode.
- * @param {string} id Input ID to check for keywords.
- * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @returns {string} Updated ID
- */
-function replace_id_keywords(scout_mode, id, team, alliance_color)
-{
-    if (scout_mode === NOTE_MODE)
-    {
-        if (team)
-        {
-            id = id.replace('_team_', `_${team}_`)
-        }
-        if (alliance_color)
-        {
-            id = id.replace('_alliance_', `_${alliance_color}_`)
-        }
-    }
-    return id
-}
-
-/**
  * Builds a single element from a given input config.
  * 
  * @param {object} input Input scouting configuration
  * @param {*} default_override Value to override the input default, used in edit.
- * @param {string} scout_mode Scouting mode, used to determine when to replace keywords.
- * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @param {object} alliances Map of alliance keys to team numbers.
  * @returns {Input} Input reference
  */
-function build_input_from_config(input, default_override='', scout_mode='', team='', alliance_color='', alliances={})
+function build_input_from_config(input, scout_type, team='', default_override='')
 {
     let type = input.type
-    let id = replace_id_keywords(scout_mode, input.id, team, alliance_color)
-    let name = fill_name(scout_mode, input.name, alliances)
-    let options = fill_options(scout_mode, input.options, alliances)
+    let id = input.id
+    if (scout_type === 'match-alliance')
+    {
+        id += `-${team}`
+    }
+    let name = input.name
+    let options = input.options
     let default_val = default_override ? default_override : input.default
     let images = input.images ? input.images.map(i => `/assets/${i}`) : []
 
@@ -143,20 +78,17 @@ function build_input_from_config(input, default_override='', scout_mode='', team
  * Builds a ColumnFrame from a given column scouting configuration.
  * 
  * @param {object} column Column scouting configuration.
- * @param {string} scout_mode Scouting mode, used to determine when to replace keywords.
- * @param {bool} fill_results Whether to replace default values with the results from a match.
- * @param {string} match Match key to pull results from.
+ * @param {string} scout_type Scouting mode type, used to determine when to replace keywords.
  * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @param {object} alliances Map of alliance keys to team numbers.
+ * @param {Object} result Result object from the BaseResult.
  * @returns {ColumnFrame} ColumnFrame reference
  */
-function build_column_from_config(column, scout_mode, fill_results=false, match='', team='', alliance_color='', alliances={})
+function build_column_from_config(column, scout_type, team='', result=null)
 {
     let col_name = column.name
-    if (scout_mode === NOTE_MODE)
+    if (scout_type === 'match-alliance')
     {
-        col_name = col_name.replace('TEAM', team).replace('ALLIANCE', alliance_color)
+        col_name = col_name.replace('TEAM', team)
     }
     let col_frame = new WRColumn(col_name)
     // TODO: explore doing this intelligently
@@ -168,50 +100,28 @@ function build_column_from_config(column, scout_mode, fill_results=false, match=
     // iterate through input in the column
     for (let input of column.inputs)
     {
-        let default_val = input.default
+        let default_val = result !== null ? result[input.id] : input.default
 
         // map results to defaults in edit mode
-        if (fill_results)
+        if (result !== null)
         {
-            let id = input.id
             let type = input.type
-            switch (scout_mode)
+            if (type === 'dropdown' || type === 'select')
             {
-                case MATCH_MODE:
-                case NOTE_MODE:
-                    default_val = dal.get_result_value(team, match, id)
-                    if (type === 'dropdown' || type === 'select')
-                    {
-                        default_val = input['options'][default_val]
-                    }
-                    else if (type === 'multicounter' || type === 'multiselect')
-                    {
-                        default_val = input.options.map(function (op)
-                        {
-                            let name = `${id}_${create_id_from_name(op)}`
-                            return dal.get_result_value(team, match, name)
-                        })
-                    }
-                    break
-                case PIT_MODE:
-                    default_val = dal.get_value(team, `pit.${id}`)
-                    if (type == 'dropdown' || type == 'select')
-                    {
-                        default_val = input['options'][default_val]
-                    }
-                    else if (type == 'multicounter' || type === 'multiselect')
-                    {
-                        default_val = input.options.map(function (op)
-                        {
-                            let name = `${id}_${create_id_from_name(op)}`
-                            return dal.get_value(team, `pit.${name}`)
-                        })
-                    }
-                    break
+                default_val = input.options[default_val]
+            }
+            else if (type === 'multicounter' || type === 'multiselect')
+            {
+                default_val = input.options.map(function (op)
+                {
+                    let name = `${input.id}_${create_id_from_name(op)}`
+                    return result[name]
+                })
             }
         }
 
-        let item = build_input_from_config(input, default_val, scout_mode, team, alliance_color, alliances)
+        // build input and add to column
+        let item = build_input_from_config(input, scout_type, team, default_val)
         if (item)
         {
             col_frame.add_input(item)
@@ -226,14 +136,11 @@ function build_column_from_config(column, scout_mode, fill_results=false, match=
  * 
  * @param {object} input Input scouting configuration
  * @param {*} value New value
- * @param {string} scout_mode Scouting mode
- * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
  */
-function set_input_value(input, value, scout_mode='', team='', alliance_color='')
+function set_input_value(input, value)
 {
     let options = input.options
-    let id = replace_id_keywords(scout_mode, input.id, team, alliance_color)
+    let id = input.id
 
     switch (input.type)
     {
@@ -262,7 +169,7 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
             for (let i = 0; i < mchildren.length; i++)
             {
                 mchildren[i].classList.remove('selected')
-                if (value.contains(i))
+                if (value[i])
                 {
                     mchildren[i].classList.add('selected')
                 }
@@ -294,20 +201,20 @@ function set_input_value(input, value, scout_mode='', team='', alliance_color=''
  * Fetch the value from a given input.
  * 
  * @param {object} input Scouting configuration input
- * @param {string} scout_mode Scouting mode
+ * @param {string} scout_type Scouting mode type, used to determine when to replace keywords.
  * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @param {object} alliances Map of alliance keys to team numbers.
  * @returns Value currently entered in input.
  */
-function get_result_from_input(input, scout_mode, team='', alliance_color='', alliances={})
+function get_result_from_input(input, scout_type, team='')
 {
     let id = input.id
+    let el_id = id
+    if (scout_type === 'match-alliance')
+    {
+        el_id += `-${team}`
+    }
+    console.log(id)
     let options = input.options
-
-    // replace opponentsX with the team's opponent team numbers
-    let el_id = replace_id_keywords(scout_mode, id, team, alliance_color)
-    let op_ids = fill_options(scout_mode, options, alliances)
 
     let result = {}
     switch (input.type)
@@ -325,7 +232,7 @@ function get_result_from_input(input, scout_mode, team='', alliance_color='', al
             for (let i in options)
             {
                 let name = `${id}_${create_id_from_name(options[i])}`
-                let html_id = `${el_id}_${create_id_from_name(op_ids[i])}`
+                let html_id = `${el_id}_${create_id_from_name(options[i])}`
                 result[name] = parseInt(document.getElementById(html_id).innerHTML)
             }
             break
@@ -376,19 +283,17 @@ function get_result_from_input(input, scout_mode, team='', alliance_color='', al
  * Accumulates the results from a column into a new object.
  * 
  * @param {object} column Scouting configuration column
- * @param {string} scout_mode Scouting mode
+ * @param {string} scout_type Scouting mode type, used to determine when to replace keywords.
  * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @param {object} alliances Map of alliance keys to team numbers.
  * @returns {object} Map of IDs to results.
  */
-function get_results_from_column(column, scout_mode, team='', alliance_color='', alliances={})
+function get_results_from_column(column, scout_type, team='')
 {
     let results = {}
     // iterate through input in the column
     for (let input of column.inputs)
     {
-        results = Object.assign(results, get_result_from_input(input, scout_mode, team, alliance_color, alliances))
+        results = Object.assign(results, get_result_from_input(input, scout_type, team))
     }
 
     return results
@@ -398,13 +303,9 @@ function get_results_from_column(column, scout_mode, team='', alliance_color='',
  * Determines if any disallowed defaults have changed.
  * 
  * @param {object} column Scouting configuration column
- * @param {string} scout_mode Scouting mode
- * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @param {object} alliances Map of alliance keys to team numbers.
  * @returns False, if column passed, otherwise first failing input ID.
  */
-function check_column(column, scout_mode, team='', alliance_color='', alliances={})
+function check_column(column)
 {
     for (let input of column.inputs)
     {
@@ -417,7 +318,7 @@ function check_column(column, scout_mode, team='', alliance_color='', alliances=
         let options = input.options
         let def = input.default
 
-        let value = get_result_from_input(input, scout_mode, team, alliance_color, alliances)
+        let value = get_result_from_input(input)
         switch (input.type)
         {
             case 'multicounter':
@@ -449,13 +350,9 @@ function check_column(column, scout_mode, team='', alliance_color='', alliances=
  * Determines if a cycle has been changed.
  * 
  * @param {object} column Scouting configuration column
- * @param {string} scout_mode Scouting mode
- * @param {string} team Team number to replace keywords with.
- * @param {string} alliance_color Alliance color to replace keywords with.
- * @param {object} alliances Map of alliance keys to team numbers.
  * @returns False, if column passed, otherwise first failing input ID.
  */
-function check_cycle(column, scout_mode, team='', alliance_color='', alliances={})
+function check_cycle(column)
 {
     for (let input of column.inputs)
     {
@@ -463,7 +360,7 @@ function check_cycle(column, scout_mode, team='', alliance_color='', alliances={
         let options = input.options
         let def = input.default
 
-        let value = get_result_from_input(input, scout_mode, team, alliance_color, alliances)
+        let value = get_result_from_input(input)
         switch (input.type)
         {
             case 'multicounter':
