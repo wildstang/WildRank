@@ -660,3 +660,32 @@ function get_display_mode()
     }
     return display_mode
 }
+
+/**
+ * Prompts the user to choose between the given results.
+ * @param {Array} metas Metadata for results to choose from
+ * @param {String} op Operation that will be performed on the selected result
+ * @returns Chosen result index or -1
+ */
+function prompt_for_result(metas, op)
+{
+    if (metas.length > 1)
+    {
+        let descriptions = metas.map((r, i) => {
+            let scouter = cfg.get_name(r.scouter.user_id)
+            let time = new Date(r.scouter.start_time).toLocaleTimeString("en-US")
+            return `${i}: ${scouter} @ ${time}`
+        })
+        let choice = prompt(`${metas.length} results found. Please choose a result to ${op}:\n${descriptions.join('\n')}`)
+        if (choice !== null)
+        {
+            let index = parseInt(choice)
+            if (index < metas.length)
+            {
+                return index
+            }
+        }
+        return -1
+    }
+    return 0
+}
