@@ -34,7 +34,7 @@ const CONFIGS = {
         'Teams': ['ranker', 'sides', 'multipicklists'],
         'Keys': ['pivot', 'distro', 'plot', 'scatter'],
         'Results': ['import_results', 'results', 'cycles', 'note-viewer', 'export_results'],
-        'Overviews': ['teams', 'match-overview', 'users', 'progress', 'events']
+        'Overviews': ['teams', 'match-overview', 'users', 'dashboard', 'events']
     },
     'admin': {
         'Admin': ['reset', 'config-generator', 'export', 'random']
@@ -42,7 +42,7 @@ const CONFIGS = {
     'advanced': {
         'Configuration': ['settings', 'config-generator', 'config-debug', 'export_config'],
         'Schedule': ['schedule-importer', 'event-generator', 'scouter-scheduler', 'open_extras'],
-        'Management': ['transfer-raw', 'progress', 'cache', 'storage'],
+        'Management': ['transfer-raw', 'dashboard', 'cache', 'storage'],
         'Reset': ['reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event']
     },
     'extras': {
@@ -62,6 +62,7 @@ const BUTTONS = {
     'config-debug':         { name: 'Config Debugger',          limits: [] },
     'config-generator':     { name: 'Config Builder',           limits: ['admin'] },
     'cycles':               { name: 'Cycles',                   limits: ['matches', 'results'] },
+    'dashboard':            { name: 'Dashboard',                limits: [''] },
     'distro':               { name: 'Distributions',            limits: ['teams', 'any'] },
     'download_csv':         { name: 'Export Results as Sheet',  limits: ['matches', 'any'] },
     'event-generator':      { name: 'Event Generator',          limits: [] },
@@ -79,7 +80,6 @@ const BUTTONS = {
     'pivot':                { name: 'Pivot Table',              limits: ['teams', 'any'] },
     'plot':                 { name: 'Plotter',                  limits: ['matches', 'results'] },
     'preload_event':        { name: 'Preload Event',            limits: [] },
-    'progress':             { name: 'Scouting Progress',        limits: ['teams'] },
     'random':               { name: 'Random Result Generator',  limits: ['admin', 'teams'] },
     'ranker':               { name: 'Stat Builder',             limits: ['teams', 'any'] },
     'reset':                { name: 'Reset App',                limits: ['admin'] },
@@ -228,7 +228,7 @@ function open_role(role)
             if (key === 'result_count')
             {
                 button = new WRMultiNumber('', ['T', 'M'], [dal.count_team_results(), dal.count_match_results()])
-                button.on_click = () => window_open(build_url('progress'), '_self')
+                button.on_click = () => window_open(build_url('dashboard'), '_self')
             }
             else if (is_blocked(key))
             {
