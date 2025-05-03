@@ -38,6 +38,51 @@ function parse_team_list(teams)
 }
 
 /**
+ * Builds a new result object.
+ * @param {String} scout_mode Result scouting mode
+ * @param {Number} start_time Scouting start timestamp
+ * @param {Boolean} unsure Scouter unsure
+ * @param {String} unsure_reason Explaination for being unsure
+ * @param {Boolean} ignore Ignore result
+ * @param {Object} result Actual result data
+ * @returns Raw result object
+ */
+function new_result(scout_mode, start_time, unsure, unsure_reason, result)
+{
+    return {
+        meta: {
+            result: {
+                scout_mode: scout_mode,
+                event_id: cfg.user.state.event_id
+            },
+            scouter: {
+                user_id: parseInt(cfg.user.state.user_id),
+                position: parseInt(cfg.get_selected_position()),
+                start_time: start_time,
+                duration: Math.round((Date.now() - start_time) / 1000),
+                config_version: cfg.scout.version,
+                app_version: cfg.app_version
+            },
+            status: {
+                unsure: unsure,
+                unsure_reason: unsure_reason,
+                ignore: false
+            }
+        },
+        result: result
+    }
+}
+
+/**
+ * Generates a semi-random result name using the current time.
+ * @returns Semi-random result name
+ */
+function create_result_name()
+{
+    return `result-${(new Date()).getTime()}${Math.floor(Math.random() * 1000)}`
+}
+
+/**
  * Base class containing functions for both MatchResult and TeamResult.
  */
 class BaseResult
@@ -52,6 +97,7 @@ class BaseResult
         this.team_num = team_num
         this.get_keys = keys_func
 
+        this.file_names = {}
         this.meta = {}
         this.fms_results = {}
         this.results = {}
@@ -95,18 +141,21 @@ class BaseResult
 
     /**
      * Add a scouted result to the object.
+     * @param {String} file_name localStorage key
      * @param {Object} result Raw match or team result object.
      */
-    add_result(result)
+    add_result(file_name, result)
     {
         let mode = result.meta.result.scout_mode
         if (this.results.hasOwnProperty(mode))
         {
+            this.file_names[mode].push(file_name)
             this.results[mode].push(result.result)
             this.meta[mode].push(result.meta)
         }
         else
         {
+            this.file_names[mode] = [file_name]
             this.results[mode] = [result.result]
             this.meta[mode] = [result.meta]
         }
@@ -252,6 +301,17 @@ class TeamResult extends BaseResult
         {
             return 'assets/dozer.png'
         }
+    }
+
+    /**
+     * Produce an img element containing the team's avatar.
+     */
+    get avatar_el()
+    {
+        let avatar_el = document.createElement('img')
+        avatar_el.className = 'avatar'
+        avatar_el.src = this.avatar
+        return avatar_el
     }
 }
 
@@ -509,7 +569,7 @@ class Data
                     {
                         if (team_num in this.matches[match_key].results)
                         {
-                            this.matches[match_key].results[team_num].add_result(res)
+                            this.matches[match_key].results[team_num].add_result(key, res)
                         }
                         else
                         {
@@ -527,7 +587,7 @@ class Data
                     const team_num = res.meta.result.team_num
                     if (team_num in this.teams)
                     {
-                        this.teams[team_num].add_result(res)
+                        this.teams[team_num].add_result(key, res)
                     }
                     else
                     {
@@ -723,6 +783,42 @@ class Data
             teams[`blue_${i}`] = blue_teams[i]
         }
         return teams
+    }
+
+    /**
+     * Gets the team for the given match and scouting position.
+     * @param {String} match_key Match key
+     * @param {Number} position Scouting position
+     * @returns The corresponding team number.
+     */
+    get_match_team(match_key, position)
+    {
+        if (position < 3)
+        {
+            return this.matches[match_key].red_alliance[position]
+        }
+        else
+        {
+            return this.matches[match_key].blue_alliance[position - 3]
+        }
+    }
+
+    /**
+     * Gets the alliance teams for the given match and scouting position.
+     * @param {String} match_key Match key
+     * @param {Number} position Scouting position
+     * @returns The corresponding team number.
+     */
+    get_match_alliance(match_key, position)
+    {
+        if (position < 3)
+        {
+            return this.matches[match_key].red_alliance
+        }
+        else
+        {
+            return this.matches[match_key].blue_alliance
+        }
     }
 
     //
