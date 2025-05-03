@@ -10,7 +10,8 @@ include('mini-picklists')
 
 // read parameters from URL
 var urlParams = new URLSearchParams(window.location.search)
-const selected = urlParams.get('file')
+const selected_match = get_parameter('match', '')
+const selected_team = get_parameter('team', '')
 
 var avatar, result_name, team_el, name_el, match_el, rank_el, team_filter, results_box
 
@@ -61,20 +62,24 @@ function build_result_list()
     let classes = {}
     for (let match_key of dal.match_keys)
     {
-        for (let team_num in dal.matches[match_key].results)
+        if (selected_match.length === 0 || selected_match === match_key)
         {
-            // TODO: support selecting based off of file name? from query
-            if (filter === 'All' || team_num.toString() === filter)
+            for (let team_num in dal.matches[match_key].results)
             {
-                let result = dal.get_match_result(match_key, team_num)
-                let spaces = 5 - team_num.toString().length
-                let disp_team = team_num
-                for (let i = 0; i < spaces; i++)
+                // TODO: support selecting based off of file name? from query
+                if ((selected_team.length === 0 && (filter === 'All' || team_num.toString() === filter)) ||
+                    team_num === selected_team)
                 {
-                    disp_team = `&nbsp;${disp_team}`
+                    let result = dal.get_match_result(match_key, team_num)
+                    let spaces = 5 - team_num.toString().length
+                    let disp_team = team_num
+                    for (let i = 0; i < spaces; i++)
+                    {
+                        disp_team = `&nbsp;${disp_team}`
+                    }
+                    options[`${match_key}-${team_num}`] = `${dal.matches[match_key].short_name} ${disp_team}`
+                    classes[`${match_key}-${team_num}`] = result.unsure ? 'highlighted' : ''
                 }
-                options[`${match_key}-${team_num}`] = `${dal.matches[match_key].short_name} ${disp_team}`
-                classes[`${match_key}-${team_num}`] = result.unsure ? 'highlighted' : ''
             }
         }
     }

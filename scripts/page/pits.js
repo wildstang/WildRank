@@ -6,26 +6,30 @@
  * date:        2020-02-15
  */
 
+// read parameters from URL
+const scout_mode = get_parameter(MODE_QUERY, '')
+
 var streaming = false
 
 var avatar_el, team_num_el, team_name_el, photos_el, buttons_el, preview_el, capture_el
 
+var scout_type
+
 include('transfer')
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch event teams from localStorage. Initialize page contents.
+ * Populates the team selector and builds the structure of the page.
  */
 function init_page()
 {
-    header_info.innerText = 'Pit Select'
+    header_info.innerText = 'Team Select'
 
+    let scout_config = cfg.get_scout_config(scout_mode)
     let first = populate_teams(false, true)
-    add_button_filter('Export Pit Results', export_results, true)
+    add_button_filter(`Export ${scout_config.name} Results`, () => ZipHandler.export_results(scout_mode), true)
     if (first)
     {
+        scout_type = scout_config.scout_type
         avatar_el = document.createElement('img')
         avatar_el.className = 'avatar'
 
@@ -96,49 +100,54 @@ function init_page()
 function open_option(team_num)
 {
     deselect_all()
+    buttons_el.replaceChildren()
 
     // fill team info
-    avatar_el.src = dal.get_value(team_num, 'pictures.avatar')
+    avatar_el.src = dal.teams[team_num].avatar
     team_num_el.innerText = team_num
-    team_name_el.innerText = dal.get_value(team_num, 'meta.name')
+    team_name_el.innerText = dal.teams[team_num].name
     document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
-    photos_el.replaceChildren(dal.get_photo_carousel(team_num))
-    
-    // show edit/view result buttons
-    let scout = new WRLinkButton('Scout Pit!', start_scouting(team_num, false))
-    buttons_el.replaceChildren(scout)
-    if (dal.is_pit_scouted(team_num))
+
+    // TODO: update photo carousel
+    //photos_el.replaceChildren(dal.get_photo_carousel(team_num))
+
+    // build buttons
+    const scout_url = build_url('scout', {[MODE_QUERY]: scout_mode, index: team_num, edit: false})
+    buttons_el.append(new WRLinkButton('Scout Team', scout_url))
+
+    if (dal.is_team_scouted(team_num, scout_mode))
     {
         let page = new WRPage()
 
-        let edit = new WRLinkButton('Edit Result', start_scouting(team_num, true))
-        edit.add_class('slim')
-        page.add_column(new WRColumn('', [edit]))
+        const edit_url = build_url('scout', {[MODE_QUERY]: scout_mode, index: team_num, edit: true})
+        page.add_column(new WRColumn('', [new WRLinkButton('Edit Result', edit_url)]))
 
-        let renumber = new WRButton('Renumber Result', () => renumber_pit(team_num))
-        renumber.add_class('slim')
-        page.add_column(new WRColumn('', [renumber]))
-
-        let del = new WRButton('Delete Result', () => delete_pit(team_num))
-        del.add_class('slim')
-        page.add_column(new WRColumn('', [del]))
+        if (cfg.is_admin())
+        {
+            let renumber = new WRButton('Renumber Result', () => renumber_result(team_num))
+            renumber.add_class('slim')
+            page.add_column(new WRColumn('', [renumber]))
+    
+            let del = new WRButton('Delete Result', () => delete_result(team_num))
+            del.add_class('slim')
+            page.add_column(new WRColumn('', [del]))
+        }
 
         buttons_el.append(page)
     }
 
     // update capture button for new team
-    let capture_button = new WRButton('Capture', () => capture(team_num))
+    // TODO: photos
+    /*let capture_button = new WRButton('Capture', () => capture(team_num))
     capture_button.add_class('slim')
-    capture_el.replaceChildren(capture_button)
+    capture_el.replaceChildren(capture_button)*/
 
     ws(team_num)
 }
 
 /**
- * function:    capture
- * parameters:  captured team number
- * returns:     none
- * description: Saves the current frame of the video, uploads, then adds the pictures list.
+ * Captures an image with the camera and attempts to upload it to the server.
+ * @param {Number} team_num Team number
  */
 function capture(team_num)
 {
@@ -196,11 +205,12 @@ function capture(team_num)
     }
 }
 
+
 /**
- * function:    cache_image
- * parameters:  server address, team number, base64 image
- * returns:     none
- * description: If server upload failed, generate a random url and put in the cache.
+ * Stores a given image in the cache.
+ * @param {String} server Server address
+ * @param {Number} team_num Team number
+ * @param {String} base64 Base 64 image string
  */
 function cache_image(server, team_num, base64)
 {
@@ -224,79 +234,55 @@ function cache_image(server, team_num, base64)
 }
 
 /**
- * function:    open_result
- * parameters:  file to open
- * returns:     none
- * description: Opens result page for selected team.
+ * Renumbers a result with a new team number.
+ * @param {Number} team_num Original match key
  */
-function open_result(file)
-{
-    return build_url('results', {'file': file})
-}
-
-/**
- * function:    start_scouting
- * parameters:  team number, dit existing results
- * returns:     none
- * description: Open scouting mode for the desired team in the current tab.
- */
-function start_scouting(team_num, edit)
-{
-    return build_url('scout', {[MODE_QUERY]: PIT_MODE, index: team_num, edit: edit})
-}
-
-/**
- * function:    renumber_pit
- * parameters:  existing team number
- * returns:     none
- * description: Prompts to renumber a pit result.
- */
-function renumber_pit(team_num)
+function renumber_result(team_num)
 {
     let input = prompt('New team number')
     if (input !== null)
     {
-        let new_num = parseInt(input)
-        let pit = localStorage.getItem(`${PIT_MODE}-${event_id}-${team_num}`)
-        if (pit !== null)
+        let new_team = parseInt(input)
+        if (!dal.team_numbers.includes(input))
         {
-            let jpit = JSON.parse(pit)
-            jpit.meta_team = new_num
-            localStorage.setItem(`${PIT_MODE}-${event_id}-${new_num}`, JSON.stringify(jpit))
-            localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
-
-            location.reload()
+            alert('Invalid team number!')
+            return
         }
-    }
-}
 
-/**
- * function:    delete_pit
- * parameters:  existing team number
- * returns:     none
- * description: Prompts to delete a pit result.
- */
-function delete_pit(team_num)
-{
-    if (confirm(`Are you sure you want to delete ${team_num}?`))
-    {
-        localStorage.removeItem(`${PIT_MODE}-${event_id}-${team_num}`)
+        let result = dal.teams[team_num]
+        let index = prompt_for_result(result.meta[scout_mode], 'renumber')
+
+        if (index >= 0)
+        {
+            // change result
+            let new_result = {
+                meta: result.meta[scout_mode][index],
+                result: result.results[scout_mode][index]
+            }
+            new_result.meta.result.team_num = new_team
+            localStorage.setItem(result.file_names[scout_mode][index], JSON.stringify(new_result))
+        }
         location.reload()
     }
 }
 
 /**
- * function:    export_results
- * parameters:  none
- * returns:     none
- * description: Starts the zip export process for pit results and pictures.
+ * Prompts to, then deletes the result for the specified team.
+ * @param {Number} team Team number to delete
  */
-function export_results()
+function delete_result(team_num)
 {
-    let handler = new ZipHandler()
-    handler.pit = true
-    handler.pictures = true
-    handler.user = cfg.user.state.user_id
-    handler.server = parse_server_addr(document.location.href)
-    handler.export_zip()
+    if (confirm(`Are you sure you want to delete ${scout_mode} results for ${team_num}?`))
+    {
+        let result = dal.teams[team_num]
+        if (scout_mode in result.results)
+        {
+            let index = prompt_for_result(result.meta[scout_mode], 'delete')
+            if (index >= 0)
+            {
+                localStorage.removeItem(result.file_names[scout_mode][index])
+                location.reload()
+            }
+        }
+    }
 }

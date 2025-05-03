@@ -95,27 +95,27 @@ function step_setup()
     {
         position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
         let cfg_pos = cfg.get_position()
-        if (cfg_pos >= 0 && cfg_pos < dal.alliance_size * 2)
+        if (cfg_pos >= 0 && cfg_pos < 6)
         {
             let color = 'Red'
             let pos = cfg_pos
-            if (pos > dal.alliance_size)
+            if (pos > 3)
             {
                 color = 'Blue'
-                pos = pos - dal.alliance_size
+                pos = pos - 3
             }
             position_el.add_option(`${color} ${pos}`)
         }
         else
         {
-            for (let i = 1; i <= dal.alliance_size * 2; i++)
+            for (let i = 1; i <= 6; i++)
             {
                 let color = 'Red'
                 let pos = i
-                if (i > dal.alliance_size)
+                if (i > 3)
                 {
                     color = 'Blue'
-                    pos = i - dal.alliance_size
+                    pos = i - 3
                 }
                 position_el.add_option(`${color} ${pos}`)
                 if (cfg.user.state.position === i - 1)
@@ -253,7 +253,7 @@ function scout(mode)
         {
             cfg.set_role(mode)
 
-            window_open(build_url('pits'), '_self')
+            window_open(build_url('pits', {[MODE_QUERY]: 'pit'}), '_self')
         }
         else
         {
