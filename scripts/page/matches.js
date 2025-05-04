@@ -27,7 +27,7 @@ function init_page()
     scout_pos = cfg.get_selected_position()
 
     let scout_config = cfg.get_scout_config(scout_mode)
-    let first = populate_matches(false, true, '', false, scout_pos, scout_mode === NOTE_MODE)
+    let first = populate_matches(false, true, '', false, scout_pos)
     add_button_filter(`Export ${scout_config.name} Results`, () => ZipHandler.export_results(scout_mode), true)
     if (first)
     {

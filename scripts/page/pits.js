@@ -25,7 +25,7 @@ function init_page()
     header_info.innerText = 'Team Select'
 
     let scout_config = cfg.get_scout_config(scout_mode)
-    let first = populate_teams(false, true)
+    let first = populate_teams(false, scout_mode)
     add_button_filter(`Export ${scout_config.name} Results`, () => ZipHandler.export_results(scout_mode), true)
     if (first)
     {

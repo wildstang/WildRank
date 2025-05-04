@@ -31,7 +31,7 @@ function check_teams(teams, match_teams)
  * 
  * Pages: Match Scout, Whiteboard, Match Summaries, Coach View
  */
-function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0, note=false)
+function populate_matches(finals=true, complete=true, team_filter='', secondary=false, scout_pos=0)
 {
     let list = 'option_list'
     if (secondary)
@@ -53,7 +53,6 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
     for (let match_key of matches)
     {
         let match = dal.matches[match_key]
-        let number = match.match_number
         let red_teams = match.red_alliance
         let blue_teams = match.blue_alliance
         if ((match.comp_level == 'qm' || finals) &&
@@ -64,7 +63,7 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
             let scouted = 'not_scouted'
             let level = match.comp_level.toUpperCase()
             let teams = red_teams.concat(blue_teams)
-            let is_scouted = (!note && dal.is_match_scouted(match_key, teams[scout_pos], 'match')) || (note && dal.is_match_scouted(match_key, teams[scout_pos], 'note'))
+            let is_scouted = complete && cfg.scouting_modes.some(m => dal.is_match_scouted(match_key, teams[scout_pos], m))
             if (complete && ((!completeTBA && match.red_score && match.red_score >= 0) || (is_scouted && level == 'QM')))
             {
                 scouted = 'scouted'
@@ -121,7 +120,7 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
         let name = dal.teams[number].name
         // determine if the team has already been scouted
         let scouted = 'not_scouted'
-        if (complete && dal.is_team_scouted(number, 'pit'))
+        if (complete && dal.is_team_scouted(number, scout_mode))
         {
             first = ''
             scouted = 'scouted'

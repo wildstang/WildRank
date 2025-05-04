@@ -120,12 +120,17 @@ function step_setup()
         }
         setup_col.add_input(position_el)
 
-        let match_scout = new WRButton('Match Scout', () => scout('matches'))
-        match_scout.on_right = () => scout('matches', true)
-        let other_scout = new WRMultiButton('', ['Pit', 'Alliance'], [() => scout('pits'), () => scout('notes')])
-        other_scout.on_rights = [() => scout('pits', true), () => scout('notes', true)]
+        // build stack of buttons to scout
+        let modes = cfg.scouting_modes
+        let primary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
+        let other_scout = new WRMultiButton('')
         other_scout.add_class('slim')
-        setup_col.add_input(new WRStack([match_scout, other_scout]))
+        for (let mode of modes.splice(1))
+        {
+            let name = cfg.get_scout_config(mode).name
+            other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
+        }
+        setup_col.add_input(new WRStack([primary_scout, other_scout]))
 
         let roles = new WRButton('Other Roles', other_roles)
         roles.add_class('slim')
@@ -226,8 +231,11 @@ function scout(mode, right_click)
     let team_count = Object.keys(dal.teams).length
     let match_count = Object.keys(dal.matches).length
 
+    let team_modes = cfg.team_scouting_modes
+    let match_modes = cfg.match_scouting_modes
+
     let position = position_el.element.selectedIndex
-    if (position >= 0 && ['matches', 'notes'].includes(mode))
+    if (position >= 0 && match_modes.includes(mode))
     {
         cfg.user.state.position = position
         cfg.user.store_config()
@@ -235,22 +243,19 @@ function scout(mode, right_click)
         if (team_count && match_count)
         {
             cfg.set_role(mode)
-
-            let scout_type = mode === 'notes' ? 'note' : 'match'
-            window_open(build_url('matches', {[MODE_QUERY]: scout_type}), right_click)
+            window_open(build_url('matches', {[MODE_QUERY]: mode}), right_click)
         }
         else
         {
             alert('No matches available!')
         }
     }
-    else if (mode === 'pits')
+    else if (team_modes.includes(mode))
     {
         if (team_count)
         {
             cfg.set_role(mode)
-
-            window_open(build_url('pits', {[MODE_QUERY]: 'pit'}), right_click)
+            window_open(build_url('pits', {[MODE_QUERY]: mode}), right_click)
         }
         else
         {
