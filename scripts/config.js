@@ -5,8 +5,6 @@
  * date:        2025-03-16
  */
 
-USER_LIST = 'user-list'
-
 /**
  * Loads a JSON config file from the server and passes the contents as an object to the given callback.
  * Uses cache mode "reload" to force a cache reload on every request.

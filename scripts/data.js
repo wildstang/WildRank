@@ -617,15 +617,22 @@ class Data
     }
 
     /**
+     * Builds the picklist file name for the current event.
+     */
+    get picklist_file()
+    {
+        return `picklists-${this.event_id}`
+    }
+
+    /**
      * Loads picklists in from localStorage.
      */
     load_picklists()
     {
-        const picklist_file = `picklists-${this.event_id}`
-        const picklists = JSON.parse(localStorage.getItem(picklist_file))
+        const picklists = JSON.parse(localStorage.getItem(this.picklist_file))
         if (picklists === null)
         {
-            console.log(`No picklist file "${picklist_file}"`)
+            console.log(`No picklist file "${this.picklist_file}"`)
             return
         }
 
@@ -636,7 +643,7 @@ class Data
      */
     save_picklists()
     {
-        localStorage.setItem(`picklists-${this.event_id}`, JSON.stringify(this.picklists))
+        localStorage.setItem(this.picklist_file, JSON.stringify(this.picklists))
     }
 
     //

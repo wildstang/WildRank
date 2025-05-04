@@ -180,7 +180,7 @@ function update_config()
         }
     }
 
-    let tests = cfg.user.validate(cfg.user, false).filter(t => t !== true)
+    let tests = UserConfig.validate(cfg.user, false).filter(t => t !== true)
     if (tests.length > 0)
     {
         alert('Config error!\n\n' + tests.join('\n\n'))
@@ -212,7 +212,7 @@ function import_config(event)
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
         let user_cfg = JSON.parse(readerEvent.target.result)
-        let tests = cfg.user.validate(user_cfg, false).filter(t => t !== true)
+        let tests = UserConfig.validate(user_cfg, false).filter(t => t !== true)
         if (tests.length > 0)
         {
             alert('Invalid config!\n\n' + tests.join('\n\n'))
