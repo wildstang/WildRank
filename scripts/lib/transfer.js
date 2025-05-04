@@ -76,13 +76,6 @@ function preload_event(on_complete=null)
             count_data('event-false')
             console.error(err)
         })
-
-    // fetch list of server pictures
-    let server = parse_server_addr(document.location.href)
-    fetch(`${server}/listPics`)
-        .then(response => response.json())
-        .then(handle_photos)
-        .catch(err => console.error(err))
 }
 
 /**
@@ -195,14 +188,6 @@ function handle_media(media, team_num)
             case 'avatar':
                 localStorage.setItem(`avatar-${cfg.year}-${team_num}`, m.details.base64Image)
                 break
-            case 'cdphotothread':
-            case 'imgur':
-            // NOTE: instagram does things weird
-            //case 'instagram-image':
-            case 'onshape':
-                // TODO: handle pictures
-                //dal.add_photo(team.team_number, m.direct_url)
-                break
         }
     }
 }
@@ -245,25 +230,6 @@ function handle_event(event)
         return 'event-true'
     }
     return 'event-false'
-}
-
-/**
- * Handles photos are fetching from TBA.
- * @param {Array} photos Raw array of photos
- */
-function handle_photos(photos)
-{
-    // add each picture to config
-    let teams = Object.keys(photos)
-    for (let team of teams)
-    {
-        let team_pics = photos[team]
-        for (let i in team_pics)
-        {
-            // TODO: handle pictures
-            //dal.add_photo(team, `${server}/uploads/${team_pics[i]}`, i === 0)
-        }
-    }
 }
 
 /**
@@ -383,7 +349,7 @@ async function reset_config()
                 let files = await cache.keys()
                 for (let file of files)
                 {
-                    if (file.url.endsWith('-config.json') || file.url === `${USER_LIST}.csv`)
+                    if (file.url.endsWith('-config.json') || file.url === `${cfg.user_list.name}.csv`)
                     {
                         cache.delete(file)
                     }
@@ -392,7 +358,7 @@ async function reset_config()
         }
 
         // search localStorage for "config-20" files and delete them plus "config-users"
-        let files = Object.keys(localStorage).filter(f => f.endsWith('-config') || f === USER_LIST)
+        let files = Object.keys(localStorage).filter(f => f.endsWith('-config') || f === cfg.user_list.name)
         for (let file of files)
         {
             localStorage.removeItem(file)
@@ -567,34 +533,106 @@ class ZipHandler
 {
     constructor()
     {
-        this.event = false
-        this.match = false
-        this.pit = false
-        this.note = false
-        this.config = false
-        this.smart_stats = false
-        this.coach = false
-        this.settings = false
-        this.avatars = false
+        // DAL
+        this.event_data = false
+        this.results = false
         this.picklists = false
-        this.whiteboard = false
-        this.pictures = false
-        this.always_overwrite = false
+
+        // Config
+        this.scout_config = false
+        this.analysis_config = false
+        this.user_settings = false
+        this.user_list = false
+
+        // options
         this.on_update = this.do_nothing
         this.on_complete = this.do_nothing
-        this.server = ''
-        this.user = ''
     }
 
     do_nothing(a='', b='') {}
 
     /**
-     * function:    get_zip_name
-     * paramters:   none
-     * returns:     zip file name
-     * description: Generates a zip name.
+     * Helper function that creates a zip handler to import configuration data.
+     * @param {Function} on_complete Function to call when loading is complete.
      */
-    get_zip_name()
+    static import_setup(on_complete=this.do_nothing)
+    {
+        let zh = new ZipHandler()
+        zh.event_data = true
+        zh.scout_config = true
+        zh.analysis_config = true
+        zh.on_complete = on_complete
+        zh.import_zip_from_file()
+    }
+
+    /**
+     * Helper function that creates a zip handler to import all results.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static import_results(on_complete=this.do_nothing)
+    {
+        let zh = new ZipHandler()
+        zh.results = true
+        zh.on_complete = on_complete
+        zh.import_zip_from_file(true)
+    }
+
+    /**
+     * Helper function that creates a zip handler to import results and event data.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static import_data(on_complete=this.do_nothing)
+    {
+        let zh = new ZipHandler()
+        zh.event_data = true
+        zh.results = true
+        zh.on_complete = on_complete
+        zh.import_zip_from_file()
+    }
+
+    /**
+     * Helper function that creates a zip handler to export configuration data.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static export_setup()
+    {
+        let zh = new ZipHandler()
+        zh.event_data = true
+        zh.scout_config = true
+        zh.analysis_config = true
+        zh.export_zip()
+    }
+
+    /**
+     * Helper function that creates a zip handler to export a given mode of results.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static export_results(scout_mode='')
+    {
+        let zh = new ZipHandler()
+        if (scout_mode)
+        {
+            zh.results = scout_mode
+        }
+        zh.export_zip()
+    }
+
+    /**
+     * Helper function that creates a zip handler to export results and event data.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static export_data()
+    {
+        let zh = new ZipHandler()
+        zh.event_data = true
+        zh.results = true
+        zh.export_zip()
+    }
+
+    /**
+     * Generates a Zip file name based on the configured files.
+     */
+    get zip_name()
     {
         // start name with user ID if available
         let name = ''
@@ -606,40 +644,26 @@ class ZipHandler
         // add event ID
         name += cfg.user.state.event_id
 
-        // add a suffix based on what is exported
-        let suffix = ''
-        let results = this.match || this.pit || this.note
-        let config = this.event || this.config || this.smart_stats || this.coach || this.settings || this.avatars || this.whiteboard
-        if ((results || this.pictures) && !config)
+        let options = [this.event_data, this.results, this.picklists, this.scout_config, this.analysis_config, this.user_settings, this.user_list]
+        let total = options.filter(Boolean).length
+        let configs = this.event_data + this.scout_config + this.analysis_config + this.user_settings + this.user_list
+
+        let suffix
+        if (total === 1)
         {
-            if (this.match && !this.pit && !this.note && !this.pictures)
+            if (typeof this.results === 'string')
             {
-                suffix = 'matches'
-            }
-            else if (this.note && !this.match && !this.pit && !this.pictures)
-            {
-                suffix = 'notes'
-            }
-            else if (this.pictures && !this.match && !this.pit && !this.note)
-            {
-                suffix = 'pictures'
-            }
-            else if ((this.pit || this.pictures) && !this.match && !this.note)
-            {
-                suffix = 'pits'
+                suffix = this.results
             }
             else
             {
-                suffix = 'results'
+                let names = ['event', 'results', 'picklists', 'scout', 'analysis', 'settings', 'users']
+                suffix = names[options.indexOf(true)]
             }
         }
-        else if (config && !results)
+        else if (configs === total)
         {
-            suffix = 'config'
-        }
-        else if (!config && !results && this.picklists)
-        {
-            suffix = 'picklists'
+            suffix = 'configs'
         }
         else
         {
@@ -679,7 +703,7 @@ class ZipHandler
                         // TODO: remove this when imports take into account multiple zips
                         await handler.import_zip(file)
                     }
-                    else if (file.name.endsWith('.json'))
+                    else
                     {
                         handler.import_settings(file)
                     }
@@ -742,9 +766,10 @@ class ZipHandler
      */
     async import_zip(file)
     {
-        if (file['name'] !== undefined && !file.name.includes(dal.event_id))
+        const event_id = cfg.user.state.event_id
+        if (file['name'] !== undefined && !file.name.includes(event_id))
         {
-            if (!confirm(`Warning, zip does not contain "${dal.event_id}" in the name! Continue?`))
+            if (!confirm(`Warning, zip does not contain "${event_id}" in the name! Continue?`))
             {
                 return
             }
@@ -756,8 +781,11 @@ class ZipHandler
         let complete = 0
         let ignore_app = false
         let ignore_cfg = false
+        let app_version = cfg.app_version
+        let scout_version = cfg.scout.version
 
-        if (files.length == 0)
+        let total_files = files.length
+        if (total_files == 0)
         {
             alert('No files found!')
         }
@@ -765,180 +793,108 @@ class ZipHandler
         for (let name of files)
         {
             // get name used in localStorage
-            let n = name.substring(0, name.indexOf('.'))
-            if (n.includes('/'))
+            let file_name = name.substring(0, name.indexOf('.'))
+            if (file_name.includes('/'))
             {
-                n = n.substring(n.lastIndexOf('/') + 1)
+                file_name = file_name.substring(file_name.lastIndexOf('/') + 1)
             }
-            if (n.includes('\\'))
+            if (file_name.includes('\\'))
             {
-                n = n.substring(n.lastIndexOf('\\') + 1)
+                file_name = file_name.substring(file_name.lastIndexOf('\\') + 1)
             }
 
             // skip directories
-            if (!name.endsWith('/'))
+            if (name.endsWith('/'))
             {
-                // get blob of file
-                let content = await zip.file(name).async('blob')
-                // import pictures to cache
-                if (name.endsWith('.jpg') || name.endsWith('.png'))
-                {
-                    if (this.pictures)
-                    {
-                        // adjust url
-                        let url = name.replace('https:/', 'https://').replace('http:/', 'http://')
-                        if (!url.startsWith('http'))
-                        {
-                            let server = this.server
-                            if (!server.endsWith('/'))
-                            {
-                                server += '/'
-                            }
-                            url = server + url
-                            let team = url.substring(url.lastIndexOf('/')+1, url.lastIndexOf('-'))
-                            dal.add_photo(team, url)
+                complete++
+                continue
+            }
 
-                            if (typeof caches !== 'undefined')
-                            {
-                                cache_file(url, content)
-                            }
-                        }
-                    }
-                }
-                else if (name.endsWith('.json'))
+            // get blob of file
+            let content = await zip.file(name).async('blob')
+
+            let text = await content.text()
+            if (file_name === cfg.user.name)
+            {
+                console.log(`Importing ${file_name}`)
+                cfg.user.handle_config(text)
+                cfg.user.store_config()
+            }
+            else if (file_name === cfg.scout.name)
+            {
+                console.log(`Importing ${file_name}`)
+                cfg.scout.handle_config(text)
+                cfg.scout.store_config()
+            }
+            else if (file_name === cfg.analysis.name)
+            {
+                console.log(`Importing ${file_name}`)
+                cfg.analysis.handle_config(text)
+                cfg.analysis.store_config()
+            }
+            else if (file_name === cfg.user_list.name)
+            {
+                console.log(`Importing ${file_name}`)
+                cfg.user_list.handle_config(text)
+                cfg.user_list.store_config()
+            }
+            else if ((this.event_data && file_name.startsWith(`avatar-${cfg.year}-`)) ||
+                (this.picklists && file_name === dal.picklist_file) ||
+                (this.event_data && [`event-${event_id}`, `matches-${event_id}`,
+                `rankings-${event_id}`, `teams-${event_id}`].includes(file_name)))
+            {
+                console.log(`Importing ${file_name}`)
+                localStorage.setItem(file_name, text)
+            }
+            else if (this.results === true && file_name.startsWith('result-'))
+            {
+                let new_json = JSON.parse(text)
+
+                if (new_json.meta.result.event_id === event_id)
                 {
-                    // import everything else as strings to localStorage
-                    // determine which files to use
-                    if ((n.includes(dal.event_id) &&
-                        ((this.event && (n.startsWith('teams-') || n.startsWith('matches-') || n.startsWith('rankings-'))) ||
-                        (this.match && n.startsWith(`${MATCH_MODE}-`) ||
-                        (this.pit && n.startsWith(`${PIT_MODE}-`) ||
-                        (this.note && n.startsWith(`${NOTE_MODE}-`)))))) ||
-                        (this.config && (MODES.some(m => n === `config-${cfg.year}-${m}`) || n === `config-${cfg.year}-version`)) ||
-                        (this.smart_stats && n === `config-${cfg.year}-smart_stats`) ||
-                        (this.coach && n === `config-${cfg.year}-coach`) ||
-                        (this.settings && n.startsWith('config-') && !n.startsWith(`config-${cfg.year}`)) ||
-                        (this.picklists && n.startsWith('picklists-')) ||
-                        (this.whiteboard && n === `config-${cfg.year}-whiteboard`))
+                    let old_json = JSON.parse(localStorage.getItem(file_name))
+                    if (old_json === null || new_json.meta.scouter.time > old_json.meta.scouter.time)
                     {
-                        let text = await content.text()
                         let write = true
-                        let existing = localStorage.getItem(n)
-                        let new_json = JSON.parse(text)
-                        let existing_json = JSON.parse(existing)
-
-                        // prompt if file should be overriden
-                        if (existing !== null)
+                        if (!ignore_cfg && new_json.meta.scouter.meta_config_version !== scout_version)
                         {
-                            if (existing !== text)
+                            if (confirm(`App version mismatch on ${file_name}, continue?`))
                             {
-                                let extra = ''
-                                if (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`))
-                                {
-                                    extra = ` New result is ${new_json.meta_scout_time - existing_json.meta_scout_time}s newer.`
-                                }
-                                else if (n.startsWith(`${NOTE_MODE}-`))
-                                {
-                                    extra = ` New result is ${new_json.meta_note_scout_time - existing_json.meta_note_scout_time}s newer.`
-                                }
-                                write = this.always_overwrite || confirm(`"${n}" already exists, overwrite?${extra}`)
+                                ignore_cfg = confirm(`Ignore all app version mismatches?`)
                             }
                             else
                             {
                                 write = false
                             }
                         }
-
-                        // ignore and alert if a result file name doesn't match its metadata
-                        if (write && (n.startsWith(`${PIT_MODE}-`) || n.startsWith(`${MATCH_MODE}-`) || n.startsWith(`${NOTE_MODE}-`)))
+                        if (!ignore_app && new_json.meta.scouter.meta_app_version !== app_version)
                         {
-                            let parts = n.split('-')
-                            let name_team = parseInt(parts[2])
-                            let result_team = parseInt(new_json.meta_team)
-                            if (name_team !== result_team)
+                            if (confirm(`Config version mismatch on ${file_name}, continue?`))
                             {
-                                alert(`Team number mismatch on ${n}`)
-                                write = false
-                            }
-
-                            if (!n.startsWith(`${PIT_MODE}-`))
-                            {
-                                let meta_match = new_json.meta_match_key
-                                if (parts[1] !== meta_match)
-                                {
-                                    alert(`Match key mismatch on ${n}`)
-                                    write = false
-                                }
-                            }
-
-                            // warn if reported config version does not match
-                            let version_key = `config-${cfg.year}-version`
-                            let version = files.includes(`${version_key}.json`) ? JSON.parse(localStorage.getItem(version_key)) : cfg.version
-                            if (!ignore_cfg && write && new_json.hasOwnProperty('meta_config_version') && new_json.meta_config_version !== version)
-                            {
-                                write = confirm(`Config version mismatch on ${n}, continue?`)
-                                if (write)
-                                {
-                                    ignore_cfg = confirm(`Ignore all config version mismatches?`)
-                                }
-                            }
-
-                            // warn if reported app version does not match
-                            version = get_cookie(VERSION_COOKIE, VERSION_DEFAULT)
-                            if (!ignore_app && write && version !== VERSION_DEFAULT && 'meta_app_version' in new_json && new_json.meta_app_version !== version)
-                            {
-                                write = confirm(`App version mismatch on ${n}, continue?`)
-                                if (write)
-                                {
-                                    ignore_app = confirm(`Ignore all app version mismatches?`)
-                                }
-                            }
-                        }
-
-                        if (write)
-                        {
-                            console.log(`Importing ${n}`)
-                            localStorage.setItem(n, text)
-                        }
-                    }
-                    else if (this.avatars && n.startsWith('avatar-'))
-                    {
-                        let text = await content.text()
-                        let write = true
-                        let existing = localStorage.getItem(n)
-
-                        // prompt if file should be overriden
-                        if (existing !== null)
-                        {
-                            if (existing !== text)
-                            {
-                                write = true
+                                ignore_app = confirm(`Ignore all config version mismatches?`)
                             }
                             else
                             {
                                 write = false
                             }
                         }
-
                         if (write)
                         {
-                            console.log(`Importing ${n}`)
-                            localStorage.setItem(n, text)
+                            console.log(`Importing ${file_name}`)
+                            localStorage.setItem(file_name, text)
                         }
                     }
                 }
             }
 
             // update progress bar
-            this.on_update(++complete, files.length)
+            this.on_update(++complete, total_files)
         }
 
-        alert('Import Complete')
-        cfg.load_configs(() => {
-            dal = new DAL(cfg.user.state.event_id)
-        dal.build_teams()
+        dal = new Data(event_id)
+        dal.load_data()
         this.on_complete()
-        })
+        alert('Import Complete')
     }
 
     /**
@@ -950,78 +906,50 @@ class ZipHandler
     async export_zip(op=0)
     {
         let zip = JSZip()
+        const event_id = cfg.user.state.event_id
 
         // determine which files to use
         let handler = this
-        let files = Object.keys(localStorage).filter(function(file)
+        let files = Object.keys(localStorage).filter(function(file_name)
         {
-            return (file.includes(dal.event_id) &&
-                ((handler.event && (file.startsWith('teams-') || file.startsWith('matches-') || file.startsWith('rankings-'))) ||
-                (handler.match && file.startsWith(`${MATCH_MODE}-`)) ||
-                (handler.pit && file.startsWith(`${PIT_MODE}-`)) ||
-                (handler.note && file.startsWith(`${NOTE_MODE}-`)))) ||
-                (handler.config && (MODES.some(m => file === `config-${cfg.year}-${m}`) || file === `config-${cfg.year}-version`)) ||
-                (handler.smart_stats && file === `config-${cfg.year}-smart_stats`) ||
-                (handler.coach && file === `config-${cfg.year}-coach`) ||
-                (handler.settings && file.startsWith('config-') && !file.startsWith(`config-${cfg.year}`)) ||
-                (handler.avatars && file.startsWith('avatar-')) ||
-                (handler.picklists && file.startsWith('picklists-')) ||
-                (handler.whiteboard && file === `config-${cfg.year}-whiteboard`)
+            if (handler.results && file_name.startsWith('result-'))
+            {
+                let result = JSON.parse(localStorage.getItem(file_name))
+                return result.meta.result.event_id === event_id &&
+                    (handler.results === true || result.meta.result.scout_mode === scout_mode)
+            }
+            return ((handler.event_data && [`event-${event_id}`, `matches-${event_id}`,
+                    `rankings-${event_id}`, `teams-${event_id}`].includes(file_name)) ||
+                (handler.picklists && file_name.startsWith('picklists-')) ||
+                (handler.scout_config && file_name === cfg.scout.name) ||
+                (handler.analysis_config && file_name === cfg.analysis.name) ||
+                (handler.user_settings && file_name === cfg.user.name) ||
+                (handler.user_list && file_name === cfg.user_list.name ||
+                (handler.event_data && file_name.startsWith(`avatar-${cfg.year}-`))))
         })
+
         let num_uploads = files.length
+        if (num_uploads === 0)
+        {
+            alert('No data to export')
+            return
+        }
 
         // add each file to the zip
         for (let i in files)
         {
             let file = files[i]
-            let name = file + '.json'
+            let name = file + (file === cfg.user_list.name ? '.csv' : '.json')
             let base64 = false
             let data = localStorage.getItem(file)
             if (file.startsWith('avatar-'))
             {
-                name = `avatars/${name}`
+                name = `avatars/${file}`
             }
             zip.file(name, data, { base64: base64 })
 
             // update progress bar
             this.on_update(i, files.length + 1)
-        }
-
-        // export pictures from cache
-        if (typeof caches !== 'undefined')
-        {
-            let names = await caches.keys()
-            if (names.length > 0 && this.pictures)
-            {
-                let cache = await caches.open(names[0])
-                let keys = await cache.keys()
-                
-                // add each file in the cache to the table
-                for (let key of keys)
-                {
-                    // add up all bytes in file
-                    let response = await cache.match(key)
-
-                    // create row
-                    let file = response.url
-                    if (file === '')
-                    {
-                        file = key.url
-                    }
-
-                    // check for pictures and don't put in directory if belonging to server (like server does)
-                    if ((file.endsWith('.jpg') || file.endsWith('.png')) && !file.startsWith(`${this.server}/assets/`))
-                    {
-                        // put locally captured pictures in a cache directory
-                        if (file.startsWith(`${this.server}/uploads/`))
-                        {
-                            file = file.replace(`${this.server}/uploads/`, 'cache/')
-                        }
-                        zip.file(file.replace('://', '/').replace(':', '.'), response.blob())
-                        num_uploads++
-                    }
-                }
-            }
         }
 
         // download zip
@@ -1030,7 +958,7 @@ class ZipHandler
         {
             let element = document.createElement('a')
             element.href = window.URL.createObjectURL(blob)
-            element.download = this.get_zip_name()
+            element.download = this.zip_name
 
             element.style.display = 'none'
             document.body.appendChild(element)
@@ -1072,7 +1000,7 @@ class ZipHandler
                     })
             }
         }
-        else if (op === 2)
+        else
         {
             alert('Invalid export type')
         }
@@ -1083,7 +1011,6 @@ class ZipHandler
 
     /**
      * Import a complete config JSON file.
-     * 
      * @param {File} file Uploaded file
      */
     import_settings(file)
@@ -1091,25 +1018,31 @@ class ZipHandler
         let reader = new FileReader()
         reader.readAsText(file, 'UTF-8')
         reader.onload = readerEvent => {
-            let jstring = readerEvent.target.result
-            if (file.name.endsWith('-config.json'))
+            let alert_text = 'Import Complete'
+
+            let text = readerEvent.target.result
+            if (file.name.startsWith(cfg.user.name))
             {
-                let newConfig = JSON.parse(jstring)
-                let keys = Object.keys(newConfig)
-                for (let key of keys)
-                {
-                    let name = MODES.includes(key) ? `config-${cfg.year}-${key}` : `config-${key}`
-                    localStorage.setItem(name, JSON.stringify(newConfig[key]))
-                }
+                cfg.user.handle_config(text)
+            }
+            else if (file.name.startsWith(cfg.scout.name))
+            {
+                cfg.scout.handle_config(text)
+            }
+            else if (file.name.startsWith(cfg.analysis.name))
+            {
+                cfg.analysis.handle_config(text)
+            }
+            else if (file.name.startsWith(cfg.user_list.name))
+            {
+                cfg.user_list.handle_config(text)
             }
             else
             {
-                let name = file.name.substring(0, file.name.indexOf('.'))
-                localStorage.setItem(name, jstring)
+                alert_text = `Unrecognized file ${text}`
             }
 
-            cfg.load_configs(0)
-            alert('Import Complete')
+            alert(alert_text)
             this.on_complete()
         }
     }

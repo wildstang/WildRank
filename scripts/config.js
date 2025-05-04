@@ -896,6 +896,10 @@ class ScoutConfig
                 if (page.hasOwnProperty('columns'))
                 {
                     tests.push(page.columns.length > 0 ? true : `No columns found for ${tag}`)
+                    if (obj.hasOwnProperty('type') && obj.type === 'match-alliance')
+                    {
+                        tests.push(page.columns.length === 1 ? true : `Too many columns for ${tag}`)
+                    }
                     for (let column of page.columns)
                     {
                         tag = column.hasOwnProperty('id') ? column.id : tag

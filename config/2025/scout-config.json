@@ -182,7 +182,7 @@
                         {
                             "cycle": false,
                             "name": "Breakdown",
-                            "id": "match_post_match_post_match",
+                            "id": "match_post_match_breakdown",
                             "inputs": [
                                 {
                                     "type": "checkbox",
