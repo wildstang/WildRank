@@ -156,7 +156,6 @@ class UserConfig
         this.settings = {
             team_number: null,
             time_format: null,
-            use_images: null,
             use_team_color: null,
             use_offline: null,
             auto_hide_right: null,
@@ -224,7 +223,6 @@ class UserConfig
         {
             tests.push(has_int(UserConfig.BASE_NAME, user_config.settings, 'team_number'),
                 has_int(UserConfig.BASE_NAME, user_config.settings, 'time_format', UserConfig.VALID_TIME_FORMATS),
-                has_bool(UserConfig.BASE_NAME, user_config.settings, 'use_images'),
                 has_bool(UserConfig.BASE_NAME, user_config.settings, 'use_team_color'),
                 has_bool(UserConfig.BASE_NAME, user_config.settings, 'use_offline'),
                 has_bool(UserConfig.BASE_NAME, user_config.settings, 'auto_hide_right'),

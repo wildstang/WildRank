@@ -8,7 +8,7 @@
 
 include('mini-picklists')
 
-var avatar, team_num_hdr, team_name, loc, ranking, photos, stats_container, clear_container, match_container
+var avatar, team_num_hdr, team_name, loc, ranking, stats_container, clear_container, match_container
 
 /**
  * function:    init_page
@@ -34,11 +34,8 @@ function init_page()
 
         loc = document.createElement('h3')
         ranking = document.createElement('h3')
-        let center = document.createElement('center')
-        photos = document.createElement('span')
-        center.append(photos)
         stats_container = document.createElement('div')
-        let card = new WRCard([avatar, team_header, loc, ranking, center, stats_container], true)
+        let card = new WRCard([avatar, team_header, loc, ranking, stats_container], true)
         card.add_class('result_card')
 
         clear_container = document.createElement('span')
@@ -99,7 +96,6 @@ function open_option(team_num)
     team_num_hdr.innerText = team_num
     team_name.innerText = dal.get_value(team_num, 'meta.name')
     loc.innerText = `${dal.get_value(team_num, 'meta.city')}, ${dal.get_value(team_num, 'meta.state_prov')}, ${dal.get_value(team_num, 'meta.country')}`
-    photos.replaceChildren(dal.get_photo_carousel(team_num))
 
     // populate ranking
     ranking.innerHTML = dal.get_rank_str(team_num)

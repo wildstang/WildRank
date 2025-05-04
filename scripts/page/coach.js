@@ -213,8 +213,6 @@ function open_option(match_key)
  */
 function build_table(alliance, teams)
 {
-    let images = []
-
     let table = document.createElement('table')
 
     let teams_header = table.insertRow()
@@ -225,8 +223,6 @@ function build_table(alliance, teams)
 
     for (let team of teams)
     {
-        images.push(dal.get_photo_carousel(team, '400px'))
-
         let team_header = document.createElement('th')
         team_header.innerText = team
         /*if (dal.is_unsure(team))
@@ -268,7 +264,7 @@ function build_table(alliance, teams)
         details = red_card
     }
     details.element.replaceChildren(center)
-    details.element.append(...images, table)
+    details.element.append(table)
 }
 
 /**

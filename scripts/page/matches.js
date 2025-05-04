@@ -9,7 +9,7 @@
 // read parameters from URL
 const scout_mode = get_parameter(MODE_QUERY, '')
 
-var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, photos_el, buttons
+var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_el, buttons
 var scout_pos
 var scout_type
 
@@ -51,9 +51,7 @@ function init_page()
         team_pos_el = document.createElement('span')
         team_pos_el.textContent = `(${pos})`
         team.append(team_num_el, ' ', team_name_el, ' ', team_pos_el)
-
-        photos_el = document.createElement('span')
-        card_elements.push(team, photos_el)
+        card_elements.push(team)
 
         buttons = document.createElement('div')
         let card = new WRCard(card_elements, true)
@@ -92,9 +90,6 @@ function open_option(match_key)
     let teams = scout_type === 'match-alliance' ? dal.get_match_alliance(match_key, scout_pos) : [dal.get_match_team(match_key, scout_pos)]
     avatar_el.replaceChildren(...teams.map(t => dal.teams[t].avatar_el))
     team_num_el.innerText = teams.join(', ')
-
-    // TODO: update photo carousel
-    //photos_el.replaceChildren(dal.get_photo_carousel(team_num))
 
     // determine alliance
     let color = cfg.theme['blue-alliance-color']

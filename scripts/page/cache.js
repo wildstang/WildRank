@@ -78,7 +78,6 @@ async function populate_page()
         let card = new WRCard('No caches found')
 
         let button_col = new WRColumn()
-        button_col.add_input(new WRButton('Cache Pictures', cache_pics))
         button_col.add_input(new WRButton('Update App from Zip', import_from_zip))
     
         let page = new WRPage('', [new WRColumn('', [card]), button_col])
@@ -89,7 +88,6 @@ async function populate_page()
 async function build_table(names, expected_files=[])
 {
     let button_col = new WRColumn()
-    button_col.add_input(new WRButton('Cache Pictures', cache_pics))
     button_col.add_input(new WRButton('Update App from Zip', import_from_zip))
 
     let server = parse_server_addr(document.location.href)
@@ -250,40 +248,6 @@ function import_from_zip()
     input.accept = 'application/zip'
     input.onchange = import_zip
     input.click()
-}
-
-/**
- * function:    cache_pics
- * paramters:   none
- * returns:     none
- * description: Caches all known robot pictures.
- */
-async function cache_pics()
-{
-    let cache = await caches.open(current)
-    let teams = Object.keys(dal.teams)
-    let count = 0
-    let total = 0
-    for (let team of teams)
-    {
-        let photos = dal.teams[team].pictures.photos
-        total += photos.length
-        for (let pic of photos)
-        {
-            fetch(pic).then(function (res)
-            {
-                if (++count === total)
-                {
-                    alert('Pictures Cached!')
-                }
-                if (!res.ok)
-                {
-                    return
-                }
-                return cache.put(pic, res)
-            })
-        }
-    }
 }
 
 /**

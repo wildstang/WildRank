@@ -27,8 +27,11 @@ function init_page()
     let status_stack = new WRStack([event_config, scout_config_valid, analysis_config_valid])
 
     // create result summary card
-    summary_card = new WRMultiNumber('', ['Pits', 'Pictures', 'Matches', 'Latest Match'], ['-', '-', '-', '-'])
-    let transfer_funcs = [() => preload_event(populate), ZipHandler.export_setup, ZipHandler.import_results, ZipHandler.export_data]
+    summary_card = new WRMultiNumber('', ['Pits', 'Matches', 'Latest Match'], ['-', '-', '-'])
+
+    // create transfer buttons
+    let transfer_funcs = [() => preload_event(populate), ZipHandler.export_setup,
+        () => ZipHandler.import_results(populate), ZipHandler.export_data]
     buttons = new WRMultiButton('', ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data'], transfer_funcs)
 
     // create result breakdown card
@@ -89,20 +92,9 @@ function populate()
     let team_modes = cfg.team_scouting_modes
     summary_card.numbers[0].value_el.innerText = `${dal.count_team_results()}/${teams.length * team_modes.length}`
 
-    // TODO: count photo completion
-    let photos = 0
-    /*for (let team of teams)
-    {
-        if (dal.get_photo(team))
-        {
-            photos++
-        }
-    }*/
-    summary_card.numbers[1].value_el.innerText = `${photos}/${teams.length}`
-
     // complete match results
     let match_modes = cfg.match_scouting_modes
-    summary_card.numbers[2].value_el.innerText = `${dal.count_match_results()}/${matches.length * 6 * match_modes.length}`
+    summary_card.numbers[1].value_el.innerText = `${dal.count_match_results()}/${matches.length * 6 * match_modes.length}`
 
     // determine the last match that has been scouted
     let last_match = ''
@@ -119,7 +111,7 @@ function populate()
     }
     if (last_match.length > 0)
     {
-        summary_card.numbers[3].value_el.innerText = dal.matches[last_match].short_name
+        summary_card.numbers[2].value_el.innerText = dal.matches[last_match].short_name
     }
 
     // create object to count scouting mode breakdowns

@@ -179,7 +179,6 @@ function filter_notes()
             }
 
             // build table of notes
-            let images = dal.get_photo_carousel(team, '300px')
             let name = dal.get_value(team, 'meta.name')
             let result_keys = Object.keys(notes)
             let results_el = document.createElement('span')
@@ -190,7 +189,7 @@ function filter_notes()
             name_el.innerText = name
             header.append(team_el, name_el)
             let table = document.createElement('table')
-            results_el.append(header, images, table)
+            results_el.append(header, table)
             for (let key of result_keys)
             {
                 let name = PIT_MODE
