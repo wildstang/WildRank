@@ -873,8 +873,14 @@ class ScoutConfig
             has_array(tag, obj, 'pages', 'object')
         ]
 
-        if (tests[3] === true)
+        let ids = []
+        if (obj.hasOwnProperty('id'))
         {
+            ids.push(obj.id)
+        }
+        if (obj.hasOwnProperty('pages'))
+        {
+            tests.push(obj.pages.length > 0 ? true : `No pages found for ${tag}`)
             for (let page of obj.pages)
             {
                 tag = page.hasOwnProperty('id') ? page.id : tag
@@ -882,8 +888,14 @@ class ScoutConfig
                     has_string(tag, page, 'name'),
                     has_array(tag, page, 'columns', 'object'))
 
-                if (tests[6] === true)
+                if (page.hasOwnProperty('id'))
                 {
+                    tests.push(ids.includes(page.id) ? `Repeat ID ${page.id}` : true)
+                    ids.push(page.id)
+                }
+                if (page.hasOwnProperty('columns'))
+                {
+                    tests.push(page.columns.length > 0 ? true : `No columns found for ${tag}`)
                     for (let column of page.columns)
                     {
                         tag = column.hasOwnProperty('id') ? column.id : tag
@@ -892,11 +904,22 @@ class ScoutConfig
                             has_bool(tag, column, 'cycle'),
                             has_array(tag, column, 'inputs', 'object'))
 
-                        if (tests[10] === true)
+                        if (column.hasOwnProperty('id'))
                         {
+                            tests.push(ids.includes(column.id) ? `Repeat ID ${column.id}` : true)
+                            ids.push(column.id)
+                        }
+                        if (column.hasOwnProperty('pages'))
+                        {
+                            tests.push(column.inputs.length > 0 ? true : `No inputs found for ${tag}`)
                             for (let input of column.inputs)
                             {
                                 tests.push(Result.validate(input, 'input', false))
+                                if (input.hasOwnProperty('id'))
+                                {
+                                    tests.push(ids.includes(input.id) ? `Repeat ID ${input.id}` : true)
+                                    ids.push(input.id)
+                                }
                             }
                         }
                     }
