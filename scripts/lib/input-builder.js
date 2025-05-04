@@ -90,6 +90,28 @@ class CheckboxB extends InputBuilder
     }
 }
 
+class ModeB extends InputBuilder
+{
+    constructor()
+    {
+        super('mode')
+
+        this.type = new WRDropdown('Mode Type', ['Team', 'Match-Team', 'Match-Alliance'])
+    }
+
+    build_inputs()
+    {
+        return [this.type]
+    }
+
+    build_description()
+    {
+        return {
+            type: this.type.element.value.toLowerCase()
+        }
+    }
+}
+
 class ColumnB extends InputBuilder
 {
     constructor()

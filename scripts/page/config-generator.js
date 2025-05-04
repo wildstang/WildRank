@@ -9,8 +9,6 @@ include('input-builder')
 
 const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
-var config = Array(MODES.length).fill([])
-
 var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry
 var preview, options
 
@@ -23,19 +21,15 @@ var preview, options
 function init_page()
 {
     header_info.innerHTML = `Config Generator`
-    load_config()
+    build_page()
 }
 
-/** 
- * function:    build_page
- * parameters:  none
- * returns:     none
- * description: Builds the structure of the page.
+/**
+ * Builds the structure of the page.
  */
 function build_page()
 {
-    let mode_names = MODES.map(m => capitalize(m) + ' Scouting')
-    mode_dd = new WRDropdown('Mode:', mode_names)
+    mode_dd = new WRDropdown('Mode:')
     mode_dd.on_change = populate_dropdowns
     page_dd = new WRDropdown('Page:')
     page_dd.on_change = populate_dropdowns
@@ -58,7 +52,7 @@ function build_page()
         ]),
         preview,
         new WRPage('', [
-            new WRColumn('', [new WRButton('Reset Config', reset_config)]),
+            new WRColumn('', [new WRButton('Reset Config', load_config)]),
             new WRColumn('', [new WRButton('Download Config', download_config)]),
             new WRColumn('', [new WRButton('Upload Config', upload_config)]),
             new WRColumn('', [new WRButton('Apply Config', save_config)])
@@ -67,45 +61,58 @@ function build_page()
     populate_dropdowns()
 }
 
-/** 
- * function:    populate_dropdowns
- * parameters:  none
- * returns:     none
- * description: Populates the dropdowns accordingly to other selections.
+/**
+ * Populates the left side dropdowns based on current seletions.
  */
 function populate_dropdowns()
 {
-    // read dropdowns
-    let mode = mode_dd.element.selectedIndex
-    let page = page_dd.element
-    let column = column_dd.element
-    let type = type_dd.element
-
-    // reset name and id
     name_entry.element.value = ''
+    id_entry.element.value = ''
 
-    let new_page_dd = new WRDropdown('Page:', config[mode].map(p => p.name).concat(['New']), page.value)
-    page.replaceChildren(...new_page_dd.option_elements)
+    let def_val = mode_dd.element.value === '' ? 'New' : mode_dd.element.value
+    let new_mode_dd = new WRDropdown('Mode:', cfg.scout.configs.map(m => `${m.name} (${m.type})`).concat(['New']), def_val)
+    mode_dd.element.replaceChildren(...new_mode_dd.option_elements)
 
-    // set other dropdown value appropriately
-    if (page.value == 'New')
+    // read dropdowns
+    let mode_idx = mode_dd.element.selectedIndex
+    if (mode_idx === cfg.scouting_modes.length)
     {
-        column.replaceChildren()
-        type.replaceChildren()
+        page_dd.element.replaceChildren()
+        column_dd.element.replaceChildren()
+        type_dd.element.replaceChildren()
     }
     else
     {
-        let new_column_dd = new WRDropdown('Column:', config[mode][page.selectedIndex].columns.map(c => c.name).concat(['New']), column.value)
-        column.replaceChildren(...new_column_dd.option_elements)
+        let pages = cfg.scout.configs[mode_idx].pages
+        let def_val = page_dd.element.value === '' ? 'New' : page_dd.element.value
 
-        if (column.value == 'New')
+        let new_page_dd = new WRDropdown('Page:', pages.map(p => p.name).concat(['New']), def_val)
+        page_dd.element.replaceChildren(...new_page_dd.option_elements)
+
+        let page_idx = page_dd.element.selectedIndex
+        if (page_idx === pages.length)
         {
-            type.replaceChildren()
+            column_dd.element.replaceChildren()
+            type_dd.element.replaceChildren()
         }
         else
         {
-            let new_type_dd = new WRDropdown('Type:', INPUTS, type)
-            type.replaceChildren(...new_type_dd.option_elements)
+            let columns = pages[page_idx].columns
+            def_val = column_dd.element.value === '' ? 'New' : column_dd.element.value
+        
+            let new_column_dd = new WRDropdown('Column:', columns.map(c => c.name).concat(['New']), def_val)
+            column_dd.element.replaceChildren(...new_column_dd.option_elements)
+    
+            let column_idx = column_dd.element.selectedIndex
+            if (column_idx === columns.length)
+            {
+                type_dd.element.replaceChildren()
+            }
+            else
+            {
+                let new_type_dd = new WRDropdown('Type:', INPUTS, type_dd.element.value)
+                type_dd.element.replaceChildren(...new_type_dd.option_elements)
+            }
         }
     }
 
@@ -113,22 +120,24 @@ function populate_dropdowns()
     build_page_from_config()
 }
 
-/** 
- * function:    populate_options
- * parameters:  none
- * returns:     none
- * description: Populates the options accordingly to the dropdown selections.
+/**
+ * Populates right side options based on selected dropdowns.
  */
 function populate_options()
 {
     // read dropdowns
+    let mode = mode_dd.element.value
     let page = page_dd.element.value
     let column = column_dd.element.value
     let type = type_dd.element.value
 
     // set options column appropriately
     let ops = new WRColumn()
-    if (page === 'New')
+    if (mode === 'New')
+    {
+        builder = new ModeB()
+    }
+    else if (page === 'New')
     {
         builder = null
     }
@@ -194,140 +203,138 @@ function update_id()
 }
 
 /**
- * function:    create_full_id
- * parameters:  parent id, name string
- * returns:     sanitized name
- * description: Sanitizes an input name so it can be used for the ID.
+ * Generates an ID for an element using its id and parent's ID.
+ * @param {String} parent Parent element's ID
+ * @param {String} id New elements id
+ * @returns New ID for the element
  */
-function create_full_id(parent, name)
+function create_full_id(parent, id)
 {
-    let id = create_id_from_name(name)
-
+    id = create_id_from_name(id)
     return `${parent}_${id}`
 }
 
-/** 
- * function:    build_element
- * parameters:  none
- * returns:     none
- * description: Adds an element to the config based on dropdowns and options.
+/**
+ * Adds a new element to the config based on the current selection.
  */
 function build_element()
 {
     // read dropdowns
-    let mode = mode_dd.element.selectedIndex
-    let page = page_dd.element
-    let column = column_dd.element
+    let mode_idx = mode_dd.element.selectedIndex
+    let page_idx = page_dd.element.selectedIndex
+    let column_idx = column_dd.element.selectedIndex
     let id = id_entry.element.value
 
     // populate name and id
     let name = name_entry.element.value
-
-    // make an identical copy of the config for backup
-    let backup = JSON.parse(JSON.stringify(config))
+    let new_mode = ''
+    let new_page = ''
+    let new_column = ''
 
     // populate rest of input object
-    if (page.value == 'New')
+    if (mode_idx === cfg.scouting_modes.length)
     {
-        let parent = MODES[mode]
-        let input = {
-            name: name,
-            id: create_full_id(parent, id),
-            columns: []
-        }
-        config[mode].push(input)
-    }
-    else if (column.value == 'New')
-    {
-        let parent = config[mode][page.selectedIndex].id
         let input = builder.build_description()
         input.name = name
-        input.id = create_full_id(parent, id)
-        input.inputs = []
-        config[mode][page.selectedIndex].columns.push(input)
+        input.id = create_id_from_name(name)
+        input.pages = []
+        cfg.scout.configs.push(input)
+        new_mode = name
     }
     else
     {
-        let input = builder.build_description()
-        let parent = config[mode][page.selectedIndex].columns[column.selectedIndex].id
-        input.name = name
-        input.id = create_full_id(parent, id)
-        config[mode][page.selectedIndex].columns[column.selectedIndex].inputs.push(input)
-    }
-
-    // preserve change for after populate_dropdowns
-    let add_page = ''
-    let add_col = ''
-    if (page.value == 'New' && name !== '')
-    {
-        add_page = name
-    }
-    else if (column.value == 'New' && name !== '')
-    {
-        add_col = name
-    }
-    
-    // remove change to config if invalid
-    let result = Config.validate_mode_raw(config[mode])
-    if (result.result)
-    {
-        // populate to add to dropdown
-        populate_dropdowns()
-
-        if (add_page !== '')
+        let mode = cfg.scout.configs[mode_idx]
+        if (page_idx === mode.pages.length)
         {
-            page.value = add_page
+            let input = {
+                name: name,
+                id: create_full_id(mode.id, id),
+                columns: []
+            }
+            mode.pages.push(input)
+            new_page = name
         }
-        else if (add_col !== '')
+        else
         {
-            column.value = add_col
-        }
+            let page = mode.pages[page_idx]
+            if (column_idx === page.columns.length)
+            {
+                let input = builder.build_description()
+                input.name = name
+                input.id = create_full_id(page.id, id)
+                input.inputs = []
+                page.columns.push(input)
+                new_column = name
+            }
+            else
+            {
+                let column = page.columns[column_idx]
+                let input = builder.build_description()
+                input.name = name
+                input.id = create_full_id(column.id, id)
 
-        // populate again to update preview and options
-        populate_dropdowns()
+                let tests = ScoutConfig.validate_mode(cfg.scout.configs[mode_idx], false).filter(t => t !== true)
+                if (tests.length > 0)
+                {
+                    alert('Invalid config!\n\n' + tests.join('\n\n'))
+                }
+                else
+                {
+                    column.inputs.push(input)
+                }
+            }
+        }
     }
-    else
+
+    // update the dropdowns to have any newly added elements
+    populate_dropdowns()
+
+    // select the newly added mode, page, or column
+    if (new_mode.length > 0)
     {
-        alert(`Config invalid!${'id' in result ? ` (${result.id})` : ''}\n\n${result.description}`)
-        config = backup
+        mode_dd.element.value = new_mode
     }
+    else if (new_page.length > 0)
+    {
+        page_dd.element.value = new_page
+    }
+    else if (new_column.length > 0)
+    {
+        column_dd.element.value = new_column
+    }
+
+    // populate again to update preview and options
+    populate_dropdowns()
 }
 
-/** 
- * function:    load_config
- * parameters:  none
- * returns:     none
- * description: Loads in the current config.
+/**
+ * Resets the config to that stored in localStorage.
  */
 function load_config()
-{   
-    config = MODES.map(m => cfg[m])
+{
+    cfg.scout.load()
     build_page()
 }
 
-/** 
- * function:    save_config
- * parameters:  none
- * returns:     none
- * description: Saves the current config to local storage and uploads.
+/**
+ * Save the config to localStorage.
  */
 function save_config()
 {
-    for (let i in MODES)
+    let tests = cfg.scout.configs.map(m => ScoutConfig.validate_mode(m, false)).flat(2).filter(t => t !== true)
+    if (tests.length > 0)
     {
-        console.log(config[i])
-        localStorage.setItem(`config-${cfg.year}-${MODES[i]}`, JSON.stringify(config[i]))
+        alert('Invalid config!\n\n' + tests.join('\n\n'))
+        return
     }
-    cfg.load_configs()
 
+    cfg.scout.version = `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`
+    cfg.scout.store_config()
     alert('Scouting config updated')
 }
 
 /**
- * function:    upload_config
- * paramters:   none
- * returns:     none
- * description: Creates a file prompt to upload a JSON file.
+ * Prompt the user to upload a config from JSON file.
  */
 function upload_config()
 {
@@ -339,10 +346,8 @@ function upload_config()
 }
 
 /**
- * function:    import_config
- * paramters:   response containing JSON file
- * returns:     none
- * description: Loads in a config file to the editor.
+ * Handles a uploaded file and imports it's contents.
+ * @param {Event} event File upload event
  */
 function import_config(event)
 {
@@ -350,120 +355,36 @@ function import_config(event)
     let reader = new FileReader()
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
-        let newConfig = JSON.parse(readerEvent.target.result)
-        if (MODES.some(m => !newConfig.hasOwnProperty(m)))
+        let text = readerEvent.target.result
+        if (ScoutConfig.validate(user_config))
         {
-            alert('Invalid config!')
-            return
-        }
-        newConfig = MODES.map(m => newConfig[m])
-        let merge = confirm('Press ok to merge configs, cancel to overwrite')
-        if (merge)
-        {
-            // TODO this merge code is horrific but it seems to work and Billy wants it fast
-            for (let i in newConfig)
-            {
-                for (let mpage of newConfig[i])
-                {
-                    // merge in new page
-                    let found = false
-                    for (let cpage of config[i])
-                    {
-                        if (mpage.id == cpage.id)
-                        {
-                            found = true
-                            break
-                        }
-                    }
-                    if (!found)
-                    {
-                        config[i].push(mpage)
-                    }
-                    else
-                    {
-                        for (let mcol of mpage.columns)
-                        {
-                            for (let j in config[i])
-                            {
-                                if (config[i][j].id == mpage.id)
-                                {
-                                    // merge in new column
-                                    let found = false
-                                    for (let ccol of config[i][j].columns)
-                                    {
-                                        if (mcol.id == ccol.id)
-                                        {
-                                            found = true
-                                            break
-                                        }
-                                    }
-                                    if (!found)
-                                    {
-                                        config[i][j].columns.push(mcol)
-                                    }
-                                    else
-                                    {
-                                        for (let minput of mcol.inputs)
-                                        {
-                                            for (let l in config[i][j].columns)
-                                            {
-                                                if (config[i][j].columns[l].id == mcol.id)
-                                                {
-                                                    // merge in new input
-                                                    found = false
-                                                    for (let cinput of config[i][j].columns[l].inputs)
-                                                    {
-                                                        if (minput.id == cinput.id)
-                                                        {
-                                                            found = true
-                                                            break
-                                                        }
-                                                    }
-                                                    if (!found)
-                                                    {
-                                                        config[i][j].columns[l].inputs.push(minput)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            cfg.scout.handle_config(text)
+            alert('Imported config')
         }
         else
         {
-            config = newConfig
+            alert('Invalid config')
         }
         populate_dropdowns()
     }
 }
 
-/** 
- * function:    download_config
- * parameters:  none
- * returns:     none
- * description: Downloads the current config to file.
+/**
+ * Downloads the current user config as a JSON file.
  */
 function download_config()
 {
-    let contents = {
-        version: `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`,
-        smart_stats: cfg.analysis.smart_stats,
-        coach: cfg.analysis.coach,
-        whiteboard: cfg.game.whiteboard
-    }
-    for (let i in MODES)
+    let tests = cfg.scout.configs.map(m => ScoutConfig.validate_mode(m, false)).flat(2).filter(t => t !== true)
+    if (tests.length > 0)
     {
-        contents[MODES[i]] = config[i]
+        alert('Invalid config!\n\n' + tests.join('\n\n'))
+        return
     }
-    let str = JSON.stringify(contents)
+
+    cfg.scout.version = `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`
 
     let element = document.createElement('a')
-    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
+    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(cfg.scout.as_string))
     element.setAttribute('download', `${cfg.year}-config.json`)
 
     element.style.display = 'none'
@@ -474,20 +395,22 @@ function download_config()
     body.removeChild(element)
 }
 
-/** 
- * function:    build_page_from_config
- * parameters:  none
- * returns:     none
- * description: Builds the page from the config file and the given mode.
+/**
+ * Builds the config page using the working scout config.
  */
 function build_page_from_config()
 {
-    let mode = mode_dd.element.selectedIndex
+    let mode_idx = mode_dd.element.selectedIndex
+    if (mode_idx === cfg.scout.configs.length)
+    {
+        preview.replaceChildren()
+        return
+    }
 
     let select_ids = []
     let pages = []
     // iterate through each page in the mode
-    for (let page of config[mode])
+    for (let page of cfg.scout.configs[mode_idx].pages)
     {
         let selected_page = page_dd.element.value
         let page_name = page.name
@@ -635,16 +558,4 @@ function shift(id, direction)
 
     // rebuild preview
     build_page_from_config()
-}
-
-/**
- * function:    reset_config
- * parameters:  none
- * returns:     none
- * description: Resets the config to the base config, then repopulates the page.
- */
-function reset_config()
-{
-    config = Array(MODES.length).fill([])
-    populate_dropdowns()
 }
