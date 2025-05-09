@@ -50,7 +50,7 @@ class WRElement extends HTMLElement
         if (this.description)
         {
             this.description_el.className = 'wr_description'
-            this.description_el.append(this.description)
+            this.description_el.replaceChildren(this.description)
         }
         return this.description_el
     }
@@ -76,10 +76,11 @@ class WRPage extends WRElement
 
     connectedCallback()
     {
+        this.replaceChildren()
         if (this.label)
         {
             this.label_el.className = 'page_header'
-            this.label_el.append(this.label)
+            this.label_el.replaceChildren(this.label)
             this.append(this.label_el)
         }
 
@@ -121,7 +122,7 @@ class WRColumn extends WRElement
         if (this.label)
         {
             this.label_el.className = 'column_header'
-            this.label_el.append(this.label)
+            this.label_el.replaceChildren(this.label)
         }
         else
         {
@@ -144,7 +145,7 @@ class WRColumn extends WRElement
                 }
                 cols.append(col)
             }
-            this.append(cols)
+            this.replaceChildren(cols)
         }
         else
         {
@@ -156,7 +157,7 @@ class WRColumn extends WRElement
             {
                 col.append(i)
             }
-            this.append(col)
+            this.replaceChildren(col)
         }
     }
 }
@@ -180,7 +181,7 @@ class WRButton extends WRElement
 
     connectedCallback()
     {
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.element.className = this.primary_class
         this.element.onclick = this.on_click
@@ -192,8 +193,9 @@ class WRButton extends WRElement
             this.element.ontouchend = event => touch_end(event, this.on_right)
         }
         this.element.classList.add(...this.classes)
-        this.element.appendChild(this.label_el)
+        this.element.replaceChildren(this.label_el)
 
+        this.replaceChildren()
         if (this.description)
         {
             this.append(this.description_element)
@@ -243,16 +245,16 @@ class WRNumber extends WRElement
 
     connectedCallback()
     {
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.value_el.className = 'wr_number_num'
-        this.value_el.append(this.value)
+        this.value_el.replaceChildren(this.value)
 
         this.element.className = this.primary_class
         this.element.classList.add(...this.classes)
-        this.element.append(this.label_el)
-        this.element.append(this.value_el)
+        this.element.replaceChildren(this.label_el, this.value_el)
 
+        this.replaceChildren()
         if (this.description)
         {
             this.append(this.description_element)
@@ -293,16 +295,16 @@ class WRCard extends WRElement
     {
         if (Array.isArray(this.text))
         {
-            this.text_el.append(...this.text)
+            this.text_el.replaceChildren(...this.text)
         }
         else
         {
-            this.text_el.append(this.text)
+            this.text_el.replaceChildren(this.text)
         }
 
         this.element.className = 'wr_card'
         this.element.classList.add(...this.classes)
-        this.element.append(this.text_el)
+        this.element.replaceChildren(this.text_el)
 
         if (this.limitWidth)
         {
@@ -313,7 +315,7 @@ class WRCard extends WRElement
             this.element.style.width = `calc(${this.custom_width}*var(--input-width) - 2*var(--input-padding))`
         }
 
-        this.append(this.element)
+        this.replaceChildren(this.element)
         if (this.space_after)
         {
             this.append(br())
@@ -341,7 +343,7 @@ class WRStatusTile extends WRElement
     connectedCallback()
     {
         this.label_el.className = 'color_text'
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.tile.className = 'color_box'
         this.tile.style.backgroundColor = this.color
@@ -352,10 +354,9 @@ class WRStatusTile extends WRElement
 
         this.element.className = 'wr_status'
         this.element.classList.add(...this.classes)
-        this.element.append(this.label_el)
-        this.element.append(this.tile)
+        this.element.replaceChildren(this.label_el, this.tile)
 
-        this.append(this.element)
+        this.replaceChildren(this.element)
         if (this.description)
         {
             this.append(this.description_element)
@@ -411,7 +412,7 @@ class WRCheckbox extends WRElement
         this.checkbox.checked = this.value
 
         this.label_el.for = this.input_id
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.element.className = 'wr_checkbox'
         this.element.classList.add(...this.classes)
@@ -426,10 +427,9 @@ class WRCheckbox extends WRElement
                 this.on_click()
             }
         }
-        this.element.append(this.checkbox)
-        this.element.append(' ')
-        this.element.append(this.label_el)
+        this.element.replaceChildren(this.checkbox, ' ', this.label_el)
 
+        this.replaceChildren()
         if (this.description)
         {
             this.append(this.description_element)
@@ -542,23 +542,21 @@ class WRTimer extends WRElement
 
     connectedCallback()
     {
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.value_el.id = this.input_id
         this.value_el.className = 'wr_counter_count'
-        this.value_el.append(this.value)
+        this.value_el.replaceChildren(this.value)
 
         this.element.className = 'wr_counter'
         this.element.classList.add(...this.classes)
-        this.element.append(this.value_el)
-        this.element.append(' ')
-        this.element.append(this.label_el)
+        this.element.replaceChildren(this.value_el, ' ', this.label_el)
         this.element.onclick = this.on_click.bind(this)
         this.element.oncontextmenu = () => false
         this.element.onauxclick = this.on_right_click.bind(this)
         this.element.ontouchstart = this.on_touch.bind(this)
 
-        this.append(this.element)
+        this.replaceChildren(this.element)
     }
 }
 
@@ -581,7 +579,7 @@ class WRExtended extends WRElement
     connectedCallback()
     {
         this.label_el.className = 'input_label'
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.element.id = this.input_id
         this.element.className = 'wr_text'
@@ -590,9 +588,9 @@ class WRExtended extends WRElement
         {
             this.element.onkeyup = this.on_text_change
         }
-        this.element.append(this.text)
+        this.element.replaceChildren(this.text)
 
-        this.append(this.label_el)
+        this.replaceChildren(this.label_el)
         if (this.description)
         {
             this.append(this.description_element)
@@ -644,7 +642,7 @@ class WREntry extends WRElement
     connectedCallback()
     {
         this.label_el.className = 'input_label'
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         if (this.show_color)
         {
@@ -688,7 +686,7 @@ class WREntry extends WRElement
             }
         }
 
-        this.append(this.label_el)
+        this.replaceChildren(this.label_el)
         if (this.description)
         {
             this.append(this.description_element)
@@ -768,11 +766,10 @@ class WRSlider extends WRElement
     {
         if (this.label)
         {
-            this.value_el.append(this.value)
+            this.value_el.replaceChildren(this.value)
 
             this.label_el.className = 'input_label'
-            this.label_el.append(`${this.label} - `)
-            this.label_el.append(this.value_el)
+            this.label_el.replaceChildren(`${this.label} - `, this.value_el)
         }
 
         this.slider.id = this.input_id
@@ -801,10 +798,9 @@ class WRSlider extends WRElement
 
         this.element.className = 'wr_slider'
         this.element.classList.add(...this.classes)
-        this.element.append(this.slider)
+        this.element.replaceChildren(this.slider)
 
-        this.append(this.label_el)
-        this.append(this.element)
+        this.replaceChildren(this.label_el, this.element)
     }
 
     set position(value)
@@ -859,11 +855,11 @@ class WRCounter extends WRElement
 
     connectedCallback()
     {
-        this.label_el.append(this.label)
+        this.label_el.replaceChildren(this.label)
 
         this.value_el.id = this.input_id
         this.value_el.className = 'wr_counter_count'
-        this.value_el.append(this.value)
+        this.value_el.replaceChildren(this.value)
 
         this.element.className = this.primary_class
         this.element.classList.add(...this.classes)
@@ -873,10 +869,9 @@ class WRCounter extends WRElement
         this.element.onauxclick = () => this.increment(true, this.on_decrement)
         this.element.ontouchstart = event => touch_start(event)
         this.element.ontouchend = event => touch_end(event, () => this.increment(true, this.on_decrement))
-        this.element.append(this.value_el)
-        this.element.append(' ')
-        this.element.append(this.label_el)
+        this.element.replaceChildren(this.value_el, ' ', this.label_el)
 
+        this.replaceChildren()
         if (this.description)
         {
             this.append(this.description_element)
@@ -931,11 +926,11 @@ class WRCycler extends WRCounter
 
         this.value_el.id = this.input_id
         this.value_el.className = 'wr_counter_count'
-        this.value_el.append(this.value)
+        this.value_el.replaceChildren(this.value)
 
         this.max_el.className = 'wr_counter_count'
         this.max_el.style.display = 'none'
-        this.max_el.append(this.value)
+        this.max_el.replaceChildren(this.value)
 
         let count = document.createElement('span')
         count.className = 'wr_select_option'
@@ -946,13 +941,14 @@ class WRCycler extends WRCounter
         this.save_el.className = 'wr_select_option'
         this.save_el.style.display = 'table-cell'
         this.save_el.onclick = () => this.increment(false, this.forward.bind(this))
-        this.save_el.append('Save Cycle')
+        this.save_el.replaceChildren('Save Cycle')
         this.save_el.style.fontWeight = 'bold'
 
         this.element.className = 'wr_select'
         this.element.classList.add(...this.classes)
-        this.element.append(this.back_el, count, this.save_el)
+        this.element.replaceChildren(this.back_el, count, this.save_el)
 
+        this.replaceChildren()
         if (this.description)
         {
             this.append(this.description_element)
@@ -1036,10 +1032,11 @@ class WRMultiInput extends WRElement
 
     connectedCallback()
     {
+        this.replaceChildren()
         if (this.label)
         {
             this.label_el.className = 'input_label'
-            this.label_el.append(this.label)
+            this.label_el.replaceChildren(this.label)
             this.append(this.label_el)
         }
 
@@ -1050,7 +1047,7 @@ class WRMultiInput extends WRElement
         {
             this.element.onclick = this.on_click
         }
-        this.element.append(...this.option_elements)
+        this.element.replaceChildren(...this.option_elements)
 
         if (this.description)
         {
@@ -1534,10 +1531,11 @@ class WRDropdown extends WROptionedInput
 
     connectedCallback()
     {
+        this.replaceChildren()
         if (this.label)
         {
             this.label_el.className = 'input_label'
-            this.label_el.append(this.label)
+            this.label_el.replaceChildren(this.label)
             this.append(this.label_el)
         }
 
@@ -1546,7 +1544,7 @@ class WRDropdown extends WROptionedInput
         this.element.classList.add(...this.classes)
         this.element.onclick = event => event.stopPropagation()
         this.element.onchange = this.on_change
-        this.element.append(...this.option_elements)
+        this.element.replaceChildren(...this.option_elements)
 
         if (this.description)
         {
@@ -1622,7 +1620,7 @@ class WROption extends WRElement
         {
             this.classList.add(this.selected)
         }
-        this.append(...this.label_element)
+        this.replaceChildren(...this.label_element)
     }
 }
 
@@ -1725,7 +1723,7 @@ class WRStack extends WRElement
         }
 
         this.className = 'stack'
-        this.append(...this.elements)
+        this.replaceChildren(...this.elements)
     }
 }
 
