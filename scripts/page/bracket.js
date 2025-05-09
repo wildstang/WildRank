@@ -22,14 +22,14 @@ function init_page()
 {
     header_info.innerText = 'Double Elims'
 
-    if (dal.event.playoff_type !== 10)
+    if (dal.double_elim_event)
     {
-        body.innerText = 'Not a double-elimination event.'
+        bracket = new Bracket(cfg.user.state.event_id, add_bracket)
+        add_bracket()
     }
     else
     {
-        bracket = new Bracket(dal.event_id, add_bracket)
-        add_bracket()
+        body.innerText = 'Not a double-elimination event.'
     }
 }
 

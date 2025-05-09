@@ -56,8 +56,8 @@ function populate_matches(finals=true, complete=true, team_filter='', secondary=
         let red_teams = match.red_alliance
         let blue_teams = match.blue_alliance
         if ((match.comp_level == 'qm' || finals) &&
-            (Array.isArray(team_filter) || (team_filter == '' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
-            (!Array.isArray(team_filter) || (team_filter.length == 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
+            (Array.isArray(team_filter) || (team_filter === '' || red_teams.includes(team_filter) || blue_teams.includes(team_filter))) &&
+            (!Array.isArray(team_filter) || (team_filter.length === 0 || check_teams(team_filter, red_teams) || check_teams(team_filter, blue_teams))))
         {
             // grey out previously scouted matches/teams
             let scouted = 'not_scouted'

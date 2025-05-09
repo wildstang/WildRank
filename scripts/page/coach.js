@@ -16,10 +16,7 @@ const selected = urlParams.get('match')
 var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_card, blue_card, drag_box
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
+ * Build the structure of the page and initialize bracket and whiteboard.
  */
 function init_page()
 {
@@ -48,9 +45,9 @@ function init_page()
 
         // create the whiteboard drawing controls and place them in a stack with the whiteboard
         let game_piece = new WRMultiButton('')
-        for (let gp of cfg.user.whiteboard.game_pieces)
+        for (let gp of cfg.game.whiteboard.gp_names)
         {
-            game_piece.add_option(gp.name, () => whiteboard.add_game_piece(gp.name))
+            game_piece.add_option(gp, () => whiteboard.add_game_piece(gp))
         }
         drag_box = new WRCheckbox('Draw on Drag')
         drag_box.on_click = draw_drag
@@ -74,8 +71,8 @@ function init_page()
         whiteboard.update_dimensions(width, height)
 
         // build a Bracket if it is a double elims event
-        let elim_matches = Object.values(dal.matches).filter(m => m.short_match_name.startsWith('M'))
-        if (dal.event.playoff_type === 10 && elim_matches.length > 0)
+        let elim_matches = Object.values(dal.matches).filter(m => m.short_name.startsWith('M'))
+        if (dal.double_elim_event && elim_matches.length > 0)
         {
             bracket = new Bracket(dal.event_id, add_bracket)
             // allows selected to include generated matches
@@ -128,23 +125,19 @@ function add_bracket()
 function update_sliders(){}
 
 /**
- * function:    hide_matches
- * parameters:  none
- * returns:     none
- * description: Rebuilds the match list based on the selected team.
+ * Rebuilds the match list based on the selected team.
  */
 function hide_matches()
 {
     let team = team_filter.element.value
-    let first = populate_matches(true, true, team)
+    // update the match list
+    let first = populate_matches(true, true, team.length > 0 ? parseInt(team) : '')
     open_option(first)
 }
 
 /**
- * function:    open_match
- * parameters:  Selected match number
- * returns:     none
- * description: Completes right info pane for a given match number.
+ * Completes right info pane for a given match number.
+ * @param {String} match_key Match key
  */
 function open_option(match_key)
 {
@@ -162,39 +155,17 @@ function open_option(match_key)
     let blue_teams = Object.keys(match_teams).filter(k => k.startsWith('blue')).map(k => match_teams[k])
 
     // place match time and number on title
-    let actual = dal.get_match_value(match_key, 'started_time')
-    let predicted = dal.get_match_value(match_key, 'predicted_time')
-    let time = dal.get_match_value(match_key, 'scheduled_time')
-    if (actual > 0)
-    {
-        time = unix_to_match_time(actual)
-    }
-    else if (predicted > 0)
-    {
-        time = `${unix_to_match_time(predicted)} (Projected)`
-    }
-    else
-    {
-        time = unix_to_match_time(time)
-    }
-    header_info.innerText = `${dal.get_match_value(match_key, 'match_name')} - ${time}`
-
-    let red_col = new WRColumn('')
-    let red_page = new WRPage('', [red_col])
-    let blue_col = new WRColumn('')
-    let blue_page = new WRPage('', [blue_col])
+    let time = new Date(dal.matches[match_key].time).toLocaleTimeString("en-US")
+    header_info.innerText = `${dal.matches[match_key].name} - ${time}`
 
     red_card = new WRCard('')
     red_card.add_class('red_box')
-    red_col.add_input(red_card)
-    red_col.add_input(red_edit)
-    red_col.add_input(red_custom)
 
     blue_card = new WRCard('')
     blue_card.add_class('blue_box')
-    blue_col.add_input(blue_card)
-    blue_col.add_input(blue_edit)
-    blue_col.add_input(blue_custom)
+
+    let red_page = new WRPage('', [new WRColumn('', [red_card, red_edit, red_custom])])
+    let blue_page = new WRPage('', [new WRColumn('', [blue_card, blue_edit, blue_custom])])
 
     // build template
     carousel.replaceChildren(red_page, blue_page, whiteboard_page)
@@ -206,10 +177,9 @@ function open_option(match_key)
 }
 
 /**
- * function:    build_table
- * parameters:  alliance color, array of team numbers
- * returns:     none
- * description: Populates a card with coach vals of each team in an alliance.
+ * Populates a card with coach vals of each team in an alliance.
+ * @param {String} alliance Alliance color
+ * @param {Array} teams List of team numbers to add to the table
  */
 function build_table(alliance, teams)
 {
@@ -232,11 +202,11 @@ function build_table(alliance, teams)
         teams_header.append(team_header)
 
         let name = document.createElement('th')
-        name.innerText = dal.get_value(team, 'meta.name')
+        name.innerText = dal.teams[team].name
         names.append(name)
     }
 
-    for (let v of cfg.user.coach)
+    for (let v of cfg.analysis.coach)
     {
         let row = table.insertRow()
         table.append(row)
