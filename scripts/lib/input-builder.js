@@ -287,11 +287,12 @@ class MulticounterB extends InputBuilder
         this.neg.description = 'A comma-separated list of true/false values for each counter.'
         this.def_entry = this.build_default_entry('The single default value for all counters.', true)
         this.disallow = this.build_disallow_checkbox()
+        this.vertical = new WRCheckbox('Vertical')
     }
 
     build_inputs()
     {
-        return [this.options, this.neg, this.def_entry, this.disallow]
+        return [this.options, this.neg, this.def_entry, this.disallow, this.vertical]
     }
 
     build_description()
@@ -306,6 +307,7 @@ class MulticounterB extends InputBuilder
         desc.default = parseInt(def)
         desc.disallow_default = this.disallow.checked
         desc.options = this.parse_list(this.options.element.value)
+        desc.vertical = this.vertical.checked
         return desc
     }
 }
@@ -342,22 +344,24 @@ class SelectB extends DropdownB
     {
         super(name)
 
-        //this.colors = new WREntry('Colors')
-        //this.colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
+        this.colors = new WREntry('Colors')
+        this.colors.description = 'A comma-separated list of html colors, one for each option, all spaces will be deleted.'
         this.images = new WREntry('Images')
         this.images.description = 'A comma-separated list of image files available in /assets/, one for each option, all spaces will be deleted.'
+        this.vertical = new WRCheckbox('Vertical')
     }
 
     build_inputs()
     {
-        return [this.options, this.images, this.def_entry, this.disallow]
+        return [this.options, this.images, this.def_entry, this.disallow, this.colors, this.vertical]
     }
 
     build_description()
     {
         let desc = super.build_description()
-        //desc.colors = this.parse_list(this.colors.element.value)
         desc.images = this.parse_list(this.images.element.value)
+        desc.colors = this.parse_list(this.colors.element.value)
+        desc.vertical = this.vertical.checked
         return desc
     }
 }
@@ -369,12 +373,14 @@ class MultiselectB extends DropdownB
         super('multiselect')
 
         this.def_entry.description = 'A comma-separated list of true/false values for each select.'
+        this.vertical = new WRCheckbox('Vertical')
     }
 
     build_description()
     {
         let desc = super.build_description()
         desc.default = this.parse_list(desc.default).map(d => d.toLowerCase() === 'true')
+        desc.vertical = this.vertical.checked
         return desc
     }
 }

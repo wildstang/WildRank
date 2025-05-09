@@ -1049,10 +1049,17 @@ class Result
                     break
 
                 case 'multicounter':
+                    let mc_has_vertical = has_bool(tag, obj, 'vertical')
+                    if (!obj.hasOwnProperty('vertical'))
+                    {
+                        obj.vertical = false
+                        mc_has_vertical = true
+                    }
                     tests.push(has_array(tag, obj, 'options', 'string'),
                         has_array(tag, obj, 'negative', 'boolean'),
                         has_int(tag, obj, 'default'),
-                        has_bool(tag, obj, 'disallow_default'))
+                        has_bool(tag, obj, 'disallow_default'),
+                    mc_has_vertical)
                     break
 
                 case 'multiselect':

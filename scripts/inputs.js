@@ -40,6 +40,7 @@ function build_input_from_config(input, scout_type, team='', default_override=''
             break
         case 'multicounter':
             item = new WRMultiCounter(name, options, default_val)
+            item.vertical = input.vertical
             break
         case 'multiselect':
             item = new WRMultiSelect(name, options, default_val, images)
@@ -53,6 +54,10 @@ function build_input_from_config(input, scout_type, team='', default_override=''
         case 'select':
             item = new WRSelect(name, options, default_val, images)
             item.vertical = input.vertical
+            if (input.colors)
+            {
+                item.colors = input.colors
+            }
             break
         case 'slider':
             item = new WRSlider(name, default_val)
