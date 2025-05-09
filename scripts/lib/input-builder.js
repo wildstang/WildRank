@@ -376,6 +376,11 @@ class MultiselectB extends DropdownB
         this.vertical = new WRCheckbox('Vertical')
     }
 
+    build_inputs()
+    {
+        return [this.options, this.def_entry, this.disallow, this.vertical]
+    }
+
     build_description()
     {
         let desc = super.build_description()

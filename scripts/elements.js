@@ -1101,7 +1101,7 @@ class WRMultiButton extends WRMultiInput
         let rows = [[]]
         for (let i in this.options)
         {
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            if ((i % this.columns == 0 && i != 0) || this.vertical)
             {
                 rows.push([])
             }
@@ -1162,7 +1162,7 @@ class WRMultiNumber extends WRMultiInput
         let rows = [[]]
         for (let i in this.options)
         {
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            if ((i % this.columns == 0 && i != 0) || this.vertical)
             {
                 rows.push([])
             }
@@ -1238,7 +1238,7 @@ class WRMultiCounter extends WRMultiInput
         let rows = [[]]
         for (let i in this.options)
         {
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            if ((i % this.columns == 0 && i != 0) || this.vertical)
             {
                 rows.push([])
             }
@@ -1314,6 +1314,7 @@ class WRSelect extends WROptionedInput
     {
         super(label, options, value)
         this.images = images
+        this.colors = []
     }
 
     get option_elements()
@@ -1327,7 +1328,7 @@ class WRSelect extends WROptionedInput
         for (let i in this.options)
         {
             // add a new row the column limit is reached
-            if (this.options.length >= this.columns && !this.vertical && i % this.columns == 0 && i != 0)
+            if ((i % this.columns == 0 && i != 0) || this.vertical)
             {
                 rows.push([])
             }
@@ -1338,6 +1339,10 @@ class WRSelect extends WROptionedInput
             if (this.is_selected_by_default(op_name))
             {
                 option.classList.add('selected')
+                if (this.colors.length === this.options.length)
+                {
+                    option.style.backgroundColor = this.colors[i]
+                }
             }
             if (this.vertical)
             {
@@ -1439,6 +1444,14 @@ class WRSelect extends WROptionedInput
             if (i === index)
             {
                 children[i].classList.add('selected')
+                if (this.colors.length === this.options.length)
+                {
+                    children[i].style.backgroundColor = this.colors[i]
+                }
+            }
+            else
+            {
+                children[i].style.backgroundColor = ''
             }
         }
     }
