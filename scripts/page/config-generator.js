@@ -292,7 +292,7 @@ function build_element()
     // select the newly added mode, page, or column
     if (new_mode.length > 0)
     {
-        mode_dd.element.value = new_mode
+        mode_dd.element.selectedIndex = cfg.scout.configs.length - 1
     }
     else if (new_page.length > 0)
     {
