@@ -6,7 +6,7 @@
  * date:        2021-09-03
  */
 
-const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Total', 'StdDev']
+const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Count', 'StdDev']
 
 
 /**
@@ -31,14 +31,14 @@ var new_func, new_key
 function build_buttons()
 {
     new_func = new WRSelect('New Function', FUNCTIONS)
-    new_key = new WRDropdown('New Key', dal.get_keys(true, true, false, false).map(k => dal.get_name(k, '')))
+    new_key = new WRDropdown('New Key', cfg.get_names(cfg.get_keys()))
     let button = new WRButton('Add Coach Value', create)
 
     let column = new WRColumn('Delete Coach Value')
     for (let i in cfg.analysis.coach)
     {
         let c = cfg.analysis.coach[i]
-        column.add_input(new WRButton(dal.get_name(c.key, c.function), () => delete_val(i)))
+        column.add_input(new WRButton(cfg.get_coach_name(c), () => delete_val(i)))
     }
 
     // build template
@@ -54,7 +54,7 @@ function build_buttons()
  */
 function create()
 {
-    let keys = dal.get_keys(true, true, false, false)
+    let keys = cfg.get_keys()
     let func = FUNCTIONS[new_func.selected_index].toLowerCase()
     let key = keys[new_key.element.selectedIndex]
 
@@ -62,8 +62,17 @@ function create()
         function: func,
         key: key
     }
-    cfg.analysis.coach.push(coach)
-    cfg.analysis.store_config()
+
+    let tests = AnalysisConfig.validate_coach(coach, false).filter(t => t !== true)
+    if (tests.length > 0)
+    {
+        alert('Config error!\n\n' + tests.join('\n\n'))
+    }
+    else
+    {
+        cfg.analysis.coach.push(coach)
+        cfg.analysis.store_config()
+    }
 
     build_buttons()
 }

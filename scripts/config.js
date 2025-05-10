@@ -22,6 +22,16 @@ function load_config(name, on_received, year='')
         .then(on_received)
 }
 
+/**
+ * 
+ * @param {Object} coach Coach stat
+ * @returns String including the stat name and function.
+ */
+function coach_name(coach)
+{
+    return `${capitalize(coach.function)} ${cfg.get_result_from_key(coach.key).name}`
+}
+
 //
 // Validation Helpers
 //
@@ -631,8 +641,15 @@ class AnalysisConfig
             this.fms_breakdown_results = analysis_config.fms_breakdown_results.map(s => Result.from_object(s)[0])
             this.fms_ranking_results = analysis_config.fms_ranking_results.map(s => Result.from_object(s)[0])
             this.smart_results = analysis_config.smart_results.map(s => Result.from_object(s)[0])
-            this.coach = analysis_config.coach
             this.favorites = analysis_config.favorites
+
+            let tests = analysis_config.coach.map(s => AnalysisConfig.validate_coach(s, false)).flat()
+            if (tests.some(t => t !== true))
+            {
+                return
+            }
+            this.coach = analysis_config.coach
+
             this.loaded = true
         }
     }
@@ -653,10 +670,6 @@ class AnalysisConfig
             has_array(AnalysisConfig.BASE_NAME, analysis_config, 'coach', 'object'),
             has_array(AnalysisConfig.BASE_NAME, analysis_config, 'favorites', 'string')
         ]
-        if (tests[1] === true)
-        {
-            tests.push(...analysis_config.coach.map(s => AnalysisConfig.validate_coach(s, false)).flat())
-        }
         if (tests[2] === true)
         {
             tests.push(...analysis_config.fms_breakdown_results.map(s => Result.validate(s, 'fms', false)).flat())
@@ -728,8 +741,13 @@ class AnalysisConfig
      */
     static validate_coach(obj, summarize=true)
     {
-        let funcs = ['mean', 'median', 'mode', 'min', 'max', 'total', 'stddev']
+        let funcs = ['mean', 'median', 'mode', 'min', 'max', 'count', 'stddev']
         let tests = [has_string('coach', obj, 'function', funcs), has_string('coach', obj, 'key')]
+        if (tests.every(b => b === true))
+        {
+            let result = cfg.get_result_from_key(obj.key)
+            tests.push(result.available_stats.includes(obj.function) ? true : `Invalid function ${obj.function} for ${result.name}`)
+        }
         if (summarize)
         {
             return tests.every(b => b === true)
@@ -1574,21 +1592,25 @@ class Result
      */
     clean_value(value)
     {
-        switch(this.value_type)
+        if (value !== null)
         {
-            case 'boolean':
-                return value ? 'Yes' : 'No'
-
-            case 'int-option':
-                return this.options[value]
-
-            case 'number':
-                return value.toFixed(2)
-
-            case 'object':
-            case 'string':
-            case 'str-option':
-                return value
+            switch(this.value_type)
+            {
+                case 'boolean':
+                    return value ? 'Yes' : 'No'
+    
+                case 'int-option':
+                    return this.options[value]
+    
+                case 'number':
+                    return value.toFixed(2)
+    
+                case 'object':
+                case 'string':
+                case 'str-option':
+                    return value
+            }
+            return value
         }
         return value
     }
@@ -1990,6 +2012,21 @@ class Config
     get_names(keys)
     {
         return keys.map(k => cfg.get_result_from_key(k).name)
+    }
+
+    /**
+     * Builds a human readable string for a given coach stat.
+     * @param {Object} coach Coach stat
+     * @returns String including the stat name and function.
+     */
+    get_coach_name(coach)
+    {
+        let name = this.get_result_from_key(coach.key).name
+        if (this.get_team_keys().includes(coach.key))
+        {
+            return name
+        }
+        return `${capitalize(coach.function)} ${name}`
     }
 
     //

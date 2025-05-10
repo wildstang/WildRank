@@ -24,7 +24,7 @@ function init_page()
 
     // build page
     let first = populate_matches()
-    let teams = Object.keys(dal.teams)
+    let teams = dal.team_numbers
     teams.unshift('')
     let default_filter = ''
     if (selected === '' && cfg.user.settings.hasOwnProperty('team_number'))
@@ -195,10 +195,6 @@ function build_table(alliance, teams)
     {
         let team_header = document.createElement('th')
         team_header.innerText = team
-        /*if (dal.is_unsure(team))
-        {
-            team_header.classList.add('highlighted')
-        }*/
         teams_header.append(team_header)
 
         let name = document.createElement('th')
@@ -206,18 +202,19 @@ function build_table(alliance, teams)
         names.append(name)
     }
 
-    for (let v of cfg.analysis.coach)
+    for (let c of cfg.analysis.coach)
     {
         let row = table.insertRow()
         table.append(row)
 
         let key = document.createElement('th')
-        key.innerText = dal.get_name(v.key, v.function)
+        key.innerText = cfg.get_coach_name(c)
         row.append(key)
 
+        let result = cfg.get_result_from_key(c.key)
         for (let team of teams)
         {
-            row.insertCell().innerHTML = dal.get_value(team, v.key, v.function, true)
+            row.insertCell().innerHTML = result.clean_value(dal.compute_stat(c.key, team, c.function))
         }
     }
 
