@@ -368,7 +368,7 @@ class WhereStat extends Stat
     {
         super('where')
 
-        this.cycles = cfg.filter_keys(cfg.get_keys(), 'cycle')
+        this.cycles = cfg.filter_keys(cfg.get_keys(), 'object')
         let cycles = cfg.get_names(this.cycles)
 
         this.cycle_filter = new WRDropdown('Cycle', cycles)
@@ -391,9 +391,9 @@ class WhereStat extends Stat
     select_cycle()
     {
         let cycle_id = this.cycles[this.cycle_filter.element.selectedIndex].replace('results.', '')
-        this.counters = dal.get_result_keys(cycle_id, ['counter'])
-        let counters = this.counters.map(c => dal.get_name(c))
-        this.selects = dal.get_result_keys(cycle_id, ['dropdown', 'select', 'checkbox'])
+        this.counters = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['counter', 'number', 'slider'].includes(i.type))
+        let counters = this.counters.map(c => c.name)
+        this.selects = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['dropdown', 'select', 'checkbox'].includes(i.type))
 
         this.count = new WRDropdown('Count', ['Count'].concat(counters))
         this.count.on_change = calculate
@@ -406,12 +406,12 @@ class WhereStat extends Stat
         this.filters = []
         for (let s of this.selects)
         {
-            let options = dal.meta[s].options
-            if (dal.meta[s].type === 'checkbox')
+            let options = s.options
+            if (s.type === 'checkbox')
             {
                 options = ['Yes', 'No']
             }
-            let filter = new WRDropdown(dal.get_name(s), [''].concat(options))
+            let filter = new WRDropdown(s.name, [''].concat(options))
             filter.on_change = calculate
             filter.description = 'Optional, choose value of the above select to filter cycles by.'
             this.filters.push(filter)
@@ -424,7 +424,7 @@ class WhereStat extends Stat
     {
         if (this.cycle_filter.element.selectedIndex < 0)
         {
-            return {}
+            return false
         }
 
         let cycle = this.cycles[this.cycle_filter.element.selectedIndex]
@@ -437,11 +437,11 @@ class WhereStat extends Stat
             let val = this.filters[i].element.value
             if (val)
             {
-                if (dal.meta[s].type === 'checkbox')
+                if (s.type === 'checkbox')
                 {
                     val = val === 'Yes'
                 }
-                vals[s] = val
+                vals[s.id] = val
             }
         }
 
@@ -452,8 +452,8 @@ class WhereStat extends Stat
         }
         if (count != 0)
         {
-            stat.sum = this.counters[count-1]
-            stat.negative = dal.meta[this.counters[count-1]].negative
+            stat.sum = this.counters[count-1].id
+            stat.negative = this.counters[count-1].negative
         }
         else
         {
@@ -461,7 +461,7 @@ class WhereStat extends Stat
         }
         if (wdenominator != 0)
         {
-            stat.denominator = this.counters[wdenominator-1]
+            stat.denominator = this.counters[wdenominator-1].id
         }
         return stat
     }
