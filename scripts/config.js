@@ -928,12 +928,16 @@ class ScoutConfig
                             tests.push(ids.includes(column.id) ? `Repeat ID ${column.id}` : true)
                             ids.push(column.id)
                         }
-                        if (column.hasOwnProperty('pages'))
+                        if (column.hasOwnProperty('inputs'))
                         {
                             tests.push(column.inputs.length > 0 ? true : `No inputs found for ${tag}`)
+                            if (column.cycle)
+                            {
+                                tests.push(...Result.validate(column, 'cycle', false, false))
+                            }
                             for (let input of column.inputs)
                             {
-                                tests.push(Result.validate(input, 'input', false))
+                                tests.push(...Result.validate(input, 'input', false, false))
                                 if (input.hasOwnProperty('id'))
                                 {
                                     tests.push(ids.includes(input.id) ? `Repeat ID ${input.id}` : true)
@@ -1017,7 +1021,16 @@ class Result
             tests.push(has_string(tag, obj, 'type', Result.VALID_SMARTS))
         }
 
-        if (tests[2] === true)
+        if (result_type === 'cycle')
+        {
+            let has_inputs = has_array(tag, obj, 'inputs', 'object')
+            tests.push(has_inputs)
+            if (has_inputs === true)
+            {
+                tests.push(...obj.inputs.map(i => ['dropdown', 'select', 'checkbox', 'counter', 'number', 'slider'].includes(i.type) ? true : `Invalid cycle input ${i.id}`))
+            }
+        }
+        else if (tests[2] === true)
         {
             switch(obj.type)
             {
