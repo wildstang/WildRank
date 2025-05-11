@@ -233,11 +233,19 @@ function save_stat()
     }
     else
     {
-        cfg.analysis.smart_results.push(stat)
-        cfg.analysis.store_config()
-        dal.load_data()
-        update_params()
-        alert(`${stat.name} Created`)
+        let tests = stat.validate(false).filter(t => t !== true)
+        if (tests.length === 0)
+        {
+            cfg.analysis.smart_results.push(stat)
+            cfg.analysis.store_config()
+            dal.load_data()
+            update_params()
+            alert(`${stat.name} Created`)
+        }
+        else
+        {
+            alert('Invalid smart result!\n\n' + tests.join('\n\n'))
+        }
     }
 }
 

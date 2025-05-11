@@ -1186,7 +1186,7 @@ class Result
      */
     validate(summarize=true)
     {
-        return Result.validate(this, summarize)
+        return Result.validate(this, this.kind, summarize)
     }
 
     /**
