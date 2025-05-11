@@ -187,18 +187,23 @@ class UserConfig
      */
     load()
     {
-        let user_config = localStorage.getItem(this.name)
-        if (user_config !== null)
-        {
-            this.handle_config(JSON.parse(user_config))
-            if (this.loaded)
-            {
-                return
-            }
+        let user_config
+        try {
+            user_config = localStorage.getItem(this.name)
+        }
+        catch {
+            console.log(`Invalid JSON for ${this.name}`)
         }
 
-        console.log(`${this.name} does not exist, pulling from server/cache`)
-        load_config(this.BASE_NAME, this.handle_config.bind(this))
+        if (user_config)
+        {
+            this.handle_config(JSON.parse(user_config))
+        }
+        else
+        {
+            console.log(`${this.name} does not exist, pulling from server/cache`)
+            load_config(this.BASE_NAME, this.handle_config.bind(this))
+        }
     }
 
     /**
@@ -207,13 +212,10 @@ class UserConfig
      */
     handle_config(user_config)
     {
-        if (UserConfig.validate(user_config))
-        {
-            this.version = user_config.version
-            this.settings = user_config.settings
-            this.state = user_config.state
-            this.loaded = true
-        }
+        this.version = user_config.version
+        this.settings = user_config.settings
+        this.state = user_config.state
+        this.loaded = true
     }
 
     /**
@@ -317,7 +319,11 @@ class UserList
     load()
     {
         let user_list = localStorage.getItem(this.name)
-        if (user_list === null)
+        if (user_list)
+        {
+            this.handle_config(user_list)
+        }
+        else
         {
             console.log(`${this.name} does not exist, pulling from server/cache`)
             fetch(`/config/${this.name}.csv`, { cache: "reload" })
@@ -328,10 +334,6 @@ class UserList
                 .catch(err => {
                     console.log(`Error fetching ${this.name} config, ${err}`)
                 })
-        }
-        else
-        {
-            this.handle_config(user_list)
         }
     }
 
@@ -424,15 +426,12 @@ class AppConfig
      */
     handle_config(app_config)
     {
-        if (AppConfig.validate(app_config))
-        {
-            this.version = app_config.version
-            this.config = app_config.config
-            this.defaults = app_config.defaults
-            this.theme = app_config.theme
-            this.dark_theme = app_config.dark_theme
-            this.loaded = true
-        }
+        this.version = app_config.version
+        this.config = app_config.config
+        this.defaults = app_config.defaults
+        this.theme = app_config.theme
+        this.dark_theme = app_config.dark_theme
+        this.loaded = true
     }
 
     /**
@@ -528,12 +527,9 @@ class GameConfig
      */
     handle_config(game_config)
     {
-        if (GameConfig.validate(game_config))
-        {
-            this.version = game_config.version
-            this.whiteboard = game_config.whiteboard
-            this.loaded = true
-        }
+        this.version = game_config.version
+        this.whiteboard = game_config.whiteboard
+        this.loaded = true
     }
 
     /**
@@ -615,18 +611,23 @@ class AnalysisConfig
      */
     load()
     {
-        let analysis_config = localStorage.getItem(this.name)
-        if (analysis_config !== null)
-        {
-            this.handle_config(JSON.parse(analysis_config))
-            if (this.loaded)
-            {
-                return
-            }
+        let analysis_config
+        try {
+            analysis_config = localStorage.getItem(this.name)
+        }
+        catch {
+            console.log(`Invalid JSON for ${this.name}`)
         }
 
-        console.log(`${this.name} does not exist, pulling from server/cache`)
-        load_config(this.BASE_NAME, this.handle_config.bind(this), this.year)
+        if (analysis_config)
+        {
+            this.handle_config(JSON.parse(analysis_config))
+        }
+        else
+        {
+            console.log(`${this.name} does not exist, pulling from server/cache`)
+            load_config(this.BASE_NAME, this.handle_config.bind(this), this.year)
+        }
     }
 
     /**
@@ -635,23 +636,13 @@ class AnalysisConfig
      */
     handle_config(analysis_config)
     {
-        if (AnalysisConfig.validate(analysis_config))
-        {
-            this.version = analysis_config.version
-            this.fms_breakdown_results = analysis_config.fms_breakdown_results.map(s => Result.from_object(s)[0])
-            this.fms_ranking_results = analysis_config.fms_ranking_results.map(s => Result.from_object(s)[0])
-            this.smart_results = analysis_config.smart_results.map(s => Result.from_object(s)[0])
-            this.favorites = analysis_config.favorites
-
-            let tests = analysis_config.coach.map(s => AnalysisConfig.validate_coach(s, false)).flat()
-            if (tests.some(t => t !== true))
-            {
-                return
-            }
-            this.coach = analysis_config.coach
-
-            this.loaded = true
-        }
+        this.version = analysis_config.version
+        this.coach = analysis_config.coach
+        this.fms_breakdown_results = analysis_config.fms_breakdown_results.map(s => Result.from_object(s)[0])
+        this.fms_ranking_results = analysis_config.fms_ranking_results.map(s => Result.from_object(s)[0])
+        this.smart_results = analysis_config.smart_results.map(s => Result.from_object(s)[0])
+        this.favorites = analysis_config.favorites
+        this.loaded = true
     }
 
     /**
@@ -670,6 +661,10 @@ class AnalysisConfig
             has_array(AnalysisConfig.BASE_NAME, analysis_config, 'coach', 'object'),
             has_array(AnalysisConfig.BASE_NAME, analysis_config, 'favorites', 'string')
         ]
+        if (tests[1] === true)
+        {
+            tests.push(...analysis_config.coach.map(s => AnalysisConfig.validate_coach(s, false)).flat())
+        }
         if (tests[2] === true)
         {
             tests.push(...analysis_config.fms_breakdown_results.map(s => Result.validate(s, 'fms', false)).flat())
@@ -782,18 +777,23 @@ class ScoutConfig
      */
     load()
     {
-        let user_config = localStorage.getItem(this.name)
-        if (user_config !== null)
-        {
-            this.handle_config(JSON.parse(user_config))
-            if (this.loaded)
-            {
-                return
-            }
+        let scout_config
+        try {
+            scout_config = localStorage.getItem(this.name)
+        }
+        catch {
+            console.log(`Invalid JSON for ${this.name}`)
         }
 
-        console.log(`${this.name} does not exist, pulling from server/cache`)
-        load_config(this.BASE_NAME, this.handle_config.bind(this), this.year)
+        if (scout_config)
+        {
+            this.handle_config(JSON.parse(scout_config))
+        }
+        else
+        {
+            console.log(`${this.name} does not exist, pulling from server/cache`)
+            load_config(this.BASE_NAME, this.handle_config.bind(this), this.year)
+        }
     }
 
     /**
@@ -802,14 +802,11 @@ class ScoutConfig
      */
     handle_config(user_config)
     {
-        if (ScoutConfig.validate(user_config))
-        {
-            this.version = user_config.version
-            this.configs = user_config.configs
-            this.team_results = [].concat(...user_config.configs.filter(m => m.type === 'team').map(m => ScoutConfig.build_results(m)))
-            this.match_results = [].concat(...user_config.configs.filter(m => m.type.startsWith('match')).map(m => ScoutConfig.build_results(m)))
-            this.loaded = true
-        }
+        this.version = user_config.version
+        this.configs = user_config.configs
+        this.team_results = [].concat(...user_config.configs.filter(m => m.type === 'team').map(m => ScoutConfig.build_results(m)))
+        this.match_results = [].concat(...user_config.configs.filter(m => m.type.startsWith('match')).map(m => ScoutConfig.build_results(m)))
+        this.loaded = true
     }
 
     /**
@@ -1855,7 +1852,7 @@ class Config
      * Finds a scouting mode using a given ID.
      * 
      * @param {String} mode Scouting mode id
-     * @returns The requested scouting mode configuration or an empty object if a match couldn't be found.
+     * @returns The requested scouting mode configuration or an false if a match couldn't be found.
      */
     get_scout_config(mode)
     {
@@ -1870,7 +1867,7 @@ class Config
             }
         }
         console.log(`Unable to find scouting mode ${mode}`)
-        return {}
+        return false
     }
 
     /**
