@@ -737,12 +737,13 @@ class AnalysisConfig
     static validate_coach(obj, summarize=true)
     {
         let funcs = ['mean', 'median', 'mode', 'min', 'max', 'count', 'stddev']
-        let tests = [has_string('coach', obj, 'function', funcs), has_string('coach', obj, 'key')]
+        let tests = [has_string('coach', obj, 'function', funcs), has_string('coach', obj, 'key', cfg.get_keys())]
         if (tests.every(b => b === true))
         {
             let result = cfg.get_result_from_key(obj.key)
             tests.push(result.available_stats.includes(obj.function) ? true : `Invalid function ${obj.function} for ${result.name}`)
         }
+
         if (summarize)
         {
             return tests.every(b => b === true)
@@ -933,11 +934,11 @@ class ScoutConfig
                             tests.push(column.inputs.length > 0 ? true : `No inputs found for ${tag}`)
                             if (column.cycle)
                             {
-                                tests.push(...Result.validate(column, 'cycle', false, false))
+                                tests.push(...Result.validate(column, 'cycle', false))
                             }
                             for (let input of column.inputs)
                             {
-                                tests.push(...Result.validate(input, 'input', false, false))
+                                tests.push(...Result.validate(input, 'input', false))
                                 if (input.hasOwnProperty('id'))
                                 {
                                     tests.push(ids.includes(input.id) ? `Repeat ID ${input.id}` : true)
@@ -1053,15 +1054,16 @@ class Result
                     break
 
                 case 'filter':
-                    tests.push(has_string(tag, obj, 'result'),
-                        has_string(tag, obj, 'filter'),
+                    let keys = cfg.filter_keys(cfg.get_match_keys(), ['boolean', 'int-option', 'number', 'str-option'])
+                    tests.push(has_string(tag, obj, 'result', cfg.get_match_keys()),
+                        has_string(tag, obj, 'filter', keys),
                         has_int(tag, obj, 'compare_type', [0, 1, 2, 3, 4, 5]),
                         obj.hasOwnProperty('value'),
                         has_bool(tag, obj, 'negative'))
                     break
 
                 case 'map':
-                    tests.push(has_string(tag, obj, 'result'),
+                    tests.push(has_string(tag, obj, 'result', cfg.filter_keys(cfg.get_keys(), ['boolean', 'int-option', 'str-option'])),
                         has_array(tag, obj, 'values', 'number'),
                         has_bool(tag, obj, 'negative'))
                     break
@@ -1073,7 +1075,13 @@ class Result
 
                 case 'max':
                 case 'min':
-                    tests.push(has_array(tag, obj, 'results', 'string'))
+                    let valid = has_array(tag, obj, 'results', 'string')
+                    tests.push(valid)
+                    if (valid === true)
+                    {
+                        let keys = cfg.filter_keys(cfg.get_match_keys(), ['number'])
+                        tests.push(...obj.results.map(k => keys.includes(k) ? true : `Invalid ${obj.type} key ${k}`))
+                    }
                     break
 
                 case 'multicounter':
@@ -1142,12 +1150,20 @@ class Result
                     break
 
                 case 'where':
-                    tests.push(has_string(tag, obj, 'cycle'),
-                        has_array(tag, obj, 'conditions', 'object'))
+                    let cycle_valid = has_string(tag, obj, 'cycle', cfg.filter_keys(cfg.get_keys(), ['object']))
+                    let conditions_valid = has_object(tag, obj, 'conditions')
+                    tests.push(cycle_valid, conditions_valid)
+                    if (cycle_valid === true && conditions_valid === true)
+                    {
+                        let cycle = cfg.get_result_from_key(obj.cycle)
+                        let valid_types = ['dropdown', 'select', 'checkbox', 'counter']
+                        let keys = cycle.inputs.filter(i => valid_types.includes(i.type)).map(i => i.id)
+                        tests.push(...Object.keys(obj.conditions).map(k => keys.includes(k) ? true : `Invalid condition key ${k}`))
+                    }
                     break
 
                 case 'wrank':
-                    tests.push(has_string(tag, obj, 'result'),
+                    tests.push(has_string(tag, obj, 'result', cfg.filter_keys(cfg.get_match_keys(true, false, false), ['number'])),
                         has_bool(tag, obj, 'negative'))
                     break
             }
