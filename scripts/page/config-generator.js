@@ -498,64 +498,71 @@ function shift(id, direction)
 {
     // find list and position of id
     let list = []
-    let i = -1
-    for (let c of config)
+    let index = -1
+    for (let m in cfg.scout.configs)
     {
-        for (let p in c)
+        let mode = cfg.scout.configs[m]
+        if (mode.id == id)
         {
-            let page = c[p]
+            list = cfg.scout.configs
+            index = m
+            break
+        }
+        for (let p in mode.pages)
+        {
+            let page = mode.pages[p]
             if (page.id == id)
             {
-                list = c
-                i = p
+                list = mode.pages
+                index = p
                 break
             }
-            for (let col in page.columns)
+            for (let c in page.columns)
             {
-                let column = page.columns[col]
+                let column = page.columns[c]
                 if (column.id == id)
                 {
                     list = page.columns
-                    i = col
+                    index = c
                     break
                 }
-                for (let inp in column.inputs)
+                for (let i in column.inputs)
                 {
-                    let input = column.inputs[inp]
+                    let input = column.inputs[i]
                     if (input.id == id)
                     {
                         list = column.inputs
-                        i = inp
+                        index = i
                         break
                     }
                 }
             }
         }
     }
-    i = parseInt(i)
+    index = parseInt(index)
 
     // swap or remove
     switch (direction)
     {
         case 'up':
         case 'left':
-            if (i > 0)
+            if (index > 0)
             {
-                [list[i-1], list[i]] = [list[i], list[i-1]]
+                [list[index-1], list[index]] = [list[index], list[index-1]]
             }
             break
         case 'down':
         case 'right':
-            if (i < list.length - 1)
+            if (index < list.length - 1)
             {
-                [list[i], list[i+1]] = [list[i+1], list[i]]
+                [list[index], list[index+1]] = [list[index+1], list[index]]
             }
             break
         case 'rm':
-            list.splice(i, 1)
+            list.splice(index, 1)
             break
     }
 
     // rebuild preview
-    build_page_from_config()
+    populate_dropdowns()
 }
