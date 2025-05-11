@@ -39,6 +39,6 @@ function validate(config_name)
     let tile = new WRStatusTile(name)
     let errors = config.validate(false).filter(t => t !== true)
     tile.set_status(errors.every(b => b === true) ? 1 : -1)
-    tile.description = errors.join('\n\n')
+    tile.description = errors.join('<br>')
     return tile
 }

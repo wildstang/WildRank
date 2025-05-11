@@ -50,7 +50,7 @@ class WRElement extends HTMLElement
         if (this.description)
         {
             this.description_el.className = 'wr_description'
-            this.description_el.replaceChildren(this.description)
+            this.description_el.innerHTML = this.description
         }
         return this.description_el
     }
