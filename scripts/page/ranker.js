@@ -106,12 +106,14 @@ function update_params()
 function build_smart_result()
 {
     stat = stat_builder.build_stat()
+    if (stat)
+    {
+        let name = name_entry.element.value
+        stat.name = name
+        stat.id = create_id_from_name(name)
 
-    let name = name_entry.element.value
-    stat.name = name
-    stat.id = create_id_from_name(name)
-
-    return Result.from_object(stat)[0]
+        return Result.from_object(stat)[0]
+    }
 }
 
 /**
