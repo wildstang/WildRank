@@ -161,6 +161,7 @@ class CounterB extends InputBuilder
         desc.default = parseInt(def)
         desc.negative = this.negative.checked
         desc.disallow_default = this.disallow.checked
+        desc.options = []
         return desc
     }
 }
