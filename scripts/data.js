@@ -559,6 +559,10 @@ class Data
                 // determine scouting type from scouting mode in result metadata
                 let res = JSON.parse(localStorage.getItem(key))
                 let scout_type = cfg.get_scout_config(res.meta.result.scout_mode).type
+                if (!scout_type)
+                {
+                    continue
+                }
 
                 // add match results for the current event
                 if (scout_type.startsWith('match-') && res.meta.result.event_id === this.event_id)
