@@ -7,11 +7,14 @@
 
 const SESSION_TEAMS_KEY = 'note-selected-teams'
 const SESSION_SCOUTER_KEY = 'note-selected-scouter'
+const SESSION_MODE_KEY = 'note-selected-mode'
 const SESSION_SEARCH_KEY = 'note-selected-search'
 
-let scouters = []
+var scouters = []
+var team_modes = []
+var match_modes = []
 
-let team_entry, scouter_drop, search_entry, mode_drop, notes_page
+var team_entry, scouter_drop, search_entry, mode_drop, notes_page
 
 /**
  * function:    init_page
@@ -24,36 +27,24 @@ function init_page()
     header_info.innerText = 'Note Viewer'
 
     // pull previously selected filters
-    let default_teams = ''
     let session_teams = sessionStorage.getItem(SESSION_TEAMS_KEY)
-    if (session_teams !== null)
-    {
-        default_teams = session_teams
-    }
-    let default_scouter = ''
+    let default_teams = session_teams !== null ? session_teams : ''
     let session_scouter = sessionStorage.getItem(SESSION_SCOUTER_KEY)
-    if (session_scouter !== null)
-    {
-        default_scouter = cfg.get_name(session_scouter, false)
-    }
-    let default_search = ''
+    let default_scouter = session_scouter !== null ? cfg.get_name(session_scouter, true, false) : ''
+    let session_mode = sessionStorage.getItem(SESSION_MODE_KEY)
+    let default_mode = session_mode !== null ? parseInt(session_mode) : ''
     let session_search = sessionStorage.getItem(SESSION_SEARCH_KEY)
-    if (session_search !== null)
-    {
-        default_search = session_search
-    }
+    let default_search = session_search !== null ? session_search : ''
 
     // get all scouters
-    let matches = dal.get_results([], false)
-    let pits = dal.get_pits([], false)
-    let match_users = matches.map(m => m.meta_scouter_id).filter(id => typeof id !== 'undefined')
-    let note_users = matches.map(m => m.meta_note_scouter_id).filter(id => typeof id !== 'undefined')
-    let pit_users = pits.map(p => p.meta_scouter_id).filter(id => typeof id !== 'undefined')
-    scouters = match_users.concat(note_users, pit_users)
-    scouters = [... new Set(scouters)]
+    scouters = [... dal.get_all_scouters()]
     scouters.sort()
-    let names = scouters.map(id => '' + cfg.get_name(id, false))
+    let names = scouters.map(id => '' + cfg.get_name(id))
     names = [''].concat(names)
+
+    team_modes = cfg.team_scouting_modes
+    match_modes = cfg.match_scouting_modes
+    let mode_names = ['All'].concat(team_modes.map(m => cfg.get_scout_config(m).name), match_modes.map(m => cfg.get_scout_config(m).name))
 
     // build filters
     team_entry = new WREntry('Teams (comma-separated)', default_teams)
@@ -62,7 +53,7 @@ function init_page()
     scouter_drop = new WRDropdown('Scouter', names, default_scouter)
     scouter_drop.on_change = filter_notes
     let scouter_col = new WRColumn('', [scouter_drop])
-    mode_drop = new WRDropdown('Scout Mode', ['All', 'Pit', 'Match', 'Alliance'], default_scouter)
+    mode_drop = new WRDropdown('Scout Mode', mode_names, mode_names[default_mode])
     mode_drop.on_change = filter_notes
     let mode_col = new WRColumn('', [mode_drop])
     search_entry = new WREntry('Search', default_search)
@@ -71,6 +62,54 @@ function init_page()
     notes_page = new WRPage()
     body.append(new WRPage('', [teams_col, scouter_col, mode_col, search_col]), notes_page)
     filter_notes()
+}
+
+/**
+ * Finds notes from given results.
+ * @param {Object} team Team or match-team object
+ * @param {String} mode Scouting mode
+ * @param {Array} keys Note keys to search for
+ * @param {Number} scouter Scouter ID
+ * @param {String} search Search term
+ * @returns Array of array of scouters and their notes
+ */
+function find_notes(team, mode, keys, scouter, search)
+{
+    let notes = []
+    for (let i in team.results[mode])
+    {
+        let result_scouter = team.meta[mode][i].scouter.user_id
+        if (scouter && scouter !== result_scouter)
+        {
+            continue
+        }
+
+        let result = team.results[mode][i]
+        for (let key of keys)
+        {
+            if (!result.hasOwnProperty(key))
+            {
+                continue
+            }
+            let note = result[key]
+            if (!key.includes('note') || note.length < 5)
+            {
+                continue
+            }
+            if (search.length > 0 && note.includes(search))
+            {
+                continue
+            }
+
+            let name = cfg.get_name(result_scouter)
+            if (team.meta[mode][i].status.unsure)
+            {
+                note = `[UNSURE] ${note}`
+            }
+            notes.push([name, note])
+        }
+    }
+    return notes
 }
 
 /**
@@ -91,10 +130,14 @@ function filter_notes()
     {
         scouter = scouters[scouter_idx]
     }
-    let scout_mode = mode_drop.element.selectedIndex
     sessionStorage.setItem(SESSION_SCOUTER_KEY, scouter)
+    let scout_mode = mode_drop.element.selectedIndex
+    sessionStorage.setItem(SESSION_MODE_KEY, scout_mode)
     let search = search_entry.element.value.trim().toLowerCase()
     sessionStorage.setItem(SESSION_SEARCH_KEY, search)
+
+    let team_keys = cfg.filter_keys(cfg.get_team_keys(true, false, false), 'string').map(k => k.substring(7))
+    let match_keys = cfg.filter_keys(cfg.get_match_keys(true, false, false), 'string').map(k => k.substring(7))
 
     let team_cols = []
     for (let team of teams)
@@ -102,85 +145,36 @@ function filter_notes()
         if (team in dal.teams)
         {
             let notes = {}
-
-            // get all results
-            let results = dal.teams[team].results
-            results.sort((a, b) => a.meta_scout_time - b.meta_scout_time)
-            if (dal.is_pit_scouted(team))
+            for (let mode of team_modes)
             {
-                results = [dal.teams[team].pit].concat(results)
-            }
-            for (let result of results)
-            {
-                let keys = Object.keys(result)
-                for (let key of keys)
+                let selected_mode = scout_mode === 0 || (scout_mode <= team_modes.length && team_modes[scout_mode - 1] === mode)
+                if (selected_mode && dal.is_team_scouted(team, mode))
                 {
-                    // only look at results ending in "notes" that use at least 5 characters
-                    if (!key.endsWith('notes') || result[key].length < 5)
+                    let team_notes = find_notes(dal.teams[team], mode, team_keys, scouter, search)
+                    if (team_notes.length)
                     {
-                        continue
+                        notes[mode] = team_notes
                     }
-
-                    // skip if the selected scouter did not take the note
-                    if (scouter !== ''  && ((key.startsWith(PIT_MODE) && result.meta_scouter_id !== scouter) ||
-                                            (key.startsWith(MATCH_MODE) && result.meta_scouter_id !== scouter) ||
-                                            (key.startsWith(NOTE_MODE) && result.meta_note_scouter_id !== scouter)))
+                }
+            }
+            for (let match_key of dal.teams[team].matches)
+            {
+                for (let mode of match_modes)
+                {
+                    let selected_mode = scout_mode === 0 || (scout_mode > team_modes.length && match_modes[scout_mode - team_modes.length - 1] === mode)
+                    if (selected_mode && dal.is_match_scouted(match_key, team, mode))
                     {
-                        continue
-                    }
-
-                    // skip if the result is not the selected mode
-                    if (scout_mode > 0 && ((scout_mode === 1 && !key.startsWith(PIT_MODE)) ||
-                                            (scout_mode === 2 && !key.startsWith(MATCH_MODE)) ||
-                                            (scout_mode === 3 && !key.startsWith(NOTE_MODE))))
-                    {
-                        continue
-                    }
-
-                    // skip teams that don't match search
-                    if (search !== '' && !result[key].toLowerCase().includes(search))
-                    {
-                        continue
-                    }
-
-                    // determine note ID
-                    let result_key = PIT_MODE
-                    if (result.meta_scout_mode !== PIT_MODE)
-                    {
-                        result_key = result.meta_match_key
-                    }
-
-                    // collect note
-                    if (!(result_key in notes))
-                    {
-                        notes[result_key] = []
-                    }
-
-                    let name = ''
-                    if (scouter === '')
-                    {
-                        if (!key.startsWith(NOTE_MODE))
+                        let match_notes = find_notes(dal.matches[match_key].results[team], mode, match_keys, scouter, search)
+                        if (match_notes.length)
                         {
-                            name = cfg.get_name(result.meta_scouter_id)
-                        }
-                        else if (key.startsWith(NOTE_MODE))
-                        {
-                            name = cfg.get_name(result.meta_note_scouter_id)
+                            notes[match_key] = match_notes
                         }
                     }
-
-                    let note = result[key]
-                    if (result.meta_scout_mode !== NOTE_MODE && result.meta_unsure)
-                    {
-                        note = `[UNSURE] ${note}`
-                    }
-                    notes[result_key].push([name, note, key.startsWith(NOTE_MODE)])
                 }
             }
 
             // build table of notes
-            let name = dal.get_value(team, 'meta.name')
-            let result_keys = Object.keys(notes)
+            let name = dal.teams[team].name
             let results_el = document.createElement('span')
             let header = document.createElement('center')
             let team_el = document.createElement('h2')
@@ -190,18 +184,22 @@ function filter_notes()
             header.append(team_el, name_el)
             let table = document.createElement('table')
             results_el.append(header, table)
-            for (let key of result_keys)
+            for (let key of Object.keys(notes))
             {
-                let name = PIT_MODE
+                let name = ''
                 if (key in dal.matches)
                 {
-                    name = `Match ${dal.matches[key].short_match_name}`
+                    name = `Match ${dal.matches[key].short_name}`
+                }
+                else
+                {
+                    name = cfg.get_scout_config(key).name
                 }
                 table.append(create_header_row(['', name]))
                 for (let note of notes[key])
                 {
                     let row = table.insertRow()
-                    row.insertCell().innerHTML = note[2] ? `<i>${note[0]}</i>` : note[0]
+                    row.insertCell().innerHTML = note[0]
                     row.insertCell().innerText = note[1]
                 }
             }
