@@ -837,6 +837,35 @@ class Data
     //
 
     /**
+     * Determines all unique scouters at the event.
+     * @returns Array of unique scouters from the current results.
+     */
+    get_all_scouters()
+    {
+        let scouters = new Set([])
+        for (let team of dal.team_numbers)
+        {
+            let team_meta = dal.teams[team].meta
+            for (let mode_meta of Object.values(team_meta))
+            {
+                scouters.add(...mode_meta.map(r => r.scouter.user_id))
+            }
+        }
+        for (let match_key of dal.match_keys)
+        {
+            let match_results = dal.matches[match_key].results
+            for (let team of Object.values(match_results))
+            {
+                for (let mode_meta of Object.values(team.meta))
+                {
+                    scouters.add(...mode_meta.map(r => r.scouter.user_id))
+                }
+            }
+        }
+        return scouters
+    }
+
+    /**
      * Gets a requested match-team result.
      * @param {String} match_key Match key
      * @param {Number} team_num Team number
