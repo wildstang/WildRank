@@ -2071,11 +2071,13 @@ class Config
      * Finds the name of a user from their ID number.
      * 
      * @param {String} user_id User ID number
+     * @param {Boolean} id_fallback Whether to fallback to the user id
+     * @param {Boolean} assume_user Whether to fallback to the current user
      * @returns The name of the requested user or "Unknown User".
      */
-    get_name(user_id='', id_fallback=false)
+    get_name(user_id='', id_fallback=false, assume_user=true)
     {
-        if (!user_id)
+        if (!user_id && assume_user)
         {
             user_id = this.user.state.user_id
         }

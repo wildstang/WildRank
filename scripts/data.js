@@ -837,6 +837,44 @@ class Data
     //
 
     /**
+     * Gets all results for a given scouting mode.
+     * @param {String} scout_mode Scouting mode
+     * @returns Array of all results of the corresponding mode.
+     */
+    get_all_results(scout_mode, metadata=false)
+    {
+        let config = cfg.get_scout_config(scout_mode)
+        let results = []
+        if (config.type === 'team')
+        {
+            for (let team of dal.team_numbers)
+            {
+                let team_results = metadata ? dal.teams[team].meta : dal.teams[team].results
+                if (scout_mode in team_results)
+                {
+                    results.push(...team_results[scout_mode])
+                }
+            }
+        }
+        else
+        {
+            for (let match_key of dal.match_keys)
+            {
+                let match_results = dal.matches[match_key].results
+                for (let team of Object.values(match_results))
+                {
+                    let team_results = metadata ? team.meta : team.results
+                    if (scout_mode in team_results)
+                    {
+                        results.push(...team_results[scout_mode])
+                    }
+                }
+            }
+        }
+        return results
+    }
+
+    /**
      * Determines all unique scouters at the event.
      * @returns Array of unique scouters from the current results.
      */
