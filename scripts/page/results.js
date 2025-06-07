@@ -9,7 +9,6 @@
 include('mini-picklists')
 
 // read parameters from URL
-var urlParams = new URLSearchParams(window.location.search)
 const selected_match = get_parameter('match', '')
 const selected_team = get_parameter('team', '')
 

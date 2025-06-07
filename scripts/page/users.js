@@ -11,26 +11,16 @@ var users, scouters = []
 var id_number, name_entry, user_card, admin_box, position_dropdown, pos_card, time_card, pit_card, filter_box
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch user results from localStorage. Initialize page contents.
+ * Initialize the structure of the page.
  */
 function init_page()
 {
     header_info.innerText = 'User Profiles'
 
-    let matches = dal.get_results([], false)
-    let pits = dal.get_pits([], false)
-    if (matches.length > 0 || pits.length > 0)
+    // get all scouters
+    scouters = dal.get_all_scouters()
+    if (scouters.length > 0)
     {
-        // build list of scouters
-        let match_users = matches.map(m => m.meta_scouter_id).filter(id => typeof id !== 'undefined')
-        let note_users = matches.map(m => m.meta_note_scouter_id).filter(id => typeof id !== 'undefined')
-        let pit_users = pits.map(p => p.meta_scouter_id).filter(id => typeof id !== 'undefined')
-        scouters = match_users.concat(note_users, pit_users)
-        scouters = [... new Set(scouters)]
-
         // get list of users
         users = Object.keys(cfg.users)
         for (let user of scouters)
@@ -49,14 +39,14 @@ function init_page()
         card.limitWidth = true
         admin_box = new WRCheckbox('Admin', false)
         position_dropdown = new WRDropdown('Default Position', [''])
-        for (let i = 1; i <= dal.alliance_size * 2; i++)
+        for (let i = 1; i <= 6; i++)
         {
             let color = 'Red'
             let pos = i
-            if (i > dal.alliance_size)
+            if (i > 3)
             {
                 color = 'Blue'
-                pos = i - dal.alliance_size
+                pos = i - 3
             }
             position_dropdown.add_option(`${color} ${pos}`)
         }
@@ -64,10 +54,10 @@ function init_page()
         let user_col = new WRColumn('', [id_number, name_entry, card, admin_box, position_dropdown, save])
 
         // info column
-        pos_card = new WRCard()
+        pos_card = new WRCard('')
         pos_card.limitWidth = true
-        time_card = new WRCard()
-        pit_card = new WRCard()
+        time_card = new WRCard('')
+        pit_card = new WRCard('')
         pit_card.limitWidth = true
         let card_col = new WRColumn('', [pos_card, time_card, pit_card])
 
@@ -82,6 +72,9 @@ function init_page()
     }
 }
 
+/**
+ * Updates the scouter list based on filter.
+ */
 function build_options()
 {
     let show_non_scouters = filter_box !== undefined && filter_box.checked
@@ -114,10 +107,8 @@ function build_options()
 }
 
 /**
- * function:    open_option
- * parameters:  Selected user
- * returns:     none
- * description: Completes right info pane for a given user.
+ * Populates the page with info on the scouter.
+ * @param {Number} user_id Selected user ID
  */
 function open_option(user_id)
 {
@@ -130,107 +121,136 @@ function open_option(user_id)
     deselect_all()
     document.getElementById(`left_pit_option_${user_id}`).classList.add('selected')
 
-    // get user's results
-    let matches = dal.get_results([], false).filter(m => m.meta_scouter_id === user_id)
-    matches.sort((a, b) => a.meta_scout_time - b.meta_scout_time)
-    let notes = dal.get_results([], false).filter(m => m.meta_note_scouter_id === user_id)
-    notes.sort((a, b) => a.meta_note_scout_time - b.meta_note_scout_time)
-    let pits = dal.get_pits([], false).filter(m => m.meta_scouter_id === user_id)
+    pit_card.text_el.replaceChildren()
+    time_card.text_el.replaceChildren()
+
+    id_number.value_el.innerText = user_id
+    name_entry.element.value = cfg.get_name(user_id)
+    admin_box.set_checked(cfg.is_admin(user_id))
+    let pos = cfg.get_position(user_id) + 1
+    position_dropdown.element.value = position_dropdown.options[pos]
 
     let pos_counts = {}
-    let durations = []
-    let delays = []
-    let unsure_count = 0
+    let mode_counts = {}
+    let unsure_counts = {}
 
-    // create table of scouted matches
-    let time_table = document.createElement('table')
-    time_table.append(create_header_row(['Match', 'Team', 'Position', 'Start Delay', 'Duration', 'Unsure']))
-    for (let match of matches)
+    // get user's results
+    for (let mode of cfg.scouting_modes)
     {
-        let pos = match.meta_position
-        if (!pos_counts.hasOwnProperty(pos))
-        {
-            pos_counts[pos] = 0
-        }
-        pos_counts[pos]++
+        let config = cfg.get_scout_config(mode)
 
-        durations.push(match.meta_scouting_duration)
-        let actual = dal.get_match_value(match.meta_match_key, 'started_time')
-        if (typeof actual === 'number')
+        let results = dal.get_all_results(mode, true).filter(m => m.scouter.user_id === user_id)
+        results.sort((a, b) => a.scouter.start_time - b.scouter.start_time)
+        if (results.length === 0)
         {
-            delays.push(actual - match.meta_scout_time)
+            continue
         }
-        else
+        mode_counts[config.name] = results.length
+
+        let delays = []
+        let durations = []
+        let unsure_count = 0
+
+        let row
+        let header = document.createElement('h3')
+        header.innerText = config.name
+        let table = document.createElement('table')
+        switch (config.type)
         {
-            delays.push(0)
+            case 'team':
+                row = create_header_row(['Team', 'Duration', 'Unsure'])
+                pit_card.text_el.append(header)
+                pit_card.text_el.append(table)
+                break
+            case 'match-team':
+                row = create_header_row(['Match', 'Team', 'Position', 'Start Delay', 'Duration', 'Unsure'])
+            case 'match-alliance':
+                if (row === undefined)
+                {
+                    row = create_header_row(['Match', 'Alliance', 'Position', 'Start Delay', 'Duration', 'Unsure'])
+                }
+                time_card.text_el.append(header)
+                time_card.text_el.append(table)
+        }
+        table.append(row)
+
+        for (let result of results)
+        {
+            let team_num = result.result.team_num
+
+            durations.push(result.scouter.duration)
+
+            let unsure = ''
+            if (result.status.unsure)
+            {
+                unsure_count++
+                unsure = 'Unsure'
+            }
+
+            // parse data from the match
+            let pos = 0
+            let match_key = ''
+            if (config.type.startsWith('match-'))
+            {
+                match_key = result.result.match_key
+
+                pos = result.scouter.position
+                if (!pos_counts.hasOwnProperty(pos))
+                {
+                    pos_counts[pos] = 0
+                }
+                pos_counts[pos]++
+
+                if (config.type === 'match-alliance')
+                {
+                    team_num = pos < 3 ? 'red' : 'blue'
+                }
+
+                durations.push(result.scouter.duration)
+                let actual = dal.matches[match_key].time
+                if (typeof actual === 'number')
+                {
+                    delays.push(result.scouter.start_time - actual)
+                }
+                else
+                {
+                    delays.push(0)
+                }
+            }
+
+            // build a row for the individual result
+            let row = table.insertRow()
+            let team = config.type === 'match-alliance' ? '' : team_num
+            row.onclick = (event) => window_open(build_url('results', {match: match_key, team: team}))
+            if (config.type.startsWith('match-'))
+            {
+                row.insertCell().innerText = dal.matches[match_key].short_name
+            }
+            row.insertCell().innerText = team_num
+            if (config.type.startsWith('match-'))
+            {
+                row.insertCell().innerText = pos
+                row.insertCell().innerText = `${delays[delays.length - 1]}s`
+            }
+            row.insertCell().innerText = `${result.scouter.duration.toFixed()}s`
+            let unsure_cell = row.insertCell()
+            unsure_cell.innerText = unsure
+            unsure_cell.title = result.status.unsure_reason
         }
 
-        let unsure = ''
-        if (dal.get_result_value(match.meta_team, match.meta_match_key, 'meta_unsure'))
+        // build a row summarizing the table
+        let mean_row = table.insertRow()
+        mean_row.append(create_header('Mean'))
+        if (config.type.startsWith('match-'))
         {
-            unsure_count++
-            unsure = 'Unsure'
+            mean_row.insertCell()
+            mean_row.insertCell()
+            mean_row.insertCell().innerText = `${mean(delays).toFixed()}s`
         }
+        mean_row.insertCell().innerText = `${mean(durations).toFixed()}s`
+        mean_row.insertCell().innerText = unsure_count
 
-        let row = time_table.insertRow()
-        row.onclick = (event) => window_open(build_url('results', {file: `${match.meta_match_key}-${match.meta_team}`}))
-        row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
-        row.insertCell().innerText = match.meta_team
-        row.insertCell().innerText = match.meta_position
-        row.insertCell().innerText = `${delays[delays.length - 1]}s`
-        row.insertCell().innerText = `${match.meta_scouting_duration.toFixed()}s`
-        let cell = row.insertCell()
-        cell.innerText = unsure
-        cell.title = dal.get_result_value(match.meta_team, match.meta_match_key, 'meta_unsure_reason')
-    }
-
-    // create table of notes
-    for (let i = 0; i < notes.length; i += 3)
-    {
-        let match = notes[i]
-        let pos = match.meta_alliance
-        if (!pos_counts.hasOwnProperty(pos))
-        {
-            pos_counts[pos] = 0
-        }
-        pos_counts[pos]++
-
-        durations.push(match.meta_scouting_duration)
-        let actual = dal.get_match_value(match.meta_match_key, 'started_time')
-        if (typeof actual === 'number')
-        {
-            delays.push(actual - match.meta_note_scout_time)
-        }
-        else
-        {
-            delays.push(0)
-        }
-
-        let row = time_table.insertRow()
-        row.onclick = (event) => window_open(build_url('results', {file: `${match.meta_match_key}-${match.meta_team}`}))
-        row.insertCell().innerText = dal.get_match_value(match.meta_match_key, 'short_match_name')
-        row.insertCell().innerText = match.meta_alliance
-        row.insertCell().innerText = match.meta_note_position
-        row.insertCell().innerText = `${delays[delays.length - 1]}s`
-        row.insertCell().innerText = `${match.meta_note_scouting_duration.toFixed()}s`
-        row.insertCell().innerText = ''
-    }
-    let row = time_table.insertRow()
-    row.append(create_header('Mean'))
-    row.insertCell()
-    row.insertCell()
-    row.insertCell().innerText = `${mean(delays).toFixed()}s`
-    row.insertCell().innerText = `${mean(durations).toFixed()}s`
-    row.insertCell().innerText = unsure_count
-
-    // create table of scouted pits
-    let pit_table = document.createElement('table')
-    pit_table.append(create_header_row(['Team', 'Duration']))
-    for (let pit of pits)
-    {
-        let row = pit_table.insertRow()
-        row.insertCell().innerText = pit.meta_team
-        row.insertCell().innerText = `${pit.meta_scouting_duration.toFixed()}s`
+        unsure_counts[config.name] = unsure_count
     }
 
     // create table of scouting positions
@@ -242,36 +262,18 @@ function open_option(user_id)
         row.insertCell().innerText = pos
         row.insertCell().innerText = pos_counts[pos]
     }
-
-    let num_matches = document.createElement('b')
-    num_matches.innerText = matches.length
-    let unsure_pct = ''
-    if (matches.length)
-    {
-        unsure_pct = ` (${Math.round(100 * unsure_count / matches.length)}% unsure)`
-    }
-    let num_notes = document.createElement('b')
-    num_notes.innerText = notes.length / 3
-    let num_pits = document.createElement('b')
-    num_pits.innerText = pits.length
-    user_card.replaceChildren('has scouted:', br(), ' - ', num_matches, ` matches${unsure_pct}`, br(), ' - ', num_notes, ' notes', br(), ' - ', num_pits, ' pits')
-
-    id_number.value_el.innerText = user_id
-    name_entry.element.value = cfg.get_name(user_id)
-    admin_box.set_checked(cfg.is_admin(user_id))
-    let pos = cfg.get_position(user_id) + 1
-    position_dropdown.element.value = position_dropdown.options[pos]
-
     pos_card.text_el.replaceChildren(pos_table)
-    time_card.text_el.replaceChildren(time_table)
-    pit_card.text_el.replaceChildren(pit_table)
+
+    user_card.replaceChildren()
+    for (let mode of Object.keys(mode_counts))
+    {
+        unsure_pct = `(${Math.round(100 * unsure_counts[mode] / mode_counts[mode])}% unsure)`
+        user_card.append(`${mode_counts[mode]} ${pluralize(mode)} ${unsure_pct}`, br())
+    }
 }
 
 /**
- * function:    save_user
- * parameters:  none
- * returns:     none
- * description: Saves the user inputs to the config.
+ * Responds to button press by saving the on screen selections to the current user.
  */
 function save_user()
 {
@@ -291,25 +293,5 @@ function save_user()
 
     // apply and store config
     cfg.users[user_id] = user
-    localStorage.setItem(`config-users`, JSON.stringify(cfg.users))
-}
-
-/**
- * function:    get_delta
- * parameters:  match number, scouting start time
- * returns:     difference between match and scouting start
- * description: Returns how late a scouter started scouting.
- */
-function get_delta(match_num, scout_time)
-{
-    let match = get_match(match_num, event_id)
-    if (match.actual_time > 0)
-    {
-        return scout_time - match.actual_time
-    }
-    else if (match.predicted_time > 0)
-    {
-        return scout_time - match.predicted_time
-    }
-    return 0
+    cfg.user_list.store_config()
 }
