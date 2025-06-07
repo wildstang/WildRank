@@ -27,8 +27,8 @@ function window_open(url, new_tab=false)
     }
 }
 
-var selection_pages = ['coach', 'cycles', 'distro', 'match-overview', 'matches', 'multipicklists', 'pits',
-    'pivot', 'plot', 'ranker', 'results', 'scatter', 'sides', 'teams', 'users', 'whiteboard']
+var selection_pages = ['coach', 'cycles', 'match-overview', 'matches', 'multipicklists', 'pits',
+    'pivot', 'plot', 'ranker', 'results', 'scatter', 'teams', 'users', 'whiteboard']
 
 /**
  * Assembles a URL path for within the application.

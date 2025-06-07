@@ -31,8 +31,8 @@ const CONFIGS = {
         'Results': ['import_results', 'result_count', 'export_results']
     },
     'moralysis': {
-        'Teams': ['ranker', 'sides', 'multipicklists'],
-        'Keys': ['pivot', 'distro', 'plot', 'scatter'],
+        'Teams': ['ranker', 'multipicklists'],
+        'Keys': ['pivot', 'plot', 'scatter'],
         'Results': ['import_results', 'results', 'cycles', 'note-viewer', 'export_results'],
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard', 'events']
     },
@@ -41,7 +41,7 @@ const CONFIGS = {
     },
     'advanced': {
         'Configuration': ['settings', 'config-generator', 'config-debug', 'export_config'],
-        'Schedule': ['schedule-importer', 'event-generator', 'scouter-scheduler', 'open_extras'],
+        'Schedule': ['event-generator', 'open_extras'],
         'Management': ['transfer-raw', 'dashboard', 'cache', 'storage'],
         'Reset': ['reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event']
     },
@@ -63,7 +63,6 @@ const BUTTONS = {
     'config-generator':     { name: 'Config Builder',           limits: ['admin'] },
     'cycles':               { name: 'Cycles',                   limits: ['matches', 'results'] },
     'dashboard':            { name: 'Dashboard',                limits: [''] },
-    'distro':               { name: 'Distributions',            limits: ['teams', 'any'] },
     'download_csv':         { name: 'Export Results as Sheet',  limits: ['matches', 'any'] },
     'event-generator':      { name: 'Event Generator',          limits: [] },
     'events':               { name: 'Other Events',             limits: ['teams'] },
@@ -90,9 +89,7 @@ const BUTTONS = {
     'reset_event':          { name: 'Reset Event',              limits: [] },
     'results':              { name: 'Raw Results',              limits: ['matches', 'results'] },
     'scatter':              { name: 'Scatter',                  limits: ['teams', 'any'] },
-    'schedule-importer':    { name: 'Schedule Importer',        limits: [] },
     'settings':             { name: 'Settings Editor',          limits: [] },
-    'sides':                { name: 'Side-by-Side',             limits: ['teams', 'any'] },
     'storage':              { name: 'Storage Manager',          limits: [] },
     'teams':                { name: 'Team Profiles',            limits: ['teams'] },
     'transfer-raw':         { name: 'Transfer Raw Data',        limits: [] },
@@ -100,7 +97,6 @@ const BUTTONS = {
     'export_config':        { name: 'Export Config',            limits: [] },
     'users':                { name: 'User Profiles',            limits: ['admin'] },
     'whiteboard':           { name: 'Whiteboard',               limits: ['matches'] },
-    'scouter-scheduler':    { name: 'Scouter Scheduler',        limits: [] },
     'misc/match-counter':   { name: 'Match Counter',            limits: [] },
     'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: [] },
     'misc/2023-rp':                 { name: '2023 RP Adjustment',       limits: [] },
