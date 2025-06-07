@@ -37,7 +37,7 @@ function init_page()
     let default_search = session_search !== null ? session_search : ''
 
     // get all scouters
-    scouters = [... dal.get_all_scouters()]
+    scouters = dal.get_all_scouters()
     scouters.sort((a, b) => cfg.get_name(a).localeCompare(cfg.get_name(b)))
     let names = scouters.map(id => '' + cfg.get_name(id))
     names = [''].concat(names)

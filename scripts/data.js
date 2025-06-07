@@ -900,7 +900,7 @@ class Data
                 }
             }
         }
-        return scouters
+        return [...scouters]
     }
 
     /**
