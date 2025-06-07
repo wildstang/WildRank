@@ -606,6 +606,23 @@ function capitalize(word)
     return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
 }
 
+/**
+ * Pluralizes a given word.
+ * @param {String} word A string containing a single word.
+ * @returns The plural form of the word.
+ */
+function pluralize(word)
+{
+    if (['s', 'x', 'z'].includes(word.substring(word.length - 1)) || ['ch', 'sh'].includes(word.substring(word.length - 2)))
+    {
+        return word + 'es'
+    }
+    else if (word.endsWith('y'))
+    {
+        return word.substring(0, word.length - 1) + 'ies'
+    }
+    return word + 's'
+}
 
 /**
  * Randomly generate a hex string of a given number of characters.
