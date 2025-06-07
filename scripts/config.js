@@ -2109,6 +2109,7 @@ class Config
         {
             user_id = this.user.state.user_id
         }
+        user_id = `${user_id}`
         if (Object.keys(this.users).includes(user_id))
         {
             return this.users[user_id].admin
@@ -2128,6 +2129,7 @@ class Config
         {
             user_id = this.user.state.user_id
         }
+        user_id = `${user_id}`
         if (Object.keys(this.users).includes(user_id))
         {
             return this.users[user_id].position
