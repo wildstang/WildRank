@@ -706,3 +706,13 @@ function prompt_for_result(metas, op)
     }
     return 0
 }
+
+/**
+ * Converts a given position index to a string.
+ * @param {Number} pos Position index
+ * @returns String representation of position
+ */
+function position_to_name(pos)
+{
+    return pos < 3 ? `Red ${pos + 1}` : `Blue ${pos - 2}`
+}

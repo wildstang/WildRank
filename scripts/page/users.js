@@ -229,7 +229,7 @@ function open_option(user_id)
             row.insertCell().innerText = team_num
             if (config.type.startsWith('match-'))
             {
-                row.insertCell().innerText = pos
+                row.insertCell().innerText = position_to_name(pos)
                 row.insertCell().innerText = `${delays[delays.length - 1]}s`
             }
             row.insertCell().innerText = `${result.scouter.duration.toFixed()}s`
@@ -259,7 +259,8 @@ function open_option(user_id)
     for (let pos in pos_counts)
     {
         let row = pos_table.insertRow()
-        row.insertCell().innerText = pos
+        pos = parseInt(pos)
+        row.insertCell().innerText = position_to_name(pos)
         row.insertCell().innerText = pos_counts[pos]
     }
     pos_card.text_el.replaceChildren(pos_table)
