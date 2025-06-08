@@ -132,7 +132,7 @@ function open_option(option)
     {
         for (let i in result.results[scout_mode])
         {
-            add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i])
+            add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i], result.file_names[scout_mode][i])
         }
     }
 }
@@ -142,8 +142,9 @@ function open_option(option)
  * @param {String} scout_mode Scouting mode
  * @param {Object} match_result Match result for scouting mode
  * @param {Object} meta Match result metadata for scouting mode
+ * @param {Object} file_name Match result file name
  */
-function add_result_card(scout_mode, match_result, meta)
+function add_result_card(scout_mode, match_result, meta, file_name)
 {
     let config = cfg.get_scout_config(scout_mode)
 
@@ -173,7 +174,7 @@ function add_result_card(scout_mode, match_result, meta)
     let ignore_box = document.createElement('input')
     ignore_box.type = 'checkbox'
     ignore_box.checked = meta.status.ignore
-    // TODO: handle ignore box
+    ignore_box.onclick = () => toggle_ignore(match_result, meta, file_name)
     let ignore_row = meta_tab.insertRow()
     ignore_row.append(create_header('Ignored'))
     ignore_row.insertCell().append(ignore_box)
@@ -194,4 +195,20 @@ function add_result_card(scout_mode, match_result, meta)
 
     let card = new WRCard([result_name, meta_tab, result_tab], true)
     results_box.append(card)
+}
+
+/**
+ * Toggles the ignored status of the given result and writes to localStorage.
+ * @param {Object} match_result Match result data
+ * @param {Object} meta Match metadata
+ * @param {String} file_name Match result file name
+ */
+function toggle_ignore(match_result, meta, file_name)
+{
+    meta.status.ignore = !meta.status.ignore
+    let result = {
+        meta: meta,
+        result: match_result
+    }
+    localStorage.setItem(file_name, JSON.stringify(result))
 }
