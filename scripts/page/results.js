@@ -127,6 +127,7 @@ function open_option(option)
         rank_el.innerText = `Rank #${rank} (${dal.get_team_value(team_num, 'fms.sort_orders_0')} RP)`
     }
 
+    // build a card for each match, fms, and smart result
     let result = dal.get_match_result(match_key, team_num)
     for (let scout_mode in result.results)
     {
@@ -135,6 +136,11 @@ function open_option(option)
             add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i], result.file_names[scout_mode][i])
         }
     }
+    if (Object.keys(result.fms_result).length > 0)
+    {
+        add_fms_card(team_num, result.fms_results)
+    }
+    add_smart_card(team_num, result.smart_results)
 }
 
 /**
@@ -194,6 +200,56 @@ function add_result_card(scout_mode, match_result, meta, file_name)
     }
 
     let card = new WRCard([result_name, meta_tab, result_tab], true)
+    results_box.append(card)
+}
+
+/**
+ * Builds a card and adds it to the page for the given FMS result.
+ * @param {String} team_num Team number
+ * @param {Object} fms_result FMS result for match-team
+ */
+function add_fms_card(team_num, fms_result)
+{
+    let result_name = document.createElement('h3')
+    result_name.innerText = `FMS Result`
+
+    let result_tab = document.createElement('table')
+    for (let key in fms_result)
+    {
+        let result = cfg.get_result_from_key(`fms.${key}`)
+        let row = result_tab.insertRow()
+        row.append(create_header(result.name))
+        row.insertCell().innerText = result.clean_value(fms_result[key])
+        row.insertCell().innerText = result.clean_value(dal.compute_stat(`fms.${key}`, team_num))
+        row.insertCell().innerText = result.clean_value(dal.compute_stat(`fms.${key}`))
+    }
+
+    let card = new WRCard([result_name, result_tab], true)
+    results_box.append(card)
+}
+
+/**
+ * Builds a card and adds it to the page for the given smart result.
+ * @param {String} team_num Team number
+ * @param {Object} smart_result Smart result for match-team
+ */
+function add_smart_card(team_num, smart_result)
+{
+    let result_name = document.createElement('h3')
+    result_name.innerText = `Smart Result`
+
+    let result_tab = document.createElement('table')
+    for (let key in smart_result)
+    {
+        let result = cfg.get_result_from_key(`smart.${key}`)
+        let row = result_tab.insertRow()
+        row.append(create_header(result.name))
+        row.insertCell().innerText = result.clean_value(smart_result[key])
+        row.insertCell().innerText = result.clean_value(dal.compute_stat(`smart.${key}`, team_num))
+        row.insertCell().innerText = result.clean_value(dal.compute_stat(`smart.${key}`))
+    }
+
+    let card = new WRCard([result_name, result_tab], true)
     results_box.append(card)
 }
 
