@@ -11,10 +11,7 @@ var pheight
 let title_el, canvas, max_el
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
+ * Builds the structure of the page and populate the two selectors.
  */
 function init_page()
 {
@@ -27,7 +24,8 @@ function init_page()
     preview.append(card)
 
     // load keys from localStorage and build list
-    let first = populate_dual_keys(dal, false, true)
+    let numeric_keys = cfg.filter_keys(cfg.get_match_keys(), 'number')
+    let first = populate_dual_keys(numeric_keys)
     if (first)
     {
         deselect_all(false)
@@ -38,10 +36,7 @@ function init_page()
 }
 
 /**
- * function:    init_canvas
- * parameters:  none
- * returns:     none
- * description: Setup plot canvas.
+ * Initializes the plot's canvas and draws the first frame.
  */
 function init_canvas()
 {
@@ -53,10 +48,8 @@ function init_canvas()
 }
 
 /**
- * function:    open_option
- * parameters:  Selected key
- * returns:     none
- * description: Selects and opens an option.
+ * Selects the given key on the left option list and triggers a plot update.
+ * @param {String} key Newly selected key
  */
 function open_option(key)
 {
@@ -67,10 +60,8 @@ function open_option(key)
 }
 
 /**
- * function:    open_secondary_option
- * parameters:  Selected key
- * returns:     none
- * description: Selects and opens a secondary option.
+ * Selects the given key on the right option list and triggers a plot update.
+ * @param {String} key Newly selected key
  */
 function open_secondary_option(key)
 {
@@ -81,10 +72,8 @@ function open_secondary_option(key)
 }
 
 /**
- * function:    get_selected_keys
- * parameters:  none
- * returns:     array of selected keys
- * description: Builds an array of the currently selected keys.
+ * Determines which result keys are selected on the left option list. This should always be an array of length 1.
+ * @returns Array of currently selected result keys.
  */
 function get_selected_keys()
 {
@@ -92,10 +81,8 @@ function get_selected_keys()
 }
 
 /**
- * function:    get_secondary_selected_keys
- * parameters:  none
- * returns:     array of selected keys
- * description: Builds an array of the currently selected keys.
+ * Determines which result keys are selected on the right option list. This should always be an array of length 1.
+ * @returns Array of currently selected result keys.
  */
 function get_secondary_selected_keys()
 {
@@ -103,10 +90,7 @@ function get_secondary_selected_keys()
 }
 
 /**
- * function:    build_plot
- * parameters:  none
- * returns:     none
- * description: Plots the variable in the right pane.
+ * Renders the plot for the selected keys.
  */
 function build_plot()
 {
@@ -114,9 +98,9 @@ function build_plot()
     let key_b = get_secondary_selected_keys()[0]
 
     // get key names and create title
-    let name_a = dal.get_name(key_a)
-    let name_b = dal.get_name(key_b)
-    title_el.innerText = `${name_b} vs ${name_a}`
+    let name_a = cfg.get_result_from_key(key_a).name
+    let name_b = cfg.get_result_from_key(key_b).name
+    title_el.innerHTML = `${name_b}<br>vs<br>${name_a}`
 
     // build table of values
     let points = []
@@ -126,8 +110,8 @@ function build_plot()
     for (let team of teams)
     {
         points[team] = {
-            a: dal.get_value(team, key_a),
-            b: dal.get_value(team, key_b)
+            a: dal.compute_stat(key_a, team),
+            b: dal.compute_stat(key_b, team)
         }
 
         if (points[team].a > max_a)

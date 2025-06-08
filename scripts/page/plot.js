@@ -135,7 +135,7 @@ function build_plot()
 {
     let key = get_selected_keys()[0]
     let selected_teams = ['avg'].concat(get_secondary_selected_keys())
-    title_el.innerText = cfg.get_result_from_key(key).name.trim()
+    title_el.innerText = cfg.get_result_from_key(key).name
 
     // build key
     key_tab.replaceChildren()
