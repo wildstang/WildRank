@@ -10,13 +10,10 @@ const COLORS = ['black', 'blue', 'red', 'purple', 'orange', 'green']
 var pwidth
 var pheight
 
-let title_el, canvas, max_el, key_tab
+var title_el, canvas, max_el, key_tab
 
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch simple event matches from localStorage. Initialize page contents.
+ * Builds the structure of the page and populate the two selectors.
  */
 function init_page()
 {
@@ -37,8 +34,8 @@ function init_page()
     
     add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), filter_teams, false)
 
-    // load keys from localStorage and build list
-    let first = populate_keys(dal, true, true)
+    let numeric_keys = cfg.filter_keys(cfg.get_match_keys(), 'number')
+    let first = populate_keys(numeric_keys)
     if (first)
     {
         open_option(first)
@@ -51,10 +48,7 @@ function init_page()
 }
 
 /**
- * function:    init_canvas
- * parameters:  none
- * returns:     none
- * description: Setup plot canvas.
+ * Initializes the plot's canvas and draws the first frame.
  */
 function init_canvas()
 {
@@ -66,10 +60,7 @@ function init_canvas()
 }
 
 /**
- * function:    open_option
- * parameters:  none
- * returns:     none
- * description: Selects teams based off the selected picklist.
+ * Filters teams based on the selected picklist.
  */
 function filter_teams()
 {
@@ -87,10 +78,8 @@ function filter_teams()
 }
 
 /**
- * function:    open_option
- * parameters:  Selected key
- * returns:     none
- * description: Selects and opens an option.
+ * Selects the given key on the left option list and triggers a plot update.
+ * @param {String} key Newly selected key
  */
 function open_option(key)
 {
@@ -101,10 +90,8 @@ function open_option(key)
 }
 
 /**
- * function:    open_secondary_option
- * parameters:  Selected key
- * returns:     none
- * description: Selects and opens a secondary option.
+ * Selects the given team on the right option list and triggers a plot update.
+ * @param {String} key Newly selected team
  */
 function open_secondary_option(key)
 {
@@ -124,10 +111,8 @@ function open_secondary_option(key)
 }
 
 /**
- * function:    get_selected_keys
- * parameters:  none
- * returns:     array of selected keys
- * description: Builds an array of the currently selected keys.
+ * Determines which result keys are selected on the left option list. This should always be an array of length 1.
+ * @returns Array of currently selected result keys.
  */
 function get_selected_keys()
 {
@@ -135,10 +120,8 @@ function get_selected_keys()
 }
 
 /**
- * function:    get_secondary_selected_keys
- * parameters:  none
- * returns:     array of selected keys
- * description: Builds an array of the currently selected keys.
+ * Determines which teams are selected on the right option list.
+ * @returns Array of currently selected team numbers.
  */
 function get_secondary_selected_keys()
 {
@@ -146,16 +129,13 @@ function get_secondary_selected_keys()
 }
 
 /**
- * function:    build_plot
- * parameters:  none
- * returns:     none
- * description: Plots the variable in the right pane.
+ * Renders the plot for the select key and teams.
  */
 function build_plot()
 {
     let key = get_selected_keys()[0]
     let selected_teams = ['avg'].concat(get_secondary_selected_keys())
-    title_el.innerText = dal.get_name(key, '').trim()
+    title_el.innerText = cfg.get_result_from_key(key).name.trim()
 
     // build key
     key_tab.replaceChildren()
@@ -164,10 +144,6 @@ function build_plot()
     {
         let team = selected_teams[i]
         let color = COLORS[i % COLORS.length]
-        if (team !== 'avg' && cfg.user.settings.use_team_color)
-        {
-            color = dal.get_value(team, 'meta.color')
-        }
         let row = key_tab.insertRow()
         let color_cell = row.insertCell()
         color_cell.style.backgroundColor = color
@@ -184,27 +160,25 @@ function build_plot()
     let teams = Object.keys(dal.teams)
     for (let team of teams)
     {
-        plots[team] = []
-        let keys = dal.get_result_names([team])
-        for (let i in keys)
+        plots[team] = dal.get_match_results(key, team)
+        let team_max = Math.max(...plots[team])
+        if (team_max > max)
         {
-            let match_key = keys[i].split('-')[0]
-            let val = dal.get_result_value(team, match_key, key)
-            plots[team].push(val)
-
-            if (val > max)
+            max = team_max
+        }
+        if (plots[team].length > matches)
+        {
+            matches = plots[team].length
+            for (let i = totals.length; i < matches; ++i)
             {
-                max = val
-            }
-
-            if (matches <= i)
-            {
-                matches++
                 totals.push(0)
                 counts.push(0)
             }
-            totals[i] += val
-            counts[i]++
+        }
+        for (let i in plots[team])
+        {
+            totals[i] += plots[team][i]
+            ++counts[i]
         }
     }
 
@@ -261,10 +235,6 @@ function build_plot()
             let team = selected_teams[j]
             ctx.beginPath()
             let color = COLORS[j % COLORS.length]
-            if (team !== 'avg' && cfg.user.settings.use_team_color)
-            {
-                color = dal.get_value(team, 'meta.color')
-            }
             ctx.fillStyle = color
             
             // points
