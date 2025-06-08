@@ -2068,6 +2068,77 @@ class Config
     }
 
     /**
+     * Determines the school a given user attends.
+     * @param {String} user_id User ID number
+     * @returns School name
+     */
+    get_school(user_id='')
+    {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
+        user_id = user_id.toString()
+
+        if (user_id.length === 6)
+        {
+            return ['AHS', 'PHS', 'FVHS', 'WHS', 'EGHS', 'JHHS', 'RMHS', 'BGHS', 'Other'][parseInt(user_id.substring(0, 1)) - 1]
+        }
+        return ''
+    }
+
+    /**
+     * Determines the class a given user is a part of.
+     * @param {String} user_id User ID number
+     * @returns Class name
+     */
+    get_class(user_id='')
+    {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
+        user_id = user_id.toString()
+
+        if (user_id.length === 6)
+        {
+            let grad_year = 2000 + parseInt(user_id.substring(1, 3))
+            let years_to_grad = grad_year - cfg.year
+            if (grad_year === 2000)
+            {
+                return 'Old'
+            }
+            else if (years_to_grad === 3)
+            {
+                return 'Freshman'
+            }
+            else if (years_to_grad === 2)
+            {
+                return 'Sophomore'
+            }
+            else if (years_to_grad === 1)
+            {
+                return 'Junior'
+            }
+            else if (years_to_grad === 0)
+            {
+                return 'Senior'
+            }
+            else if (years_to_grad < 0)
+            {
+                let year = 'Super-Senior'
+                if (years_to_grad < -1)
+                {
+                    year = `${-1 * years_to_grad}x-${year}`
+                }
+                return year
+            }
+            return 'Child'
+        }
+        return ''
+    }
+
+    /**
      * Finds the name of a user from their ID number.
      * 
      * @param {String} user_id User ID number

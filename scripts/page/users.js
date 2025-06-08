@@ -266,6 +266,10 @@ function open_option(user_id)
     pos_card.text_el.replaceChildren(pos_table)
 
     user_card.replaceChildren()
+    if (cfg.get_class().endsWith('x-Super-Senior'))
+    {
+        user_card.append(`${cfg.get_class(user_id)} at ${cfg.get_school(user_id)}`, br(), br())
+    }
     for (let mode of Object.keys(mode_counts))
     {
         unsure_pct = `(${Math.round(100 * unsure_counts[mode] / mode_counts[mode])}% unsure)`
