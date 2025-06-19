@@ -1265,6 +1265,26 @@ class Result
     }
 
     /**
+     * Returns the default stat that is used for the type.
+     */
+    get default_stat()
+    {
+        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'map', 'math', 'number',
+            'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
+        {
+            return 'mean'
+        }
+        else if (['dropdown', 'max', 'min', 'select', 'state'])
+        {
+            return 'mode'
+        }
+        else
+        {
+            return ''
+        }
+    }
+
+    /**
      * Computes a stat from a given set of results.
      */
     compute_stat(results, stat='')
@@ -1273,6 +1293,7 @@ class Result
         {
             return null
         }
+        stat = stat.toLowerCase()
 
         switch(this.type)
         {
@@ -1357,7 +1378,7 @@ class Result
                 let counts = {}
                 for (let val of results)
                 {
-                    if (!Object.keys(counts).includes(val))
+                    if (!(val in counts))
                     {
                         counts[val] = 0
                     }
@@ -1372,12 +1393,7 @@ class Result
                 }
                 else if (stat === 'count')
                 {
-                    let options = ['min', 'max'].includes(this.type) ? this.results : this.options
-                    return options.sort((a, b) => {
-                        let a_count = a in counts ? counts[a] : 0
-                        let b_count = b in counts ? counts[a] : 0
-                        return b_count - a_count
-                    }).map(op => `${op}: ${op in counts ? counts[op] : 0}`).join('\n')
+                    return counts
                 }
                 else
                 {
@@ -1626,6 +1642,10 @@ class Result
                     return value ? 'Yes' : 'No'
     
                 case 'int-option':
+                    if (typeof value === 'object')
+                    {
+                        return Object.keys(value).map(i => `${this.options[i]}: ${value[i]}`).join('<br>')
+                    }
                     return this.options[value]
     
                 case 'number':
@@ -1713,6 +1733,14 @@ class Result
     get recompute()
     {
         return ['math', 'max', 'min', 'where'].includes(this.type)
+    }
+
+    /**
+     * Returns options in lowercase.
+     */
+    get lower_options()
+    {
+        return this.options.map(op => op.toLowerCase())
     }
 }
 
@@ -2023,11 +2051,19 @@ class Config
      * Filters a given Array of keys by the given allowed value types.
      * @param {Array} keys Array of keys
      * @param {Array} allowed_values Array of allowed value types
+     * @param {Boolean} invert_filter Whether to disallow, instead of allow, values
      * @returns Filtered version of keys
      */
-    filter_keys(keys, allowed_values)
+    filter_keys(keys, allowed_values, invert_filter=false)
     {
-        return keys.filter(k => allowed_values.includes(this.get_result_from_key(k).value_type))
+        return keys.filter(k => {
+            let is_allowed = allowed_values.includes(this.get_result_from_key(k).value_type)
+            if (invert_filter)
+            {
+                return !is_allowed
+            }
+            return is_allowed
+        })
     }
 
     /**
