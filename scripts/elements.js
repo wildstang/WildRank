@@ -686,7 +686,11 @@ class WREntry extends WRElement
             }
         }
 
-        this.replaceChildren(this.label_el)
+        this.replaceChildren()
+        if (this.label)
+        {
+            this.append(this.label_el)
+        }
         if (this.description)
         {
             this.append(this.description_element)
@@ -764,12 +768,14 @@ class WRSlider extends WRElement
 
     connectedCallback()
     {
+        this.replaceChildren()
         if (this.label)
         {
             this.value_el.replaceChildren(this.value)
 
             this.label_el.className = 'input_label'
             this.label_el.replaceChildren(`${this.label} - `, this.value_el)
+            this.append(this.label_el)
         }
 
         this.slider.id = this.input_id
@@ -795,12 +801,12 @@ class WRSlider extends WRElement
         {
             this.slider.step = this.incr
         }
+        this.slider.classList.add(...this.classes)
 
         this.element.className = 'wr_slider'
         this.element.classList.add(...this.classes)
         this.element.replaceChildren(this.slider)
-
-        this.replaceChildren(this.label_el, this.element)
+        this.append(this.element)
     }
 
     set position(value)
