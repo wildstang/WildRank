@@ -948,7 +948,7 @@ class Data
         {
             return result.get_value(key)
         }
-        return
+        return null
     }
 
     /**
@@ -963,7 +963,7 @@ class Data
         {
             return this.teams[team_num].get_value(key)
         }
-        return
+        return null
     }
 
     //
