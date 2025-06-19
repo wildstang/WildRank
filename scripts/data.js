@@ -1034,44 +1034,68 @@ class Data
      * @param {String} stat Statistical method to use
      * @returns Computed stat value
      */
-    compute_stat(result_id, teams='all', stat='')
+    compute_stat(result_id, teams='all', stat='', clean=false)
     {
-        // check if already cached
-        if (result_id in this.cache && !Array.isArray(teams))
-        {
-            if (teams in this.cache[result_id])
-            {
-                return this.cache[result_id][teams]
-            }
-        }
-
         // get the results and compute a stat
         let value = null
         let result = cfg.get_result_from_key(result_id)
-        // some smart results need to be recomputed when used across matches
-        if (result.recompute)
+        stat = stat.toLowerCase()
+
+        // check if already cached
+        if (result_id in this.cache && stat in this.cache[result_id] && !Array.isArray(teams))
         {
-            value = result.compute_smart_result(null, teams)
+            if (teams in this.cache[result_id][stat])
+            {
+                value = this.cache[result_id][stat][teams]
+            }
         }
-        // compute stat for team results
-        else if (cfg.get_team_keys().includes(result_id))
+        if (value === null)
         {
-            value = result.compute_stat(this.get_team_results(result_id, teams), stat)
-        }
-        // compute stat for match-team results
-        else
-        {
-            value = result.compute_stat(this.get_match_results(result_id, teams), stat)
+            if (result.value_type.endsWith('-option') && result.lower_options.includes(stat))
+            {
+                let results = this.get_match_results(result_id, teams)
+                let index = result.lower_options.indexOf(stat)
+                let count = results.filter(r => r === index).length
+                value = count / results.length
+            }
+            // some smart results need to be recomputed when used across matches
+            else if (result.recompute)
+            {
+                value = result.compute_smart_result(null, teams)
+            }
+            // compute stat for team results
+            else if (cfg.get_team_keys().includes(result_id))
+            {
+                value = result.compute_stat(this.get_team_results(result_id, teams), stat)
+            }
+            // compute stat for match-team results
+            else
+            {
+                value = result.compute_stat(this.get_match_results(result_id, teams), stat)
+            }
+
+            // cache and return the value
+            if (!Array.isArray(teams))
+            {
+                if (!(result_id in this.cache))
+                {
+                    this.cache[result_id] = {}
+                }
+                if (!(stat in this.cache[result_id]))
+                {
+                    this.cache[result_id][stat] = {}
+                }
+                this.cache[result_id][stat][teams] = value
+            }
         }
 
-        // cache and return the value
-        if (!Array.isArray(teams))
+        if (clean)
         {
-            if (!(result_id in this.cache))
+            if (result.value_type.endsWith('-option') && result.options.map(op => op.toLowerCase()).includes(stat))
             {
-                this.cache[result_id] = {}
+                return value.toFixed(2)
             }
-            this.cache[result_id][teams] = value
+            return result.clean_value(value)
         }
         return value
     }
