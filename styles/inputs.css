@@ -351,6 +351,10 @@
     min-width: 0;
 }
 
+.filter_number {
+    width: 50px;
+}
+
 .photo-carousel, .scouting-carousel {
     overflow-x: scroll;
     overflow-y: hidden;

@@ -186,32 +186,30 @@ function populate_teams(minipicklist=true, complete=false, secondary=false)
  * 
  * Pages: Pivot Table, Distributions
  */
-function populate_keys(dal, results_only=false, exclude_strings=false)
+function populate_keys(keys)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let keys = dal.get_keys(true, !results_only, !results_only, !results_only, [], !exclude_strings)
     if (keys.length > 0)
     {
         // add pick list selector at top
         let ops = Object.keys(dal.picklists)
         ops.unshift('None')
-        
+
         // iterate through result keys
-        for (let key of keys)
+        let names = cfg.get_names(keys)
+        for (let i in keys)
         {
-            let op = new WROption(key, dal.meta[key].name)
+            let op = new WROption(keys[i], names[i])
             op.style = 'font-size:10px'
             document.getElementById('option_list').append(op)
         }
-        
+
         // add second option list of teams
-        let teams = Object.keys(dal.teams)
-        for (let team of teams)
+        for (let team of dal.team_numbers)
         {
-            let name = dal.get_value(team, 'meta.name')
-            let op = new WRDescriptiveOption(team, team, name, false)
+            let op = new WRDescriptiveOption(team, team, dal.teams[team].name, false)
             document.getElementById('secondary_option_list').append(op)
         }
 
@@ -220,7 +218,7 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
     }
     else
     {
-        alert('No results found')
+        alert('No config found')
         return false
     }
 }
@@ -233,12 +231,11 @@ function populate_keys(dal, results_only=false, exclude_strings=false)
  * 
  * Pages: Scatter
  */
-function populate_dual_keys(dal, results_only=false, exclude_strings=false)
+function populate_dual_keys(keys)
 {
     document.getElementById('option_list').innerHTML = ''
     document.getElementById('secondary_option_list').innerHTML = ''
 
-    let keys = dal.get_keys(true, !results_only, !results_only, !results_only && !exclude_strings)
     if (keys.length > 0)
     {
         // add pick list selector at top
@@ -246,13 +243,14 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
         ops.unshift('None')
         
         // iterate through result keys
-        for (let key of keys)
+        let names = cfg.get_names(keys)
+        for (let i in keys)
         {
-            let left_op = new WROption(key, dal.meta[key].name, true)
+            let left_op = new WROption(keys[i], names[i], true)
             left_op.style = 'font-size:10px'
             document.getElementById('option_list').append(left_op)
 
-            let right_op = new WROption(key, dal.meta[key].name, false)
+            let right_op = new WROption(keys[i], names[i], false)
             right_op.style = 'font-size:10px'
             document.getElementById('secondary_option_list').append(right_op)
         }
@@ -262,7 +260,7 @@ function populate_dual_keys(dal, results_only=false, exclude_strings=false)
     }
     else
     {
-        alert('No results found')
+        alert('No config found')
         return false
     }
 }

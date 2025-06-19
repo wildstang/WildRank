@@ -83,33 +83,6 @@ function select_all(primary_list=true)
 }
 
 /**
- * function:    toggle_select
- * parameters:  use primary option list
- * returns:     none
- * description: Selects or deselects all team options.
- */
-function toggle_select(primary_list=true)
-{
-    let id = 'option_list'
-    if (!primary_list)
-    {
-        id = 'secondary_option_list'
-    }
-    let options = document.getElementById(id).children
-    for (let i = 0; i < options.length; ++i)
-    {
-        if (!options[i].classList.contains('selected'))
-        {
-            select_all(false)
-            build_table()
-            return
-        }
-    }
-    deselect_all(false)
-    build_table()
-}
-
-/**
  * function:    filter_by
  * parameters:  options to filter by, use primary option list
  * returns:     none
