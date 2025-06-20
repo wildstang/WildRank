@@ -516,6 +516,21 @@ class Data
                 results: {}
             }
 
+            let winner = match.winning_alliance
+            if (winner !== undefined)
+            {
+                if (winner === '')
+                {
+                    this.matches[match.key].winner = 'tie'
+                }
+                else
+                {
+                    this.matches[match.key].winner = winner
+                }
+                this.matches[match.key].red_score = match.alliances.red.score,
+                this.matches[match.key].blue_score = match.alliances.blue.score
+            }
+
             // build MatchResults for each team in each alliance
             this.add_match_team(match, 'red')
             this.add_match_team(match, 'blue')
