@@ -1114,4 +1114,23 @@ class Data
         }
         return value
     }
+
+    /**
+     * Builds a string representing the given team's ranking.
+     * @param {Number} team_num Team number
+     * @returns String representing the current ranking
+     */
+    get_rank_string(team_num)
+    {
+        let rank = dal.get_team_value(team_num, 'fms.rank')
+        let score = dal.get_team_value(team_num, 'fms.sort_orders_0')
+        let wins = dal.get_team_value(team_num, 'fms.record_wins')
+        let losses = dal.get_team_value(team_num, 'fms.record_losses')
+        let ties = dal.get_team_value(team_num, 'fms.record_ties')
+        if (rank !== null && score !== null && wins !== null && losses !== null && ties !== null)
+        {
+            return `#${rank} (${score}, ${wins}-${losses}-${ties})`
+        }
+        return ''
+    }
 }

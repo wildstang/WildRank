@@ -9,7 +9,7 @@
 include('picklists-core')
 include('transfer')
 
-var avatar_el, team_el, name_el, lists_el, mode_el, table_card
+var avatar_el, team_el, name_el, ranking, lists_el, mode_el, table_card
 
 /**
  * Populates the page with basic contents.
@@ -27,10 +27,11 @@ function init_page()
         team_el = create_element('label', 'team_num')
         name_el = document.createElement('label')
         header.append(team_el, ' ', name_el)
+        ranking = document.createElement('h3')
         let belongs = document.createElement('h4')
         belongs.innerText = 'Belongs to:'
         lists_el = document.createElement('span')
-        let card = new WRCard([avatar_el, header, belongs, lists_el], true)
+        let card = new WRCard([avatar_el, header, ranking, belongs, lists_el], true)
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)
@@ -103,15 +104,16 @@ function open_option(team_num)
 
     // build team header
     avatar_el.src = dal.teams[team_num].avatar
-    team_el.innerHTML = team_num
-    name_el.innerHTML = dal.teams[team_num].name
+    team_el.innerText = team_num
+    name_el.innerText = dal.teams[team_num].name
+    ranking.innerText = dal.get_rank_string(team_num)
 
     let belongs_to = []
     if (Object.keys(dal.picklists).length > 0)
     {
         belongs_to = Object.keys(dal.picklists).filter(l => dal.picklists[l].includes(team_num))
     }
-    lists_el.innerHTML = belongs_to.join(', ')
+    lists_el.innerText = belongs_to.join(', ')
 
     // select team button
     document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
@@ -216,16 +218,6 @@ function build_pick_lists(highlight='', rename='')
         }
     }
     table_card.element.replaceChildren(table)
-
-    // add secondary list for picklist matches
-    let prev_right = 'flex'
-    let right = document.getElementById('right')
-    if (right !== null && right.style.display)
-    {
-        prev_right = right.style.display
-    }
-    populate_matches(false, true, match_filter, true)
-    right.style.display = prev_right
     
     // save to localStorage
     dal.save_picklists()
