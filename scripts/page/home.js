@@ -42,7 +42,7 @@ const CONFIGS = {
     'advanced': {
         'Configuration': ['settings', 'config-generator', 'config-debug', 'export_config'],
         'Schedule': ['event-generator', 'open_extras'],
-        'Management': ['transfer-raw', 'dashboard', 'cache', 'storage'],
+        'Management': ['dashboard', 'cache', 'storage'],
         'Reset': ['reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event']
     },
     'extras': {
@@ -92,7 +92,6 @@ const BUTTONS = {
     'settings':             { name: 'Settings Editor',          limits: [] },
     'storage':              { name: 'Storage Manager',          limits: [] },
     'teams':                { name: 'Team Profiles',            limits: ['teams'] },
-    'transfer-raw':         { name: 'Transfer Raw Data',        limits: [] },
     'import_results':       { name: 'Import All Results',       limits: [] },
     'export_config':        { name: 'Export Config',            limits: [] },
     'users':                { name: 'User Profiles',            limits: ['admin'] },

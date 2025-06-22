@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-s5-250318'
+const CACHE_NAME = 'wildrank-s5-250622'
 const CACHE_LIST = [
     // html files
     '/',
@@ -13,20 +13,35 @@ const CACHE_LIST = [
     '/selection.html',
     '/updater.html',
     // styles
-    '/styles/style.css',
     '/styles/inputs.css',
     '/styles/selection.css',
+    '/styles/style.css',
     // scripts
-    /* don't cache misc scripts that rely on tba
+    '/scripts/lib/external/jszip.min.js',
+    '/scripts/lib/external/Vibrant.min.js',
+    '/scripts/lib/bracket-obj.js',
+    '/scripts/lib/input-builder.js',
+    '/scripts/lib/mini-picklists.js',
+    '/scripts/lib/picklists-core.js',
+    '/scripts/lib/stat-builders.js',
+    '/scripts/lib/transfer.js',
+    '/scripts/lib/whiteboard-obj.js',
+    /* don't cache misc scripts that rely on tba or are out of date
     '/scripts/page/misc/2022-score-estimator.js',
+    '/scripts/page/misc/2023-rp.js',
     '/scripts/page/misc/2023-score-estimator.js',
     '/scripts/page/misc/district-counter.js',
     '/scripts/page/misc/event-planner.js',
     '/scripts/page/misc/international-counter.js',
     '/scripts/page/misc/match-counter.js',
+    '/scripts/page/misc/max-score.js',
     '/scripts/page/misc/revival-counter.js',
     '/scripts/page/misc/score-counter.js',
-    '/scripts/page/misc/team-profile.js',*/
+    '/scripts/page/misc/socials.js',
+    '/scripts/page/misc/sponsor-counter.js',
+    '/scripts/page/misc/team-profile.js',
+    '/scripts/page/misc/top-partners.js',
+    '/scripts/page/misc/verde.js'*/
     '/scripts/page/misc/2025-score-calculator.js',
     '/scripts/page/misc/test.js',
     '/scripts/page/about.js',
@@ -37,7 +52,7 @@ const CACHE_LIST = [
     '/scripts/page/config-generator.js',
     '/scripts/page/custom-match.js',
     '/scripts/page/cycles.js',
-    '/scripts/page/distro.js',
+    '/scripts/page/dashboard.js',
     '/scripts/page/edit-coach.js',
     '/scripts/page/edit-stats.js',
     '/scripts/page/event-generator.js',
@@ -48,35 +63,20 @@ const CACHE_LIST = [
     '/scripts/page/matches.js',
     '/scripts/page/multipicklists.js',
     '/scripts/page/note-viewer.js',
-    '/scripts/page/note.js',
     '/scripts/page/pits.js',
     '/scripts/page/pivot.js',
     '/scripts/page/plot.js',
-    '/scripts/page/progress.js',
     '/scripts/page/random.js',
     '/scripts/page/ranker.js',
     '/scripts/page/results.js',
     '/scripts/page/scatter.js',
-    '/scripts/page/schedule-importer.js',
     '/scripts/page/scout.js',
-    '/scripts/page/scouter-scheduler.js',
     '/scripts/page/settings.js',
     '/scripts/page/setup.js',
-    '/scripts/page/sides.js',
     '/scripts/page/storage.js',
     '/scripts/page/teams.js',
-    '/scripts/page/transfer-raw.js',
     '/scripts/page/users.js',
     '/scripts/page/whiteboard.js',
-    '/scripts/lib/external/jszip.min.js',
-    '/scripts/lib/external/Vibrant.min.js',
-    '/scripts/lib/bracket-obj.js',
-    '/scripts/lib/input-builder.js',
-    '/scripts/lib/mini-picklists.js',
-    '/scripts/lib/picklists-core.js',
-    '/scripts/lib/stat-builders.js',
-    '/scripts/lib/transfer.js',
-    '/scripts/lib/whiteboard-obj.js',
     '/scripts/blank.js',
     '/scripts/config.js',
     '/scripts/data.js',
@@ -161,6 +161,7 @@ self.addEventListener('fetch', e => {
             let res = new Response(file, { statusText: 'OK', headers: headers })
             cache.put(e.request.url, res)
 
+            // TODO: handle cache file somewhere else
             return Response.redirect('/index.html?page=transfer-raw&cache=true', 303);
         }
 
