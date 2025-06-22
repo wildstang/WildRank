@@ -8,7 +8,7 @@
 include('external/jszip.min')
 
 /**
- * BUTTON RESPONSES
+ * TBA Data Loading
  */
 
 // global properties for handling preloaded data
@@ -233,26 +233,8 @@ function handle_event(event)
 }
 
 /**
- * function:    download_csv
- * parameters:  none
- * returns:     none
- * description: Export results to a CSV file and download.
+ * Data Reset
  */
-function download_csv()
-{
-    let event = cfg.user.state.event_id
-    let element = document.createElement('a')
-    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(export_spreadsheet(event)))
-    element.setAttribute('download', `${get_user()}-${event}-export.csv`)
-
-    element.style.display = 'none'
-    document.body.appendChild(element)
-
-    element.click()
-
-    document.body.removeChild(element)
-}
-
 
 /**
  * Prompts the user to delete all data in localStorage and cache.
@@ -416,118 +398,8 @@ function reset_event()
 }
 
 /**
- * HELPER FUNCTIONS
+ * Import / Export
  */
-
-/**
- * function:    export_spreadsheet
- * parameters:  event id
- * returns:     CSV string
- * description: Exports all results to a CSV file, which can be turned into a complex spreadsheet with a corresponding Python script.
- */
-function export_spreadsheet(event_id)
-{
-    let combined = {}
-    let keys = ['name', 'event', 'kind', 'match', 'team']
-    let files = Object.keys(localStorage)
-    for (let name of files)
-    {
-        let parts = name.split('-')
-        let kind = parts[0]
-        let event = parts[1]
-        if (event == event_id)
-        {
-            let cont = true
-            let result = {'name': name, 'event': event, 'kind': kind}
-            // confirm valid result type
-            switch (kind)
-            {
-                case MATCH_MODE:
-                case NOTE_MODE:
-                    result['match'] = parts[2]
-                    result['team'] = parts[3]
-                    break
-                case PIT_MODE:
-                    result['team'] = parts[2]
-                    break
-                default:
-                    cont = false
-                    break
-            }
-
-            if (cont)
-            {
-                // add object to combined
-                let resultJSON = JSON.parse(localStorage.getItem(name))
-                let results = Object.keys(resultJSON)
-                for (let key of results)
-                {
-                    let val = resultJSON[key]
-                    // look for cycles (arrays of objects)
-                    if (typeof val === 'object' && Array.isArray(val))
-                    {
-                        for (let i in val)
-                        {
-                            let v = val[i]
-                            if (typeof v === 'object')
-                            {
-                                for (let j in v)
-                                {
-                                    // add each cycle-value as its own column
-                                    let k = `${key}-${j}-${i}`
-                                    if (!keys.includes(k))
-                                    {
-                                        keys.push(k)
-                                    }
-                                    result[k] = v[j]
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!keys.includes(key))
-                        {
-                            keys.push(key)
-                        }
-                        result[key] = val
-                    }
-                }
-                combined[name] = result
-            }
-        }
-    }
-
-    // build csv
-    let lines = [keys.join()]
-    let results = Object.keys(combined)
-    for (let name of results)
-    {
-        let obj_keys = Object.keys(combined[name])
-        let values = []
-        for (let key of keys)
-        {
-            if (obj_keys.includes(key))
-            {
-                let val = combined[name][key]
-                if (typeof val === 'string')
-                {
-                    values.push(`"${val}"`)
-                }
-                else
-                {
-                    values.push(val)
-                }
-            }
-            else
-            {
-                values.push(NaN)
-            }
-        }
-        lines.push(values.join())
-    }
-    return lines.join('\n').replace(/,NaN/g, ',')
-}
 
 class ZipHandler
 {
@@ -545,7 +417,6 @@ class ZipHandler
         this.user_list = false
 
         // options
-        this.on_update = this.do_nothing
         this.on_complete = this.do_nothing
     }
 
@@ -562,7 +433,7 @@ class ZipHandler
         zh.scout_config = true
         zh.analysis_config = true
         zh.on_complete = on_complete
-        zh.import_zip_from_file()
+        zh.import_file()
     }
 
     /**
@@ -574,7 +445,7 @@ class ZipHandler
         let zh = new ZipHandler()
         zh.results = true
         zh.on_complete = on_complete
-        zh.import_zip_from_file(true)
+        zh.import_file(true)
     }
 
     /**
@@ -587,12 +458,11 @@ class ZipHandler
         zh.event_data = true
         zh.results = true
         zh.on_complete = on_complete
-        zh.import_zip_from_file()
+        zh.import_file()
     }
 
     /**
      * Helper function that creates a zip handler to export configuration data.
-     * @param {Function} on_complete Function to call when loading is complete.
      */
     static export_setup()
     {
@@ -605,9 +475,8 @@ class ZipHandler
 
     /**
      * Helper function that creates a zip handler to export a given mode of results.
-     * @param {Function} on_complete Function to call when loading is complete.
      */
-    static export_results(scout_mode='')
+    static export_results(scout_mode=true)
     {
         let zh = new ZipHandler()
         if (scout_mode)
@@ -619,7 +488,6 @@ class ZipHandler
 
     /**
      * Helper function that creates a zip handler to export results and event data.
-     * @param {Function} on_complete Function to call when loading is complete.
      */
     static export_data()
     {
@@ -630,24 +498,36 @@ class ZipHandler
     }
 
     /**
+     * Helper function that creates a zip handler to export (nearly) all data.
+     */
+    static export_all()
+    {
+        let zh = new ZipHandler()
+        zh.event_data = true
+        zh.scout_config = true
+        zh.analysis_config = true
+        zh.results = true
+        zh.picklists = true
+        zh.export_zip()
+    }
+
+    /**
      * Generates a Zip file name based on the configured files.
      */
     get zip_name()
     {
-        // start name with user ID if available
-        let name = ''
+        // start name with user ID if available, then event ID
+        let prefix = cfg.user.state.event_id
         if (cfg.user.state.user_id)
         {
-            name = `${cfg.user.state.user_id}-`
+            prefix = `${cfg.user.state.user_id}-${prefix}`
         }
 
-        // add event ID
-        name += cfg.user.state.event_id
-
-        let options = [this.event_data, this.results, this.picklists, this.scout_config, this.analysis_config, this.user_settings, this.user_list]
+        let options = [this.event_data, this.results !== false, this.picklists, this.scout_config, this.analysis_config, this.user_settings, this.user_list]
         let total = options.filter(Boolean).length
         let configs = this.event_data + this.scout_config + this.analysis_config + this.user_settings + this.user_list
 
+        // choose a suffix based on what is being exported
         let suffix
         if (total === 1)
         {
@@ -665,83 +545,21 @@ class ZipHandler
         {
             suffix = 'configs'
         }
+        else if (total === 2 && this.event_data && this.results)
+        {
+            suffix = 'data'
+        }
         else
         {
             suffix = 'export'
         }
 
-        return `${name}-${suffix}.zip`
+        return `${prefix}-${suffix}.zip`
     }
 
     /**
-     * function:    import_zip_from_file
-     * paramters:   none
-     * returns:     none
-     * description: Creates a file prompt to upload a zip of JSON results.
-     */
-    import_zip_from_file(select_multiple=false, allow_csv=false)
-    {
-        let input = document.createElement('input')
-        input.type = 'file'
-        let mime_type = 'application/zip'
-        if (allow_csv)
-        {
-            mime_type += ',application/json'
-        }
-        input.accept = mime_type
-        input.multiple = select_multiple
-        let handler = this
-        input.addEventListener('change', async function (event)
-        {
-            for (let file of event.target.files)
-            {
-                if (file.name)
-                {
-                    if (file.name.endsWith('.zip'))
-                    {
-                        // import zips one at a time
-                        // TODO: remove this when imports take into account multiple zips
-                        await handler.import_zip(file)
-                    }
-                    else
-                    {
-                        handler.import_settings(file)
-                    }
-                }
-            }
-        })
-        input.click()
-    }
-
-    /**
-     * function:    import_zip_from_server
-     * paramters:   none
-     * returns:     none
-     * description: Request a zip of JSON results from the server.
-     */
-    import_zip_from_server()
-    {
-        if (check_server(this.server))
-        {
-            fetch(`${this.server}/getZip`)
-                .then(transfer => {
-                    return transfer.blob();
-                })
-                .then(bytes => {
-                    this.import_zip(bytes)
-                })
-                .catch(err => {
-                    alert('Error requesting results')
-                    console.log(err)
-                })
-        }
-    }
-
-    /**
-     * function:    import_zip_from_cache
-     * paramters:   cache name
-     * returns:     none
-     * description: Import a zip stored in CacheStorage.
+     * Imports a file stored in the given cache at /import. Used for sharing zips to WildRank.
+     * @param {String} cache_name Cache name
      */
     async import_zip_from_cache(cache_name)
     {
@@ -759,10 +577,56 @@ class ZipHandler
     }
 
     /**
-     * function:    import_zip
-     * paramters:   response containing zip file
-     * returns:     none
-     * description: Extracts a zip archive containing all JSON results.
+     * Prompts the user to select file(s) to import, then handles each file based on type.
+     * @param {Boolean} select_multiple Whether to allow importing multiple files.
+     * @param {Boolean} allow_json Whether to allow JSON files
+     */
+    import_file(select_multiple=false, allow_json=false)
+    {
+        let input = document.createElement('input')
+        input.type = 'file'
+        let mime_type = 'application/zip'
+        if (allow_json)
+        {
+            mime_type += ',application/json'
+        }
+        input.accept = mime_type
+        input.multiple = select_multiple
+        input.addEventListener('change', this.handle_files.bind(this))
+        input.click()
+    }
+
+    /**
+     * Iterates over each selected file and attempts to import it.
+     * @param {Event} event File import event
+     */
+    async handle_files(event)
+    {
+        for (let file of event.target.files)
+        {
+            if (file.name)
+            {
+                let error = file.name.endsWith('.zip') ? await this.import_zip(file) : this.import_settings(file)
+                if (error && typeof error === 'string')
+                {
+                    alert(`${error}: ${file}`)
+                }
+            }
+        }
+
+        // reload config and data
+        cfg.load_configs(() => {
+            dal.load_data()
+        })
+
+        this.on_complete()
+        alert('Import Complete')
+    }
+
+    /**
+     * Attempts to import a given zip file.
+     * @param {File} file ZIP file to import
+     * @returns An error description or false
      */
     async import_zip(file)
     {
@@ -771,7 +635,7 @@ class ZipHandler
         {
             if (!confirm(`Warning, zip does not contain "${event_id}" in the name! Continue?`))
             {
-                return
+                return true
             }
         }
 
@@ -784,10 +648,9 @@ class ZipHandler
         let app_version = cfg.app_version
         let scout_version = cfg.scout.version
 
-        let total_files = files.length
-        if (total_files == 0)
+        if (files.length == 0)
         {
-            alert('No files found!')
+            return 'No files found!'
         }
 
         for (let name of files)
@@ -814,29 +677,13 @@ class ZipHandler
             let content = await zip.file(name).async('blob')
 
             let text = await content.text()
-            if (file_name === cfg.user.name)
+            let configs = [cfg.user, cfg.scout, cfg.analysis, cfg.user_list]
+            let index = configs.map(c => c.name).indexOf(file_name)
+            if (index >= 0)
             {
                 console.log(`Importing ${file_name}`)
-                cfg.user.handle_config(text)
-                cfg.user.store_config()
-            }
-            else if (file_name === cfg.scout.name)
-            {
-                console.log(`Importing ${file_name}`)
-                cfg.scout.handle_config(text)
-                cfg.scout.store_config()
-            }
-            else if (file_name === cfg.analysis.name)
-            {
-                console.log(`Importing ${file_name}`)
-                cfg.analysis.handle_config(text)
-                cfg.analysis.store_config()
-            }
-            else if (file_name === cfg.user_list.name)
-            {
-                console.log(`Importing ${file_name}`)
-                cfg.user_list.handle_config(text)
-                cfg.user_list.store_config()
+                configs[index].handle_config(JSON.parse(text))
+                configs[index].store_config()
             }
             else if ((this.event_data && file_name.startsWith(`avatar-${cfg.year}-`)) ||
                 (this.picklists && file_name === dal.picklist_file) ||
@@ -848,17 +695,27 @@ class ZipHandler
             }
             else if (this.results === true && file_name.startsWith('result-'))
             {
-                let new_json = JSON.parse(text)
-
-                if (new_json.meta.result.event_id === event_id)
+                let new_meta = JSON.parse(text).meta
+                if (new_meta.result.event_id === event_id)
                 {
-                    let old_json = JSON.parse(localStorage.getItem(file_name))
-                    if (old_json === null || new_json.meta.scouter.time > old_json.meta.scouter.time)
+                    let old_text = localStorage.getItem(file_name)
+                    let old_json = JSON.parse(old_text)
+                    if (text === old_text)
+                    {
+                        console.log(`Result ${file_name} already exists`)
+                    }
+                    else if (old_json !== null && new_meta.scouter.time < old_json.meta.scouter.time)
+                    {
+                        console.log(`Existing result of ${file_name} is ${old_json.meta.scouter.time - new_meta.scouter.time} newer`)
+                    }
+                    else
                     {
                         let write = true
-                        if (!ignore_cfg && new_json.meta.scouter.meta_config_version !== scout_version)
+                        let res_config_version = new_meta.scouter.config_version
+                        let res_app_version = new_meta.scouter.app_version
+                        if (!ignore_cfg && res_config_version !== scout_version)
                         {
-                            if (confirm(`App version mismatch on ${file_name}, continue?`))
+                            if (confirm(`App version mismatch on ${file_name} (${res_config_version}), continue?`))
                             {
                                 ignore_cfg = confirm(`Ignore all app version mismatches?`)
                             }
@@ -867,9 +724,9 @@ class ZipHandler
                                 write = false
                             }
                         }
-                        if (!ignore_app && new_json.meta.scouter.meta_app_version !== app_version)
+                        if (!ignore_app && res_app_version !== app_version)
                         {
-                            if (confirm(`Config version mismatch on ${file_name}, continue?`))
+                            if (confirm(`Config version mismatch on ${file_name} (${res_app_version}), continue?`))
                             {
                                 ignore_app = confirm(`Ignore all config version mismatches?`)
                             }
@@ -886,22 +743,53 @@ class ZipHandler
                     }
                 }
             }
-
-            // update progress bar
-            this.on_update(++complete, total_files)
         }
 
-        dal = new Data(event_id)
-        dal.load_data()
-        this.on_complete()
-        alert('Import Complete')
+        return false
     }
 
     /**
-     * function:    export_zip
-     * paramters:   none
-     * returns:     none
-     * description: Creates and downloads a zip archive containing all localStorage files.
+     * Import a complete config JSON file.
+     * @param {File} file Uploaded file
+     * @returns An error description or false
+     */
+    import_settings(file)
+    {
+        let reader = new FileReaderSync()
+        let text = reader.readAsText(file, 'UTF-8')
+
+        if (file.name.startsWith(cfg.user.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.user.handle_config(text)
+        }
+        else if (file.name.startsWith(cfg.scout.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.scout.handle_config(text)
+        }
+        else if (file.name.startsWith(cfg.analysis.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.analysis.handle_config(text)
+        }
+        else if (file.name.startsWith(cfg.user_list.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.user_list.handle_config(text)
+        }
+        else
+        {
+            return` Unrecognized file ${text}`
+        }
+
+        return false
+    }
+
+    /**
+     * Exports data from localStorage as a ZIP file.
+     * @param {Number} op Export operation type, currently only 0, to file
+     * @returns An error description or false
      */
     async export_zip(op=0)
     {
@@ -920,7 +808,7 @@ class ZipHandler
             }
             return ((handler.event_data && [`event-${event_id}`, `matches-${event_id}`,
                     `rankings-${event_id}`, `teams-${event_id}`].includes(file_name)) ||
-                (handler.picklists && file_name.startsWith('picklists-')) ||
+                (handler.picklists && file_name === `picklists-${event_id}`) ||
                 (handler.scout_config && file_name === cfg.scout.name) ||
                 (handler.analysis_config && file_name === cfg.analysis.name) ||
                 (handler.user_settings && file_name === cfg.user.name) ||
@@ -947,9 +835,6 @@ class ZipHandler
                 name = `avatars/${file}`
             }
             zip.file(name, data, { base64: base64 })
-
-            // update progress bar
-            this.on_update(i, files.length + 1)
         }
 
         // download zip
@@ -967,83 +852,9 @@ class ZipHandler
 
             document.body.removeChild(element)
         }
-        else if (op === 1) // upload
-        {
-            if (check_server(this.server) && cfg.user.settings)
-            {                    
-                // post string to server
-                let formData = new FormData()
-                formData.append('upload', blob)
-                fetch(`${this.server}/?password=${cfg.user.settings.server_key}`, {method: 'POST', body: formData})
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success && result.count === num_uploads)
-                        {
-                            alert('Upload successful!')
-                        }
-                        else if (result.count === -1)
-                        {
-                            alert('Incorrect password!')
-                        }
-                        else if (result.count === -2)
-                        {
-                            alert('Failed to extract archive!')
-                        }
-                        else
-                        {
-                            alert('Unknown server error!')
-                        }
-                    })
-                    .catch(e => {
-                        alert('Error uploading!')
-                        console.error(e)
-                    })
-            }
-        }
         else
         {
             alert('Invalid export type')
-        }
-
-        // update progress bar for zip complete
-        this.on_update(files.length + 1, files.length + 1)
-    }
-
-    /**
-     * Import a complete config JSON file.
-     * @param {File} file Uploaded file
-     */
-    import_settings(file)
-    {
-        let reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-        reader.onload = readerEvent => {
-            let alert_text = 'Import Complete'
-
-            let text = readerEvent.target.result
-            if (file.name.startsWith(cfg.user.name))
-            {
-                cfg.user.handle_config(text)
-            }
-            else if (file.name.startsWith(cfg.scout.name))
-            {
-                cfg.scout.handle_config(text)
-            }
-            else if (file.name.startsWith(cfg.analysis.name))
-            {
-                cfg.analysis.handle_config(text)
-            }
-            else if (file.name.startsWith(cfg.user_list.name))
-            {
-                cfg.user_list.handle_config(text)
-            }
-            else
-            {
-                alert_text = `Unrecognized file ${text}`
-            }
-
-            alert(alert_text)
-            this.on_complete()
         }
     }
 }
