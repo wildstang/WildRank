@@ -989,10 +989,11 @@ class ScoutConfig
 
 class Result
 {
-    VALID_INPUTS = ['checkbox', 'counter', 'dropdown', 'multicounter', 'multiselect', 'number', 'select', 'slider', 'string',
+    static VALID_INPUTS = ['checkbox', 'counter', 'dropdown', 'multicounter', 'multiselect', 'number', 'select', 'slider', 'string',
         'text', 'timer']
-    VALID_FMS = ['filter', 'map', 'math', 'max', 'min', 'where', 'wrank']
-    VALID_SMARTS = ['boolean', 'int', 'state', 'yes_no']
+    static VALID_CYCLE_INPUTS = ['dropdown', 'select', 'checkbox', 'counter', 'number', 'slider']
+    static VALID_SMARTS = ['filter', 'map', 'math', 'max', 'min', 'where', 'wrank']
+    static VALID_FMS = ['boolean', 'int', 'state', 'yes_no']
 
     /**
      * Validates a given result config object.
@@ -1028,7 +1029,7 @@ class Result
             tests.push(has_inputs)
             if (has_inputs === true)
             {
-                tests.push(...obj.inputs.map(i => ['dropdown', 'select', 'checkbox', 'counter', 'number', 'slider'].includes(i.type) ? true : `Invalid cycle input ${i.id}`))
+                tests.push(...obj.inputs.map(i => Result.VALID_CYCLE_INPUTS.includes(i.type) ? true : `Invalid cycle input ${i.id}`))
             }
         }
         else if (tests[2] === true)
@@ -1156,8 +1157,7 @@ class Result
                     if (cycle_valid === true && conditions_valid === true)
                     {
                         let cycle = cfg.get_result_from_key(obj.cycle)
-                        let valid_types = ['dropdown', 'select', 'checkbox', 'counter']
-                        let keys = cycle.inputs.filter(i => valid_types.includes(i.type)).map(i => i.id)
+                        let keys = cycle.inputs.filter(i => Result.VALID_CYCLE_INPUTS.includes(i.type)).map(i => i.id)
                         tests.push(...Object.keys(obj.conditions).map(k => keys.includes(k) ? true : `Invalid condition key ${k}`))
                     }
                     break
