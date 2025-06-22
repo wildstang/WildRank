@@ -23,12 +23,18 @@ const CONFIGS = {
         'Notes': ['notes']
     },
     'drive': {
-        'Drive Team': ['import_results', 'coach', 'misc/2025-score-calculator', 'whiteboard', 'bracket']
+        'Coach': ['coach']
+    },
+    'tech': {
+        'Technician': ['misc/2025-score-calculator']
+    },
+    'dash': {
+        'Dashboard': ['dashboard']
     },
     'analysis': {
+        'Results': ['import_results', 'result_count', 'open_moralysis'],
         'Qualitative': ['ranker', 'multipicklists', 'note-viewer'],
-        'Quantitative': ['pivot', 'results', 'plot', 'open_moralysis'],
-        'Results': ['import_results', 'result_count', 'export_results']
+        'Quantitative': ['pivot', 'results', 'plot']
     },
     'moralysis': {
         'Teams': ['ranker', 'multipicklists'],

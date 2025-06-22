@@ -7,8 +7,7 @@
 
 include('transfer')
 
-var event_config, scout_config_valid, analysis_config_valid
-var summary_card, buttons
+var event_config, scout_config_valid, analysis_config_valid, summary_card
 var breakdown_table, team_table, match_table
 
 /**
@@ -17,6 +16,20 @@ var breakdown_table, team_table, match_table
 function init_page()
 {
     header_info.innerText = 'Dashboard'
+
+    // build shortcut buttons to common analysis pages
+    let ranker = new WRLinkButton('Stat Builder', build_url('ranker'))
+    ranker.add_class('slim')
+    let coach = new WRLinkButton('Edit Coach', build_url('edit-coach'))
+    coach.add_class('slim')
+    let pivot = new WRLinkButton('Pivot Table', build_url('pivot'))
+    pivot.add_class('slim')
+    let plot = new WRLinkButton('Plotter', build_url('plot'))
+    plot.add_class('slim')
+    let notes = new WRLinkButton('Note Viewer', build_url('note-viewer'))
+    notes.add_class('slim')
+    let lists = new WRLinkButton('Pick Lists', build_url('multipicklists'))
+    lists.add_class('slim')
 
     // produce status tiles
     event_config = new WRStatusTile(dal.event_name)
@@ -30,9 +43,14 @@ function init_page()
     summary_card = new WRMultiNumber('', ['Pits', 'Matches', 'Latest Match'], ['-', '-', '-'])
 
     // create transfer buttons
-    let transfer_funcs = [() => preload_event(populate), ZipHandler.export_setup,
-        () => ZipHandler.import_results(populate), ZipHandler.export_data]
-    buttons = new WRMultiButton('', ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data'], transfer_funcs)
+    let pull_tba = new WRLinkButton('Pull from TBA', () => preload_event(populate))
+    pull_tba.add_class('slim')
+    let export_cfg = new WRLinkButton('Export Config', ZipHandler.export_setup)
+    export_cfg.add_class('slim')
+    let import_res = new WRLinkButton('Import Results', () => ZipHandler.import_results(populate))
+    import_res.add_class('slim')
+    let export_dat = new WRLinkButton('Export Data', ZipHandler.export_data)
+    export_dat.add_class('slim')
 
     // create result breakdown card
     let breakdown_contents = document.createElement('div')
@@ -59,7 +77,9 @@ function init_page()
     let matches_card = new WRCard(match_contents)
 
     // put cards into 2 pages
-    let top_page = new WRPage('', [new WRColumn('', [status_stack]), new WRColumn('', [summary_card]), new WRColumn('', [buttons])])
+    let top_page = new WRPage('', [new WRColumn('', [new WRStack([ranker, coach]), status_stack]),
+                                   new WRColumn('', [new WRStack([pivot, plot]), summary_card]),
+                                   new WRColumn('', [new WRStack([notes, lists]), new WRStack([pull_tba, export_cfg, import_res, export_dat])])])
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])
     body.replaceChildren(top_page, bottom_page)
 

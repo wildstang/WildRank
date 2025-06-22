@@ -142,8 +142,9 @@ function step_setup()
     }
     else
     {
-        setup_col.add_input(new WRLinkButton('Dashboard', build_url('dashboard')))
-        setup_col.add_input(new WRButton('Drive Team', () => open_role('drive')))
+        setup_col.add_input(new WRButton('Dashboard', () => open_role('dash')))
+        setup_col.add_input(new WRButton('Coach', () => open_role('drive')))
+        setup_col.add_input(new WRButton('Technician', () => open_role('tech')))
         setup_col.add_input(new WRButton('Analyst', () => open_role('analysis')))
         setup_col.add_input(new WRButton('Advanced', () => open_role('advanced')))
 
