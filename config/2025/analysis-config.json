@@ -55,6 +55,18 @@
             "name": "Wins",
             "type": "int",
             "negative": false
+        },
+        {
+            "id": "record_losses",
+            "name": "Losses",
+            "type": "int",
+            "negative": true
+        },
+        {
+            "id": "record_ties",
+            "name": "Ties",
+            "type": "int",
+            "negative": false
         }
     ],
     "smart_results": [{
@@ -110,13 +122,13 @@
     {
         "type": "where",
         "cycle": "result.pit_pit_autos",
-        "conditions": [
-            {"pit_pit_autos_needs_their_human_player": true}
-        ],
+        "conditions": {
+            "pit_pit_autos_needs_their_human_player": true
+        },
         "negative": false,
         "name": "Num HP Cycles",
         "id": "num_hp_cycles"
     }],
     "coach": [],
-    "favorites": []
+    "favorites": ["fms.totalPoints", "result.match_tele_op_endgame_barge_scoring", "result.match_tele_op_coral_scoring_level_scored_level_4"]
 }

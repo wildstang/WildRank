@@ -256,23 +256,6 @@
                                     "id": "pit_pit_autos_needs_their_human_player"
                                 },
                                 {
-                                    "type": "multiselect",
-                                    "default": [
-                                        false,
-                                        false,
-                                        false
-                                    ],
-                                    "disallow_default": false,
-                                    "options": [
-                                        "Front",
-                                        "Side",
-                                        "Back"
-                                    ],
-                                    "name": "Reef Sides",
-                                    "id": "pit_pit_autos_reef_sides",
-                                    "vertical": false
-                                },
-                                {
                                     "type": "number",
                                     "default": 0,
                                     "negative": false,
