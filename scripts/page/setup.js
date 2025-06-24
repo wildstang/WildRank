@@ -7,9 +7,7 @@
 
 include('transfer')
 
-var event_id_el, user_id_el, position_el, theme_el
-
-var scouter = true
+var event_id_el, user_id_el, position_el, theme_el, user_type_el, role_options
 
 /**
  * Initializes necessary variables and calls the first page setup.
@@ -60,6 +58,7 @@ function step_setup()
     let reset = new WRButton('Restart Setup', restart_setup)
     reset.add_class('slim')
 
+    let update_type = false
     // if an invalid event ID is provided prompt for it first
     if (cfg.user.state.event_id.length < 7)
     {
@@ -85,7 +84,41 @@ function step_setup()
         columns.push(status_col)
     }
     // the final page continues to show event status and prompts for position and scouting type
-    else if (scouter)
+    else
+    {
+        let default_type = cfg.is_admin() ? 'View' : 'Scout'
+        user_type_el = new WRSelect('', ['Scout', 'View', 'Adv'], default_type)
+        user_type_el.add_class('slim')
+        user_type_el.on_click = update_user_type
+        setup_col.add_input(user_type_el)
+
+        role_options = document.createElement('div')
+        setup_col.add_input(role_options)
+        setup_col.add_input(reset)
+        columns.push(status_col)
+
+        update_type = true
+    }
+
+    let page = new WRPage('')
+    for (let col of columns)
+    {
+        page.add_column(col)
+    }
+    body.replaceChildren(page)
+
+    if (update_type)
+    {
+        update_user_type()
+    }
+}
+
+/**
+ * Populates the setup column based on which user type is selected.
+ */
+function update_user_type()
+{
+    if (user_type_el.selected_option === 'Scout')
     {
         position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
         let cfg_pos = cfg.get_position()
@@ -118,7 +151,6 @@ function step_setup()
                 }
             }
         }
-        setup_col.add_input(position_el)
 
         // build stack of buttons to scout
         let modes = cfg.scouting_modes
@@ -130,44 +162,26 @@ function step_setup()
             let name = cfg.get_scout_config(mode).name
             other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
         }
-        setup_col.add_input(new WRStack([primary_scout, other_scout]))
 
-        let roles = new WRButton('Other Roles', other_roles)
-        roles.add_class('slim')
-        setup_col.add_input(roles)
-
-        status_col.add_input(reset)
-
-        columns.push(status_col)
+        role_options.replaceChildren(position_el, new WRStack([primary_scout, other_scout]))
+    }
+    else if (user_type_el.selected_option === 'View')
+    {
+        let role_buttons = new WRMultiButton('')
+        role_buttons.add_option('Analyst', () => open_role('analysis'))
+        role_buttons.add_option('Coach', () => open_role('drive'))
+        role_buttons.add_option('Technician', () => open_role('tech'))
+        role_buttons.add_option('Dashboard', () => open_role('dash'))
+        role_options.replaceChildren(role_buttons)
     }
     else
     {
-        setup_col.add_input(new WRButton('Dashboard', () => open_role('dash')))
-        setup_col.add_input(new WRButton('Coach', () => open_role('drive')))
-        setup_col.add_input(new WRButton('Technician', () => open_role('tech')))
-        setup_col.add_input(new WRButton('Analyst', () => open_role('analysis')))
-        setup_col.add_input(new WRButton('Advanced', () => open_role('advanced')))
-
-        let admin = new WRButton('Administrator', () => open_role('admin'))
-        admin.add_class('slim')
-        setup_col.add_input(admin)
-
-        setup_col.add_input(new WRSpacer())
-        let back = new WRButton('Back', home)
-        back.add_class('slim')
-        setup_col.add_input(back)
-
-        status_col.add_input(reset)
-
-        columns.push(status_col)
+        let role_buttons = new WRMultiButton('')
+        role_buttons.add_option('Event Prep', () => open_role('prep'))
+        role_buttons.add_option('Debug', () => open_role('debug'))
+        role_buttons.add_option('Danger Zone', () => open_role('danger'))
+        role_options.replaceChildren(role_buttons)
     }
-
-    let page = new WRPage('')
-    for (let col of columns)
-    {
-        page.add_column(col)
-    }
-    body.replaceChildren(page)
 }
 
 /**
@@ -195,7 +209,6 @@ function restart_setup()
     cfg.user.state.event_id = ''
     cfg.user.state.user_id = ''
     cfg.user.state.position = -1
-    scouter = true
     step_setup()
 }
 
@@ -274,30 +287,13 @@ function scout(mode, right_click)
 }
 
 /**
- * Callback when other roles button is selected.
- */
-function other_roles()
-{
-    scouter = false
-    step_setup()
-}
-
-/**
  * Opens the home page for the given role.
  * @param {String} role Role name to open.
  */
 function open_role(role)
 {
-    if (role === 'admin' && !cfg.is_admin(cfg.user.state.user_id))
-    {
-        alert('Admin access required!')
-    }
-    else
-    {
-        cfg.set_role(role)
-
-        window_open(build_url('home'))
-    }
+    cfg.set_role(role)
+    window_open(build_url('home'))
 }
 
 /**
@@ -316,11 +312,7 @@ function process_files()
  */
 function home(right=false)
 {
-    if (!scouter)
-    {
-        scouter = true
-        step_setup()
-    }
+    step_setup()
 }
 
 /**

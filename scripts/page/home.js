@@ -19,9 +19,6 @@ const CONFIGS = {
     'pits': {
         'Notes': ['pits']
     },
-    'notes': {
-        'Notes': ['notes']
-    },
     'drive': {
         'Coach': ['coach']
     },
@@ -40,23 +37,34 @@ const CONFIGS = {
         'Teams': ['ranker', 'multipicklists'],
         'Keys': ['pivot', 'plot', 'scatter'],
         'Results': ['import_results', 'results', 'cycles', 'note-viewer', 'export_results'],
-        'Overviews': ['teams', 'match-overview', 'users', 'dashboard', 'events']
+        'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
-    'admin': {
-        'Admin': ['reset', 'config-generator', 'export', 'random']
+    'prep': {
+        'Event Prep': ['config-generator', 'events', 'event-generator']
     },
-    'advanced': {
-        'Configuration': ['settings', 'config-generator', 'config-debug', 'export_config'],
-        'Schedule': ['event-generator', 'open_extras'],
-        'Management': ['dashboard', 'cache', 'storage'],
-        'Reset': ['reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event']
+    'debug': {
+        'Config': ['settings', 'config-debug'],
+        'App': ['storage', 'cache', 'misc/test']
+    },
+    'danger': {
+        'Reset': ['reset', 'reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event'],
+        'Other': ['random']
     },
     'extras': {
-        'Debug': ['misc/test'],
+        'App': ['bracket', 'whiteboard', 'export'],
         'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter'],
         'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde', 'misc/socials'],
         'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2025-score-calculator', 'misc/2023-rp']
     }
+}
+
+const TITLES = {
+    'analysis': 'Analyst',
+    'moralysis': 'More Analysis',
+    'prep': 'Event Prep',
+    'debug': 'Debug',
+    'danger': 'Danger Zone',
+    'extras': 'Extras'
 }
 
 // requirements for each button
@@ -69,7 +77,6 @@ const BUTTONS = {
     'config-generator':     { name: 'Config Builder',           limits: ['admin'] },
     'cycles':               { name: 'Cycles',                   limits: ['matches', 'results'] },
     'dashboard':            { name: 'Dashboard',                limits: [''] },
-    'download_csv':         { name: 'Export Results as Sheet',  limits: ['matches', 'any'] },
     'event-generator':      { name: 'Event Generator',          limits: [] },
     'events':               { name: 'Other Events',             limits: ['teams'] },
     'export':               { name: 'Server Exporter',          limits: ['admin'] },
@@ -77,7 +84,6 @@ const BUTTONS = {
     'match-overview':       { name: 'Match Summaries',          limits: ['matches'] },
     'matches':              { name: 'Scout',                    limits: ['matches'] },
     'multipicklists':       { name: 'Pick Lists',               limits: ['teams'] },
-    'notes':                { name: 'Note Scout',               limits: ['teams'] },
     'note-viewer':          { name: 'Note Viewer',              limits: ['teams', 'any'] },
     'open_extras':          { name: 'Extras',                   limits: [] },
     'open_moralysis':       { name: 'More',                     limits: [] },
@@ -147,37 +153,9 @@ function init_page()
 function open_role(role)
 {
     let title = role
-    switch (role)
+    if (role in TITLES)
     {
-        case 'scout':
-            title = 'Scouter'
-            break
-        case 'note':
-            title = 'Note Taker'
-            break
-        case 'drive':
-            title = 'Drive Team'
-            break
-        case 'analysis':
-            title = 'Analyst'
-            break
-        case 'advanced':
-            title = 'Advanced'
-            break
-        case 'admin':
-            title = 'Administrator'
-            if (!cfg.is_admin())
-            {
-                alert('User is not an admin!')
-                return
-            }
-            break
-        case 'extras':
-            title = 'Extras'
-            break
-        case 'moralysis':
-            title = 'More Analysis'
-            break
+        title = TITLES[role]
     }
 
     if (title === role)
