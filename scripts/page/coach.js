@@ -22,18 +22,7 @@ function init_page()
 {
     header_info.innerText = 'Coach View'
 
-    // build page
-    let first = populate_matches()
-    let teams = dal.team_numbers
-    teams.unshift('')
-    let default_filter = ''
-    if (selected === '' && cfg.user.settings.hasOwnProperty('team_number'))
-    {
-        default_filter = cfg.user.settings.team_number.toString()
-    }
-    team_filter = add_dropdown_filter(teams, hide_matches, true, default_filter)
-
-    if (first)
+    if (dal.match_keys.length > 0)
     {
         carousel = create_element('div', 'scouting-carousel', 'scouting-carousel')
         preview.replaceChildren(carousel)
@@ -64,6 +53,17 @@ function init_page()
         blue_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
         blue_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
 
+        // show and populate the left column with matches and a team filter
+        enable_list()
+        let default_filter = ''
+        if (selected === '' && cfg.user.settings.hasOwnProperty('team_number'))
+        {
+            default_filter = cfg.user.settings.team_number.toString()
+        }
+        let teams = dal.team_numbers
+        teams.unshift('')
+        team_filter = add_dropdown_filter(teams, build_match_list, true, default_filter)
+
         // subtract margins from the parent dimensions
         // assumes card padding of 2x16px, panel padding of 2x8px, plus headroom
         let width = preview.offsetWidth - (16 + 32 + 8)
@@ -79,12 +79,7 @@ function init_page()
             add_bracket()
         }
 
-        hide_matches()
-
-        if (selected)
-        {
-            open_option(selected)
-        }
+        build_match_list()
     }
     else
     {
@@ -127,11 +122,43 @@ function update_sliders(){}
 /**
  * Rebuilds the match list based on the selected team.
  */
-function hide_matches()
+function build_match_list()
 {
-    let team = team_filter.element.value
-    // update the match list
-    let first = populate_matches(true, true, team.length > 0 ? parseInt(team) : '')
+    let team_num = parseInt(team_filter.element.value)
+    clear_list()
+
+    let first = ''
+    let first_selected = ''
+    for (let match_key of dal.match_keys)
+    {
+        let match = dal.matches[match_key]
+        if (isNaN(team_num) || match.red_alliance.includes(team_num) || match.blue_alliance.includes(team_num))
+        {
+            let op = new WRMatchOption(match_key, match.short_name, match.red_alliance.map(t => t.toString()), match.blue_alliance.map(t => t.toString()))
+            if (match.complete)
+            {
+                if (first_selected === '')
+                {
+                    first_selected = match_key
+                }
+                op.add_class('scouted')
+            }
+            else if (first === '')
+            {
+                first = match_key
+            }
+            add_option(op)
+        }
+    }
+
+    if (selected)
+    {
+        first = selected
+    }
+    if (first === '')
+    {
+        first = first_selected
+    }
     open_option(first)
 }
 
@@ -265,5 +292,5 @@ function add_match(match_num, red_teams, blue_teams)
 
     // add the match to the option list
     let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
-    document.getElementById('option_list').append(option)
+    add_option(option)
 }

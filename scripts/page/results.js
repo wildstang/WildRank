@@ -44,6 +44,7 @@ function init_page()
     avail_teams.unshift('All')
     team_filter = add_dropdown_filter(avail_teams, build_result_list)
 
+    enable_list()
     build_result_list()
     setup_picklists()
 }
@@ -55,17 +56,16 @@ function build_result_list()
 {
     // get selected team in filter
     let filter = team_filter.element.value
+    clear_list()
 
     // build list of options, sorted by match
-    let options = {}
-    let classes = {}
+    let first = ''
     for (let match_key of dal.match_keys)
     {
         if (selected_match.length === 0 || selected_match === match_key)
         {
             for (let team_num in dal.matches[match_key].results)
             {
-                // TODO: support selecting based off of file name? from query
                 if ((selected_team.length === 0 && (filter === 'All' || team_num.toString() === filter)) ||
                     team_num === selected_team)
                 {
@@ -76,15 +76,24 @@ function build_result_list()
                     {
                         disp_team = `&nbsp;${disp_team}`
                     }
-                    options[`${match_key}-${team_num}`] = `${dal.matches[match_key].short_name} ${disp_team}`
-                    classes[`${match_key}-${team_num}`] = result.unsure ? 'highlighted' : ''
+
+                    let id = `${match_key}-${team_num}`
+                    let title = `${dal.matches[match_key].short_name} ${disp_team}`
+                    if (first === '')
+                    {
+                        first = id
+                    }
+                    let op = new WROption(id, title)
+                    if (result.unsure)
+                    {
+                        op.add_class('highlighted')
+                    }
+                    add_option(op)
                 }
             }
         }
     }
 
-    // populate list and open first option
-    let first = populate_other(options, classes)
     if (first !== '')
     {
         open_option(first)
@@ -136,7 +145,7 @@ function open_option(option)
             add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i], result.file_names[scout_mode][i])
         }
     }
-    if (Object.keys(result.fms_result).length > 0)
+    if (Object.keys(result.fms_results).length > 0)
     {
         add_fms_card(team_num, result.fms_results)
     }

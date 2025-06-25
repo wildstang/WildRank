@@ -30,6 +30,7 @@ function init_page()
                 users.push(user)
             }
         }
+        users.sort()
 
         // user column
         id_number = new WRNumber('ID Number', '')
@@ -63,6 +64,7 @@ function init_page()
 
         preview.replaceChildren(new WRPage('', [user_col, card_col]))
 
+        enable_list()
         filter_box = add_checkbox_filter('Show All Users', build_options)
         build_options()
     }
@@ -78,28 +80,31 @@ function init_page()
 function build_options()
 {
     let show_non_scouters = filter_box !== undefined && filter_box.checked
+    clear_list()
 
-    let classes = {}
-    let display_users = []
+    let first = ''
     for (let user of users)
     {
-        if (cfg.is_admin(user))
-        {
-            classes[user] = 'highlighted'
-        }
-        else if (!scouters.includes(parseInt(user)))
-        {
-            classes[user] = 'scouted'
-        }
-
         if (show_non_scouters || scouters.includes(parseInt(user)))
         {
-            display_users.push(user)
+            if (first === '')
+            {
+                first = user
+            }
+
+            let op = new WROption(user, user)
+            if (cfg.is_admin(user))
+            {
+                op.add_class('highlighted')
+            }
+            else if (!scouters.includes(parseInt(user)))
+            {
+                op.add_class('scouted')
+            }
+            add_option(op)
         }
     }
-    display_users.sort()
 
-    let first = populate_other(display_users, classes)
     if (first !== '')
     {
         open_option(first)
@@ -266,7 +271,7 @@ function open_option(user_id)
     pos_card.text_el.replaceChildren(pos_table)
 
     user_card.replaceChildren()
-    if (cfg.get_class().endsWith('x-Super-Senior'))
+    if (cfg.get_class().endsWith('x-Super-Senior') && cfg.is_admin())
     {
         user_card.append(`${cfg.get_class(user_id)} at ${cfg.get_school(user_id)}`, br(), br())
     }

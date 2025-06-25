@@ -16,7 +16,6 @@
         <script src="scripts/inputs.js"></script>
         <script src="scripts/init.js"></script>
         <script src="scripts/selection.js"></script>
-        <script src="scripts/selection-pages.js"></script>
         <link rel="manifest" href="manifest.webmanifest">
         <meta name="theme-color" content="#000080"/>
         <link rel="apple-touch-icon" href="/assets/icons/icon-192x192-maskable.png">
@@ -24,15 +23,15 @@
     </head>
     <body>
         <div id="header">
-            <img id="menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu()" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu()')">
+            <img id="menu_toggle" class="menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu()" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu()')">
             <h1><a onclick="home(false)" oncontextmenu="home(true); return false" id="title">WildRank</a></h1>
             <h2 id="header_info"></h2>
-            <img id="secondary_menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu(false)" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu(false)')">
+            <img id="secondary_menu_toggle" class="menu_toggle" src="assets/menu-white-18dp.svg" onclick="toggle_menu(false)" ontouchstart="touch_button(false)" ontouchend="touch_button('toggle_menu(false)')">
         </div>
         <div id="body">
             <div id="left">
                 <div id="filter" class="selection_filter"></div>
-                <div id="option_list"></div>
+                <div id="option_list" class="option_list"></div>
             </div>
             <div id="center">
                 <div id="preview"></div>
@@ -40,7 +39,7 @@
             </div>
             <div id="right">
                 <div id="secondary_filter" class="selection_filter"></div>
-                <div id="secondary_option_list"></div>
+                <div id="secondary_option_list" class="option_list"></div>
             </div>
         </div>
         <div id="update_notification" class="notification"></div>

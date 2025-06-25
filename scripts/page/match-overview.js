@@ -15,14 +15,8 @@ function init_page()
 {
     header_info.innerText = 'Match Summaries'
 
-    let first = populate_matches(true, false)
-    let teams = Object.keys(dal.teams)
-    if (teams.length > 0)
-    {
-        teams.unshift('')
-        team_filter = add_dropdown_filter(teams, hide_matches)
-    }
-    if (first)
+
+    if (dal.match_keys.length > 0)
     {
         match_num_el = document.createElement('h2')
         match_num_el.innerText = 'No Match Selected'
@@ -33,7 +27,13 @@ function init_page()
         let card = new WRCard([match_num_el, time_el, team_tab, br(), extra_el], true)
         preview.append(card)
 
-        open_option(first)
+        // show and populate the left column with matches and a team filter
+        enable_list()
+        let teams = dal.team_numbers
+        teams.unshift('')
+        team_filter = add_dropdown_filter(teams, build_match_list)
+
+        build_match_list()
     }
     else
     {
@@ -44,11 +44,34 @@ function init_page()
 /**
  * Filters matches to those for the currently selected team.
  */
-function hide_matches()
+function build_match_list()
 {
-    let team = parseInt(team_filter.element.value)
-    let first = populate_matches(true, false, team)
-    open_option(first)
+    clear_list()
+
+    let first = ''
+    let team_num = parseInt(team_filter.element.value)
+    for (let match_key of dal.match_keys)
+    {
+        let match = dal.matches[match_key]
+        if (isNaN(team_num) || match.red_alliance.includes(team_num) || match.blue_alliance.includes(team_num))
+        {
+            if (!first)
+            {
+                first = match_key
+            }
+            let op = new WRMatchOption(match_key, match.short_name, match.red_alliance.map(t => t.toString()), match.blue_alliance.map(t => t.toString()))
+            if (!match.complete)
+            {
+                op.add_class('scouted')
+            }
+            add_option(op)
+        }
+    }
+
+    if (first)
+    {
+        open_option(first)
+    }
 }
 
 /**

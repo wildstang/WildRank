@@ -27,8 +27,31 @@ function init_page()
     scout_pos = cfg.get_selected_position()
 
     let scout_config = cfg.get_scout_config(scout_mode)
-    let first = populate_matches(false, true, '', false, scout_pos)
+
+    // show and populate the left column with matches
+    enable_list()
+    let first = ''
+    for (let match_key of dal.match_keys)
+    {
+        let match = dal.matches[match_key]
+        let op = new WRMatchOption(match_key, match.short_name, match.red_alliance.map(t => t.toString()), match.blue_alliance.map(t => t.toString()))
+        if (dal.is_match_scouted(match_key, dal.get_match_team(match_key, scout_pos), scout_mode))
+        {
+            op.add_class('scouted')
+        }
+        else if (first === '')
+        {
+            first = match_key
+        }
+        add_option(op)
+    }
     add_button_filter(`Export ${scout_config.name} Results`, () => ZipHandler.export_results(scout_mode), true)
+
+    if (first === '' && dal.match_keys.length > 0)
+    {
+        first = dal.match_keys[0]
+    }
+
     if (first)
     {
         scout_type = scout_config.type

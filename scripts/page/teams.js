@@ -20,8 +20,15 @@ function init_page()
 {
     header_info.innerText = 'Team Profiles'
 
-    let first = populate_teams()
-    if (first)
+    // show and populate the left column with team numbers
+    enable_list()
+    for (let team_num of dal.team_numbers)
+    {
+        let op = new WRDescriptiveOption(team_num, team_num, dal.teams[team_num].name)
+        add_option(op)
+    }
+
+    if (dal.team_numbers.length > 0)
     {
         avatar = document.createElement('img')
         avatar.className = 'avatar'
@@ -32,17 +39,16 @@ function init_page()
         team_name = document.createElement('span')
         team_header.append(team_num_hdr, ' ', team_name)
 
-        loc = document.createElement('h3')
         ranking = document.createElement('h3')
         stats_container = document.createElement('div')
-        let card = new WRCard([avatar, team_header, loc, ranking, stats_container], true)
+        let card = new WRCard([avatar, team_header, ranking, stats_container], true)
         card.add_class('result_card')
 
         clear_container = document.createElement('span')
         match_container = document.createElement('div')
         preview.append(card, clear_container, match_container)
         
-        open_option(first)
+        open_option(dal.team_numbers[0])
     }
     else
     {
@@ -92,13 +98,12 @@ function open_option(team_num)
     document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
 
     // populate top
-    avatar.src = dal.get_value(team_num, 'pictures.avatar')
+    avatar.src = dal.teams[team_num].avatar
     team_num_hdr.innerText = team_num
-    team_name.innerText = dal.get_value(team_num, 'meta.name')
-    loc.innerText = `${dal.get_value(team_num, 'meta.city')}, ${dal.get_value(team_num, 'meta.state_prov')}, ${dal.get_value(team_num, 'meta.country')}`
+    team_name.innerText = dal.teams[team_num].name
 
     // populate ranking
-    ranking.innerHTML = dal.get_rank_str(team_num)
+    ranking.innerHTML = dal.get_rank_string(team_num)
 
     let clear_ignore = new WRButton('Clear Ignores')
     clear_ignore.on_click = () => clear_ignores(team_num)
@@ -106,16 +111,20 @@ function open_option(team_num)
 
     // pull pit results
     let pit_button = ''
-    if (!dal.is_pit_scouted(team_num))
+    for (let mode of cfg.team_scouting_modes)
     {
-        pit_button = new WRLinkButton('Scout Pit', build_url('scout', {type: PIT_MODE, team: team_num, alliance: 'white', edit: false}))
+        if (!dal.is_team_scouted(team_num, mode))
+        {
+            let config = cfg.get_scout_config(mode)
+            pit_button = new WRLinkButton(`Scout ${config.name}`, build_url('scout', {type: PIT_MODE, team: team_num, alliance: 'white', edit: false}))
+        }
     }
 
     // build stats table
     let stats_tab = document.createElement('table')
     stats_tab.style.textAlign = 'left'
-    let match_stats = dal.get_keys(true, false, false, false)
-    let pit_stats = dal.get_keys(false, true, false, false)
+    let match_stats = cfg.get_match_keys()
+    let pit_stats = cfg.get_team_keys()
     let num_match = match_stats.length
     let num_pit = pit_stats.length
     let max_len = num_match > num_pit ? num_match : num_pit

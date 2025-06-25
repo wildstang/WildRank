@@ -9,10 +9,10 @@
 include('mini-picklists')
 
 // read parameters from URL
-var urlParams = new URLSearchParams(window.location.search)
-const selected = urlParams.get('file')
+const selected_match = get_parameter('match', '')
+const selected_team = get_parameter('team', '')
 
-var title_el, avatar_el, team_el, name_el, match_el, location_el, ranking_el, table_el, cycle_container, team_filter
+var title_el, avatar_el, team_el, name_el, match_el, ranking_el, table_el, cycle_container, team_filter
 
 /**
  * function:    init_page
@@ -32,9 +32,8 @@ function init_page()
     name_el = document.createElement('name_el')
     match_el = document.createElement('label')
     result_name.append(team_el, ': ', name_el, ', ', match_el)
-    location_el = document.createElement('h3')
     ranking_el = document.createElement('h3')
-    title_el.append(avatar_el, ' ', result_name, location_el, ranking_el)
+    title_el.append(avatar_el, ' ', result_name, ranking_el)
     table_el = document.createElement('table')
     let card = new WRCard([title_el, table_el], true)
     cycle_container = document.createElement('div')
@@ -46,6 +45,7 @@ function init_page()
     avail_teams.unshift('All')
     team_filter = add_dropdown_filter(avail_teams, build_result_list)
 
+    enable_list()
     build_result_list()
     setup_picklists()
 }
@@ -58,31 +58,46 @@ function init_page()
  */
 function build_result_list()
 {
-    let results = dal.get_results()
-
     // get selected team in filter
-    let filter = team_filter.value
+    let filter = team_filter.element.value
+    clear_list()
 
     // build list of options, sorted by match
-    let options = {}
-    for (let result of results)
+    let first = ''
+    for (let match_key of dal.match_keys)
     {
-        let team = result.meta_team
-        let match = result.meta_match_key
-        if (((selected === '' || selected === null) || `${match}-${result.meta_team}` === selected) &&
-            (filter === 'All' || team.toString() === filter))
+        if (selected_match.length === 0 || selected_match === match_key)
         {
-            let spaces = 4 - team.length
-            for (let i = 0; i < spaces; i++)
+            for (let team_num in dal.matches[match_key].results)
             {
-                team = `&nbsp;${team}`
+                if ((selected_team.length === 0 && (filter === 'All' || team_num.toString() === filter)) ||
+                    team_num === selected_team)
+                {
+                    let result = dal.get_match_result(match_key, team_num)
+                    let spaces = 5 - team_num.toString().length
+                    let disp_team = team_num
+                    for (let i = 0; i < spaces; i++)
+                    {
+                        disp_team = `&nbsp;${disp_team}`
+                    }
+
+                    let id = `${match_key}-${team_num}`
+                    let title = `${dal.matches[match_key].short_name} ${team_num}`
+                    if (first === '')
+                    {
+                        first = id
+                    }
+                    let op = new WROption(id, title)
+                    if (result.unsure)
+                    {
+                        op.add_class('highlighted')
+                    }
+                    add_option(op)
+                }
             }
-            options[`${match}-${team}`] = `${dal.get_match_value(match, 'short_match_name')} ${team}`
         }
     }
 
-    // populate list and open first option
-    let first = populate_other(options)
     if (first !== '')
     {
         open_option(first)
@@ -107,22 +122,25 @@ function open_option(option)
 
     // pull match and team out
     let parts = option.split('-')
-    let match = parts[0]
-    let team = parts[1].trim()
-    ws(team)
+    let match_key = parts[0]
+    let team_num = parts[1].trim()
+    ws(team_num)
 
     // setup header
-    avatar_el.src = dal.get_value(team, 'pictures.avatar')
-    team_el.innerText = team
-    name_el.innerText = dal.get_value(team, 'meta.name')
-    match_el.innerText = dal.get_match_value(match, 'match_name')
-    location_el.innerText = `${dal.get_value(team, 'meta.city')}, ${dal.get_value(team, 'meta.state_prov')}, ${dal.get_value(team, 'meta.country')}`
-    ranking_el.innerText = dal.get_rank_str(team)
+    avatar_el.src = dal.teams[team_num].avatar
+    team_el.innerText = team_num
+    name_el.innerText = dal.teams[team_num].name
+    match_el.innerText = dal.matches[match_key].name
+    let rank = dal.get_team_value(team_num, 'fms.rank')
+    if (rank !== null)
+    {
+        ranking_el.innerText = `Rank #${rank} (${dal.get_team_value(team_num, 'fms.sort_orders_0')} RP)`
+    }
 
-    let cycles = dal.get_result_keys(true, ['cycle'])
+    let cycles = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['object'])
     for (let key of cycles)
     {
-        let cycle = dal.get_result_value(team, match, key)
+        let cycle = this.get_match_value(match_key, team_num, key)
         let page = new WRPage(dal.get_name(key))
         for (let i in cycle)
         {
@@ -170,7 +188,7 @@ function open_option(option)
             }
 
             // remove button for cycle
-            let remove = new WRButton('Remove Cycle', () => remove_cycle(option, match, team, key, i))
+            let remove = new WRButton('Remove Cycle', () => remove_cycle(option, match_key, team_num, key, i))
             remove.add_class('slim')
             column.add_input(remove)
 
@@ -194,6 +212,7 @@ function remove_cycle(option, match_key, team_num, cycle, idx)
     let raw = localStorage.getItem(file)
     let found = raw !== null
 
+    // TODO: filename update
     // attempt to find result manually if it wasn't the default name
     if (!found)
     {

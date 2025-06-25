@@ -150,13 +150,120 @@ function toggle_menu(primary_list=true)
  * returns:     none
  * description: Enables the secondary option list for the page.
  */
-function enable_secondary_list()
+function enable_list(secondary=false)
 {
     if (!cfg.user.settings.auto_hide_right)
     {
-        document.getElementById('right').style.display = 'flex'
+        document.getElementById(secondary ? 'right' : 'left').style.display = 'flex'
     }
-    document.getElementById('secondary_menu_toggle').style.display = 'block'
+    document.getElementById(`${secondary ? 'secondary_' : ''}menu_toggle`).style.display = 'block'
+}
+
+/**
+ * Clears a specified column of all options.
+ * @param {Boolean} secondary Whether to clearthe right/secondary column
+ */
+function clear_list(secondary=false)
+{
+    document.getElementById(`${secondary ? 'secondary_' : ''}option_list`).replaceChildren()
+}
+
+/**
+ * Adds a given option to a selection column.
+ * @param {WROption} option Option to add to a column
+ * @param {Boolean} secondary Whether to add to the right/secondary column
+ */
+function add_option(option, secondary=false)
+{
+    document.getElementById(`${secondary ? 'secondary_' : ''}option_list`).append(option)
+}
+
+/**
+ * function:    select_none
+ * parameters:  none
+ * returns:     none
+ * description: Selects the first option in the picklist dropdown "None".
+ */
+function select_none()
+{
+    let filter = document.getElementById('picklist_filter')
+    if (filter)
+    {
+        filter.selectedIndex = 0
+    }
+}
+
+/**
+ * function:    add_dropdown_filter
+ * parameters:  id of filter, filter options, on change filter, filter to be placed in
+ * returns:     none
+ * description: Builds a dropdown in a given filter box.
+ */
+function add_dropdown_filter(options, func, primary_list=true, default_selection='')
+{
+    let id = 'filter'
+    if (!primary_list)
+    {
+        id = 'secondary_filter'
+    }
+    let dropdown = new WRDropdown('', options, default_selection)
+    dropdown.on_change = func
+    document.getElementById(id).append(dropdown)
+    return dropdown
+}
+
+/**
+ * function:    add_button_filter
+ * parameters:  id of filter, text, on change filter, filter to be placed in
+ * returns:     none
+ * description: Builds a button in a given filter box.
+ */
+function add_button_filter(text, func, primary_list=true)
+{
+    let id = 'filter'
+    if (!primary_list)
+    {
+        id = 'secondary_filter'
+    }
+    let button = new WRButton(text, func)
+    document.getElementById(id).append(button)
+}
+
+/**
+ * Builds a checkbox in a given filter box.
+ * 
+ * @param {string} text Label for checkbox
+ * @param {Function} func Function to call on change
+ * @param {boolean} primary_list Whether to display for primary list (vs secondary).
+ * @returns The WRCheckbox object.
+ */
+function add_checkbox_filter(text, func, primary_list=true)
+{
+    let id = 'filter'
+    if (!primary_list)
+    {
+        id = 'secondary_filter'
+    }
+    let checkbox = new WRCheckbox(text, false)
+    checkbox.on_click = func
+    document.getElementById(id).append(checkbox)
+    return checkbox
+}
+
+/**
+ * Creates a new card with a message in the header and a description below it.
+ * 
+ * @param {string} message Header message
+ * @param {string} description Optional extended description
+ */
+function add_error_card(message, description='')
+{
+    let header = document.createElement('h2')
+    header.textContent = message
+    let details = document.createElement('span')
+    details.textContent = description
+    let card = new WRCard([header, details])
+    preview.append(card)
 }
 
 var header_info, preview

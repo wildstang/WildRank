@@ -21,7 +21,7 @@ body {
     min-width: 299px; /* 300 - 1 */
     max-width: 299px; /* 300 - 1 */
     overflow: hidden;
-    display: flex;
+    display: none;
     flex-flow: column;
     border-style: solid;
     border-color: rgb(224, 224, 224);
@@ -35,10 +35,6 @@ body {
     overflow-x: hidden;
     scrollbar-width: none;
     margin: 0;
-}
-
-#right {
-    display: none;
 }
 
 #center {
@@ -187,8 +183,11 @@ body {
 }
 
 #secondary_menu_toggle {
-    display: none;
     right: 0;
+}
+
+.menu_toggle {
+    display: none;
 }
 
 #pick_list_table td, #pick_list_table th {

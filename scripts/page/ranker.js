@@ -11,7 +11,7 @@ include('stat-builders')
 const STAT_TYPES = ['Filter', 'Map', 'Math', 'Min/Max', 'Wgtd Rank', 'Where']
 
 var stat_builder
-var params_el, picklist_filter, name_entry, stat_type
+var params_el, name_entry, stat_type
 var team_order = []
 
 /**
@@ -20,9 +20,6 @@ var team_order = []
 function init_page()
 {
     header_info.innerText = 'Stat Builder'
-
-    // build picklist filter
-    picklist_filter = add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), update_params, true)
 
     // build static components
     let page = new WRPage()
@@ -52,6 +49,7 @@ function init_page()
     button_col.add_input(edit_stats)
 
     preview.replaceChildren(page)
+    enable_list(true)
 
     // build dynamic components
     update_params()
@@ -127,20 +125,9 @@ function calculate()
         return
     }
 
-    // filter teams
-    let team_nums = dal.team_numbers
-    if (Object.keys(dal.picklists).length > 0)
-    {
-        let selected = picklist_filter.element.value
-        if (selected !== 'None')
-        {
-            team_nums = dal.picklists[selected]
-        }    
-    }
-
     // compute smart result for each team
     let team_vals = {}
-    for (let team_num of team_nums)
+    for (let team_num of dal.team_numbers)
     {
         if (stat.is_team_smart_result)
         {
@@ -181,39 +168,42 @@ function calculate()
     
     // sort teams and populate left
     team_order = Object.keys(team_vals).sort((a,b) => team_vals[b] - team_vals[a])
-    let options = team_order.map(function (t, i)
+    if (result.negative)
     {
-        let val = result.clean_value(team_vals[t])
+        team_order.reverse()
+    }
+
+    clear_list(true)
+    for (let i in team_order)
+    {
+        let team_num = team_order[i]
+        let val = result.clean_value(team_vals[team_num])
 
         if (++i < 10)
         {
             i = `&nbsp;${i}`
         }
-        if (t < 10)
+        if (team_num < 10)
         {
-            t = `&nbsp;&nbsp;&nbsp;&nbsp;${t}`
+            team_num = `&nbsp;&nbsp;&nbsp;&nbsp;${team_num}`
         }
-        else if (t < 100)
+        else if (team_num < 100)
         {
-            t = `&nbsp;&nbsp;&nbsp;${t}`
+            team_num = `&nbsp;&nbsp;&nbsp;${team_num}`
         }
-        else if (t < 1000)
+        else if (team_num < 1000)
         {
-            t = `&nbsp;&nbsp;${t}`
+            team_num = `&nbsp;&nbsp;${team_num}`
         }
-        else if (t < 10000)
+        else if (team_num < 10000)
         {
-            t = `&nbsp;${t}`
+            team_num = `&nbsp;${team_num}`
         }
-        return `${i} ${t} ${val}`
-    })
-
-    if (result.negative)
-    {
-        options.reverse()
+        
+        let title = `${i} ${team_num} ${val}`
+        let op = new WROption(title, title)
+        add_option(op, true)
     }
-
-    populate_other(options)
 }
 
 

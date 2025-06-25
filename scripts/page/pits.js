@@ -25,8 +25,27 @@ function init_page()
     header_info.innerText = 'Team Select'
 
     let scout_config = cfg.get_scout_config(scout_mode)
-    let first = populate_teams(false, scout_mode)
+    enable_list()
+    let first = ''
+    for (let team_num of dal.team_numbers)
+    {
+        let op = new WRDescriptiveOption(team_num, team_num, dal.teams[team_num].name)
+        if (dal.is_team_scouted(team_num, scout_mode))
+        {
+            op.add_class('scouted')
+        }
+        else if (first === '')
+        {
+            first = team_num
+        }
+        add_option(op)
+    }
     add_button_filter(`Export ${scout_config.name} Results`, () => ZipHandler.export_results(scout_mode), true)
+
+    if (first === '' && dal.team_numbers.length > 0)
+    {
+        first = dal.team_numbers[0]
+    }
     if (first)
     {
         scout_type = scout_config.scout_type

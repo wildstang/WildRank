@@ -5,12 +5,12 @@
  * date:        2021-12-10
  */
 
-const COLORS = ['black', 'blue', 'red', 'purple', 'orange', 'green']
+const COLORS = [0x0000FF, 0xFF0000, 0x800080, 0xFFA500, 0x008000]
 
 var pwidth
 var pheight
-
-var title_el, canvas, max_el, key_tab
+var numeric_keys
+var result_el, canvas, max_el, key_tab, filter_el
 
 /**
  * Builds the structure of the page and populate the two selectors.
@@ -19,10 +19,14 @@ function init_page()
 {
     header_info.innerText = 'Plotter'
 
-    title_el = document.createElement('h2')
+    numeric_keys = cfg.filter_keys(cfg.get_match_keys(), 'number')
+    result_el = new WRDropdown('', cfg.get_names(numeric_keys))
+    result_el.on_change = build_plot
+    result_el.add_class('inline')
+
     canvas = document.createElement('canvas')
     canvas.style.background = 'white'
-    let card = new WRCard([title_el, canvas])
+    let card = new WRCard([result_el, canvas])
 
     let label = document.createElement('label')
     max_el = document.createElement('b')
@@ -31,20 +35,18 @@ function init_page()
     let key_card = new WRCard(label)
     key_card.limitWidth = true
     preview.append(card, key_card)
-    
-    add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), filter_teams, false)
 
-    let numeric_keys = cfg.filter_keys(cfg.get_match_keys(), 'number')
-    let first = populate_keys(numeric_keys)
-    if (first)
+    filter_el = add_dropdown_filter(['None'].concat(Object.keys(dal.picklists)), filter_teams)
+
+    // show and populate the left column with team numbers
+    enable_list()
+    for (let team_num of dal.team_numbers)
     {
-        open_option(first)
-        init_canvas()
+        let op = new WRDescriptiveOption(team_num, team_num, dal.teams[team_num].name)
+        add_option(op)
     }
-    else
-    {
-        add_error_card('No Results Found')
-    }
+
+    init_canvas()
 }
 
 /**
@@ -64,38 +66,26 @@ function init_canvas()
  */
 function filter_teams()
 {
-    let list = document.getElementById('picklist_filter').value
-    if (Object.keys(dal.picklists).includes(list))
+    let list = filter_el.element.value
+    if (list in dal.picklists)
     {
-        filter_by(dal.picklists[list], false)
+        filter_by(dal.picklists[list])
     }
     else
     {
-        deselect_all(false)
+        deselect_all()
     }
 
     init_canvas()
 }
 
 /**
- * Selects the given key on the left option list and triggers a plot update.
- * @param {String} key Newly selected key
- */
-function open_option(key)
-{
-    deselect_all(true)
-    document.getElementById(`left_pit_option_${key}`).classList.add('selected')
-
-    build_plot()
-}
-
-/**
  * Selects the given team on the right option list and triggers a plot update.
  * @param {String} key Newly selected team
  */
-function open_secondary_option(key)
+function open_option(key)
 {
-    let class_list = document.getElementById(`right_pit_option_${key}`).classList
+    let class_list = document.getElementById(`left_pit_option_${key}`).classList
     // select team button
     if (class_list.contains('selected'))
     {
@@ -111,21 +101,12 @@ function open_secondary_option(key)
 }
 
 /**
- * Determines which result keys are selected on the left option list. This should always be an array of length 1.
- * @returns Array of currently selected result keys.
- */
-function get_selected_keys()
-{
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('left_')).map(item => item.id.replace('left_pit_option_', ''))
-}
-
-/**
  * Determines which teams are selected on the right option list.
  * @returns Array of currently selected team numbers.
  */
-function get_secondary_selected_keys()
+function get_selected_teams()
 {
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('right_')).map(item => item.id.replace('right_pit_option_', ''))
+    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('left_')).map(item => item.id.replace('left_pit_option_', ''))
 }
 
 /**
@@ -133,9 +114,9 @@ function get_secondary_selected_keys()
  */
 function build_plot()
 {
-    let key = get_selected_keys()[0]
-    let selected_teams = ['avg'].concat(get_secondary_selected_keys())
-    title_el.innerText = cfg.get_result_from_key(key).name
+    let key = numeric_keys[result_el.element.selectedIndex]
+    let selected_teams = ['avg'].concat(get_selected_teams())
+    let colors = []
 
     // build key
     key_tab.replaceChildren()
@@ -143,7 +124,18 @@ function build_plot()
     for (let i in selected_teams)
     {
         let team = selected_teams[i]
-        let color = COLORS[i % COLORS.length]
+        let color_int = 0
+        if (i > 0)
+        {
+            let base_color = COLORS[(i - 1) % COLORS.length]
+            let scale_factor = Math.pow(0.67, Math.floor((i - 1) / COLORS.length))
+            let red = Math.round(((base_color & 0xFF0000) >> 16) * scale_factor)
+            let green = Math.round(((base_color & 0x00FF00) >> 8) * scale_factor)
+            let blue = Math.round((base_color & 0x0000FF) * scale_factor)
+            color_int = (red << 16) + (green << 8) + blue
+        }
+        let color = `#${color_int.toString(16).padStart(6, '0')}`
+        colors.push(color)
         let row = key_tab.insertRow()
         let color_cell = row.insertCell()
         color_cell.style.backgroundColor = color
@@ -157,8 +149,7 @@ function build_plot()
     let matches = 0
     let totals = []
     let counts = []
-    let teams = Object.keys(dal.teams)
-    for (let team of teams)
+    for (let team of dal.team_numbers)
     {
         plots[team] = dal.get_match_results(key, team)
         let team_max = Math.max(...plots[team])
@@ -218,9 +209,9 @@ function build_plot()
     ctx.clearRect(0, 0, pwidth, pheight)
 
     // reset colors of all options
-    for (let team of teams)
+    for (let team_num of dal.team_numbers)
     {
-        document.getElementById(`right_pit_option_${team}`).style.backgroundColor = 'var(--foreground-color)'
+        document.getElementById(`left_pit_option_${team_num}`).style.backgroundColor = 'var(--foreground-color)'
     }
 
     // plot points and lines
@@ -234,7 +225,7 @@ function build_plot()
         {
             let team = selected_teams[j]
             ctx.beginPath()
-            let color = COLORS[j % COLORS.length]
+            let color = colors[j]
             ctx.fillStyle = color
             
             // points
@@ -256,7 +247,7 @@ function build_plot()
             // change selected option text color
             if (team != 'avg')
             {
-                document.getElementById(`right_pit_option_${team}`).style.backgroundColor = color
+                document.getElementById(`left_pit_option_${team}`).style.backgroundColor = color
             }
         }
 

@@ -315,7 +315,23 @@ function init_page()
 
     // build lists
     keys = cfg.filter_keys(cfg.get_keys(), ['string', 'object'], true)
-    populate_keys(keys)
+    enable_list()
+    enable_list(true)
+    // iterate through result keys
+    let names = cfg.get_names(keys)
+    for (let i in keys)
+    {
+        let op = new WROption(keys[i], names[i])
+        op.style = 'font-size:10px'
+        add_option(op)
+    }
+
+    // add second option list of teams
+    for (let team of dal.team_numbers)
+    {
+        let op = new WRDescriptiveOption(team, team, dal.teams[team].name, false)
+        add_option(op, true)
+    }
 
     // load column info from session storage
     let json = sessionStorage.getItem(SESSION_COLUMNS_KEY)

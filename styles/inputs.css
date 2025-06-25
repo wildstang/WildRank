@@ -62,6 +62,11 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+.wr_dropdown.inline {
+    display: inline-block;
+    box-shadow: none;
+}
+
 .wr_card {
     min-width: calc(var(--input-width) - 2*var(--input-padding));
 }
@@ -231,6 +236,10 @@
 
 .wr_checkbox.slim > *, .wr_counter.slim > *, .wr_button.slim > *, .wr_string.slim > *, .wr_number.slim > * {
     line-height: calc(var(--slim-height) - 2*var(--input-padding));
+}
+
+.wr_button, .wr_select_option {
+    font-size: 100%;
 }
 
 .wr_counter_count, .wr_number_num, .wr_multi_number_num {

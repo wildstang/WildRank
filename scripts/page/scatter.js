@@ -7,8 +7,8 @@
 
 var pwidth
 var pheight
-
-let title_el, canvas, max_el
+var numeric_keys
+var x_result_el, y_result_el, canvas, max_el
 
 /**
  * Builds the structure of the page and populate the two selectors.
@@ -17,22 +17,25 @@ function init_page()
 {
     header_info.innerText = 'Scatter'
 
-    title_el = document.createElement('h2')
+    // load keys from localStorage and dropdowns
+    numeric_keys = cfg.filter_keys(cfg.get_match_keys(), 'number')
+    let names = cfg.get_names(numeric_keys)
+    x_result_el = new WRDropdown('', names)
+    x_result_el.on_change = build_plot
+    x_result_el.add_class('inline')
+    y_result_el = new WRDropdown('', names)
+    y_result_el.on_change = build_plot
+    y_result_el.add_class('inline')
+
+    let title_el = document.createElement('h2')
+    title_el.innerText = 'vs'
+    title_el.style.display = 'inline'
     canvas = document.createElement('canvas')
     canvas.style.background = 'white'
-    let card = new WRCard([title_el, canvas])
+    let card = new WRCard([y_result_el, title_el, x_result_el, canvas])
     preview.append(card)
 
-    // load keys from localStorage and build list
-    let numeric_keys = cfg.filter_keys(cfg.get_match_keys(), 'number')
-    let first = populate_dual_keys(numeric_keys)
-    if (first)
-    {
-        deselect_all(false)
-        document.getElementById(`right_pit_option_${first}`).classList.add('selected')
-        open_option(first)
-        init_canvas()
-    }
+    init_canvas()
 }
 
 /**
@@ -41,21 +44,9 @@ function init_page()
 function init_canvas()
 {
     pwidth = preview.offsetWidth - 64
-    pheight = 2*window.innerHeight/3 - 64
+    pheight = 2 * window.innerHeight / 3 - 64
     canvas.width = pwidth
     canvas.height = pheight
-    build_plot()
-}
-
-/**
- * Selects the given key on the left option list and triggers a plot update.
- * @param {String} key Newly selected key
- */
-function open_option(key)
-{
-    deselect_all(true)
-    document.getElementById(`left_pit_option_${key}`).classList.add('selected')
-
     build_plot()
 }
 
@@ -72,59 +63,39 @@ function open_secondary_option(key)
 }
 
 /**
- * Determines which result keys are selected on the left option list. This should always be an array of length 1.
- * @returns Array of currently selected result keys.
- */
-function get_selected_keys()
-{
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('left_')).map(item => item.id.replace('left_pit_option_', ''))
-}
-
-/**
- * Determines which result keys are selected on the right option list. This should always be an array of length 1.
- * @returns Array of currently selected result keys.
- */
-function get_secondary_selected_keys()
-{
-    return Array.prototype.filter.call(document.getElementsByClassName('pit_option selected'), item => item.id.startsWith('right_')).map(item => item.id.replace('right_pit_option_', ''))
-}
-
-/**
  * Renders the plot for the selected keys.
  */
 function build_plot()
 {
-    let key_a = get_selected_keys()[0]
-    let key_b = get_secondary_selected_keys()[0]
+    let key_x = numeric_keys[x_result_el.element.selectedIndex]
+    let key_y = numeric_keys[y_result_el.element.selectedIndex]
 
-    // get key names and create title
-    let name_a = cfg.get_result_from_key(key_a).name
-    let name_b = cfg.get_result_from_key(key_b).name
-    title_el.innerHTML = `${name_b}<br>vs<br>${name_a}`
+    let name_x = x_result_el.element.value
+    let name_y = y_result_el.element.value
 
     // build table of values
     let points = []
     let teams = Object.keys(dal.teams)
-    let max_a = 0
-    let max_b = 0
+    let max_x = 0
+    let max_y = 0
     for (let team of teams)
     {
         points[team] = {
-            a: dal.compute_stat(key_a, team),
-            b: dal.compute_stat(key_b, team)
+            x: dal.compute_stat(key_x, team),
+            y: dal.compute_stat(key_y, team)
         }
 
-        if (points[team].a > max_a)
+        if (points[team].x > max_x)
         {
-            max_a = points[team].a
+            max_x = points[team].x
         }
-        if (points[team].b > max_b)
+        if (points[team].y > max_y)
         {
-            max_b = points[team].b
+            max_y = points[team].y
         }
     }
-    max_a *= 1.05
-    max_b *= 1.05
+    max_x *= 1.05
+    max_y *= 1.05
 
     // reset canvas
     var ctx = canvas.getContext('2d')
@@ -137,8 +108,8 @@ function build_plot()
     let bottom_margin = 50
     for (let team of teams)
     {
-        let x = left_margin + (points[team].a / max_a) * (pwidth - left_margin)
-        let y = pheight - ((points[team].b / max_b) * (pheight - bottom_margin) + bottom_margin)
+        let x = left_margin + (points[team].x / max_x) * (pwidth - left_margin)
+        let y = pheight - ((points[team].y / max_y) * (pheight - bottom_margin) + bottom_margin)
 
         ctx.beginPath()
         ctx.fillStyle = 'black'
@@ -152,19 +123,19 @@ function build_plot()
     ctx.beginPath()
     ctx.fillStyle = 'black'
     ctx.font = `${font_size}px mono, courier`
-    ctx.fillText(name_a, pwidth / 2 - 5 * name_a.toString().length, pheight - 10)
+    ctx.fillText(name_x, pwidth / 2 - 5 * name_x.toString().length, pheight - 10)
     ctx.rotate(-Math.PI * 2 / 4)
-    ctx.fillText(name_b, -pheight / 2 - 5 * name_b.toString().length, 15)
+    ctx.fillText(name_y, -pheight / 2 - 5 * name_y.toString().length, 15)
     ctx.rotate(Math.PI * 2 / 4)
     for (let i = 0; i <= 10; i++)
     {
-        let val = (i / 10 * max_b).toFixed(1)
-        let y = pheight - bottom_margin - val * (pheight - 50) / max_b
+        let val = (i / 10 * max_y).toFixed(1)
+        let y = pheight - bottom_margin - val * (pheight - 50) / max_y
         ctx.fillText(val, 25, y + font_size / 2)
         ctx.fillRect(left_margin, y, pwidth, 1)
 
-        val = (i / 10 * max_a).toFixed(1)
-        let x = left_margin + val * (pwidth - 50) / max_a
+        val = (i / 10 * max_x).toFixed(1)
+        let x = left_margin + val * (pwidth - 50) / max_x
         ctx.fillText(val, x - 5 * val.toString().length, pheight - 30)
         ctx.fillRect(x, 0, 1, pheight - bottom_margin)
     }
@@ -179,8 +150,8 @@ function build_plot()
         canvas.title = ''
         for (let team of teams)
         {
-            let team_x = left_margin + (points[team].a / max_a) * (pwidth - left_margin)
-            let team_y = pheight - ((points[team].b / max_b) * (pheight - bottom_margin) + bottom_margin)
+            let team_x = left_margin + (points[team].x / max_x) * (pwidth - left_margin)
+            let team_y = pheight - ((points[team].y / max_y) * (pheight - bottom_margin) + bottom_margin)
             
             if (x > team_x - 3 && x < team_x + 3 && y > team_y - 3 && y < team_y + 3)
             {

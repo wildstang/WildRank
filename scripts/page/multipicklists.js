@@ -18,8 +18,7 @@ function init_page()
 {
     header_info.innerText = 'Picklists'
 
-    let first = populate_teams(false)
-    if (first)
+    if (dal.team_numbers.length > 0)
     {
         avatar_el = document.createElement('img')
         avatar_el.className = 'avatar'
@@ -53,7 +52,16 @@ function init_page()
         preview.append(card, new WRPage('', [column]))
 
         build_pick_lists()
-        open_option(first)
+
+        // show and populate the left column with team numbers
+        // TODO: consider using a dropdown instead, like plot
+        enable_list()
+        for (let team_num of dal.team_numbers)
+        {
+            let op = new WRDescriptiveOption(team_num, team_num, dal.teams[team_num].name)
+            add_option(op)
+        }
+        open_option(dal.team_numbers[0])
     }
     else
     {
