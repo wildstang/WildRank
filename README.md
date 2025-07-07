@@ -9,7 +9,7 @@ WildRank is a FIRST Robotics Competition scouting web app and successor to the [
 
 ## Licensing
 
-WildRank is licensed with the Mozilla Public License Version 2.0. The license can be found in `LICENSE`. We also include additional libraries in our /scripts folder, please reference the table below for their license info.
+WildRank is licensed with the Mozilla Public License Version 2.0. The license can be found in `LICENSE`. We also include additional libraries in `/scripts/lib/external`, please reference the table below for their license info.
 
 | Library    | File           | License | Repository                          |
 | ---------- | -------------- | ------- | ----------------------------------- |
