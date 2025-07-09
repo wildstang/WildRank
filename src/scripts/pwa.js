@@ -10,7 +10,6 @@ const CACHE_LIST = [
     // html files
     '/',
     '/index.html',
-    '/selection.html',
     '/updater.html',
     // styles
     '/styles/inputs.css',
@@ -77,7 +76,6 @@ const CACHE_LIST = [
     '/scripts/page/teams.js',
     '/scripts/page/users.js',
     '/scripts/page/whiteboard.js',
-    '/scripts/blank.js',
     '/scripts/config.js',
     '/scripts/data.js',
     '/scripts/elements.js',

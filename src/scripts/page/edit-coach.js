@@ -43,7 +43,7 @@ function build_buttons()
 
     // build template
     let page = new WRPage('', [new WRColumn('New Coach Value', [new_func, new_key, button]), column])
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 }
 
 /**

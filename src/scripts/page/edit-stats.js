@@ -27,7 +27,7 @@ function build_buttons()
     }
 
     // build template
-    body.replaceChildren(new WRPage('', [column]))
+    preview.replaceChildren(new WRPage('', [column]))
 }
 
 /**

@@ -105,7 +105,7 @@ function step_setup()
     {
         page.add_column(col)
     }
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 
     if (update_type)
     {

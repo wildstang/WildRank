@@ -222,7 +222,7 @@ function build_page_from_config()
     unsure_cb = new WRCheckbox(`Unsure of Results`)
     let submit = create_element('span', 'submit_container')
     let page_options = new WRPage('', [new WRColumn('', [unsure_cb]), new WRColumn('', [submit])])
-    body.replaceChildren(carousel, page_options)
+    preview.replaceChildren(carousel, page_options)
     check_for_last_page()
 }
 

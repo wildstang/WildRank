@@ -48,7 +48,7 @@ function init_page()
     let card = new Card('card', card_container)
     let select = new Select('stat', 'Stat', STAT_OPTIONS)
     select.on_change = 'show_stat()'
-    body.append(new PageFrame('', '', [card, select]).element)
+    preview.append(new PageFrame('', '', [card, select]).element)
 
     process_year(FIRST_YEAR)
 }

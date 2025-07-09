@@ -73,7 +73,7 @@ function init_page()
     week_tab.style.textAlign = 'left'
     card_container.append(summary, week_tab)
     let card = new Card('card', card_container)
-    body.append(filters.element, br(), new PageFrame('', '', [card]).element)
+    preview.append(filters.element, br(), new PageFrame('', '', [card]).element)
 
     if ('geolocation' in navigator)
     {

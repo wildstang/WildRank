@@ -20,7 +20,7 @@ function init_page()
             validate('Game'), validate('Scout')]))
     }
 
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 }
 
 /**

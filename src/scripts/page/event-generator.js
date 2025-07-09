@@ -59,7 +59,7 @@ function init_page()
     match_page.add_column(match_col)
 
     // build page
-    body.replaceChildren(team_page, match_page)
+    preview.replaceChildren(team_page, match_page)
 
     populate_matches()
 }

@@ -123,7 +123,7 @@ function init_page()
     let submit = new WRButton('Calculate', breakdown)
     score = document.createElement('span')
     console.log(submit)
-    body.replaceChildren(blue.page, red.page, new WRPage('', [new WRColumn('', [submit, score])]))
+    preview.replaceChildren(blue.page, red.page, new WRPage('', [new WRColumn('', [submit, score])]))
 }
 
 /**

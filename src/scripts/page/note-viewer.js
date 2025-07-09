@@ -60,7 +60,7 @@ function init_page()
     search_entry.on_text_change = filter_notes
     let search_col = new WRColumn('', [search_entry])
     notes_page = new WRPage()
-    body.append(new WRPage('', [teams_col, scouter_col, mode_col, search_col]), notes_page)
+    preview.append(new WRPage('', [teams_col, scouter_col, mode_col, search_col]), notes_page)
     filter_notes()
 }
 

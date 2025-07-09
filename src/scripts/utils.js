@@ -27,9 +27,6 @@ function window_open(url, new_tab=false)
     }
 }
 
-var selection_pages = ['coach', 'cycles', 'match-overview', 'matches', 'multipicklists', 'pits',
-    'pivot', 'plot', 'ranker', 'results', 'scatter', 'teams', 'users', 'whiteboard']
-
 /**
  * Assembles a URL path for within the application.
  * 
@@ -44,7 +41,7 @@ function build_url(page, parameters={})
     {
         query += `&${key}=${parameters[key]}`
     }
-    return `${selection_pages.includes(page) ? 'selection.html' : 'index.html'}?page=${page}${query}`
+    return `index.html?page=${page}${query}`
 }
 
 /**

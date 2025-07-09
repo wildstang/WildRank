@@ -236,7 +236,7 @@ function open_role(role)
     let sign_out_button = new WRButton('Sign Out', sign_out)
     column.add_input(sign_out_button)
 
-    body.replaceChildren(page, sign_out_page)
+    preview.replaceChildren(page, sign_out_page)
 }
 
 /**

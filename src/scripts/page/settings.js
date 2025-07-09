@@ -18,7 +18,7 @@ function init_page()
             new WRButton('Apply', apply_config)])])
     )
 
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 }
 
 /**
@@ -237,10 +237,10 @@ function download_config()
         element.setAttribute('download', `user-config.json`)
     
         element.style.display = 'none'
-        body.appendChild(element)
+        preview.appendChild(element)
     
         element.click()
     
-        body.removeChild(element)
+        preview.removeChild(element)
     }
 }

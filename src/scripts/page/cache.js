@@ -81,7 +81,7 @@ async function populate_page()
         button_col.add_input(new WRButton('Update App from Zip', import_from_zip))
     
         let page = new WRPage('', [new WRColumn('', [card]), button_col])
-        body.replaceChildren(page)
+        preview.replaceChildren(page)
     }
 }
 
@@ -184,7 +184,7 @@ async function build_table(names, expected_files=[])
         let page = new WRPage('', [new WRColumn('', [card]), button_col])
         button_col.add_input(new WRButton(`Purge ${name}`, () => purge_cache(name)))
 
-        body.replaceChildren(page)
+        preview.replaceChildren(page)
     }
 }
 

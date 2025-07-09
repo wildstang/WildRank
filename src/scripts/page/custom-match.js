@@ -21,7 +21,7 @@ function init_page()
     let match_page = new WRPage('New Match', [match_col])
 
     // build page
-    body.replaceChildren(match_page)
+    preview.replaceChildren(match_page)
 
     populate_matches()
 }

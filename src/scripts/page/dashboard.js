@@ -81,7 +81,7 @@ function init_page()
                                    new WRColumn('', [new WRStack([pivot, plot]), summary_card]),
                                    new WRColumn('', [new WRStack([notes, lists]), new WRStack([pull_tba, export_cfg, import_res, export_dat])])])
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])
-    body.replaceChildren(top_page, bottom_page)
+    preview.replaceChildren(top_page, bottom_page)
 
     populate()
 }

@@ -65,7 +65,7 @@ function populate_page()
 
     let card = new WRCard(table)
     let page = new WRPage('', [new WRColumn('', [card]), button_col])
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 }
 
 /**

@@ -45,7 +45,7 @@ function build_page()
 
     preview = document.createElement('span')
     options = document.createElement('div')
-    body.replaceChildren(new WRPage('Add to...', [
+    preview.replaceChildren(new WRPage('Add to...', [
             new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
             new WRColumn('', [name_entry, id_entry]),
             new WRColumn('', [options])
@@ -388,11 +388,11 @@ function download_config()
     element.setAttribute('download', `${cfg.year}-config.json`)
 
     element.style.display = 'none'
-    body.appendChild(element)
+    preview.appendChild(element)
 
     element.click()
 
-    body.removeChild(element)
+    preview.removeChild(element)
 }
 
 /**

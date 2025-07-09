@@ -50,7 +50,7 @@ function init_page()
     ])
     page.add_column(get_col)
 
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 
     try
     {

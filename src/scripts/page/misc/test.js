@@ -254,5 +254,5 @@ function init_page()
     multi_selects.add_input(image_multi_select)
 
 
-    body.replaceChildren(page, multi_page)
+    preview.replaceChildren(page, multi_page)
 }

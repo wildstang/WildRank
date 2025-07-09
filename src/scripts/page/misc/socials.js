@@ -29,7 +29,7 @@ function init_page()
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
     let card = new WRCard(card_contents)
-    body.append(new WRPage('', [entry_col, button_col, card]))
+    preview.append(new WRPage('', [entry_col, button_col, card]))
 }
 
 

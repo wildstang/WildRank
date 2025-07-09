@@ -51,7 +51,7 @@ function init_page()
     right_col.add_input(generate)
 
     // build page
-    body.append(page)
+    preview.append(page)
     hide_buttons()
 }
 

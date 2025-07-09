@@ -28,7 +28,7 @@ function init_page()
         'Reigning Event Winner', `${year} Event Finalists`, 'EI', `${year - 1} Event Wins`]))
 
     let card = new Card('card', contents)
-    body.append(new PageFrame('', '', [card]).element)
+    preview.append(new PageFrame('', '', [card]).element)
 
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)

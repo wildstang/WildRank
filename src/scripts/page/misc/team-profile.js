@@ -207,5 +207,5 @@ function build_cards(robots)
         left = !left
     }
 
-    body.append(new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).element)
+    preview.append(new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).element)
 }

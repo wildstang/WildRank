@@ -38,7 +38,7 @@ function init_page()
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
     let card = new Card('card', card_contents)
-    body.append(new PageFrame('', '', [card]).element)
+    preview.append(new PageFrame('', '', [card]).element)
     table.append(create_header_row(['Year', 'Matches', 'Regional Matches', 'District Matches', 'District Champs Matches', 'Champs Matches']))
 
     process_year(FIRST_YEAR)

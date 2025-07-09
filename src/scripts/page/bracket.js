@@ -29,7 +29,7 @@ function init_page()
     }
     else
     {
-        body.innerText = 'Not a double-elimination event.'
+        preview.innerText = 'Not a double-elimination event.'
     }
 }
 
@@ -58,7 +58,7 @@ function add_bracket()
     let filter_page = new WRPage('', [new WRColumn('', filter_inputs)])
 
     let page = bracket.build_page(alliance)
-    body.replaceChildren(filter_page, page)
+    preview.replaceChildren(filter_page, page)
 }
 
 /**

@@ -52,7 +52,7 @@ function init_page()
     blue_col.add_input(new Number('blue_final_score', 'Blue Score', 0))
 
     // build page
-    body.append(new PageFrame('', '', [red_col, blue_col]).element)
+    preview.append(new PageFrame('', '', [red_col, blue_col]).element)
 }
 
 /**

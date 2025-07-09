@@ -54,7 +54,7 @@ function init_page()
     let submit_button = new WRButton('Export', submit)
 
     let page = new WRPage('', [check_col, new WRColumn('', [from_entry, to_entry, password_entry, submit_button])])
-    body.replaceChildren(page)
+    preview.replaceChildren(page)
 }
 
 /**

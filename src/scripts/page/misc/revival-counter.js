@@ -21,7 +21,7 @@ function init_page()
 	lasts_tab.style.textAlign = 'right'
 	let gaps = new Card('gaps_card', gaps_tab)
 	let lasts = new Card('lasts_card', lasts_tab)
-	body.append(new PageFrame('', '', [gaps, lasts]).element)
+	preview.append(new PageFrame('', '', [gaps, lasts]).element)
 
 	gaps_tab.append(create_header_row(['Consecutive Years Inactive', 'Num Team Nums', 'Teams']))
 	lasts_tab.append(create_header_row(['Last Year Before Inactive', 'Num Team Nums']))
