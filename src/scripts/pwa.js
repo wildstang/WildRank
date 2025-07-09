@@ -83,7 +83,6 @@ const CACHE_LIST = [
     '/scripts/elements.js',
     '/scripts/init.js',
     '/scripts/inputs.js',
-    '/scripts/keys.js',
     '/scripts/selection-pages.js',
     '/scripts/selection.js',
     '/scripts/utils.js',

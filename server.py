@@ -83,19 +83,19 @@ class PhotoPOSTResponse(BaseModel):
 # return requested files
 @app.get('/', response_class=FileResponse)
 async def index():
-    return 'markup/index.html'
+    return 'src/index.html'
 
 @app.get('/{file}.html', response_class=FileResponse)
 async def html(file):
-    return f'markup/{file}.html'
+    return f'src/{file}.html'
 
 @app.get('/styles/{file}.css', response_class=FileResponse)
 async def styles(file):
-    return f'styles/{file}.css'
+    return f'src/styles/{file}.css'
 
 @app.get('/scripts/{file_path:path}.js', response_class=FileResponse)
 async def javascript(file_path):
-    return f'scripts/{file_path}.js'
+    return f'src/scripts/{file_path}.js'
 
 @app.get('/config/{file_path:path}', response_class=FileResponse)
 async def config(file_path):
@@ -116,10 +116,6 @@ async def vector(file):
 @app.get('/manifest.webmanifest', response_class=FileResponse)
 async def manifest():
     return 'config/manifest.webmanifest'
-
-@app.get('/pwa.js', response_class=FileResponse)
-async def manifest():
-    return 'scripts/pwa.js'
 
 @app.get('/favicon.ico', response_class=FileResponse)
 async def favicon():
@@ -313,8 +309,8 @@ async def post(upload: UploadFile = File(...), password=''):
     }
 
 # response to POST requests containing zip file
-@app.post('/photo/{team_num}', response_model=PhotoPOSTResponse)
-async def post(team_num, upload: UploadFile = File(...), password=''):
+@app.post('/photo/{file_name}', response_model=PhotoPOSTResponse)
+async def post(file_name, upload: UploadFile = File(...), password=''):
     # check server password if there is one
     if PASSWORD is not None and password != PASSWORD:
         return {
@@ -323,11 +319,7 @@ async def post(team_num, upload: UploadFile = File(...), password=''):
         }
 
     # determine file name
-    num = 0
-    file = f'{UPLOAD_PATH}{team_num}-{num}.png'
-    while exists(file):
-        num += 1
-        file = f'{UPLOAD_PATH}{team_num}-{num}.png'
+    file = f'{UPLOAD_PATH}{file_name}.png'
 
     # save image
     with open(file, 'wb') as f:

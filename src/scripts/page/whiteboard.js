@@ -15,22 +15,20 @@ var playing = false
  */
 function init_page()
 {
-    // populate the match selection panel, get the first selected match
-    let first = populate_matches()
-
-    // create a dropdown filter for the match list and set the default value to the configured team
-    let default_filter = ''
-    if (cfg.user.settings.hasOwnProperty('team_number'))
-    {
-        default_filter = cfg.user.settings.team_number.toString()
-    }
-    let teams = dal.team_numbers
-    teams.unshift('')
-    team_filter = add_dropdown_filter(teams, hide_matches, true, default_filter)
-
-    if (first)
+    if (dal.match_keys)
     {
         header_info.innerText = 'Whiteboard'
+
+        // show and populate the left column with matches and a team filter
+        enable_list()
+        let default_filter = ''
+        if (cfg.user.settings.hasOwnProperty('team_number'))
+        {
+            default_filter = cfg.user.settings.team_number.toString()
+        }
+        let teams = dal.team_numbers
+        teams.unshift('')
+        team_filter = add_dropdown_filter(teams, build_match_list, true, default_filter)
 
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard()
@@ -54,7 +52,7 @@ function init_page()
         preview.append(stack)
 
         // update the match list
-        hide_matches()
+        build_match_list()
     }
     else
     {
@@ -77,16 +75,41 @@ function init_canvas()
 }
 
 /**
- * A function used by the selection page filter mechanism to update the list of
- * matches on the left when a new team is selected in the filter.
+ * Rebuilds the match list based on the selected team.
  */
-function hide_matches()
+function build_match_list()
 {
-    let team = team_filter.element.value
-    // update the match list
-    let first = populate_matches(true, true, team.length > 0 ? parseInt(team) : '')
+    let team_num = parseInt(team_filter.element.value)
+    clear_list()
 
-    // update the right panel
+    let first = ''
+    let first_selected = ''
+    for (let match_key of dal.match_keys)
+    {
+        let match = dal.matches[match_key]
+        if (isNaN(team_num) || match.red_alliance.includes(team_num) || match.blue_alliance.includes(team_num))
+        {
+            let op = new WRMatchOption(match_key, match.short_name, match.red_alliance.map(t => t.toString()), match.blue_alliance.map(t => t.toString()))
+            if (match.complete)
+            {
+                if (first_selected === '')
+                {
+                    first_selected = match_key
+                }
+                op.add_class('scouted')
+            }
+            else if (first === '')
+            {
+                first = match_key
+            }
+            add_option(op)
+        }
+    }
+
+    if (first === '')
+    {
+        first = first_selected
+    }
     open_option(first)
 }
 

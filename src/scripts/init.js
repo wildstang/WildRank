@@ -74,7 +74,7 @@ function register_service_worker()
 {
     if ('serviceWorker' in navigator && cfg.user.settings.use_offline)
     {
-        navigator.serviceWorker.register('pwa.js')
+        navigator.serviceWorker.register('scripts/pwa.js')
             .then(reg => {
                 reg.onupdatefound = () => {
                     console.log('update detected, triggering banner')

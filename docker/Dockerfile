@@ -22,4 +22,4 @@ EXPOSE 80
 VOLUME /config /uploads
 
 # run python server
-CMD uvicorn --host 0.0.0.0 --port 80 --workers $WR_WORKERS --app-dir python server:app
+CMD uvicorn --host 0.0.0.0 --port 80 --workers $WR_WORKERS server:app
