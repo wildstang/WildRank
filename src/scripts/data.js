@@ -644,6 +644,20 @@ class Data
     }
 
     /**
+     * Imports a given JSON file to picklists.
+     * @param {String} text JSON file contents
+     */
+    handle_picklists(text)
+    {
+        let picklists = JSON.parse(text)
+        for (let key of Object.keys(picklists))
+        {
+            dal.picklists[key] = picklists[key]
+        }
+        dal.save_picklists()
+    }
+
+    /**
      * Loads picklists in from localStorage.
      */
     load_picklists()

@@ -47,7 +47,7 @@ function init_page()
         table_card.add_class('scalable_card')
         let new_list_el = new WRButton('Add to New List', new_list)
         mode_el = new WRSelect('', ['Add', 'Strike', 'Remove'])
-        let export_button = new WRButton('Export Lists', export_picklists)
+        let export_button = new WRMultiButton('', ['Import', 'Export'], [() => ZipHandler.import_picklist(build_pick_lists), export_picklists])
         let column = new WRColumn('', [new_list_el, table_card, mode_el, export_button])
         preview.append(card, new WRPage('', [column]))
 
@@ -246,12 +246,18 @@ function remove_list(list)
 
 /**
  * Exports the picklists to a zip.
- * TODO: maybe just export a json file and add an import button
  */
 function export_picklists()
 {
-    let handler = new ZipHandler()
-    handler.picklists = true
-    handler.user = cfg.user.state.user_id
-    handler.export_zip()
+    let picklists = encodeURIComponent(JSON.stringify(dal.picklists))
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:application/json;charset=utf-8,' + picklists)
+    element.setAttribute('download', dal.picklist_file)
+
+    element.style.display = 'none'
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
 }

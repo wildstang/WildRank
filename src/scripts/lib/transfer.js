@@ -423,6 +423,18 @@ class ZipHandler
     do_nothing(a='', b='') {}
 
     /**
+     * Helper function that creates a zip handler to import a JSON file.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static import_picklist(on_complete=this.do_nothing)
+    {
+        let zh = new ZipHandler()
+        zh.picklists = true
+        zh.on_complete = on_complete
+        zh.import_file(false, true)
+    }
+
+    /**
      * Helper function that creates a zip handler to import configuration data.
      * @param {Function} on_complete Function to call when loading is complete.
      */
@@ -755,35 +767,41 @@ class ZipHandler
      */
     import_settings(file)
     {
-        let reader = new FileReaderSync()
-        let text = reader.readAsText(file, 'UTF-8')
-
-        if (file.name.startsWith(cfg.user.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.user.handle_config(text)
+        // TODO: find a way to make this syncronous, FileReaderSync does not work
+        const reader = new FileReader()
+        reader.onload = function () {
+            const text = reader.result
+            if (file.name.startsWith(cfg.user.name))
+            {
+                console.log(`Importing ${file.name}`)
+                cfg.user.handle_config(text)
+            }
+            else if (file.name.startsWith(cfg.scout.name))
+            {
+                console.log(`Importing ${file.name}`)
+                cfg.scout.handle_config(text)
+            }
+            else if (file.name.startsWith(cfg.analysis.name))
+            {
+                console.log(`Importing ${file.name}`)
+                cfg.analysis.handle_config(text)
+            }
+            else if (file.name.startsWith(cfg.user_list.name))
+            {
+                console.log(`Importing ${file.name}`)
+                cfg.user_list.handle_config(text)
+            }
+            else if (file.name.startsWith('picklists-'))
+            {
+                console.log(`Importing ${file.name}`)
+                dal.handle_picklists(text)
+            }
+            else
+            {
+                alert(`Unrecognized file ${text}`)
+            }
         }
-        else if (file.name.startsWith(cfg.scout.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.scout.handle_config(text)
-        }
-        else if (file.name.startsWith(cfg.analysis.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.analysis.handle_config(text)
-        }
-        else if (file.name.startsWith(cfg.user_list.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.user_list.handle_config(text)
-        }
-        else
-        {
-            return` Unrecognized file ${text}`
-        }
-
-        return false
+        reader.readAsText(file, 'UTF-8')
     }
 
     /**
