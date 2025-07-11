@@ -726,7 +726,7 @@ function build_table()
         col_header.ondragover = dragover_handler
         col_header.ondragenter = dragenter_handler
         col_header.ondrop = (event) => drop_handler(event, col)
-        // TODO: reverse sort if selected
+        // reverse sort if selected
         col_header.onclick = (event) => {
             col.toggle_sort()
             build_table()

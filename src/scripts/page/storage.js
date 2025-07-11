@@ -5,6 +5,8 @@
  * date:        2023-03-22
  */
 
+include('transfer')
+
 /**
  * function:    init_page
  * parameters:  none
@@ -27,8 +29,11 @@ function init_page()
  */
 function populate_page()
 {
-    let button_col = new WRColumn()
-    // TODO: transfer button?
+    let button_col = new WRColumn('', [
+        new WRButton('Reset Storage', reset_storage),
+        new WRButton('Reset Results', reset_results),
+        new WRButton('Export All', ZipHandler.export_all)
+    ])
 
     let keys = Object.keys(localStorage).sort()
 
