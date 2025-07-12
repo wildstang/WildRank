@@ -1,3 +1,5 @@
+let touching = false
+
 /**
  * @class Line Represents a series of points to be drawn on a Whiteboard.
  */
@@ -108,6 +110,13 @@ class Whiteboard
             this.canvas.addEventListener('mousedown', event => this.handle_click(event, 'down'))
             this.canvas.addEventListener('mousemove', event => this.handle_click(event, 'move'))
             this.canvas.addEventListener('mouseup', event => this.handle_click(event, 'up'))
+            // disable touch events for browsers that do not support them
+            if (window.TouchEvent !== undefined)
+            {
+                this.canvas.addEventListener('touchstart', event => this.handle_click(event, 'down'))
+                this.canvas.addEventListener('touchmove', event => this.handle_click(event, 'move'))
+                this.canvas.addEventListener('touchend', event => this.handle_click(event, 'up'))
+            }
         }
     }
 
@@ -281,10 +290,20 @@ class Whiteboard
      */
     handle_click(event, type)
     {
+        // if touch event, disable mouse events until up
+        if (window.TouchEvent !== undefined && event instanceof TouchEvent)
+        {
+            touching = true
+        }
+        else if (touching)
+        {
+            return
+        }
+
         // get mouse position relative to canvas
         let rect = this.canvas.getBoundingClientRect()
-        let x = event.clientX - rect.left
-        let y = event.clientY - rect.top
+        let x = event.pageX - rect.left
+        let y = event.pageY - rect.top
         let magnet_size = this.magnet_size / this.scale_factor
         let offset = magnet_size / 2
 
@@ -335,6 +354,7 @@ class Whiteboard
             // drop any carried magnet and end any line
             this.drawing = false
             this.carrying = -1
+            touching = false
         }
 
         // re-draw on every interaction
