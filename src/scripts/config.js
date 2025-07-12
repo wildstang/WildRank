@@ -1858,6 +1858,20 @@ class Config
     }
 
     /**
+     * Returns the current TBA key as part of an HTTP query.
+     */
+    get tba_query()
+    {
+        let key = this.tba_key
+        if (!key)
+        {
+            alert('TBA key required')
+            return
+        }
+        return `?${TBA_AUTH_KEY}=${key}`
+    }
+
+    /**
      * The title of the application, or WildRank if that configuration isn't available.
      */
     get title()

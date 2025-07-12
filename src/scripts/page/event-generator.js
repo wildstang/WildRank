@@ -224,13 +224,8 @@ function generate_teams()
  */
 function pull_teams(event_id, team_list)
 {
-    if (!TBA_KEY)
-    {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-    }
+    let key = this.tba_key
+    let key_query = `?${TBA_AUTH_KEY}=${key}`
 
     // split up list of teams
     let team_nums = team_list.split(',').map(t => t.trim())
@@ -239,9 +234,9 @@ function pull_teams(event_id, team_list)
     let count = 0
     for (let team_num of team_nums)
     {
-        if (TBA_KEY)
+        if (key)
         {
-            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/simple${key_query}`)
                 .then(response => {
                     return response.json()
                 })
@@ -253,7 +248,7 @@ function pull_teams(event_id, team_list)
                     teams.push(team)
 
                     let year = event_id.substr(0, 4)
-                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${key_query}`)
                         .then(response => {
                             return response.json()
                         })

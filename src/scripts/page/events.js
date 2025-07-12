@@ -34,22 +34,15 @@ function init_page()
         let events = {}
         let team_count = 0
 
-        if (!TBA_KEY)
+        let key_query = cfg.tba_query
+        if (!key_query)
         {
-            if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-            {
-                TBA_KEY = cfg.user.settings.tba_key
-            }
-            if (!TBA_KEY)
-            {
-                alert('No API key found for TBA!')
-                return
-            }
+            return
         }
         
         for (let team of teams)
         {
-            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/events/${cfg.year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/events/${cfg.year}/simple${key_query}`)
                 .then(response => {
                     if (response.status == 401) {
                         alert('Invalid API Key Suspected')
@@ -90,7 +83,7 @@ function init_page()
                         let received = 0
                         for (let e of event_keys)
                         {
-                            fetch(`https://www.thebluealliance.com/api/v3/event/${cfg.year}${e}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                            fetch(`https://www.thebluealliance.com/api/v3/event/${cfg.year}${e}/awards${key_query}`)
                                 .then(response => {
                                     if (response.status == 401)
                                     {

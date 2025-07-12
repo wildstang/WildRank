@@ -24,17 +24,15 @@ function preload_event(on_complete=null)
     let event_id = cfg.user.state.event_id
 
     // request the TBA key if it doesn't already exist
-    let key = cfg.tba_key
-    if (!key)
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        alert('TBA key required to preload')
         return
     }
 
     passes = []
     fails = []
     api_endpoint = `https://www.thebluealliance.com/api/v3`
-    key_query = `?${TBA_AUTH_KEY}=${key}`
     on_preload = on_complete
 
     // fetch simple event matches
