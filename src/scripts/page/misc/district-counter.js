@@ -9,7 +9,7 @@
 const REGIONAL = 0
 const DISTRICT = 1
 
-var summary, table
+var summary, table, year_el
 
 /**
  * function:    init_page
@@ -19,21 +19,21 @@ var summary, table
  */
 function init_page()
 {
-    let year = new Entry('year', 'Year', cfg.year)
-    year.type = 'number'
-    let entry_col = new ColumnFrame('', '', [year])
-    let run = new Button('run', 'Run', 'process_year()')
+    year_el = new WREntry('Year', cfg.year)
+    year_el.type = 'number'
+    let entry_col = new WRColumn('', [year_el])
+    let run = new WRButton('Run', process_year)
     let label = document.createElement('h4')
     label.className = 'input_label'
     label.innerHTML = '&nbsp;'
-    let button_col = new ColumnFrame('', '', [label, run])
+    let button_col = new WRColumn('', [label, run])
     let card_contents = document.createElement('span')
     summary = document.createElement('summary')
     table = document.createElement('table')
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
-    let card = new Card('card', card_contents)
-    preview.append(new PageFrame('', '', [entry_col, button_col, card]).element)
+    let card = new WRCard(card_contents)
+    preview.append(new WRPage('', [entry_col, button_col, card]))
 }
 
 /**
@@ -44,22 +44,16 @@ function init_page()
  */
 function process_year()
 {
-    let year = document.getElementById('year').value
+    let year = year_el.element.value
     summary.innerText = 'Loading data....'
 
     table.insertRow().append(create_header('Regional'), create_header('Location'), create_header('Total Teams'), create_header('District Teams'), create_header('Percent District'))
 
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let district_teams = []
@@ -67,7 +61,7 @@ function process_year()
     let processed = 0
 
     // fetch list of all events in the year
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -79,7 +73,7 @@ function process_year()
             for (let event of evs)
             {
                 // fetch list of teams in each event
-                fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/teams/keys${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/teams/keys${key_query}`)
                     .then(response => {
                         if (response.status === 401) {
                             alert('Invalid API Key Suspected')

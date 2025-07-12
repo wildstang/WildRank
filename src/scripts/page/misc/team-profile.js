@@ -27,17 +27,11 @@ function init_page()
  */
 function process_team(team_nums)
 {
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let robots = {}
@@ -47,7 +41,7 @@ function process_team(team_nums)
     for (let team_num of team_nums)
     {
         // fetch list of all events in the year
-        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/years_participated${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/years_participated${key_query}`)
             .then(response => {
                 if (response.status === 401) {
                     alert('Invalid API Key Suspected')
@@ -75,7 +69,7 @@ function process_team(team_nums)
                     }
                     
                     // fetch list of team-year's awards
-                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/awards/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/awards/${year}${key_query}`)
                         .then(response => {
                             if (response.status === 401) {
                                 alert('Invalid API Key Suspected')
@@ -105,7 +99,7 @@ function process_team(team_nums)
                         })
                     
                     // fetch list of team-year's media
-                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/media/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/media/${year}${key_query}`)
                         .then(response => {
                             if (response.status === 401) {
                                 alert('Invalid API Key Suspected')
@@ -191,10 +185,10 @@ function build_cards(robots)
         header.innerText = year
         let contents = document.createElement('div')
         let links = document.createElement('div')
-        links.append(code, tba)
+        links.append(code, ' ', tba)
         contents.append(links, awards)
         card_content.append(header, image, contents)
-        let card = new Card(year, card_content)
+        let card = new WRCard(card_content)
         card.add_class('profile')
         if (left)
         {
@@ -207,5 +201,5 @@ function build_cards(robots)
         left = !left
     }
 
-    preview.append(new PageFrame('', '', [new ColumnFrame('', '', left_cards), new ColumnFrame('', '', right_cards)]).element)
+    preview.append(new WRPage('', [new WRColumn('', left_cards), new WRColumn('', right_cards)]))
 }

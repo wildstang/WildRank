@@ -37,8 +37,8 @@ function init_page()
     table = document.createElement('table')
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
-    let card = new Card('card', card_contents)
-    preview.append(new PageFrame('', '', [card]).element)
+    let card = new WRCard(card_contents)
+    preview.append(new WRPage('', [card]))
     table.append(create_header_row(['Year', 'Matches', 'Regional Matches', 'District Matches', 'District Champs Matches', 'Champs Matches']))
 
     process_year(FIRST_YEAR)
@@ -55,20 +55,14 @@ var total = 0
  */
 function process_year(year)
 {
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -83,7 +77,7 @@ function process_year(year)
                 // only use some event types
                 if (event.event_type >= REGIONAL && event.event_type <= FOC)
                 {
-                    fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/matches/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/matches/simple${key_query}`)
                         .then(response => {
                             if (response.status === 401) {
                                 alert('Invalid API Key Suspected')

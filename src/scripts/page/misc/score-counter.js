@@ -45,10 +45,10 @@ function init_page()
     week_tab.style.textAlign = 'right'
     week_tab.append(create_header_row(['Year', 'Week 0', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Championship', 'Offseason']))
     card_container.append(summary, type_tab, week_tab)
-    let card = new Card('card', card_container)
-    let select = new Select('stat', 'Stat', STAT_OPTIONS)
-    select.on_change = 'show_stat()'
-    preview.append(new PageFrame('', '', [card, select]).element)
+    let card = new WRCard(card_container)
+    let select = new WRSelect('Stat', STAT_OPTIONS)
+    select.on_change = show_stat
+    preview.append(new WRPage('', [card, select]))
 
     process_year(FIRST_YEAR)
 }
@@ -63,20 +63,14 @@ var total = 0
  */
 function process_year(year)
 {
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -118,7 +112,7 @@ function process_year(year)
                     {
                         type = CMP_FINALS
                     }
-                    fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/matches/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/matches/simple${key_query}`)
                         .then(response => {
                             if (response.status === 401) {
                                 alert('Invalid API Key Suspected')

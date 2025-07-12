@@ -30,6 +30,8 @@ var locs = []
 
 var summary, week_tab
 
+var range_el, latitude, longitude, states_el, regionals_el, districts_el, offseasons_el, championships_el, card
+
 /**
  * function:    init_page
  * parameters:  none
@@ -46,25 +48,25 @@ function init_page()
         year = cfg.year
     }
 
-    let range = new Entry('range', 'Range (mi)', 300)
-    range.type = 'number'
-    let latitude = new Entry('latitude', 'Latitude', 0)
+    range_el = new WREntry('Range (mi)', 300)
+    range_el.type = 'number'
+    latitude = new WREntry('Latitude', 0)
     latitude.type = 'number'
-    let longitude = new Entry('longitude', 'Longitude', 0)
+    longitude = new WREntry('Longitude', 0)
     longitude.type = 'number'
-    let states = new Entry('states', 'States', '')
-    let regionals = new Checkbox('regionals', 'Show Regionals', true)
-    let districts = new Checkbox('districts', 'Show District Events', false)
-    let offseasons = new Checkbox('offseasons', 'Show Offseason Events', false)
-    let championships = new Checkbox('championships', 'Show Championships', false)
-    let search = new Button('search', 'Search', `process_year(${year})`)
+    states_el = new WREntry('States', '')
+    regionals_el = new WRCheckbox('Show Regionals', true)
+    districts_el = new WRCheckbox('Show District Events', false)
+    offseasons_el = new WRCheckbox('Show Offseason Events', false)
+    championships_el = new WRCheckbox('Show Championships', false)
+    let search = new WRButton('Search', () => process_year(year))
     let map_el = create_element('div', 'map')
     map_el.style.height = '300px'
     map_el.style.width = '400px'
-    let filters = new PageFrame('', '', [new ColumnFrame('', '', [range, states]),
-                                         new ColumnFrame('', '', [latitude, regionals, districts]),
-                                         new ColumnFrame('', '', [longitude, championships, offseasons, search]),
-                                         new ColumnFrame('mapcol', 'Map', [map_el])])
+    let filters = new WRPage('', [new WRColumn('', [range_el, states_el]),
+                                         new WRColumn('', [latitude, regionals_el, districts_el]),
+                                         new WRColumn('', [longitude, championships_el, offseasons_el, search]),
+                                         new WRColumn('Map', [map_el])])
 
     let card_container = document.createElement('span')
     summary = document.createElement('div')
@@ -72,15 +74,15 @@ function init_page()
     week_tab = document.createElement('table')
     week_tab.style.textAlign = 'left'
     card_container.append(summary, week_tab)
-    let card = new Card('card', card_container)
-    preview.append(filters.element, br(), new PageFrame('', '', [card]).element)
+    card = new WRCard(card_container)
+    preview.append(filters, br(), new WRPage('', [card]))
 
     if ('geolocation' in navigator)
     {
         navigator.geolocation.getCurrentPosition(position => {
             console.log(position)
-            document.getElementById('latitude').value = position.coords.latitude
-            document.getElementById('longitude').value = position.coords.longitude
+            latitude.element.value = position.coords.latitude
+            longitude.element.value = position.coords.longitude
         }, e => {
             console.log('Failed to get location', e)
         }, {timeout: 10000})
@@ -118,8 +120,8 @@ function onMapClick(e)
  */
 function changeLoc(lat, lon)
 {
-    document.getElementById('latitude').value = lat
-    document.getElementById('longitude').value = lon
+    latitude.element.value = lat
+    longitude.element.value = lon
 
     if (typeof scope !== 'undefined')
     {
@@ -129,7 +131,7 @@ function changeLoc(lat, lon)
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5,
-        radius: parseInt(document.getElementById('range').value) * 1609.34
+        radius: parseInt(range_el.element.value) * 1609.34
     }).addTo(map);
 
     map.flyToBounds(scope.getBounds())
@@ -149,24 +151,18 @@ function process_year(year)
     }
     locs = []
 
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let weeks = {}
     let count = 0
 
     // fetch list of all events in the year
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}?${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -205,15 +201,15 @@ function process_year(year)
             }
 
             // read filters
-            let latitude = parseFloat(document.getElementById('latitude').value)
-            let longitude = parseFloat(document.getElementById('longitude').value)
-            let center = new L.LatLng(latitude, longitude)
-            let range = parseInt(document.getElementById('range').value) * 1609.34 // convert to meters
-            let states = document.getElementById('states').value.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== '')
-            let regionals = document.getElementById('regionals').checked
-            let districts = document.getElementById('districts').checked
-            let offseasons = document.getElementById('offseasons').checked
-            let championships = document.getElementById('championships').checked
+            let lat = parseFloat(latitude.element.value)
+            let lon = parseFloat(longitude.element.value)
+            let center = new L.LatLng(lat, lon)
+            let range = parseInt(range_el.element.value) * 1609.34 // convert to meters
+            let states = states_el.element.value.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== '')
+            let regionals = regionals_el.checked
+            let districts = districts_el.checked
+            let offseasons = offseasons_el.checked
+            let championships = championships_el.checked
 
             // add a table for each week
             week_tab.replaceChildren()
@@ -252,7 +248,7 @@ function process_year(year)
             }
 
             summary.innerText = `There are ${count} events within your parameters.`
-            changeLoc(latitude, longitude)
+            changeLoc(lat, lon)
         })
         .catch(err => {
             console.log(`Error fetching ${year} events, ${err}`)

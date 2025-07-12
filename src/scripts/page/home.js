@@ -52,9 +52,9 @@ const CONFIGS = {
     },
     'extras': {
         'App': ['bracket', 'whiteboard', 'export'],
-        'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/revival-counter', 'misc/max-score', 'misc/verde', 'misc/socials'],
-        'Game Specific': ['misc/2022-score-estimator', 'misc/2023-score-estimator', 'misc/2025-score-calculator', 'misc/2023-rp']
+        'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter', 'misc/socials'],
+        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde'],
+        'Game Specific': ['misc/2025-score-calculator']
     }
 }
 
@@ -109,9 +109,6 @@ const BUTTONS = {
     'users':                { name: 'User Profiles',            limits: ['admin'] },
     'whiteboard':           { name: 'Whiteboard',               limits: ['matches'] },
     'misc/match-counter':   { name: 'Match Counter',            limits: [] },
-    'misc/2022-score-estimator':    { name: '2022 Score Estimator',     limits: [] },
-    'misc/2023-rp':                 { name: '2023 RP Adjustment',       limits: [] },
-    'misc/2023-score-estimator':    { name: '2023 Score Estimator',     limits: [] },
     'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [] },
@@ -119,11 +116,12 @@ const BUTTONS = {
     'misc/max-score':               { name: 'Max Score',                limits: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: [] },
+    'misc/socials':                 { name: 'Socials',                  limits: [] },
     'misc/sponsor-counter':         { name: 'Sponsor Counter',          limits: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: [] },
     'misc/test':                    { name: 'Input Tester',             limits: [] },
     'misc/top-partners':            { name: 'Top Partners',             limits: [] },
-    'misc/verde':                   { name: 'VerdeRank',                limits: [, 'teams'] }
+    'misc/verde':                   { name: 'VerdeRank',                limits: ['teams'] }
 }
 
 var role_page = ''
@@ -282,6 +280,7 @@ function has_matches()
  */
 function is_blocked(id)
 {
+    console.log(id)
     let limits = BUTTONS[id].limits
     let configs = BUTTONS[id].configs
 

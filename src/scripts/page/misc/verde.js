@@ -27,30 +27,24 @@ function init_page()
     table.append(create_header_row(['Team', '', 'HoF', 'Champ', 'Reigning Champ', `${year} Event Impact`, `${year} Event Wins`,
         'Reigning Event Winner', `${year} Event Finalists`, 'EI', `${year - 1} Event Wins`]))
 
-    let card = new Card('card', contents)
-    preview.append(new PageFrame('', '', [card]).element)
+    let card = new WRCard(contents)
+    preview.append(new WRPage('', [card]))
 
     let teams = Object.keys(dal.teams)
     if (teams.length > 0)
     {
         let awards = {}
 
-        if (!TBA_KEY)
+        // request the TBA key if it doesn't already exist
+        let key_query = cfg.tba_query
+        if (!key_query)
         {
-            if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-            {
-                TBA_KEY = cfg.user.settings.tba_key
-            }
-            if (!TBA_KEY)
-            {
-                alert('No API key found for TBA!')
-                return
-            }
+            return
         }
-        
+
         for (let team of teams)
         {
-            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/awards?${key_query}`)
                 .then(response => {
                     if (response.status == 401)
                     {
@@ -134,7 +128,7 @@ function init_page()
                             {
                                 let row = table.insertRow()
                                 row.append(create_header(team))
-                                row.append(create_header(dal.get_value(team, 'meta.name')))
+                                row.append(create_header(dal.teams[team].name))
                                 row.insertCell().innerText = award_list.impact ? award_list.impact : ''
                                 row.insertCell().innerText = award_list.champs ? award_list.champs : ''
                                 row.insertCell().innerText = award_list.prev_champ ? '✔' : ''

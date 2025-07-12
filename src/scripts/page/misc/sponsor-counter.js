@@ -45,19 +45,12 @@ function process_year()
     let sponsor = search.element.value.toLowerCase()
     summary.innerText = 'Loading data....'
 
-    table.append(create_header_row(['Number', 'Nickname', 'Location', 'Name']))
+    table.replaceChildren(create_header_row(['Number', 'Nickname', 'Location', 'Name']))
 
-    if (!TBA_KEY)
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let count = 0
@@ -65,7 +58,7 @@ function process_year()
     for (let i = 0; i <= 21; i++)
     {
         // fetch list of all events in the year
-        fetch(`https://www.thebluealliance.com/api/v3/teams/${year}/${i}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/teams/${year}/${i}/simple?${key_query}`)
             .then(response => {
                 if (response.status === 401) {
                     alert('Invalid API Key Suspected')

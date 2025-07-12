@@ -19,9 +19,9 @@ function init_page()
 	gaps_tab.style.textAlign = 'right'
 	lasts_tab = document.createElement('table')
 	lasts_tab.style.textAlign = 'right'
-	let gaps = new Card('gaps_card', gaps_tab)
-	let lasts = new Card('lasts_card', lasts_tab)
-	preview.append(new PageFrame('', '', [gaps, lasts]).element)
+	let gaps = new WRCard(gaps_tab)
+	let lasts = new WRCard(lasts_tab)
+	preview.append(new WRPage('', [gaps, lasts]))
 
 	gaps_tab.append(create_header_row(['Consecutive Years Inactive', 'Num Team Nums', 'Teams']))
 	lasts_tab.append(create_header_row(['Last Year Before Inactive', 'Num Team Nums']))
@@ -38,17 +38,11 @@ function init_page()
  */
 async function process_teams()
 {
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
 	let gaps = {}
@@ -58,7 +52,7 @@ async function process_teams()
 	let loaded_teams = 0
 	for (let i = 0; i * 500 < 10000; i++)
 	{
-        fetch(`https://www.thebluealliance.com/api/v3/teams/${i}/keys${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+        fetch(`https://www.thebluealliance.com/api/v3/teams/${i}/keys${key_query}`)
             .then(response => {
                 if (response.status === 401) {
                     alert('Invalid API Key Suspected')
@@ -69,7 +63,7 @@ async function process_teams()
 				total_teams += keys.length
 				for (let team of keys)
 				{
-					fetch(`https://www.thebluealliance.com/api/v3/team/${team}/years_participated${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+					fetch(`https://www.thebluealliance.com/api/v3/team/${team}/years_participated${key_query}`)
 						.then(response => {
 							if (response.status === 401) {
 								alert('Invalid API Key Suspected')

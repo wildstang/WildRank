@@ -26,9 +26,6 @@ const CACHE_LIST = [
     '/scripts/lib/transfer.js',
     '/scripts/lib/whiteboard-obj.js',
     /* don't cache misc scripts that rely on tba or are out of date
-    '/scripts/page/misc/2022-score-estimator.js',
-    '/scripts/page/misc/2023-rp.js',
-    '/scripts/page/misc/2023-score-estimator.js',
     '/scripts/page/misc/district-counter.js',
     '/scripts/page/misc/event-planner.js',
     '/scripts/page/misc/international-counter.js',

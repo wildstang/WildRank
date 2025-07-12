@@ -9,7 +9,7 @@
 const REGIONAL = 0
 const TURKIYE = ['Türkiye', 'Turkiye', 'Turkey']
 
-var summary, table
+var summary, table, year_el
 
 /**
  * function:    init_page
@@ -19,21 +19,21 @@ var summary, table
  */
 function init_page()
 {
-    let year = new Entry('year', 'Year', cfg.year)
-    year.type = 'number'
-    let entry_col = new ColumnFrame('', '', [year])
-    let run = new Button('run', 'Run', 'process_year()')
+    year_el = new WREntry('Year', cfg.year)
+    year_el.type = 'number'
+    let entry_col = new WRColumn('', [year_el])
+    let run = new WRButton('Run', process_year)
     let label = document.createElement('h4')
     label.className = 'input_label'
     label.innerHTML = '&nbsp;'
-    let button_col = new ColumnFrame('', '', [label, run])
+    let button_col = new WRColumn('', [label, run])
     let card_contents = document.createElement('span')
     summary = document.createElement('summary')
     table = document.createElement('table')
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
-    let card = new Card('card', card_contents)
-    preview.append(new PageFrame('', '', [entry_col, button_col, card]).element)
+    let card = new WRCard(card_contents)
+    preview.append(new WRPage('', [entry_col, button_col, card]))
 }
 
 /**
@@ -44,29 +44,23 @@ function init_page()
  */
 function process_year()
 {
-    let year = document.getElementById('year').value
+    let year = year_el.element.value
     summary.innerText = 'Loading data....'
 
     table.append(create_header_row(['Regional', 'Location', 'Total Teams', 'International Teams', 'Percent International']))
 
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let regionals = {}
     let processed = 0
 
     // fetch list of all events in the year
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}/simple${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -78,7 +72,7 @@ function process_year()
             for (let event of regional_events)
             {
                 // fetch list of teams in each event
-                fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/teams/simple${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                fetch(`https://www.thebluealliance.com/api/v3/event/${event.key}/teams/simple${key_query}`)
                     .then(response => {
                         if (response.status === 401) {
                             alert('Invalid API Key Suspected')
@@ -90,7 +84,7 @@ function process_year()
                         for (let team of teams)
                         {
                             // turkiye has 3 different spellings and that was messing up the data
-                            if (team.country !== event.country && !(TURKIYE.includes(team.country) && TURKIYE.includes(event.country)))
+                            if (team.country !== event.country && !(TURKIYE.includes(team.country) && TURKIYE.includes(event.country)) && !(team.country === 'Chinese Taipei' && event.country === 'Taiwan'))
                             {
                                 if (!regionals.hasOwnProperty(event.key))
                                 {
@@ -107,7 +101,13 @@ function process_year()
                         // when all events have been processed
                         if (++processed === regional_events.length)
                         {
-                            let keys = Object.keys(regionals).sort()
+                            let keys = Object.keys(regionals)
+                            for (let event of keys)
+                            {
+                                regionals[event].percent = (100 * regionals[event].international / regionals[event].teams).toFixed(2)
+                            }
+                            keys.sort((a,b) => regionals[b].percent - regionals[a].percent)
+
                             let total = 0
                             for (let event of keys)
                             {

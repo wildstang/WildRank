@@ -16,7 +16,7 @@ var summary, table, event_entry
 function init_page()
 {
     header_info.innerText = 'Team Socials'
-    event_entry = new WREntry('Event ID', event_id)
+    event_entry = new WREntry('Event ID', dal.event_id)
     let entry_col = new WRColumn('', [event_entry])
     let run = new WRButton('Run', process_event)
     let label = document.createElement('h4')
@@ -43,23 +43,16 @@ function process_event()
 
     table.replaceChildren(create_header_row(['Team', 'Facebook', 'Github', 'Instagram', 'Twitter', 'YouTube']))
 
-    if (!TBA_KEY)
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let platforms = ['facebook-profile', 'github-profile', 'instagram-profile', 'twitter-profile', 'youtube-channel']
     let team_socials = {}
     // fetch list of all events in the year
-    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/keys${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/event/${event_id}/teams/keys${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -70,7 +63,7 @@ function process_event()
             console.log(teams)
             for (let team of teams)
             {
-                fetch(`https://www.thebluealliance.com/api/v3/team/${team}/social_media${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                fetch(`https://www.thebluealliance.com/api/v3/team/${team}/social_media${key_query}`)
                     .then(response => {
                         if (response.status === 401) {
                             alert('Invalid API Key Suspected')
@@ -96,7 +89,7 @@ function process_event()
                         if (Object.keys(team_socials).length === teams.length)
                         {
                             let csv = ''
-                            let team_keys = Object.keys(team_socials).sort()
+                            let team_keys = Object.keys(team_socials).sort((a,b) => a - b)
                             for (let team of team_keys)
                             {
                                 let row = table.insertRow()

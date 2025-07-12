@@ -9,7 +9,7 @@ WINNER_TYPE = 1
 
 var partners = {}
 
-var summary, table
+var summary, table, team
 
 /**
  * function:    init_page
@@ -19,21 +19,21 @@ var summary, table
  */
 function init_page()
 {
-    let team = new Entry('team', 'Team', cfg.user.settings.team_number)
+    team = new WREntry('Team', cfg.user.settings.team_number)
     team.type = 'number'
-    let entry_col = new ColumnFrame('', '', [team])
-    let run = new Button('run', 'Run', 'handle_team()')
+    let entry_col = new WRColumn('', [team])
+    let run = new WRButton('Run', handle_team)
     let label = document.createElement('h4')
     label.className = 'input_label'
     label.innerHTML = '&nbsp;'
-    let button_col = new ColumnFrame('', '', [label, run])
+    let button_col = new WRColumn('', [label, run])
     let card_contents = document.createElement('span')
     summary = document.createElement('summary')
     table = document.createElement('table')
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
-    let card = new Card('card', card_contents)
-    preview.append(new PageFrame('', '', [entry_col, button_col, card]).element)
+    let card = new WRCard(card_contents)
+    preview.append(new WRPage('', [entry_col, button_col, card]))
 }
 
 /**
@@ -44,28 +44,22 @@ function init_page()
  */
 function handle_team()
 {
-    let team = document.getElementById('team').value
+    team_num = team.element.value
     summary.innerText = 'Loading data....'
     table.replaceChildren()
 
-    if (!TBA_KEY)
+    // request the TBA key if it doesn't already exist
+    let key_query = cfg.tba_query
+    if (!key_query)
     {
-        if (cfg.user.settings && cfg.user.settings.keys && cfg.user.settings.tba_key)
-        {
-            TBA_KEY = cfg.user.settings.tba_key
-        }
-        if (!TBA_KEY)
-        {
-            alert('No API key found for TBA!')
-            return
-        }
+        return
     }
 
     let total = 0
     let count = 0
 
     // fetch list of team-year's awards
-    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/awards${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')
@@ -80,7 +74,7 @@ function handle_team()
                 {
                     total++
                     // fetch list of events's awards
-                    fetch(`https://www.thebluealliance.com/api/v3/event/${award.event_key}/awards${build_query({[TBA_AUTH_KEY]: TBA_KEY})}`)
+                    fetch(`https://www.thebluealliance.com/api/v3/event/${award.event_key}/awards${key_query}`)
                         .then(response => {
                             if (response.status === 401) {
                                 alert('Invalid API Key Suspected')
@@ -97,7 +91,7 @@ function handle_team()
                                     {
                                         // remove the requested team
                                         let partner = winner.team_key.substring(3)
-                                        if (partner !== team)
+                                        if (partner !== team_num)
                                         {
                                             // add partner-event to list
                                             if (!(partner in partners))
@@ -123,7 +117,7 @@ function handle_team()
             }
         })
         .catch(err => {
-            console.log(`Error fetching ${team} awards, ${err}`)
+            console.log(`Error fetching ${team_num} awards, ${err}`)
         })
 }
 
@@ -135,10 +129,9 @@ function handle_team()
  */
 function populate_table()
 {
-    let team = document.getElementById('team').value
-    summary.innerText = `${team} has won with ${Object.keys(partners).length} unique partners.`
     table.append(create_header_row(['Team', 'Banners', 'Events']))
 
+    let max = []
     let teams = Object.keys(partners)
     for (let partner of teams)
     {
@@ -147,5 +140,16 @@ function populate_table()
         row.insertCell().innerText = partner
         row.insertCell().innerText = events.length
         row.insertCell().innerText = events.join(', ')
+        if (max.length === 0 || events.length > partners[max[0]].length)
+        {
+            max = [partner]
+        }
+        else if (events.length === partners[max[0]].length)
+        {
+            max.push(partner)
+        }
     }
+
+    let team_num = team.element.value
+    summary.innerHTML = `${team_num} has won with ${Object.keys(partners).length} unique partners.<br>${max.join(', ')} has won ${partners[max[0]].length} events with ${team_num}.`
 }

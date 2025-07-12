@@ -180,6 +180,7 @@ function update_user_type()
         role_buttons.add_option('Event Prep', () => open_role('prep'))
         role_buttons.add_option('Debug', () => open_role('debug'))
         role_buttons.add_option('Danger Zone', () => open_role('danger'))
+        role_buttons.add_option('Extras', () => open_role('extras'))
         role_options.replaceChildren(role_buttons)
     }
 }
