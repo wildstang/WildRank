@@ -43,13 +43,13 @@ function init_page()
     summary_card = new WRMultiNumber('', ['Pits', 'Matches', 'Latest Match'], ['-', '-', '-'])
 
     // create transfer buttons
-    let pull_tba = new WRLinkButton('Pull from TBA', () => preload_event(populate))
+    let pull_tba = new WRButton('Pull from TBA', () => preload_event(populate))
     pull_tba.add_class('slim')
-    let export_cfg = new WRLinkButton('Export Config', ZipHandler.export_setup)
+    let export_cfg = new WRButton('Export Config', ZipHandler.export_setup)
     export_cfg.add_class('slim')
-    let import_res = new WRLinkButton('Import Results', () => ZipHandler.import_results(populate))
+    let import_res = new WRButton('Import Results', () => ZipHandler.import_results(populate))
     import_res.add_class('slim')
-    let export_dat = new WRLinkButton('Export Data', ZipHandler.export_data)
+    let export_dat = new WRButton('Export Data', ZipHandler.export_data)
     export_dat.add_class('slim')
 
     // create result breakdown card
