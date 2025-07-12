@@ -32,9 +32,8 @@ function init_page()
 
         // create the whiteboard and add it to the card
         whiteboard = new Whiteboard()
-        let card = new WRCard([whiteboard.canvas], true)
+        let card = new WRCard([whiteboard.canvas])
         card.space_after = false
-        init_canvas()
 
         // create the whiteboard drawing controls and place them in a stack with the whiteboard
         let game_piece = new WRMultiButton('')
@@ -52,7 +51,9 @@ function init_page()
         preview.append(stack)
 
         // update the match list
-        build_match_list()
+        let first = build_match_list()
+        init_canvas()
+        open_option(first)
     }
     else
     {
@@ -111,6 +112,7 @@ function build_match_list()
         first = first_selected
     }
     open_option(first)
+    return first
 }
 
 /**
