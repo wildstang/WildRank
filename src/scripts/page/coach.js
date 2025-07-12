@@ -80,6 +80,8 @@ function init_page()
         }
 
         build_match_list()
+
+        whiteboard.start()
     }
     else
     {

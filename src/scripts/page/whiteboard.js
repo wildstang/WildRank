@@ -54,6 +54,8 @@ function init_page()
         let first = build_match_list()
         init_canvas()
         open_option(first)
+
+        whiteboard.start()
     }
     else
     {

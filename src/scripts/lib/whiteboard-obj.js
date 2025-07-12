@@ -155,9 +155,6 @@ class Whiteboard
             magnet.x *= rescale_factor
             magnet.y *= rescale_factor
         }
-
-        // re-draw
-        this.draw()
     }
 
     /**
@@ -166,7 +163,6 @@ class Whiteboard
     clear_lines()
     {
         this.lines = []
-        this.draw()
     }
 
     /**
@@ -208,9 +204,6 @@ class Whiteboard
     
             // create and add the magnet
             this.magnets.push(new Magnet(name, image, x, y, 'white'))
-
-            // re-draw
-            this.draw()
         }
     }
 
@@ -238,9 +231,6 @@ class Whiteboard
             alliance = c.color
         }
         this.magnets.push(new Magnet(team_num, image, x / this.scale_factor, y / this.scale_factor, alliance))
-
-        // re-draw
-        this.draw()
     }
 
     /**
@@ -277,9 +267,6 @@ class Whiteboard
         }
 
         this.current_match = match_key
-
-        // re-draw
-        this.draw()
     }
 
     /**
@@ -356,9 +343,6 @@ class Whiteboard
             this.carrying = -1
             touching = false
         }
-
-        // re-draw on every interaction
-        this.draw()
     }
 
     /**
@@ -366,6 +350,7 @@ class Whiteboard
      */
     draw()
     {
+        console.log(`draw ${this.magnets.length} magnets ${this.lines.length} lines`)
         this.canvas.width = this.field_width
         this.canvas.height = this.field_height
 
@@ -395,5 +380,13 @@ class Whiteboard
             context.strokeStyle = line.color
             context.stroke()
         }
+    }
+
+    /**
+     * Redraw the canvas at 60 fps
+     */
+    start()
+    {
+        setInterval(this.draw.bind(this), 1000 / 60)
     }
 }
