@@ -219,6 +219,15 @@ function open_role(role)
             {
                 button = new WRButton(BUTTONS[key].name, () => open_role(key))
             }
+            else if (key === 'import_results')
+            {
+                button = new WRButton(BUTTONS[key].name, ZipHandler.import_results)
+            }
+            else if (key === 'export_results')
+            {
+                // NOTE: call is wrapped so that the event doesn't override the default parameter
+                button = new WRButton(BUTTONS[key].name, () => ZipHandler.export_results())
+            }
             else
             {
                 button = new WRButton(BUTTONS[key].name, () => eval(`${key}()`))
@@ -280,7 +289,6 @@ function has_matches()
  */
 function is_blocked(id)
 {
-    console.log(id)
     let limits = BUTTONS[id].limits
     let configs = BUTTONS[id].configs
 
@@ -309,60 +317,6 @@ function is_blocked(id)
         return `No results found.`
     }
     return false
-}
-
-/**
- * function:    import_results
- * parameters:  none
- * returns:     none
- * description: Starts the zip import process for results.
- */
-function import_results()
-{
-    let handler = new ZipHandler()
-    handler.match     = true
-    handler.note      = true
-    handler.pit       = true
-    handler.pictures  = true
-    handler.picklists = true
-    handler.on_complete = init_page
-    handler.import_zip_from_file(true)
-}
-
-/**
- * function:    export_results
- * parameters:  none
- * returns:     none
- * description: Starts the zip export process for results.
- */
-function export_results()
-{
-    let handler = new ZipHandler()
-    handler.match     = true
-    handler.note      = true
-    handler.pit       = true
-    handler.pictures  = true
-    handler.user = cfg.user.state.user_id
-    handler.export_zip()
-}
-
-/**
- * function:    export_config
- * parameters:  none
- * returns:     none
- * description: Starts the zip export process for config.
- */
-function export_config()
-{
-    let handler = new ZipHandler()
-    handler.event       = true
-    handler.config      = true
-    handler.smart_stats = true
-    handler.coach       = true
-    handler.settings    = true
-    handler.pictures    = true
-    handler.user = cfg.user.state.user_id
-    handler.export_zip()
 }
 
 /**
