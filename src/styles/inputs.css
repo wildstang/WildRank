@@ -489,3 +489,9 @@
     display: flex;
     justify-content: space-between;
 }
+
+#broad-role {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    font-weight: bold;
+}

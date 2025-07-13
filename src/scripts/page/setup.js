@@ -30,7 +30,7 @@ function init_page()
 function step_setup()
 {
     // the primary column for performing setup
-    let setup_col = new WRColumn('Setup')
+    let setup_col = new WRColumn()
     let columns = [setup_col]
 
     // count the number of teams and matches for the event
@@ -68,26 +68,12 @@ function step_setup()
 
         setup_col.add_input(new WRButton('Next', set_event_id))
     }
-    // if an invalid user ID is provided prompt for it second, also add the event status column
-    else if (cfg.user.state.user_id.length !== 6)
-    {
-        user_id_el = new WREntry('School ID', 111112)
-        user_id_el.type = 'number'
-        user_id_el.bounds = [100000, 999999]
-        user_id_el.value = cfg.user.state.user_id
-        user_id_el.on_text_change = () => cfg.user.state.user_id = user_id_el.element.value
-        setup_col.add_input(user_id_el)
-
-        setup_col.add_input(new WRButton('Next', set_user_id))
-        setup_col.add_input(reset)
-
-        columns.push(status_col)
-    }
     // the final page continues to show event status and prompts for position and scouting type
     else
     {
         let default_type = cfg.is_admin() ? 'View' : 'Scout'
         user_type_el = new WRSelect('', ['Scout', 'View', 'Adv'], default_type)
+        user_type_el.input_id = 'broad-role'
         user_type_el.add_class('slim')
         user_type_el.on_click = update_user_type
         setup_col.add_input(user_type_el)
@@ -120,50 +106,63 @@ function update_user_type()
 {
     if (user_type_el.selected_option === 'Scout')
     {
-        position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
-        let cfg_pos = cfg.get_position()
-        if (cfg_pos >= 0 && cfg_pos < 6)
+        // if an invalid user ID is provided prompt for it second, also add the event status column
+        if (cfg.user.state.user_id.length !== 6)
         {
-            let color = 'Red'
-            let pos = cfg_pos
-            if (pos > 3)
-            {
-                color = 'Blue'
-                pos = pos - 3
-            }
-            position_el.add_option(`${color} ${pos}`)
+            user_id_el = new WREntry('School ID', 111112)
+            user_id_el.type = 'number'
+            user_id_el.bounds = [100000, 999999]
+            user_id_el.value = cfg.user.state.user_id
+            user_id_el.on_text_change = () => cfg.user.state.user_id = user_id_el.element.value
+            role_options.replaceChildren(user_id_el, new WRButton('Next', set_user_id))
         }
         else
         {
-            for (let i = 1; i <= 6; i++)
+            position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
+            let cfg_pos = cfg.get_position()
+            if (cfg_pos >= 0 && cfg_pos < 6)
             {
                 let color = 'Red'
-                let pos = i
-                if (i > 3)
+                let pos = cfg_pos
+                if (pos > 3)
                 {
                     color = 'Blue'
-                    pos = i - 3
+                    pos = pos - 3
                 }
                 position_el.add_option(`${color} ${pos}`)
-                if (cfg.user.state.position === i - 1)
+            }
+            else
+            {
+                for (let i = 1; i <= 6; i++)
                 {
-                    position_el.value = position_el.options[cfg.user.state.position]
+                    let color = 'Red'
+                    let pos = i
+                    if (i > 3)
+                    {
+                        color = 'Blue'
+                        pos = i - 3
+                    }
+                    position_el.add_option(`${color} ${pos}`)
+                    if (cfg.user.state.position === i - 1)
+                    {
+                        position_el.value = position_el.options[cfg.user.state.position]
+                    }
                 }
             }
-        }
 
-        // build stack of buttons to scout
-        let modes = cfg.scouting_modes
-        let primary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
-        let other_scout = new WRMultiButton('')
-        other_scout.add_class('slim')
-        for (let mode of modes.splice(1))
-        {
-            let name = cfg.get_scout_config(mode).name
-            other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
-        }
+            // build stack of buttons to scout
+            let modes = cfg.scouting_modes
+            let primary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
+            let other_scout = new WRMultiButton('')
+            other_scout.add_class('slim')
+            for (let mode of modes.splice(1))
+            {
+                let name = cfg.get_scout_config(mode).name
+                other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
+            }
 
-        role_options.replaceChildren(position_el, new WRStack([primary_scout, other_scout]))
+            role_options.replaceChildren(position_el, new WRStack([primary_scout, other_scout]))
+        }
     }
     else if (user_type_el.selected_option === 'View')
     {
