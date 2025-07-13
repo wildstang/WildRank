@@ -10,7 +10,7 @@ include('input-builder')
 const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
 var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry
-var preview, options
+var config_preview, options
 
 /**
  * function:    init_page
@@ -43,14 +43,14 @@ function build_page()
     id_entry = new WREntry('ID:')
     id_entry.description = 'Unique identifier, automatically generated.'
 
-    preview = document.createElement('span')
+    config_preview = document.createElement('span')
     options = document.createElement('div')
     preview.replaceChildren(new WRPage('Add to...', [
             new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
             new WRColumn('', [name_entry, id_entry]),
             new WRColumn('', [options])
         ]),
-        preview,
+        config_preview,
         new WRPage('', [
             new WRColumn('', [new WRButton('Reset Config', load_config)]),
             new WRColumn('', [new WRButton('Download Config', download_config)]),
@@ -403,7 +403,7 @@ function build_page_from_config()
     let mode_idx = mode_dd.element.selectedIndex
     if (mode_idx === cfg.scout.configs.length)
     {
-        preview.replaceChildren()
+        config_preview.replaceChildren()
         return
     }
 
@@ -462,7 +462,7 @@ function build_page_from_config()
             }
         }
     }
-    preview.replaceChildren(...pages.map(p => p))
+    config_preview.replaceChildren(...pages.map(p => p))
 
     // mark each selected box as such
     for (let id of select_ids)
