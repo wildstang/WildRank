@@ -9,6 +9,8 @@
 var cfg = new Config()
 cfg.load_configs(on_config)
 
+var dal
+
 /**
  * Executes after the configuration has successfully loaded.
  */
@@ -30,7 +32,9 @@ function on_config()
     run_after_load(() => init_page())
 }
 
-var dal
+var header_info, preview, pick_lists
+var left_list, left_filter
+var right_list, right_filter
 
 // determine the requested page
 var urlParams = new URLSearchParams(window.location.search)
@@ -174,16 +178,83 @@ function home(right=false)
     window_open(url, right)
 }
 
+/**
+ * Creates a new card with a message in the header and a description below it.
+ * @param {String} message Header message
+ * @param {String} description Optional extended description
+ */
+function add_error_card(message, description='')
+{
+    let header = document.createElement('h2')
+    header.textContent = message
+    let details = document.createElement('span')
+    details.textContent = description
+    let card = new WRCard([header, details])
+    preview.append(card)
+}
+
 // open the updater page when u is pressed 5 times
 var u_count = 0
 document.onkeydown = function (e)
 {
-    if (e.key === 'u')
+    let offset = 0
+    switch (e.key)
     {
-        u_count++
-        if (u_count === 5)
-        {
-            window_open('updater.html')
-        }
+        case 'u':
+            u_count++
+            if (u_count === 5)
+            {
+                window_open('updater.html')
+            }
+            break
+
+        case 'ArrowUp':
+            offset = -2
+        case 'ArrowDown':
+            offset += 1
+
+            // find currently selected option
+            let options = document.getElementById('option_list').children
+            for (let i = 0; i < options.length; ++i)
+            {
+                if (options[i].classList.contains('selected'))
+                {
+                    // increment/decrement selected index by arrow press
+                    let new_index = i + offset
+                    // click on newly selected option and scroll
+                    if (new_index >= 0 && new_index < options.length)
+                    {
+                        options[new_index].click()
+                        scroll_to('option_list', options[new_index].id)
+                        return false
+                    }
+                }
+            }
+            break
     }
 }
+
+run_after_load(function()
+{
+    // fix for selection pages being cut off by notch/home bar
+    let iPad = navigator.userAgent.match(/iPad/) ||
+                (navigator.userAgent.match(/Mac/) && navigator.maxTouchPoints && navigator.maxTouchPoints > 2)
+    let iPhone = navigator.userAgent.match(/iPhone/) || navigator.platform == "iPhone"
+    if (iPhone) {
+        document.body.style.height = "93%"
+    }
+    else if (iPad) {
+        document.body.style.height = "97%"
+    }
+
+    // build references for various page components
+    header_info = document.getElementById('header_info')
+    preview = document.getElementById('preview')
+    pick_lists = document.getElementById('pick_lists')
+
+    left_list = document.getElementById('option_list')
+    left_filter = document.getElementById('filter')
+
+    right_list = document.getElementById('secondary_option_list')
+    right_filter = document.getElementById('secondary_filter')
+})

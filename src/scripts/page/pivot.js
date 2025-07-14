@@ -316,7 +316,7 @@ function init_page()
     // build lists
     keys = cfg.filter_keys(cfg.get_keys(), ['string', 'object'], true)
     enable_list()
-    enable_list(true)
+    enable_list(false)
     // iterate through result keys
     let names = cfg.get_names(keys)
     for (let i in keys)
@@ -330,7 +330,7 @@ function init_page()
     for (let team of dal.team_numbers)
     {
         let op = new WRDescriptiveOption(team, team, dal.teams[team].name, false)
-        add_option(op, true)
+        add_option(op, false)
     }
 
     // load column info from session storage
@@ -458,7 +458,7 @@ function alt_option(key)
  */
 function toggle_select_all()
 {
-    let options = document.getElementById('secondary_option_list').children
+    let options = right_list.children
     for (let i = 0; i < options.length; ++i)
     {
         if (!options[i].classList.contains('selected'))

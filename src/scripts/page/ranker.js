@@ -49,7 +49,7 @@ function init_page()
     button_col.add_input(edit_stats)
 
     preview.replaceChildren(page)
-    enable_list(true)
+    enable_list(false)
 
     // build dynamic components
     update_params()
@@ -173,7 +173,7 @@ function calculate()
         team_order.reverse()
     }
 
-    clear_list(true)
+    clear_list(false)
     for (let i in team_order)
     {
         let team_num = team_order[i]
@@ -202,7 +202,7 @@ function calculate()
         
         let title = `${i} ${team_num} ${val}`
         let op = new WROption(title, title)
-        add_option(op, true)
+        add_option(op, false)
     }
 }
 
