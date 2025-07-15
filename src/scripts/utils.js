@@ -713,3 +713,17 @@ function position_to_name(pos)
 {
     return pos < 3 ? `Red ${pos + 1}` : `Blue ${pos - 2}`
 }
+
+/**
+ * Runs position_to_name for every position.
+ * @returns Array of position names
+ */
+function get_position_names()
+{
+    let names = []
+    for (let i = 0; i < 6; ++i)
+    {
+        names.push(position_to_name(i))
+    }
+    return names
+}

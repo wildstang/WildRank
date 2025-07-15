@@ -19,7 +19,7 @@ function init_page()
     header_info.innerHTML = 'Generate Results'
     
     // load in and count qualification matches
-    let count = Object.keys(dal.matches).length
+    let count = Object.keys(dal.match_keys).length
 
     let page = new WRPage()
     let left_col = new WRColumn()
@@ -27,7 +27,7 @@ function init_page()
     let right_col = new WRColumn()
     page.add_column(right_col)
 
-    type_form = new WRSelect('Mode', MODES.map(m => capitalize(m)), 'Match')
+    type_form = new WRSelect('Mode', cfg.scout.configs.map(c => c.name), 'Match')
     type_form.on_change = hide_buttons
     left_col.add_input(type_form)
 
@@ -36,7 +36,7 @@ function init_page()
     user_form.type = 'number'
     left_col.add_input(user_form)
 
-    pos_form = new WRDropdown('Position', ['All'].concat(dal.get_position_names()))
+    pos_form = new WRDropdown('Position', ['All'].concat(get_position_names()))
     right_col.add_input(pos_form)
 
     min_value = new WREntry('First Match', 1)
@@ -60,20 +60,20 @@ function init_page()
  */
 function hide_buttons()
 {
-    let mode = MODES[type_form.selected_index]
-    if (mode === PIT_MODE)
+    let mode = cfg.scout.configs[type_form.selected_index]
+    if (mode.type === 'team')
     {
         min_value.label_el.innerText = 'First Team'
         max_value.label_el.innerText = 'Last Team'
         min_value.element.value = 1
         max_value.element.value = Math.max(...Object.keys(dal.teams))
     }
-    else if (mode === MATCH_MODE || mode == NOTE_MODE)
+    else
     {
         min_value.label_el.innerText = 'First Match'
         max_value.label_el.innerText = 'Last Match'
         min_value.element.value = 1
-        max_value.element.value = Math.max(...Object.values(dal.matches).map(m => m.match_number))
+        max_value.element.value = Math.max(...Object.values(dal.matches).map(m => m.match_num))
     }
 }
 
@@ -83,30 +83,30 @@ function hide_buttons()
 function create_results()
 {
     // load in appropriate config
-    let mode = MODES[type_form.selected_index]
+    let mode = cfg.scout.configs[type_form.selected_index].id
     let pos = pos_form.element.selectedIndex
 
     let min = min_value.element.value
     let max = max_value.element.value
-    if (mode === PIT_MODE)
+    if (mode.type === 'team')
     {
         // filter out and generate for each selected team
         if (max >= min)
         {
-            let teams = Object.keys(dal.teams)
-            let ts = teams.filter(t => t >= min && t <= max)
+            let ts = dal.team_numbers.filter(t => parseInt(t) >= min && parseInt(t) <= max)
+            console.log(ts)
             for (let t of ts)
             {
-                create_random_result(mode, pos-1, -1, t, 'white')
+                create_random_result(mode, pos-1, false, t, 'white')
             }
-            alert(`${ts.length} pit results generated`)
+            alert(`${ts.length} team results generated`)
         }
         else
         {
             alert('Invalid range')
         }
     }
-    else if (mode === MATCH_MODE || mode == NOTE_MODE)
+    else
     {
         // filter out and generate for each selected position in each selected match
         if (max >= min)
@@ -116,8 +116,7 @@ function create_results()
             {
                 let fteams = Object.values(dal.get_match_teams(match_key))
                     .filter((t, j) => pos == 0 || pos == j - 1)
-                
-                if (dal.matches[match_key].match_number <= max && dal.matches[match_key].comp_level === 'qm')
+                if (dal.matches[match_key].match_num <= max && dal.matches[match_key].comp_level === 'qm')
                 {
                     for (let j in fteams)
                     {
@@ -167,7 +166,7 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num)
         result: {}
     }
 
-    if (scout_mode !== PIT_MODE)
+    if (match_key)
     {
         results.meta.result.match_key = match_key
     }
@@ -254,5 +253,5 @@ function create_random_result(scout_mode, scout_pos, match_key, team_num)
         }
     }
 
-    localStorage.setItem(`result-${(new Date()).getTime()}${Math.floor(Math.random() * 1000)}`, JSON.stringify(results))
+    localStorage.setItem(create_result_name(), JSON.stringify(results))
 }

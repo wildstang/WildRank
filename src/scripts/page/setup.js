@@ -122,28 +122,15 @@ function update_user_type()
             let cfg_pos = cfg.get_position()
             if (cfg_pos >= 0 && cfg_pos < 6)
             {
-                let color = 'Red'
-                let pos = cfg_pos
-                if (pos > 3)
-                {
-                    color = 'Blue'
-                    pos = pos - 3
-                }
-                position_el.add_option(`${color} ${pos}`)
+                position_el.add_option(position_to_name(pos))
             }
             else
             {
-                for (let i = 1; i <= 6; i++)
+                let positions = get_position_names()
+                for (let pos of positions)
                 {
-                    let color = 'Red'
-                    let pos = i
-                    if (i > 3)
-                    {
-                        color = 'Blue'
-                        pos = i - 3
-                    }
-                    position_el.add_option(`${color} ${pos}`)
-                    if (cfg.user.state.position === i - 1)
+                    position_el.add_option(pos)
+                    if (positions[cfg.user.state.position] === pos)
                     {
                         position_el.value = position_el.options[cfg.user.state.position]
                     }

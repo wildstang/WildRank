@@ -150,7 +150,7 @@ function populate()
     // create header row for match result table
     let header_row = match_table.insertRow()
     header_row.insertCell()
-    for (let k of ['Red 1', 'Red 2', 'Red 3', 'Blue 1', 'Blue 2', 'Blue 3'])
+    for (let k of get_position_names())
     {
         let th = document.createElement('th')
         th.innerText = k
