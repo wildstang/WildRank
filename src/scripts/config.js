@@ -1220,6 +1220,10 @@ class Result
         }
         else
         {
+            if (['min', 'max'].includes(obj.type))
+            {
+                obj.options = obj.results
+            }
             return [Object.assign(new Result(), obj)]
         }
     }
