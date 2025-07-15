@@ -820,7 +820,7 @@ class ZipHandler
             {
                 let result = JSON.parse(localStorage.getItem(file_name))
                 return result.meta.result.event_id === event_id &&
-                    (handler.results === true || result.meta.result.scout_mode === scout_mode)
+                    (handler.results === true || result.meta.result.scout_mode === handler.results)
             }
             return ((handler.event_data && [`event-${event_id}`, `matches-${event_id}`,
                     `rankings-${event_id}`, `teams-${event_id}`].includes(file_name)) ||
