@@ -101,7 +101,7 @@ function init_page()
                                                 // winner and finalist
                                                 for (let i in award.recipient_list)
                                                 {
-                                                    let team = award.recipient_list[i].team_key.substr(3)
+                                                    let team = award.recipient_list[i].team_key.substring(3)
                                                     if (Object.keys(events[e].teams).includes(team) && events[e].teams[team].award == '')
                                                     {
                                                         if (award.award_type == 1)
@@ -130,7 +130,7 @@ function init_page()
                                                 // ei
                                                 for (let i in award.recipient_list)
                                                 {
-                                                    let team = award.recipient_list[i].team_key.substr(3)
+                                                    let team = award.recipient_list[i].team_key.substring(3)
                                                     if (Object.keys(events[e].teams).includes(team) && events[e].teams[team].award == '')
                                                     {
                                                         events[e].teams[team].award = 'ei'

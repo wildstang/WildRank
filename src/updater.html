@@ -34,15 +34,15 @@
             let dot = addr.lastIndexOf('.')
             if (slash > -1 && dot > 0 && slash < dot)
             {
-                addr = addr.substr(0, addr.lastIndexOf('/'))
+                addr = addr.substring(0, addr.lastIndexOf('/'))
             }
             if (addr.endsWith('/'))
             {
-                addr = addr.substr(0, addr.length - 1)
+                addr = addr.substring(0, addr.length - 1)
             }
             if (addr.includes('?'))
             {
-                addr = addr.substr(0, addr.indexOf('?'))
+                addr = addr.substring(0, addr.indexOf('?'))
             }
             return addr
         }

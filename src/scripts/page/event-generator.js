@@ -247,7 +247,7 @@ function pull_teams(event_id, team_list)
                     }
                     teams.push(team)
 
-                    let year = event_id.substr(0, 4)
+                    let year = event_id.substring(0, 4)
                     fetch(`https://www.thebluealliance.com/api/v3/team/frc${team.team_number}/media/${year}${key_query}`)
                         .then(response => {
                             return response.json()

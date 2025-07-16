@@ -5,19 +5,17 @@
  * date:        2020-03-04
  */
 
-const MATCH_MODE = 'match'
-const PIT_MODE   = 'pit'
-const NOTE_MODE  = 'note'
-const MODES = [MATCH_MODE, PIT_MODE, NOTE_MODE]
-
 const MODE_QUERY = 'scout-mode'
 const TBA_AUTH_KEY = 'X-TBA-Auth-Key'
 
+//
+// URL Functions
+//
+
 /**
- * function:    window_open
- * parameters:  url, option
- * returns:     none
- * description: Opens in window if url is not empty.
+ * Opens a given URL.
+ * @param {String} url URL to open, does nothing if blank
+ * @param {Boolean} new_tab Whether to open the URL in a new tab
  */
 function window_open(url, new_tab=false)
 {
@@ -29,7 +27,6 @@ function window_open(url, new_tab=false)
 
 /**
  * Assembles a URL path for within the application.
- * 
  * @param {String} page Name of the page to load.
  * @param {Object} parameters Key value pairs to include in the query string.
  * @returns An assembled URL path.
@@ -45,10 +42,10 @@ function build_url(page, parameters={})
 }
 
 /**
- * function:    get_parameter
- * parameters:  desired key of parameter, default value of parameter
- * returns:     value of desired parameter or default
- * description: Attempt to get a parameter first as a URLSearchParam, otherwise return default.
+ * Gets a URL query parameter from URLSearchParam.
+ * @param {String} key Parameter key
+ * @param {String} dvalue Default parameter if not provided
+ * @returns Provided query value or default
  */
 function get_parameter(key, dvalue)
 {
@@ -62,280 +59,9 @@ function get_parameter(key, dvalue)
 }
 
 /**
- * function:    mean
- * parameters:  array of values
- * returns:     mean of given values
- * description: Calculates the mean of a given array of values.
- */
-function mean(values)
-{
-    if (values.length == 0)
-    {
-        return 0
-    }
-    return values.reduce((a, b) => a + b, 0) / values.length
-}
-
-/**
- * function:    std_dev
- * parameters:  array of values
- * returns:     standard deviation of given values
- * description: Calculates the standard deviation of a given array of values. 
- */
-function std_dev(values)
-{
-    if (values.length == 0)
-    {
-        return 0
-    }
-    let avg = mean(values)
-    return Math.sqrt(values.map(x => Math.pow(x - avg, 2)).reduce((a, b) => a + b) / values.length)
-}
-
-/**
- * function:    median
- * parameters:  array of values
- * returns:     median of given values
- * description: Calculates the median of a given array of values.
- */
-function median(values)
-{
-    let sorted = values.sort((a,b ) => a - b)
-    return sorted[Math.floor(sorted.length / 2)]
-}
-
-/**
- * function:    mode
- * parameters:  array of values
- * returns:     mode of given values
- * description: Calculates the mode of a given array of values.
- */
-function mode(values)
-{
-    let counts = {}
-    let maxVal = values[0]
-    for (let val of values)
-    {
-        if (val == null)
-        {
-            val = 'null'
-        }
-        // increase count of value if it exists already
-        if (Object.keys(counts).includes(val.toString())) counts[val]++
-        // start count of value if it has not been added yet
-        else counts[val] = 1
-
-        // if this was a most frequent increase the max count
-        if (counts[val] > counts[maxVal]) maxVal = val
-    }
-    return maxVal
-}
-
-/**
- * function:    random_bool
- * parameters:  odds of producing a 0
- * returns:     random boolean
- * description: Generates a random boolean.
- */
-function random_bool(low_odds=0.5)
-{
-    return Math.random() >= low_odds
-}
-
-/**
- * function:    random_int
- * parameters:  minimum and maximum result
- * returns:     random integer from min to max
- * description: Generates a random integer between two given bounds.
- */
-function random_int(min=0, max=10)
-{
-    return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-/**
- * Generates a random floating point number between two given bounds.
- * 
- * @param {number} min Minimum random value
- * @param {number} max Maximum random values
- * @returns Random float between min and max.
- */
-function random_float(min=0, max=10)
-{
-    return Math.random() * (max - min) + min
-}
-
-/**
- * function:    distance
- * parameters:  2 pairs of x, y coordinates
- * returns:     distance between 2 coordinates
- * description: Calculates the distance between 2 x, y coordinates.
- */
-function distance(x1, y1, x2, y2)
-{
-    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2))
-}
-
-/**
- * function:    contained
- * parameters:  list of vertices of shape, x, y coordinate of point
- * returns:     if the shape is container
- * description: Determines if a given point is contained in a shape.
- */
-function contained(vertices, x, y)
-{
-    let above = 0
-    let below = 0
-    // check which side of each line point is on
-    for (let i = 0; i < vertices.length; i++)
-    {
-        // get last vertices to make line
-        let j = i - 1
-        if (j < 0)
-        {
-            j = vertices.length - 1
-        }
-
-        let vx = vertices[i].x
-        let vy = vertices[i].y
-        let lvx = vertices[j].x
-        let lvy = vertices[j].y
-        
-        // determine if lines will intersect at all
-        if ((vx - x) * (lvx - x) < 0)
-        {
-            // build line formula and calculate intersecting y of line
-            let m = (vy - lvy) / (vx - lvx)
-            let b = -m * vx + vy
-            let ly = m * x + b
-    
-            // determine if point is above of below
-            if (y < ly)
-            {
-                above++
-            }
-            else if (y > ly)
-            {
-                below++
-            }
-            // if point is on line, it is inside
-            else
-            {
-                return true
-            }
-        }
-    }
-
-    // point is inside if there are an odd number of lines on each side of it
-    return above % 2 == 1 && below % 2 == 1
-}
-
-/**
- * function:    scroll_to
- * parameters:  scrollable element, goal item
- * returns:     none
- * description: Scrolls a given element so another can be seen.
- */
-function scroll_to(container, goal)
-{
-    // non-blanking spaces make it crash
-    // avoid these in selection options
-    if (goal.includes('&nbsp;'))
-    {
-        return
-    }
-    let option_top = document.getElementById(goal).getBoundingClientRect().top
-    let container_top = document.getElementById(container).getBoundingClientRect().top
-    let option_bottom = document.getElementById(goal).getBoundingClientRect().bottom
-    let container_bottom = document.getElementById(container).getBoundingClientRect().bottom
-    let offset_top = option_top - container_top
-    let offset_bottom = option_bottom - container_bottom
-
-    if(offset_bottom > 0)
-    {
-        document.getElementById(container).scrollBy(0, offset_bottom)
-    }
-    else if(offset_top < 0)
-    {
-        document.getElementById(container).scrollBy(0, offset_top)
-    }
-}
-
-/**
- * function:    ws
- * parameters:  team number
- * returns:     none
- * description: Makes the header rainbow, if 111 is the team number.
- */
-function ws(team_num)
-{
-    let header = document.getElementById('header')
-    if (team_num == '111')
-    {
-        header.style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840)'
-        header.style['background-size'] = '3600% 3600%'
-        header.style.animation = 'rainbow 36s ease infinite'
-    }
-    else if (team_num == '112')
-    {
-        header.style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8)'
-        header.style['background-size'] = '3600% 3600%'
-        header.style.animation = 'rainbow 9s ease infinite'
-    }
-    else
-    {
-        let color = cfg.theme['primary-color']
-        if (cfg.user.settings.use_team_color)
-        {
-            //color = dal.get_value(team_num, 'meta.color')
-        }
-        header.style.background = color
-        header.style['background-size'] = ''
-        header.style.animation = ''
-    }
-}
-
-/**
- * function:    unix_to_match_time
- * paramters:   unix timestamp
- * returns:     Time in format Day Hour:Minute
- * description: Converts a given unix timestamp to Day Hour:Minute.
- */
-function unix_to_match_time(unix_time)
-{
-    let time = new Date(unix_time * 1000)
-    let mins = `${time.getMinutes()}`
-    if (mins.length == 1)
-    {
-        mins = `0${mins}`
-    }
-    let hours = `${time.getHours()}`
-    if (hours.length == 1)
-    {
-        hours = `0${hours}`
-    }
-    let day = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'][time.getDay()]
-    let part = ''
-    if (cfg.user.settings.time_format === 12)
-    {
-        if (hours > 12)
-        {
-            hours -= 12
-            part = 'PM'
-        }
-        else
-        {
-            part = 'AM'
-        }
-    }
-    return `${day} ${hours}:${mins} ${part}`
-}
-
-/**
- * function:    parse_server_addr
- * parameters:  URL
- * returns:     The web server's address
- * description: Removes the path from the end of a URL.
+ * Removes the path from a given URL.
+ * @param {String} addr URL
+ * @returns Base server address
  */
 function parse_server_addr(addr)
 {
@@ -343,24 +69,24 @@ function parse_server_addr(addr)
     let dot = addr.lastIndexOf('.')
     if (slash > -1 && dot > 0 && slash < dot)
     {
-        addr = addr.substr(0, addr.lastIndexOf('/'))
+        addr = addr.substring(0, addr.lastIndexOf('/'))
     }
     if (addr.includes('?'))
     {
-        addr = addr.substr(0, addr.indexOf('?'))
+        addr = addr.substring(0, addr.indexOf('?'))
     }
     if (addr.endsWith('/'))
     {
-        addr = addr.substr(0, addr.length - 1)
+        addr = addr.substring(0, addr.length - 1)
     }
     return addr
 }
 
 /**
- * function:    check_server
- * parameters:  Server address, whether to notify on error
- * returns:     If the server is the custom Python web server.
- * description: Determines if the server is the custom Python web server, if it is not alerts the user.
+ * Determines whether the server supports WildRank features.
+ * @param {String} server Server URL
+ * @param {Boolean} notify Whether to notify the user
+ * @returns Whether the server is a POST server
  */
 function check_server(server, notify=true)
 {
@@ -399,10 +125,8 @@ function check_server(server, notify=true)
 }
 
 /**
- * function:    link
- * parameters:  stylesheet name
- * returns:     none
- * description: Includes a stylesheet by name.
+ * Links a specified stylesheet.
+ * @param {String} name 
  */
 function link(name)
 {
@@ -416,16 +140,14 @@ function link(name)
     }
     else
     {
-        s.href = `scripts/${name}.js`
+        s.href = `styles/${name}.css`
     }
     document.head.appendChild(s)
 }
 
 /**
- * function:    include
- * parameters:  script name
- * returns:     none
- * description: Includes a script by name.
+ * Links a specified script.
+ * @param {String} name 
  */
 function include(name)
 {
@@ -442,11 +164,192 @@ function include(name)
     document.head.appendChild(s)
 }
 
+//
+// Statistical Methods
+//
+
 /**
- * function:    apply_theme
- * parameters:  none
- * returns:     none
- * description: Applys the current theme to page.
+ * Computes the mean of a given array of values.
+ * @param {Array} values Array of numbers
+ * @returns Mean of the provided values
+ */
+function mean(values)
+{
+    if (values.length == 0)
+    {
+        return 0
+    }
+    return values.reduce((a, b) => a + b, 0) / values.length
+}
+
+/**
+ * Computes the standard deviation of a given array of values.
+ * @param {Array} values Array of numbers
+ * @returns Standard deviation of the provided values
+ */
+function std_dev(values)
+{
+    if (values.length == 0)
+    {
+        return 0
+    }
+    let avg = mean(values)
+    return Math.sqrt(values.map(x => Math.pow(x - avg, 2)).reduce((a, b) => a + b) / values.length)
+}
+
+/**
+ * Computes the median of a given array of values.
+ * @param {Array} values Array of numbers
+ * @returns Median of the provided values
+ */
+function median(values)
+{
+    let sorted = values.sort((a,b ) => a - b)
+    return sorted[Math.floor(sorted.length / 2)]
+}
+
+/**
+ * Computes the mode of a given array of values.
+ * @param {Array} values Array of values
+ * @returns Mode of the provided values
+ */
+function mode(values)
+{
+    let counts = {}
+    let maxVal = values[0]
+    for (let val of values)
+    {
+        if (val == null)
+        {
+            val = 'null'
+        }
+        // increase count of value if it exists already
+        if (Object.keys(counts).includes(val.toString())) counts[val]++
+        // start count of value if it has not been added yet
+        else counts[val] = 1
+
+        // if this was a most frequent increase the max count
+        if (counts[val] > counts[maxVal]) maxVal = val
+    }
+    return maxVal
+}
+
+//
+// Random Functions
+//
+
+/**
+ * Generates a random boolean.
+ * @param {Number} low_odds Odds to produce a 0
+ * @returns Random boolean value
+ */
+function random_bool(low_odds=0.5)
+{
+    return Math.random() >= low_odds
+}
+
+/**
+ * Generates a random integer.
+ * @param {Number} min Minimum allowed value
+ * @param {Number} max Maximum allowed value
+ * @returns Random int value
+ */
+function random_int(min=0, max=10)
+{
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+/**
+ * Generates a random floating point number.
+ * @param {Number} min Minimum allowed value
+ * @param {Number} max Maximum allowed value
+ * @returns Random float value
+ */
+function random_float(min=0, max=10)
+{
+    return Math.random() * (max - min) + min
+}
+
+/**
+ * Randomly generate a hex string of a given number of characters.
+ *  
+ * @param {int} length Number of hex character to generate.
+ * @returns A hex string of length length.
+ */
+function random_hex(length)
+{
+    let arr = new Array(length).fill(0)
+    return arr.map(() => Math.floor(Math.random(0.999) * 16).toString(16)).join('')
+}
+
+//
+// Page Functions
+//
+
+/**
+ * Scrolls a given container so the given element is visible.
+ * @param {HTMLElement} container Scrollable element
+ * @param {HTMLElement} goal Target element
+ */
+function scroll_to(container, goal)
+{
+    // non-blanking spaces make it crash
+    // avoid these in selection options
+    if (goal.includes('&nbsp;'))
+    {
+        return
+    }
+    let option_top = document.getElementById(goal).getBoundingClientRect().top
+    let container_top = document.getElementById(container).getBoundingClientRect().top
+    let option_bottom = document.getElementById(goal).getBoundingClientRect().bottom
+    let container_bottom = document.getElementById(container).getBoundingClientRect().bottom
+    let offset_top = option_top - container_top
+    let offset_bottom = option_bottom - container_bottom
+
+    if(offset_bottom > 0)
+    {
+        document.getElementById(container).scrollBy(0, offset_bottom)
+    }
+    else if(offset_top < 0)
+    {
+        document.getElementById(container).scrollBy(0, offset_top)
+    }
+}
+
+/**
+ * Provides the header color easter egg for the given team.
+ * @param {Number} team_num Team number
+ */
+function ws(team_num)
+{
+    let header = document.getElementById('header')
+    if (team_num == '111')
+    {
+        header.style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8, #dd00f3, #dd00f3, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840)'
+        header.style['background-size'] = '3600% 3600%'
+        header.style.animation = 'rainbow 36s ease infinite'
+    }
+    else if (team_num == '112')
+    {
+        header.style.background = 'linear-gradient(124deg, #1ddde8, #2b1de8)'
+        header.style['background-size'] = '3600% 3600%'
+        header.style.animation = 'rainbow 9s ease infinite'
+    }
+    else
+    {
+        let color = cfg.theme['primary-color']
+        if (cfg.user.settings.use_team_color)
+        {
+            //color = dal.get_value(team_num, 'meta.color')
+        }
+        header.style.background = color
+        header.style['background-size'] = ''
+        header.style.animation = ''
+    }
+}
+
+/**
+ * Applies the configured theme to the page.
  */
 function apply_theme()
 {
@@ -466,27 +369,43 @@ function apply_theme()
 }
 
 /**
- * function:    to_hex
- * parameters:  integer
- * returns:     none
- * description: Converts a given value to a 2 byte hex string.
+ * Prompts the user to choose between the given results.
+ * @param {Array} metas Metadata for results to choose from
+ * @param {String} op Operation that will be performed on the selected result
+ * @returns Chosen result index or -1
  */
-function to_hex(value)
+function prompt_for_result(metas, op)
 {
-    let hex = Math.round(value).toString(16)
-    if (hex.length < 2)
+    if (metas.length > 1)
     {
-        hex = '0' + hex
+        let descriptions = metas.map((r, i) => {
+            let scouter = cfg.get_name(r.scouter.user_id)
+            let time = new Date(r.scouter.start_time).toLocaleTimeString("en-US")
+            return `${i}: ${scouter} @ ${time}`
+        })
+        let choice = prompt(`${metas.length} results found. Please choose a result to ${op}:\n${descriptions.join('\n')}`)
+        if (choice !== null)
+        {
+            let index = parseInt(choice)
+            if (index < metas.length)
+            {
+                return index
+            }
+        }
+        return -1
     }
-    return hex
+    return 0
 }
 
+//
+// Caching Functions
+//
+
 /**
- * function:    hash
- * parameters:  string to hash
- * returns:     hashed string
- * description: Produces a hash from any given string.
- *              Based on this SO answer: https://stackoverflow.com/a/52171480
+ * Computes a hash from a given string.
+ * Based on this SO answer: https://stackoverflow.com/a/52171480
+ * @param {String} str Any string
+ * @returns Calculated has
  */
 function hash(str)
 {
@@ -505,10 +424,9 @@ function hash(str)
 }
 
 /**
- * function:    cache_file
- * parameters:  file URL location, response body (like blob)
- * returns:     none
- * description: Adds a given file to the current cache
+ * Adds a given file to the cache at the given URL
+ * @param {String} url URL of file to cache
+ * @param {String} file File contents
  */
 async function cache_file(url, file)
 {
@@ -564,24 +482,16 @@ async function cache_file(url, file)
     // build response and add to cache
     let res = new Response(file, { statusText: 'OK', headers: headers })
     cache.put(new URL(url), res)
-} 
-
-/**
- * function:    find_team_placeholders
- * parameters:  text to search
- * returns:     list of results
- * description: Finds placeholder text in a string for a opponent or partner team.
- */
-function find_team_placeholders(text)
-{
-    return [...text.matchAll(/(opponent|partner)([0-9])/g)]
 }
 
+//
+// String Functions
+//
+
 /**
- * function:    name_to_id
- * parameters:  name string
- * returns:     sanitized name as id
- * description: Sanitizes an input name so it can be used for the ID.
+ * Sanitizes a given name to generate an ID.
+ * @param {String} name Input name
+ * @returns Valid ID
  */
 function create_id_from_name(name)
 {
@@ -621,20 +531,13 @@ function pluralize(word)
     return word + 's'
 }
 
-/**
- * Randomly generate a hex string of a given number of characters.
- *  
- * @param {int} length Number of hex character to generate.
- * @returns A hex string of length length.
- */
-function random_hex(length)
-{
-    let arr = new Array(length).fill(0)
-    return arr.map(() => Math.floor(Math.random(0.999) * 16).toString(16)).join('')
-}
+//
+// User Agent Functions
+//
 
 /**
  * Determines the browser based on the userAgent.
+ * @returns Browser name
  */
 function get_browser()
 {
@@ -656,6 +559,7 @@ function get_browser()
 
 /**
  * Determines which display-mode the web app is opened in.
+ * @return Display mode
  */
 function get_display_mode()
 {
@@ -675,34 +579,9 @@ function get_display_mode()
     return display_mode
 }
 
-/**
- * Prompts the user to choose between the given results.
- * @param {Array} metas Metadata for results to choose from
- * @param {String} op Operation that will be performed on the selected result
- * @returns Chosen result index or -1
- */
-function prompt_for_result(metas, op)
-{
-    if (metas.length > 1)
-    {
-        let descriptions = metas.map((r, i) => {
-            let scouter = cfg.get_name(r.scouter.user_id)
-            let time = new Date(r.scouter.start_time).toLocaleTimeString("en-US")
-            return `${i}: ${scouter} @ ${time}`
-        })
-        let choice = prompt(`${metas.length} results found. Please choose a result to ${op}:\n${descriptions.join('\n')}`)
-        if (choice !== null)
-        {
-            let index = parseInt(choice)
-            if (index < metas.length)
-            {
-                return index
-            }
-        }
-        return -1
-    }
-    return 0
-}
+//
+// Position Functions
+//
 
 /**
  * Converts a given position index to a string.
