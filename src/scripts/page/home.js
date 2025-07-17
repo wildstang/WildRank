@@ -11,6 +11,8 @@
 
 include('transfer')
 
+const cache_import = get_parameter('cache_import', '') === 'true'
+
 // role based layouts
 const CONFIGS = {
     'matches': {
@@ -134,6 +136,11 @@ var role_page = ''
  */
 function init_page()
 {
+    if (caches !== undefined && cache_import)
+    {
+        check_cache()
+    }
+
     if (cfg.user.state.role)
     {
         open_role(cfg.user.state.role)
@@ -141,6 +148,21 @@ function init_page()
     else
     {
         sign_out()
+    }
+}
+
+/**
+ * Attempts to import a zip from the cache.
+ */
+async function check_cache()
+{
+    let names = await caches.keys()
+    let current = names.length > 0 ? names[0] : 'default'
+    let cache = await caches.open(current)
+    let r = await cache.match('/import')
+    if (r && confirm(`Would you like to import ${current}?`))
+    {
+        ZipHandler.import_zip_from_cache(cache)
     }
 }
 

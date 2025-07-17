@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-s5-250622'
+const CACHE_NAME = 'wildrank-s5-250716'
 const CACHE_LIST = [
     // html files
     '/',
@@ -155,8 +155,8 @@ self.addEventListener('fetch', e => {
             let res = new Response(file, { statusText: 'OK', headers: headers })
             cache.put(e.request.url, res)
 
-            // TODO: handle cache file somewhere else
-            return Response.redirect('/index.html?page=transfer-raw&cache=true', 303);
+            // TODO: handle cache file somewhere else now that transfer raw is removed
+            return Response.redirect('/index.html?page=home&cache=cache_import', 303);
         }
 
         // attempt to pull resource from cache
@@ -211,5 +211,4 @@ self.addEventListener('message', e => {
             clients.forEach(client => client.postMessage({msg: 'files', files: CACHE_LIST}));
         })
     }
-    // TODO: technically skipWaiting should get called in response to a message
 })

@@ -79,7 +79,7 @@
     "shortcuts": [
         {
             "name": "Pit Scout",
-            "url": "/selection.html?page=pits&type=pit",
+            "url": "/index.html?page=pits&type=pit",
             "icons": [{
                 "src": "/assets/clipboard-edit-outline.png",
                 "type": "image/png",
@@ -88,7 +88,7 @@
         },
         {
             "name": "Match Scout",
-            "url": "/selection.html?page=matches&type=match",
+            "url": "/index.html?page=matches&type=match",
             "icons": [{
                 "src": "/assets/clipboard-edit-outline.png",
                 "type": "image/png",
@@ -97,7 +97,7 @@
         },
         {
             "name": "Note Scout",
-            "url": "/selection.html?page=matches&type=note",
+            "url": "/index.html?page=matches&type=note",
             "icons": [{
                 "src": "/assets/clipboard-edit-outline.png",
                 "type": "image/png",
