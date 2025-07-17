@@ -76,7 +76,7 @@ function run_after_load(func)
  */
 function register_service_worker()
 {
-    if ('serviceWorker' in navigator && cfg.user.settings.use_offline)
+    if ('serviceWorker' in navigator && cfg.user.settings.use_offline !== undefined && cfg.user.settings.use_offline)
     {
         navigator.serviceWorker.register('scripts/pwa.js')
             .then(reg => {
