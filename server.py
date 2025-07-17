@@ -85,6 +85,11 @@ class PhotoPOSTResponse(BaseModel):
 async def index():
     return 'src/index.html'
 
+# the serviceWorker must be at the server's root to provide context for caching files
+@app.get('/pwa.js', response_class=FileResponse)
+async def pwa():
+    return 'src/pwa.js'
+
 @app.get('/{file}.html', response_class=FileResponse)
 async def html(file):
     return f'src/{file}.html'
@@ -155,8 +160,8 @@ async def about():
                 url = 'https://{}'.format(url)
             git = f'Git: <a href="{url}">{words[0]}</a><br>'
 
-    if exists('scripts/pwa.js'):
-        with open('scripts/pwa.js', 'r') as f:
+    if exists('src/pwa.js'):
+        with open('src/pwa.js', 'r') as f:
             script = f.read()
             try:
                 release = re.search('const CACHE_NAME = \'wildrank-(.+?)\'', script).group(1)

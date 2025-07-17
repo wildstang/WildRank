@@ -78,43 +78,63 @@ function register_service_worker()
 {
     if ('serviceWorker' in navigator && cfg.user.settings !== undefined && cfg.user.settings.use_offline)
     {
-        navigator.serviceWorker.register('scripts/pwa.js')
-            .then(reg => {
-                reg.onupdatefound = () => {
-                    console.log('update detected, triggering banner')
+        let notification = document.getElementById('update_notification')
 
-                    // TODO: figure out how to listen for messages from reg.installing to determine new version
-                    let notification = document.getElementById('update_notification')
-                    notification.innerText = 'Update detected! Click here to apply it now.'
-                    notification.style.transform = 'translate(0%)'
-                    notification.style.visibility = 'visible'
-                    notification.onclick = event => {
-                        location.reload()
+        // handle incoming message from the serviceWorker
+        navigator.serviceWorker.addEventListener('message', e => {
+            if (e.data.msg === 'version')
+            {
+                let version = e.data.version
+
+                // if the update banner is shown, assume the version is the newly installled version
+                if (notification.style.visibility === 'visible')
+                {
+                    notification.innerText = `${version} installed. Click here to reload.`
+                    notification.onclick = () => location.reload()
+                }
+                else
+                {
+                    cfg.app_version = version.replace('wildrank-', '')
+                }
+            }
+        })
+
+        navigator.serviceWorker.register('/pwa.js')
+            .then(reg => {
+                console.log('serviceWorker registered')
+
+                reg.onupdatefound = () => {
+                    if (reg.installing)
+                    {
+                        // pop-up the notification banner
+                        notification.innerText = 'Installing update...'
+                        notification.style.transform = 'translate(0%)'
+                        notification.style.visibility = 'visible'
+
+                        // listen for install to complete, then request new version
+                        reg.installing.onstatechange = () => {
+                            if (reg.installing === null)
+                            {
+                                reg.active.postMessage({msg: 'get_version'})
+                            }
+                        }
                     }
                 }
-            })
 
-        console.log('serviceWorker registered')
-
-        // request the current version from the serviceWorker
-        if (navigator.serviceWorker.controller != null)
-        {
-            navigator.serviceWorker.controller.postMessage({msg: 'get_version'})
-            navigator.serviceWorker.addEventListener('message', e => {
-                if (e.data.msg === 'version')
+                // request the current app version from the serviceWorker
+                if (reg.active)
                 {
-                    cfg.app_version = e.data.version.replace('wildrank-', '')
+                    console.log('requesting active version')
+                    reg.active.postMessage({msg: 'get_version'})
                 }
             })
-        }
     }
     else if ('serviceWorker' in navigator)
     {
-        navigator.serviceWorker.getRegistrations().then(function(registrations)
-        {
-            for(let registration of registrations)
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (let reg of registrations)
             {
-                registration.unregister()
+                reg.unregister()
                 console.log('serviceWorker unregistered')
             }
         })
