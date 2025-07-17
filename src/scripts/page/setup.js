@@ -19,6 +19,13 @@ function init_page()
         let header = document.getElementById('header_info')
         header.innerText = cfg.app_version
         header.onclick = () => window_open('index.html?page=about', true)
+
+        // require an app reset if files from before season 5 are detected
+        if (localStorage.getItem('config-keys'))
+        {
+            alert(`WildRank ${cfg.app_version} has been installed. The app must be reset.`)
+            reset()
+        }
     }
 
     step_setup()
