@@ -1,9 +1,7 @@
 /**
  * file:        event-planner.js
  * description: Helps a team plan their events.
- *              TODO:
- *                - fix broken map tiles
- *                - add travel time filters
+ *              TODO: travel time filters
  * author:      Liam Fruzyna
  * date:        2022-09-17
  */
@@ -80,7 +78,6 @@ function init_page()
     if ('geolocation' in navigator)
     {
         navigator.geolocation.getCurrentPosition(position => {
-            console.log(position)
             latitude.element.value = position.coords.latitude
             longitude.element.value = position.coords.longitude
         }, e => {
@@ -162,7 +159,7 @@ function process_year(year)
     let count = 0
 
     // fetch list of all events in the year
-    fetch(`https://www.thebluealliance.com/api/v3/events/${year}?${key_query}`)
+    fetch(`https://www.thebluealliance.com/api/v3/events/${year}${key_query}`)
         .then(response => {
             if (response.status === 401) {
                 alert('Invalid API Key Suspected')

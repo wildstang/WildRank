@@ -58,7 +58,7 @@ function process_year()
     for (let i = 0; i <= 21; i++)
     {
         // fetch list of all events in the year
-        fetch(`https://www.thebluealliance.com/api/v3/teams/${year}/${i}/simple?${key_query}`)
+        fetch(`https://www.thebluealliance.com/api/v3/teams/${year}/${i}/simple${key_query}`)
             .then(response => {
                 if (response.status === 401) {
                     alert('Invalid API Key Suspected')

@@ -44,7 +44,7 @@ function init_page()
 
         for (let team of teams)
         {
-            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/awards?${key_query}`)
+            fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/awards${key_query}`)
                 .then(response => {
                     if (response.status == 401)
                     {

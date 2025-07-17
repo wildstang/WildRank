@@ -22,8 +22,7 @@ function init_page()
 {
     header_info.innerText = 'Match Select'
 
-    // override scouting position with that from config
-    // TODO: determine if this is actually desired
+    // get selected (or overridden) position
     scout_pos = cfg.get_selected_position()
 
     let scout_config = cfg.get_scout_config(scout_mode)

@@ -54,7 +54,6 @@ function init_page()
         build_pick_lists()
 
         // show and populate the left column with team numbers
-        // TODO: consider using a dropdown instead, like plot
         enable_list()
         for (let team_num of dal.team_numbers)
         {
