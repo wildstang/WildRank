@@ -224,7 +224,7 @@ function set_user_id()
             name += ' (Admin)'
         }
 
-        step_setup()
+        update_user_type()
     }
     else
     {
