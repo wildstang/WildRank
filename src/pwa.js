@@ -154,8 +154,7 @@ self.addEventListener('fetch', e => {
             let res = new Response(file, { statusText: 'OK', headers: headers })
             cache.put(e.request.url, res)
 
-            // TODO: handle cache file somewhere else now that transfer raw is removed
-            return Response.redirect('/index.html?page=home&cache=cache_import', 303);
+            return Response.redirect('/index.html?page=home&cache_import=true', 303);
         }
 
         // attempt to pull resource from cache
