@@ -241,6 +241,7 @@ function open_role(role)
     let column = new WRColumn()
     sign_out_page.add_column(column)
     let sign_out_button = new WRButton('Sign Out', sign_out)
+    sign_out_button.add_class('danger')
     column.add_input(sign_out_button)
 
     preview.replaceChildren(page, sign_out_page)

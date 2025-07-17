@@ -150,11 +150,36 @@ function check_for_last_page()
     let carousel = document.getElementById('scouting-carousel')
     let final_page = carousel.clientWidth * (cfg.get_scout_config(scout_mode).pages.length - 1)
     let view_start = Math.ceil(carousel.scrollLeft)
-    if (view_start >= final_page && document.getElementById('submit_container').childElementCount === 0)
+
+    let options = []
+    let actions = []
+    if (view_start > 0)
     {
-        let submit = new WRButton('Submit', get_results_from_page)
-        document.getElementById('submit_container').replaceChildren(submit)
+        options.push('Back')
+        actions.push(() => scroll_carousel(false))
     }
+    if (view_start >= final_page)
+    {
+        options.push('Submit')
+        actions.push(get_results_from_page)
+    }
+    else
+    {
+        options.push('Next')
+        actions.push(scroll_carousel)
+    }
+    let button = new WRMultiButton('', options, actions)
+    button.add_class('advance')
+    document.getElementById('submit_container').replaceChildren(button)
+}
+
+/**
+ * Scrolls the scouting carousel in the specified direction.
+ * @param {Boolean} right Whether to scroll right
+ */
+function scroll_carousel(right=true)
+{
+    document.getElementById('scouting-carousel').scrollBy(right ? 1 : -1, 0)
 }
 
 

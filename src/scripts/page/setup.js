@@ -49,14 +49,11 @@ function step_setup()
         scout_config_valid,
         new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
     ]))
-    theme_el = new WRSelect('', ['Light', 'Dark', 'Auto'])
-    theme_el.on_change = switch_theme
-    theme_el.value = cfg.user.state.theme
-    status_col.add_input(theme_el)
-
     // button used to trigger a fresh start of the setup
     let reset = new WRButton('Restart Setup', restart_setup)
+    reset.add_class('danger')
     reset.add_class('slim')
+    status_col.add_input(reset)
 
     let update_type = false
     // if an invalid event ID is provided prompt for it first
@@ -66,7 +63,9 @@ function step_setup()
         event_id_el.value = cfg.user.state.event_id
         setup_col.add_input(event_id_el)
 
-        setup_col.add_input(new WRButton('Next', set_event_id))
+        let next = new WRButton('Next', set_event_id)
+        next.add_class('advance')
+        setup_col.add_input(next)
     }
     // the final page continues to show event status and prompts for position and scouting type
     else
@@ -80,7 +79,12 @@ function step_setup()
 
         role_options = document.createElement('div')
         setup_col.add_input(role_options)
-        setup_col.add_input(reset)
+
+        theme_el = new WRSelect('', ['Light', 'Dark', 'Auto'])
+        theme_el.on_change = switch_theme
+        theme_el.value = cfg.user.state.theme
+        theme_el.add_class('slim')
+        setup_col.add_input(theme_el)
         columns.push(status_col)
 
         update_type = true
@@ -114,7 +118,10 @@ function update_user_type()
             user_id_el.bounds = [100000, 999999]
             user_id_el.value = cfg.user.state.user_id
             user_id_el.on_text_change = () => cfg.user.state.user_id = user_id_el.element.value
-            role_options.replaceChildren(user_id_el, new WRButton('Next', set_user_id))
+
+            let scout = new WRButton('Scout', set_user_id)
+            scout.add_class('advance')
+            role_options.replaceChildren(user_id_el, scout)
         }
         else
         {
@@ -122,7 +129,7 @@ function update_user_type()
             let cfg_pos = cfg.get_position()
             if (cfg_pos >= 0 && cfg_pos < 6)
             {
-                position_el.add_option(position_to_name(pos))
+                position_el.add_option(position_to_name(cfg_pos))
             }
             else
             {
@@ -140,6 +147,7 @@ function update_user_type()
             // build stack of buttons to scout
             let modes = cfg.scouting_modes
             let primary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
+            primary_scout.add_class('advance')
             let other_scout = new WRMultiButton('')
             other_scout.add_class('slim')
             for (let mode of modes.splice(1))

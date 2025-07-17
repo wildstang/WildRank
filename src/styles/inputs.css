@@ -495,3 +495,19 @@
     color: var(--primary-color);
     font-weight: bold;
 }
+
+.danger {
+    background-color: lightcoral;
+}
+
+.danger:hover {
+    background-color: red;
+}
+
+.advance {
+    background-color: lightgreen;
+}
+
+.advance:hover {
+    background-color: limegreen;
+}

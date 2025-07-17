@@ -90,7 +90,9 @@ function open_option(team_num)
 
     // build buttons
     const scout_url = build_url('scout', {[MODE_QUERY]: scout_mode, index: team_num, edit: false})
-    buttons_el.append(new WRLinkButton('Scout Team', scout_url))
+    let next = new WRLinkButton('Scout Team', scout_url)
+    next.add_class('advance')
+    buttons_el.append(next)
 
     if (dal.is_team_scouted(team_num, scout_mode))
     {

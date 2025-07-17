@@ -1048,7 +1048,7 @@ class WRMultiInput extends WRElement
 
         this.element.id = this.input_id
         this.element.className = 'wr_select'
-        this.element.classList.add(...this.classes)
+        this.element.classList.add(...this.classes.filter(c => c !== 'advance'))
         if (this.on_click)
         {
             this.element.onclick = this.on_click
@@ -1122,7 +1122,10 @@ class WRMultiButton extends WRMultiInput
             }
             for (let c of this.classes)
             {
-                option.add_class(c)
+                if (c !== 'advance' || i == this.options.length - 1)
+                {
+                    option.add_class(c)
+                }
             }
             rows[rows.length - 1].push(option)
         }
@@ -1792,7 +1795,8 @@ function touch_end(event, func)
 {
     let deltaX = Math.abs(last_touch.pageX - event.pageX)
     let deltaY = Math.abs(last_touch.pageY - event.pageY)
-    if (last_touch_time > 0 && Date.now() - last_touch_time > 400 && deltaX < 10 && deltaY < 10)
+    let deltaT = Date.now() - last_touch_time
+    if (last_touch_time > 0 && deltaT > 400 && deltaX < 10 && deltaY < 10)
     {
         last_decrement = Date.now()
         func()
