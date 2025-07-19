@@ -11,7 +11,7 @@
 
 include('transfer')
 
-const cache_import = get_parameter('cache_import', '') === 'true'
+var cache_import = get_parameter('cache_import', '')
 
 // role based layouts
 const CONFIGS = {
@@ -160,8 +160,9 @@ async function check_cache()
     let current = names.length > 0 ? names[0] : 'default'
     let cache = await caches.open(current)
     let r = await cache.match('/import')
-    if (r && confirm(`Would you like to import ${current}?`))
+    if (r && confirm(`Would you like to import ${cache_import}?`))
     {
+        cache_import = ''
         ZipHandler.import_zip_from_cache(cache)
     }
 }

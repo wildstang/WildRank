@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-s5-250717t'
+const CACHE_NAME = 'wildrank-s5-250718'
 const CACHE_LIST = [
     // html files
     '/',
@@ -154,7 +154,7 @@ self.addEventListener('fetch', e => {
             let res = new Response(file, { statusText: 'OK', headers: headers })
             cache.put(e.request.url, res)
 
-            return Response.redirect('/index.html?page=home&cache_import=true', 303);
+            return Response.redirect(`/index.html?page=home&cache_import=${file.name}`, 303);
         }
 
         // attempt to pull resource from cache
