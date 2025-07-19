@@ -519,3 +519,25 @@
 .transfer:hover {
     background-color: dodgerblue;
 }
+
+.separator-top {
+    border-top: 1px solid lightgray;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.separator-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.separator-left {
+    border-left: 1px solid lightgray;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.separator-right {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}

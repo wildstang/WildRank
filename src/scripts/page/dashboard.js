@@ -37,17 +37,10 @@ function init_page()
     summary_card = new WRMultiNumber('', ['Pits', 'Matches', 'Latest Match'], ['-', '-', '-'])
 
     // create transfer buttons
-    let pull_tba = new WRButton('Pull from TBA', () => preload_event(populate))
-    pull_tba.add_class('slim')
-    let export_cfg = new WRButton('Export Config', ZipHandler.export_setup)
-    export_cfg.add_class('transfer')
-    export_cfg.add_class('slim')
-    let import_res = new WRButton('Import Results', () => ZipHandler.import_results(populate))
-    import_res.add_class('transfer')
-    import_res.add_class('slim')
-    let export_dat = new WRButton('Export Data', ZipHandler.export_data)
-    export_dat.add_class('transfer')
-    export_dat.add_class('slim')
+    let labels = ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data']
+    let functions = [() => preload_event(populate), ZipHandler.export_setup, () => ZipHandler.import_results(populate), ZipHandler.export_data]
+    let transfer_buttons = new WRMultiButton('', labels, functions)
+    transfer_buttons.add_class('slim')
 
     // create result breakdown card
     let breakdown_contents = document.createElement('div')
@@ -74,9 +67,9 @@ function init_page()
     let matches_card = new WRCard(match_contents)
 
     // put cards into 2 pages
-    let top_page = new WRPage('', [new WRColumn('', [new WRStack([ranker, coach]), status_stack]),
-                                   new WRColumn('', [new WRStack([pivot, plot]), summary_card]),
-                                   new WRColumn('', [new WRStack([notes, lists]), new WRStack([pull_tba, export_cfg, import_res, export_dat])])])
+    let top_page = new WRPage('', [new WRColumn('', [first_links, status_stack]),
+                                   new WRColumn('', [second_links, summary_card]),
+                                   new WRColumn('', [third_links, transfer_buttons])])
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])
     preview.replaceChildren(top_page, bottom_page)
 

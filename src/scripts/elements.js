@@ -1131,11 +1131,16 @@ class WRMultiButton extends WRMultiInput
         }
 
         let options = []
-        for (let row of rows)
+        for (let r in rows)
         {
             let container = create_element('div', '', 'wr_select_row')
-            for (let op of row)
+            for (let c in rows[r])
             {
+                let op = rows[r][c]
+                if (r > 0) op.add_class('separator-top')
+                if (r < rows.length - 1) op.add_class('separator-bottom')
+                if (c > 0) op.add_class('separator-left')
+                if (c < rows[r].length - 1) op.add_class('separator-right')
                 op.style.flex = '1 1 0'
                 container.append(op)
             }
@@ -1296,11 +1301,16 @@ class WRMultiCounter extends WRMultiInput
         }
 
         let options = []
-        for (let row of rows)
+        for (let r in rows)
         {
             let container = create_element('div', '', 'wr_select_row')
-            for (let op of row)
+            for (let c in rows[r])
             {
+                let op = rows[r][c]
+                if (r > 0) op.add_class('separator-top')
+                if (r < rows.length - 1) op.add_class('separator-bottom')
+                if (c > 0) op.add_class('separator-left')
+                if (c < rows[r].length - 1) op.add_class('separator-right')
                 op.style.flex = '1 1 0'
                 container.append(op)
             }
