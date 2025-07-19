@@ -160,6 +160,7 @@ async function check_cache()
     let current = names.length > 0 ? names[0] : 'default'
     let cache = await caches.open(current)
     let r = await cache.match('/import')
+    console.log('Check cache', cache_import, cache, r)
     if (r && confirm(`Would you like to import ${cache_import}?`))
     {
         cache_import = ''
