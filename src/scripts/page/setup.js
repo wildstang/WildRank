@@ -16,9 +16,8 @@ function init_page()
 {
     // if an app version becomes available add it to the header
     cfg.on_app_version = () => {
-        let header = document.getElementById('header_info')
-        header.innerText = cfg.app_version
-        header.onclick = () => window_open('index.html?page=about', true)
+        header_info.innerText = cfg.app_version
+        header_info.onclick = () => window_open('index.html?page=about', true)
 
         // require an app reset if files from before season 5 are detected
         if (localStorage.getItem('config-keys'))

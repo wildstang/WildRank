@@ -113,7 +113,7 @@ function register_service_worker()
 
                         // listen for install to complete, then request new version
                         reg.installing.onstatechange = () => {
-                            if (reg.installing === null)
+                            if (reg.installing === null && reg.active)
                             {
                                 reg.active.postMessage({msg: 'get_version'})
                             }

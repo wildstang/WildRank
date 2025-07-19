@@ -11,7 +11,7 @@
 
 include('transfer')
 
-const cache_import = get_parameter('cache_import', '') === 'true'
+var cache_import = get_parameter('cache_import', '')
 
 // role based layouts
 const CONFIGS = {
@@ -136,16 +136,17 @@ var role_page = ''
  */
 function init_page()
 {
-    if (caches !== undefined && cache_import)
-    {
-        check_cache()
-    }
-
     if (cfg.user.state.role)
     {
         open_role(cfg.user.state.role)
     }
-    else
+
+    // display a button to import from cache
+    if (caches !== undefined && cache_import)
+    {
+        check_cache()
+    }
+    else if (!cfg.user.state.role)
     {
         sign_out()
     }
@@ -159,10 +160,14 @@ async function check_cache()
     let names = await caches.keys()
     let current = names.length > 0 ? names[0] : 'default'
     let cache = await caches.open(current)
-    let r = await cache.match('/import')
-    if (r && confirm(`Would you like to import ${current}?`))
+    let cache_res = await cache.match('/import')
+    if (cache_res)
     {
-        ZipHandler.import_zip_from_cache(cache)
+        let import_button = new WRButton(`Import ${cache_import}?`, () => ZipHandler.import_zip_from_cache(cache_res))
+        import_button.add_class('advance')
+        let page = new WRPage('', [new WRColumn('', [import_button])])
+        preview.insertBefore(page, preview.firstChild)
+        cache_import = ''
     }
 }
 
