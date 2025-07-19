@@ -8,12 +8,12 @@
 
 include('whiteboard-obj')
 include('bracket-obj')
+include('transfer')
 
 // read parameters from URL
-var urlParams = new URLSearchParams(window.location.search)
-const selected = urlParams.get('match')
+const selected = get_parameter('match', '')
 
-var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_card, blue_card, drag_box
+var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_stack, red_card, blue_stack, blue_card, drag_box
 
 /**
  * Build the structure of the page and initialize bracket and whiteboard.
@@ -48,10 +48,19 @@ function init_page()
         whiteboard_page = new WRPage('', [wb_col])
 
         // create column of buttons for coach page
-        red_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
-        red_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
-        blue_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
-        blue_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
+        red_card = new WRCard('')
+        let red_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
+        let red_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
+        let red_import = new WRButton('Import Data', ZipHandler.import_data)
+        red_stack = new WRStack([red_card, red_edit, red_custom, red_import], true)
+        red_stack.add_class('red_box')
+
+        blue_card = new WRCard('')
+        let blue_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
+        let blue_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
+        let blue_import = new WRButton('Import Data', ZipHandler.import_data)
+        blue_stack = new WRStack([blue_card, blue_edit, blue_custom, blue_import], true)
+        red_stack.add_class('blue_box')
 
         // show and populate the left column with matches and a team filter
         enable_list()
@@ -187,14 +196,8 @@ function open_option(match_key)
     let time = new Date(dal.matches[match_key].time).toLocaleTimeString("en-US")
     header_info.innerText = `${dal.matches[match_key].name} - ${time}`
 
-    red_card = new WRCard('')
-    red_card.add_class('red_box')
-
-    blue_card = new WRCard('')
-    blue_card.add_class('blue_box')
-
-    let red_page = new WRPage('', [new WRColumn('', [red_card, red_edit, red_custom])])
-    let blue_page = new WRPage('', [new WRColumn('', [blue_card, blue_edit, blue_custom])])
+    let red_page = new WRPage('', [new WRColumn('', [red_stack])])
+    let blue_page = new WRPage('', [new WRColumn('', [blue_stack])])
 
     // build template
     carousel.replaceChildren(red_page, blue_page, whiteboard_page)

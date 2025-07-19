@@ -6,7 +6,7 @@
  * date:        2021-09-03
  */
 
-const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Count', 'StdDev']
+var new_func, new_key, keys
 
 
 /**
@@ -17,10 +17,9 @@ const FUNCTIONS = ['Mean', 'Median', 'Mode', 'Min', 'Max', 'Count', 'StdDev']
  */
 function init_page()
 {
+    keys = cfg.get_keys()
     build_buttons()
 }
-
-var new_func, new_key
 
 /**
  * function:    build_buttons
@@ -30,8 +29,13 @@ var new_func, new_key
  */
 function build_buttons()
 {
-    new_func = new WRSelect('New Function', FUNCTIONS)
-    new_key = new WRDropdown('New Key', cfg.get_names(cfg.get_keys()))
+    let key = new_key !== undefined ? keys[new_key.element.selectedIndex] : keys[0]
+    let res = cfg.get_result_from_key(key)
+    let functions = res.available_stats
+
+    new_func = new WRSelect('New Function', functions.map(f => capitalize(f)))
+    new_key = new WRDropdown('New Key', cfg.get_names(keys), res.name)
+    new_key.on_change = build_buttons
     let button = new WRButton('Add Coach Value', create)
 
     let column = new WRColumn('Delete Coach Value')
@@ -42,7 +46,7 @@ function build_buttons()
     }
 
     // build template
-    let page = new WRPage('', [new WRColumn('New Coach Value', [new_func, new_key, button]), column])
+    let page = new WRPage('', [new WRColumn('New Coach Value', [new_key, new_func, button]), column])
     preview.replaceChildren(page)
 }
 
@@ -55,8 +59,8 @@ function build_buttons()
 function create()
 {
     let keys = cfg.get_keys()
-    let func = FUNCTIONS[new_func.selected_index].toLowerCase()
     let key = keys[new_key.element.selectedIndex]
+    let func = new_func.selected_option.toLowerCase()
 
     let coach = {
         function: func,

@@ -31,18 +31,18 @@ function init_page()
  */
 function populate_matches()
 {
-    let teams = Object.keys(dal.teams)
+    let teams = dal.team_numbers
 
     let cols = []
-    if (teams.length > dal.max_alliance_size * 2)
+    if (teams.length >= 6)
     {
         red_col = new WRColumn('Red Teams')
         blue_col = new WRColumn('Blue Teams')
 
-        for (let pos = 0; pos < dal.max_alliance_size; pos++)
+        for (let pos = 0; pos < 3; pos++)
         {
             red_col.add_input(new WRDropdown(`Red ${pos+1}`, teams, teams[pos]))
-            blue_col.add_input(new WRDropdown(`Blue ${pos+1}`, teams, teams[pos + dal.max_alliance_size]))
+            blue_col.add_input(new WRDropdown(`Blue ${pos+1}`, teams, teams[pos + 6]))
         }
 
         let custom = new WRLinkButton('Return to Coach', build_url('coach'))
@@ -75,13 +75,13 @@ function add_match()
     let match_number = matches.length + 1
     let red_teams = []
     let blue_teams = []
-    for (let pos = 0; pos < dal.max_alliance_size; pos++)
+    for (let pos = 0; pos < 3; pos++)
     {
         red_teams.push('frc' + red_col.inputs[pos].element.value)
         blue_teams.push('frc' + blue_col.inputs[pos].element.value)
     }
 
-    if ([...new Set(red_teams.concat(blue_teams))].length < dal.max_alliance_size * 2)
+    if ([...new Set(red_teams.concat(blue_teams))].length < 6)
     {
         alert('Duplicate teams not allowed!')
         return
@@ -103,8 +103,8 @@ function add_match()
             }
         },
         comp_level: 'cm',
-        event_key: event_id,
-        key: `${event_id}_cm${match_number}`,
+        event_key: dal.event_id,
+        key: `${dal.event_id}_cm${match_number}`,
         match_number: match_number,
         predicted_time: time,
         set_number: 1,
@@ -112,8 +112,8 @@ function add_match()
     })
     localStorage.setItem(file_name, JSON.stringify(matches))
 
-    alert(`Match ${event_id}_cm${match_number} added!`)
+    alert(`Match ${dal.event_id}_cm${match_number} added!`)
 
-    dal.build_matches()
+    dal.load_matches()
     populate_matches()
 }

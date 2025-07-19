@@ -164,7 +164,6 @@ function select_none(left=true)
  */
 function add_dropdown_filter(options, func, left=true, default_selection='')
 {
-    console.log(default_selection)
     let dropdown = new WRDropdown('', options, default_selection)
     dropdown.on_change = func
     get_filter(left).append(dropdown)
