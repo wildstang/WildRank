@@ -159,14 +159,14 @@ async function check_cache()
     let names = await caches.keys()
     let current = names.length > 0 ? names[0] : 'default'
     let cache = await caches.open(current)
-    let r = await cache.match('/import')
-    console.log('Check cache', cache_import, current, r)
-    if (r)
+    let cache_res = await cache.match('/import')
+    console.log('Check cache', cache_import, current, cache_res)
+    if (cache_res)
     {
-        cache_import = ''
-        let import_button = new WRButton(`Import ${cache_import}?`, () => ZipHandler.import_zip_from_cache(cache))
+        let import_button = new WRButton(`Import ${cache_import}?`, () => ZipHandler.import_zip_from_cache(cache_res))
         let page = new WRPage('', [new WRColumn('', [import_button])])
         preview.insertBefore(page, preview.firstChild)
+        cache_import = ''
     }
 }
 

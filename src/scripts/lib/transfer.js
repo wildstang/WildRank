@@ -569,14 +569,11 @@ class ZipHandler
 
     /**
      * Imports a file stored in the given cache at /import. Used for sharing zips to WildRank.
-     * @param {String} cache_name Cache name
+     * @param {Response} cache_res Cache response
      */
-    static async import_zip_from_cache(cache_name)
+    static async import_zip_from_cache(cache_res)
     {
-        let cache = await caches.open(cache_name)
-        let r = await cache.match('/import')
-        console.log('Import zip from cache', r)
-        if (r)
+        if (cache_res)
         {
             let zh = new ZipHandler()
             zh.event_data = true
@@ -585,7 +582,7 @@ class ZipHandler
             zh.results = true
             zh.picklists = true
             await zh.import_zip(r.blob())
-            cache.delete('/import')
+            //cache.delete('/import')
         }
         else
         {
