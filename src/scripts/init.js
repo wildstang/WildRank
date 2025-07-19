@@ -177,25 +177,23 @@ In the share menu (box with up arrow), choose "Add to Home Screen", then press "
 
 /**
  * Handles clicking on the app title to navigate to the role/overall homepage based on current page.
- * 
  * @param {Boolean} right Whether a right click was used.
  */
 function home(right=false)
 {
-    // determine whether to redirect to setup or home
-    let url = 'index.html'
-    if (['setup', 'matches', 'pits'].includes(page))
+    let start = window.location.href.lastIndexOf('/') + 1
+    let current_page = window.location.href.substring(start)
+    let home_page = get_role_page()
+
+    if (current_page.startsWith(home_page))
     {
-        cfg.user.state.role = ''
-        cfg.store_configs()
-        url += '?page=setup'
+        cfg.set_role('')
+        window_open(build_url('setup'), right)
     }
     else
     {
-        url += '?page=home'
+        window_open(home_page, right)
     }
-
-    window_open(url, right)
 }
 
 /**

@@ -50,10 +50,12 @@ function step_setup()
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
+    let import_button = new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
+    import_button.add_class('transfer')
     status_col.add_input(new WRStack([
         event_config,
         scout_config_valid,
-        new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
+        import_button
     ]))
     // button used to trigger a fresh start of the setup
     let reset = new WRButton('Restart Setup', restart_setup)
@@ -241,7 +243,7 @@ function set_user_id()
 /**
  * Callback for when the scout buttons are pressed. Reads in the position and goes to the appropriate selection page.
  */
-function scout(mode, right_click)
+function scout(mode, right_click=false)
 {
     let team_count = Object.keys(dal.teams).length
     let match_count = Object.keys(dal.matches).length
@@ -257,8 +259,7 @@ function scout(mode, right_click)
 
         if (team_count && match_count)
         {
-            cfg.set_role(mode)
-            window_open(build_url('matches', {[MODE_QUERY]: mode}), right_click)
+            open_role(mode, right_click)
         }
         else
         {
@@ -269,8 +270,7 @@ function scout(mode, right_click)
     {
         if (team_count)
         {
-            cfg.set_role(mode)
-            window_open(build_url('pits', {[MODE_QUERY]: mode}), right_click)
+            open_role(mode, right_click)
         }
         else
         {
@@ -288,13 +288,13 @@ function scout(mode, right_click)
 }
 
 /**
- * Opens the home page for the given role.
+ * Sets the user's role and opens its homepage.
  * @param {String} role Role name to open.
  */
-function open_role(role)
+function open_role(role, right_click=false)
 {
     cfg.set_role(role)
-    window_open(build_url('home'))
+    window_open(get_role_page(role), right_click)
 }
 
 /**
@@ -308,7 +308,7 @@ function process_files()
 }
 
 /**
- * Override the WildRank link to handle moralysis and extras pages.
+ * Fall back to place in setup sequence when WildRank is clicked.
  * @param {Boolean} right 
  */
 function home(right=false)

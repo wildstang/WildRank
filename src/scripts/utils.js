@@ -164,6 +164,42 @@ function include(name)
     document.head.appendChild(s)
 }
 
+/**
+ * Builds a URL for the user's role's homepage.
+ * @returns URL to navigate the user to
+ */
+function get_role_page()
+{
+    let role = cfg.user.state.role
+    switch (role)
+    {
+        case 'drive':
+            return build_url('coach')
+        case 'tech':
+            return build_url('misc/2025-score-calculator')
+        case 'dash':
+            return build_url('dashboard')
+
+        case 'prep':
+        case 'analysis':
+        case 'debug':
+        case 'danger':
+        case 'extras':
+            return build_url('home')
+
+        default:
+            if (cfg.match_scouting_modes.includes(role))
+            {
+                return build_url('matches', {[MODE_QUERY]: role})
+            }
+            else if (cfg.team_scouting_modes.includes(role))
+            {
+                return build_url('pits', {[MODE_QUERY]: role})
+            }
+            return build_url('setup')
+    }
+}
+
 //
 // Statistical Methods
 //

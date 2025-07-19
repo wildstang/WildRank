@@ -15,21 +15,6 @@ var cache_import = get_parameter('cache_import', '')
 
 // role based layouts
 const CONFIGS = {
-    'matches': {
-        'Scout': ['matches']
-    },
-    'pits': {
-        'Notes': ['pits']
-    },
-    'drive': {
-        'Coach': ['coach']
-    },
-    'tech': {
-        'Technician': ['misc/2025-score-calculator']
-    },
-    'dash': {
-        'Dashboard': ['dashboard']
-    },
     'analysis': {
         'Results': ['import_results', 'result_count', 'open_moralysis'],
         'Qualitative': ['ranker', 'multipicklists', 'note-viewer'],
@@ -146,9 +131,9 @@ function init_page()
     {
         check_cache()
     }
-    else if (!cfg.user.state.role)
+    else if (cfg.user.state.role === '')
     {
-        sign_out()
+        home()
     }
 }
 
@@ -177,51 +162,12 @@ async function check_cache()
  */
 function open_role(role)
 {
-    let title = role
-    if (role in TITLES)
-    {
-        title = TITLES[role]
-    }
-
-    if (title === role)
-    {
-        if (role === 'open_moralysis')
-        {
-            role = 'moralysis'
-            title = 'More Analysis'
-        }
-        else if (role === 'open_extras')
-        {
-            role = 'extras'
-            title = 'Extras'
-        }
-        else
-        {
-            sign_out()
-        }
-    }
-    else
-    {
-        cfg.user.state.role = role
-        cfg.user.store_config()
-    }
-    header_info.innerText = title
+    header_info.innerText = TITLES[role]
     role_page = role
-
-    // redirect if there is only 1 option on the page
-    let columns = CONFIGS[role]
-    if (Object.keys(columns).length === 1)
-    {
-        let column = Object.values(columns)[0]
-        if (column.length === 1)
-        {
-            window_open(build_url(column[0]))
-            return
-        }
-    }
 
     // build core page
     let page = new WRPage()
+    let columns = CONFIGS[role]
     for (let col of Object.keys(columns))
     {
         let column = new WRColumn(col)
@@ -244,16 +190,18 @@ function open_role(role)
             }
             else if (key.startsWith('open_'))
             {
-                button = new WRButton(BUTTONS[key].name, () => open_role(key))
+                button = new WRButton(BUTTONS[key].name, () => open_role(key.substring(5)))
             }
             else if (key === 'import_results')
             {
                 button = new WRButton(BUTTONS[key].name, ZipHandler.import_results)
+                button.add_class('transfer')
             }
             else if (key === 'export_results')
             {
                 // NOTE: call is wrapped so that the event doesn't override the default parameter
                 button = new WRButton(BUTTONS[key].name, () => ZipHandler.export_results())
+                button.add_class('transfer')
             }
             else
             {
@@ -267,7 +215,7 @@ function open_role(role)
     let sign_out_page = new WRPage()
     let column = new WRColumn()
     sign_out_page.add_column(column)
-    let sign_out_button = new WRButton('Sign Out', sign_out)
+    let sign_out_button = new WRButton('Sign Out', home)
     sign_out_button.add_class('danger')
     column.add_input(sign_out_button)
 
@@ -277,15 +225,6 @@ function open_role(role)
 /**
  * HELPER FUNCTIONS
  */
-
-/**
- * Clears the role and opens the role selector.
- */
-function sign_out()
-{
-    cfg.set_role('')
-    window_open(build_url('setup'))
-}
 
 /**
  * function:    has_teams
@@ -353,13 +292,13 @@ function is_blocked(id)
  */
 function home(right=false)
 {
-    let role = cfg.user.state.role
-    if (role_page !== role)
+    if (role_page === cfg.user.state.role)
     {
-        open_role(role)
+        cfg.set_role('')
+        window_open(build_url('setup'), right)
     }
     else
     {
-        window_open(build_url('setup'), right)
+        open_role(cfg.user.state.role)
     }
 }
