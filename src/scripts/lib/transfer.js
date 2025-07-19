@@ -575,9 +575,16 @@ class ZipHandler
     {
         let cache = await caches.open(cache_name)
         let r = await cache.match('/import')
+        console.log('Import zip from cache', r)
         if (r)
         {
-            this.import_zip(r.blob())
+            let zh = new ZipHandler()
+            zh.event_data = true
+            zh.scout_config = true
+            zh.analysis_config = true
+            zh.results = true
+            zh.picklists = true
+            await zh.import_zip(r.blob())
             cache.delete('/import')
         }
         else
@@ -610,7 +617,7 @@ class ZipHandler
      * Iterates over each selected file and attempts to import it.
      * @param {Event} event File import event
      */
-    async handle_files(event)
+    static async handle_files(event)
     {
         for (let file of event.target.files)
         {
@@ -640,6 +647,7 @@ class ZipHandler
      */
     async import_zip(file)
     {
+        console.log('Import zip', file)
         const event_id = cfg.user.state.event_id
         if (file['name'] !== undefined && !file.name.includes(event_id))
         {

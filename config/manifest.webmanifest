@@ -71,7 +71,7 @@
         "method": "POST",
         "params": {
             "files": [{
-                "name": "import",
+                "name": "zip",
                 "accept": ["application/zip"]
             }]
         }

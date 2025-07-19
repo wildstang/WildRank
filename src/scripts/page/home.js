@@ -11,7 +11,7 @@
 
 include('transfer')
 
-const cache_import = get_parameter('cache_import', '') === 'true'
+var cache_import = get_parameter('cache_import', '')
 
 // role based layouts
 const CONFIGS = {
@@ -134,11 +134,11 @@ var role_page = ''
  * returns:     none
  * description: Runs onload to fill out the page.
  */
-function init_page()
+async function init_page()
 {
     if (caches !== undefined && cache_import)
     {
-        check_cache()
+        await check_cache()
     }
 
     if (cfg.user.state.role)
@@ -160,9 +160,12 @@ async function check_cache()
     let current = names.length > 0 ? names[0] : 'default'
     let cache = await caches.open(current)
     let r = await cache.match('/import')
-    if (r && confirm(`Would you like to import ${current}?`))
+    console.log('Check cache', cache_import, cache, r)
+    if (r && confirm(`Would you like to import ${cache_import}?`))
     {
-        ZipHandler.import_zip_from_cache(cache)
+        cache_import = ''
+        await ZipHandler.import_zip_from_cache(cache)
+        alert('complete')
     }
 }
 
