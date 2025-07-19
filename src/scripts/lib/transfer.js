@@ -578,7 +578,13 @@ class ZipHandler
         console.log('Import zip from cache', r)
         if (r)
         {
-            await this.import_zip(r.blob())
+            let zh = new ZipHandler()
+            zh.event_data = true
+            zh.scout_config = true
+            zh.analysis_config = true
+            zh.results = true
+            zh.picklists = true
+            await zh.import_zip(r.blob())
             cache.delete('/import')
         }
         else

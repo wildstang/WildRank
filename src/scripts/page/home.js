@@ -134,11 +134,11 @@ var role_page = ''
  * returns:     none
  * description: Runs onload to fill out the page.
  */
-function init_page()
+async function init_page()
 {
     if (caches !== undefined && cache_import)
     {
-        check_cache()
+        await check_cache()
     }
 
     if (cfg.user.state.role)
@@ -165,7 +165,7 @@ async function check_cache()
     {
         cache_import = ''
         await ZipHandler.import_zip_from_cache(cache)
-    alert('complete')
+        alert('complete')
     }
 }
 
