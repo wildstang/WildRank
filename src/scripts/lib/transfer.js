@@ -581,7 +581,7 @@ class ZipHandler
             zh.analysis_config = true
             zh.results = true
             zh.picklists = true
-            await zh.import_zip(r.blob())
+            await zh.import_zip(cache_res.blob())
             //cache.delete('/import')
         }
         else
