@@ -577,7 +577,7 @@ class ZipHandler
         let r = await cache.match('/import')
         if (r)
         {
-            this.import_zip(r.blob())
+            await this.import_zip(r.blob())
             cache.delete('/import')
         }
         else
@@ -640,6 +640,7 @@ class ZipHandler
      */
     async import_zip(file)
     {
+        console.log(file)
         const event_id = cfg.user.state.event_id
         if (file['name'] !== undefined && !file.name.includes(event_id))
         {
