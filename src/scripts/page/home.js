@@ -134,20 +134,26 @@ var role_page = ''
  * returns:     none
  * description: Runs onload to fill out the page.
  */
-async function init_page()
+function init_page()
 {
     if (caches !== undefined && cache_import)
     {
-        await check_cache()
-    }
-
-    if (cfg.user.state.role)
-    {
-        open_role(cfg.user.state.role)
+        check_cache()
+        if (cfg.user.state.role)
+        {
+            open_role(cfg.user.state.role)
+        }
     }
     else
     {
-        sign_out()
+        if (cfg.user.state.role)
+        {
+            open_role(cfg.user.state.role)
+        }
+        else
+        {
+            sign_out()
+        }
     }
 }
 
