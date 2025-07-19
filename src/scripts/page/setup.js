@@ -45,6 +45,11 @@ function step_setup()
 
     // build a second column for viewing status info on the event and pulling in new configs
     let status_col = new WRColumn('Status', [])
+    theme_el = new WRSelect('', ['Light', 'Dark', 'Auto'])
+    theme_el.on_change = switch_theme
+    theme_el.value = cfg.user.state.theme
+    theme_el.add_class('slim')
+    status_col.add_input(theme_el)
     let event_config = new WRStatusTile(dal.event_name)
     event_config.set_status((team_count > 0 ? 1 : 0) + (match_count > 0 ? 1 : 0) - 1)
     scout_config_valid = new WRStatusTile(cfg.scout.version)
@@ -87,12 +92,6 @@ function step_setup()
 
         role_options = document.createElement('div')
         setup_col.add_input(role_options)
-
-        theme_el = new WRSelect('', ['Light', 'Dark', 'Auto'])
-        theme_el.on_change = switch_theme
-        theme_el.value = cfg.user.state.theme
-        theme_el.add_class('slim')
-        setup_col.add_input(theme_el)
         columns.push(status_col)
 
         update_type = true
