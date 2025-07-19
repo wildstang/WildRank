@@ -501,7 +501,7 @@
 }
 
 .danger:hover {
-    background-color: red;
+    background-color: crimson;
 }
 
 .advance {
@@ -510,4 +510,12 @@
 
 .advance:hover {
     background-color: limegreen;
+}
+
+.transfer {
+    background-color: lightskyblue;
+}
+
+.transfer:hover {
+    background-color: dodgerblue;
 }
