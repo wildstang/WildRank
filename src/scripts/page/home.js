@@ -164,7 +164,8 @@ async function check_cache()
     if (r && confirm(`Would you like to import ${cache_import}?`))
     {
         cache_import = ''
-        ZipHandler.import_zip_from_cache(cache)
+        await ZipHandler.import_zip_from_cache(cache)
+    alert('complete')
     }
 }
 
