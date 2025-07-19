@@ -1147,6 +1147,27 @@ class WRMultiButton extends WRMultiInput
 
 customElements.define('wr-multi-button', WRMultiButton)
 
+class WRMultiLinkButton extends WRMultiButton
+{
+    constructor(label, options=[], links=[], new_tab=false)
+    {
+        let on_clicks = links.map(l => () => {
+            // It appeared that the new tab opening was triggering a new onclick call on iPad.
+            // So last_touch_time is made negative instead of -1 then we make sure there is a significant delay.
+            let since_last_touch = Date.now() + last_touch_time
+            if (since_last_touch < 400 || since_last_touch > 1000)
+            {
+                window_open(l, new_tab)
+            }
+        })
+        super(label, options, on_clicks)
+
+        this.on_right = links.map(l => () => window_open(l, true))
+    }
+}
+
+customElements.define('wr-multi-link-button', WRMultiLinkButton)
+
 class WRMultiNumber extends WRMultiInput
 {
     constructor(label, options=[], values=[])

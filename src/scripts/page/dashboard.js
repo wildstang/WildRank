@@ -18,18 +18,12 @@ function init_page()
     header_info.innerText = 'Dashboard'
 
     // build shortcut buttons to common analysis pages
-    let ranker = new WRLinkButton('Stat Builder', build_url('ranker'))
-    ranker.add_class('slim')
-    let coach = new WRLinkButton('Edit Coach', build_url('edit-coach'))
-    coach.add_class('slim')
-    let pivot = new WRLinkButton('Pivot Table', build_url('pivot'))
-    pivot.add_class('slim')
-    let plot = new WRLinkButton('Plotter', build_url('plot'))
-    plot.add_class('slim')
-    let notes = new WRLinkButton('Note Viewer', build_url('note-viewer'))
-    notes.add_class('slim')
-    let lists = new WRLinkButton('Pick Lists', build_url('multipicklists'))
-    lists.add_class('slim')
+    let first_links = new WRMultiLinkButton('', ['Stat Builder', 'Edit Coach'], [build_url('ranker'), build_url('edit-coach')])
+    first_links.add_class('slim')
+    let second_links = new WRMultiLinkButton('', ['Pivot Table', 'Plotter'], [build_url('pivot'), build_url('plot')])
+    second_links.add_class('slim')
+    let third_links = new WRMultiLinkButton('', ['Note Viewer', 'Pick Lists'], [build_url('note-viewer'), build_url('multipicklists')])
+    third_links.add_class('slim')
 
     // produce status tiles
     event_config = new WRStatusTile(dal.event_name)
