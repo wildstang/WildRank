@@ -418,13 +418,13 @@ class ZipHandler
         this.on_complete = this.do_nothing
     }
 
-    do_nothing(a='', b='') {}
+    static do_nothing(a='', b='') {}
 
     /**
      * Helper function that creates a zip handler to import a JSON file.
      * @param {Function} on_complete Function to call when loading is complete.
      */
-    static import_picklist(on_complete=this.do_nothing)
+    static import_picklist(on_complete=ZipHandler.do_nothing)
     {
         let zh = new ZipHandler()
         zh.picklists = true
@@ -436,7 +436,7 @@ class ZipHandler
      * Helper function that creates a zip handler to import configuration data.
      * @param {Function} on_complete Function to call when loading is complete.
      */
-    static import_setup(on_complete=this.do_nothing)
+    static import_setup(on_complete=ZipHandler.do_nothing)
     {
         let zh = new ZipHandler()
         zh.event_data = true
@@ -450,7 +450,7 @@ class ZipHandler
      * Helper function that creates a zip handler to import all results.
      * @param {Function} on_complete Function to call when loading is complete.
      */
-    static import_results(on_complete=this.do_nothing)
+    static import_results(on_complete=ZipHandler.do_nothing)
     {
         let zh = new ZipHandler()
         zh.results = true
@@ -462,7 +462,7 @@ class ZipHandler
      * Helper function that creates a zip handler to import results and event data.
      * @param {Function} on_complete Function to call when loading is complete.
      */
-    static import_data(on_complete=this.do_nothing)
+    static import_data(on_complete=ZipHandler.do_nothing)
     {
         let zh = new ZipHandler()
         zh.event_data = true
