@@ -39,7 +39,7 @@ function init_page()
         {
             return
         }
-        
+
         for (let team of teams)
         {
             fetch(`https://www.thebluealliance.com/api/v3/team/frc${team}/events/${cfg.year}/simple${key_query}`)

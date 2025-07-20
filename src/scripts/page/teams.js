@@ -8,7 +8,7 @@
 
 include('mini-picklists')
 
-var avatar, team_num_hdr, team_name, loc, ranking, stats_container, clear_container, match_container
+var avatar, team_num_hdr, team_name, loc, ranking, completion_table, events_table
 
 /**
  * function:    init_page
@@ -20,35 +20,31 @@ function init_page()
 {
     header_info.innerText = 'Team Profiles'
 
-    // show and populate the left column with team numbers
-    enable_list()
-    for (let team_num of dal.team_numbers)
-    {
-        let op = new WRDescriptiveOption(team_num, team_num, dal.teams[team_num].name)
-        add_option(op)
-    }
-
     if (dal.team_numbers.length > 0)
     {
         avatar = document.createElement('img')
         avatar.className = 'avatar'
 
         let team_header = document.createElement('h2')
-        team_num_hdr = create_element('span', 'team_num')
-        team_num_hdr.innerText = 'No Team Selected'
+        team_num_hdr = new WRDropdown('', dal.team_numbers)
+        team_num_hdr.on_change = open_option
+        team_num_hdr.add_class('inline')
+        team_num_hdr.add_class('thin')
+        team_num_hdr.add_class('h2-dropdown')
         team_name = document.createElement('span')
         team_header.append(team_num_hdr, ' ', team_name)
 
         ranking = document.createElement('h3')
-        stats_container = document.createElement('div')
-        let card = new WRCard([avatar, team_header, ranking, stats_container], true)
+        completion_table = document.createElement('table')
+        let card = new WRCard([avatar, team_header, ranking, completion_table], true)
         card.add_class('result_card')
 
-        clear_container = document.createElement('span')
-        match_container = document.createElement('div')
-        preview.append(card, clear_container, match_container)
+        events_table = document.createElement('table')
+        let events_card = new WRCard(events_table, true)
+
+        preview.append(card, events_card)
         
-        open_option(dal.team_numbers[0])
+        open_option()
     }
     else
     {
@@ -86,184 +82,175 @@ function populate_cell(team_num, row, key)
 }
 
 /**
- * function:    open_option
- * parameters:  Selected team number
- * returns:     none
- * description: Completes right info pane for a given team number.
+ * Handles team number selection and populate the page.
  */
-function open_option(team_num)
+function open_option()
 {
-    // select new option
-    deselect_all()
-    document.getElementById(`left_pit_option_${team_num}`).classList.add('selected')
+    let team_num = team_num_hdr.element.value
 
     // populate top
     avatar.src = dal.teams[team_num].avatar
-    team_num_hdr.innerText = team_num
+    //team_num_hdr.innerText = team_num
     team_name.innerText = dal.teams[team_num].name
 
     // populate ranking
     ranking.innerHTML = dal.get_rank_string(team_num)
 
-    let clear_ignore = new WRButton('Clear Ignores')
-    clear_ignore.on_click = () => clear_ignores(team_num)
-    clear_container.replaceChildren(clear_ignore.element)
+    // scouting completion table
+    completion_table.replaceChildren()
 
-    // pull pit results
-    let pit_button = ''
-    for (let mode of cfg.team_scouting_modes)
+    // TODO: account for multiple results, display unsure, allow ignoring
+    // add pit scouting to completion table
+    let modes = cfg.team_scouting_modes
+    let team_header = completion_table.insertRow()
+    team_header.insertCell()
+    let team_status = completion_table.insertRow()
+    team_status.append(create_header('Team'))
+    for (let mode of modes)
     {
-        if (!dal.is_team_scouted(team_num, mode))
+        team_header.append(create_header(cfg.get_scout_config(mode).name))
+        let cell = team_status.insertCell()
+        let scouted = dal.is_team_scouted(team_num, mode)
+        cell.style.backgroundColor = scouted ? 'green' : 'red'
+    }
+
+    // add match scouting to completion table
+    modes = cfg.match_scouting_modes
+    let match_header = completion_table.insertRow()
+    match_header.insertCell()
+    for (let match_key of dal.teams[team_num].matches)
+    {
+        match_header.append(create_header(dal.matches[match_key].short_name))
+    }
+    for (let mode of modes)
+    {
+        let match_status = completion_table.insertRow()
+        match_status.append(create_header(cfg.get_scout_config(mode).name))
+        for (let match_key of dal.teams[team_num].matches)
         {
-            let config = cfg.get_scout_config(mode)
-            pit_button = new WRLinkButton(`Scout ${config.name}`, build_url('scout', {type: PIT_MODE, team: team_num, alliance: 'white', edit: false}))
+            let cell = match_status.insertCell()
+            let scouted = dal.is_match_scouted(match_key, team_num, mode)
+            cell.style.backgroundColor = scouted ? 'green' : 'red'
         }
     }
 
-    // build stats table
-    let stats_tab = document.createElement('table')
-    stats_tab.style.textAlign = 'left'
-    let match_stats = cfg.get_match_keys()
-    let pit_stats = cfg.get_team_keys()
-    let num_match = match_stats.length
-    let num_pit = pit_stats.length
-    let max_len = num_match > num_pit ? num_match : num_pit
-    let pit_scouted = dal.is_pit_scouted(team_num)
-    let match_scouted = dal.teams[team_num].results.length > 0
-    for (let i = 0; i < max_len; ++i)
-    {
-        let row
-        if (pit_scouted)
-        {
-            row = stats_tab.insertRow()
-
-            if (i < num_pit)
-            {
-                let key = pit_stats[i]
-                populate_cell(team_num, row, key)
-            }
-            else
-            {
-                row.insertCell()
-                row.insertCell()
-            }
-        }
-
-        if (match_scouted)
-        {
-            if (row == null)
-            {
-                row = stats_tab.insertRow()
-            }
-
-            if (i < num_match)
-            {
-                let key = match_stats[i]
-                populate_cell(team_num, row, key)
-            }
-            else
-            {
-                row.insertCell()
-                row.insertCell()
-            }
-        }
-    }
-    stats_container.replaceChildren(stats_tab)
-
-    let cards = []
-
-    // add row for each match
-    let matches = dal.teams[team_num].matches
-    matches.sort((a, b) => dal.get_match_value(a.key, 'started_time') - dal.get_match_value(b.key, 'started_time'))
-    for (let match of matches)
-    {
-        let match_key = match.key
-
-        if (true || match.comp_level === 'qm')
-        {
-            // determine team's alliance (if any)
-            let alliance = match.alliance
-
-            // add time
-            let time = document.createElement('center')
-            time.innerText = dal.get_match_value(match_key, 'display_time')
-            if (dal.get_match_value(match_key, 'complete'))
-            {
-                let winner = dal.get_match_value(match_key, 'winner')
-                let win = 'L'
-                if (winner === alliance)
-                {
-                    win = 'W'
-                }
-                else if (winner === 'tie')
-                {
-                    win = 'T'
-                }
-                let result = document.createElement('span')
-                let w = document.createElement('b')
-                w.innerText = win
-                result.append(w, br(), dal.generate_score(match_key))
-                time.append(br(), result)
-            }
-
-            let match_num = document.createElement('span')
-            match_num.className = alliance
-            match_num.innerText = dal.get_match_value(match_key, 'short_match_name')
-            let match_link, ignore
-            if (dal.is_match_scouted(match_key, team_num))
-            {
-                // build text of ignore checkbox
-                let ignore_text = document.createElement('span')
-                ignore_text.append('Ignore Match ', match_num)
-
-                // build ignore checkbox
-                ignore = new WRCheckbox(ignore_text, dal.get_result_value(team_num, match_key, 'meta_ignore'))
-                ignore.on_click = () => ignore_match(match_key, team_num)
-                ignore.add_class('slim')
-
-                // build text of match button
-                let match_text = document.createElement('span')
-                match_text.append('Match ', match_num, ' Results')
-
-                // build match button
-                match_link = new WRLinkButton(match_text, build_url('results', {file: `${match_key}-${team_num}`}))
-            }
-            else
-            {
-                // build text of match button
-                let match_text = document.createElement('span')
-                match_text.append('Scout Match ', match_num)
-    
-                // build match button
-                match_link = new WRLinkButton(match_text, build_url('scout', {type: MATCH_MODE, match: match_key, team: team_num, alliance: alliance, edit: false}))
-            }
-
-            let card = new WRCard(time)
-            card.space_after = false
-
-            let stack = new WRStack([card, match_link])
-            if (ignore)
-            {
-                stack.add_element(ignore)
-            }
-            cards.push(stack)
-        }
-    }
-
-    let count = cards.length / 2
-    // prefer more stacks on the left column
-    if (cards.length % 2 === 1)
-    {
-        count++
-    }
-    console.log(cards.length, count)
-    let left_col = new WRColumn('', cards.splice(0, count))
-    let right_col = new WRColumn('', cards)
-    let page = new WRPage('', [pit_button, left_col, right_col])
-
-    match_container.replaceChildren(page)
+    populate_events(team_num)
 
     ws(team_num)
+}
+
+/**
+ * Populates the events card with data from TBA.
+ * @param {Number} team_num Team number
+ */
+function populate_events(team_num)
+{
+    events_table.replaceChildren(create_header_row(['Event', 'Date', 'Rank', 'RP', 'Alliance', 'Pick', 'Awards']))
+
+    let key = cfg.tba_key
+    if (!key) return
+    let key_query = `?${TBA_AUTH_KEY}=${key}`
+
+    fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/events/${cfg.year}/simple${key_query}`)
+        .then(response => {
+            if (response.status == 401) {
+                alert('Invalid API Key Suspected')
+            }
+            return response.json()
+        })
+        .then(data => {
+            let events = data.sort((a,b) => parseInt(a.start_date.replace('-', '')) - parseInt(b.start_date.replace('-', '')))
+            for (let d of events)
+            {
+                // TODO: filter by date
+                let row = events_table.insertRow()
+                row.insertCell().innerText = d.name
+                row.insertCell().innerText = d.start_date
+
+                let ranking_cell = row.insertCell()
+                let rp_cell = row.insertCell()
+                let alliance_cell = row.insertCell()
+                let pick_cell = row.insertCell()
+                let award_cell = row.insertCell()
+
+                fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/event/${cfg.year}${d.event_code}/status${key_query}`)
+                    .then(response => {
+                        if (response.status == 401)
+                        {
+                            alert('Invalid API Key Suspected')
+                        }
+                        return response.json()
+                    })
+                    .then(data => {
+                        if (data.qual)
+                        {
+                            ranking_cell.innerText = `${data.qual.ranking.rank}/${data.qual.num_teams}`
+                            rp_cell.innerText = `${data.qual.ranking.sort_orders[0]}`
+                            if (data.alliance)
+                            {
+                                alliance_cell.innerText = `${data.alliance.number}`
+                                let pick = ''
+                                switch (data.alliance.pick)
+                                {
+                                    case 0:
+                                        pick = 'Captain'
+                                        break
+                                    case 1:
+                                        pick = '1st'
+                                        break
+                                    case 2:
+                                        pick = '2nd'
+                                        break
+                                    case 3:
+                                        pick = '3rd'
+                                        break
+                                }
+                                pick_cell.innerText = `${pick}`
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.log(`Error fetching team, ${err}`)
+                    })
+
+                fetch(`https://www.thebluealliance.com/api/v3/team/frc${team_num}/event/${cfg.year}${d.event_code}/awards${key_query}`)
+                    .then(response => {
+                        if (response.status == 401)
+                        {
+                            alert('Invalid API Key Suspected')
+                        }
+                        return response.json()
+                    })
+                    .then(data => {
+                        for (let award of data)
+                        {
+                            switch (award.award_type)
+                            {
+                                case 0:
+                                    award_cell.innerHTML += 'Impact<br>'
+                                    break
+                                case 1:
+                                    award_cell.innerHTML += 'Winner<br>'
+                                    break
+                                case 2:
+                                    // winner and finalist
+                                    award_cell.innerHTML += 'Finalist<br>'
+                                    break
+                                case 9:
+                                    // ei
+                                    award_cell.innerHTML += 'EI<br>'
+                                    break
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.log(`Error fetching team, ${err}`)
+                    })
+            }
+        })
+        .catch(err => {
+            console.log(`Error fetching team, ${err}`)
+        })
 }
 
 /**

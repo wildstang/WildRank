@@ -541,3 +541,11 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
+
+.h2-dropdown {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0px;
+    padding: 0px;
+    height: 29px;
+}
