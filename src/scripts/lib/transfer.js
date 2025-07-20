@@ -622,7 +622,7 @@ class ZipHandler
         {
             if (file.name)
             {
-                let error = file.name.endsWith('.zip') ? await this.import_zip(file) : this.import_settings(file)
+                let error = file.name.endsWith('.zip') ? await this.import_zip(file) : await this.import_settings(file)
                 if (error && typeof error === 'string')
                 {
                     alert(`${error}: ${file}`)
@@ -769,43 +769,38 @@ class ZipHandler
      * @param {File} file Uploaded file
      * @returns An error description or false
      */
-    import_settings(file)
+    async import_settings(file)
     {
-        // TODO: find a way to make this syncronous, FileReaderSync does not work
-        const reader = new FileReader()
-        reader.onload = function () {
-            const text = reader.result
-            if (file.name.startsWith(cfg.user.name))
-            {
-                console.log(`Importing ${file.name}`)
-                cfg.user.handle_config(text)
-            }
-            else if (file.name.startsWith(cfg.scout.name))
-            {
-                console.log(`Importing ${file.name}`)
-                cfg.scout.handle_config(text)
-            }
-            else if (file.name.startsWith(cfg.analysis.name))
-            {
-                console.log(`Importing ${file.name}`)
-                cfg.analysis.handle_config(text)
-            }
-            else if (file.name.startsWith(cfg.user_list.name))
-            {
-                console.log(`Importing ${file.name}`)
-                cfg.user_list.handle_config(text)
-            }
-            else if (file.name.startsWith('picklists-'))
-            {
-                console.log(`Importing ${file.name}`)
-                dal.handle_picklists(text)
-            }
-            else
-            {
-                alert(`Unrecognized file ${text}`)
-            }
+        const text = await file.text()
+        if (file.name.startsWith(cfg.user.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.user.handle_config(text)
         }
-        reader.readAsText(file, 'UTF-8')
+        else if (file.name.startsWith(cfg.scout.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.scout.handle_config(text)
+        }
+        else if (file.name.startsWith(cfg.analysis.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.analysis.handle_config(text)
+        }
+        else if (file.name.startsWith(cfg.user_list.name))
+        {
+            console.log(`Importing ${file.name}`)
+            cfg.user_list.handle_config(text)
+        }
+        else if (file.name.startsWith('picklists-'))
+        {
+            console.log(`Importing ${file.name}`)
+            dal.handle_picklists(text)
+        }
+        else
+        {
+            alert(`Unrecognized file ${text}`)
+        }
     }
 
     /**
