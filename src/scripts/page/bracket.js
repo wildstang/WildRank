@@ -10,7 +10,6 @@
  * date:        2024-02-08
  */
 
-include('transfer')
 include('bracket-obj')
 
 var filter_el

@@ -7,7 +7,6 @@
  */
 
 include('picklists-core')
-include('transfer')
 
 var avatar_el, team_el, name_el, ranking, lists_el, mode_el, table_card
 

@@ -5,8 +5,6 @@
  * date:        2025-02-25
  */
 
-include('transfer')
-
 var event_id_el, user_id_el, position_el, theme_el, user_type_el, role_options
 
 /**

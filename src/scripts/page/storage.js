@@ -5,8 +5,6 @@
  * date:        2023-03-22
  */
 
-include('transfer')
-
 /**
  * function:    init_page
  * parameters:  none

@@ -13,8 +13,6 @@ var match_num_el, match_time_el, avatar_el, team_num_el, team_name_el, team_pos_
 var scout_pos
 var scout_type
 
-include('transfer')
-
 /**
  * Populates the match selector and builds the structure of the page.
  */

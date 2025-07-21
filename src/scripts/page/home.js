@@ -9,8 +9,6 @@
  * PAGE INIT
  */
 
-include('transfer')
-
 var cache_import = get_parameter('cache_import', '')
 
 // role based layouts

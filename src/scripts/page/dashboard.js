@@ -5,8 +5,6 @@
  * date:        2025-05-03
  */
 
-include('transfer')
-
 var event_config, scout_config_valid, analysis_config_valid, summary_card
 var breakdown_table, team_table, match_table
 

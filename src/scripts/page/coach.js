@@ -8,7 +8,6 @@
 
 include('whiteboard-obj')
 include('bracket-obj')
-include('transfer')
 
 // read parameters from URL
 const selected = get_parameter('match', '')

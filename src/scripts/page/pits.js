@@ -15,8 +15,6 @@ var avatar_el, team_num_el, team_name_el, buttons_el, capture_el
 
 var scout_type
 
-include('transfer')
-
 /**
  * Populates the team selector and builds the structure of the page.
  */

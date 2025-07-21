@@ -23,7 +23,6 @@ const CACHE_LIST = [
     '/scripts/lib/mini-picklists.js',
     '/scripts/lib/picklists-core.js',
     '/scripts/lib/stat-builders.js',
-    '/scripts/lib/transfer.js',
     '/scripts/lib/whiteboard-obj.js',
     /* don't cache misc scripts that rely on tba or are out of date
     '/scripts/page/misc/district-counter.js',
@@ -79,6 +78,7 @@ const CACHE_LIST = [
     '/scripts/init.js',
     '/scripts/inputs.js',
     '/scripts/selection.js',
+    '/scripts/transfer.js',
     '/scripts/utils.js',
     // assets
     '/assets/2025/algae.png',
