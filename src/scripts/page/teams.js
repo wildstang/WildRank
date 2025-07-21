@@ -118,7 +118,8 @@ function open_option()
     modes = cfg.match_scouting_modes
     let match_header = completion_table.insertRow()
     match_header.insertCell()
-    for (let match_key of dal.teams[team_num].matches)
+    let matches = dal.sort_match_keys(dal.teams[team_num].matches)
+    for (let match_key of matches)
     {
         match_header.append(create_header(dal.matches[match_key].short_name))
     }
@@ -126,7 +127,7 @@ function open_option()
     {
         let match_status = completion_table.insertRow()
         match_status.append(create_header(cfg.get_scout_config(mode).name))
-        for (let match_key of dal.teams[team_num].matches)
+        for (let match_key of matches)
         {
             let cell = match_status.insertCell()
             let scouted = dal.is_match_scouted(match_key, team_num, mode)
@@ -137,6 +138,16 @@ function open_option()
     populate_events(team_num)
 
     ws(team_num)
+}
+
+/**
+ * Converts a TBA date string to an int for sorting
+ * @param {String} date TBA date string (YYYY-MM-DD)
+ * @returns Int representation of date
+ */
+function date_to_int(date)
+{
+    return parseInt(date.replace('-', ''))
 }
 
 /**
@@ -159,10 +170,9 @@ function populate_events(team_num)
             return response.json()
         })
         .then(data => {
-            let events = data.sort((a,b) => parseInt(a.start_date.replace('-', '')) - parseInt(b.start_date.replace('-', '')))
+            let events = data.sort((a,b) => date_to_int(a.start_date) - date_to_int(b.start_date))
             for (let d of events)
             {
-                // TODO: filter by date
                 let row = events_table.insertRow()
                 row.insertCell().innerText = d.name
                 row.insertCell().innerText = d.start_date

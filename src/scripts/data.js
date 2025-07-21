@@ -713,8 +713,18 @@ class Data
             keys = keys.filter(k => ['qm', 'cm'].includes(this.matches[k].comp_level))
         }
 
+        return this.sort_match_keys(keys)
+    }
+
+    /**
+     * Sorts a given array of match keys by type then number.
+     * @param {Array} keys Array of match key strings
+     * @returns Sorted array of match keys
+     */
+    sort_match_keys(keys)
+    {
         // sort matches
-        const cl_sort = ['cm', 'qm', 'qf', 'sf', 'f']
+        const cl_sort = ['qm', 'cm', 'qf', 'sf', 'f']
         return keys.sort((a, b) => {
             const a_match = this.matches[a]
             const b_match = this.matches[b]

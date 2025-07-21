@@ -6,7 +6,7 @@
  * date:        2020-06-13
  */
 
-var match_num_el, time_el, team_tab, extra_el, team_filter
+var match_num_el, time_el, team_tab, completion_table, extra_el, team_filter
 
 /**
  * Builds the structure of the page on page load.
@@ -23,8 +23,10 @@ function init_page()
         time_el = document.createElement('h3')
         team_tab = document.createElement('table')
         team_tab.style.margin = 'auto'
+        completion_table = document.createElement('table')
+        completion_table.style.margin = 'auto'
         extra_el = document.createElement('div')
-        let card = new WRCard([match_num_el, time_el, team_tab, br(), extra_el], true)
+        let card = new WRCard([match_num_el, time_el, team_tab, br(), completion_table, br(), extra_el], true)
         preview.append(card)
 
         // show and populate the left column with matches and a team filter
@@ -94,6 +96,27 @@ function open_option(match_key)
     team_tab.replaceChildren()
     build_alliance_row(team_tab, match, 'blue')
     build_alliance_row(team_tab, match, 'red')
+
+    let teams = Object.values(dal.get_match_teams(match_key))
+
+    completion_table.replaceChildren()
+    let header_row = completion_table.insertRow()
+    header_row.insertCell()
+    for (let team_num of teams)
+    {
+        header_row.insertCell().innerText = team_num
+    }
+    for (let mode of cfg.match_scouting_modes)
+    {
+        let row = completion_table.insertRow()
+        row.append(create_header(cfg.get_scout_config(mode).name))
+        for (let team_num of teams)
+        {
+            let cell = row.insertCell()
+            let scouted = dal.is_match_scouted(match_key, team_num, mode)
+            cell.style.backgroundColor = scouted ? 'green' : 'red'
+        }
+    }
 
     // generate extras
     let extras = []
