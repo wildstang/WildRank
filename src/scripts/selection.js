@@ -39,9 +39,8 @@ function toggle_menu(left=true)
  */
 function enable_list(left=true, allow_scroll=false)
 {
-    // TODO: maybe rename, make a bit smarter
     // TODO: redo increased font size
-    if (!cfg.user.settings.auto_hide_right)
+    if (left || !cfg.user.settings.auto_hide_right)
     {
         document.getElementById(left ? 'left' : 'right').style.display = 'flex'
     }
