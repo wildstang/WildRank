@@ -235,9 +235,17 @@ document.onkeydown = function (e)
         // open the updater
         case 'u':
             u_count++
-            if (u_count === 5)
+            if (u_count === 5 || e.altKey)
             {
                 window_open('updater.html')
+            }
+            break
+
+        // reload data from TBA
+        case 'r':
+            if (e.altKey)
+            {
+                preload_event()
             }
             break
 
