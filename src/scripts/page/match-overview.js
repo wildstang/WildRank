@@ -30,7 +30,7 @@ function init_page()
         preview.append(card)
 
         // show and populate the left column with matches and a team filter
-        enable_list()
+        enable_list(true, true)
         let teams = dal.team_numbers
         teams.unshift('')
         team_filter = add_dropdown_filter(teams, build_match_list)

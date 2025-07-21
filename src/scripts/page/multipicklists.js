@@ -54,7 +54,7 @@ function init_page()
         build_pick_lists()
 
         // show and populate the left column with team numbers
-        enable_list()
+        enable_list(true, true)
         for (let team_num of dal.team_numbers)
         {
             let op = new WRDescriptiveOption(team_num, team_num, dal.teams[team_num].name)

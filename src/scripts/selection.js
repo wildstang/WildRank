@@ -37,13 +37,20 @@ function toggle_menu(left=true)
  * Makes the specified list visible, unless not allowed to be visible by default.
  * @param {Boolean} left Whether to use the left list
  */
-function enable_list(left=true)
+function enable_list(left=true, allow_scroll=false)
 {
+    // TODO: maybe rename, make a bit smarter
+    // TODO: redo increased font size
     if (!cfg.user.settings.auto_hide_right)
     {
         document.getElementById(left ? 'left' : 'right').style.display = 'flex'
     }
     document.getElementById(`${left ? '' : 'secondary_'}menu_toggle`).style.display = 'block'
+
+    if (allow_scroll)
+    {
+        scroll_options = `${left ? '' : 'secondary_'}option_list`
+    }
 }
 
 /**

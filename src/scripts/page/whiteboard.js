@@ -20,7 +20,7 @@ function init_page()
         header_info.innerText = 'Whiteboard'
 
         // show and populate the left column with matches and a team filter
-        enable_list()
+        enable_list(true, true)
         let default_filter = ''
         if (cfg.user.settings.hasOwnProperty('team_number'))
         {

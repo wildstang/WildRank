@@ -64,7 +64,7 @@ function init_page()
 
         preview.replaceChildren(new WRPage('', [user_col, card_col]))
 
-        enable_list()
+        enable_list(true, true)
         filter_box = add_checkbox_filter('Show All Users', build_options)
         build_options()
     }

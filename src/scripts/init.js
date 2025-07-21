@@ -53,6 +53,8 @@ document.head.appendChild(script)
 var page_loaded = false
 window.addEventListener('load', _ => page_loaded = true)
 
+var scroll_options = ''
+
 /**
  * Creates an event listener to run a given function onload, or immediately calls it if the page has already been loaded.
  * 
@@ -215,9 +217,22 @@ function add_error_card(message, description='')
 var u_count = 0
 document.onkeydown = function (e)
 {
+    // reset the u count when any other key is pressed
+    if (e.key !== 'u')
+    {
+        u_count = 0
+    }
+
+    // exit if the focus is in a text box
+    if (e === document.body)
+    {
+        return
+    }
+
     let offset = 0
     switch (e.key)
     {
+        // open the updater
         case 'u':
             u_count++
             if (u_count === 5)
@@ -226,25 +241,29 @@ document.onkeydown = function (e)
             }
             break
 
+        // scroll the option list up/down
         case 'ArrowUp':
             offset = -2
         case 'ArrowDown':
             offset += 1
 
-            // find currently selected option
-            let options = document.getElementById('option_list').children
-            for (let i = 0; i < options.length; ++i)
+            if (scroll_options)
             {
-                if (options[i].classList.contains('selected'))
+                // find currently selected option
+                let options = document.getElementById(scroll_options).children
+                for (let i = 0; i < options.length; ++i)
                 {
-                    // increment/decrement selected index by arrow press
-                    let new_index = i + offset
-                    // click on newly selected option and scroll
-                    if (new_index >= 0 && new_index < options.length)
+                    if (options[i].classList.contains('selected'))
                     {
-                        options[new_index].click()
-                        scroll_to('option_list', options[new_index].id)
-                        return false
+                        // increment/decrement selected index by arrow press
+                        let new_index = i + offset
+                        // click on newly selected option and scroll
+                        if (new_index >= 0 && new_index < options.length)
+                        {
+                            options[new_index].click()
+                            scroll_to(scroll_options, options[new_index].id)
+                            return false
+                        }
                     }
                 }
             }

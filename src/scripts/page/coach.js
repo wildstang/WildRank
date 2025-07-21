@@ -63,7 +63,7 @@ function init_page()
         red_stack.add_class('blue_box')
 
         // show and populate the left column with matches and a team filter
-        enable_list()
+        enable_list(true, true)
         let default_filter = ''
         if (selected === '' && cfg.user.settings.hasOwnProperty('team_number'))
         {

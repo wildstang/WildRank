@@ -25,7 +25,7 @@ function init_page()
     header_info.innerText = 'Team Select'
 
     let scout_config = cfg.get_scout_config(scout_mode)
-    enable_list()
+    enable_list(true, true)
     let first = ''
     for (let team_num of dal.team_numbers)
     {

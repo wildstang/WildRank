@@ -28,7 +28,7 @@ function init_page()
     let scout_config = cfg.get_scout_config(scout_mode)
 
     // show and populate the left column with matches
-    enable_list()
+    enable_list(true, true)
     let first = ''
     for (let match_key of dal.match_keys)
     {

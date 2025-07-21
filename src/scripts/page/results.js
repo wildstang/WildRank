@@ -44,7 +44,7 @@ function init_page()
     avail_teams.unshift('All')
     team_filter = add_dropdown_filter(avail_teams, build_result_list)
 
-    enable_list()
+    enable_list(true, true)
     build_result_list()
     setup_picklists()
 }
