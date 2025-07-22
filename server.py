@@ -19,7 +19,7 @@ It also accepts post requests at / to upload zip files of JSON data.
 Like post-server.py this should be executed from the root of the project.
 Unlike post-server.py this is now executed with Uvicorn or another ASGI server.
 
-uvicorn --host 0.0.0.0 --app-dir python server:app
+uvicorn --host 0.0.0.0 server:app
 
 Useful params:
 --port PORT, default 8000
@@ -28,7 +28,7 @@ Useful params:
 
 UPLOAD_PATH = 'uploads/'
 REPORT = True
-REPORT_FILE = 'reports.csv'
+REPORT_FILE = f'{UPLOAD_PATH}reports.csv'
 PASSWORD = getenv('WILDRANK_PASSWORD')
 
 
