@@ -69,16 +69,11 @@
 
 .wr_card {
     min-width: calc(var(--input-width) - 2*var(--input-padding));
+    display: inline-block;
 }
 
-#contents_card.wr_card {
-    display: inline-block;
-    font-size: var(--font-size);
-}
-
-.body_card {
-    display: inline-block;
-    font-size: var(--font-size);
+.full_card {
+    display: block;
 }
 
 .scalable_card {
@@ -456,6 +451,7 @@
 }
 
 .elim_match {
+    display: block;
     text-align: center;
 }
 

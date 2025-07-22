@@ -29,7 +29,7 @@ function init_page()
         let belongs = document.createElement('h4')
         belongs.innerText = 'Belongs to:'
         lists_el = document.createElement('span')
-        let card = new WRCard([avatar_el, header, ranking, belongs, lists_el], true)
+        let card = new WRCard([avatar_el, header, ranking, belongs, lists_el])
 
         // remove empty lists on page load
         let names = Object.keys(dal.picklists)
@@ -42,8 +42,7 @@ function init_page()
         }
 
         // build page
-        table_card = new WRCard('')
-        table_card.add_class('scalable_card')
+        table_card = new WRCard('', true)
         let new_list_el = new WRButton('Add to New List', new_list)
         mode_el = new WRSelect('', ['Add', 'Strike', 'Remove'])
         let export_button = new WRMultiButton('', ['Import', 'Export'], [() => ZipHandler.import_picklist(build_pick_lists), export_picklists])

@@ -26,7 +26,7 @@ function init_page()
         completion_table = document.createElement('table')
         completion_table.style.margin = 'auto'
         extra_el = document.createElement('div')
-        let card = new WRCard([match_num_el, time_el, team_tab, br(), completion_table, br(), extra_el], true)
+        let card = new WRCard([match_num_el, time_el, team_tab, br(), completion_table, br(), extra_el])
         preview.append(card)
 
         // show and populate the left column with matches and a team filter

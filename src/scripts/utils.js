@@ -402,6 +402,8 @@ function apply_theme()
     {
         document.documentElement.style.setProperty(`--${key}`, theme[key])
     }
+
+    document.documentElement.style.setProperty(`--font-size`, cfg.user.settings.font_size)
 }
 
 /**

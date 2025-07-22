@@ -301,7 +301,7 @@ function init_page()
     let export_button = new WRButton('Export as Spreadsheet', export_csv)
 
     results_tab = document.createElement('table')
-    let card = new WRCard([results_tab])
+    let card = new WRCard([results_tab], true)
     preview.append(new WRPage('', [card, new WRColumn('', [sort_dropdown]),
                                    new WRColumn('', [picklist_button, export_button])]))
 

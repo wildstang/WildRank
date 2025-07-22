@@ -36,11 +36,11 @@ function init_page()
 
         ranking = document.createElement('h3')
         completion_table = document.createElement('table')
-        let card = new WRCard([avatar, team_header, ranking, completion_table], true)
+        let card = new WRCard([avatar, team_header, ranking, completion_table])
         card.add_class('result_card')
 
         events_table = document.createElement('table')
-        let events_card = new WRCard(events_table, true)
+        let events_card = new WRCard(events_table)
 
         preview.append(card, events_card)
         

@@ -74,7 +74,7 @@ function init_page()
         card_elements.push(team)
 
         buttons = document.createElement('div')
-        let card = new WRCard(card_elements, true)
+        let card = new WRCard(card_elements)
         preview.append(card, buttons)
 
         open_option(first)

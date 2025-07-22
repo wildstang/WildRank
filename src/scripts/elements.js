@@ -273,7 +273,7 @@ customElements.define('wr-number', WRNumber)
 
 class WRCard extends WRElement
 {
-    constructor(text, body_card=false)
+    constructor(text, scale_text=false)
     {
         super()
 
@@ -285,9 +285,9 @@ class WRCard extends WRElement
         this.text_el = document.createElement('span')
         this.element = document.createElement('div')
 
-        if (body_card)
+        if (scale_text)
         {
-            this.add_class('body_card')
+            this.add_class('scalable_card')
         }
     }
 

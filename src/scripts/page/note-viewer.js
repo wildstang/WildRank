@@ -205,8 +205,7 @@ function filter_notes()
             }
 
             // add notes to new card
-            let card = new WRCard(results_el)
-            card.add_class('scalable_card')
+            let card = new WRCard(results_el, true)
 
             team_cols.push(new WRColumn('', [card]))
         }

@@ -56,7 +56,6 @@ function init_page()
         team_el.append(team_num_el, ' ', team_name_el)
 
         let card = new WRCard([avatar_el, team_el])
-        card.add_class('body_card')
 
         buttons_el = document.createElement('div')
         preview.append(card, buttons_el)

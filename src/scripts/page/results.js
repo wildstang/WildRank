@@ -32,7 +32,7 @@ function init_page()
     rank_el = document.createElement('h3')
     title.append(avatar, ' ', result_name, rank_el)
 
-    let card = new WRCard([title], true)
+    let card = new WRCard([title])
     preview.append(card)
 
     results_box = document.createElement('div')
