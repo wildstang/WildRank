@@ -13,7 +13,6 @@ const CACHE_LIST = [
     '/updater.html',
     // styles
     '/styles/inputs.css',
-    '/styles/selection.css',
     '/styles/style.css',
     // scripts
     '/scripts/lib/external/jszip.min.js',
