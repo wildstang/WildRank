@@ -249,6 +249,22 @@ document.onkeydown = function (e)
             }
             break
 
+        // reload data from TBA
+        case 'p':
+            if (e.altKey)
+            {
+                let sizes = ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large']
+                let index = sizes.indexOf(cfg.user.settings.font_size) + 1
+                if (index >= sizes.length)
+                {
+                    index = 0
+                }
+                cfg.user.settings.font_size = sizes[index]
+                apply_theme()
+                cfg.user.store_config()
+            }
+            break
+
         // scroll the option list up/down
         case 'ArrowUp':
             offset = -2
