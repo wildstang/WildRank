@@ -16,8 +16,10 @@ function init_page()
     header_info.innerText = 'Dashboard'
 
     // build shortcut buttons to common analysis pages
-    let first_links = new WRMultiLinkButton('', ['Stat Builder', 'Edit Coach'], [build_url('ranker'), build_url('edit-coach')])
-    first_links.add_class('slim')
+    let stats_link = new WRLinkButton('Stat Builder', build_url('ranker'))
+    stats_link.add_class('slim')
+    let edit_links = new WRMultiLinkButton('', ['Coach', 'Faves'], [build_url('edit-coach'), build_url('edit-favorites')])
+    edit_links.add_class('slim')
     let second_links = new WRMultiLinkButton('', ['Pivot Table', 'Plotter'], [build_url('pivot'), build_url('plot')])
     second_links.add_class('slim')
     let third_links = new WRMultiLinkButton('', ['Note Viewer', 'Pick Lists'], [build_url('note-viewer'), build_url('multipicklists')])
@@ -65,7 +67,7 @@ function init_page()
     let matches_card = new WRCard(match_contents)
 
     // put cards into 2 pages
-    let top_page = new WRPage('', [new WRColumn('', [first_links, status_stack]),
+    let top_page = new WRPage('', [new WRColumn('', [new WRStack([stats_link, edit_links]), status_stack]),
                                    new WRColumn('', [second_links, summary_card]),
                                    new WRColumn('', [third_links, transfer_buttons])])
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])

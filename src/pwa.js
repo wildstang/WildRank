@@ -48,6 +48,7 @@ const CACHE_LIST = [
     '/scripts/page/cycles.js',
     '/scripts/page/dashboard.js',
     '/scripts/page/edit-coach.js',
+    '/scripts/page/edit-favorites.js',
     '/scripts/page/edit-stats.js',
     '/scripts/page/event-generator.js',
     '/scripts/page/events.js',

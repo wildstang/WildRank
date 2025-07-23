@@ -1,7 +1,6 @@
 /**
- * file:        coach.js
- * description: Contains functions for the driver coach view page of the web app.
- *              Primarily for building the interface from event data.
+ * file:        edit-coach.js
+ * description: Allows the user to add and delete favorites.
  * author:      Liam Fruzyna
  * date:        2021-09-03
  */
@@ -10,10 +9,7 @@ var new_func, new_key, keys
 
 
 /**
- * function:    init_page
- * parameters:  none
- * returns:     none
- * description: Populate body
+ * Get possible keys and populate page.
  */
 function init_page()
 {
@@ -22,10 +18,7 @@ function init_page()
 }
 
 /**
- * function:    build_buttons
- * parameters:  none
- * returns:     none
- * description: Populates the body with buttons to create and delete coach values.
+ * Builds the page with an add column and a delete column.
  */
 function build_buttons()
 {
@@ -51,10 +44,7 @@ function build_buttons()
 }
 
 /**
- * function:    create
- * parameters:  none
- * returns:     none
- * description: Create and save a new coach value based on the inputs.
+ * Create a new coach result for the selected key.
  */
 function create()
 {
@@ -82,10 +72,8 @@ function create()
 }
 
 /**
- * function:    delete_val
- * parameters:  index of coach value
- * returns:     none
- * description: Delete a coach value of a given index.
+ * Delete the coach result at the given index.
+ * @param {Number} idx Coach result index
  */
 function delete_val(idx)
 {
