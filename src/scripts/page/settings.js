@@ -93,7 +93,7 @@ function build_setting(key, val)
             entry.show_color = true
             return entry
         }
-        else if (key === 'font-size')
+        else if (key === 'font_size')
         {
             let entry = new WRDropdown(name, ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'], val)
             entry.input_id = key
