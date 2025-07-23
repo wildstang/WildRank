@@ -249,11 +249,11 @@ document.onkeydown = function (e)
             }
             break
 
-        // reload data from TBA
+        // rotate font size
         case 'p':
             if (e.altKey)
             {
-                let sizes = ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large']
+                let sizes = cfg.user.VALID_FONT_SIZES
                 let index = sizes.indexOf(cfg.user.settings.font_size) + 1
                 if (index >= sizes.length)
                 {

@@ -95,7 +95,7 @@ function build_setting(key, val)
         }
         else if (key === 'font_size')
         {
-            let entry = new WRDropdown(name, ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'], val)
+            let entry = new WRDropdown(name, cfg.user.VALID_FONT_SIZES, val)
             entry.input_id = key
             return entry
         }
