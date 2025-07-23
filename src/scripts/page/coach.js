@@ -12,7 +12,7 @@ include('bracket-obj')
 // read parameters from URL
 const selected = get_parameter('match', '')
 
-var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_stack, red_card, blue_stack, blue_card, drag_box
+var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_stack, red_card, blue_stack, blue_card, drag_box, red_import, blue_import
 
 /**
  * Build the structure of the page and initialize bracket and whiteboard.
@@ -50,14 +50,14 @@ function init_page()
         red_card = new WRCard('')
         let red_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
         let red_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
-        let red_import = new WRButton('Import Data', ZipHandler.import_data)
+        red_import = new WRButton('Import Data', ZipHandler.import_data)
         red_stack = new WRStack([red_card, red_edit, red_custom, red_import], true)
         red_stack.add_class('red_box')
 
         blue_card = new WRCard('')
         let blue_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
         let blue_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
-        let blue_import = new WRButton('Import Data', ZipHandler.import_data)
+        blue_import = new WRButton('Import Data', ZipHandler.import_data)
         blue_stack = new WRStack([blue_card, blue_edit, blue_custom, blue_import], true)
         red_stack.add_class('blue_box')
 
@@ -197,6 +197,9 @@ function open_option(match_key)
 
     let red_page = new WRPage('', [new WRColumn('', [red_stack])])
     let blue_page = new WRPage('', [new WRColumn('', [blue_stack])])
+
+    red_import.element.title = 'Import event data and results'
+    blue_import.element.title = 'Import event data and results'
 
     // build template
     carousel.replaceChildren(red_page, blue_page, whiteboard_page)

@@ -102,6 +102,8 @@ function step_setup()
     }
     preview.replaceChildren(page)
 
+    import_button.element.title = 'Import event data, scouting config, and analysis config'
+
     if (update_type)
     {
         update_user_type()

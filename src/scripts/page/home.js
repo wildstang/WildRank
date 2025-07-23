@@ -12,6 +12,7 @@
 var cache_import = get_parameter('cache_import', '')
 
 // role based layouts
+// TODO: consider importing everything from analysis
 const CONFIGS = {
     'analysis': {
         'Results': ['import_results', 'result_count', 'open_moralysis'],

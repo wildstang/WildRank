@@ -73,6 +73,9 @@ function init_page()
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])
     preview.replaceChildren(top_page, bottom_page)
 
+    transfer_buttons.element.children[1].title = 'Export event data, scouting config, and analysis config'
+    transfer_buttons.element.children[3].title = 'Export event data and results'
+
     populate()
 }
 
