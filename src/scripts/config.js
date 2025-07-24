@@ -1345,6 +1345,7 @@ class Result
                         let counts = {}
                         for (let val of results)
                         {
+                            // TODO: more intelligently handle multiple modes
                             if (!Object.keys(counts).includes(val.toString()))
                             {
                                 counts[val] = 0
