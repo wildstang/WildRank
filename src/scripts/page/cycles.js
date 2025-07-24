@@ -171,13 +171,17 @@ function open_option(option)
             }
 
             let file = match_result.file_names[mode][res_idx]
-            let page = new WRPage(`${mode} (${file})`)
+            let mode_name = cfg.get_scout_config(mode).name
+            let page = new WRPage(`${mode_name} - ${dal.matches[match_key].short_name} (${file})`)
             for (let key of res_cycle_keys)
             {
                 let results = result[key]
+                let column_cfg = get_column(mode, key)
+                let base_name = column_cfg.name
                 for (let i in results)
                 {
-                    let column = build_column_from_config(get_column(mode, key), mode, team_num, results[i])
+                    column_cfg.name = `${base_name} ${parseInt(i) + 1}`
+                    let column = build_column_from_config(column_cfg, mode, team_num, results[i])
 
                     // remove button for cycle
                     let remove = new WRButton('Remove Cycle', () => remove_cycle(file, key, i))
@@ -185,6 +189,7 @@ function open_option(option)
                     column.add_input(remove)
                     page.add_column(column)
                 }
+                column_cfg.name = base_name
             }
             cycle_container.append(page)
         }
