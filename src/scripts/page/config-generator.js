@@ -272,15 +272,13 @@ function build_element()
                 let input = builder.build_description()
                 input.name = name
                 input.id = create_full_id(column.id, id)
+                column.inputs.push(input)
 
                 let tests = ScoutConfig.validate_mode(cfg.scout.configs[mode_idx], false).filter(t => t !== true)
                 if (tests.length > 0)
                 {
                     alert('Invalid config!\n\n' + tests.join('\n\n'))
-                }
-                else
-                {
-                    column.inputs.push(input)
+                    column.inputs.splice(column.inputs.indexOf(input), 1)
                 }
             }
         }
