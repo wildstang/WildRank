@@ -2,6 +2,7 @@
  * file:        cycles.js
  * description: Contains functions for the cycle viewer page of the web app.
  *              Primarily for building the interface from results.
+ *              TODO: edit cycle values
  * author:      Liam Fruzyna
  * date:        2022-06-26
  */
@@ -14,11 +15,9 @@ const selected_team = get_parameter('team', '')
 
 var title_el, avatar_el, team_el, name_el, match_el, ranking_el, table_el, cycle_container, team_filter
 
+
 /**
- * function:    init_page
- * parameters:  contents card, buttons container
- * returns:     none
- * description: Fetch results from localStorage. Initialize page contents.
+ * Initalizes the page contents.
  */
 function init_page()
 {
@@ -51,10 +50,7 @@ function init_page()
 }
 
 /**
- * function:    build_team_list
- * parameters:  none
- * returns:     none
- * description: Completes left select result pane with results.
+ * Builds a list of results to choose from.
  */
 function build_result_list()
 {
@@ -105,10 +101,30 @@ function build_result_list()
 }
 
 /**
- * function:    open_option
- * parameters:  selected result
- * returns:     none
- * description: Selects the given option and populate the page.
+ * Finds the given column configuration in a specified mode.
+ * @param {String} mode Scouting mode ID
+ * @param {String} id Column ID
+ * @returns Column configuration
+ */
+function get_column(mode, id)
+{
+    let conf = cfg.get_scout_config(mode)
+    for (let page of conf.pages)
+    {
+        for (let column of page.columns)
+        {
+            if (column.id === id)
+            {
+                return column
+            }
+        }
+    }
+    return null
+}
+
+/**
+ * Opens the specified match-team result(s).
+ * @param {String} option "match-team" to open
  */
 function open_option(option)
 {
@@ -119,6 +135,7 @@ function open_option(option)
     // select the new option
     deselect_all()
     document.getElementById(`left_pit_option_${option}`).classList.add('selected')
+    cycle_container.replaceChildren()
 
     // pull match and team out
     let parts = option.split('-')
@@ -137,119 +154,73 @@ function open_option(option)
         ranking_el.innerText = `Rank #${rank} (${dal.get_team_value(team_num, 'fms.sort_orders_0')} RP)`
     }
 
-    let cycles = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['object'])
-    for (let key of cycles)
+    // build one page for each mode-result
+    let cycles_keys = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['object'])
+    let match_result = dal.get_match_result(match_key, team_num)
+    let match_results = match_result.results
+    for (let mode in match_results)
     {
-        let cycle = this.get_match_value(match_key, team_num, key)
-        let page = new WRPage(dal.get_name(key))
-        for (let i in cycle)
+        let mode_results = match_results[mode]
+        for (let res_idx in mode_results)
         {
-            let c = cycle[i]
-            let column = new WRColumn(`#${parseInt(i)+1}`)
-            let inputs = Object.keys(c)
-            for (let id of inputs)
+            let result = mode_results[res_idx]
+            let res_cycle_keys = Object.keys(result).filter(k => cycles_keys.includes(`result.${k}`))
+            if (res_cycle_keys.length === 0)
             {
-                let input = dal.meta[`results.${id}`]
-                let name = input.name
-                let type = input.type
-                let default_val = c[id]
-                let options = input['options']
-
-                let item
-                // build each input from its template
-                switch (type)
-                {
-                    case 'counter':
-                        item = new WRCounter(name, default_val)
-                        break
-                    case 'select':
-                        item = new WRSelect(name, options, options[default_val])
-                        item.vertical = input.vertical
-                        break
-                    case 'dropdown':
-                        item = new WRDropdown(name, options, options[default_val])
-                        break
-                    case 'multicounter':
-                        item = new WRMultiCounter(name, options)
-                        for (let op of options)
-                        {
-                            let op_id = `${id}_${create_id_from_name(op)}`
-                            document.getElementById(`${op_id}-value`).innerHTML = c[op_id]
-                        }
-                        break
-                    case 'checkbox':
-                        item = new WRCheckbox(name, default_val)
-                        break
-                    default:
-                        continue
-                }
-                item.input_id = id
-                column.add_input(item)
+                continue
             }
 
-            // remove button for cycle
-            let remove = new WRButton('Remove Cycle', () => remove_cycle(option, match_key, team_num, key, i))
-            remove.add_class('slim')
-            column.add_input(remove)
+            let file = match_result.file_names[mode][res_idx]
+            let page = new WRPage(`${mode} (${file})`)
+            for (let key of res_cycle_keys)
+            {
+                let results = result[key]
+                for (let i in results)
+                {
+                    let column = build_column_from_config(get_column(mode, key), mode, team_num, results[i])
 
-            page.add_column(column)
+                    // remove button for cycle
+                    let remove = new WRButton('Remove Cycle', () => remove_cycle(file, key, i))
+                    remove.add_class('slim')
+                    column.add_input(remove)
+                    page.add_column(column)
+                }
+            }
+            cycle_container.append(page)
         }
-        cycle_container.replaceChildren(page)
     }
 }
 
 /**
- * function:    remove_cycle
- * parameters:  selected result
- * returns:     none
- * description: Removes a given cycle from the result.
+ * Removes the specified cycle from the specified result.
+ * @param {String} file localStorage result name
+ * @param {String} cycle_id cycle ID
+ * @param {Number} index cycle index
  */
-function remove_cycle(option, match_key, team_num, cycle, idx)
+function remove_cycle(file, cycle_id, index)
 {
-    // find result by default file name
-    let files = Object.keys(localStorage)
-    let file = `match-${match_key}-${team_num}`
     let raw = localStorage.getItem(file)
-    let found = raw !== null
-
-    // TODO: filename update
-    // attempt to find result manually if it wasn't the default name
-    if (!found)
-    {
-        for (file of files)
-        {
-            if (file.startsWith(`match-${dal.event_id}`))
-            {
-                raw = localStorage.getItem(file)
-                let result = JSON.parse(raw)
-                if (match_key === `${dal.event_id}_qm${result.meta_match}` && result.meta_team === parseInt(team_num))
-                {
-                    found = true
-                    break
-                }
-            }
-        }
-    }
 
     // if a file was never found give up
-    if (!found)
+    if (!raw === null)
     {
+        console.log(`Error deleting ${cycle_id}[${index}] from ${file}`)
         return
     }
 
     // confirm before deleting file
-    if (confirm(`Are you sure you want to remove "${dal.get_name(cycle)}" cycle ${idx+1} from ${file}`))
+    if (confirm(`Are you sure you want to remove "${cycle_id}" #${parseInt(index) + 1} from ${file}?`))
     {
         // load result and remove cycle
         let result = JSON.parse(raw)
-        let id = cycle.replace('results.', '')
-        result[id].splice(idx, 1)
+        result.result[cycle_id].splice(index, 1)
     
         // save and reload
         localStorage.setItem(file, JSON.stringify(result))
-        dal.build_teams()
+        dal.load_matches()
+        dal.load_results()
     
         // rebuild page
-        open_option(option)
+        open_option(`${result.meta.result.match_key}-${result.meta.result.team_num}`)
     }
 }
