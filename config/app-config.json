@@ -1,10 +1,10 @@
 {
-	"version": "dev25",
+	"version": "dev-2025ilrr",
 	"config": {
 		"title": "WildRank"
 	},
 	"defaults": {
-		"event_id": "2025mndu2",
+		"event_id": "2025ilrr",
 		"user_id": 111112
 	},
 	"theme": {
