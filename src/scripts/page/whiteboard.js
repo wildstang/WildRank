@@ -43,9 +43,10 @@ function init_page()
         }
         drag_box = new WRCheckbox('Draw on Drag')
         drag_box.on_click = draw_drag
-        let clear = new WRMultiButton('', ['Clear Lines', 'Clear All'], [whiteboard.clear_lines.bind(whiteboard), whiteboard.clear.bind(whiteboard)])
+        let clear_lines = new WRButton('Clear Lines', whiteboard.clear_lines.bind(whiteboard))
+        let clear_all = new WRButton('Clear All', whiteboard.clear.bind(whiteboard))
         let reset_whiteboard = new WRButton('Reset Whiteboard', whiteboard.reset.bind(whiteboard))
-        let stack = new WRStack([card, drag_box, game_piece, clear, reset_whiteboard], true)
+        let stack = new WRStack([card, drag_box, game_piece, clear_lines, clear_all, reset_whiteboard], true)
 
         // populate the controls below the whiteboard in single column pages
         preview.append(stack)
