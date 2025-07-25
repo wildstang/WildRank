@@ -1732,8 +1732,6 @@ class WRStack extends WRElement
 
         this.elements = elements
         this.horizontal = horizontal
-
-        this.element = document.createElement('div')
     }
 
     add_element(element)
@@ -1762,7 +1760,7 @@ class WRStack extends WRElement
             }
         }
 
-        this.className = 'stack'
+        this.classList.add('stack', ...this.classes)
         this.replaceChildren(...this.elements)
     }
 }
