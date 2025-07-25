@@ -27,7 +27,7 @@ function init_page()
     preview.append(card)
 
     // compute audit of each match
-    for (let match of Object.keys(dal.matches))
+    for (let match of dal.match_keys)
     {
         add_match(match)
     }

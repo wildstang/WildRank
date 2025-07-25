@@ -28,7 +28,8 @@ function init_page()
     event_entry.on_text_change = populate_matches
     col.add_input(event_entry)
     
-    let num_teams = Object.keys(dal.teams).length
+    let teams = dal.team_numbers
+    let num_teams = teams.length
     if (num_teams === 0)
     {
         num_teams = 6
@@ -37,7 +38,6 @@ function init_page()
     teams_entry.type = 'number'
     col.add_input(teams_entry)
 
-    let teams = Object.keys(dal.teams)
     team_list = new WRExtended('Attending Teams', teams.join(','))
     col.add_input(team_list)
     
@@ -73,7 +73,7 @@ function init_page()
 function populate_matches()
 {
     let event_id = event_entry.element.value
-    let teams = Object.keys(dal.teams)
+    let teams = dal.team_numbers
     if (event_id !== dal.event_id)
     {
         dal = new DAL(event_id)
@@ -120,9 +120,9 @@ function generate_match_teams(num_teams, distribute=true)
 {
     let match_teams = []
     let unavailable = []
-    let teams = Object.keys(dal.teams)
+    let teams = dal.team_numbers
 
-    let match_num = Object.keys(dal.matches).length // technically last match number
+    let match_num = dal.match_keys.length // technically last match number
     match_page.getElementsByClassName('page_header')[0].innerText = `Match ${match_num + 1}`
 
     // prepopulate unavailable teams with those in last few matches
@@ -202,7 +202,7 @@ function generate_teams()
  function save_teams(event_id, teams)
  {
     localStorage.setItem(`teams-${event_id}`, JSON.stringify(teams))
-    if (Object.keys(dal.matches).length === 0 || confirm('Matches already exist, erase them?'))
+    if (dal.match_keys.length === 0 || confirm('Matches already exist, erase them?'))
     {
         localStorage.setItem(`matches-${event_id}`, '[]')
     }

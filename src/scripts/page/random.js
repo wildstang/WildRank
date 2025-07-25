@@ -66,7 +66,7 @@ function hide_buttons()
         min_value.label_el.innerText = 'First Team'
         max_value.label_el.innerText = 'Last Team'
         min_value.element.value = 1
-        max_value.element.value = Math.max(...Object.keys(dal.teams))
+        max_value.element.value = Math.max(...dal.teams_numbers)
     }
     else
     {
@@ -111,7 +111,7 @@ function create_results()
         // filter out and generate for each selected position in each selected match
         if (max >= min)
         {
-            let matches = Object.keys(dal.matches)
+            let matches = dal.match_keys
             for (let match_key of matches)
             {
                 let fteams = Object.values(dal.get_match_teams(match_key))

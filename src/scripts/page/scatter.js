@@ -75,7 +75,7 @@ function build_plot()
 
     // build table of values
     let points = []
-    let teams = Object.keys(dal.teams)
+    let teams = dal.team_numbers
     let max_x = 0
     let max_y = 0
     for (let team of teams)

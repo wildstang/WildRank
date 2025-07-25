@@ -235,7 +235,7 @@ function open_role(role)
  */
 function has_teams()
 {
-    return Object.keys(dal.teams).length > 0
+    return dal.team_numbers.length > 0
 }
 
 /**
@@ -246,7 +246,7 @@ function has_teams()
  */
 function has_matches()
 {
-    return has_teams() && Object.keys(dal.matches).length > 0
+    return has_teams() && dal.match_keys.length > 0
 }
  
 /**

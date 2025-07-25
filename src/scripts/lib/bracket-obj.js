@@ -246,8 +246,8 @@ class Bracket
 
         // elim matches are given the short name M# and use set_number to store the match number
         // matches are sorted to ensure winner are set in correct order
-        let match_keys = Object.keys(dal.matches).filter(m => dal.matches[m].short_name.startsWith('M'))
-                                                 .sort((a, b) => dal.matches[a].set_number - dal.matches[b].set_number)
+        let match_keys = dal.match_keys.filter(m => dal.matches[m].short_name.startsWith('M'))
+                                       .sort((a, b) => dal.matches[a].set_number - dal.matches[b].set_number)
 
         // populate alliances with Alliances of teams
         for (let key of match_keys)
@@ -339,7 +339,7 @@ class Bracket
                 {
                     let match_num = parseInt(i) + 1
                     let match_key = `${dal.event_id}_sf${match_num}`
-                    if (match.id === -1 && !Object.keys(dal.matches).includes(match_key))
+                    if (match.id === -1 && !dal.match_keys.includes(match_key))
                     {
                         // if the match doesn't exist, create it, then open it
                         let red_teams = this.alliances[match.red_alliance].teams

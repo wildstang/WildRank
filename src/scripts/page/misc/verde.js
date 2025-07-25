@@ -30,7 +30,7 @@ function init_page()
     let card = new WRCard(contents)
     preview.append(new WRPage('', [card]))
 
-    let teams = Object.keys(dal.teams)
+    let teams = dal.team_numbers
     if (teams.length > 0)
     {
         let awards = {}

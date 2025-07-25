@@ -39,7 +39,7 @@ function init_page()
     preview.append(card, cycle_container)
 
     // add filter for teams
-    let avail_teams = Object.keys(dal.teams)
+    let avail_teams = dal.team_numbers
     avail_teams.sort((a,b) => parseInt(a) - parseInt(b))
     avail_teams.unshift('All')
     team_filter = add_dropdown_filter(avail_teams, build_result_list)

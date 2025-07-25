@@ -38,8 +38,8 @@ function step_setup()
     let columns = [setup_col]
 
     // count the number of teams and matches for the event
-    let team_count = Object.keys(dal.teams).length
-    let match_count = Object.keys(dal.matches).length
+    let team_count = dal.team_numbers.length
+    let match_count = dal.match_keys.length
 
     // build a second column for viewing status info on the event and pulling in new configs
     let status_col = new WRColumn('Status', [])
@@ -244,8 +244,8 @@ function set_user_id()
  */
 function scout(mode, right_click=false)
 {
-    let team_count = Object.keys(dal.teams).length
-    let match_count = Object.keys(dal.matches).length
+    let team_count = dal.team_numbers.length
+    let match_count = dal.match_keys.length
 
     let team_modes = cfg.team_scouting_modes
     let match_modes = cfg.match_scouting_modes
