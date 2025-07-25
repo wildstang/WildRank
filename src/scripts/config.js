@@ -1601,8 +1601,7 @@ class Result
                  * if that result isn't a number 1 -> alliance_size it will likely produce meaningless values.
                  */
                 let partners = []
-                let red_teams = dal.matches[result.match_key].red_alliance
-                let blue_teams = dal.matches[result.match_key].blue_alliance
+                let [red_teams, blue_teams] = dal.get_match_alliances(result.match_key)
                 if (red_teams.includes(result.team_num))
                 {
                     partners = red_teams.filter(t => t != result.team_num)

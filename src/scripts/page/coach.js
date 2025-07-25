@@ -289,13 +289,14 @@ function add_match(match_num, red_teams, blue_teams)
         blue_alliance: blue_teams,
         red_alliance: red_teams,
         comp_level: 'sf',
-        match_name: `Match ${match_num}`,
-        match_number: match_num,
-        set_number: match_num,
-        short_match_name: `M${match_num}`
+        name: `Match ${match_num}`,
+        match_num: match_num,
+        set_num: match_num,
+        short_name: `M${match_num}`,
+        time: Date.now()
     }
 
     // add the match to the option list
-    let option = new MatchOption(match_key, dal.get_match_value(match_key, 'short_match_name'), red_teams, blue_teams)
+    let option = new MatchOption(match_key, dal.matches[match_key].short_match_name, red_teams, blue_teams)
     add_option(option)
 }

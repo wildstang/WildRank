@@ -150,7 +150,7 @@ function open_option(match)
     // populate with match data
     else
     {
-        match_el.innerText = dal.get_match_value(match, 'match_name')
+        match_el.innerText = dal.matches[match]
     
         if (Object.keys(matches).includes(match))
         {
@@ -164,9 +164,7 @@ function open_option(match)
         }
         else
         {
-            let red_alliance = dal.matches[match].red_alliance
-            let blue_alliance = dal.matches[match].blue_alliance
-            let scouted_teams = red_alliance.concat(blue_alliance).filter(t => dal.is_match_scouted(match, t)).length
+            let scouted_teams = dal.get_match_alliances(match).flat().filter(t => dal.is_match_scouted(match, t)).length
             results_tab.append(create_header_row([`Only ${scouted_teams} scouted teams in this match`]))
         }
     }
@@ -178,8 +176,7 @@ function open_option(match)
  */
 function add_match(match)
 {
-    let red_alliance = dal.matches[match].red_alliance
-    let blue_alliance = dal.matches[match].blue_alliance
+    let [red_alliance, blue_alliance] = dal.get_match_alliances('2025joh_qm1') 
 
     // ensure entire match is scouted
     let scouted_teams = red_alliance.concat(blue_alliance).filter(t => dal.is_match_scouted(match, t, 'match')).length

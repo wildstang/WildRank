@@ -76,8 +76,8 @@ function init_page()
         }
         else if (scout_type === 'match-alliance')
         {
-            // get teams for the scouting alliance and set them in the header
-            teams = is_red ? dal.matches[match_key].red_alliance : dal.matches[match_key].blue_alliance
+            // get teams for the scouting alliance and set them in the header 
+            teams = dal.get_match_alliance(match_key, is_red ? 0 : 3)
             team_box.innerText = `${teams.join(', ')} (${pos})`
 
             // disable editing if the match hasn't been scouted

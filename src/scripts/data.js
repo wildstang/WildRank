@@ -871,6 +871,17 @@ class Data
         }
     }
 
+    /**
+     * Gets the alliance teams for the given match.
+     * @param {String} match_key Match key
+     * @returns A pair of alliance arrays, red then blue.
+     */
+    get_match_alliances(match_key)
+    {
+        let match = this.matches[match_key]
+        return [match.red_alliance, match.blue_alliance]
+    }
+
     //
     // Match Result Getters
     //
