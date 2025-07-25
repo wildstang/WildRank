@@ -26,7 +26,7 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
     'prep': {
-        'Event Prep': ['config-generator', 'events', 'event-generator']
+        'Event Prep': ['config-generator', 'events', 'misc/socials', 'event-generator']
     },
     'debug': {
         'Config': ['settings', 'config-debug'],
@@ -38,7 +38,7 @@ const CONFIGS = {
     },
     'extras': {
         'App': ['bracket', 'whiteboard', 'export'],
-        'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter', 'misc/socials'],
+        'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter'],
         'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde', 'misc/live'],
         'Game Specific': ['misc/2025-score-calculator', 'misc/2025-audit']
     }
@@ -100,11 +100,11 @@ const BUTTONS = {
     'misc/district-counter':        { name: 'District Counter',         limits: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: [] },
-    'misc/live':                    { name: 'Live',                     limits: [] },
+    'misc/live':                    { name: 'Live Event Tracker',       limits: [] },
     'misc/max-score':               { name: 'Max Score',                limits: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: [] },
-    'misc/socials':                 { name: 'Socials',                  limits: [] },
+    'misc/socials':                 { name: 'Social Handles',           limits: [] },
     'misc/sponsor-counter':         { name: 'Sponsor Counter',          limits: [] },
     'misc/team-profile':            { name: 'Team Profile',             limits: [] },
     'misc/test':                    { name: 'Input Tester',             limits: [] },
