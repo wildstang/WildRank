@@ -39,8 +39,8 @@ const CONFIGS = {
     'extras': {
         'App': ['bracket', 'whiteboard', 'export'],
         'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter', 'misc/socials'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde'],
-        'Game Specific': ['misc/2025-score-calculator']
+        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde', 'misc/live'],
+        'Game Specific': ['misc/2025-score-calculator', 'misc/2025-audit']
     }
 }
 
@@ -94,11 +94,13 @@ const BUTTONS = {
     'export_config':        { name: 'Export Config',            limits: [] },
     'users':                { name: 'User Profiles',            limits: ['admin'] },
     'whiteboard':           { name: 'Whiteboard',               limits: ['matches'] },
-    'misc/match-counter':   { name: 'Match Counter',            limits: [] },
+    'misc/match-counter':           { name: 'Match Counter',            limits: [] },
+    'misc/2025-audit':              { name: '2025 Audit',               limits: [] },
     'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: [] },
+    'misc/live':                    { name: 'Live',                     limits: [] },
     'misc/max-score':               { name: 'Max Score',                limits: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: [] },

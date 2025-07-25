@@ -27,6 +27,7 @@ const CACHE_LIST = [
     '/scripts/page/misc/district-counter.js',
     '/scripts/page/misc/event-planner.js',
     '/scripts/page/misc/international-counter.js',
+    '/scripts/page/misc/live.js',
     '/scripts/page/misc/match-counter.js',
     '/scripts/page/misc/max-score.js',
     '/scripts/page/misc/revival-counter.js',
@@ -36,6 +37,7 @@ const CACHE_LIST = [
     '/scripts/page/misc/team-profile.js',
     '/scripts/page/misc/top-partners.js',
     '/scripts/page/misc/verde.js'*/
+    '/scripts/page/misc/2025-audit.js',
     '/scripts/page/misc/2025-score-calculator.js',
     '/scripts/page/misc/test.js',
     '/scripts/page/about.js',

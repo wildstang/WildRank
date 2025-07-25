@@ -6,6 +6,7 @@
  */
 
 var summary, table, event_entry
+var csv
 
 /**
  * function:    init_page
@@ -29,7 +30,8 @@ function init_page()
     table.style.textAlign = 'right'
     card_contents.append(summary, table)
     let card = new WRCard(card_contents)
-    preview.append(new WRPage('', [entry_col, button_col, card]))
+    let export_button = new WRButton('Download CSV', download_csv)
+    preview.append(new WRPage('', [entry_col, button_col, card, export_button]))
 }
 
 
@@ -60,7 +62,6 @@ function process_event()
             return response.json()
         })
         .then(teams => {
-            console.log(teams)
             for (let team of teams)
             {
                 fetch(`https://www.thebluealliance.com/api/v3/team/${team}/social_media${key_query}`)
@@ -88,7 +89,7 @@ function process_event()
 
                         if (Object.keys(team_socials).length === teams.length)
                         {
-                            let csv = ''
+                            csv = ''
                             let team_keys = Object.keys(team_socials).sort((a,b) => a - b)
                             for (let team of team_keys)
                             {
@@ -116,7 +117,6 @@ function process_event()
 
                                 csv += '\n'
                             }
-                            console.log(csv)
                             summary.innerText = ''
                         }
                     })
@@ -128,4 +128,27 @@ function process_event()
         .catch(err => {
             console.log(`Error fetching ${event_id} teams, ${err}`)
         })
+}
+
+/**
+ * Downloads the generated table as a CSV
+ */
+function download_csv()
+{
+    if (!csv)
+    {
+        alert('Press run first')
+        return
+    }
+
+    let element = document.createElement('a')
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
+    element.setAttribute('download', `${event_entry.element.value}`)
+
+    element.style.display = 'none'
+    body.appendChild(element)
+
+    element.click()
+
+    body.removeChild(element)
 }
