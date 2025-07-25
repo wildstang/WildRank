@@ -12,7 +12,7 @@ include('bracket-obj')
 // read parameters from URL
 const selected = get_parameter('match', '')
 
-var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_stack, red_card, blue_stack, blue_card, drag_box, red_import, blue_import
+var carousel, whiteboard_page, whiteboard, edit, custom, bracket, bracket_page, team_filter, red_card, blue_card, drag_box, buttons
 
 /**
  * Build the structure of the page and initialize bracket and whiteboard.
@@ -39,27 +39,28 @@ function init_page()
         }
         drag_box = new WRCheckbox('Draw on Drag')
         drag_box.on_click = draw_drag
-        let clear = new WRMultiButton('', ['Clear Lines', 'Clear All'], [whiteboard.clear_lines.bind(whiteboard), whiteboard.clear.bind(whiteboard)])
+        let clear_lines = new WRButton('Clear Lines', whiteboard.clear_lines.bind(whiteboard))
+        let clear_all = new WRButton('Clear All', whiteboard.clear.bind(whiteboard))
         let reset_whiteboard = new WRButton('Reset Whiteboard', whiteboard.reset.bind(whiteboard))
 
-        let stack = new WRStack([card, drag_box, game_piece, clear, reset_whiteboard], true)
-        let wb_col = new WRColumn('', [stack])
+        let wb_stack = new WRStack([card, drag_box, game_piece, clear_lines, clear_all, reset_whiteboard], true)
+        let wb_col = new WRColumn('', [wb_stack])
         whiteboard_page = new WRPage('', [wb_col])
 
-        // create column of buttons for coach page
         red_card = new WRCard('')
-        let red_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
-        let red_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
-        red_import = new WRButton('Import Data', ZipHandler.import_data)
-        red_stack = new WRStack([red_card, red_edit, red_custom, red_import], true)
-        red_stack.add_class('red_box')
+        red_card.add_class('red_box')
 
         blue_card = new WRCard('')
-        let blue_edit = new WRLinkButton('Edit Values', build_url('edit-coach'))
-        let blue_custom = new WRLinkButton('Add Custom Match', build_url('custom-match'))
-        blue_import = new WRButton('Import Data', ZipHandler.import_data)
-        blue_stack = new WRStack([blue_card, blue_edit, blue_custom, blue_import], true)
-        red_stack.add_class('blue_box')
+        blue_card.add_class('blue_box')
+
+        // add buttons to what is normally for the mini-picklist
+        let edit_button = new WRLinkButton('Edit Values', build_url('edit-coach'))
+        edit_button.add_class('slim')
+        let custom_button = new WRLinkButton('Add Custom Match', build_url('custom-match'))
+        let import_button = new WRButton('Import Data', ZipHandler.import_data)
+        import_button.element.title = 'Import event data and results'
+        import_button.add_class('transfer')
+        buttons = new WRStack([edit_button, custom_button, import_button])
 
         // show and populate the left column with matches and a team filter
         enable_list(true, true)
@@ -195,11 +196,8 @@ function open_option(match_key)
     let time = new Date(dal.matches[match_key].time).toLocaleTimeString("en-US")
     header_info.innerText = `${dal.matches[match_key].name} - ${time}`
 
-    let red_page = new WRPage('', [new WRColumn('', [red_stack])])
-    let blue_page = new WRPage('', [new WRColumn('', [blue_stack])])
-
-    red_import.element.title = 'Import event data and results'
-    blue_import.element.title = 'Import event data and results'
+    let red_page = new WRPage('', [new WRColumn('', [red_card]), new WRColumn('', [buttons])])
+    let blue_page = new WRPage('', [new WRColumn('', [blue_card])])
 
     // build template
     carousel.replaceChildren(red_page, blue_page, whiteboard_page)
