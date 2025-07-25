@@ -652,9 +652,9 @@ class Data
         let picklists = JSON.parse(text)
         for (let key of Object.keys(picklists))
         {
-            dal.picklists[key] = picklists[key]
+            this.picklists[key] = picklists[key]
         }
-        dal.save_picklists()
+        this.save_picklists()
     }
 
     /**
@@ -886,9 +886,9 @@ class Data
         let results = []
         if (config.type === 'team')
         {
-            for (let team of dal.team_numbers)
+            for (let team of this.team_numbers)
             {
-                let team_results = metadata ? dal.teams[team].meta : dal.teams[team].results
+                let team_results = metadata ? this.teams[team].meta : this.teams[team].results
                 if (scout_mode in team_results)
                 {
                     results.push(...team_results[scout_mode])
@@ -897,9 +897,9 @@ class Data
         }
         else
         {
-            for (let match_key of dal.match_keys)
+            for (let match_key of this.match_keys)
             {
-                let match_results = dal.matches[match_key].results
+                let match_results = this.matches[match_key].results
                 for (let team of Object.values(match_results))
                 {
                     let team_results = metadata ? team.meta : team.results
@@ -920,17 +920,17 @@ class Data
     get_all_scouters()
     {
         let scouters = new Set([])
-        for (let team of dal.team_numbers)
+        for (let team of this.team_numbers)
         {
-            let team_meta = dal.teams[team].meta
+            let team_meta = this.teams[team].meta
             for (let mode_meta of Object.values(team_meta))
             {
                 scouters.add(...mode_meta.map(r => r.scouter.user_id))
             }
         }
-        for (let match_key of dal.match_keys)
+        for (let match_key of this.match_keys)
         {
-            let match_results = dal.matches[match_key].results
+            let match_results = this.matches[match_key].results
             for (let team of Object.values(match_results))
             {
                 for (let mode_meta of Object.values(team.meta))
@@ -1146,11 +1146,11 @@ class Data
      */
     get_rank_string(team_num)
     {
-        let rank = dal.get_team_value(team_num, 'fms.rank')
-        let score = dal.get_team_value(team_num, 'fms.sort_orders_0')
-        let wins = dal.get_team_value(team_num, 'fms.record_wins')
-        let losses = dal.get_team_value(team_num, 'fms.record_losses')
-        let ties = dal.get_team_value(team_num, 'fms.record_ties')
+        let rank = this.get_team_value(team_num, 'fms.rank')
+        let score = this.get_team_value(team_num, 'fms.sort_orders_0')
+        let wins = this.get_team_value(team_num, 'fms.record_wins')
+        let losses = this.get_team_value(team_num, 'fms.record_losses')
+        let ties = this.get_team_value(team_num, 'fms.record_ties')
         if (rank !== null && score !== null && wins !== null && losses !== null && ties !== null)
         {
             return `#${rank} (${score}, ${wins}-${losses}-${ties})`
