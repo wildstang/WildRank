@@ -26,7 +26,8 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
     'prep': {
-        'Event Prep': ['config-generator', 'events', 'misc/socials', 'event-generator']
+        'Event Prep': ['config-generator', 'events', 'misc/socials', 'event-generator'],
+        'Edit Values': ['edit-coach', 'edit-favorites', 'edit-fms']
     },
     'debug': {
         'Config': ['settings', 'config-debug'],
@@ -63,6 +64,9 @@ const BUTTONS = {
     'config-generator':     { name: 'Config Builder',           limits: ['admin'] },
     'cycles':               { name: 'Cycles',                   limits: ['matches', 'results'] },
     'dashboard':            { name: 'Dashboard',                limits: [''] },
+    'edit-coach':           { name: 'Edit Coach Values',        limits: [''] },
+    'edit-favorites':       { name: 'Edit Favorites',           limits: [''] },
+    'edit-fms':             { name: 'Edit FMS Results',         limits: ['matches'] },
     'event-generator':      { name: 'Event Generator',          limits: [] },
     'events':               { name: 'Other Events',             limits: ['teams'] },
     'export':               { name: 'Server Exporter',          limits: ['admin'] },

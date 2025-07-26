@@ -18,7 +18,7 @@ function init_page()
     // build shortcut buttons to common analysis pages
     let stats_link = new WRLinkButton('Stat Builder', build_url('ranker'))
     stats_link.add_class('slim')
-    let edit_links = new WRMultiLinkButton('', ['Coach', 'Faves'], [build_url('edit-coach'), build_url('edit-favorites')])
+    let edit_links = new WRMultiLinkButton('', ['Coach', 'Faves', 'FMS'], [build_url('edit-coach'), build_url('edit-favorites'), build_url('edit-fms')])
     edit_links.add_class('slim')
     let second_links = new WRMultiLinkButton('', ['Pivot Table', 'Plotter'], [build_url('pivot'), build_url('plot')])
     second_links.add_class('slim')
