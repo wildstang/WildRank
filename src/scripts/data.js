@@ -406,14 +406,15 @@ class Data
             for (let ranking of tba_rankings)
             {
                 const team_num = parse_team_number(ranking.team_key)
-                if (team_num in this.teams)
+                if (!(team_num in this.teams))
                 {
-                    this.teams[team_num].add_fms_result(ranking)
+                    console.log(`Couldn't find team ${team_num} from rankings, adding to teams`)
+                    this.teams[team_num] = new TeamResult({
+                        team_number: team_num,
+                        nickname: 'Unknown',
+                    })
                 }
-                else
-                {
-                    console.log(`Couldn't find team ${team_num} from rankings`)
-                }
+                this.teams[team_num].add_fms_result(ranking)
             }
         }
     }
@@ -551,14 +552,15 @@ class Data
             this.matches[match.key].results[team_num] = new MatchResult(match, alliance, parseInt(i))
 
             // add match key to team
-            if (team_num in this.teams)
+            if (!(team_num in this.teams))
             {
-                this.teams[team_num].matches.push(match.key)
+                console.log(`Couldn't find team ${team_num} from matches, adding to teams`)
+                this.teams[team_num] = new TeamResult({
+                    team_number: team_num,
+                    nickname: 'Unknown',
+                })
             }
-            else
-            {
-                console.log(`Couldn't find team ${team_num} from matches`)
-            }
+            this.teams[team_num].matches.push(match.key)
         }
     }
 
