@@ -35,6 +35,7 @@ function init_page()
         if (dal.is_match_scouted(match_key, dal.get_match_team(match_key, scout_pos), scout_mode))
         {
             op.add_class('scouted')
+            first = ''
         }
         else if (first === '')
         {
