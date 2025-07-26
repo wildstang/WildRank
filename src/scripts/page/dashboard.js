@@ -109,23 +109,37 @@ function populate()
     let match_modes = cfg.match_scouting_modes
     summary_card.numbers[1].value_el.innerText = `${dal.count_match_results()}/${matches.length * 6 * match_modes.length}`
 
-    // determine the last match that has been scouted
-    let last_match = ''
+    // determine the last match that has been scouted and received from FMS
+    let last_scouted = ''
+    let last_result = ''
     for (let match_key of matches)
     {
-        for (let team_num in dal.matches[match_key].results)
+        let match = dal.matches[match_key]
+        if (match.comp_level === 'qm')
         {
-            if (Object.keys(dal.matches[match_key].results[team_num].results).length > 0)
+            for (let team_num in match.results)
             {
-                last_match = match_key
-                break
+                let team_res = match.results[team_num]
+                if (Object.keys(team_res.results).length > 0)
+                {
+                    last_scouted = match_key
+                }
+                if (Object.keys(team_res.fms_results).length > 0)
+                {
+                    last_result = match_key
+                }
             }
         }
     }
-    if (last_match.length > 0)
+    if (last_scouted.length > 0)
     {
-        summary_card.numbers[2].value_el.innerText = dal.matches[last_match].short_name
+        last_scouted = dal.matches[last_scouted].short_name
+        if (last_result.length > 0)
+        {
+            last_result = dal.matches[last_result].short_name
+        }
     }
+    summary_card.numbers[2].value_el.innerText = `${last_scouted}:${last_result}`
 
     // create object to count scouting mode breakdowns
     let all_modes = cfg.scouting_modes
