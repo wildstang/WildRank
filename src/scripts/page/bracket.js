@@ -12,7 +12,7 @@
 
 include('bracket-obj')
 
-var filter_el
+var filter_el, bracket
 
 /**
  * Initializes the contents of the page on page load.

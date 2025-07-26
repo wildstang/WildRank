@@ -518,7 +518,7 @@ class Data
             }
 
             let winner = match.winning_alliance
-            if (winner !== undefined)
+            if (complete && match.alliances.red.score >= 0 && match.alliances.blue.score >= 0)
             {
                 if (winner === '')
                 {

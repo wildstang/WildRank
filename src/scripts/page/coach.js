@@ -297,6 +297,6 @@ function add_match(match_num, red_teams, blue_teams)
     }
 
     // add the match to the option list
-    let option = new MatchOption(match_key, dal.matches[match_key].short_match_name, red_teams, blue_teams)
+    let option = new WRMatchOption(match_key, dal.matches[match_key].short_match_name, red_teams, blue_teams)
     add_option(option)
 }
