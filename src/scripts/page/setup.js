@@ -31,7 +31,7 @@ function init_page()
 /**
  * Builds the contents of the page. This is repeatedly called as progress is made.
  */
-function step_setup()
+function step_setup(manual_event=false)
 {
     // the primary column for performing setup
     let setup_col = new WRColumn()
@@ -70,13 +70,27 @@ function step_setup()
     // if an invalid event ID is provided prompt for it first
     if (cfg.user.state.event_id.length < 7)
     {
-        event_id_el = new WREntry('Event ID')
-        event_id_el.value = cfg.user.state.event_id
-        setup_col.add_input(event_id_el)
+        if (!manual_event)
+        {
+            let import_button = new WRButton('Import', () => ZipHandler.import_all(step_setup, true))
+            import_button.element.title = 'Import event data, scouting config, analysis config, results, and picklists'
+            import_button.add_class('transfer')
+            setup_col.add_input(import_button)
 
-        let next = new WRButton('Next', set_event_id)
-        next.add_class('advance')
-        setup_col.add_input(next)
+            let next = new WRButton('Skip', () => step_setup(true))
+            next.add_class('slim')
+            setup_col.add_input(next)
+        }
+        else
+        {
+            event_id_el = new WREntry('Event ID')
+            event_id_el.value = cfg.user.state.event_id
+            setup_col.add_input(event_id_el)
+
+            let next = new WRButton('Next', set_event_id)
+            next.add_class('advance')
+            setup_col.add_input(next)
+        }
     }
     // the final page continues to show event status and prompts for position and scouting type
     else
