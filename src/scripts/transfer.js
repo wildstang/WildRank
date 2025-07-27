@@ -438,6 +438,7 @@ class ZipHandler
 
         // options
         this.on_complete = this.do_nothing
+        this.ignore_versions = false
     }
 
     static do_nothing(a='', b='') {}
@@ -490,6 +491,22 @@ class ZipHandler
         zh.event_data = true
         zh.results = true
         zh.on_complete = on_complete
+        zh.import_file()
+    }
+
+    /**
+     * Helper function that creates a zip handler to import configs, results, and event data.
+     * @param {Function} on_complete Function to call when loading is complete.
+     */
+    static import_all(on_complete=ZipHandler.do_nothing, ignore_versions=false)
+    {
+        let zh = new ZipHandler()
+        zh.event_data = true
+        zh.scout_config = true
+        zh.analysis_config = true
+        zh.results = true
+        zh.on_complete = on_complete
+        zh.ignore_versions = ignore_versions
         zh.import_file()
     }
 
@@ -688,8 +705,8 @@ class ZipHandler
         let zip = await JSZip.loadAsync(file)
         let files = Object.keys(zip.files)
         let complete = 0
-        let ignore_app = false
-        let ignore_cfg = false
+        let ignore_app = this.ignore_versions
+        let ignore_cfg = this.ignore_versions
         let app_version = cfg.app_version
         let scout_version = cfg.scout.version
 
