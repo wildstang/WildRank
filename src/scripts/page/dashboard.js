@@ -131,14 +131,8 @@ function populate()
             }
         }
     }
-    if (last_scouted.length > 0)
-    {
-        last_scouted = dal.matches[last_scouted].short_name
-        if (last_result.length > 0)
-        {
-            last_result = dal.matches[last_result].short_name
-        }
-    }
+    last_scouted = last_scouted.length > 0 ? dal.matches[last_scouted].short_name : 0
+    last_result = last_result.length > 0 ? dal.matches[last_result].short_name : 0
     summary_card.numbers[2].value_el.innerText = `${last_scouted}:${last_result}`
 
     // create object to count scouting mode breakdowns
