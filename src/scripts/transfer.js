@@ -653,11 +653,12 @@ class ZipHandler
         }
 
         // reload config and data
+        let zh = this
         cfg.load_configs(() => {
             dal.load_data()
+            zh.on_complete()
         })
 
-        this.on_complete()
         alert('Import Complete')
     }
 
@@ -668,13 +669,14 @@ class ZipHandler
      */
     async import_zip(file)
     {
-        const event_id = cfg.user.state.event_id
-        if (file['name'] !== undefined && !file.name.includes(event_id))
+        let event_id = cfg.user.state.event_id
+        if (file['name'] !== undefined && (!file.name.includes(event_id) || event_id === ''))
         {
             let zip_event = find_event_id(file['name'])
             if (zip_event && confirm(`Switch event to ${zip_event}?`))
             {
                 cfg.update_event_id(zip_event)
+                event_id = cfg.user.state.event_id
             }
             else if (!confirm(`Warning, zip does not contain "${event_id}" in the name! Continue?`))
             {
