@@ -2299,10 +2299,9 @@ class Config
      * Updates the event ID, saves the configuration, and reloads the game configs if the year changed.
      * 
      * @param {String} event_id Event ID
-     * @param {Function} on_complete Function to call when loading is complete.
      * @returns Whether the year changed, used to trigger DAL updates.
      */
-    update_event_id(event_id, on_complete=() => console.log('Game config reloaded'))
+    update_event_id(event_id)
     {
         let old_year = this.year
         this.user.state.event_id = event_id
@@ -2311,8 +2310,12 @@ class Config
         // load in new game configs if the year has changed
         if (this.year !== old_year)
         {
-            this.load_game_configs(on_complete)
+            this.load_game_configs(load_data)
             return true
+        }
+        else
+        {
+            load_data()
         }
         return false
     }

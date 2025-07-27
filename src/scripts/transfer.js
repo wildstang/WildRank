@@ -396,6 +396,28 @@ function reset_event()
 }
 
 /**
+ * Attempts to find an event ID in a given file name.
+ * @param {String} file_name File name
+ * @returns Event ID or empty string
+ */
+function find_event_id(file_name)
+{
+    let words = file_name.substring(0, file_name.indexOf('.')).split('-')
+    for (let word of words)
+    {
+        if (word.length > 5 && word.length < 10)
+        {
+            let year = parseInt(word.substring(0, 4))
+            if (!isNaN(year) && year > 2000 && year < 2100)
+            {
+                return word
+            }
+        }
+    }
+    return ''
+}
+
+/**
  * Import / Export
  */
 
@@ -649,7 +671,12 @@ class ZipHandler
         const event_id = cfg.user.state.event_id
         if (file['name'] !== undefined && !file.name.includes(event_id))
         {
-            if (!confirm(`Warning, zip does not contain "${event_id}" in the name! Continue?`))
+            let zip_event = find_event_id(file['name'])
+            if (zip_event && confirm(`Switch event to ${zip_event}?`))
+            {
+                cfg.update_event_id(zip_event)
+            }
+            else if (!confirm(`Warning, zip does not contain "${event_id}" in the name! Continue?`))
             {
                 return true
             }

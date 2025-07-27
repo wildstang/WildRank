@@ -76,8 +76,7 @@ function populate_matches()
     let teams = dal.team_numbers
     if (event_id !== dal.event_id)
     {
-        dal = new DAL(event_id)
-        teams = dal.build_teams()
+        load_data()
     }
     let cols = []
     let alliance_teams = parseInt(alliance_entry.element.value)

@@ -297,12 +297,11 @@ function open_role(role, right_click=false)
 }
 
 /**
- * Used by externel functions when new data is acquired. Reloads the DAL.
+ * Used by external functions when new data is acquired. Reloads the DAL.
  */
 function process_files()
 {
-    dal = new Data(cfg.user.state.event_id)
-    dal.load_data()
+    load_data()
     step_setup()
 }
 

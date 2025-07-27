@@ -12,6 +12,15 @@ cfg.load_configs(on_config)
 var dal
 
 /**
+ * Creates an instance of the dal with the current event ID, triggers a data load.
+ */
+function load_data()
+{
+    dal = new Data(cfg.user.state.event_id)
+    dal.load_data()
+}
+
+/**
  * Executes after the configuration has successfully loaded.
  */
 function on_config()
@@ -25,8 +34,7 @@ function on_config()
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply_theme)
 
     // load in data
-    dal = new Data(cfg.user.state.event_id)
-    dal.load_data()
+    load_data()
 
     // don't directly pass in init_page to ensure that init_page isn't accessed before the page is loaded in
     run_after_load(() => init_page())
