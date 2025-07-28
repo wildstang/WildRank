@@ -72,7 +72,7 @@ function step_setup(manual_event=false)
     {
         if (!manual_event)
         {
-            let import_button = new WRButton('Import', () => ZipHandler.import_all(step_setup, true))
+            let import_button = new WRButton('Import Event', () => import_all(step_setup, true))
             import_button.element.title = 'Import event data, scouting config, analysis config, results, and picklists'
             import_button.add_class('transfer')
             setup_col.add_input(import_button)
