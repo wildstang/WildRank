@@ -421,7 +421,57 @@ function find_event_id(file_name)
  * Import / Export
  */
 
-class ZipHandler
+/**
+ * Helper function that creates an Exporter to export configuration data.
+ */
+function export_setup()
+{
+    let e = new Exporter()
+    e.event_data = true
+    e.scout_config = true
+    e.analysis_config = true
+    e.export_zip()
+}
+
+/**
+ * Helper function that creates an Exporter to export a given mode of results.
+ */
+function export_results(scout_mode=true)
+{
+    let e = new Exporter()
+    if (scout_mode)
+    {
+        zh.results = scout_mode
+    }
+    e.export_zip()
+}
+
+/**
+ * Helper function that creates an Exporter to export results and event data.
+ */
+function export_data()
+{
+    let e = new Exporter()
+    e.event_data = true
+    e.results = true
+    e.export_zip()
+}
+
+/**
+ * Helper function that creates an Exporter to export (nearly) all data.
+ */
+function export_all()
+{
+    let e = new Exporter()
+    e.event_data = true
+    e.scout_config = true
+    e.analysis_config = true
+    e.results = true
+    e.picklists = true
+    e.export_zip()
+}
+
+class Exporter
 {
     constructor()
     {
@@ -437,127 +487,7 @@ class ZipHandler
         this.user_list = false
 
         // options
-        this.on_complete = this.do_nothing
         this.ignore_versions = false
-    }
-
-    static do_nothing(a='', b='') {}
-
-    /**
-     * Helper function that creates a zip handler to import a JSON file.
-     * @param {Function} on_complete Function to call when loading is complete.
-     */
-    static import_picklist(on_complete=ZipHandler.do_nothing)
-    {
-        let zh = new ZipHandler()
-        zh.picklists = true
-        zh.on_complete = on_complete
-        zh.import_file(false, true)
-    }
-
-    /**
-     * Helper function that creates a zip handler to import configuration data.
-     * @param {Function} on_complete Function to call when loading is complete.
-     */
-    static import_setup(on_complete=ZipHandler.do_nothing)
-    {
-        let zh = new ZipHandler()
-        zh.event_data = true
-        zh.scout_config = true
-        zh.analysis_config = true
-        zh.on_complete = on_complete
-        zh.import_file()
-    }
-
-    /**
-     * Helper function that creates a zip handler to import all results.
-     * @param {Function} on_complete Function to call when loading is complete.
-     */
-    static import_results(on_complete=ZipHandler.do_nothing)
-    {
-        let zh = new ZipHandler()
-        zh.results = true
-        zh.on_complete = on_complete
-        zh.import_file(true)
-    }
-
-    /**
-     * Helper function that creates a zip handler to import results and event data.
-     * @param {Function} on_complete Function to call when loading is complete.
-     */
-    static import_data(on_complete=ZipHandler.do_nothing)
-    {
-        let zh = new ZipHandler()
-        zh.event_data = true
-        zh.results = true
-        zh.on_complete = on_complete
-        zh.import_file()
-    }
-
-    /**
-     * Helper function that creates a zip handler to import configs, results, and event data.
-     * @param {Function} on_complete Function to call when loading is complete.
-     */
-    static import_all(on_complete=ZipHandler.do_nothing, ignore_versions=false)
-    {
-        let zh = new ZipHandler()
-        zh.event_data = true
-        zh.scout_config = true
-        zh.analysis_config = true
-        zh.results = true
-        zh.on_complete = on_complete
-        zh.ignore_versions = ignore_versions
-        zh.import_file()
-    }
-
-    /**
-     * Helper function that creates a zip handler to export configuration data.
-     */
-    static export_setup()
-    {
-        let zh = new ZipHandler()
-        zh.event_data = true
-        zh.scout_config = true
-        zh.analysis_config = true
-        zh.export_zip()
-    }
-
-    /**
-     * Helper function that creates a zip handler to export a given mode of results.
-     */
-    static export_results(scout_mode=true)
-    {
-        let zh = new ZipHandler()
-        if (scout_mode)
-        {
-            zh.results = scout_mode
-        }
-        zh.export_zip()
-    }
-
-    /**
-     * Helper function that creates a zip handler to export results and event data.
-     */
-    static export_data()
-    {
-        let zh = new ZipHandler()
-        zh.event_data = true
-        zh.results = true
-        zh.export_zip()
-    }
-
-    /**
-     * Helper function that creates a zip handler to export (nearly) all data.
-     */
-    static export_all()
-    {
-        let zh = new ZipHandler()
-        zh.event_data = true
-        zh.scout_config = true
-        zh.analysis_config = true
-        zh.results = true
-        zh.picklists = true
-        zh.export_zip()
     }
 
     /**
@@ -607,254 +537,9 @@ class ZipHandler
     }
 
     /**
-     * Imports a file stored in the given cache at /import. Used for sharing zips to WildRank.
-     * @param {Response} cache_res Cache response
-     */
-    static async import_zip_from_cache(cache_res)
-    {
-        if (cache_res)
-        {
-            let zh = new ZipHandler()
-            zh.event_data = true
-            zh.scout_config = true
-            zh.analysis_config = true
-            zh.results = true
-            zh.picklists = true
-            if (!await zh.import_zip(cache_res.blob()))
-            {
-                alert('Import Complete')
-            }
-        }
-        else
-        {
-            alert('No cached file available!')
-        }
-    }
-
-    /**
-     * Prompts the user to select file(s) to import, then handles each file based on type.
-     * @param {Boolean} select_multiple Whether to allow importing multiple files.
-     * @param {Boolean} allow_json Whether to allow JSON files
-     */
-    import_file(select_multiple=false, allow_json=false)
-    {
-        let input = document.createElement('input')
-        input.type = 'file'
-        let mime_type = 'application/zip'
-        if (allow_json)
-        {
-            mime_type += ',application/json'
-        }
-        input.accept = mime_type
-        input.multiple = select_multiple
-        input.addEventListener('change', this.handle_files.bind(this))
-        input.click()
-    }
-
-    /**
-     * Iterates over each selected file and attempts to import it.
-     * @param {Event} event File import event
-     */
-    async handle_files(event)
-    {
-        for (let file of event.target.files)
-        {
-            if (file.name)
-            {
-                let error = file.name.endsWith('.zip') ? await this.import_zip(file) : await this.import_settings(file)
-                if (error && typeof error === 'string')
-                {
-                    alert(`${error}: ${file}`)
-                }
-            }
-        }
-
-        // reload config and data
-        let zh = this
-        cfg.load_configs(() => {
-            dal.load_data()
-            zh.on_complete()
-        })
-
-        alert('Import Complete')
-    }
-
-    /**
-     * Attempts to import a given zip file.
-     * @param {File} file ZIP file to import
-     * @returns An error description or false
-     */
-    async import_zip(file)
-    {
-        let event_id = cfg.user.state.event_id
-        if (file['name'] !== undefined && (!file.name.includes(event_id) || event_id === ''))
-        {
-            let zip_event = find_event_id(file['name'])
-            if (zip_event && confirm(`Switch event to ${zip_event}?`))
-            {
-                cfg.update_event_id(zip_event)
-                event_id = cfg.user.state.event_id
-            }
-            else if (!confirm(`Warning, zip does not contain "${event_id}" in the name! Continue?`))
-            {
-                return true
-            }
-        }
-
-        // process each files details
-        let zip = await JSZip.loadAsync(file)
-        let files = Object.keys(zip.files)
-        let complete = 0
-        let ignore_app = this.ignore_versions
-        let ignore_cfg = this.ignore_versions
-        let app_version = cfg.app_version
-        let scout_version = cfg.scout.version
-
-        if (files.length == 0)
-        {
-            return 'No files found!'
-        }
-
-        for (let name of files)
-        {
-            // get name used in localStorage
-            let file_name = name.substring(0, name.indexOf('.'))
-            if (file_name.includes('/'))
-            {
-                file_name = file_name.substring(file_name.lastIndexOf('/') + 1)
-            }
-            if (file_name.includes('\\'))
-            {
-                file_name = file_name.substring(file_name.lastIndexOf('\\') + 1)
-            }
-
-            // skip directories
-            if (name.endsWith('/'))
-            {
-                complete++
-                continue
-            }
-
-            // get blob of file
-            let content = await zip.file(name).async('blob')
-
-            let text = await content.text()
-            let configs = [cfg.user, cfg.scout, cfg.analysis, cfg.user_list]
-            let index = configs.map(c => c.name).indexOf(file_name)
-            if (index >= 0)
-            {
-                console.log(`Importing ${file_name}`)
-                configs[index].handle_config(JSON.parse(text))
-                configs[index].store_config()
-            }
-            else if ((this.event_data && file_name.startsWith(`avatar-${cfg.year}-`)) ||
-                (this.picklists && file_name === dal.picklist_file) ||
-                (this.event_data && [`event-${event_id}`, `matches-${event_id}`,
-                `rankings-${event_id}`, `teams-${event_id}`].includes(file_name)))
-            {
-                console.log(`Importing ${file_name}`)
-                localStorage.setItem(file_name, text)
-            }
-            else if (this.results === true && file_name.startsWith('result-'))
-            {
-                let new_meta = JSON.parse(text).meta
-                if (new_meta.result.event_id === event_id)
-                {
-                    let old_text = localStorage.getItem(file_name)
-                    let old_json = JSON.parse(old_text)
-                    if (text === old_text)
-                    {
-                        console.log(`Result ${file_name} already exists`)
-                    }
-                    else if (old_json !== null && new_meta.scouter.time < old_json.meta.scouter.time)
-                    {
-                        console.log(`Existing result of ${file_name} is ${old_json.meta.scouter.time - new_meta.scouter.time} newer`)
-                    }
-                    else
-                    {
-                        let write = true
-                        let res_config_version = new_meta.scouter.config_version
-                        let res_app_version = new_meta.scouter.app_version
-                        if (!ignore_cfg && res_config_version !== scout_version)
-                        {
-                            if (confirm(`App version mismatch on ${file_name} (${res_config_version}), continue?`))
-                            {
-                                ignore_cfg = confirm(`Ignore all app version mismatches?`)
-                            }
-                            else
-                            {
-                                write = false
-                            }
-                        }
-                        if (!ignore_app && res_app_version !== app_version)
-                        {
-                            if (confirm(`Config version mismatch on ${file_name} (${res_app_version}), continue?`))
-                            {
-                                ignore_app = confirm(`Ignore all config version mismatches?`)
-                            }
-                            else
-                            {
-                                write = false
-                            }
-                        }
-                        if (write)
-                        {
-                            console.log(`Importing ${file_name}`)
-                            localStorage.setItem(file_name, text)
-                        }
-                    }
-                }
-            }
-        }
-
-        return false
-    }
-
-    /**
-     * Import a complete config JSON file.
-     * @param {File} file Uploaded file
-     * @returns An error description or false
-     */
-    async import_settings(file)
-    {
-        const text = await file.text()
-        if (file.name.startsWith(cfg.user.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.user.handle_config(text)
-        }
-        else if (file.name.startsWith(cfg.scout.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.scout.handle_config(text)
-        }
-        else if (file.name.startsWith(cfg.analysis.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.analysis.handle_config(text)
-        }
-        else if (file.name.startsWith(cfg.user_list.name))
-        {
-            console.log(`Importing ${file.name}`)
-            cfg.user_list.handle_config(text)
-        }
-        else if (file.name.startsWith('picklists-'))
-        {
-            console.log(`Importing ${file.name}`)
-            dal.handle_picklists(text)
-        }
-        else
-        {
-            alert(`Unrecognized file ${text}`)
-        }
-    }
-
-    /**
      * Exports data from localStorage as a ZIP file.
-     * @param {Number} op Export operation type, currently only 0, to file
-     * @returns An error description or false
      */
-    async export_zip(op=0)
+    export_zip()
     {
         let zip = JSZip()
         const event_id = cfg.user.state.event_id
@@ -901,23 +586,472 @@ class ZipHandler
         }
 
         // download zip
-        let blob = await zip.generateAsync({ type: 'blob' })
-        if (op === 0)
+        zip.generateAsync({ type: 'blob' }).then(Exporter.download_blob)
+    }
+
+    /**
+     * Starts a download of the given blob.
+     * @param {Blob} blob Blob to download
+     */
+    static download_blob(blob)
+    {
+        let element = document.createElement('a')
+        element.href = window.URL.createObjectURL(blob)
+        element.download = this.zip_name
+
+        element.style.display = 'none'
+        document.body.appendChild(element)
+
+        element.click()
+
+        document.body.removeChild(element)
+    }
+}
+
+/**
+ * Helper function that creates a Importer to import a picklist JSON file.
+ * @param {Function} on_complete Function to call when loading is complete
+ */
+function import_picklist(on_complete=() => {})
+{
+    let i = new Importer()
+    i.picklists = true
+    i.allow_json = true
+    i.on_complete = on_complete
+    i.step_import(false, true)
+}
+
+/**
+ * Helper function that creates an Importer for configs and event data.
+ * @param {Function} on_complete Function to call when loading is complete
+ */
+function import_setup(on_complete=() => {})
+{
+    let i = new Importer()
+    i.event_data = true
+    i.scout_config = true
+    i.analysis_config = true
+    i.allow_json = true
+    i.on_complete = on_complete
+    i.step_import()
+}
+
+/**
+ * Helper function that creates an Importer for results only.
+ * @param {Function} on_complete Function to call when loading is complete
+ */
+function import_results(on_complete=() => {})
+{
+    let i = new Importer()
+    i.results = true
+    i.select_multiple = true
+    i.on_complete = on_complete
+    i.step_import(true)
+}
+
+/**
+ * Helper function that creates an Importer for results and event data.
+ * @param {Function} on_complete Function to call when loading is complete
+ */
+function import_data(on_complete=() => {})
+{
+    let i = new Importer()
+    i.event_data = true
+    i.results = true
+    i.on_complete = on_complete
+    i.step_import()
+}
+
+/**
+ * Helper function that creates an Importer for configs, results, and event data.
+ * @param {Function} on_complete Function to call when loading is complete
+ * @param {Boolean} ignore_versions Whether to completely ignore app/config versions
+ */
+function import_all(on_complete=() => {}, ignore_versions=false)
+{
+    let i = new Importer()
+    i.event_data = true
+    i.scout_config = true
+    i.analysis_config = true
+    i.results = true
+    i.on_complete = on_complete
+    i.ignore_versions = ignore_versions
+    i.step_import()
+}
+
+/**
+ * Imports a file stored in the given cache at /import. Used for sharing zips to WildRank.
+ * @param {Response} cache_res Cache response
+ */
+function import_zip_from_cache(cache_res)
+{
+    if (cache_res)
+    {
+        let i = new Importer()
+        i.event_data = true
+        i.scout_config = true
+        i.analysis_config = true
+        i.results = true
+        i.picklists = true
+        i.selected_files = []
+        i.handle_blob(cache_res.blob())
+    }
+    else
+    {
+        alert('No cached file available!')
+    }
+}
+
+class Importer
+{
+    constructor()
+    {
+        // DAL
+        this.event_data = false
+        this.results = false
+        this.picklists = false
+
+        // Config
+        this.scout_config = false
+        this.analysis_config = false
+        this.user_settings = false
+        this.user_list = false
+
+        // options
+        this.select_multiple = false
+        this.allow_json = false
+        this.on_complete = () => {}
+        this.ignore_versions = false
+        this.ignore_app = false
+        this.ignore_cfg = false
+
+        // state
+        this.selected_files = null
+        this.current_file = null
+        this.zip_files = null
+        this.current_name = null
+        this.event_id = null
+    }
+
+    /**
+     * Formats a message for prettier logs.
+     * @param {String} message Message to log
+     */
+    log(message)
+    {
+        let header = '[IMPORT]'
+        console.log(`${header} ${message}`)
+    }
+
+    /**
+     * Prompts the user to select one or many files.
+     * Importer.select_multiple allows multiple files to be selected.
+     * Importer.allow_json allows JSON files to be selected in addition to zip files.
+     */
+    prompt_for_file()
+    {
+        this.ignore_app = this.ignore_versions
+        this.ignore_cfg = this.ignore_versions
+
+        this.log('No files, prompting user')
+        let input = document.createElement('input')
+        input.type = 'file'
+        let mime_type = 'application/zip'
+        if (this.allow_json)
         {
-            let element = document.createElement('a')
-            element.href = window.URL.createObjectURL(blob)
-            element.download = this.zip_name
+            mime_type += ',application/json'
+        }
+        input.accept = mime_type
+        input.multiple = this.select_multiple
+        input.addEventListener('change', this.handle_selected_files.bind(this))
+        input.click()
+    }
 
-            element.style.display = 'none'
-            document.body.appendChild(element)
+    /**
+     * Handles newly selected files from the user, stores into an array and steps import.
+     * @param {Event} event Event from file selector.
+     */
+    handle_selected_files(event)
+    {
+        this.selected_files = Array.from(event.target.files)
+        if (this.selected_files.length)
+        {
+            this.step_import()
+        }
+    }
 
-            element.click()
+    /**
+     * Determines what kind of file the selected file is, then begins reading its contents.
+     */
+    open_selected_file()
+    {
+        let cfg_event_id = cfg.user.state.event_id
+        let name = this.current_file.name
+        this.log(`Processing ${name}`)
+        if (name.endsWith('.zip'))
+        {
+            if (this.event_id === null)
+            {
+                this.event_id = find_event_id(name)
+                this.log(`Found zip from ${this.event_id}`)
+            }
 
-            document.body.removeChild(element)
+            if (this.event_id === '')
+            {
+                alert(`No event ID found in ${name}`)
+            }
+            else if (this.event_id !== cfg_event_id)
+            {
+                this.update_event_id()
+            }
+            else if (this.zip_files === null)
+            {
+                this.log('Opening zip')
+                JSZip.loadAsync(this.current_file).then(this.handle_zip.bind(this))
+            }
+        }
+        else if (name.endsWith('.json'))
+        {
+            this.log('Found JSON')
+            this.current_file = name
+            this.handle_blob(this.current_file)
+            this.step_import()
         }
         else
         {
-            alert('Invalid export type')
+            alert(`Invalid file extension in ${name}`)
+        }
+    }
+
+    /**
+     * Asks the user if they want to update the event ID to that from the zip.
+     */
+    update_event_id()
+    {
+        if (confirm(`Switch event to ${this.event_id}?`))
+        {
+            cfg.update_event_id(this.event_id, this.step_import.bind(this))
+        }
+    }
+
+    /**
+     * Gets the list of files from the zip archive, then steps import.
+     * @param {*} zip Newly loaded Zip file
+     */
+    handle_zip(zip)
+    {
+        this.current_file = null
+        this.zip_files = zip.files
+        this.step_import()
+    }
+
+    /**
+     * Removes the first file from the zip archive and begins processing it.
+     * If the archive is empty, steps import to the next file.
+     */
+    shift_file_from_zip()
+    {
+        let names = Object.keys(this.zip_files)
+        if (names.length)
+        {
+            this.log(`${names.length} zip files remaining`)
+            let name = names[0]
+
+            // remove directories in path
+            if (name.includes('/'))
+            {
+                name = name.substring(name.lastIndexOf('/') + 1)
+            }
+            if (name.includes('\\'))
+            {
+                name = name.substring(name.lastIndexOf('\\') + 1)
+            }
+
+            // skip directories
+            if (!name.endsWith('/'))
+            {
+                this.current_name = name
+                var data = this.zip_files[this.current_name]
+                delete this.zip_files[this.current_name]
+                data.async('blob').then(this.handle_blob.bind(this))
+            }
+            else
+            {
+                this.step_import()
+            }
+        }
+        else
+        {
+            this.log('Zip empty, advancing file')
+            this.zip_files = null
+            this.event_id = null
+            this.step_import()
+        }
+    }
+
+    /**
+     * Opens the given blob as a text file.
+     * @param {Blob} blob The next blob to open.
+     */
+    handle_blob(blob)
+    {
+        this.log(`Opening ${this.current_name}`)
+        blob.text().then(this.handle_file.bind(this))
+    }
+
+    /**
+     * Imports the current file from its text contents, then steps import.
+     * @param {String} text Text contents of the current file
+     */
+    handle_file(text)
+    {
+        this.log(`Reading ${this.current_name}`)
+        let file_name = this.current_name.substring(0, this.current_name.indexOf('.'))
+
+        this.import_config(file_name, text)
+        this.import_event_data(file_name, text)
+        this.import_result(file_name, text)
+
+        this.step_import()
+    }
+
+    /**
+     * Determine whether to import the given file as a config file, then import it.
+     * @param {String} file_name Name of importing file (without extension or path)
+     * @param {String} text File text contents
+     * @returns Whether the file was imported
+     */
+    import_config(file_name, text)
+    {
+        let allowed = [this.user_settings, this.scout_config, this.analysis_config, this.user_list]
+        let configs = [cfg.user, cfg.scout, cfg.analysis, cfg.user_list]
+        let index = configs.map(c => c.name).indexOf(file_name)
+        if (index >= 0 && allowed[index])
+        {
+            this.log(`Importing ${file_name} to config`)
+            configs[index].handle_config(JSON.parse(text))
+            configs[index].store_config()
+        }
+    }
+
+    /**
+     * Determine whether to import the given file as event data, then import it into localStorage.
+     * @param {String} file_name Name of importing file (without extension or path)
+     * @param {String} text File text contents
+     * @returns Whether the file was imported
+     */
+    import_event_data(file_name, text)
+    {
+        if ((this.event_data && file_name.startsWith(`avatar-${cfg.year}-`)) ||
+            (this.picklists && file_name === dal.picklist_file) ||
+            (this.event_data && [`event-${this.event_id}`, `matches-${this.event_id}`,
+            `rankings-${this.event_id}`, `teams-${this.event_id}`].includes(file_name)))
+        {
+            this.log(`Importing ${file_name} to localStorage`)
+            localStorage.setItem(file_name, text)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Determine whether to import the given file as a result, then import it.
+     * @param {String} file_name Name of importing file (without extension or path)
+     * @param {String} text File text contents
+     * @returns Whether the file was imported
+     */
+    import_result(file_name, text)
+    {
+        if (this.results && file_name.startsWith('result-'))
+        {
+            let new_meta = JSON.parse(text).meta
+
+            // skip results belonging to the wrong event
+            let valid_mode = this.results === true || new_meta.result.scout_mode === this.results
+            if (valid_mode && new_meta.result.event_id === this.event_id)
+            {
+                // skip results that are already imported
+                let old_text = localStorage.getItem(file_name)
+                if (text === old_text)
+                {
+                    this.log(`Match result ${file_name} already exists`)
+                    return
+                }
+                // skip results that have an updated version already imported
+                let old_json = JSON.parse(old_text)
+                if (old_json !== null && new_meta.scouter.time < old_json.meta.scouter.time)
+                {
+                    this.log(`Existing result of ${file_name} is ${old_json.meta.scouter.time - new_meta.scouter.time} newer`)
+                    return
+                }
+
+                // ask to skip results that don't have a matching config version number
+                let res_config_version = new_meta.scouter.config_version
+                if (!this.ignore_cfg && res_config_version !== cfg.scout.version)
+                {
+                    if (!confirm(`App version mismatch on ${file_name} (${res_config_version}), continue?`))
+                    {
+                        return
+                    }
+                    this.ignore_cfg = confirm(`Ignore all app version mismatches?`)
+                }
+
+                // ask to skip results that don't have a matching app version number
+                let res_app_version = new_meta.scouter.app_version
+                if (!this.ignore_app && res_app_version !== cfg.app_version)
+                {
+                    if (!confirm(`Config version mismatch on ${file_name} (${res_app_version}), continue?`))
+                    {
+                        return
+                    }
+                    this.ignore_app = confirm(`Ignore all config version mismatches?`)
+                }
+
+                this.log(`Importing ${file_name} as result`)
+                localStorage.setItem(file_name, text)
+            }
+        }
+    }
+
+    /**
+     * Calls on_complete then announces the import is complete to the user.
+     */
+    complete_import()
+    {
+        this.log('Import complete, reloading cfg and dal and calling import complete')
+        cfg.load_configs(() => {
+            dal.load_data()
+            this.on_complete()
+            alert('Import Complete')
+        })
+    }
+
+    /**
+     * Used to advance the import process from one step to the next.
+     */
+    step_import()
+    {
+        if (this.zip_files !== null)
+        {
+            this.shift_file_from_zip()
+        }
+        else if (this.current_file)
+        {
+            this.open_selected_file()
+        }
+        else if (this.selected_files === null)
+        {
+            this.prompt_for_file()
+        }
+        else if (this.selected_files.length)
+        {
+            this.log(`${this.selected_files.length} selected files remaining`)
+            this.current_file = this.selected_files.shift()
+            this.step_import()
+        }
+        else
+        {
+            this.complete_import()
         }
     }
 }

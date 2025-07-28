@@ -43,7 +43,7 @@ function init_page()
         }
         add_option(op)
     }
-    add_button_filter(`Export ${scout_config.name} Results`, () => ZipHandler.export_results(scout_mode), true)
+    add_button_filter(`Export ${scout_config.name} Results`, () => export_results(scout_mode), true)
 
     if (first === '' && dal.match_keys.length > 0)
     {

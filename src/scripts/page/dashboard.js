@@ -38,7 +38,7 @@ function init_page()
 
     // create transfer buttons
     let labels = ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data']
-    let functions = [() => preload_event(populate), ZipHandler.export_setup, () => ZipHandler.import_results(populate), ZipHandler.export_data]
+    let functions = [() => preload_event(populate), export_setup, () => import_results(populate), export_data]
     let transfer_buttons = new WRMultiButton('', labels, functions)
     transfer_buttons.add_class('slim')
 

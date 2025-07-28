@@ -53,7 +53,7 @@ function step_setup(manual_event=false)
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
-    let import_button = new WRButton('Import Config', () => ZipHandler.import_setup(step_setup))
+    let import_button = new WRButton('Import Config', () => import_setup(step_setup))
     import_button.add_class('transfer')
     status_col.add_input(new WRStack([
         event_config,
@@ -315,7 +315,9 @@ function open_role(role, right_click=false)
  */
 function process_files()
 {
+    console.log('loading')
     load_data()
+    console.log('loaded, stepping')
     step_setup()
 }
 

@@ -153,7 +153,7 @@ async function check_cache()
     let cache_res = await cache.match('/import')
     if (cache_res)
     {
-        let import_button = new WRButton(`Import ${cache_import}?`, () => ZipHandler.import_zip_from_cache(cache_res))
+        let import_button = new WRButton(`Import ${cache_import}?`, () => import_zip_from_cache(cache_res))
         import_button.add_class('advance')
         let page = new WRPage('', [new WRColumn('', [import_button])])
         preview.insertBefore(page, preview.firstChild)
@@ -199,13 +199,13 @@ function open_role(role)
             }
             else if (key === 'import_results')
             {
-                button = new WRButton(BUTTONS[key].name, ZipHandler.import_results)
+                button = new WRButton(BUTTONS[key].name, import_results)
                 button.add_class('transfer')
             }
             else if (key === 'export_results')
             {
                 // NOTE: call is wrapped so that the event doesn't override the default parameter
-                button = new WRButton(BUTTONS[key].name, () => ZipHandler.export_results())
+                button = new WRButton(BUTTONS[key].name, export_results)
                 button.add_class('transfer')
             }
             else

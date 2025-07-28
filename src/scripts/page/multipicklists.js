@@ -45,7 +45,7 @@ function init_page()
         table_card = new WRCard('', true)
         let new_list_el = new WRButton('Add to New List', new_list)
         mode_el = new WRSelect('', ['Add', 'Strike', 'Remove'])
-        let export_button = new WRMultiButton('', ['Import', 'Export'], [() => ZipHandler.import_picklist(build_pick_lists), export_picklists])
+        let export_button = new WRMultiButton('', ['Import', 'Export'], [() => import_picklist(build_pick_lists), export_picklists])
         let column = new WRColumn('', [new_list_el, table_card, mode_el, export_button])
         preview.append(card, new WRPage('', [column]))
 
