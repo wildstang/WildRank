@@ -492,10 +492,10 @@ class BaseTransfer
     }
 
     /**
-     * Builds a description of what the BaseTransfer will import.
+     * Builds a description of what files the BaseTransfer allows.
      * @returns Description of the BaseTransfer
      */
-    get description()
+    get file_list()
     {
         let bools = [this.event_data, this.scout_config, this.analysis_config, this.results, this.picklists, this.user_list, this.user_settings]
         let names = ['event data', 'scouting config', 'analysis config', 'results', 'picklists', 'users', 'settings']
@@ -518,7 +518,7 @@ class BaseTransfer
             }
             selected_names.splice(selected_names.length - 1, 0, 'and')
         }
-        return capitalize(selected_names.join(' '))
+        return selected_names.join(' ')
     }
 
     /**
@@ -653,6 +653,15 @@ class Exporter extends BaseTransfer
         element.click()
 
         document.body.removeChild(element)
+    }
+
+    /**
+     * Builds a description of what the Exporter will export.
+     * @returns Description of the Exporter
+     */
+    get description()
+    {
+        return `Exports ${this.file_list}.`
     }
 
     /**
@@ -1107,6 +1116,34 @@ class Importer extends BaseTransfer
         {
             this.complete_import()
         }
+    }
+
+    /**
+     * Builds a description of what the Importer will import.
+     * @returns Description of the Importer
+     */
+    get description()
+    {
+        let import_desc = ''
+        if (this.select_multiple || this.allow_json)
+        {
+            import_desc = ' Allows'
+            if (this.select_multiple)
+            {
+                import_desc += ' multiple files'
+            }
+            if (this.allow_json)
+            {
+                if (this.select_multiple)
+                {
+                    import_desc += ' and'
+                }
+                import_desc += ' JSON files'
+            }
+            import_desc += '.'
+        }
+
+        return `Imports ${this.file_list}.${import_desc}`
     }
 
     /**
