@@ -199,14 +199,11 @@ function open_role(role)
             }
             else if (key === 'import_results')
             {
-                button = new WRButton(BUTTONS[key].name, import_results)
-                button.add_class('transfer')
+                button = build_import_results().build_button('Import Results')
             }
             else if (key === 'export_results')
             {
-                // NOTE: call is wrapped so that the event doesn't override the default parameter
-                button = new WRButton(BUTTONS[key].name, export_results)
-                button.add_class('transfer')
+                button = build_export_results().build_button('Export Results')
             }
             else
             {

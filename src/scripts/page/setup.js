@@ -53,8 +53,7 @@ function step_setup(manual_event=false)
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
-    let import_button = new WRButton('Import Config', () => import_setup(step_setup))
-    import_button.add_class('transfer')
+    let import_button = build_import_setup().build_button('Import Config')
     status_col.add_input(new WRStack([
         event_config,
         scout_config_valid,
@@ -72,9 +71,7 @@ function step_setup(manual_event=false)
     {
         if (!manual_event)
         {
-            let import_button = new WRButton('Import Event', () => import_all(step_setup, true))
-            import_button.element.title = 'Import event data, scouting config, analysis config, results, and picklists'
-            import_button.add_class('transfer')
+            let import_button = build_import_setup().build_button('Import Event')
             setup_col.add_input(import_button)
 
             let next = new WRButton('Skip', () => step_setup(true))
@@ -115,8 +112,6 @@ function step_setup(manual_event=false)
         page.add_column(col)
     }
     preview.replaceChildren(page)
-
-    import_button.element.title = 'Import event data, scouting config, and analysis config'
 
     if (update_type)
     {

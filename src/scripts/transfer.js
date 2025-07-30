@@ -423,44 +423,48 @@ function find_event_id(file_name)
 
 /**
  * Helper function that creates an Exporter to export configuration data.
+ * @return An Exporter instance
  */
-function export_setup()
+function build_export_setup()
 {
     let e = new Exporter()
     e.event_data = true
     e.scout_config = true
     e.analysis_config = true
-    e.export_zip()
+    return e
 }
 
 /**
  * Helper function that creates an Exporter to export a given mode of results.
+ * @return An Exporter instance
  */
-function export_results(scout_mode=true)
+function build_export_results(scout_mode=true)
 {
     let e = new Exporter()
     if (scout_mode)
     {
-        zh.results = scout_mode
+        e.results = scout_mode
     }
-    e.export_zip()
+    return e
 }
 
 /**
  * Helper function that creates an Exporter to export results and event data.
+ * @return An Exporter instance
  */
-function export_data()
+function build_export_data()
 {
     let e = new Exporter()
     e.event_data = true
     e.results = true
-    e.export_zip()
+    return e
 }
 
 /**
  * Helper function that creates an Exporter to export (nearly) all data.
+ * @return An Exporter instance
  */
-function export_all()
+function build_export_all()
 {
     let e = new Exporter()
     e.event_data = true
@@ -468,10 +472,10 @@ function export_all()
     e.analysis_config = true
     e.results = true
     e.picklists = true
-    e.export_zip()
+    return e
 }
 
-class Exporter
+class BaseTransfer
 {
     constructor()
     {
@@ -485,11 +489,55 @@ class Exporter
         this.analysis_config = false
         this.user_settings = false
         this.user_list = false
-
-        // options
-        this.ignore_versions = false
     }
 
+    /**
+     * Builds a description of what the BaseTransfer will import.
+     * @returns Description of the BaseTransfer
+     */
+    get description()
+    {
+        let bools = [this.event_data, this.scout_config, this.analysis_config, this.results, this.picklists, this.user_list, this.user_settings]
+        let names = ['event data', 'scouting config', 'analysis config', 'results', 'picklists', 'users', 'settings']
+        let selected_names = names.filter((_, i) => bools[i])
+        if (selected_names.length > 1)
+        {
+            if (selected_names.length > 2)
+            {
+                selected_names = selected_names.map((n, i) => {
+                    if (n === 'results' && typeof this.results === 'string')
+                    {
+                        n = `${this.results} results`
+                    }
+                    if (i < selected_names.length - 1)
+                    {
+                        n += ','
+                    }
+                    return n
+                })
+            }
+            selected_names.splice(selected_names.length - 1, 0, 'and')
+        }
+        return capitalize(selected_names.join(' '))
+    }
+
+    /**
+     * Builds a button to start the transfer process.
+     * @param {String} label Button label
+     * @param {Function} action Function to call on press
+     * @returns A WRButton which calls step_import
+     */
+    _build_button(label, action)
+    {
+        let button = new WRButton(label, action)
+        button.element.title = this.description
+        button.add_class('transfer')
+        return button
+    }
+}
+
+class Exporter extends BaseTransfer
+{
     /**
      * Generates a Zip file name based on the configured files.
      */
@@ -586,14 +634,14 @@ class Exporter
         }
 
         // download zip
-        zip.generateAsync({ type: 'blob' }).then(Exporter.download_blob)
+        zip.generateAsync({ type: 'blob' }).then(this.download_blob.bind(this))
     }
 
     /**
      * Starts a download of the given blob.
      * @param {Blob} blob Blob to download
      */
-    static download_blob(blob)
+    download_blob(blob)
     {
         let element = document.createElement('a')
         element.href = window.URL.createObjectURL(blob)
@@ -606,26 +654,38 @@ class Exporter
 
         document.body.removeChild(element)
     }
+
+    /**
+     * Builds a button to start the export process.
+     * @param {String} label Button label
+     * @returns A WRButton which calls export_zip
+     */
+    build_button(label)
+    {
+        return this._build_button(label, this.export_zip.bind(this))
+    }
 }
 
 /**
  * Helper function that creates a Importer to import a picklist JSON file.
  * @param {Function} on_complete Function to call when loading is complete
+ * @return An Importer instance
  */
-function import_picklist(on_complete=() => {})
+function build_import_picklist(on_complete=() => {})
 {
     let i = new Importer()
     i.picklists = true
     i.allow_json = true
     i.on_complete = on_complete
-    i.step_import(false, true)
+    return i
 }
 
 /**
  * Helper function that creates an Importer for configs and event data.
  * @param {Function} on_complete Function to call when loading is complete
+ * @return An Importer instance
  */
-function import_setup(on_complete=() => {})
+function build_import_setup(on_complete=() => {})
 {
     let i = new Importer()
     i.event_data = true
@@ -633,41 +693,44 @@ function import_setup(on_complete=() => {})
     i.analysis_config = true
     i.allow_json = true
     i.on_complete = on_complete
-    i.step_import()
+    return i
 }
 
 /**
  * Helper function that creates an Importer for results only.
  * @param {Function} on_complete Function to call when loading is complete
+ * @return An Importer instance
  */
-function import_results(on_complete=() => {})
+function build_import_results(on_complete=() => {})
 {
     let i = new Importer()
     i.results = true
     i.select_multiple = true
     i.on_complete = on_complete
-    i.step_import(true)
+    return i
 }
 
 /**
  * Helper function that creates an Importer for results and event data.
  * @param {Function} on_complete Function to call when loading is complete
+ * @return An Importer instance
  */
-function import_data(on_complete=() => {})
+function build_import_data(on_complete=() => {})
 {
     let i = new Importer()
     i.event_data = true
     i.results = true
     i.on_complete = on_complete
-    i.step_import()
+    return i
 }
 
 /**
  * Helper function that creates an Importer for configs, results, and event data.
  * @param {Function} on_complete Function to call when loading is complete
  * @param {Boolean} ignore_versions Whether to completely ignore app/config versions
+ * @return An Importer instance
  */
-function import_all(on_complete=() => {}, ignore_versions=false)
+function build_import_all(on_complete=() => {}, ignore_versions=false)
 {
     let i = new Importer()
     i.event_data = true
@@ -676,7 +739,7 @@ function import_all(on_complete=() => {}, ignore_versions=false)
     i.results = true
     i.on_complete = on_complete
     i.ignore_versions = ignore_versions
-    i.step_import()
+    return i
 }
 
 /**
@@ -702,20 +765,11 @@ function import_zip_from_cache(cache_res)
     }
 }
 
-class Importer
+class Importer extends BaseTransfer
 {
     constructor()
     {
-        // DAL
-        this.event_data = false
-        this.results = false
-        this.picklists = false
-
-        // Config
-        this.scout_config = false
-        this.analysis_config = false
-        this.user_settings = false
-        this.user_list = false
+        super()
 
         // options
         this.select_multiple = false
@@ -1053,5 +1107,15 @@ class Importer
         {
             this.complete_import()
         }
+    }
+
+    /**
+     * Builds a button to start the import process.
+     * @param {String} label Button label
+     * @returns A WRButton which calls step_import
+     */
+    build_button(label)
+    {
+        return this._build_button(label, this.step_import.bind(this))
     }
 }

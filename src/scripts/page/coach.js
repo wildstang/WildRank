@@ -57,9 +57,7 @@ function init_page()
         let edit_button = new WRLinkButton('Edit Values', build_url('edit-coach'))
         edit_button.add_class('slim')
         let custom_button = new WRLinkButton('Add Custom Match', build_url('custom-match'))
-        let import_button = new WRButton('Import Data', import_data)
-        import_button.element.title = 'Import event data and results'
-        import_button.add_class('transfer')
+        let import_button = build_import_data().build_button('Import Data')
         buttons = new WRStack([edit_button, custom_button, import_button])
 
         // show and populate the left column with matches and a team filter

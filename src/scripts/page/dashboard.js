@@ -38,7 +38,13 @@ function init_page()
 
     // create transfer buttons
     let labels = ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data']
-    let functions = [() => preload_event(populate), export_setup, () => import_results(populate), export_data]
+    let importer = build_import_results(populate)
+    let setup_exporter = build_export_setup()
+    let data_exporter = build_export_data()
+    let functions = [() => preload_event(populate),
+        setup_exporter.export_zip.bind(setup_exporter),
+        importer.step_import.bind(importer),
+        data_exporter.export_zip.bind(data_exporter)]
     let transfer_buttons = new WRMultiButton('', labels, functions)
     transfer_buttons.add_class('slim')
 
@@ -73,8 +79,9 @@ function init_page()
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])
     preview.replaceChildren(top_page, bottom_page)
 
-    transfer_buttons.element.children[1].title = 'Export event data, scouting config, and analysis config'
-    transfer_buttons.element.children[3].title = 'Export event data and results'
+    transfer_buttons.element.children[1].title = setup_exporter.description
+    transfer_buttons.element.children[2].title = importer.description
+    transfer_buttons.element.children[3].title = data_exporter.description
 
     populate()
 }

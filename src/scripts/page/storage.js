@@ -27,11 +27,10 @@ function init_page()
  */
 function populate_page()
 {
-    let export_button = new WRButton('Export All', export_all)
     let button_col = new WRColumn('', [
         new WRButton('Reset Storage', reset_storage),
         new WRButton('Reset Results', reset_results),
-        export_button
+        build_export_all().build_button()
     ])
 
     let keys = Object.keys(localStorage).sort()
@@ -70,8 +69,6 @@ function populate_page()
     let card = new WRCard(table)
     let page = new WRPage('', [new WRColumn('', [card]), button_col])
     preview.replaceChildren(page)
-
-    export_button.element.title = 'Export event data, scouting config, analysis config, results, and picklists'
 }
 
 /**

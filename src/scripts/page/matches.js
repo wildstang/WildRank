@@ -43,7 +43,8 @@ function init_page()
         }
         add_option(op)
     }
-    add_button_filter(`Export ${scout_config.name} Results`, () => export_results(scout_mode), true)
+    let exporter = build_export_results(scout_mode)
+    add_button_filter(`Export ${scout_config.name} Results`, exporter.export_zip.bind(exporter), true)
 
     if (first === '' && dal.match_keys.length > 0)
     {

@@ -350,7 +350,6 @@ class Whiteboard
      */
     draw()
     {
-        console.log(`draw ${this.magnets.length} magnets ${this.lines.length} lines`)
         this.canvas.width = this.field_width
         this.canvas.height = this.field_height
 
