@@ -745,12 +745,13 @@ class Data
     /**
      * Counts the number of available match-team results.
      * @param {Boolean} include_elims Whether to include elims matches
+     * @param {String} scout_mode Optional filter for a specific scout mode
      * @returns The number of matching results.
      */
-    count_match_results(include_elims=true)
+    count_match_results(scout_mode='', include_elims=true)
     {
         let count = 0
-        let modes = cfg.match_scouting_modes
+        let modes = scout_mode === '' ? cfg.match_scouting_modes : [scout_mode]
         for (let match_key of this.get_match_keys(include_elims))
         {
             let teams = this.get_match_teams(match_key)
@@ -769,13 +770,14 @@ class Data
     }
 
     /**
-     * Coulds the number of available team results.
+     * Counts the number of available team results.
+     * @param {String} scout_mode Optional filter for a specific scout mode
      * @returns The number of results.
      */
-    count_team_results()
+    count_team_results(scout_mode='')
     {
         let count = 0
-        let modes = cfg.team_scouting_modes
+        let modes = scout_mode === '' ? cfg.team_scouting_modes : [scout_mode]
         for (let team_num in this.teams)
         {
             for (let mode_id of modes)
