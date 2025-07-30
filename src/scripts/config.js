@@ -1912,6 +1912,18 @@ class Config
     }
 
     /**
+     * A list of match scouting mode names.
+     */
+    get match_scouting_mode_names()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.filter(m => m.type.startsWith('match')).map(m => m.name)
+        }
+        return []
+    }
+
+    /**
      * A list of team scouting mode IDs.
      */
     get team_scouting_modes()
@@ -1919,6 +1931,18 @@ class Config
         if (this.scout.configs)
         {
             return this.scout.configs.filter(m => m.type.startsWith('team')).map(m => m.id)
+        }
+        return []
+    }
+
+    /**
+     * A list of team scouting mode names.
+     */
+    get team_scouting_mode_names()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.filter(m => m.type.startsWith('team')).map(m => m.name)
         }
         return []
     }
