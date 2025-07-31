@@ -301,6 +301,11 @@ function scout(mode, right_click=false)
  */
 function open_role(role, right_click=false)
 {
+    if (role === 'drive' && dal.match_keys.length === 0)
+    {
+        alert('No matches available!')
+        return
+    }
     cfg.set_role(role)
     window_open(get_role_page(role), right_click)
 }
