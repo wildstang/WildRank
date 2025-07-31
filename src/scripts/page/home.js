@@ -31,7 +31,7 @@ const CONFIGS = {
     },
     'debug': {
         'Config': ['settings', 'config-debug'],
-        'App': ['storage', 'cache', 'misc/test']
+        'App': ['storage', 'cache', 'misc/test', 'misc/transfer-test']
     },
     'danger': {
         'Reset': ['reset', 'reset_config', 'reset_cache', 'reset_storage', 'reset_results', 'clear_events', 'reset_event'],
@@ -113,6 +113,7 @@ const BUTTONS = {
     'misc/team-profile':            { name: 'Team Profile',             limits: [] },
     'misc/test':                    { name: 'Input Tester',             limits: [] },
     'misc/top-partners':            { name: 'Top Partners',             limits: [] },
+    'misc/transfer-test':           { name: 'Transfer Test',            limits: [] },
     'misc/verde':                   { name: 'VerdeRank',                limits: ['teams'] }
 }
 
