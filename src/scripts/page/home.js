@@ -61,29 +61,28 @@ const BUTTONS = {
     'clear_events':         { name: 'Clear Other Events',       limits: [] },
     'coach':                { name: 'Coach View',               limits: ['matches'] },
     'config-debug':         { name: 'Config Debugger',          limits: [] },
-    'config-generator':     { name: 'Config Builder',           limits: ['admin'] },
-    'cycles':               { name: 'Cycles',                   limits: ['matches', 'results'] },
+    'config-generator':     { name: 'Config Builder',           limits: [] },
+    'cycles':               { name: 'Cycles',                   limits: ['results'] },
     'dashboard':            { name: 'Dashboard',                limits: [''] },
     'edit-coach':           { name: 'Edit Coach Values',        limits: [''] },
     'edit-favorites':       { name: 'Edit Favorites',           limits: [''] },
     'edit-fms':             { name: 'Edit FMS Results',         limits: ['matches'] },
     'event-generator':      { name: 'Event Generator',          limits: [] },
     'events':               { name: 'Other Events',             limits: ['teams'] },
-    'export':               { name: 'Server Exporter',          limits: ['admin'] },
+    'export':               { name: 'Server Exporter',          limits: [] },
     'export_results':       { name: 'Export All Results',       limits: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['matches'] },
     'matches':              { name: 'Scout',                    limits: ['matches'] },
     'multipicklists':       { name: 'Pick Lists',               limits: ['teams'] },
-    'note-viewer':          { name: 'Note Viewer',              limits: ['teams', 'any'] },
-    'open_extras':          { name: 'Extras',                   limits: [] },
+    'note-viewer':          { name: 'Note Viewer',              limits: ['teams'] },
     'open_moralysis':       { name: 'More',                     limits: [] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'] },
     'pivot':                { name: 'Pivot Table',              limits: ['teams', 'any'] },
     'plot':                 { name: 'Plotter',                  limits: ['matches', 'results'] },
     'preload_event':        { name: 'Preload Event',            limits: [] },
-    'random':               { name: 'Random Result Generator',  limits: ['admin', 'teams'] },
-    'ranker':               { name: 'Stat Builder',             limits: ['teams', 'any'] },
-    'reset':                { name: 'Reset App',                limits: ['admin'] },
+    'random':               { name: 'Random Result Generator',  limits: ['teams'] },
+    'ranker':               { name: 'Stat Builder',             limits: ['teams'] },
+    'reset':                { name: 'Reset App',                limits: [] },
     'reset_cache':          { name: 'Reset Cache',              limits: [] },
     'reset_results':        { name: 'Reset Results',            limits: [] },
     'reset_storage':        { name: 'Reset Storage',            limits: [] },
@@ -96,10 +95,10 @@ const BUTTONS = {
     'teams':                { name: 'Team Profiles',            limits: ['teams'] },
     'import_results':       { name: 'Import All Results',       limits: [] },
     'export_config':        { name: 'Export Config',            limits: [] },
-    'users':                { name: 'User Profiles',            limits: ['admin'] },
+    'users':                { name: 'User Profiles',            limits: [] },
     'whiteboard':           { name: 'Whiteboard',               limits: ['matches'] },
     'misc/match-counter':           { name: 'Match Counter',            limits: [] },
-    'misc/2025-audit':              { name: '2025 Audit',               limits: [] },
+    'misc/2025-audit':              { name: '2025 Audit',               limits: ['matches', 'results'] },
     'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [] },
@@ -260,7 +259,6 @@ function has_matches()
 function is_blocked(id)
 {
     let limits = BUTTONS[id].limits
-    let configs = BUTTONS[id].configs
 
     // count results
     let matches = dal.count_match_results()
@@ -273,10 +271,6 @@ function is_blocked(id)
     if (limits.includes('matches') && !has_matches())
     {
         return `Missing match data.`
-    }
-    if (limits.includes('admin') && !cfg.is_admin())
-    {
-        return `Admin access required.`
     }
     if (limits.includes('results') && matches === 0)
     {
