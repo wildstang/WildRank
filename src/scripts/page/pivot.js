@@ -957,17 +957,7 @@ function export_csv()
     // convert 2D array to CSV
     let csv = table.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
 
-    // download csv
-    let element = document.createElement('a')
-    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
-    element.setAttribute('download', `pivot-export.csv`)
-
-    element.style.display = 'none'
-    document.body.appendChild(element)
-
-    element.click()
-
-    document.body.removeChild(element)
+    download_object('pivot-export.csv', csv)
 }
 
 /**

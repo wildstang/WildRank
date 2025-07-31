@@ -381,16 +381,7 @@ function download_config()
 
     cfg.scout.version = `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`
 
-    let element = document.createElement('a')
-    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(cfg.scout.as_string))
-    element.setAttribute('download', `${cfg.year}-config.json`)
-
-    element.style.display = 'none'
-    preview.appendChild(element)
-
-    element.click()
-
-    preview.removeChild(element)
+    download_object(`${cfg.year}-config.json`, cfg.scout.as_string)
 }
 
 /**

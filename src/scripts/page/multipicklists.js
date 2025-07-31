@@ -247,15 +247,5 @@ function remove_list(list)
  */
 function export_picklists()
 {
-    let picklists = encodeURIComponent(JSON.stringify(dal.picklists))
-    let element = document.createElement('a')
-    element.setAttribute('href', 'data:application/json;charset=utf-8,' + picklists)
-    element.setAttribute('download', dal.picklist_file)
-
-    element.style.display = 'none'
-    document.body.appendChild(element)
-
-    element.click()
-
-    document.body.removeChild(element)
+    download_object(dal.picklist_file, dal.picklists)
 }

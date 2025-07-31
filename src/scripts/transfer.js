@@ -536,6 +536,27 @@ class BaseTransfer
     }
 }
 
+/**
+ * Triggers a download of a given object as a file.
+ * @param {String} name File name
+ * @param {Object} obj Object to download (or string)
+ */
+function download_object(name, obj)
+{
+    let json = typeof obj === 'string' ? obj : JSON.stringify(obj)
+    let encoded = encodeURIComponent(json)
+    let element = document.createElement('a')
+    element.href = `data:application/${name.endsWith('csv') ? 'csv' : 'json'};charset=utf-8,${encoded}`
+    element.download = name
+
+    element.style.display = 'none'
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
+}
+
 class Exporter extends BaseTransfer
 {
     /**

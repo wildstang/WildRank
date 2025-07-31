@@ -232,15 +232,6 @@ function download_config()
 {
     if (update_config())
     {
-        let element = document.createElement('a')
-        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(cfg.user.as_string))
-        element.setAttribute('download', `user-config.json`)
-    
-        element.style.display = 'none'
-        preview.appendChild(element)
-    
-        element.click()
-    
-        preview.removeChild(element)
+        download_object('user-config.json', cfg.user.as_string)
     }
 }

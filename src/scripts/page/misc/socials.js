@@ -141,14 +141,5 @@ function download_csv()
         return
     }
 
-    let element = document.createElement('a')
-    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv))
-    element.setAttribute('download', `${event_entry.element.value}`)
-
-    element.style.display = 'none'
-    body.appendChild(element)
-
-    element.click()
-
-    body.removeChild(element)
+    download_object(`${event_entry.element.value}.csv`, csv)
 }
