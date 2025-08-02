@@ -183,7 +183,7 @@ function set_input_value(input, value)
         case 'number':
         case 'string':
         case 'text':
-            document.getElementById(id).value = value
+            document.getElementById(id).value = value.trim()
             break
         case 'select':
             let children = document.getElementById(id).getElementsByClassName('wr_select_option')

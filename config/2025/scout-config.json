@@ -209,7 +209,7 @@
                             "inputs": [
                                 {
                                     "type": "text",
-                                    "default": " ",
+                                    "default": "",
                                     "disallow_default": false,
                                     "name": "Notes",
                                     "id": "match_post_match_post_match_notes"
@@ -398,7 +398,7 @@
                                 },
                                 {
                                     "type": "text",
-                                    "default": " ",
+                                    "default": "",
                                     "disallow_default": false,
                                     "name": "Changes for Champs",
                                     "id": "pit_pit_general_changes_for_champs"
@@ -407,7 +407,7 @@
                                     "name": "Pit Notes",
                                     "id": "pit_pit_pit_notes",
                                     "type": "text",
-                                    "default": " ",
+                                    "default": "",
                                     "disallow_default": false
                                 }
                             ]
@@ -615,7 +615,7 @@
                             "inputs": [
                                 {
                                     "type": "text",
-                                    "default": " ",
+                                    "default": "",
                                     "disallow_default": false,
                                     "name": "Notes",
                                     "id": "pit_tech_other_notes"
@@ -703,7 +703,7 @@
                                     "name": "Notes",
                                     "id": "note_notes_team_notes",
                                     "type": "text",
-                                    "default": " ",
+                                    "default": "",
                                     "disallow_default": false
                                 }
                             ]

@@ -243,7 +243,7 @@ class StringB extends InputBuilder
     {
         super(name)
 
-        this.def_entry = this.build_default_entry('The default text displayed in the box, must not be empty.')
+        this.def_entry = this.build_default_entry('The default text displayed in the box.')
         this.disallow = this.build_disallow_checkbox()
     }
 
@@ -256,10 +256,6 @@ class StringB extends InputBuilder
     {
         let desc = super.build_description()
         let def = this.def_entry.element.value
-        if (def === '')
-        {
-            def = 'N/A'
-        }
         desc.default = def
         desc.disallow_default = this.disallow.checked
         return desc
@@ -273,7 +269,7 @@ class TextB extends StringB
         super('text')
 
         this.def_entry = new WRExtended('Default', '')
-        this.def_entry.description = 'The default text displayed in the box, must not be empty.'
+        this.def_entry.description = 'The default text displayed in the box.'
     }
 }
 
