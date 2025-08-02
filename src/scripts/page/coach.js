@@ -180,7 +180,7 @@ function open_option(match_key)
     // select option
     deselect_all()
     document.getElementById(`left_match_option_${match_key}`).classList.add('selected')
-    document.getElementById('scouting-carousel').scrollTo(0, 0)
+    carousel.scrollTo(0, 0)
 
     // load the match on the whiteboard, UI updates handled by update_sliders()
     whiteboard.load_match(match_key, false)

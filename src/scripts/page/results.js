@@ -35,7 +35,7 @@ function init_page()
     let card = new WRCard([title])
     preview.append(card)
 
-    results_box = document.createElement('div')
+    results_box = create_element('div', 'scouting-carousel', 'scouting-carousel')
     preview.append(results_box)
 
     // add filter for teams
@@ -66,8 +66,9 @@ function build_result_list()
         {
             for (let team_num in dal.matches[match_key].results)
             {
-                if ((selected_team.length === 0 && (filter === 'All' || team_num.toString() === filter)) ||
-                    team_num === selected_team)
+                let result = dal.matches[match_key].results[team_num]
+                if (((selected_team.length === 0 && (filter === 'All' || team_num.toString() === filter)) ||
+                    team_num === selected_team) && Object.keys(result.results).length)
                 {
                     let result = dal.get_match_result(match_key, team_num)
                     let spaces = 5 - team_num.toString().length
@@ -119,6 +120,7 @@ function open_option(option)
     deselect_all()
     document.getElementById(`left_pit_option_${option}`).classList.add('selected')
     results_box.replaceChildren()
+    results_box.scrollTo(0, 0)
 
     // pull match and team out
     let parts = option.split('-')
@@ -145,11 +147,14 @@ function open_option(option)
             add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i], result.file_names[scout_mode][i])
         }
     }
-    if (Object.keys(result.fms_results).length > 0)
+    if (Object.keys(result.results).length)
     {
-        add_fms_card(team_num, result.fms_results)
+        if (Object.keys(result.fms_results).length > 0)
+        {
+            add_fms_card(team_num, result.fms_results)
+        }
+        add_smart_card(team_num, result.smart_results)
     }
-    add_smart_card(team_num, result.smart_results)
 }
 
 /**
@@ -198,6 +203,7 @@ function add_result_card(scout_mode, match_result, meta, file_name)
     unsure_row.insertCell().innerText = meta.status.unsure ? meta.status.unsure_reason : '-'
 
     let result_tab = document.createElement('table')
+    result_tab.append(create_header_row(['', 'Result', 'Team Avg', 'Event Avg']))
     for (let key in match_result)
     {
         let result = cfg.get_result_from_key(`result.${key}`)
@@ -209,7 +215,8 @@ function add_result_card(scout_mode, match_result, meta, file_name)
     }
 
     let card = new WRCard([result_name, meta_tab, result_tab], true)
-    results_box.append(card)
+    let page = new WRPage('', [card])
+    results_box.append(page)
 }
 
 /**
@@ -234,7 +241,8 @@ function add_fms_card(team_num, fms_result)
     }
 
     let card = new WRCard([result_name, result_tab], true)
-    results_box.append(card)
+    let page = new WRPage('', [card])
+    results_box.append(page)
 }
 
 /**
@@ -259,7 +267,8 @@ function add_smart_card(team_num, smart_result)
     }
 
     let card = new WRCard([result_name, result_tab], true)
-    results_box.append(card)
+    let page = new WRPage('', [card])
+    results_box.append(page)
 }
 
 /**
