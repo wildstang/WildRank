@@ -199,7 +199,7 @@ function open_role(role)
             }
             else if (key === 'import_results')
             {
-                button = build_import_results().build_button('Import Results')
+                button = build_import_results(() => open_role(role)).build_button('Import Results')
             }
             else if (key === 'export_results')
             {
