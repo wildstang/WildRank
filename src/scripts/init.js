@@ -37,7 +37,22 @@ function on_config()
     load_data()
 
     // don't directly pass in init_page to ensure that init_page isn't accessed before the page is loaded in
-    run_after_load(() => init_page())
+    if (typeof init_page === "undefined")
+    {
+        let header = document.createElement('h2')
+        header.innerText = `Page "${page}" not found!`
+        let paragraph = document.createElement('p')
+        paragraph.innerHTML = 'Either the page does not exist or it failed to load.<br><br>Try refreshing the page.'
+        preview.append(new WRCard([header, paragraph], true),
+            new WRLinkButton('Cache Manager', build_url('cache')),
+            new WRButton('Refresh Page', () => location.reload()),
+            new WRButton('Return Home', home)
+        )
+    }
+    else
+    {
+        run_after_load(() => init_page())
+    }
 }
 
 var header_info, preview, pick_lists
