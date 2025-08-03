@@ -338,8 +338,7 @@ class Bracket
                 if (match.winner === -1 && match.red_alliance > -1 && match.blue_alliance > -1)
                 {
                     let match_num = parseInt(i) + 1
-                    let match_key = `${dal.event_id}_sf${match_num}`
-                    if (match.id === -1 && !dal.match_keys.includes(match_key))
+                    if (match.id === -1 && !dal.match_keys.includes(match.id))
                     {
                         // if the match doesn't exist, create it, then open it
                         let red_teams = this.alliances[match.red_alliance].teams
@@ -347,7 +346,7 @@ class Bracket
                         add_match(match_num, red_teams, blue_teams)
                     }
 
-                    let button = new WRButton('Preview Match', () => open_option(match_key))
+                    let button = new WRButton('Preview Match', () => open_option(match.id))
 
                     let stack = new WRStack([card, button])
                     columns[columns.length - 1].add_input(stack)
