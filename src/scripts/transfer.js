@@ -857,7 +857,15 @@ class Importer extends BaseTransfer
      */
     handle_selected_files(event)
     {
-        this.selected_files = Array.from(event.target.files)
+        if (event.dataTransfer)
+        {
+            this.selected_files = Array.from(event.dataTransfer.files)
+        }
+        else
+        {
+            this.selected_files = Array.from(event.target.files)
+        }
+
         if (this.selected_files.length)
         {
             this.step_import()
@@ -1174,6 +1182,49 @@ class Importer extends BaseTransfer
      */
     build_button(label)
     {
-        return this._build_button(label, this.step_import.bind(this))
+        let button = this._build_button(label, this.step_import.bind(this))
+        button.button_id = 'import_button'
+        return button
     }
+
+    /**
+     * Enables drag and drop support for the Importer's button.
+     */
+    make_draggable()
+    {
+        let button = document.getElementById('import_button')
+        button.addEventListener('dragover', upload_drag_over.bind(this))
+        button.addEventListener('dragleave', upload_drag_leave.bind(this))
+        button.addEventListener('drop', upload_drop_on.bind(this))
+    }
+}
+
+/**
+ * Highlights the import button when a file is dragged onto it.
+ * @param {Event} e Drag over event
+ */
+function upload_drag_over(e)
+{
+    e.preventDefault()
+    document.getElementById('import_button').classList.add('upload_ready')
+}
+
+/**
+ * Un-highlights the import button when a file is dragged off of it.
+ * @param {Event} e Drag over event
+ */
+function upload_drag_leave(e)
+{
+    e.preventDefault()
+    document.getElementById('import_button').classList.remove('upload_ready')
+}
+
+/**
+ * Starts an import when a file is dropped on it.
+ * @param {Event} e Drag over event
+ */
+function upload_drop_on(e)
+{
+    e.preventDefault()
+    this.handle_selected_files(e)
 }

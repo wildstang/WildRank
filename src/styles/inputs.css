@@ -350,6 +350,11 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 255, 0.2), 0 6px 20px 0 rgba(0, 0, 255, 0.19);
 }
 
+.upload_ready {
+    border-color: rgba(0, 255, 0, 1);
+    border-width: 3px;
+}
+
 .thin {
     width: auto;
     min-width: 0;

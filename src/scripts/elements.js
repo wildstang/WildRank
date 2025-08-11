@@ -194,6 +194,10 @@ class WRButton extends WRElement
         }
         this.element.classList.add(...this.classes)
         this.element.replaceChildren(this.label_el)
+        if (this.button_id)
+        {
+            this.element.id = this.button_id
+        }
 
         this.replaceChildren()
         if (this.description)
