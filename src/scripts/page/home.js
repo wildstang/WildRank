@@ -77,7 +77,7 @@ const BUTTONS = {
     'note-viewer':          { name: 'Note Viewer',              limits: ['teams'] },
     'open_moralysis':       { name: 'More',                     limits: [] },
     'pits':                 { name: 'Pit Scout',                limits: ['teams'] },
-    'pivot':                { name: 'Pivot Table',              limits: ['teams', 'any'] },
+    'pivot':                { name: 'PoppaRank',                limits: ['teams', 'any'] },
     'plot':                 { name: 'Plotter',                  limits: ['matches', 'results'] },
     'preload_event':        { name: 'Preload Event',            limits: [] },
     'random':               { name: 'Random Result Generator',  limits: ['teams'] },
