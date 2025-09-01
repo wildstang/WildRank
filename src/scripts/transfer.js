@@ -946,8 +946,9 @@ class Importer extends BaseTransfer
         let names = Object.keys(this.zip_files)
         if (names.length)
         {
-            this.log(`${names.length} zip files remaining`)
-            let name = names[0]
+            this.log(`${names.length} zipped files remaining`)
+            let path = names[0]
+            let name = path
 
             // remove directories in path
             if (name.includes('/'))
@@ -960,15 +961,16 @@ class Importer extends BaseTransfer
             }
 
             // skip directories
-            if (!name.endsWith('/'))
+            if (!name.endsWith('/') && name)
             {
                 this.current_name = name
-                var data = this.zip_files[this.current_name]
-                delete this.zip_files[this.current_name]
+                let data = this.zip_files[path]
+                delete this.zip_files[path]
                 data.async('blob').then(this.handle_blob.bind(this))
             }
             else
             {
+                delete this.zip_files[path]
                 this.step_import()
             }
         }
