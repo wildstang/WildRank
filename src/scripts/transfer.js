@@ -920,7 +920,7 @@ class Importer extends BaseTransfer
      */
     update_event_id()
     {
-        if (confirm(`Switch event to ${this.event_id}?`))
+        if (!cfg.user.state.event_id || confirm(`Switch event to ${this.event_id}?`))
         {
             cfg.update_event_id(this.event_id, this.step_import.bind(this))
         }
@@ -1184,9 +1184,18 @@ class Importer extends BaseTransfer
      */
     build_button(label)
     {
-        let button = this._build_button(label, this.step_import.bind(this))
+        let button = this._build_button(label, this.trigger_import.bind(this))
         button.button_id = 'import_button'
         return button
+    }
+
+    /**
+     * Trigger the import process and clear the setup prompt event flag.
+     */
+    trigger_import()
+    {
+        this.step_import()
+        prompt_event = false
     }
 
     /**
