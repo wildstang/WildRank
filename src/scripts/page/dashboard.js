@@ -210,7 +210,7 @@ function populate()
             td.style.backgroundColor = get_completion_color(scouted_modes, match_modes.length)
             if (scouted_modes > 0)
             {
-                td.onclick = (event) => window_open(build_url('results', {'match': match, 'team': team}))
+                td.onclick = (event) => window_open(build_url('result-state', {'match': match, 'team': team}))
             }
         }
     }
@@ -253,7 +253,7 @@ function populate()
         td.innerText = team
         if (scouted_modes > 0)
         {
-            td.onclick = (event) => window_open(build_url('teams', {'team': team}))
+            td.onclick = (event) => window_open(build_url('result-state', {'team': team}))
         }
     }
 

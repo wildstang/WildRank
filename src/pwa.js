@@ -67,6 +67,7 @@ const CACHE_LIST = [
     '/scripts/page/random.js',
     '/scripts/page/ranker.js',
     '/scripts/page/results.js',
+    '/scripts/page/result-state.js',
     '/scripts/page/scatter.js',
     '/scripts/page/scout.js',
     '/scripts/page/settings.js',

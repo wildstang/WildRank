@@ -155,7 +155,7 @@ function open_option(match_key)
             renumber.add_class('slim')
             left_col.add_input(renumber)
     
-            let del = new WRButton('Delete Result', () => delete_result(match_key, teams))
+            let del = new WRButton('Delete Result', () => delete_result(match_key, teams, scout_mode))
             del.add_class('slim')
             right_col.add_input(del)
         }
@@ -209,31 +209,6 @@ function renumber_result(match_key, teams)
                 new_result.meta.result.match_key = new_key
                 new_result.meta.result.team_num = new_team
                 localStorage.setItem(result.file_names[scout_mode][index], JSON.stringify(new_result))
-            }
-        }
-        location.reload()
-    }
-}
-
-/**
- * Prompts to, then deletes the result for the specified match.
- * @param {String} match_key Match key
- * @param {Array} teams Team numbers to delete
- */
-function delete_result(match_key, teams)
-{
-    if (confirm(`Are you sure you want to delete ${scout_mode} results for ${match_key}?`))
-    {
-        for (let team_num of teams)
-        {
-            let result = dal.get_match_result(match_key, team_num)
-            if (scout_mode in result.results)
-            {
-                let index = prompt_for_result(result.meta[scout_mode], 'delete')
-                if (index >= 0)
-                {
-                    localStorage.removeItem(result.file_names[scout_mode][index])
-                }
             }
         }
         location.reload()

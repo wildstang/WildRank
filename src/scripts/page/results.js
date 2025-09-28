@@ -270,19 +270,3 @@ function add_smart_card(team_num, smart_result)
     let page = new WRPage('', [card])
     results_box.append(page)
 }
-
-/**
- * Toggles the ignored status of the given result and writes to localStorage.
- * @param {Object} match_result Match result data
- * @param {Object} meta Match metadata
- * @param {String} file_name Match result file name
- */
-function toggle_ignore(match_result, meta, file_name)
-{
-    meta.status.ignore = !meta.status.ignore
-    let result = {
-        meta: meta,
-        result: match_result
-    }
-    localStorage.setItem(file_name, JSON.stringify(result))
-}

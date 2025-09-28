@@ -83,6 +83,48 @@ function create_result_name()
 }
 
 /**
+ * Toggles the ignored status of the given result and writes to localStorage.
+ * @param {Object} match_result Match result data
+ * @param {Object} meta Match metadata
+ * @param {String} file_name Match result file name
+ */
+function toggle_ignore(match_result, meta, file_name)
+{
+    meta.status.ignore = !meta.status.ignore
+    let result = {
+        meta: meta,
+        result: match_result
+    }
+    localStorage.setItem(file_name, JSON.stringify(result))
+}
+
+/**
+ * Prompts to, then deletes the result for the specified match.
+ * @param {String} match_key Match key
+ * @param {Array} teams Team numbers to delete
+ * @param {String} scout_mode Scouting mode key
+ */
+function delete_result(match_key, teams, scout_mode)
+{
+    if (confirm(`Are you sure you want to delete ${scout_mode} results for ${match_key}?`))
+    {
+        for (let team_num of teams)
+        {
+            let result = dal.get_match_result(match_key, team_num)
+            if (scout_mode in result.results)
+            {
+                let index = prompt_for_result(result.meta[scout_mode], 'delete')
+                if (index >= 0)
+                {
+                    localStorage.removeItem(result.file_names[scout_mode][index])
+                }
+            }
+        }
+        location.reload()
+    }
+}
+
+/**
  * Base class containing functions for both MatchResult and TeamResult.
  */
 class BaseResult
