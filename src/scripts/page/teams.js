@@ -132,6 +132,7 @@ function open_option()
             let cell = match_status.insertCell()
             let scouted = dal.is_match_scouted(match_key, team_num, mode)
             cell.style.backgroundColor = scouted ? 'green' : 'red'
+            cell.onclick = (event) => window_open(build_url('results', {'match': match_key, 'team': team_num}))
         }
     }
 
@@ -158,7 +159,7 @@ function populate_events(team_num)
 {
     events_table.replaceChildren(create_header_row(['Event', 'Date', 'Rank', 'RP', 'Alliance', 'Pick', 'Awards']))
 
-    let key = cfg.tba_key
+    let key = cfg.user.settings.tba_key
     if (!key) return
     let key_query = `?${TBA_AUTH_KEY}=${key}`
 
