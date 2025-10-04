@@ -1,0 +1,25 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
+{
+	"name": "WildRank",
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.12",
+
+	"portsAttributes": {
+		"8000": {
+			"label": "WildRank HTTP",
+			"onAutoForward": "notify"
+		}
+	},
+
+	"postCreateCommand": "pip3 install -r .devcontainer/requirements.txt",
+
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"davidanson.vscode-markdownlint",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	}
+}
