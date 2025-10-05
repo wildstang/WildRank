@@ -712,15 +712,17 @@ function build_import_picklist(on_complete=() => {})
 
 /**
  * Helper function that creates an Importer for configs and event data.
+ * Also (secretly) results, in which case the user is prompted to open analysis.
  * @param {Function} on_complete Function to call when loading is complete
  * @return An Importer instance
  */
 function build_import_setup(on_complete=() => {})
 {
-    let i = new Importer()
+    let i = new Importer(open_results=true)
     i.event_data = true
     i.scout_config = true
     i.analysis_config = true
+    i.results = true
     i.allow_json = true
     i.on_complete = on_complete
     return i
@@ -797,7 +799,7 @@ function import_zip_from_cache(cache_res)
 
 class Importer extends BaseTransfer
 {
-    constructor()
+    constructor(open_results=false)
     {
         super()
 
@@ -808,6 +810,7 @@ class Importer extends BaseTransfer
         this.ignore_versions = false
         this.ignore_app = false
         this.ignore_cfg = false
+        this.open_results = open_results
 
         // state
         this.selected_files = null
@@ -815,6 +818,7 @@ class Importer extends BaseTransfer
         this.zip_files = null
         this.current_name = null
         this.event_id = null
+        this.had_results = null
     }
 
     /**
@@ -1103,6 +1107,7 @@ class Importer extends BaseTransfer
 
                 this.log(`Importing ${file_name} as result`)
                 localStorage.setItem(file_name, text)
+                this.had_results = true
             }
         }
     }
@@ -1115,8 +1120,23 @@ class Importer extends BaseTransfer
         this.log('Import complete, reloading cfg and dal and calling import complete')
         cfg.load_configs(() => {
             dal.load_data()
-            this.on_complete()
-            alert('Import Complete')
+            if (this.open_results && this.had_results)
+            {
+                if (confirm('Results imported, view results?'))
+                {
+                    cfg.set_role('analysis')
+                    window_open(get_role_page('analysis'))
+                }
+                else
+                {
+                    this.on_complete()
+                }
+            }
+            else
+            {
+                this.on_complete()
+                alert('Import Complete')
+            }
         })
     }
 
@@ -1184,18 +1204,9 @@ class Importer extends BaseTransfer
      */
     build_button(label)
     {
-        let button = this._build_button(label, this.trigger_import.bind(this))
+        let button = this._build_button(label, this.step_import.bind(this))
         button.button_id = 'import_button'
         return button
-    }
-
-    /**
-     * Trigger the import process and clear the setup prompt event flag.
-     */
-    trigger_import()
-    {
-        this.step_import()
-        prompt_event = false
     }
 
     /**
