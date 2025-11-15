@@ -49,6 +49,7 @@ function add_bracket()
     let filter_inputs = []
     if (ops.length > 1)
     {
+        // TODO: fill empty options?
         filter_el = new WRDropdown('Alliance Filter', ops, ops[alliance])
         filter_el.add_class('slim')
         filter_el.on_change = add_bracket

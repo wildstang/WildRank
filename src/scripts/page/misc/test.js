@@ -39,7 +39,7 @@ function init_page()
 
     let checkbox = new WRCheckbox('Checkbox')
     checkbox.on_click = alert_1
-    checkbox.check()
+    checkbox.check() // TODO: needs to be done after adding to page
     clickables.add_input(checkbox)
 
     let slider = new WRSlider('Slider', 5)
@@ -125,6 +125,106 @@ function init_page()
         ['assets/wheels/Colson.png', 'assets/wheels/KOP.png', 'assets/wheels/Other.png', 'assets/wheels/Treaded.png'])
     image_select.on_change = alert_1
     selects.add_input(image_select)
+
+
+
+    let slim_page = new WRPage('Slim Page')
+
+    let slim_buttons = new WRColumn('Buttons')
+    slim_page.add_column(slim_buttons)
+
+    let slim_button = new WRButton('Button', alert_1)
+    slim_button.add_class('slim')
+    slim_button.on_right = alert_2
+    slim_buttons.add_input(slim_button)
+
+    let slim_link_button = new WRLinkButton('Link Button', 'https://wildstang.org')
+    slim_link_button.add_class('slim')
+    slim_buttons.add_input(slim_link_button)
+
+    let slim_timer = new WRTimer('Timer')
+    slim_timer.add_class('slim')
+    slim_buttons.add_input(slim_timer)
+
+    let slim_counter = new WRCounter('Counter', 5)
+    slim_counter.add_class('slim')
+    slim_buttons.add_input(slim_counter)
+
+
+    let slim_clickables = new WRColumn('Clickables')
+    slim_page.add_column(slim_clickables)
+
+    let slim_checkbox = new WRCheckbox('Checkbox')
+    slim_checkbox.add_class('slim')
+    slim_checkbox.on_click = alert_1
+    slim_checkbox.check() // TODO: needs to be done after adding to page
+    slim_clickables.add_input(slim_checkbox)
+
+    let slim_slider = new WRSlider('Slider', 5)
+    slim_slider.add_class('slim')
+    slim_slider.min = 0
+    slim_slider.max = 100
+    slim_slider.incr = 10
+    slim_slider.on_change = alert_1
+    slim_clickables.add_input(slim_slider)
+
+    let slim_dropdown = new WRDropdown('Dropdown', ['Option 1', 'Option 2', 'Option 3', 'Option 4'])
+    slim_dropdown.add_class('slim')
+    slim_dropdown.on_change = alert_1
+    slim_clickables.add_input(slim_dropdown)
+
+
+    let slim_text = new WRColumn('Text')
+    slim_page.add_column(slim_text)
+
+    let slim_number = new WRNumber('Number', 5)
+    slim_number.add_class('slim')
+    slim_text.add_input(slim_number)
+
+    let slim_entry = new WREntry('Entry', 'This is a text box')
+    slim_entry.on_text_change = alert_1
+    slim_entry.add_class('slim')
+    slim_text.add_input(slim_entry)
+
+    let slim_number_entry = new WREntry('Number Entry', 5)
+    slim_number_entry.add_class('slim')
+    slim_number_entry.type = 'number'
+    slim_number_entry.on_text_change = alert_1
+    slim_text.add_input(slim_number_entry)
+
+
+    let slim_selects = new WRColumn('Selects')
+    slim_page.add_column(slim_selects)
+
+    let slim_select = new WRSelect('Select', ['1', '2'])
+    slim_select.add_class('slim')
+    let slim_selected_idx_alert = () => {
+        console.log(slim_select.selected_index)
+        alert(slim_select.selected_index)
+    }
+    slim_select.on_change = slim_selected_idx_alert
+    slim_selects.add_input(slim_select)
+
+    let slim_vert_select = new WRSelect('Vertical Select', ['1', '2'])
+    slim_vert_select.add_class('slim')
+    slim_vert_select.vertical = true
+    let slim_selected_op_alert = () => {
+        console.log(slim_vert_select.selected_option)
+        alert(slim_vert_select.selected_option)
+    }
+    slim_vert_select.on_change = slim_selected_op_alert
+    slim_selects.add_input(slim_vert_select)
+
+    let slim_large_select = new WRSelect('Large Select', ['Option 1', 'Option 2', 'Option 3', 'Option 4'])
+    slim_large_select.add_class('slim')
+    slim_large_select.on_change = alert_1
+    slim_selects.add_input(slim_large_select)
+
+    let slim_custom_select = new WRSelect('3 Column Select', ['1', '2', '3', '4'])
+    slim_custom_select.add_class('slim')
+    slim_custom_select.columns = 3
+    slim_custom_select.on_change = alert_1
+    slim_selects.add_input(slim_custom_select)
 
 
     let multi_page = new WRPage('Multi-Inputs')
@@ -254,5 +354,5 @@ function init_page()
     multi_selects.add_input(image_multi_select)
 
 
-    preview.replaceChildren(page, multi_page)
+    preview.replaceChildren(page, slim_page, multi_page)
 }

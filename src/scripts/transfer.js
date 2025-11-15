@@ -1122,6 +1122,7 @@ class Importer extends BaseTransfer
             dal.load_data()
             if (this.open_results && this.had_results)
             {
+                // TODO: consider if data already exists or something
                 if (confirm('Results imported, view results?'))
                 {
                     cfg.set_role('analysis')
@@ -1145,6 +1146,7 @@ class Importer extends BaseTransfer
      */
     step_import()
     {
+        // TODO: consider import order of results (new config and results), probably don't actually reload, but loosen version enforcement
         if (this.zip_files !== null)
         {
             this.shift_file_from_zip()
