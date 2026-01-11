@@ -801,12 +801,12 @@ class ScoutConfig
      * Handles a given scout config object, runs validation, and applies contents to class.
      * @param {Object} scout_config Scout config as raw object
      */
-    handle_config(user_config)
+    handle_config(scout_config)
     {
-        this.version = user_config.version
-        this.configs = user_config.configs
-        this.team_results = [].concat(...user_config.configs.filter(m => m.type === 'team').map(m => ScoutConfig.build_results(m)))
-        this.match_results = [].concat(...user_config.configs.filter(m => m.type.startsWith('match')).map(m => ScoutConfig.build_results(m)))
+        this.version = scout_config.version
+        this.configs = scout_config.configs
+        this.team_results = [].concat(...scout_config.configs.filter(m => m.type === 'team').map(m => ScoutConfig.build_results(m)))
+        this.match_results = [].concat(...scout_config.configs.filter(m => m.type.startsWith('match')).map(m => ScoutConfig.build_results(m)))
         this.loaded = true
     }
 

@@ -354,9 +354,10 @@ function import_config(event)
     reader.readAsText(file, 'UTF-8')
     reader.onload = readerEvent => {
         let text = readerEvent.target.result
-        if (ScoutConfig.validate(user_config))
+        let config = JSON.parse(text)
+        if (ScoutConfig.validate(config))
         {
-            cfg.scout.handle_config(text)
+            cfg.scout.handle_config(config)
             alert('Imported config')
         }
         else

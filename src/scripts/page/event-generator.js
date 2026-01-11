@@ -40,13 +40,8 @@ function init_page()
 
     team_list = new WRExtended('Attending Teams', teams.join(','))
     col.add_input(team_list)
-    
-    let alliance_size = dal.alliance_size
-    if (alliance_size === 0)
-    {
-        alliance_size = 3
-    }
-    alliance_entry = new WREntry('Teams per Alliance', alliance_size, [1, 10])
+
+    alliance_entry = new WREntry('Teams per Alliance', 3, [1, 10])
     alliance_entry.on_text_change = populate_matches
     alliance_entry.type = 'number'
     col.add_input(alliance_entry)
@@ -137,7 +132,7 @@ function generate_match_teams(num_teams, distribute=true)
             unavailable = unavailable.concat(match_teams)
         }
         // prevent back to back matches on first match in cycle
-        if (cycle * cycle_len === match_num)
+        if (cycle * cycle_len === match_num && match_num !== 0)
         {
             let match_key = `${dal.event_id}_qm${match_num}`
             let match_teams = Object.values(dal.get_match_teams(match_key))
@@ -211,7 +206,7 @@ function generate_teams()
         event_code: dal.event_id.substring(4)
     }))
 
-    dal.build_teams()
+    dal.load_teams()
     populate_matches()
 }
 
@@ -425,6 +420,6 @@ function add_match()
     })
     localStorage.setItem(file_name, JSON.stringify(matches))
 
-    dal.build_matches()
+    dal.load_matches()
     populate_matches()
 }
