@@ -86,6 +86,7 @@ class CheckboxB extends InputBuilder
         let desc = super.build_description()
         desc.default = this.is_default.checked
         desc.negative = this.negative.checked
+        desc.disallow_default = this.disallow.checked
         return desc
     }
 }
