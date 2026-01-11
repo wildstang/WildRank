@@ -21,6 +21,36 @@ function load_data()
 }
 
 /**
+ * Run after the page is loaded. Populates element variables, then calls the page's init_page.
+ */
+function setup_page()
+{
+    // fix for selection pages being cut off by notch/home bar
+    let iPad = navigator.userAgent.match(/iPad/) ||
+                (navigator.userAgent.match(/Mac/) && navigator.maxTouchPoints && navigator.maxTouchPoints > 2)
+    let iPhone = navigator.userAgent.match(/iPhone/) || navigator.platform == "iPhone"
+    if (iPhone) {
+        document.body.style.height = "93%"
+    }
+    else if (iPad) {
+        document.body.style.height = "97%"
+    }
+
+    // build references for various page components
+    header_info = document.getElementById('header_info')
+    preview = document.getElementById('preview')
+    pick_lists = document.getElementById('pick_lists')
+
+    left_list = document.getElementById('option_list')
+    left_filter = document.getElementById('filter')
+
+    right_list = document.getElementById('secondary_option_list')
+    right_filter = document.getElementById('secondary_filter')
+
+    init_page()
+}
+
+/**
  * Executes after the configuration has successfully loaded.
  */
 function on_config()
@@ -51,7 +81,7 @@ function on_config()
     }
     else
     {
-        run_after_load(() => init_page())
+        run_after_load(setup_page)
     }
 }
 
@@ -317,28 +347,3 @@ document.onkeydown = function (e)
             break
     }
 }
-
-run_after_load(function()
-{
-    // fix for selection pages being cut off by notch/home bar
-    let iPad = navigator.userAgent.match(/iPad/) ||
-                (navigator.userAgent.match(/Mac/) && navigator.maxTouchPoints && navigator.maxTouchPoints > 2)
-    let iPhone = navigator.userAgent.match(/iPhone/) || navigator.platform == "iPhone"
-    if (iPhone) {
-        document.body.style.height = "93%"
-    }
-    else if (iPad) {
-        document.body.style.height = "97%"
-    }
-
-    // build references for various page components
-    header_info = document.getElementById('header_info')
-    preview = document.getElementById('preview')
-    pick_lists = document.getElementById('pick_lists')
-
-    left_list = document.getElementById('option_list')
-    left_filter = document.getElementById('filter')
-
-    right_list = document.getElementById('secondary_option_list')
-    right_filter = document.getElementById('secondary_filter')
-})

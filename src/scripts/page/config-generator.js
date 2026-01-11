@@ -52,7 +52,7 @@ function build_page()
         ]),
         config_preview,
         new WRPage('', [
-            new WRColumn('', [new WRButton('Reset Config', load_config)]),
+            new WRColumn('', [new WRButton('Reset Config', load_scout_config)]),
             new WRColumn('', [new WRButton('Download Config', download_config)]),
             new WRColumn('', [new WRButton('Upload Config', upload_config)]),
             new WRColumn('', [new WRButton('Apply Config', save_config)])
@@ -308,7 +308,7 @@ function build_element()
 /**
  * Resets the config to that stored in localStorage.
  */
-function load_config()
+function load_scout_config()
 {
     cfg.scout.load()
     build_page()

@@ -1217,9 +1217,12 @@ class Importer extends BaseTransfer
     make_draggable()
     {
         let button = document.getElementById('import_button')
-        button.addEventListener('dragover', upload_drag_over.bind(this))
-        button.addEventListener('dragleave', upload_drag_leave.bind(this))
-        button.addEventListener('drop', upload_drop_on.bind(this))
+        if (button !== null)
+        {
+            button.addEventListener('dragover', upload_drag_over.bind(this))
+            button.addEventListener('dragleave', upload_drag_leave.bind(this))
+            button.addEventListener('drop', upload_drop_on.bind(this))
+        }
     }
 }
 
