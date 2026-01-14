@@ -1,0 +1,261 @@
+{
+    "version": "kickoff",
+    "configs": [
+        {
+            "type": "match-team",
+            "name": "Match",
+            "id": "match",
+            "pages": [
+                {
+                    "name": "In Match",
+                    "id": "match_in",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "Auto",
+                            "id": "match_in_auto",
+                            "inputs": [
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Moved",
+                                    "id": "match_in_auto_moved"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Scored Fuel",
+                                    "id": "match_in_auto_scored_fuel"
+                                },
+                                {
+                                    "type": "multiselect",
+                                    "default": [],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "FTruss",
+                                        "FBump",
+                                        "NTruss",
+                                        "NBump"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Crossed",
+                                    "id": "match_in_auto_crossed"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Climbed",
+                                    "id": "match_in_auto_climbed"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Teleop",
+                            "id": "match_in_tele",
+                            "inputs": [
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        1000
+                                    ],
+                                    "name": "Scored Active",
+                                    "id": "match_in_tele_scored_active"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        1000
+                                    ],
+                                    "name": "Volleyed",
+                                    "id": "match_in_tele_volleyed"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Played Defense",
+                                    "id": "match_in_tele_defense"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Post Match",
+                    "id": "match_post",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "End Game",
+                            "id": "match_post_end",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "Unselected",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "Unselected",
+                                        "No Attempt",
+                                        "Failed",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": true,
+                                    "name": "Climbed",
+                                    "id": "match_post_end_climbed"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Review",
+                            "id": "match_post_review",
+                            "inputs": [
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": true,
+                                    "disallow_default": false,
+                                    "name": "Broke Down",
+                                    "id": "match_post_review_broke_down"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Driver Skill",
+                                    "id": "match_post_review_driver_skill"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": "",
+                                    "disallow_default": true,
+                                    "name": "Notes",
+                                    "id": "match_post_review_notes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "team",
+            "name": "Pit",
+            "id": "pit",
+            "pages": [
+                {
+                    "name": "Quantitative",
+                    "id": "pit_quan",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "Auto",
+                            "id": "pit_quan_auto",
+                            "inputs": [
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        8,
+                                        1
+                                    ],
+                                    "name": "Max Preload",
+                                    "id": "pit_quan_auto_max_preload"
+                                },
+                                {
+                                    "type": "multiselect",
+                                    "default": [],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Preload",
+                                        "Depot"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Can Score",
+                                    "id": "pit_quan_auto_can_score"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Can enter center",
+                                    "id": "pit_quan_auto_can_enter_center"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "match-alliance",
+            "name": "Alliance",
+            "id": "alliance",
+            "pages": [
+                {
+                    "name": "Notes",
+                    "id": "alliance_notes",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "TEAM",
+                            "id": "alliance_notes_team",
+                            "inputs": [
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": true,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        3,
+                                        1
+                                    ],
+                                    "name": "Rank",
+                                    "id": "alliance_notes_team_rank"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": "",
+                                    "disallow_default": true,
+                                    "name": "Notes",
+                                    "id": "alliance_notes_team_notes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
