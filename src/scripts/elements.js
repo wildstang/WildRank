@@ -1583,18 +1583,26 @@ class WRDropdown extends WROptionedInput
             this.append(this.label_el)
         }
 
+        if (this.description)
+        {
+            this.append(this.description_element)
+        }
+        let container = document.createElement('div')
+        container.className = 'wr_dropdown_container'
+        this.append(container)
+
         this.element.id = this.input_id
         this.element.className = 'wr_dropdown'
         this.element.classList.add(...this.classes)
         this.element.onclick = event => event.stopPropagation()
         this.element.onchange = this.on_change
         this.element.replaceChildren(...this.option_elements)
+        container.append(this.element)
 
-        if (this.description)
-        {
-            this.append(this.description_element)
-        }
-        this.append(this.element)
+        let handle = document.createElement('div')
+        handle.className = 'handle'
+        handle.classList.add(...this.classes)
+        container.append(handle)
     }
 }
 
