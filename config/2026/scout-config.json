@@ -1,162 +1,39 @@
 {
-    "version": "kickoff",
+    "version": "prototype-1",
     "configs": [
         {
-            "type": "match-team",
-            "name": "Match",
-            "id": "match",
+            "type": "match-alliance",
+            "name": "Scout",
+            "id": "scout",
             "pages": [
                 {
-                    "name": "In Match",
-                    "id": "match_in",
+                    "name": "Notes",
+                    "id": "scout_notes",
                     "columns": [
                         {
                             "cycle": false,
-                            "name": "Auto",
-                            "id": "match_in_auto",
+                            "name": "TEAM",
+                            "id": "scout_notes_team",
                             "inputs": [
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Moved",
-                                    "id": "match_in_auto_moved"
-                                },
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Scored Fuel",
-                                    "id": "match_in_auto_scored_fuel"
-                                },
-                                {
-                                    "type": "multiselect",
-                                    "default": [],
-                                    "disallow_default": false,
-                                    "options": [
-                                        "FTruss",
-                                        "FBump",
-                                        "NTruss",
-                                        "NBump"
-                                    ],
-                                    "vertical": false,
-                                    "name": "Crossed",
-                                    "id": "match_in_auto_crossed"
-                                },
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Climbed",
-                                    "id": "match_in_auto_climbed"
-                                }
-                            ]
-                        },
-                        {
-                            "cycle": false,
-                            "name": "Teleop",
-                            "id": "match_in_tele",
-                            "inputs": [
-                                {
-                                    "type": "number",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "options": [
-                                        0,
-                                        1000
-                                    ],
-                                    "name": "Scored Active",
-                                    "id": "match_in_tele_scored_active"
-                                },
-                                {
-                                    "type": "number",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "options": [
-                                        0,
-                                        1000
-                                    ],
-                                    "name": "Volleyed",
-                                    "id": "match_in_tele_volleyed"
-                                },
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Played Defense",
-                                    "id": "match_in_tele_defense"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Post Match",
-                    "id": "match_post",
-                    "columns": [
-                        {
-                            "cycle": false,
-                            "name": "End Game",
-                            "id": "match_post_end",
-                            "inputs": [
-                                {
-                                    "type": "select",
-                                    "default": "Unselected",
-                                    "disallow_default": true,
-                                    "options": [
-                                        "Unselected",
-                                        "No Attempt",
-                                        "Failed",
-                                        "1",
-                                        "2",
-                                        "3"
-                                    ],
-                                    "images": [],
-                                    "colors": [],
-                                    "vertical": true,
-                                    "name": "Climbed",
-                                    "id": "match_post_end_climbed"
-                                }
-                            ]
-                        },
-                        {
-                            "cycle": false,
-                            "name": "Review",
-                            "id": "match_post_review",
-                            "inputs": [
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": true,
-                                    "disallow_default": false,
-                                    "name": "Broke Down",
-                                    "id": "match_post_review_broke_down"
-                                },
                                 {
                                     "type": "slider",
                                     "default": 0,
-                                    "negative": false,
+                                    "negative": true,
                                     "disallow_default": true,
                                     "options": [
                                         0,
-                                        5,
+                                        3,
                                         1
                                     ],
-                                    "name": "Driver Skill",
-                                    "id": "match_post_review_driver_skill"
+                                    "name": "Rank",
+                                    "id": "scout_notes_team_rank"
                                 },
                                 {
                                     "type": "text",
                                     "default": "",
                                     "disallow_default": true,
                                     "name": "Notes",
-                                    "id": "match_post_review_notes"
+                                    "id": "scout_notes_team_notes"
                                 }
                             ]
                         }
@@ -219,18 +96,65 @@
         },
         {
             "type": "match-alliance",
-            "name": "Alliance",
-            "id": "alliance",
+            "name": "Lead",
+            "id": "lead",
             "pages": [
                 {
                     "name": "Notes",
-                    "id": "alliance_notes",
+                    "id": "lead_notes",
                     "columns": [
                         {
                             "cycle": false,
                             "name": "TEAM",
-                            "id": "alliance_notes_team",
+                            "id": "lead_notes_team",
                             "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "N/A",
+                                        "Fail",
+                                        "Climb"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Auto Climb",
+                                    "id": "lead_notes_team_auto_climb"
+                                },
+                                {
+                                    "type": "multiselect",
+                                    "default": [],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Volley",
+                                        "Defense",
+                                        "Defended"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Actions",
+                                    "id": "lead_notes_team_actions"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "N/A",
+                                        "Fail",
+                                        "L1",
+                                        "L2",
+                                        "L3"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Endgame Climb",
+                                    "id": "lead_notes_team_endgame_climb"
+                                },
                                 {
                                     "type": "slider",
                                     "default": 0,
@@ -242,14 +166,14 @@
                                         1
                                     ],
                                     "name": "Rank",
-                                    "id": "alliance_notes_team_rank"
+                                    "id": "lead_notes_team_rank"
                                 },
                                 {
                                     "type": "text",
                                     "default": "",
                                     "disallow_default": true,
                                     "name": "Notes",
-                                    "id": "alliance_notes_team_notes"
+                                    "id": "lead_notes_team_notes"
                                 }
                             ]
                         }
