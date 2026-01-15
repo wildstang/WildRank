@@ -278,14 +278,15 @@ function update_cycle(cycle, decrement)
     for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         // iterate through each column in the page
-        for (let column of page.columns)
+        for (let i in page.columns)
         {
+            let column = page.columns[i]
             if (column.id == cycle)
             {
                 // determine if necessary defaults are changed before saving
                 if (!decrement)
                 {
-                    let cid = check_column(column)
+                    let cid = check_column(column, scout_type, teams[i])
                     if (cid)
                     {
                         document.getElementById(cid).style['background-color'] = '#FFF2A8'
@@ -502,11 +503,12 @@ function check_results()
     // get each result
     for (let page of cfg.get_scout_config(scout_mode).pages)
     {
-        for (let column of page.columns)
+        for (let i in page.columns)
         {
+            let column = page.columns[i]
             if (!column.cycle)
             {
-                let ret = check_column(column)
+                let ret = check_column(column, scout_type, teams[i])
                 if (ret)
                 {
                     return ret

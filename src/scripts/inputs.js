@@ -308,9 +308,11 @@ function get_results_from_column(column, scout_type, team='')
  * Determines if any disallowed defaults have changed.
  * 
  * @param {object} column Scouting configuration column
+ * @param {string} scout_type Scouting mode type, used to determine when to replace keywords.
+ * @param {string} team Team number to replace keywords with.
  * @returns False, if column passed, otherwise first failing input ID.
  */
-function check_column(column)
+function check_column(column, scout_type, team='')
 {
     for (let input of column.inputs)
     {
@@ -323,7 +325,7 @@ function check_column(column)
         let options = input.options
         let def = input.default
 
-        let value = get_result_from_input(input)
+        let value = get_result_from_input(input, scout_type, team)
         switch (input.type)
         {
             case 'multicounter':
