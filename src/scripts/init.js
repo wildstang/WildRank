@@ -5,6 +5,12 @@
  * date:        2022-06-05
  */
 
+if (localStorage.get('config-settings') !== null)
+{
+    localStorage.clear()
+    location.reload()
+}
+
 // create config object, load in what is available, and set the theme
 var cfg = new Config()
 cfg.load_configs(on_config)
