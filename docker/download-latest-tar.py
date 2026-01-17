@@ -26,7 +26,9 @@ else:
 		print('Invalid repo')
 		exit(2)
 
+
 # download tarball
+print('Downloading:', url)
 urlretrieve(url, TARBALL)
 
 # extract tarball
