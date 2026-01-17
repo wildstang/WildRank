@@ -218,7 +218,6 @@ function get_result_from_input(input, scout_type, team='')
     {
         el_id += `-${team}`
     }
-    console.log(id)
     let options = input.options
 
     let result = {}
@@ -336,6 +335,10 @@ function check_column(column, scout_type, team='')
                     let name = `${id}_${create_id_from_name(options[i])}`
                     if (value[name] === def[i])
                     {
+                        if (scout_type === 'match-alliance')
+                        {
+                            id += `-${team}`
+                        }
                         return id
                     }
                 }
@@ -345,6 +348,10 @@ function check_column(column, scout_type, team='')
             default:
                 if (value[id] === def)
                 {
+                    if (scout_type === 'match-alliance')
+                    {
+                        id += `-${team}`
+                    }
                     return id
                 }
         }
