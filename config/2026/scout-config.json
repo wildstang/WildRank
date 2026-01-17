@@ -180,6 +180,46 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "match-alliance",
+            "name": "Drive",
+            "id": "driver",
+            "pages": [
+                {
+                    "name": "Teams",
+                    "id": "driver_teams",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "TEAM",
+                            "id": "driver_teams_team",
+                            "inputs": [
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        5,
+                                        1
+                                    ],
+                                    "name": "Uber Rating",
+                                    "id": "driver_teams_team_uber_rating"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": "",
+                                    "disallow_default": false,
+                                    "name": "Notes",
+                                    "id": "driver_teams_team_notes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
