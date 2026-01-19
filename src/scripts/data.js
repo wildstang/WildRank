@@ -238,19 +238,48 @@ class BaseResult
                     let results = this.results[scout_mode]
 
                     // find the latest result, that is not ignored, and prefer not unsure results
-                    let index = -1
+                    let valid_values = []
+                    let unsure_values = []
                     for (let i in results)
                     {
-                        if (!meta[i].status.ignore && (index < 0 || !meta[i].status.unsure || meta[index].status.unsure))
+                        if (!meta[i].status.ignore && results[i].hasOwnProperty(sub_key))
                         {
-                            index = i
+                            let value = results[i][sub_key]
+                            if (!meta[i].status.unsure)
+                            {
+                                valid_values.push(value)
+                            }
+                            else
+                            {
+                                unsure_values.push(value)
+                            }
                         }
                     }
 
-                    // if a result is available and the key exists, return it
-                    if (index >= 0 && results[index].hasOwnProperty(sub_key))
+                    // only use unsure results if there are no valid results
+                    if (valid_values.length === 0)
                     {
-                        return results[index][sub_key]
+                        valid_values = unsure_values
+                    }
+
+                    if (valid_values.length === 1)
+                    {
+                        return valid_values[0]
+                    }
+                    else if (valid_values.length > 1)
+                    {
+                        // combine multiple results
+                        switch (cfg.get_result_from_key(key).value_type)
+                        {
+                            case 'number':
+                                return mean(valid_values)
+                            case 'string':
+                                return valid_values.join('\n')
+                            case 'boolean':
+                            case 'int-option':
+                            case 'str-option':
+                                return median(valid_values)
+                        }
                     }
                 }
                 break
