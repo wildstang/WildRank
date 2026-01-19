@@ -241,10 +241,9 @@ function build_table(alliance, teams)
         key.innerText = cfg.get_coach_name(c)
         row.append(key)
 
-        let result = cfg.get_result_from_key(c.key)
         for (let team of teams)
         {
-            row.insertCell().innerHTML = result.clean_value(dal.compute_stat(c.key, team, c.function))
+            row.insertCell().innerHTML = dal.compute_stat(c.key, team, c.function, true, true)
         }
     }
 
