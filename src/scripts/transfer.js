@@ -1242,13 +1242,9 @@ class Importer extends BaseTransfer
      */
     make_draggable()
     {
-        let button = document.getElementById('import_button')
-        if (button !== null)
-        {
-            button.addEventListener('dragover', upload_drag_over.bind(this))
-            button.addEventListener('dragleave', upload_drag_leave.bind(this))
-            button.addEventListener('drop', upload_drop_on.bind(this))
-        }
+        document.body.addEventListener('dragover', upload_drag_over.bind(this))
+        document.body.addEventListener('dragleave', upload_drag_leave.bind(this))
+        document.body.addEventListener('drop', upload_drop_on.bind(this))
     }
 }
 
@@ -1259,7 +1255,12 @@ class Importer extends BaseTransfer
 function upload_drag_over(e)
 {
     e.preventDefault()
-    document.getElementById('import_button').classList.add('upload_ready')
+
+    let type_check = f => f.type === 'application/zip' || (this.allow_json && f.type === 'application/json')
+    if ((e.dataTransfer.items.length === 1 || this.select_multiple) && Array.from(e.dataTransfer.items).every(type_check))
+    {
+        document.getElementById('import_button').classList.add('upload_ready')
+    }
 }
 
 /**
@@ -1279,5 +1280,13 @@ function upload_drag_leave(e)
 function upload_drop_on(e)
 {
     e.preventDefault()
-    this.handle_selected_files(e)
+
+    document.getElementById('import_button').classList.remove('upload_ready')
+
+    let files = e.dataTransfer.files
+    let name = files.length === 1 ? files[0].name : `${files.length} files`
+    if (confirm(`Do you want to upload ${name}?`))
+    {
+        this.handle_selected_files(e)
+    }
 }

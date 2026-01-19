@@ -39,6 +39,7 @@ function init_page()
     // create transfer buttons
     let labels = ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data']
     let importer = build_import_results(populate)
+    importer.make_draggable()
     let setup_exporter = build_export_setup()
     let data_exporter = build_export_data()
     let functions = [() => preload_event(populate),
@@ -82,6 +83,9 @@ function init_page()
     transfer_buttons.element.children[1].title = setup_exporter.description
     transfer_buttons.element.children[2].title = importer.description
     transfer_buttons.element.children[3].title = data_exporter.description
+
+    // manually mark input button to highlight on dragging file over
+    transfer_buttons.children[0].children[2].id = 'import_button'
 
     populate()
 }

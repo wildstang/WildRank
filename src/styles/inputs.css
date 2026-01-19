@@ -377,8 +377,18 @@
 }
 
 .upload_ready {
-    border-color: rgba(0, 255, 0, 1);
-    border-width: 3px;
+    animation-name: upload_color;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate-reverse;
+    animation-timing-function: linear;
+}
+
+
+@keyframes upload_color {
+    to {
+        background: rgba(0, 255, 0, 1);
+    }
 }
 
 .thin {
