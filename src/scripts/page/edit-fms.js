@@ -1,13 +1,14 @@
 /**
  * file:        edit-fms.js
- * description: Allows the user to add and delete FMS match breakdown results.
+ * description: Allows the user to add and delete FMS OPR and match breakdown results.
  * author:      Liam Fruzyna
  * date:        2025-07-25
  */
 
-var new_key, new_name, negative_cb
+var new_match_key, new_match_name, negative_match_cb
+var new_copr_key, new_copr_name, negative_copr_cb
 
-var matches, keys
+var matches, match_keys, copr_keys
 
 /**
  * Get possible keys.
@@ -16,10 +17,14 @@ function init_page()
 {
     matches = JSON.parse(localStorage.getItem(`matches-${dal.event_id}`))
     let breakdown = matches[0].score_breakdown.red
-    keys = Object.keys(breakdown).filter(k => 
+    match_keys = Object.keys(breakdown).filter(k => 
         ['boolean', 'number', 'string'].includes(typeof breakdown[k]) &&
         (k.endsWith('Robot1') || !k.includes('Robot'))
     ).map(k => k.endsWith('Robot1') ? k.substring(0, k.length - 1) + 'X' : k)
+
+    let coprs = JSON.parse(localStorage.getItem(`coprs-${dal.event_id}`))
+    copr_keys = Object.keys(coprs)
+
     build_buttons()
 }
 
@@ -28,31 +33,45 @@ function init_page()
  */
 function build_buttons()
 {
-    new_key = new WRDropdown('New Key', keys)
-    new_name = new WREntry('New Name', '')
-    negative_cb = new WRCheckbox('Negative?', false)
-    let button = new WRButton('Add FMS Result', build_result)
+    new_copr_key = new WRDropdown('New Key', copr_keys)
+    new_copr_name = new WREntry('New Name', '')
+    negative_copr_cb = new WRCheckbox('Negative?', false)
+    let copr_button = new WRButton('Add OPR Result', build_copr_result)
 
-    let column = new WRColumn('Delete FMS Result')
+    let copr_column = new WRColumn('Delete OPR Result')
+    for (let i in cfg.analysis.fms_ranking_results)
+    {
+        let key = cfg.analysis.fms_ranking_results[i].id
+        let name = cfg.get_result_from_key(`fms.${key}`).name
+        copr_column.add_input(new WRButton(name, () => delete_copr_val(i)))
+    }
+
+    new_match_key = new WRDropdown('New Key', match_keys)
+    new_match_name = new WREntry('New Name', '')
+    negative_match_cb = new WRCheckbox('Negative?', false)
+    let match_button = new WRButton('Add Match Result', build_match_result)
+
+    let match_column = new WRColumn('Delete Match Result')
     for (let i in cfg.analysis.fms_breakdown_results)
     {
         let key = cfg.analysis.fms_breakdown_results[i].id
         let name = cfg.get_result_from_key(`fms.${key}`).name
-        column.add_input(new WRButton(name, () => delete_val(i)))
+        match_column.add_input(new WRButton(name, () => delete_match_val(i)))
     }
 
     // build template
-    let page = new WRPage('', [new WRColumn('New FMS Result', [new_key, new_name, negative_cb, button]), column])
-    preview.replaceChildren(page)
+    let copr_page = new WRPage('', [new WRColumn('New OPR Result', [new_copr_key, new_copr_name, negative_copr_cb, copr_button]), copr_column])
+    let match_page = new WRPage('', [new WRColumn('New Match Result', [new_match_key, new_match_name, negative_match_cb, match_button]), match_column])
+    preview.replaceChildren(copr_page, match_page)
 }
 
 /**
  * Builds an FMS result based on the selection.
  */
-function build_result()
+function build_match_result()
 {
-    let id = new_key.element.value
-    let name = new_name.element.value
+    let id = new_match_key.element.value
+    let name = new_match_name.element.value
     let actual_id = id.endsWith('RobotX') ? id.substring(0, id.length - 1) + '1' : id
     let value = matches[0].score_breakdown.red[actual_id]
 
@@ -133,7 +152,7 @@ function build_result()
     }
     else
     {
-        res.negative = negative_cb.checked
+        res.negative = negative_match_cb.checked
     }
 
     cfg.analysis.fms_breakdown_results.push(res)
@@ -142,12 +161,49 @@ function build_result()
 }
 
 /**
- * Delete the coach result at the given index.
- * @param {Number} idx Coach result index
+ * Builds an FMS result based on the selection.
  */
-function delete_val(idx)
+function build_copr_result()
+{
+    let id = create_id_from_name(new_copr_key.element.value)
+    let name = new_copr_name.element.value
+
+    if (!name)
+    {
+        alert('Invalid name')
+        return
+    }
+
+    let res = {
+        id: id,
+        name: name,
+        type: 'float',
+        negative: negative_copr_cb.checked
+    }
+
+    cfg.analysis.fms_ranking_results.push(res)
+    cfg.analysis.store_config()
+    build_buttons()
+}
+
+/**
+ * Delete the C-OPR at the given index.
+ * @param {Number} idx C-OPR index
+ */
+function delete_match_val(idx)
 {
     cfg.analysis.fms_breakdown_results.splice(idx, 1)
+    cfg.analysis.store_config()
+    build_buttons()
+}
+
+/**
+ * Delete the match breakdown at the given index.
+ * @param {Number} idx Match breakdown index
+ */
+function delete_copr_val(idx)
+{
+    cfg.analysis.fms_ranking_results.splice(idx, 1)
     cfg.analysis.store_config()
     build_buttons()
 }
