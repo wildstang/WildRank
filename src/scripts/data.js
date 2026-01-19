@@ -1169,9 +1169,11 @@ class Data
      * @param {String} result_id Full result key
      * @param {*} teams "all", team number, or an Array of teams
      * @param {String} stat Statistical method to use
+     * @param {Boolean} clean Whether to cleanup the stat to a pretty string
+     * @param {Boolean} rank Whether to append a ranking to the stat
      * @returns Computed stat value
      */
-    compute_stat(result_id, teams='all', stat='', clean=false)
+    compute_stat(result_id, teams='all', stat='', clean=false, rank=false)
     {
         // get the results and compute a stat
         let value = null
@@ -1226,13 +1228,39 @@ class Data
             }
         }
 
+        // determine ranking of this value compared to all other teams
+        let ranking = ''
+        if (rank && (teams.length == 1 || !Array.isArray(teams)) && result.value_type === 'number')
+        {
+            let ordered = []
+            if (cfg.get_team_keys().includes(result_id))
+            {
+                ordered = this.get_team_results(result_id)
+            }
+            else
+            {
+                ordered = this.get_match_results(result_id)
+            }
+            ordered = ordered.sort((a, b) => a - b)
+            if (!result.negative)
+            {
+                ordered.reverse()
+            }
+            ranking = ` (#${ordered.indexOf(value) + 1})`
+        }
+
         if (clean)
         {
             if (result.value_type.endsWith('-option') && result.options.map(op => op.toLowerCase()).includes(stat))
             {
-                return value.toFixed(2)
+                return value.toFixed(2) + ranking
             }
-            return result.clean_value(value)
+            return result.clean_value(value) + ranking
+        }
+        
+        if (rank)
+        {
+            value += ranking
         }
         return value
     }
