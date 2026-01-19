@@ -1,7 +1,50 @@
 {
-    "version": "kickoff",
+    "version": "prototype-1",
     "fms_breakdown_results": [],
-    "fms_ranking_results": [],
+    "fms_ranking_results": [
+        {
+            "id": "rank",
+            "name": "Rank",
+            "type": "int",
+            "negative": true
+        },
+        {
+            "id": "matches_played",
+            "name": "Matches Played",
+            "type": "int",
+            "negative": false
+        },
+        {
+            "id": "sort_orders_0",
+            "name": "Ranking Points",
+            "type": "int",
+            "negative": false
+        },
+        {
+            "id": "record_wins",
+            "name": "Wins",
+            "type": "int",
+            "negative": false
+        },
+        {
+            "id": "record_losses",
+            "name": "Losses",
+            "type": "int",
+            "negative": true
+        },
+        {
+            "id": "record_ties",
+            "name": "Ties",
+            "type": "int",
+            "negative": false
+        },
+        {
+            "id": "totalpoints",
+            "name": "OPR",
+            "type": "float",
+            "negative": false
+        }
+    ],
     "smart_results": [],
     "coach": [],
     "favorites": []

@@ -2,10 +2,10 @@
     "version": "2026",
     "whiteboard": {
         "red_color": "#FF4136",
-        "red_xs": [425, 425, 425],
+        "red_xs": [175, 175, 175],
         "red_ys": [100, 200, 300],
         "blue_color": "#0074D9",
-        "blue_xs": [325, 325, 325],
+        "blue_xs": [575, 575, 575],
         "blue_ys": [100, 200, 300],
         "draw_color": "#FFFFFF",
         "gp_names": ["Fuel"],

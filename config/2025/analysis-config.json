@@ -67,6 +67,12 @@
             "name": "Ties",
             "type": "int",
             "negative": false
+        },
+        {
+            "id": "totalpoints",
+            "name": "OPR",
+            "type": "float",
+            "negative": false
         }
     ],
     "smart_results": [{

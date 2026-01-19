@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-s5-r2oc-dev'
+const CACHE_NAME = 'wildrank-260119'
 const CACHE_LIST = [
     // html files
     '/',
@@ -85,9 +85,8 @@ const CACHE_LIST = [
     '/scripts/transfer.js',
     '/scripts/utils.js',
     // assets
-    '/assets/2025/algae.png',
-    '/assets/2025/coral.png',
-    '/assets/2025/field-2025.png',
+    '/assets/2026/fuel.png',
+    '/assets/2026/field-2026.png',
     /* icons should be cached when pwa is installed
     '/assets/icons/icon-192x192-maskable.png',
     '/assets/icons/icon-192x192.png',
@@ -107,9 +106,9 @@ const CACHE_LIST = [
     '/assets/wheels/TPU.png',
     '/assets/wheels/Treaded.png',
     // configs
-    '/config/2025/analysis-config.json',
-    '/config/2025/game-config.json',
-    '/config/2025/scout-config.json',
+    '/config/2026/analysis-config.json',
+    '/config/2026/game-config.json',
+    '/config/2026/scout-config.json',
     '/config/app-config.json',
     '/config/user-config.json',
     '/config/user-list.csv',
