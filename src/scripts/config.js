@@ -993,7 +993,7 @@ class Result
         'text', 'timer']
     static VALID_CYCLE_INPUTS = ['dropdown', 'select', 'checkbox', 'counter', 'number', 'slider']
     static VALID_SMARTS = ['filter', 'map', 'math', 'max', 'min', 'where', 'wrank']
-    static VALID_FMS = ['boolean', 'int', 'state', 'yes_no']
+    static VALID_FMS = ['boolean', 'int', 'float', 'state', 'yes_no']
 
     /**
      * Validates a given result config object.
@@ -1051,6 +1051,7 @@ class Result
                         has_bool(tag, obj, 'disallow_default'),
                         has_array(tag, obj, 'options', 'number'))
                 case 'int':
+                case 'float':
                     tests.push(has_bool(tag, obj, 'negative'))
                     break
 
@@ -1237,7 +1238,7 @@ class Result
         {
             return 'result'
         }
-        else if (['boolean', 'int', 'state', 'yes_no'].includes(this.type))
+        else if (['boolean', 'int', 'float', 'state', 'yes_no'].includes(this.type))
         {
             return 'fms'
         }
@@ -1253,8 +1254,8 @@ class Result
      */
     get available_stats()
     {
-        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'map', 'math', 'number',
-            'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
+        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'float', 'map', 'math',
+            'number', 'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
         {
             return ['max', 'mean', 'median', 'mid', 'min', 'mode', 'stddev', 'sum']
         }
@@ -1273,8 +1274,8 @@ class Result
      */
     get default_stat()
     {
-        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'map', 'math', 'number',
-            'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
+        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'float', 'map', 'math',
+            'number', 'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
         {
             return 'mean'
         }
@@ -1308,6 +1309,7 @@ class Result
             case 'counter':
             case 'filter':
             case 'int':
+            case 'float':
             case 'map':
             case 'math':
             case 'number':
@@ -1674,7 +1676,7 @@ class Result
         {
             return 'boolean'
         }
-        else if (['counter', 'filter', 'int', 'map', 'math', 'number', 'slider', 'timer', 'where', 'wrank'].includes(this.type))
+        else if (['counter', 'filter', 'int', 'float', 'map', 'math', 'number', 'slider', 'timer', 'where', 'wrank'].includes(this.type))
         {
             return 'number'
         }
