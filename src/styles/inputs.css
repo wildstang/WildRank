@@ -186,6 +186,7 @@
 }
 
 .wr_dropdown_container {
+    width: var(--input-width);
     height: var(--input-height);
     margin: 0 auto var(--input-gap);
 }
