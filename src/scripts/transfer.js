@@ -65,6 +65,16 @@ function preload_event(on_complete=null)
             console.error(err)
         })
 
+    // fetch event component oprs
+    fetch(`${api_endpoint}/event/${event_id}/coprs${key_query}`)
+        .then(response => response.json())
+        .then(handle_coprs)
+        .then(count_data)
+        .catch(err => {
+            count_data('coprs-false')
+            console.error(err)
+        })
+
     // fetch event data
     fetch(`${api_endpoint}/event/${event_id}${key_query}`)
         .then(response => response.json())
@@ -212,6 +222,22 @@ function handle_rankings(data)
         return 'rankings-true'
     }
     return 'rankings-false'
+}
+
+/**
+ * Handles component OPRs after fetching from TBA.
+ * @param {Array} data Raw array of C-OPRs
+ * @returns Description of completion
+ */
+function handle_coprs(coprs)
+{
+    if (coprs)
+    {
+        // store rankings as JSON string in copr-[event_id]
+        localStorage.setItem(`coprs-${cfg.user.state.event_id}`, JSON.stringify(coprs))
+        return 'coprs-true'
+    }
+    return 'coprs-false'
 }
 
 /**

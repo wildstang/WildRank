@@ -387,6 +387,7 @@ class Data
         this.load_event()
         this.load_teams()
         this.load_rankings()
+        this.load_coprs()
         this.load_matches()
         this.load_results()
         this.compute_smart_results()
@@ -457,6 +458,46 @@ class Data
                     })
                 }
                 this.teams[team_num].add_fms_result(ranking)
+            }
+        }
+    }
+
+    /**
+     * Loads team component OPRs in from localStorage and adds to TeamResults. 
+     */
+    load_coprs()
+    {
+        const copr_file = `coprs-${this.event_id}`
+        const tba_coprs = JSON.parse(localStorage.getItem(copr_file))
+        if (tba_coprs === null)
+        {
+            console.log(`No coprs file "${copr_file}"`)
+            return
+        }
+
+        if (tba_coprs !== null)
+        {
+            let fms_keys = cfg.get_team_keys(false, true, false)
+            for (let name of Object.keys(tba_coprs))
+            {
+                let key = create_id_from_name(name)
+                let full_key = `fms.${key}`
+                if (fms_keys.includes(full_key))
+                {
+                    for (let team_key of Object.keys(tba_coprs[name]))
+                    {
+                        const team_num = parse_team_number(team_key)
+                        if (!(team_num in this.teams))
+                        {
+                            console.log(`Couldn't find team ${team_num} from coprs, adding to teams`)
+                            this.teams[team_num] = new TeamResult({
+                                team_number: team_num,
+                                nickname: 'Unknown',
+                            })
+                        }
+                        this.teams[team_num].fms_results[key] = tba_coprs[name][team_key]
+                    }
+                }
             }
         }
     }
