@@ -324,9 +324,19 @@ tr:nth-child(even) {
     margin: 4px auto;
 }
 
-.selection_filter > wr-dropdown > .wr_dropdown {
+.selection_filter > wr-dropdown > .wr_dropdown_container {
     width: 299px;
     margin: 4px auto;
+}
+
+.selection_filter > wr-dropdown > .wr_dropdown_container > .wr_dropdown {
+    width: 299px;
+    margin: auto;
+}
+
+.selection_filter > wr-dropdown > .wr_dropdown_container > .handle {
+    left: calc(299px - var(--handle-width) - var(--input-padding));
+    bottom: calc(var(--input-height)/2 + var(--handle-width)/2);
 }
 
 .selection_filter > wr-checkbox > .wr_checkbox {
