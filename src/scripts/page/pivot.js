@@ -393,8 +393,8 @@ function filter_stats()
 {
     let filter = stat_filter.element.value.toLowerCase()
     let favorites = cfg.analysis.favorites
-    let team_keys = cfg.scout.team_results.map(s => s.full_id)
-    let match_keys = cfg.scout.match_results.map(s => s.full_id)
+    let team_keys = cfg.get_team_keys()
+    let match_keys = cfg.get_match_keys()
     for (let k of keys)
     {
         let element = document.getElementById(`left_pit_option_${k}`)
