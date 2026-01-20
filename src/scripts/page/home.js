@@ -26,7 +26,7 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
     'prep': {
-        'Event Prep': ['config-generator', 'events', 'misc/socials', 'event-generator'],
+        'Event Prep': ['preload_event', 'config-generator', 'events', 'misc/socials', 'event-generator'],
         'Edit Values': ['edit-coach', 'edit-favorites', 'edit-fms']
     },
     'debug': {
@@ -79,7 +79,7 @@ const BUTTONS = {
     'pits':                 { name: 'Pit Scout',                limits: ['teams'] },
     'pivot':                { name: 'PoppaRank',                limits: ['teams', 'any'] },
     'plot':                 { name: 'Plotter',                  limits: ['matches', 'results'] },
-    'preload_event':        { name: 'Preload Event',            limits: [] },
+    'preload_event':        { name: 'Pull From TBA',            limits: [] },
     'random':               { name: 'Random Result Generator',  limits: ['teams'] },
     'ranker':               { name: 'Stat Builder',             limits: ['teams'] },
     'reset':                { name: 'Reset App',                limits: [] },
