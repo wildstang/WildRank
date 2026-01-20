@@ -23,7 +23,7 @@ function init_page()
     ).map(k => k.endsWith('Robot1') ? k.substring(0, k.length - 1) + 'X' : k)
 
     let coprs = JSON.parse(localStorage.getItem(`coprs-${dal.event_id}`))
-    copr_keys = Object.keys(coprs)
+    copr_keys = coprs !== null ? Object.keys(coprs) : []
 
     build_buttons()
 }
