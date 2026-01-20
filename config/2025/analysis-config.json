@@ -2,13 +2,13 @@
     "version": "concept2",
     "fms_breakdown_results": [
         {
-            "id": "autoLineRobot",
+            "id": "bd_autoLineRobot",
             "name": "FMS Leave",
             "type": "yes_no",
             "negative": false
         },
         {
-            "id": "endGameRobot",
+            "id": "bd_endGameRobot",
             "name": "FMS Barge Scoring",
             "type": "state",
             "options": [
@@ -19,13 +19,13 @@
             ]
         },
         {
-            "id": "g428Penalty",
+            "id": "bd_g428Penalty",
             "name": "Cage Interference",
             "type": "boolean",
             "negative": true
         },
         {
-            "id": "totalPoints",
+            "id": "bd_totalPoints",
             "name": "Score",
             "type": "int",
             "negative": false
@@ -33,43 +33,43 @@
     ],
     "fms_ranking_results": [
         {
-            "id": "rank",
+            "id": "rank_rank",
             "name": "Rank",
             "type": "int",
             "negative": true
         },
         {
-            "id": "matches_played",
+            "id": "rank_matches_played",
             "name": "Matches Played",
             "type": "int",
             "negative": false
         },
         {
-            "id": "sort_orders_0",
+            "id": "rank_sort_orders_0",
             "name": "Ranking Points",
             "type": "int",
             "negative": false
         },
         {
-            "id": "record_wins",
+            "id": "rank_record_wins",
             "name": "Wins",
             "type": "int",
             "negative": false
         },
         {
-            "id": "record_losses",
+            "id": "rank_record_losses",
             "name": "Losses",
             "type": "int",
             "negative": true
         },
         {
-            "id": "record_ties",
+            "id": "rank_record_ties",
             "name": "Ties",
             "type": "int",
             "negative": false
         },
         {
-            "id": "totalpoints",
+            "id": "copr_totalpoints",
             "name": "OPR",
             "type": "float",
             "negative": false

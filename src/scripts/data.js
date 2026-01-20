@@ -150,16 +150,17 @@ class BaseResult
      * Adds FMS results to the current result.
      * @param {Object} fms_result Result from the FMS. An alliance score breakdown for matches or a ranking for teams.
      */
-    add_fms_result(fms_result)
+    add_fms_result(fms_result, prefix='bd')
     {
         let fms_keys = this.get_keys(false, true, false)
         for (let key of Object.keys(fms_result))
         {
             // add fms kind to the key of the result
-            let full_key = `fms.${key}`
+            let wr_key = `${prefix}_${create_id_from_name(key)}`
+            let full_key = `fms.${wr_key}`
             if (fms_keys.includes(full_key))
             {
-                this.fms_results[key] = fms_result[key]
+                this.fms_results[wr_key] = fms_result[key]
             }
             // special handling for results out of arrays and objects
             else if (typeof fms_result[key] === 'object')
@@ -169,14 +170,14 @@ class BaseResult
                 {
                     if (fms_keys.includes(`${full_key}_${i}`))
                     {
-                        this.fms_results[`${key}_${i}`] = fms_result[key][i]
+                        this.fms_results[`${wr_key}_${i}`] = fms_result[key][i]
                     }
                 }
             }
             // special handling for match keys ending in RobotX
-            else if (this.hasOwnProperty('index') && key.endsWith(this.index + 1) && fms_keys.includes(full_key.substring(0, full_key.length - 1)))
+            else if (this.hasOwnProperty('index') && wr_key.endsWith(this.index + 1) && fms_keys.includes(full_key.substring(0, full_key.length - 1)))
             {
-                this.fms_results[key.substring(0, key.length - 1)] = fms_result[key]
+                this.fms_results[wr_key.substring(0, wr_key.length - 1)] = fms_result[key]
             }
         }
     }
@@ -336,7 +337,7 @@ class MatchResult extends BaseResult
         // if a score breakdown is available, parse it for FMS results
         if (match.score_breakdown)
         {
-            this.add_fms_result(match.score_breakdown[alliance])
+            this.add_fms_result(match.score_breakdown[alliance], 'bd')
         }
     }
 }
@@ -486,7 +487,7 @@ class Data
                         nickname: 'Unknown',
                     })
                 }
-                this.teams[team_num].add_fms_result(ranking)
+                this.teams[team_num].add_fms_result(ranking, 'rank')
             }
         }
     }
@@ -509,9 +510,8 @@ class Data
             let fms_keys = cfg.get_team_keys(false, true, false)
             for (let name of Object.keys(tba_coprs))
             {
-                let key = create_id_from_name(name)
-                let full_key = `fms.${key}`
-                if (fms_keys.includes(full_key))
+                let key = `copr_${create_id_from_name(name)}`
+                if (fms_keys.includes(`fms.${key}`))
                 {
                     for (let team_key of Object.keys(tba_coprs[name]))
                     {

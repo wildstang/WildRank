@@ -107,7 +107,7 @@ function build_match_result()
 
     // build id
     let res = {
-        id: id,
+        id: `bd_${create_id_from_name(id)}`,
         name: name,
         type: type
     }
@@ -165,7 +165,7 @@ function build_match_result()
  */
 function build_copr_result()
 {
-    let id = create_id_from_name(new_copr_key.element.value)
+    let id = `copr_${create_id_from_name(new_copr_key.element.value)}`
     let name = new_copr_name.element.value
 
     if (!name)

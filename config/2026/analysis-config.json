@@ -3,43 +3,43 @@
     "fms_breakdown_results": [],
     "fms_ranking_results": [
         {
-            "id": "rank",
+            "id": "rank_rank",
             "name": "Rank",
             "type": "int",
             "negative": true
         },
         {
-            "id": "matches_played",
+            "id": "rank_matches_played",
             "name": "Matches Played",
             "type": "int",
             "negative": false
         },
         {
-            "id": "sort_orders_0",
+            "id": "rank_sort_orders_0",
             "name": "Ranking Points",
             "type": "int",
             "negative": false
         },
         {
-            "id": "record_wins",
+            "id": "rank_record_wins",
             "name": "Wins",
             "type": "int",
             "negative": false
         },
         {
-            "id": "record_losses",
+            "id": "rank_record_losses",
             "name": "Losses",
             "type": "int",
             "negative": true
         },
         {
-            "id": "record_ties",
+            "id": "rank_record_ties",
             "name": "Ties",
             "type": "int",
             "negative": false
         },
         {
-            "id": "totalpoints",
+            "id": "copr_totalpoints",
             "name": "OPR",
             "type": "float",
             "negative": false
