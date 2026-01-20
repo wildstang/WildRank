@@ -202,12 +202,20 @@
     border-top: var(--handle-width) solid var(--secondary-text-color);
 }
 
+.handle.thin {
+    border: 0;
+}
+
 .wr_dropdown.slim, .wr_select.slim {
     height: var(--slim-height);
 }
 
 .wr_dropdown_container.slim {
     height: var(--input-height);
+}
+
+.wr_dropdown_container.thin {
+    height: auto;
 }
 
 .handle.slim {

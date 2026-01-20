@@ -1589,6 +1589,7 @@ class WRDropdown extends WROptionedInput
         }
         let container = document.createElement('div')
         container.className = 'wr_dropdown_container'
+        container.classList.add(...this.classes)
         this.append(container)
 
         this.element.id = this.input_id
