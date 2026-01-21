@@ -183,7 +183,10 @@ function update_user_type()
         let role_buttons = new WRMultiButton('')
         role_buttons.add_option('Analyst', () => open_role('analysis'))
         role_buttons.add_option('Coach', () => open_role('drive'))
-        role_buttons.add_option('Technician', () => open_role('tech'))
+        if (cfg.year === 2025)
+        {
+            role_buttons.add_option('Technician', () => open_role('tech'))
+        }
         role_buttons.add_option('Dashboard', () => open_role('dash'))
         role_options.replaceChildren(role_buttons)
     }
