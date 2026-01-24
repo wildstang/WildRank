@@ -935,9 +935,10 @@ class Importer extends BaseTransfer
         else if (name.endsWith('.json'))
         {
             this.log('Found JSON')
-            this.current_file = name
-            this.handle_blob(this.current_file)
-            this.step_import()
+            this.current_name = name
+            let file = this.current_file
+            this.current_file = null
+            this.handle_blob(file)
         }
         else
         {
@@ -1032,9 +1033,12 @@ class Importer extends BaseTransfer
         this.log(`Reading ${this.current_name}`)
         let file_name = this.current_name.substring(0, this.current_name.indexOf('.'))
 
-        this.import_config(file_name, text)
-        this.import_event_data(file_name, text)
-        this.import_result(file_name, text)
+        if (!this.import_config(file_name, text) &&
+            !this.import_event_data(file_name, text) &&
+            !this.import_result(file_name, text))
+        {
+            this.log(`Failed to import ${this.current_name}`)
+        }
 
         this.step_import()
     }
@@ -1055,7 +1059,9 @@ class Importer extends BaseTransfer
             this.log(`Importing ${file_name} to config`)
             configs[index].handle_config(JSON.parse(text))
             configs[index].store_config()
+            return true
         }
+        return false
     }
 
     /**
@@ -1099,14 +1105,14 @@ class Importer extends BaseTransfer
                 if (text === old_text)
                 {
                     this.log(`Match result ${file_name} already exists`)
-                    return
+                    return false
                 }
                 // skip results that have an updated version already imported
                 let old_json = JSON.parse(old_text)
                 if (old_json !== null && new_meta.scouter.time < old_json.meta.scouter.time)
                 {
                     this.log(`Existing result of ${file_name} is ${old_json.meta.scouter.time - new_meta.scouter.time} newer`)
-                    return
+                    return false
                 }
 
                 // ask to skip results that don't have a matching config version number
@@ -1115,7 +1121,7 @@ class Importer extends BaseTransfer
                 {
                     if (!confirm(`App version mismatch on ${file_name} (${res_config_version}), continue?`))
                     {
-                        return
+                        return false
                     }
                     this.ignore_cfg = confirm(`Ignore all app version mismatches?`)
                 }
@@ -1126,7 +1132,7 @@ class Importer extends BaseTransfer
                 {
                     if (!confirm(`Config version mismatch on ${file_name} (${res_app_version}), continue?`))
                     {
-                        return
+                        return false
                     }
                     this.ignore_app = confirm(`Ignore all config version mismatches?`)
                 }
@@ -1134,8 +1140,10 @@ class Importer extends BaseTransfer
                 this.log(`Importing ${file_name} as result`)
                 localStorage.setItem(file_name, text)
                 this.had_results = true
+                return true
             }
         }
+        return false
     }
 
     /**
