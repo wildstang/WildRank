@@ -39,7 +39,7 @@ const CONFIGS = {
     },
     'extras': {
         'App': ['bracket', 'whiteboard', 'export'],
-        'Team': ['misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter'],
+        'Team': ['misc/event-selector', 'misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter'],
         'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde', 'misc/live'],
         'Game Specific': ['misc/2025-score-calculator', 'misc/2025-audit']
     }
@@ -102,6 +102,7 @@ const BUTTONS = {
     'misc/2025-score-calculator':   { name: '2025 Score Calculator',    limits: [] },
     'misc/district-counter':        { name: 'District Counter',         limits: [] },
     'misc/event-planner':           { name: 'Event Planner',            limits: [] },
+    'misc/event-selector':          { name: 'Event Selector',           limits: [] },
     'misc/international-counter':   { name: 'International Counter',    limits: [] },
     'misc/live':                    { name: 'Live Event Tracker',       limits: [] },
     'misc/max-score':               { name: 'Max Score',                limits: [] },
