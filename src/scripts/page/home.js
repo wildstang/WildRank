@@ -218,7 +218,8 @@ function open_role(role)
     let sign_out_page = new WRPage()
     let column = new WRColumn()
     sign_out_page.add_column(column)
-    let sign_out_button = new WRButton('Sign Out', home)
+    // not passed directly so event isn't passed into right
+    let sign_out_button = new WRButton('Sign Out', () => home())
     sign_out_button.add_class('danger')
     column.add_input(sign_out_button)
 
