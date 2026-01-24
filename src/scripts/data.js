@@ -437,7 +437,26 @@ class Data
             return
         }
 
-        this.event_name = tba_event.name
+        // remove sponsors and district championship prefixes from event name
+        let name = tba_event.name
+        let lower_name = name.toLowerCase()
+        let presentIndex = lower_name.indexOf('presented')
+        let sponsorIndex = lower_name.indexOf('sponsored')
+        let champIndex = lower_name.indexOf('championship - ')
+        if (presentIndex > 0)
+        {
+            name = name.substring(0, presentIndex - 1)
+        }
+        else if (sponsorIndex > 0)
+        {
+            name = name.substring(0, sponsorIndex - 1)
+        }
+        if (champIndex > 0)
+        {
+            name = name.substring(champIndex + 15)
+        }
+
+        this.event_name = name
         this.double_elim_event = tba_event.playoff_type === 10
     }
 
