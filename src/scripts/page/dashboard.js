@@ -27,6 +27,7 @@ function init_page()
 
     // produce status tiles
     event_config = new WRStatusTile(dal.event_name)
+    event_config.on_click = change_event
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
     analysis_config_valid = new WRStatusTile(cfg.analysis.version)
@@ -282,4 +283,21 @@ function get_completion_color(completed_modes, num_modes)
 {
     let colors = ['red', 'orange', 'yellow', 'yellowgreen', 'green']
     return colors[Math.round(completed_modes / num_modes * (colors.length - 1))]
+}
+
+/**
+ * Prompt for a new event ID, then reload the page using it.
+ */
+function change_event()
+{
+    let new_event = prompt('New event ID:')
+    if (new_event.length >= 7)
+    {
+        cfg.update_event_id(new_event, init_page)
+
+    }
+    else
+    {
+        alert('Invalid event ID')
+    }
 }
