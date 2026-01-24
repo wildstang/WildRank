@@ -185,7 +185,7 @@ function init_page()
                                                     span.style.color = '#000000'
                                                 }
                                                 span.innerText = `${t}${event.teams[t].label}`
-                                                span.title = dal.teams[t].meta.name
+                                                span.title = dal.teams[t].name
                                                 teams.append(span)
                                                 if (team_keys.indexOf(t) !== team_keys.length - 1)
                                                 {
