@@ -473,25 +473,26 @@ function build_page_from_config()
 function build_shift_buttons(id)
 {
     let button = new WRMultiButton('')
-    button.add_option('◀', () => shift(id, 'up'))
+    button.add_option('◀', () => shift(id, 'up'), () => shift(id, 'last'))
     button.add_option('X', () => shift(id, 'rm'))
-    button.add_option('▶', () => shift(id, 'down'))
+    button.add_option('▶', () => shift(id, 'down'), () => shift(id, 'next'))
     button.add_class('slim')
     button.columns = 3
     return button
 }
 
 /**
- * function:    shift
- * parameters:  input id, direction to shift
- * returns:     none
- * description: Responds to edit panel clicks by either shifting or removing the corresponding element.
+ * Move a specified element within its parent (up/left or down/right) or between parents (last or next).
+ * @param {String} id mode, page, column, or input ID to move
+ * @param {String} direction direction to move element (up/left, down/right, last, or next)
  */
 function shift(id, direction)
 {
     // find list and position of id
     let list = []
     let index = -1
+    let parent = []
+    let parent_idx = -1
     for (let m in cfg.scout.configs)
     {
         let mode = cfg.scout.configs[m]
@@ -517,6 +518,8 @@ function shift(id, direction)
                 {
                     list = page.columns
                     index = c
+                    parent = mode.pages
+                    parent_idx = p
                     break
                 }
                 for (let i in column.inputs)
@@ -526,6 +529,8 @@ function shift(id, direction)
                     {
                         list = column.inputs
                         index = i
+                        parent = page.columns
+                        parent_idx = c
                         break
                     }
                 }
@@ -533,6 +538,7 @@ function shift(id, direction)
         }
     }
     index = parseInt(index)
+    parent_idx = parseInt(parent_idx)
 
     // swap or remove
     switch (direction)
@@ -549,6 +555,36 @@ function shift(id, direction)
             if (index < list.length - 1)
             {
                 [list[index], list[index+1]] = [list[index+1], list[index]]
+            }
+            break
+        case 'last':
+            if (parent_idx > 0)
+            {
+                let pObj = parent[parent_idx-1]
+                if (pObj.hasOwnProperty('columns'))
+                {
+                    pObj.columns.push(list[index])
+                }
+                else if (pObj.hasOwnProperty('inputs'))
+                {
+                    pObj.inputs.push(list[index])
+                }
+                list.splice(index, 1)
+            }
+            break
+        case 'next':
+            if (parent_idx < parent.length - 1)
+            {
+                let pObj = parent[parent_idx+1]
+                if (pObj.hasOwnProperty('columns'))
+                {
+                    pObj.columns.push(list[index])
+                }
+                else if (pObj.hasOwnProperty('inputs'))
+                {
+                    pObj.inputs.push(list[index])
+                }
+                list.splice(index, 1)
             }
             break
         case 'rm':
