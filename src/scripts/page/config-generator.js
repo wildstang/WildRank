@@ -407,6 +407,7 @@ function build_page_from_config()
         if (selected_page == page_name || selected_page == 'New' || selected_page == '')
         {
             let page_frame = new WRPage(page_name)
+            page_frame.label_el.onclick = () => change_page_name(page.id)
             pages.push(page_frame)
             if (selected_page != page_name)
             {
@@ -423,6 +424,7 @@ function build_page_from_config()
                 {
                     let cycle = column.cycle
                     let column_frame = new WRColumn(col_name)
+                    column_frame.label_el.onclick = () => change_column_name(column.id)
                     column_frame.add_input(cycle ? 'cycle' : '')
                     page_frame.add_column(column_frame)
                     if (selected_col != col_name)
@@ -437,6 +439,7 @@ function build_page_from_config()
                         let item = build_input_from_config(input)
                         if (item)
                         {
+                            item.oncontextmenu = () => change_input_name(input.id)
                             column_frame.add_input(item)
                         }
 
@@ -555,4 +558,95 @@ function shift(id, direction)
 
     // rebuild preview
     populate_dropdowns()
+}
+
+/**
+ * Prompt to change a page name
+ * @param {String} id Page ID
+ */
+function change_page_name(id)
+{
+    let mode_idx = mode_dd.element.selectedIndex
+    if (mode_idx === cfg.scout.configs.length)
+    {
+        return
+    }
+
+    // iterate through each page in the mode
+    for (let page of cfg.scout.configs[mode_idx].pages)
+    {
+        if (page.id === id)
+        {
+            let new_name = prompt(`New page name for ${page.name}:`)
+            if (new_name)
+            {
+                page.name = new_name
+                populate_dropdowns()
+            }
+        }
+    }
+}
+
+/**
+ * Prompt to change a column name
+ * @param {String} id column ID
+ */
+function change_column_name(id)
+{
+    let mode_idx = mode_dd.element.selectedIndex
+    if (mode_idx === cfg.scout.configs.length)
+    {
+        return
+    }
+
+    // iterate through each page and column in the mode
+    for (let page_idx in cfg.scout.configs[mode_idx].pages)
+    {
+        for (let column of cfg.scout.configs[mode_idx].pages[page_idx].columns)
+        {
+            if (column.id === id)
+            {
+                let new_name = prompt(`New column name for ${column.name}:`)
+                if (new_name)
+                {
+                    column.name = new_name
+                    populate_dropdowns()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Prompt to change an input name
+ * @param {String} id input ID
+ */
+function change_input_name(id)
+{
+    let mode_idx = mode_dd.element.selectedIndex
+    if (mode_idx === cfg.scout.configs.length)
+    {
+        return
+    }
+
+    // iterate through each page and column in the mode
+    for (let page_idx in cfg.scout.configs[mode_idx].pages)
+    {
+        for (let col_idx in cfg.scout.configs[mode_idx].pages[page_idx].columns)
+        {
+            for (let input of cfg.scout.configs[mode_idx].pages[page_idx].columns[col_idx].inputs)
+            {
+                if (input.id === id)
+                {
+                    let new_name = prompt(`New name for ${input.name}:`)
+                    if (new_name)
+                    {
+                        input.name = new_name
+                        populate_dropdowns()
+                    }
+                    return false
+                }
+            }
+        }
+    }
 }
