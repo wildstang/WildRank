@@ -242,7 +242,7 @@ In the share menu (box with up arrow), choose "Add to Home Screen", then press "
  */
 function home(right=false)
 {
-    let start = window.location.href.lastIndexOf('/') + 1
+    let start = window.location.href.indexOf('/index.html') + 1
     let current_page = window.location.href.substring(start)
     let home_page = get_role_page()
 
