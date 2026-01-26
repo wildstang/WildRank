@@ -9,7 +9,7 @@ include('input-builder')
 
 const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
 
-var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry
+var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry, version_entry
 var config_preview, options
 
 /**
@@ -43,6 +43,12 @@ function build_page()
     id_entry = new WREntry('ID:')
     id_entry.description = 'Unique identifier, automatically generated.'
 
+    version_entry = new WREntry('Version:', cfg.scout.version)
+
+    // hack to line up the button columns
+    let spacer = document.createElement('div')
+    spacer.style.height = '129px'
+
     config_preview = document.createElement('span')
     options = document.createElement('div')
     preview.replaceChildren(new WRPage('Add to...', [
@@ -52,10 +58,11 @@ function build_page()
         ]),
         config_preview,
         new WRPage('', [
-            new WRColumn('', [new WRButton('Reset Config', load_scout_config)]),
-            new WRColumn('', [new WRButton('Download Config', download_config)]),
-            new WRColumn('', [new WRButton('Upload Config', upload_config)]),
-            new WRColumn('', [new WRButton('Apply Config', save_config)])
+            new WRColumn('', [spacer,new WRButton('Upload Config', upload_config),
+                              new WRButton('Reset Config', load_scout_config)]),
+            new WRColumn('', [version_entry,
+                              new WRButton('Download Config', download_config),
+                              new WRButton('Apply Config', save_config)]),
         ]))
 
     populate_dropdowns()
@@ -303,6 +310,7 @@ function build_element()
 
     // populate again to update preview and options
     populate_dropdowns()
+    update_version()
 }
 
 /**
@@ -326,7 +334,7 @@ function save_config()
         return
     }
 
-    cfg.scout.version = `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`
+    cfg.scout.version = version_entry.element.value
     cfg.scout.store_config()
     alert('Scouting config updated')
 }
@@ -380,8 +388,7 @@ function download_config()
         return
     }
 
-    cfg.scout.version = `${cfg.user.state.user_id}-${new Date().toISOString().split('T')[0]}`
-
+    cfg.scout.version = version_entry.element.value
     download_object(`${cfg.year}-config.json`, cfg.scout.as_string)
 }
 
@@ -594,6 +601,7 @@ function shift(id, direction)
 
     // rebuild preview
     populate_dropdowns()
+    update_version()
 }
 
 /**
@@ -618,6 +626,7 @@ function change_page_name(id)
             {
                 page.name = new_name
                 populate_dropdowns()
+                update_version()
             }
         }
     }
@@ -647,6 +656,7 @@ function change_column_name(id)
                 {
                     column.name = new_name
                     populate_dropdowns()
+                    update_version()
                 }
             }
         }
@@ -662,7 +672,7 @@ function change_input_name(id)
     let mode_idx = mode_dd.element.selectedIndex
     if (mode_idx === cfg.scout.configs.length)
     {
-        return
+        return true
     }
 
     // iterate through each page and column in the mode
@@ -679,10 +689,29 @@ function change_input_name(id)
                     {
                         input.name = new_name
                         populate_dropdowns()
+                        update_version()
                     }
                     return false
                 }
             }
         }
+    }
+
+    return true
+}
+
+/**
+ * Updates the version field when the user makes a change.
+ */
+function update_version()
+{
+    if (version_entry.element.value === cfg.scout.version)
+    {
+        let prefix = cfg.user.state.user_id
+        if (!prefix)
+        {
+            prefix = cfg.user.state.event_id
+        }
+        version_entry.element.value = `${prefix}-${new Date().toISOString().split('T')[0]}`
     }
 }
