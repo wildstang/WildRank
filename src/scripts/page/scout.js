@@ -431,6 +431,43 @@ function get_results_from_page()
         return
     }
 
+    // check for overlapping selected values
+    if (scout_type === 'match-alliance')
+    {
+        for (let page of cfg.get_scout_config(scout_mode).pages)
+        {
+            for (let col of page.columns)
+            {
+                for (let input of col.inputs)
+                {
+                    let ops = input.options
+                    if ((input.type == 'slider' && ops[1] === 3 && (ops.length === 2 || ops[2] === 1)) ||
+                        (input.type == 'select' && ops.length === 4 && ops.includes('1') && ops.includes('2') && ops.includes('3')))
+                    {
+                        let values = []
+                        for (let team of teams)
+                        {
+                            let value = get_result_from_input(input, scout_type, team)[input.id]
+                            if (values.includes(value))
+                            {
+                                let id = `${input.id}-${team}`
+                                document.getElementById(id).style['background-color'] = '#FAA0A0'
+                                let container = document.getElementById(`${id}-container`)
+                                if (container !== null)
+                                {
+                                    container.style['background-color'] = '#FAA0A0'
+                                }
+                                alert(`Value (${value}) is already selected! (${input.id})`)
+                                return
+                            }
+                            values.push(value)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // prompt for a reason why the scouter is unsure
     let unsure_reason = ''
     if (unsure_cb.checkbox.checked)
