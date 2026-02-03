@@ -201,6 +201,7 @@ function generate_teams()
         localStorage.setItem(`matches-${event_id}`, '[]')
     }
     localStorage.setItem(`event-${event_id}`, JSON.stringify({
+        name: dal.event_id,
         playoff_type: 10,
         year: cfg.year,
         event_code: dal.event_id.substring(4)
