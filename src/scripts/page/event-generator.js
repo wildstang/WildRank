@@ -8,13 +8,10 @@
 
 const start = Date.now()
 
-var match_page, match_col, event_entry, teams_entry, teams_list, alliance_entry, gen_elim_cb
+var match_page, match_col, name_entry, teams_entry, teams_list, alliance_entry, gen_elim_cb
 
 /**
- * function:    init_page
- * parameters:  none
- * returns:     none
- * description: Runs onload to fill out the page.
+ * Runs onload to fill out the page.
  */
 function init_page()
 {
@@ -23,10 +20,9 @@ function init_page()
 
     let col = new WRColumn()
     let team_page = new WRPage('Team', [col])
-    
-    event_entry = new WREntry('Event ID', dal.event_id)
-    event_entry.on_text_change = populate_matches
-    col.add_input(event_entry)
+
+    name_entry = new WREntry('Event Name', dal.event_name)
+    col.add_input(name_entry)
     
     let teams = dal.team_numbers
     let num_teams = teams.length
@@ -60,19 +56,11 @@ function init_page()
 }
 
 /**
- * function:    populate_matches
- * parameters:  none
- * returns:     none
- * description: Builds the match adding right side of the page if a teams file exists.
+ * Builds the match adding right side of the page if a teams file exists.
  */
 function populate_matches()
 {
-    let event_id = event_entry.element.value
     let teams = dal.team_numbers
-    if (event_id !== dal.event_id)
-    {
-        load_data()
-    }
     let cols = []
     let alliance_teams = parseInt(alliance_entry.element.value)
     if (teams.length > 0)
@@ -105,10 +93,10 @@ function populate_matches()
 }
 
 /**
- * function:    generate_match_teams
- * parameters:  number of teams to generate, evenly distribute teams
- * returns:     list of team numbers
- * description: Generates a new list of random teams.
+ * Generates a new list of random teams for a match.
+ * @param {Number} num_teams Number of teams to populate the match with
+ * @param {Boolean} distribute Whether to evenly distribute teams
+ * @returns Array of teams for a new match.
  */
 function generate_match_teams(num_teams, distribute=true)
 {
@@ -155,43 +143,33 @@ function generate_match_teams(num_teams, distribute=true)
 }
 
 /**
- * function:    generate_teams
- * parameters:  none
- * returns:     none
- * description: Generates a new teams file for the event using the team paramters, plus an empty matches file.
+ * Generates a new teams file for the event using the team parameters, plus an empty matches file.
  */
 function generate_teams()
 {
     let teams = []
     let team_nums = team_list.element.value
-    let event_id = event_entry.element.value
     if (team_nums.includes(','))
     {
-        return pull_teams(event_id, team_nums)
+        pull_teams(dal.event_id, team_nums)
     }
-
-    let num_teams = num_teams.element.value
-    for (let team_num = 1; team_num <= num_teams; team_num++)
+    else
     {
-        teams.push({
-            city: 'Generated Team',
-            country: 'GT',
-            key: `frc${team_num}`,
-            name: `Generated Team ${team_num}`,
-            nickname: `Generated Team ${team_num}`,
-            state_prov: 'GT',
-            team_number: team_num
-        })
-    }
+        let num_teams = teams_entry.element.value
+        for (let team_num = 1; team_num <= num_teams; team_num++)
+        {
+            teams.push(generate_team(team_num))
+        }
+        team_list.element.value = teams.map(t => t.team_number).join(',')
 
-    save_teams(event_id, teams)
+        save_teams(dal.event_id, teams)
+    }
 }
 
 /**
- * function:    save_teams
- * parameters:  event id, list of teams objects
- * returns:     none
- * description: Saves a generated list of teams to localStorage.
+ * Saves a generated list of teams and the event to localStorage.
+ * @param {String} event_id Event ID to generate teams for.
+ * @param {Array} teams Team numbers to add to teams file.
  */
  function save_teams(event_id, teams)
  {
@@ -200,11 +178,18 @@ function generate_teams()
     {
         localStorage.setItem(`matches-${event_id}`, '[]')
     }
+
+    let name = name_entry.element.value.trim()
+    if (!name)
+    {
+        name = dal.event_name
+    }
+
     localStorage.setItem(`event-${event_id}`, JSON.stringify({
-        name: dal.event_id,
+        name: name,
         playoff_type: 10,
         year: cfg.year,
-        event_code: dal.event_id.substring(4)
+        event_code: event_id.substring(4)
     }))
 
     dal.load_teams()
@@ -212,14 +197,14 @@ function generate_teams()
 }
 
 /**
- * function:    pull_teams
- * parameters:  event id, commas separated list of teams
- * returns:     none
- * description: Generates a new teams file for the event using the current list of team numbers.
+ * Generates a new teams file for the event using the current list of team numbers.
+ * Attempts to pull team info from TBA.
+ * @param {String} event_id Event ID to pull teams for.
+ * @param {Array} team_list Team numbers to pull from TBA.
  */
 function pull_teams(event_id, team_list)
 {
-    let key = this.tba_key
+    let key = cfg.tba_key
     let key_query = `?${TBA_AUTH_KEY}=${key}`
 
     // split up list of teams
@@ -275,15 +260,7 @@ function pull_teams(event_id, team_list)
                 })
                 .catch(err => {
                     console.log(`Could not find team ${team_num}, generating`)
-                    teams.push({
-                        city: 'Generated Team',
-                        country: 'GT',
-                        key: `frc${team_num}`,
-                        name: `Generated Team ${team_num}`,
-                        nickname: `Generated Team ${team_num}`,
-                        state_prov: 'GT',
-                        team_number: team_num
-                    })
+                    teams.push(generate_team(team_num))
 
                     if (++count === team_nums.length)
                     {
@@ -293,21 +270,31 @@ function pull_teams(event_id, team_list)
         }
         else
         {
-            teams.push({
-                city: 'Generated Team',
-                country: 'GT',
-                key: `frc${team_num}`,
-                name: `Generated Team ${team_num}`,
-                nickname: `Generated Team ${team_num}`,
-                state_prov: 'GT',
-                team_number: team_num
-            })
+            teams.push(generate_team(team_num))
 
             if (++count === team_nums.length)
             {
                 save_teams(event_id, teams)
             }
         }
+    }
+}
+
+/**
+ * Generates a new team from a team number.
+ * @param {Number} team_num Team number to assign the generated team.
+ * @returns A team object with default values.
+ */
+function generate_team(team_num)
+{
+    return {
+        city: 'Generated Team',
+        country: 'GT',
+        key: `frc${team_num}`,
+        name: `Generated Team ${team_num}`,
+        nickname: `Generated Team ${team_num}`,
+        state_prov: 'GT',
+        team_number: team_num
     }
 }
 
@@ -361,16 +348,12 @@ function update_titles()
 }
 
 /**
- * function:    add_match
- * parameters:  none
- * returns:     none
- * description: Adds a new match with the given parameters to the match file.
+ * Adds a new match with the given parameters to the match file.
  */
 function add_match()
 {
-    let event_id = event_entry.element.value
     let alliance_teams = alliance_entry.element.value
-    let file_name = `matches-${event_id}`
+    let file_name = `matches-${dal.event_id}`
     let file = localStorage.getItem(file_name)
     if (file === null)
     {
@@ -412,8 +395,8 @@ function add_match()
             }
         },
         comp_level: comp_level,
-        event_key: event_id,
-        key: `${event_id}_${comp_level}${match_number}`,
+        event_key: dal.event_id,
+        key: `${dal.event_id}_${comp_level}${match_number}`,
         match_number: match_number,
         predicted_time: time,
         set_number: elim ? match_number : 1,
