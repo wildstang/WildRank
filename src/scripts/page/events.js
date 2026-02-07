@@ -33,6 +33,7 @@ function init_page()
         let firsts = []
         let events = {}
         let team_count = 0
+        let team_events = {}
 
         let key_query = cfg.tba_query
         if (!key_query)
@@ -50,6 +51,7 @@ function init_page()
                     return response.json()
                 })
                 .then(data => {
+                    team_events[team] = data.map(d => d.event_code)
                     let earliest = ''
                     for (let d of data)
                     {
@@ -182,6 +184,11 @@ function init_page()
                                                 else if (event.teams[t].award === 'ei')
                                                 {
                                                     span.style.backgroundColor = '#c0c0c0'
+                                                    span.style.color = '#000000'
+                                                }
+                                                else if (team_events[t].length == 1)
+                                                {
+                                                    span.style.backgroundColor = '#ffbf00'
                                                     span.style.color = '#000000'
                                                 }
                                                 span.innerText = `${t}${event.teams[t].label}`
