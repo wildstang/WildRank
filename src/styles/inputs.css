@@ -260,10 +260,10 @@
 }
 
 .wr_button > *, .wr_checkbox > *, .wr_number > *, .wr_counter > *, .wr_status > * {
-    line-height: calc(var(--input-height) - 2*var(--input-padding));
+    align-content: center;
 }
 
-.wr_button.slim > *, .wr_checkbox.slim > *, .wr_number.slim > *, .wr_counter.slim > * {
+.wr_number.slim > *, .wr_counter.slim > * {
     line-height: calc(var(--slim-height) - 2*var(--input-padding));
 }
 
@@ -346,6 +346,16 @@
     font-size: 16px;
     background-color: var(--foreground-color);
     color: var(--foreground-text-color);
+}
+
+.wr_button_label, .wr_checkbox_label, .wr_number_label {
+    display: inline-block;
+    height: calc(var(--input-height) - 2*(var(--input-padding)));
+}
+
+.slim > .wr_button_label, .slim > .wr_checkbox_label, .slim > .wr_number_label {
+    display: inline-block;
+    height: calc(var(--slim-height) - 2*(var(--input-padding)));
 }
 
 .color_box {
