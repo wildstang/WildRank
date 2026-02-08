@@ -176,6 +176,7 @@ class WRButton extends WRElement
         this.primary_class = 'wr_button'
 
         this.label_el = document.createElement('label')
+        this.label_el.className = 'wr_button_label'
         this.element = document.createElement('div')
     }
 
@@ -243,6 +244,7 @@ class WRNumber extends WRElement
         this.primary_class = 'wr_number'
 
         this.label_el = document.createElement('label')
+        this.label_el.className = 'wr_number_label'
         this.value_el = document.createElement('label')
         this.element = document.createElement('div')
     }
@@ -416,6 +418,7 @@ class WRCheckbox extends WRElement
         this.checkbox.checked = this.value
 
         this.label_el.for = this.input_id
+        this.label_el.className = 'wr_checkbox_label'
         this.label_el.replaceChildren(this.label)
 
         this.element.className = 'wr_checkbox'
