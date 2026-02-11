@@ -166,11 +166,9 @@ class UserConfig
         this.settings = {
             team_number: null,
             time_format: null,
-            use_team_color: null,
             use_offline: null,
             auto_hide_right: null,
             tba_key: null,
-            server_key: null,
             font_size: null
         }
         this.state = {
@@ -235,11 +233,9 @@ class UserConfig
         {
             tests.push(has_int(UserConfig.BASE_NAME, user_config.settings, 'team_number'),
                 has_int(UserConfig.BASE_NAME, user_config.settings, 'time_format', UserConfig.VALID_TIME_FORMATS),
-                has_bool(UserConfig.BASE_NAME, user_config.settings, 'use_team_color'),
                 has_bool(UserConfig.BASE_NAME, user_config.settings, 'use_offline'),
                 has_bool(UserConfig.BASE_NAME, user_config.settings, 'auto_hide_right'),
                 has_string(UserConfig.BASE_NAME, user_config.settings, 'tba_key'),
-                has_string(UserConfig.BASE_NAME, user_config.settings, 'server_key'),
                 has_string(UserConfig.BASE_NAME, user_config.settings, 'font_size', UserConfig.VALID_FONT_SIZES)
             )
         }
@@ -428,7 +424,6 @@ class AppConfig
     {
         this.version = app_config.version
         this.config = app_config.config
-        this.defaults = app_config.defaults
         this.theme = app_config.theme
         this.dark_theme = app_config.dark_theme
         this.loaded = true
@@ -445,18 +440,12 @@ class AppConfig
         let tests = [
             has_string(AppConfig.BASE_NAME, app_config, 'version'),
             has_object(AppConfig.BASE_NAME, app_config, 'config'),
-            has_object(AppConfig.BASE_NAME, app_config, 'defaults'),
             has_object(AppConfig.BASE_NAME, app_config, 'theme'),
             has_object(AppConfig.BASE_NAME, app_config, 'dark_theme')
         ]
         if (tests[1] === true)
         {
             tests.push(has_string(AppConfig.BASE_NAME, app_config.config, 'title'))
-        }
-        if (tests[2] === true)
-        {
-            tests.push(has_string(AppConfig.BASE_NAME, app_config.defaults, 'event_id'),
-                has_int(AppConfig.BASE_NAME, app_config.defaults, 'user_id'))
         }
 
         if (summarize)

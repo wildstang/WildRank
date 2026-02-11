@@ -1,13 +1,11 @@
 {
-	"version": "dev25",
+	"version": "2026",
 	"settings": {
 		"team_number": 111,
 		"time_format": 12,
-		"use_team_color": true,
 		"use_offline": true,
 		"auto_hide_right": false,
 		"tba_key": "",
-		"server_key": "",
 		"font_size": "medium"
 	},
 	"state": {

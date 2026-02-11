@@ -373,12 +373,7 @@ function ws(team_num)
     }
     else
     {
-        let color = cfg.theme['primary-color']
-        if (cfg.user.settings.use_team_color)
-        {
-            //color = dal.get_value(team_num, 'meta.color')
-        }
-        header.style.background = color
+        header.style.background = cfg.theme['primary-color']
         header.style['background-size'] = ''
         header.style.animation = ''
     }
