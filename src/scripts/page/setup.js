@@ -175,7 +175,11 @@ function update_user_type()
                 other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
             }
 
-            role_options.replaceChildren(position_el, new WRStack([primary_scout, other_scout]))
+            // button used to trigger a fresh start of the setup
+            let signout = new WRButton('Sign Out', clear_user_id)
+            signout.add_class('slim')
+
+            role_options.replaceChildren(position_el, new WRStack([primary_scout, other_scout]), signout)
         }
     }
     else if (user_type_el.selected_option === 'View')
@@ -252,6 +256,17 @@ function set_user_id()
     {
         alert('Invalid user ID')
     }
+}
+
+/**
+ * Signs the current scout out.
+ */
+function clear_user_id()
+{
+    cfg.user.state.user_id = ""
+    cfg.user.store_config()
+
+    update_user_type()
 }
 
 /**
