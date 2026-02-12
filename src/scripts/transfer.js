@@ -748,6 +748,7 @@ function build_import_setup(on_complete=() => {})
     i.event_data = true
     i.scout_config = true
     i.analysis_config = true
+    i.user_list = true
     i.results = true
     i.allow_json = true
     i.on_complete = on_complete
@@ -794,6 +795,7 @@ function build_import_all(on_complete=() => {}, ignore_versions=false)
     i.event_data = true
     i.scout_config = true
     i.analysis_config = true
+    i.user_list = true
     i.results = true
     i.on_complete = on_complete
     i.ignore_versions = ignore_versions
@@ -812,6 +814,7 @@ function import_zip_from_cache(cache_res)
         i.event_data = true
         i.scout_config = true
         i.analysis_config = true
+        i.user_list = true
         i.results = true
         i.picklists = true
         i.selected_files = []
@@ -932,9 +935,9 @@ class Importer extends BaseTransfer
                 JSZip.loadAsync(this.current_file).then(this.handle_zip.bind(this))
             }
         }
-        else if (name.endsWith('.json'))
+        else if (name.endsWith('.json') || name.endsWith('.csv'))
         {
-            this.log('Found JSON')
+            this.log('Found config file')
             this.current_name = name
             let file = this.current_file
             this.current_file = null
@@ -1057,7 +1060,11 @@ class Importer extends BaseTransfer
         if (index >= 0 && allowed[index])
         {
             this.log(`Importing ${file_name} to config`)
-            configs[index].handle_config(JSON.parse(text))
+            if (file_name !== 'user-list')
+            {
+                text = JSON.parse(text)
+            }
+            configs[index].handle_config(text)
             configs[index].store_config()
             return true
         }
