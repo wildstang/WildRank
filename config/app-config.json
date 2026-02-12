@@ -28,7 +28,7 @@
 		"highlight-color": "#FFF2A8",
 		"font": "mono, courier"
 	},
-    "dark_theme": {
+	"dark_theme": {
 		"primary-color": "#000080",
 		"primary-text-color": "#F0F0F0",
 		"secondary-color": "#FFB30F",
