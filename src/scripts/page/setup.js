@@ -6,6 +6,7 @@
  */
 
 var event_id_el, user_id_el, position_el, theme_el, user_type_el, role_options
+var importer
 
 /**
  * Initializes necessary variables and calls the first page setup.
@@ -24,6 +25,9 @@ function init_page()
             reset()
         }
     }
+
+    importer = build_import_setup(step_setup)
+    importer.make_draggable()
 
     step_setup()
 }
@@ -53,7 +57,6 @@ function step_setup(manual_event=false)
     scout_config_valid = new WRStatusTile(cfg.scout.version)
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     scout_config_valid.on_click = () => window_open(build_url('config-debug'))
-    let importer = build_import_setup(step_setup)
     let import_button = importer.build_button('Import Config')
     status_col.add_input(new WRStack([
         event_config,
@@ -113,8 +116,6 @@ function step_setup(manual_event=false)
         page.add_column(col)
     }
     preview.replaceChildren(page)
-
-    importer.make_draggable()
 
     if (update_type)
     {
