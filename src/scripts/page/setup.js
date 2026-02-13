@@ -86,6 +86,11 @@ function step_setup(manual_event=false)
         {
             event_id_el = new WREntry('Event ID')
             event_id_el.value = cfg.user.state.event_id
+            event_id_el.element.addEventListener('keyup', e => {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    set_event_id()
+                }
+            })
             setup_col.add_input(event_id_el)
 
             let next = new WRButton('Next', set_event_id)
@@ -138,6 +143,11 @@ function update_user_type()
             user_id_el.bounds = [100000, 999999]
             user_id_el.value = cfg.user.state.user_id
             user_id_el.on_text_change = () => cfg.user.state.user_id = user_id_el.element.value
+            user_id_el.element.addEventListener('keyup', e => {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    set_user_id()
+                }
+            })
 
             let scout = new WRButton('Scout', set_user_id)
             scout.add_class('advance')
