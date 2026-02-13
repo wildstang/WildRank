@@ -42,7 +42,7 @@ function init_page()
     let importer = build_import_results(populate)
     importer.make_draggable()
     let setup_exporter = build_export_setup()
-    let data_exporter = build_export_data()
+    let data_exporter = build_export_all()
     let functions = [() => preload_event(populate),
         setup_exporter.export_zip.bind(setup_exporter),
         importer.step_import.bind(importer),
