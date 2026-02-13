@@ -25,7 +25,28 @@ function init_page()
     table.append(create_header_row(['Event', 'Key', 'Start Date', 'Team Count', 'Teams']))
 
     let card = new WRCard(contents)
-    preview.append(new WRPage('', [card]))
+
+    let key = document.createElement('table')
+    let row = key.insertRow()
+    let cell = row.insertCell()
+    cell.innerText = 'Event Winner'
+    cell.style.backgroundColor = '#0f4bcb'
+    cell.style.color = '#FFFFFF'
+    cell = row.insertCell()
+    cell.innerText = 'Event Finalist'
+    cell.style.backgroundColor = '#ff4136'
+    cell.style.color = '#FFFFFF'
+    cell = row.insertCell()
+    cell.innerText = 'Impact Winner'
+    cell.style.backgroundColor = '#ffbf00'
+    cell = row.insertCell()
+    cell.innerText = 'EI Winner'
+    cell.style.backgroundColor = '#c0c0c0'
+    cell = row.insertCell()
+    cell.innerText = 'Only Event'
+    cell.style.backgroundColor = '#008000'
+    cell.style.color = '#FFFFFF'
+    preview.append(new WRPage('', [new WRCard(key), card]))
 
     let teams = dal.team_numbers
     if (teams.length > 0)
@@ -128,14 +149,22 @@ function init_page()
                                                     }
                                                 }
                                                 break
+                                            case 0:
                                             case 9:
-                                                // ei
+                                                // impact and ei
                                                 for (let i in award.recipient_list)
                                                 {
                                                     let team = award.recipient_list[i].team_key.substring(3)
                                                     if (Object.keys(events[e].teams).includes(team) && events[e].teams[team].award == '')
                                                     {
-                                                        events[e].teams[team].award = 'ei'
+                                                        if (award.award_type == 0)
+                                                        {
+                                                            events[e].teams[team].award = 'impact'
+                                                        }
+                                                        else if (award.award_type == 9)
+                                                        {
+                                                            events[e].teams[team].award = 'ei'
+                                                        }
                                                     }
                                                 }
                                         }
@@ -181,6 +210,11 @@ function init_page()
                                                     span.style.backgroundColor = '#ff4136'
                                                     span.style.color = '#ffffff'
                                                 }
+                                                else if (event.teams[t].award === 'impact')
+                                                {
+                                                    span.style.backgroundColor = '#ffbf00'
+                                                    span.style.color = '#000000'
+                                                }
                                                 else if (event.teams[t].award === 'ei')
                                                 {
                                                     span.style.backgroundColor = '#c0c0c0'
@@ -188,8 +222,8 @@ function init_page()
                                                 }
                                                 else if (team_events[t].length == 1)
                                                 {
-                                                    span.style.backgroundColor = '#ffbf00'
-                                                    span.style.color = '#000000'
+                                                    span.style.backgroundColor = '#008000'
+                                                    span.style.color = '#ffffff'
                                                 }
                                                 span.innerText = `${t}${event.teams[t].label}`
                                                 span.title = dal.teams[t].name
