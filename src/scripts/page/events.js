@@ -22,7 +22,7 @@ function init_page()
     table.style.textAlign = 'left'
     contents.append(summary, table)
 
-    table.append(create_header_row(['Event', 'Key', 'Start Date', 'Team Count', 'Teams']))
+    table.append(create_header_row(['Key', 'Event', 'Start Date', 'Team Count', 'Teams']))
 
     let card = new WRCard(contents)
 
@@ -192,8 +192,8 @@ function init_page()
                                             }
                                             // sort teams and add row
                                             team_keys.sort((a, b) => parseInt(a) - parseInt(b))
-                                            row.insertCell().innerText = event.name
                                             row.insertCell().innerText = r
+                                            row.insertCell().append(create_header(event.name))
                                             row.insertCell().innerText = event.start.replaceAll(`${cfg.year}-`, '')
                                             row.insertCell().innerText = team_keys.length
                                             let teams = row.insertCell()
