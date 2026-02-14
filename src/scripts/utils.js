@@ -175,7 +175,7 @@ function get_role_page()
     {
         case 'drive':
             return build_url('coach')
-        case 'tech':
+        case 'technician':
             return build_url(`misc/${cfg.year}-score-calculator`)
         case 'dash':
             return build_url('dashboard')

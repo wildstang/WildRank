@@ -200,7 +200,7 @@ function update_user_type()
         role_buttons.add_option('Coach', () => open_role('drive'))
         if (cfg.year === 2025)
         {
-            role_buttons.add_option('Technician', () => open_role('tech'))
+            role_buttons.add_option('Technician', () => open_role('technician'))
         }
         role_buttons.add_option('Dashboard', () => open_role('dash'))
         role_options.replaceChildren(role_buttons)
