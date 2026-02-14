@@ -1180,6 +1180,13 @@ class Importer extends BaseTransfer
                 alert('Import Complete')
             }
         })
+
+        this.selected_files = null
+        this.current_file = null
+        this.zip_files = null
+        this.current_name = null
+        this.event_id = null
+        this.had_results = null
     }
 
     /**
