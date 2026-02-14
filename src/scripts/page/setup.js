@@ -178,9 +178,10 @@ function update_user_type()
             let modes = cfg.scouting_modes
             let primary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
             primary_scout.add_class('advance')
+            let secondary_scout = new WRButton(`${cfg.get_scout_config(modes[1]).name} Scout`, () => scout(modes[1]))
             let other_scout = new WRMultiButton('')
             other_scout.add_class('slim')
-            for (let mode of modes.splice(1))
+            for (let mode of modes.splice(2))
             {
                 let name = cfg.get_scout_config(mode).name
                 other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
@@ -190,7 +191,7 @@ function update_user_type()
             let signout = new WRButton('Sign Out', clear_user_id)
             signout.add_class('slim')
 
-            role_options.replaceChildren(position_el, new WRStack([primary_scout, other_scout]), signout)
+            role_options.replaceChildren(position_el, new WRStack([primary_scout, secondary_scout, other_scout]), signout)
         }
     }
     else if (user_type_el.selected_option === 'View')
