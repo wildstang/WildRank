@@ -45,25 +45,22 @@ function build_page()
 
     version_entry = new WREntry('Version:', cfg.scout.version)
 
-    // hack to line up the button columns
-    let spacer = document.createElement('div')
-    spacer.style.height = '129px'
-
     config_preview = document.createElement('span')
     options = document.createElement('div')
-    preview.replaceChildren(new WRPage('Add to...', [
-            new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
-            new WRColumn('', [name_entry, id_entry]),
-            new WRColumn('', [options])
-        ]),
-        config_preview,
-        new WRPage('', [
-            new WRColumn('', [spacer,new WRButton('Upload Config', upload_config),
-                              new WRButton('Reset Config', load_scout_config)]),
-            new WRColumn('', [version_entry,
-                              new WRButton('Download Config', download_config),
-                              new WRButton('Apply Config', save_config)]),
-        ]))
+    let apply_button = new WRButton('Apply Config', save_config)
+    apply_button.add_class('advance')
+    let add_page = new WRPage('Add to...', [
+        new WRColumn('', [mode_dd, page_dd, column_dd, type_dd]),
+        new WRColumn('', [name_entry, id_entry]),
+        new WRColumn('', [options]),
+        new WRColumn('', [new WRButton('Upload Config', upload_config),
+                          new WRButton('Reset Config', load_scout_config),
+                          version_entry,
+                          new WRButton('Download Config', download_config),
+                          apply_button]),
+    ])
+    add_page.style.display = 'block'
+    preview.replaceChildren(add_page, config_preview)
 
     populate_dropdowns()
 }
