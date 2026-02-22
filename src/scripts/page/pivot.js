@@ -290,7 +290,7 @@ function save_state()
  */
 function init_page()
 {
-    header_info.innerText = 'PoppaRank'
+    header_info.innerText = 'Table View'
 
     let picklists = [''].concat(Object.keys(dal.picklists))
     selected_teams = dal.team_numbers
