@@ -183,7 +183,7 @@ function build_match_result()
     }
 
     // find unique states
-    if (type === 'state')
+    if (res.type === 'state')
     {
         let valid_ids = []
         if (id.endsWith('RobotX'))
