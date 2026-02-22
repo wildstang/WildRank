@@ -884,7 +884,7 @@ function build_table()
                 }
             }
 
-            cell.innerHTML = dal.compute_stat(key, team, stat, true)
+            cell.innerHTML = dal.compute_stat(key, team, stat, true, true)
         }
     }
 
