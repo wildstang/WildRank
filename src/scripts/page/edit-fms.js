@@ -319,7 +319,7 @@ function build_rank_result()
         id: id,
         name: name,
         type: determine_type(value),
-        negative: negative_copr_cb.checked
+        negative: negative_rank_cb.checked
     }
 
     cfg.analysis.fms_ranking_results.push(res)
