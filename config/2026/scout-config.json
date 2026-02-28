@@ -1,9 +1,9 @@
 {
-    "version": "prototype-1",
+    "version": "2026-winona",
     "configs": [
         {
             "type": "match-alliance",
-            "name": "Scout",
+            "name": "Match",
             "id": "scout",
             "pages": [
                 {
@@ -16,77 +16,71 @@
                             "id": "scout_notes_team",
                             "inputs": [
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": true,
-                                    "disallow_default": true,
+                                    "type": "select",
+                                    "default": "1",
+                                    "disallow_default": false,
                                     "options": [
-                                        0,
-                                        3,
-                                        1
+                                        "1",
+                                        "2",
+                                        "3"
                                     ],
-                                    "name": "Rank",
-                                    "id": "scout_notes_team_rank"
+                                    "images": [],
+                                    "colors": [
+                                        "#69B34C",
+                                        "#FAB733",
+                                        "#FF4E11"
+                                    ],
+                                    "negative": true,
+                                    "vertical": false,
+                                    "name": "Intake Ranking",
+                                    "id": "scout_notes_team_intake_speed"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "1",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#69B34C",
+                                        "#FAB733",
+                                        "#FF4E11"
+                                    ],
+                                    "negative": true,
+                                    "vertical": false,
+                                    "name": "Shooter Ranking",
+                                    "id": "scout_notes_team_shooter_speed"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "1",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#69B34C",
+                                        "#FAB733",
+                                        "#FF4E11"
+                                    ],
+                                    "negative": true,
+                                    "vertical": false,
+                                    "name": "Zone Cross Ranking",
+                                    "id": "scout_notes_team_zone_cross_speed"
                                 },
                                 {
                                     "type": "text",
                                     "default": "",
-                                    "disallow_default": true,
+                                    "disallow_default": false,
                                     "name": "Notes",
                                     "id": "scout_notes_team_notes"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "type": "team",
-            "name": "Pit",
-            "id": "pit",
-            "pages": [
-                {
-                    "name": "Quantitative",
-                    "id": "pit_quan",
-                    "columns": [
-                        {
-                            "cycle": false,
-                            "name": "Auto",
-                            "id": "pit_quan_auto",
-                            "inputs": [
-                                {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "options": [
-                                        0,
-                                        8,
-                                        1
-                                    ],
-                                    "name": "Max Preload",
-                                    "id": "pit_quan_auto_max_preload"
-                                },
-                                {
-                                    "type": "multiselect",
-                                    "default": [],
-                                    "disallow_default": false,
-                                    "options": [
-                                        "Preload",
-                                        "Depot"
-                                    ],
-                                    "vertical": false,
-                                    "name": "Can Score",
-                                    "id": "pit_quan_auto_can_score"
-                                },
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Can enter center",
-                                    "id": "pit_quan_auto_can_enter_center"
                                 }
                             ]
                         }
@@ -100,6 +94,55 @@
             "id": "lead",
             "pages": [
                 {
+                    "name": "Auto",
+                    "id": "lead_auto",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "TEAM",
+                            "id": "lead_auto_team",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "Hub",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Hub",
+                                        "Bump",
+                                        "Trench"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Starting Location",
+                                    "id": "lead_auto_team_starting_location"
+                                },
+                                {
+                                    "type": "multiselect",
+                                    "default": [
+                                        false,
+                                        false,
+                                        false,
+                                        false,
+                                        false
+                                    ],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Starting Line",
+                                        "Depot",
+                                        "Outpost",
+                                        "Hub",
+                                        "Other"
+                                    ],
+                                    "vertical": true,
+                                    "name": "Scoring Location",
+                                    "id": "lead_auto_team_scoring_location"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     "name": "Notes",
                     "id": "lead_notes",
                     "columns": [
@@ -110,32 +153,292 @@
                             "inputs": [
                                 {
                                     "type": "select",
-                                    "default": "-",
+                                    "default": "1",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#69B34C",
+                                        "#FAB733",
+                                        "#FF4E11"
+                                    ],
+                                    "negative": true,
+                                    "vertical": false,
+                                    "name": "WildRank",
+                                    "id": "lead_notes_team_wildrank"
+                                },
+                                {
+                                    "type": "multiselect",
+                                    "default": [
+                                        false,
+                                        false,
+                                        false,
+                                        false,
+                                        false
+                                    ],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Cycler",
+                                        "Feeder",
+                                        "Counter Feeder",
+                                        "Cleanup",
+                                        "Defense"
+                                    ],
+                                    "vertical": true,
+                                    "name": "Roles Played",
+                                    "id": "lead_notes_team_roles_played"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": "",
+                                    "disallow_default": false,
+                                    "name": "Notes",
+                                    "id": "lead_notes_team_notes"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": true,
+                                    "disallow_default": false,
+                                    "name": "Mechanical Breakdown",
+                                    "id": "lead_notes_team_mechanical_breakdown"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": true,
+                                    "disallow_default": false,
+                                    "name": "Electrical Breakdown",
+                                    "id": "lead_notes_team_electrical_breakdown"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "team",
+            "name": "Pit",
+            "id": "pit",
+            "pages": [
+                {
+                    "name": "Pit",
+                    "id": "pit_pit",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "Specs",
+                            "id": "pit_pit_specs",
+                            "inputs": [
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Trench Capable?",
+                                    "id": "pit_pit_specs_trench_capable"
+                                },
+                                {
+                                    "type": "slider",
+                                    "default": 0,
+                                    "negative": false,
                                     "disallow_default": true,
                                     "options": [
-                                        "-",
-                                        "N/A",
-                                        "Fail",
-                                        "Climb"
+                                        0,
+                                        115,
+                                        1
+                                    ],
+                                    "name": "Weight (lbs)",
+                                    "id": "pit_pit_specs_weight_"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        111
+                                    ],
+                                    "name": "Number of Batteries",
+                                    "id": "pit_pit_specs_number_of_batteries"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Turret Aiming?",
+                                    "id": "pit_pit_specs_turret_aiming"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": "",
+                                    "disallow_default": false,
+                                    "name": "Pit Notes",
+                                    "id": "pit_pit_specs_pit_notes"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Drive",
+                            "id": "pit_pit_drive",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "Swerve",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Swerve",
+                                        "Tank",
+                                        "Other"
                                     ],
                                     "images": [],
                                     "colors": [],
                                     "vertical": false,
-                                    "name": "Auto Climb",
-                                    "id": "lead_notes_team_auto_climb"
+                                    "name": "Drivetrain",
+                                    "id": "pit_pit_drive_drivetrain"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "Neo",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "Neo",
+                                        "Falcon",
+                                        "Vortex",
+                                        "Kraken",
+                                        "Other"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Drive Motors",
+                                    "id": "pit_pit_drive_drive_motors"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "KOP",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "KOP",
+                                        "Colson",
+                                        "Treaded",
+                                        "REV",
+                                        "TPU",
+                                        "Other"
+                                    ],
+                                    "images": [
+                                        "wheels/KOP.png",
+                                        "wheels/Colson.png",
+                                        "wheels/Treaded.png",
+                                        "wheels/REV.png",
+                                        "wheels/TPU.png",
+                                        "wheels/Other.png"
+                                    ],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Wheel Type",
+                                    "id": "pit_pit_drive_wheel_type"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Other",
+                            "id": "pit_pit_other",
+                            "inputs": [
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        111
+                                    ],
+                                    "name": "Total Auto Paths",
+                                    "id": "pit_pit_other_total_auto_paths"
+                                },
+                                {
+                                    "type": "multiselect",
+                                    "default": [
+                                        false,
+                                        false,
+                                        false,
+                                        false
+                                    ],
+                                    "disallow_default": false,
+                                    "options": [
+                                        "L1",
+                                        "L2",
+                                        "L3",
+                                        "None"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Climb Level",
+                                    "id": "pit_pit_other_climb_level"
                                 },
                                 {
                                     "type": "multiselect",
                                     "default": [],
                                     "disallow_default": false,
                                     "options": [
-                                        "Volley",
-                                        "Defense",
-                                        "Defended"
+                                        "Center",
+                                        "Side",
+                                        "Edge",
+                                        "None"
                                     ],
                                     "vertical": false,
-                                    "name": "Actions",
-                                    "id": "lead_notes_team_actions"
+                                    "name": "Climb Location",
+                                    "id": "pit_pit_other_climb_location"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "team",
+            "name": "Tech",
+            "id": "tech",
+            "pages": [
+                {
+                    "name": "Tech",
+                    "id": "tech_tech",
+                    "columns": [
+                        {
+                            "cycle": false,
+                            "name": "Mechanical Quality",
+                            "id": "tech_tech_mechanical_quality",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Accessibility",
+                                    "id": "tech_tech_mechanical_quality_accessibility"
                                 },
                                 {
                                     "type": "select",
@@ -143,37 +446,167 @@
                                     "disallow_default": true,
                                     "options": [
                                         "-",
-                                        "N/A",
-                                        "Fail",
-                                        "L1",
-                                        "L2",
-                                        "L3"
+                                        "1",
+                                        "2",
+                                        "3"
                                     ],
                                     "images": [],
-                                    "colors": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
                                     "vertical": false,
-                                    "name": "Endgame Climb",
-                                    "id": "lead_notes_team_endgame_climb"
+                                    "name": "Construction",
+                                    "id": "tech_tech_mechanical_quality_construction"
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": true,
+                                    "type": "select",
+                                    "default": "-",
                                     "disallow_default": true,
                                     "options": [
-                                        0,
-                                        3,
-                                        1
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
                                     ],
-                                    "name": "Rank",
-                                    "id": "lead_notes_team_rank"
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Low CG",
+                                    "id": "tech_tech_mechanical_quality_low_cg"
                                 },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Bumper",
+                                    "id": "tech_tech_mechanical_quality_bumper"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Electrical Quality",
+                            "id": "tech_tech_electrical_quality",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Accessibility",
+                                    "id": "tech_tech_electrical_quality_accessibility"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Wiring",
+                                    "id": "tech_tech_electrical_quality_wiring"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Contact Protection",
+                                    "id": "tech_tech_electrical_quality_contact_protection"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "1",
+                                        "2",
+                                        "3"
+                                    ],
+                                    "images": [],
+                                    "colors": [
+                                        "#1E90FF",
+                                        "#FF4E11",
+                                        "#FAB733",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": false,
+                                    "name": "Reliable Condition",
+                                    "id": "tech_tech_electrical_quality_reliable_condition"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Notes",
+                            "id": "tech_tech_notes",
+                            "inputs": [
                                 {
                                     "type": "text",
                                     "default": "",
-                                    "disallow_default": true,
+                                    "disallow_default": false,
                                     "name": "Notes",
-                                    "id": "lead_notes_team_notes"
+                                    "id": "tech_tech_notes_notes"
                                 }
                             ]
                         }
@@ -196,15 +629,25 @@
                             "id": "driver_teams_team",
                             "inputs": [
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": true,
+                                    "type": "select",
+                                    "default": "3",
+                                    "disallow_default": false,
                                     "options": [
-                                        0,
-                                        5,
-                                        1
+                                        "1",
+                                        "2",
+                                        "3",
+                                        "4",
+                                        "5"
                                     ],
+                                    "images": [],
+                                    "colors": [
+                                        "#FF4E11",
+                                        "#FF8E15",
+                                        "#FAB733",
+                                        "#ACB334",
+                                        "#69B34C"
+                                    ],
+                                    "vertical": true,
                                     "name": "Uber Rating",
                                     "id": "driver_teams_team_uber_rating"
                                 },

@@ -1,6 +1,13 @@
 {
-    "version": "prototype-1",
-    "fms_breakdown_results": [],
+    "version": "2026-base",
+    "fms_breakdown_results": [
+        {
+            "id": "bd_totalpoints",
+            "name": "Points",
+            "type": "int",
+            "negative": false
+        }
+    ],
     "fms_ranking_results": [
         {
             "id": "rank_rank",

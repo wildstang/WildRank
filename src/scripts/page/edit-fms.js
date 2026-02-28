@@ -10,7 +10,9 @@ var new_copr_key, new_copr_name, negative_copr_cb
 var new_rank_key, new_rank_name, negative_rank_cb
 
 var matches, rankings
-var match_keys, copr_keys, rank_keys = []
+var match_keys = []
+var copr_keys = []
+var rank_keys = []
 
 /**
  * Get possible keys.
