@@ -1,5 +1,5 @@
 {
-    "version": "2026-winona",
+    "version": "2026-bcr",
     "configs": [
         {
             "type": "match-alliance",
@@ -118,25 +118,12 @@
                                     "id": "lead_auto_team_starting_location"
                                 },
                                 {
-                                    "type": "multiselect",
-                                    "default": [
-                                        false,
-                                        false,
-                                        false,
-                                        false,
-                                        false
-                                    ],
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
                                     "disallow_default": false,
-                                    "options": [
-                                        "Starting Line",
-                                        "Depot",
-                                        "Outpost",
-                                        "Hub",
-                                        "Other"
-                                    ],
-                                    "vertical": true,
-                                    "name": "Scoring Location",
-                                    "id": "lead_auto_team_scoring_location"
+                                    "name": "Entered Neutral Zone?",
+                                    "id": "lead_auto_team_entered_neutral_zone"
                                 }
                             ]
                         }
