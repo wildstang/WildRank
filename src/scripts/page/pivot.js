@@ -206,9 +206,13 @@ class Column
             greater_than = this.ltgt_sel.selected_index === 1
             value = parseFloat(this.val_entry.element.value)
         }
-        else if (this.options_dd !== null && !this.res.lower_options.includes(this.stat))
+        else if (this.options_dd !== null)
         {
-            value = this.options_dd.element.value
+            let ops = this.res.value_type === 'boolean' ? ['Yes', 'No'] : this.res.options
+            if (!ops.includes(this.stat))
+            {
+                value = this.options_dd.element.value
+            }
         }
 
         // determine if each team passes the filter
@@ -792,9 +796,13 @@ function build_table()
         {
             filter_el.push(new WRColumn('', [col.ltgt_sel]), new WRColumn('', [col.val_entry]))
         }
-        else if (col.options_dd !== null && !col.res.lower_options.includes(col.stat))
+        else if (col.options_dd !== null)
         {
-            filter_el.push(col.options_dd)
+            let ops = col.res.value_type === 'boolean' ? ['Yes', 'No'] : col.res.options
+            if (!ops.includes(col.stat))
+            {
+                filter_el.push(col.options_dd)
+            }
         }
 
         // build cells
