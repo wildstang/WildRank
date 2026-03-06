@@ -1179,6 +1179,7 @@ class Importer extends BaseTransfer
                 this.on_complete()
                 alert('Import Complete')
             }
+            this.had_results = null
         })
 
         this.selected_files = null
@@ -1186,7 +1187,6 @@ class Importer extends BaseTransfer
         this.zip_files = null
         this.current_name = null
         this.event_id = null
-        this.had_results = null
     }
 
     /**
