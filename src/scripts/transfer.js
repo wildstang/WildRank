@@ -455,6 +455,7 @@ function build_export_setup()
 {
     let e = new Exporter()
     e.event_data = true
+    e.user_list = true
     e.scout_config = true
     e.analysis_config = true
     return e
@@ -494,6 +495,7 @@ function build_export_all()
 {
     let e = new Exporter()
     e.event_data = true
+    e.user_list = true
     e.scout_config = true
     e.analysis_config = true
     e.results = true
