@@ -1606,7 +1606,7 @@ class Result
                 let total_partner_rank = 0
                 for (let team_num of partners)
                 {
-                    total_partner_rank += dal.compute_stat(stat.result, team_num, 'mean')
+                    total_partner_rank += dal.compute_stat(this.result, team_num, 'mean')
                 }
 
                 // calculate the weighted result
