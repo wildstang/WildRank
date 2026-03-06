@@ -73,7 +73,7 @@ function on_config()
     load_data()
 
     // don't directly pass in init_page to ensure that init_page isn't accessed before the page is loaded in
-    if (typeof init_page === "undefined")
+    if (typeof init_page === 'undefined' || preview !== undefined)
     {
         let header = document.createElement('h2')
         header.innerText = `Page "${page}" not found!`
