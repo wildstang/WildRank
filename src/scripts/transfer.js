@@ -387,7 +387,7 @@ function clear_events()
         for (let file of files)
         {
             if (file.startsWith('event-') || file.startsWith('matches-') || file.startsWith('picklists-') ||
-                file.startsWith('rankings-') || file.startsWith('teams-') ||
+                file.startsWith('rankings-') || file.startsWith('teams-') || file.startsWith('coprs-') ||
                 (file.startsWith('result-') && JSON.parse(localStorage.getItem(file)).meta.result.event_id !== event_id))
             {
                 localStorage.removeItem(file)
@@ -651,7 +651,7 @@ class Exporter extends BaseTransfer
                 return result.meta.result.event_id === event_id &&
                     (handler.results === true || result.meta.result.scout_mode === handler.results)
             }
-            return ((handler.event_data && [`event-${event_id}`, `matches-${event_id}`,
+            return ((handler.event_data && [`event-${event_id}`, `matches-${event_id}`, `coprs-${event_id}`,
                     `rankings-${event_id}`, `teams-${event_id}`].includes(file_name)) ||
                 (handler.picklists && file_name === `picklists-${event_id}`) ||
                 (handler.scout_config && file_name === cfg.scout.name) ||
@@ -1083,7 +1083,7 @@ class Importer extends BaseTransfer
     {
         if ((this.event_data && file_name.startsWith(`avatar-${cfg.year}-`)) ||
             (this.picklists && file_name === dal.picklist_file) ||
-            (this.event_data && [`event-${this.event_id}`, `matches-${this.event_id}`,
+            (this.event_data && [`event-${this.event_id}`, `matches-${this.event_id}`, `coprs-${this.event_id}`,
             `rankings-${this.event_id}`, `teams-${this.event_id}`].includes(file_name)))
         {
             this.log(`Importing ${file_name} to localStorage`)
