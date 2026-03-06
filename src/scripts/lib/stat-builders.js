@@ -158,7 +158,7 @@ class WeightedRankStat extends Stat
     {
         super('wrank')
         
-        this.keys = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['number'])
+        this.keys = cfg.filter_keys(cfg.get_match_keys(true, false, true), ['number'])
         let keys = cfg.get_names(this.keys)
         this.stat = new WRDropdown('Stat', keys)
         this.stat.on_change = calculate
