@@ -27,6 +27,16 @@ function init_page()
             ['boolean', 'number', 'string'].includes(typeof breakdown[k]) &&
             (k.endsWith('Robot1') || !k.includes('Robot'))
         ).map(k => k.endsWith('Robot1') ? k.substring(0, k.length - 1) + 'X' : k)
+
+        // add fields inside objects
+        let objects = Object.keys(breakdown).filter(k => typeof breakdown[k] === 'object')
+        for (let o of objects)
+        {
+            let obj = breakdown[objects[0]]
+            let keys = Object.keys(obj).filter(k => 
+                ['boolean', 'number', 'string'].includes(typeof obj[k])).map(k => `${o}_${k}`)
+            match_keys = match_keys.concat(keys)
+        }
     }
 
     let coprs = JSON.parse(localStorage.getItem(`coprs-${dal.event_id}`))
@@ -169,7 +179,21 @@ function build_match_result()
     let id = new_match_key.element.value
     let name = new_match_name.element.value
     let actual_id = id.endsWith('RobotX') ? id.substring(0, id.length - 1) + '1' : id
-    let value = matches[0].score_breakdown.red[actual_id]
+    let value = ''
+    if (actual_id in matches[0].score_breakdown.red)
+    {
+        value = matches[0].score_breakdown.red[actual_id]
+    }
+    else if (actual_id.includes('_'))
+    {
+        let parts = actual_id.split('_')
+        value = matches[0].score_breakdown.red[parts[0]][parts[1]]
+    }
+    else
+    {
+        alert('Invalid key')
+        return
+    }
 
     if (!name)
     {
