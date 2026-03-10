@@ -1402,9 +1402,11 @@ class Result
     /**
      * Computes the current smart result based on the given result, or all results if no result is given.
      * @param {BaseResult} result Match or team result or null
+     * @param {Boolean} recursive Whether to calculate smart results that depend on other smart results
+     * @param {} teams Which teams to calculate results for
      * @returns The smart result value.
      */
-    compute_smart_result(result, teams='all')
+    compute_smart_result(result, recursive=true, teams='all')
     {
         teams = parse_team_list(teams)
 
@@ -1414,55 +1416,61 @@ class Result
         switch(this.type)
         {
             case 'filter':
-                let filter_val = get_value(this.filter)
-                if (filter_val !== null)
+                if (!this.filter.startsWith('smart.') || recursive)
                 {
-                    let passes = false
-                    switch (this.compare_type)
+                    let filter_val = get_value(this.filter)
+                    if (filter_val !== null)
                     {
-                        case 0:
-                            passes = filter_val > this.value
-                            break
-                        case 1:
-                            passes = filter_val >= this.value
-                            break
-                        case 2:
-                            passes = filter_val === this.value
-                            break
-                        case 3:
-                            passes = filter_val !== this.value
-                            break
-                        case 4:
-                            passes = filter_val <= this.value
-                            break
-                        case 5:
-                            passes = filter_val < this.value
-                            break
-                    }
-                    if (passes)
-                    {
-                        return get_value(this.result)
+                        let passes = false
+                        switch (this.compare_type)
+                        {
+                            case 0:
+                                passes = filter_val > this.value
+                                break
+                            case 1:
+                                passes = filter_val >= this.value
+                                break
+                            case 2:
+                                passes = filter_val === this.value
+                                break
+                            case 3:
+                                passes = filter_val !== this.value
+                                break
+                            case 4:
+                                passes = filter_val <= this.value
+                                break
+                            case 5:
+                                passes = filter_val < this.value
+                                break
+                        }
+                        if (passes)
+                        {
+                            return get_value(this.result)
+                        }
                     }
                 }
                 break
 
             case 'map':
-                let map_val = get_value(this.result)
-                if (map_val !== null)
+                if (!this.result.startsWith('smart.') || recursive)
                 {
-                    let result = cfg.get_result_from_key(this.result)
-                    let value_type = result.value_type
-                    if (value_type === 'str-option')
+                    let map_val = get_value(this.result)
+                    if (map_val !== null)
                     {
-                        return this.values[result.options.indexOf(map_val)]
-                    }
-                    else if (value_type === 'boolean')
-                    {
-                        return this.values[map_val ? 0 : 1]
-                    }
-                    else if (value_type === 'int-option')
-                    {
-                        return this.values[map_val]
+                        let result = cfg.get_result_from_key(this.result)
+                        let value_type = result.value_type
+                        if (value_type === 'str-option')
+                        {
+                            return this.values[result.options.indexOf(map_val)]
+                        }
+                        else if (value_type === 'boolean')
+                        {
+                            return this.values[map_val ? 0 : 1]
+                        }
+                        else if (value_type === 'int-option')
+                        {
+                            return this.values[map_val]
+                        }
                     }
                 }
                 break
@@ -1471,53 +1479,60 @@ class Result
                 let math_fn = this.math
                 let team_keys = cfg.get_team_keys()
                 let match_keys = cfg.get_match_keys()
-                let keys = math_fn.match(/(result|fms|smart)\.[a-zA-Z0-9_]+/g)
-                if (keys)
+                if ((team_keys.every(k => !k.startsWith('smart.')) && match_keys.every(k => !k.startsWith('smart.'))) || recursive)
                 {
-                    for (let k of keys)
+                    let keys = math_fn.match(/(result|fms|smart)\.[a-zA-Z0-9_]+/g)
+                    if (keys)
                     {
-                        if (match_keys.includes(k))
+                        for (let k of keys)
                         {
-                            let val = get_value(k)
-                            if (val === null)
+                            if (match_keys.includes(k))
                             {
-                                return null
+                                let val = get_value(k)
+                                if (val === null)
+                                {
+                                    return null
+                                }
+                                math_fn = math_fn.replace(k, val)
                             }
-                            math_fn = math_fn.replace(k, val)
-                        }
-                        else if (team_keys.includes(k))
-                        {
-                            let val = result !== null ? dal.compute_stat(k, result.team_num) : dal.compute_stat(k, teams)
-                            if (val === null)
+                            else if (team_keys.includes(k))
                             {
-                                return null
+                                let val = result !== null ? dal.compute_stat(k, result.team_num) : dal.compute_stat(k, teams)
+                                if (val === null)
+                                {
+                                    return null
+                                }
+                                math_fn = math_fn.replace(k, val)
                             }
-                            math_fn = math_fn.replace(k, val)
                         }
                     }
+                    if (math_fn.trim().length === 0)
+                    {
+                        return null
+                    }
+                    try
+                    {
+                        let res = eval(math_fn)
+                        return res
+                    }
+                    catch (err)
+                    {
+                        return null
+                    }
                 }
-                if (math_fn.trim().length === 0)
-                {
-                    return null
-                }
-                try
-                {
-                    let res = eval(math_fn)
-                    return res
-                }
-                catch (err)
-                {
-                    return null
-                }
+                break
 
             case 'max':
             case 'min':
-                let m_values = this.results.map(s => get_value(s))
-                let extreme = this.type === 'max' ? Math.max(...m_values) : Math.min(...m_values)
-                let extreme_id = this.results[m_values.indexOf(extreme)]
-                if (extreme_id)
+                if (this.results.every(k => !k.startsWith('smart.')) || recursive)
                 {
-                    return cfg.get_result_from_key(extreme_id).name
+                    let m_values = this.results.map(s => get_value(s))
+                    let extreme = this.type === 'max' ? Math.max(...m_values) : Math.min(...m_values)
+                    let extreme_id = this.results[m_values.indexOf(extreme)]
+                    if (extreme_id)
+                    {
+                        return cfg.get_result_from_key(extreme_id).name
+                    }
                 }
                 break
 
@@ -1591,32 +1606,35 @@ class Result
                  * Technically this smart result mode can be used with any numeric result, however,
                  * if that result isn't a number 1 -> alliance_size it will likely produce meaningless values.
                  */
-                let partners = []
-                let [red_teams, blue_teams] = dal.get_match_alliances(result.match_key)
-                if (red_teams.includes(result.team_num))
+                if (!this.result.startsWith('smart.') || recursive)
                 {
-                    partners = red_teams.filter(t => t != result.team_num)
-                }
-                else
-                {
-                    partners = blue_teams.filter(t => t != result.team_num)
-                }
+                    let partners = []
+                    let [red_teams, blue_teams] = dal.get_match_alliances(result.match_key)
+                    if (red_teams.includes(result.team_num))
+                    {
+                        partners = red_teams.filter(t => t != result.team_num)
+                    }
+                    else
+                    {
+                        partners = blue_teams.filter(t => t != result.team_num)
+                    }
 
-                // sum each partner's event average
-                let total_partner_rank = 0
-                for (let team_num of partners)
-                {
-                    total_partner_rank += dal.compute_stat(this.result, team_num, 'mean')
-                }
+                    // sum each partner's event average
+                    let total_partner_rank = 0
+                    for (let team_num of partners)
+                    {
+                        total_partner_rank += dal.compute_stat(this.result, team_num, 'mean')
+                    }
 
-                // calculate the weighted result
-                let num_partners = 2
-                let expected_partner_rank = (num_partners / 2 + 1) * num_partners
-                let partner_weight = total_partner_rank - expected_partner_rank
-                let match_rank = get_value(this.result)
-                if (match_rank !== null)
-                {
-                    return match_rank + partner_weight
+                    // calculate the weighted result
+                    let num_partners = 2
+                    let expected_partner_rank = (num_partners / 2 + 1) * num_partners
+                    let partner_weight = total_partner_rank - expected_partner_rank
+                    let match_rank = get_value(this.result)
+                    if (match_rank !== null)
+                    {
+                        return match_rank + partner_weight
+                    }
                 }
                 break
 

@@ -206,13 +206,14 @@ class BaseResult
 
     /**
      * Computes and adds each smart result for the single result.
+     * @param {Boolean} recursive Whether to calculate smart results that depend on other smart results
      */
-    compute_smart_results()
+    compute_smart_results(recursive)
     {
         for (let key of this.get_keys(false, false, true))
         {
             let smart_result = cfg.get_result_from_key(key)
-            let value = smart_result.compute_smart_result(this)
+            let value = smart_result.compute_smart_result(this, recursive)
             if (value !== null)
             {
                 this.smart_results[smart_result.id] = value
@@ -420,7 +421,9 @@ class Data
         this.load_coprs()
         this.load_matches()
         this.load_results()
-        this.compute_smart_results()
+        // calculate smart results that don't depend on other smart results, then recalculate those that do
+        this.compute_smart_results(false)
+        this.compute_smart_results(true)
         this.load_picklists()
     }
 
@@ -756,18 +759,19 @@ class Data
 
     /**
      * Compute smart results on all Match and TeamResults.
+     * @param {Boolean} recursive Whether to calculate smart results that depend on other smart results
      */
-    compute_smart_results()
+    compute_smart_results(recursive)
     {
         for (let team_num of this.team_numbers)
         {
-            this.teams[team_num].compute_smart_results()
+            this.teams[team_num].compute_smart_results(recursive)
         }
         for (let match_key of this.match_keys)
         {
             for (let result of Object.values(this.matches[match_key].results))
             {
-                result.compute_smart_results()
+                result.compute_smart_results(recursive)
             }
         }
     }
