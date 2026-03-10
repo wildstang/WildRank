@@ -108,7 +108,7 @@ function init_page()
             header_info.innerText = 'Error'
             return
         }
-        teams = [team_num]
+        teams = [parseInt(team_num)]
 
         // disable editing if the team hasn't been scouted
         if (edit && !dal.is_team_scouted(team_num, scout_mode))
