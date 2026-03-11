@@ -6,7 +6,7 @@
  */
 
 var event_config, scout_config_valid, analysis_config_valid, summary_card
-var breakdown_table, team_table, match_table
+var breakdown_table, team_tables, match_tables
 
 /**
  * Builds the page components, but does not populate them.
@@ -58,27 +58,14 @@ function init_page()
     breakdown_contents.append(breakdown_header, breakdown_table)
     let breakdown_card = new WRCard(breakdown_contents)
 
-    // create team result table card
-    let team_contents = document.createElement('div')
-    let team_header = document.createElement('h2')
-    team_header.innerText = 'Teams'
-    team_table = document.createElement('table')
-    team_contents.append(team_header, team_table)
-    let teams_card = new WRCard(team_contents)
-
-    // create match-team result table card
-    let match_contents = document.createElement('div')
-    let match_header = document.createElement('h2')
-    match_header.innerText = 'Matches'
-    match_table = document.createElement('table')
-    match_contents.append(match_header, match_table)
-    let matches_card = new WRCard(match_contents)
+    team_tables = document.createElement('div')
+    match_tables = document.createElement('span')
 
     // put cards into 2 pages
     let top_page = new WRPage('', [new WRColumn('', [new WRStack([stats_link, edit_links]), status_stack]),
                                    new WRColumn('', [second_links, summary_card]),
                                    new WRColumn('', [third_links, transfer_buttons])])
-    let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, teams_card]), new WRColumn('', [matches_card])])
+    let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, team_tables]), match_tables])
     preview.replaceChildren(top_page, bottom_page)
 
     transfer_buttons.element.children[1].title = setup_exporter.description
@@ -100,8 +87,8 @@ function populate()
 
     // clear tables
     breakdown_table.replaceChildren()
-    team_table.replaceChildren()
-    match_table.replaceChildren()
+    team_tables.replaceChildren()
+    match_tables.replaceChildren()
 
     // get lists of teams and matches
     let teams = dal.team_numbers
@@ -160,105 +147,123 @@ function populate()
         }
     }
 
-    // create header row for match result table
-    let header_row = match_table.insertRow()
-    header_row.insertCell()
-    for (let k of get_position_names())
+    for (let mode of match_modes)
     {
-        let th = document.createElement('th')
-        th.innerText = k
-        header_row.append(th)
-    }
+        let match_contents = document.createElement('div')
+        let match_header = document.createElement('h2')
+        match_header.innerText = cfg.get_scout_config(mode).name
+        let match_table = document.createElement('table')
+        match_contents.append(match_header, match_table)
+        let match_card = new WRCard(match_contents)
+        match_tables.append(new WRColumn('', [match_card]))
 
-    // build match result table
-    for (let match of matches)
-    {
-        // create a row for each match, starting with match number
-        let row = match_table.insertRow()
-        let th = document.createElement('th')
-        th.innerText = dal.matches[match].short_name
-        row.append(th)
-
-        // add a cell for each team
-        let match_teams = dal.get_match_teams(match)
-        for (let team_key of Object.keys(match_teams))
+        // create header row for match result table
+        let header_row = match_table.insertRow()
+        header_row.insertCell()
+        for (let k of get_position_names())
         {
-            // add to mode breakdown counts
-            let team = match_teams[team_key]
-            if (dal.matches[match].comp_level === 'qm')
+            let th = document.createElement('th')
+            th.innerText = k
+            header_row.append(th)
+        }
+
+        // build match result table
+        for (let match of matches)
+        {
+            // create a row for each match, starting with match number
+            let row = match_table.insertRow()
+            let th = document.createElement('th')
+            th.innerText = dal.matches[match].short_name
+            row.append(th)
+
+            // add a cell for each team
+            let match_teams = dal.get_match_teams(match)
+            for (let team_key of Object.keys(match_teams))
             {
-                for (let mode of match_modes)
+                // add to mode breakdown counts
+                let team = match_teams[team_key]
+                if (dal.matches[match].comp_level === 'qm')
                 {
                     mode_counts[mode].total++
+                    let count = 0
                     if (dal.is_match_scouted(match, team, mode))
                     {
+                        count = dal.matches[match].results[team].results[mode].length
+
                         mode_counts[mode].complete++
-                        if (dal.matches[match].results[team].meta[mode][0].status.unsure)
+                        if (dal.matches[match].results[team].meta[mode].every(m => m.status.unsure))
                         {
                             mode_counts[mode].unsure++
                         }
-                        if (dal.matches[match].results[team].meta[mode][0].status.unsure)
+                        if (dal.matches[match].results[team].meta[mode].every(m => m.status.ignore))
                         {
                             mode_counts[mode].ignore++
                         }
                     }
+
+                    // build cell
+                    let td = row.insertCell()
+                    td.innerText = team
+                    td.title = `${dal.teams[team].name} (${count})`
+                    let expected = cfg.get_scout_config(mode).id === 'scout' ? 3 : 1
+                    td.style.backgroundColor = get_completion_color(count, expected)
+                    if (count > 0)
+                    {
+                        td.onclick = (event) => window_open(build_url('result-state', {'match': match, 'team': team}))
+                    }
                 }
-            }
-
-            // count number of scouted modes
-            let scouted_modes = match_modes.filter(m => dal.is_match_scouted(match, team, m)).length
-
-            // build cell
-            let td = row.insertCell()
-            td.innerText = team
-            td.title = dal.teams[team].name
-            td.style.backgroundColor = get_completion_color(scouted_modes, match_modes.length)
-            if (scouted_modes > 0)
-            {
-                td.onclick = (event) => window_open(build_url('result-state', {'match': match, 'team': team}))
             }
         }
     }
 
-    // build pit result table
-    let teams_row
-    for (let i in teams)
+    for (let mode of team_modes)
     {
-        // create a new row every 7 cells
-        if (i % 7 == 0)
-        {
-            teams_row = team_table.insertRow()
-        }
+        let team_contents = document.createElement('div')
+        let team_header = document.createElement('h2')
+        team_header.innerText = cfg.get_scout_config(mode).name
+        let team_table = document.createElement('table')
+        team_contents.append(team_header, team_table)
+        let team_card = new WRCard(team_contents)
+        team_tables.append(team_card)
 
-        // add to mode breakdown counts
-        let team = teams[i]
-        for (let mode of team_modes)
+        // build pit result table
+        let teams_row
+        for (let i in teams)
         {
+            // create a new row every 7 cells
+            if (i % 7 == 0)
+            {
+                teams_row = team_table.insertRow()
+            }
+
+            // add to mode breakdown counts
+            let team = teams[i]
             mode_counts[mode].total++
+            let count = 0
             if (dal.is_team_scouted(team, mode))
             {
+                count = dal.teams[team].results[mode].length
+
                 mode_counts[mode].complete++
-                if (dal.teams[team].meta[mode][0].status.unsure)
+                if (dal.teams[team].meta[mode].every(m => m.status.unsure))
                 {
                     mode_counts[mode].unsure++
                 }
-                if (dal.teams[team].meta[mode][0].status.unsure)
+                if (dal.teams[team].meta[mode].every(m => m.status.ignore))
                 {
                     mode_counts[mode].ignore++
                 }
             }
-        }
 
-        // count number of scouted modes
-        let scouted_modes = team_modes.filter(m => dal.is_team_scouted(team, m)).length
-
-        // build cell
-        let td = teams_row.insertCell()
-        td.style.backgroundColor = get_completion_color(scouted_modes, team_modes.length)
-        td.innerText = team
-        if (scouted_modes > 0)
-        {
-            td.onclick = (event) => window_open(build_url('result-state', {'team': team}))
+            // build cell
+            let td = teams_row.insertCell()
+            td.innerText = team
+            td.title = `${dal.teams[team].name} (${count})`
+            td.style.backgroundColor = get_completion_color(count, 1)
+            if (count > 0)
+            {
+                td.onclick = (event) => window_open(build_url('result-state', {'team': team}))
+            }
         }
     }
 
@@ -282,6 +287,10 @@ function populate()
 function get_completion_color(completed_modes, num_modes)
 {
     let colors = ['red', 'orange', 'yellow', 'yellowgreen', 'green']
+    if (completed_modes > num_modes)
+    {
+        return 'blue'
+    }
     return colors[Math.round(completed_modes / num_modes * (colors.length - 1))]
 }
 
