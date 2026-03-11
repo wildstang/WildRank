@@ -1126,24 +1126,24 @@ class Importer extends BaseTransfer
 
                 // ask to skip results that don't have a matching config version number
                 let res_config_version = new_meta.scouter.config_version
-                if (!this.ignore_cfg && res_config_version !== cfg.scout.version)
+                if (res_config_version !== cfg.scout.version)
                 {
-                    if (!confirm(`Config version mismatch on ${file_name} (${res_config_version}), continue?`))
+                    this.log(`Config version mismatch on ${file_name} (${res_config_version})`)
+                    if (!this.ignore_cfg)
                     {
-                        return false
+                        this.ignore_cfg = confirm(`Config version mismatch (${res_config_version}). Continue and ignore mismatches?`)
+                        if (!this.ignore_cfg)
+                        {
+                            return false
+                        }
                     }
-                    this.ignore_cfg = confirm(`Ignore all config version mismatches?`)
                 }
 
                 // ask to skip results that don't have a matching app version number
                 let res_app_version = new_meta.scouter.app_version
-                if (!this.ignore_app && res_app_version !== cfg.app_version)
+                if (res_app_version !== cfg.app_version)
                 {
-                    if (!confirm(`App version mismatch on ${file_name} (${res_app_version}), continue?`))
-                    {
-                        return false
-                    }
-                    this.ignore_app = confirm(`Ignore all app version mismatches?`)
+                    this.log(`App version mismatch on ${file_name} (${res_app_version})`)
                 }
 
                 this.log(`Importing ${file_name} as result`)
