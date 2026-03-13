@@ -524,7 +524,19 @@ function get_results_from_page()
         }
 
         // write the result to a semi-random file in localStorage
-        localStorage.setItem(create_result_name(), JSON.stringify(results))
+        let name = create_result_name()
+        if (edit)
+        {
+            if (scout_type.startsWith('match'))
+            {
+                name = dal.matches[match_key].results[team_num].file_names[scout_mode][edit_index]
+            }
+            else
+            {
+                name = dal.teams[team_num].file_names[scout_mode][edit_index]
+            }
+        }
+        localStorage.setItem(name, JSON.stringify(results))
     }
 
     // return to the appropriate match/team selection page
