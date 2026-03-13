@@ -10,6 +10,8 @@ include('mini-picklists')
 
 var avatar, team_num_hdr, team_name, loc, ranking, completion_table, events_table
 
+const selected_team = get_parameter('team', '')
+
 /**
  * function:    init_page
  * parameters:  contents card, buttons container
@@ -26,7 +28,7 @@ function init_page()
         avatar.className = 'avatar'
 
         let team_header = document.createElement('h2')
-        team_num_hdr = new WRDropdown('', dal.team_numbers)
+        team_num_hdr = new WRDropdown('', dal.team_numbers, selected_team)
         team_num_hdr.on_change = open_option
         team_num_hdr.add_class('inline')
         team_num_hdr.add_class('thin')
