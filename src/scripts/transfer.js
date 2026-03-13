@@ -788,10 +788,9 @@ function build_import_data(on_complete=() => {})
 /**
  * Helper function that creates an Importer for configs, results, and event data.
  * @param {Function} on_complete Function to call when loading is complete
- * @param {Boolean} ignore_versions Whether to completely ignore app/config versions
  * @return An Importer instance
  */
-function build_import_all(on_complete=() => {}, ignore_versions=false)
+function build_import_all(on_complete=() => {})
 {
     let i = new Importer()
     i.event_data = true
@@ -800,7 +799,6 @@ function build_import_all(on_complete=() => {}, ignore_versions=false)
     i.user_list = true
     i.results = true
     i.on_complete = on_complete
-    i.ignore_versions = ignore_versions
     return i
 }
 
@@ -838,9 +836,7 @@ class Importer extends BaseTransfer
         this.select_multiple = false
         this.allow_json = false
         this.on_complete = () => {}
-        this.ignore_versions = false
-        this.ignore_app = false
-        this.ignore_cfg = false
+        this.ignore_cfg = {}
         this.open_results = open_results
 
         // state
@@ -869,9 +865,6 @@ class Importer extends BaseTransfer
      */
     prompt_for_file()
     {
-        this.ignore_app = this.ignore_versions
-        this.ignore_cfg = this.ignore_versions
-
         this.log('No files, prompting user')
         let input = document.createElement('input')
         input.type = 'file'
@@ -1129,13 +1122,14 @@ class Importer extends BaseTransfer
                 if (res_config_version !== cfg.scout.version)
                 {
                     this.log(`Config version mismatch on ${file_name} (${res_config_version})`)
-                    if (!this.ignore_cfg)
+                    if (!Object.keys(this.ignore_cfg).includes(res_config_version))
                     {
-                        this.ignore_cfg = confirm(`Config version mismatch (${res_config_version}). Continue and ignore mismatches?`)
-                        if (!this.ignore_cfg)
-                        {
-                            return false
-                        }
+                        let ignore = confirm(`Config version mismatch! Ignore ${res_config_version} mismatches?`)
+                        this.ignore_cfg[res_config_version] = ignore
+                    }
+                    if (!this.ignore_cfg[res_config_version])
+                    {
+                        return false
                     }
                 }
 
