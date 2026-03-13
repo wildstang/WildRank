@@ -35,7 +35,8 @@ function init_page()
     let status_stack = new WRStack([event_config, scout_config_valid, analysis_config_valid])
 
     // create result summary card
-    summary_card = new WRMultiNumber('', ['Pits', 'Matches', 'Latest Match'], ['-', '-', '-'])
+    summary_card = new WRMultiNumber('', ['Teams', 'Matches', 'Scouted'], ['-', '-', '-'])
+    summary_card.vertical = true
 
     // create transfer buttons
     let labels = ['Pull from TBA', 'Export Config', 'Import Results', 'Export Data']
@@ -62,9 +63,9 @@ function init_page()
     match_tables = document.createElement('span')
 
     // put cards into 2 pages
-    let top_page = new WRPage('', [new WRColumn('', [new WRStack([stats_link, edit_links]), status_stack]),
+    let top_page = new WRPage('', [new WRColumn('', [new WRStack([stats_link, edit_links]), transfer_buttons]),
                                    new WRColumn('', [second_links, summary_card]),
-                                   new WRColumn('', [third_links, transfer_buttons])])
+                                   new WRColumn('', [third_links, status_stack])])
     let bottom_page = new WRPage('', [new WRColumn('', [breakdown_card, team_tables]), match_tables])
     preview.replaceChildren(top_page, bottom_page)
 
@@ -100,17 +101,10 @@ function populate()
     scout_config_valid.set_status(cfg.validate() ? 1 : -1)
     analysis_config_valid.set_status(cfg.validate() ? 1 : -1)
 
-    // count team results
-    let team_modes = cfg.team_scouting_modes
-    summary_card.numbers[0].value_el.innerText = `${dal.count_team_results()}/${teams.length * team_modes.length}`
-
-    // complete match results
-    let match_modes = cfg.match_scouting_modes
-    summary_card.numbers[1].value_el.innerText = `${dal.count_match_results()}/${matches.length * 6 * match_modes.length}`
-
     // determine the last match that has been scouted and received from FMS
     let last_scouted = ''
     let last_result = ''
+    let last_qm = ''
     for (let match_key of matches)
     {
         let match = dal.matches[match_key]
@@ -119,6 +113,7 @@ function populate()
             for (let team_num in match.results)
             {
                 let team_res = match.results[team_num]
+                last_qm = match_key
                 if (Object.keys(team_res.results).length > 0)
                 {
                     last_scouted = match_key
@@ -132,7 +127,17 @@ function populate()
     }
     last_scouted = last_scouted.length > 0 ? dal.matches[last_scouted].short_name : 0
     last_result = last_result.length > 0 ? dal.matches[last_result].short_name : 0
-    summary_card.numbers[2].value_el.innerText = `${last_scouted}:${last_result}`
+    last_qm = last_qm.length > 0 ? dal.matches[last_qm].short_name : 0
+
+    // count team results
+    let team_modes = cfg.team_scouting_modes
+    summary_card.numbers[0].value_el.innerText = teams.length
+
+    // complete match results
+    let match_modes = cfg.match_scouting_modes
+    summary_card.numbers[1].value_el.innerText = `${last_result}/${matches.length}`
+
+    summary_card.numbers[2].value_el.innerText = `${last_scouted}/${last_qm}`
 
     // create object to count scouting mode breakdowns
     let all_modes = cfg.scouting_modes
@@ -170,20 +175,20 @@ function populate()
         // build match result table
         for (let match of matches)
         {
-            // create a row for each match, starting with match number
-            let row = match_table.insertRow()
-            let th = document.createElement('th')
-            th.innerText = dal.matches[match].short_name
-            row.append(th)
-
-            // add a cell for each team
-            let match_teams = dal.get_match_teams(match)
-            for (let team_key of Object.keys(match_teams))
+            if (dal.matches[match].comp_level === 'qm')
             {
-                // add to mode breakdown counts
-                let team = match_teams[team_key]
-                if (dal.matches[match].comp_level === 'qm')
+                // create a row for each match, starting with match number
+                let row = match_table.insertRow()
+                let th = document.createElement('th')
+                th.innerText = dal.matches[match].short_name
+                row.append(th)
+
+                // add a cell for each team
+                let match_teams = dal.get_match_teams(match)
+                for (let team_key of Object.keys(match_teams))
                 {
+                    // add to mode breakdown counts
+                    let team = match_teams[team_key]
                     mode_counts[mode].total++
                     let count = 0
                     if (dal.is_match_scouted(match, team, mode))
