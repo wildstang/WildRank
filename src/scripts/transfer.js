@@ -846,6 +846,7 @@ class Importer extends BaseTransfer
         this.current_name = null
         this.event_id = null
         this.had_results = null
+        this.current_config_version = cfg.scout.version
     }
 
     /**
@@ -972,7 +973,7 @@ class Importer extends BaseTransfer
      */
     shift_file_from_zip()
     {
-        let names = Object.keys(this.zip_files)
+        let names = Object.keys(this.zip_files).sort()
         if (names.length)
         {
             this.log(`${names.length} zipped files remaining`)
@@ -1058,6 +1059,11 @@ class Importer extends BaseTransfer
             if (file_name !== 'user-list')
             {
                 text = JSON.parse(text)
+                if (file_name === `${cfg.year}-scout-config`)
+                {
+                    this.current_config_version = text.version
+                    this.log(`Updated config version to ${this.current_config_version}`)
+                }
             }
             configs[index].handle_config(text)
             configs[index].store_config()
@@ -1119,7 +1125,7 @@ class Importer extends BaseTransfer
 
                 // ask to skip results that don't have a matching config version number
                 let res_config_version = new_meta.scouter.config_version
-                if (res_config_version !== cfg.scout.version)
+                if (res_config_version !== this.current_config_version)
                 {
                     this.log(`Config version mismatch on ${file_name} (${res_config_version})`)
                     if (!Object.keys(this.ignore_cfg).includes(res_config_version))
@@ -1176,6 +1182,7 @@ class Importer extends BaseTransfer
                 alert('Import Complete')
             }
             this.had_results = null
+            this.current_config_version = cfg.scout.version
         })
 
         this.selected_files = null
