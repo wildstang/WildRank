@@ -1671,7 +1671,7 @@ class Result
             }
             return value
         }
-        return value
+        return ''
     }
 
     /**
