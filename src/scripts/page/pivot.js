@@ -17,7 +17,7 @@ var dragging = null
 var selected_teams = []
 var highlighted_teams = []
 
-var results_tab, sort_dropdown, picklist_filter, stat_filter
+var results_tab, sort_dropdown, picklist_filter, stat_filter, debug_select
 
 class Column
 {
@@ -301,12 +301,14 @@ function init_page()
 
     sort_dropdown = new WRDropdown('Sort By Picklist', picklists)
     sort_dropdown.on_change = build_table
+    debug_select = new WRMultiSelect('Show', ['Rankings', 'Filters', 'Types', 'Keys'], [true, false, false])
+    debug_select.on_change = build_table
     let picklist_button = new WRButton('Save to Picklist', save_picklist)
     let export_button = new WRButton('Export as Spreadsheet', export_csv)
 
     results_tab = document.createElement('table')
     let card = new WRCard([results_tab], true)
-    preview.append(new WRPage('', [card, new WRColumn('', [sort_dropdown]),
+    preview.append(new WRPage('', [card, new WRColumn('', [sort_dropdown, debug_select]),
                                    new WRColumn('', [picklist_button, export_button])]))
 
     // add pick list filter
@@ -690,22 +692,43 @@ function build_table()
     results_tab.replaceChildren()
 
     // build table headers
-    let keys_row = results_tab.insertRow()
-    keys_row.classList.add('sticky_header')
-    keys_row.insertCell()
+    let names_row = results_tab.insertRow()
+    names_row.classList.add('sticky_header')
+    names_row.insertCell()
     let team_header = create_element('th', 'team')
     team_header.ondragover = dragover_handler
     team_header.ondragenter = dragenter_handler
     team_header.ondrop = drop_handler
     team_header.onclick = clear_sort
     team_header.innerHTML = `Team Number${get_sort_indicator(false)}`
-    keys_row.append(team_header)
+    names_row.append(team_header)
 
-    let filters_row = results_tab.insertRow()
-    filters_row.insertCell()
-    let filter_header = document.createElement('th')
-    filter_header.innerText = 'Filter if'
-    filters_row.append(filter_header)
+    let type_row, keys_row, filters_row
+    let selected_debug = debug_select.selected_option
+    if (selected_debug.includes('Types'))
+    {
+        type_row = results_tab.insertRow()
+        type_row.insertCell()
+        let types_header = document.createElement('th')
+        types_header.innerText = 'Result Type'
+        type_row.append(types_header)
+    }
+    if (selected_debug.includes('Keys'))
+    {
+        keys_row = results_tab.insertRow()
+        keys_row.insertCell()
+        let keys_header = document.createElement('th')
+        keys_header.innerText = 'Raw Key'
+        keys_row.append(keys_header)
+    }
+    if (selected_debug.includes('Filters'))
+    {
+        filters_row = results_tab.insertRow()
+        filters_row.insertCell()
+        let filter_header = document.createElement('th')
+        filter_header.innerText = 'Filter if'
+        filters_row.append(filter_header)
+    }
 
     let totals_row = results_tab.insertRow()
     totals_row.insertCell()
@@ -740,7 +763,23 @@ function build_table()
         col_header.ontouchstart = (event) => touch_start()
         col_header.ontouchmove = (event) => touch_move()
         col_header.ontouchend = (event) => touch_end(`alt_option('${key}')`)
-        keys_row.append(col_header)
+        names_row.append(col_header)
+
+        if (selected_debug.includes('Types'))
+        {
+            let parts = key.split('.')
+            let type = parts[0]
+            if (type === 'result')
+            {
+                type = parts[1].split('_')[0]
+            }
+            type += `\n${col.res.type}`
+            type_row.insertCell().innerText = type
+        }
+        if (selected_debug.includes('Keys'))
+        {
+            keys_row.insertCell().innerText = key
+        }
 
         let unique = []
         for (let team of sorted_teams)
@@ -789,24 +828,27 @@ function build_table()
         col_key.innerHTML = `${col.res.name}${get_sort_indicator(col)}`
         col_header.append(col_key)
 
-        // build dropdown for filter
-        let filter_el = []
-
-        if (col.ltgt_sel !== null && col.val_entry !== null)
-        {
-            filter_el.push(new WRColumn('', [col.ltgt_sel]), new WRColumn('', [col.val_entry]))
-        }
-        else if (col.options_dd !== null)
-        {
-            let ops = col.res.value_type === 'boolean' ? ['Yes', 'No'] : col.res.options
-            if (!ops.includes(col.stat))
-            {
-                filter_el.push(col.options_dd)
-            }
-        }
-
         // build cells
-        filters_row.insertCell().append(...filter_el)
+        if (selected_debug.includes('Filters'))
+        {
+            // build dropdown for filter
+            let filter_el = []
+
+            if (col.ltgt_sel !== null && col.val_entry !== null)
+            {
+                filter_el.push(new WRColumn('', [col.ltgt_sel]), new WRColumn('', [col.val_entry]))
+            }
+            else if (col.options_dd !== null)
+            {
+                let ops = col.res.value_type === 'boolean' ? ['Yes', 'No'] : col.res.options
+                if (!ops.includes(col.stat))
+                {
+                    filter_el.push(col.options_dd)
+                }
+            }
+
+            filters_row.insertCell().append(...filter_el)
+        }
 
         totals_row.insertCell().innerHTML = dal.compute_stat(key, filtered_teams, stat.toLowerCase(), true)
     }
@@ -892,7 +934,7 @@ function build_table()
                 }
             }
 
-            cell.innerHTML = dal.compute_stat(key, team, stat, true, true)
+            cell.innerHTML = dal.compute_stat(key, team, stat, true, selected_debug.includes('Rankings'))
         }
     }
 
