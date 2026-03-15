@@ -316,7 +316,8 @@ function build_table()
         match_num.title = `Open ${get_short_name(m)} in TBA`
 
         let match_date = new Date(m.actual_time * 1000)
-        row.insertCell().innerText = `${DAYS[match_date.getDay()]} ${match_date.getHours()}:${match_date.getMinutes()}`
+        let minutes = `${match_date.getMinutes()}`.padStart(2, '0')
+        row.insertCell().innerText = `${DAYS[match_date.getDay()]} ${match_date.getHours()}:${minutes}`
 
         let red_teams = row.insertCell()
         red_teams.innerText = m.alliances.red.team_keys.map(t => t.substring(3)).join(' ')
