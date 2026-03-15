@@ -23,11 +23,12 @@ var unavailable_matches = []
 var switching = false
 var firstStarted = false
 
-var video, contents, player, video_toggle
+var video, contents, player, video_toggle, description
 
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const NUM_ROWS = 100
 const LS_KEY = 'played-matches'
+const SORT = 'total fuel count'
 
 var country_filter = ''
 var district_filter = ''
@@ -59,9 +60,27 @@ function init_page()
     video_toggle = document.createElement('div')
     video_toggle.onclick = switch_video
 
+    // add a description of the current filter
+    description = document.createElement('div')
+    let filter = 'all current events'
+    if (event_filter)
+    {
+        filter = event_filter
+    }
+    else if (district_filter)
+    {
+        filter = `current ${district_filter} events`
+    }
+    else if (country_filter)
+    {
+        filter = `current ${country_filter} events`
+    }
+    description.innerText = `Showing the ${NUM_ROWS} latest matches from ${filter}. Playing by in order of ${SORT}.`
+    description.style.padding = '8px'
+
     contents = document.createElement('span')
     contents.innerText = 'Fetching matches...'
-    card = new WRCard([video, video_toggle, contents])
+    card = new WRCard([video, video_toggle, description, contents])
     preview.replaceChildren(card)
 
     // read stored played_matches from localStorage
@@ -317,11 +336,12 @@ function build_table()
 
     let table = document.createElement('table')
     table.id = 'live_matches'
-    let header = create_header_row(['Event', 'Match', 'Time', 'Red Teams', 'Red Score', 'Blue Score', 'Blue Teams', 'Video'])
+    let header = create_header_row(['Event', 'Match', 'BD', 'Time', 'Red Teams', 'Red Score', 'Blue Score', 'Blue Teams', 'Video'])
     header.className = 'sticky_header'
     table.append(header)
     contents.replaceChildren(table)
 
+    let priorities = {}
     for (let i in matches)
     {
         // only show the specified number of matches
@@ -350,6 +370,13 @@ function build_table()
         match_num.innerText = get_short_name(m)
         match_num.onclick = () => window_open(`https://thebluealliance.com/match/${m.key}`, true)
         match_num.title = `Open ${get_short_name(m)} in TBA`
+
+        // open the TBA match page when the breakdown is clicked
+        let breakdown = row.insertCell()
+        let has_breakdown = m.score_breakdown !== null
+        breakdown.innerText = has_breakdown ? '✅' : '❌'
+        breakdown.onclick = () => window_open(`https://thebluealliance.com/match/${m.key}`, true)
+        breakdown.title = `Open ${get_short_name(m)} in TBA`
 
         let match_date = new Date(m.actual_time * 1000)
         let minutes = `${match_date.getMinutes()}`.padStart(2, '0')
@@ -425,18 +452,10 @@ function build_table()
                 vidLink.style.backgroundColor = 'var(--green-alliance-color)'
             }
 
-            // if no video is currently playing, select the first unplayed and available match
-            if (!played_matches.includes(m.key) && !unavailable_matches.includes(m.key) && !current_match)
+            // if no video is currently playing, build a list of unplayed and available matches
+            if (!played_matches.includes(m.key) && !unavailable_matches.includes(m.key) && !current_match && has_breakdown)
             {
-                current_match = m.key
-
-                // sometimes the video player loads after the matches
-                // check before immediately playing the video
-                if (player && player.hasOwnProperty('loadVideoById'))
-                {
-                    console.log('Player loaded before matches, playing first match,', m.key)
-                    player.loadVideoById(video_key)
-                }
+                priorities[m.key] = { 'video': video_key, 'priority': calculate_match_priority(m) }
             }
         }
 
@@ -450,6 +469,48 @@ function build_table()
             blue_score.style.color = 'gray'
         }
     }
+
+    // select the highest priority video to play
+    let keys = Object.keys(priorities).filter(k => priorities[k].priority >= 0)
+    if (keys.length)
+    {
+        // get match with the highest priority
+        keys.sort((a, b) => priorities[b].priority - priorities[a].priority)
+        current_match = keys[0]
+        console.log(`Match with highest priority is ${current_match} with ${priorities[current_match].priority}`)
+
+        // sometimes the video player loads after the matches
+        // check before immediately playing the video
+        if (player && player.hasOwnProperty('loadVideoById'))
+        {
+            console.log(`Player loaded before matches, playing selected match, ${current_match}`)
+            player.loadVideoById(priorities[current_match].video)
+        }
+    }
+}
+
+/**
+ * Calculates a score used to rank match video priorities.
+ * Currently it is total fuel.
+ * @param {Object} match Match object from TBA
+ * @returns Calculated priority score or -1 if no breakdown
+ */
+function calculate_match_priority(match)
+{
+    if (match.score_breakdown !== null)
+    {
+        if (SORT === 'total fuel count')
+        {
+            let red_fuel = match.score_breakdown.red.hubScore.totalCount
+            let blue_fuel = match.score_breakdown.blue.hubScore.totalCount
+            return red_fuel + blue_fuel
+        }
+        else
+        {
+            return match.actual_time
+        }
+    }
+    return -1
 }
 
 /**
