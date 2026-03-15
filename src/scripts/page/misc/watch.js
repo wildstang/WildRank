@@ -84,21 +84,31 @@ function init_page()
             return response.json()
         })
         .then(data => {
+            let current_events = []
             let current_date = Date.now()
             for (let d of data)
             {
                 // get end of day by adding 1 day in ms
                 let end_date = Date.parse(d.end_date) + 86400000
-                // find all events currently taking place and matching current filters
-                if (current_date > Date.parse(d.start_date) && current_date < end_date &&
-                    (!event_filter || d.event_code.startsWith(event_filter.toLowerCase())) &&
-                    (!country_filter || d.country.toUpperCase() === country_filter.toUpperCase()) &&
-                    (!district_filter || (d.district && d.district.abbreviation === district_filter.toLowerCase()) ||
-                                         (district_filter === 'none' && d.district === null)))
+                // find all events currently taking place
+                if (current_date > Date.parse(d.start_date) && current_date < end_date)
                 {
-                    events[`${cfg.year}${d.event_code}`] = clean_event_name(d.name)
+                    let event_id = `${cfg.year}${d.event_code}`
+                    current_events.push(event_id)
+
+                    // apply event search filters
+                    if ((!event_filter || d.event_code.startsWith(event_filter.toLowerCase())) &&
+                        (!country_filter || d.country.toUpperCase() === country_filter.toUpperCase()) &&
+                        (!district_filter || (d.district && d.district.abbreviation === district_filter.toLowerCase()) ||
+                                             (district_filter === 'none' && d.district === null)))
+                    {
+                        events[event_id] = clean_event_name(d.name)
+                    }
                 }
             }
+
+            // remove played matches for events that have passed
+            played_matches = played_matches.filter(m => current_events.includes(m.split('_')[0]))
 
             // fetch matches for each event
             get_all_matches(events)
@@ -362,7 +372,7 @@ function build_table()
             vidLink.innerText = 'Play'
             // clicking the button plays it immediately
             vidLink.onclick = () => {
-                if (player.getCurrentTime() < 30)
+                if (player.getCurrentTime() < 30 && played_matches.includes(current_match))
                 {
                     played_matches.splice(played_matches.indexOf(current_match), 1)
                 }
