@@ -179,14 +179,7 @@ function onPlayerReady(event)
         {
             // load and start playing its video
             let key = get_yt_videos(match[0])[video_index]
-            if (navigator.getAutoplayPolicy('mediaelement') === 'allowed')
-            {
-                player.loadVideoById(key)
-            }
-            else
-            {
-                console.log('Auto play disabled')
-            }
+            player.loadVideoById(key)
         }
     }
 }
@@ -247,26 +240,30 @@ function onPlayerStateChange(event)
             break
         case -1:
             console.log('STATE ERROR')
-            // this unknown state occurs both before a video starts playing and if it fails to play (i.e. is still processing)
-            // it also occurs an extra time when a video is given a start time, which is used when switching between a single match's videos
-            // so, ignore the first time this happens, if we are switching videos also ignore the second
-            // if it happens a third time, mark the video as unavailable and try to select another video
-            if (state_error && !switching)
+            // unknown state errors are triggered until the user interaction when autoload is disabled, ignore these
+            if (firstStarted || navigator.getAutoplayPolicy('mediaelement') === 'allowed')
             {
-                console.log('Considering match unavailable,', current_match)
-                unavailable_matches.push(current_match)
-                current_match = ''
-                // try to select another video
-                build_table()
-            }
-            else if (switching)
-            {
-                // starting a video from a set point causes a third error
-                switching = false
-            }
-            else
-            {
-                state_error = true
+                // this unknown state occurs both before a video starts playing and if it fails to play (i.e. is still processing)
+                // it also occurs an extra time when a video is given a start time, which is used when switching between a single match's videos
+                // so, ignore the first time this happens, if we are switching videos also ignore the second
+                // if it happens a third time, mark the video as unavailable and try to select another video
+                if (state_error && !switching)
+                {
+                    console.log('Considering match unavailable,', current_match)
+                    unavailable_matches.push(current_match)
+                    current_match = ''
+                    // try to select another video
+                    build_table()
+                }
+                else if (switching)
+                {
+                    // starting a video from a set point causes a third error
+                    switching = false
+                }
+                else
+                {
+                    state_error = true
+                }
             }
             break
     }
@@ -399,14 +396,7 @@ function build_table()
                 if (player && player.hasOwnProperty('loadVideoById'))
                 {
                     console.log('Player loaded before matches, playing first match,', m.key)
-                    if (firstStarted || navigator.getAutoplayPolicy('mediaelement') === 'allowed')
-                    {
-                        player.loadVideoById(video_key)
-                    }
-                    else
-                    {
-                        console.log('Auto play disabled')
-                    }
+                    player.loadVideoById(video_key)
                 }
             }
         }
