@@ -70,6 +70,21 @@ function init_page()
         played_matches = JSON.parse(stored_plays)
     }
 
+    // warn about autoplay
+    if (navigator.getAutoplayPolicy('mediaelement') !== 'allowed' && sessionStorage.getItem('dismiss_warning') !== 'true')
+    {
+        let notification = document.getElementById('warning_notification')
+        notification.innerText = 'Autoplay is not enabled; select a match to start playback.'
+        notification.style.transform = 'translate(0%)'
+        notification.style.visibility = 'visible'
+        notification.onclick = _ => {
+            // dismiss the warning for this session
+            sessionStorage.setItem('dismiss_warning', true)
+            notification.style.transform = 'translate(0%, 100%)'
+            notification.style.visibility = 'collapse'
+        }
+    }
+
     // get TBA key from config, prompt for it if not available
     let key_query = cfg.tba_query
     if (!key_query)

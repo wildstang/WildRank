@@ -207,7 +207,7 @@ function register_service_worker()
  */
 function trigger_install_warning()
 {
-    if (get_browser() !== 'Firefox' && get_display_mode() !== 'standalone' && !sessionStorage.getItem('dismiss_warning'))
+    if (get_browser() !== 'Firefox' && get_display_mode() !== 'standalone' && sessionStorage.getItem('dismiss_warning') !== 'true')
     {
         let notification = document.getElementById('warning_notification')
         notification.innerText = `${cfg.title} is not properly installed. Data may be lost!`
@@ -229,7 +229,7 @@ In the share menu (box with up arrow), choose "Add to Home Screen", then press "
             }
 
             // dismiss the warning for this session
-            sessionStorage.setItem('dismiss_warning', true)
+            sessionStorage.setItem('dismiss_warning', 'true')
             notification.style.transform = 'translate(0%, 100%)'
             notification.style.visibility = 'collapse'
         }
