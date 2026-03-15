@@ -4,13 +4,14 @@
  *              Match videos automatically update and switch to the next latest on completion.
  *              Unavailable videos are automatically skipped.
  *              A button is available for rotating through multiple videos for a match.
- *              TODO: intelligently choose the most interesting match to watch based off of OPR or something.
- *              Auto skip end (and maybe beginning)
+ *              TODO: Auto skip end (and maybe beginning) of video
  * author:      Liam Fruzyna
  * date:        2026-03-12
  */
 
-var events = {}
+var current_events = []
+var selected_events = {}
+var oprs = {}
 
 var read = 0
 var matches = []
@@ -23,25 +24,18 @@ var unavailable_matches = []
 var switching = false
 var firstStarted = false
 
-var video, contents, player, video_toggle, description
+var video, contents, player, video_toggle
+var num_matches_entry, country_dd, district_dd, event_entry, sort_dd
 
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-const NUM_ROWS = 100
 const LS_KEY = 'played-matches'
-const SORT = 'total fuel count'
-
-var country_filter = ''
-var district_filter = ''
-var event_filter = ''
+const SORTS = ['Match Time', 'Mean OPR', 'Total Fuel Count', 'Auto Fuel Count', 'Tower Points']
 
 // fetch new matches every 60 seconds
 setInterval(get_all_matches, 60 * 1000)
 
 /**
- * function:    init_page
- * parameters:  none
- * returns:     none
- * description: Runs onload to fill out the page.
+ * Populates the skeleton of the page and fetches a list of current events.
  */
 function init_page()
 {
@@ -61,28 +55,31 @@ function init_page()
     video_toggle.onclick = switch_video
     video_toggle.className = 'switch_button'
 
-    // add a description of the current filter
-    description = document.createElement('div')
-    let filter = 'all current events'
-    if (event_filter)
-    {
-        filter = event_filter
-    }
-    else if (district_filter)
-    {
-        filter = `current ${district_filter} events`
-    }
-    else if (country_filter)
-    {
-        filter = `current ${country_filter} events`
-    }
-    description.innerText = `Showing the ${NUM_ROWS} latest matches from ${filter}. Playing by in order of ${SORT}.`
-    description.style.padding = '8px'
-
     contents = document.createElement('span')
     contents.innerText = 'Fetching matches...'
-    card = new WRCard([video, video_toggle, description, contents])
-    preview.replaceChildren(card)
+    card = new WRCard([video, video_toggle, contents])
+    card.style.textAlign = 'center'
+
+    num_matches_entry = new WREntry('Number of Matches', 25)
+    num_matches_entry.on_text_change = build_table
+    num_matches_entry.type = 'number'
+    country_dd = new WRDropdown('Country', [''])
+    country_dd.on_change = filter_events
+    district_dd = new WRDropdown('District', [''])
+    district_dd.on_change = filter_events
+    event_entry = new WREntry('Event Code')
+    event_entry.on_text_change = filter_events
+    sort_dd = new WRDropdown('Playback Order', SORTS)
+    sort_dd.on_change = build_table
+    let reset_history = new WRButton('Reset Watch History', () => {
+        played_matches = []
+        localStorage.setItem(LS_KEY, JSON.stringify(played_matches))
+        build_table()
+    })
+    reset_history.add_class('slim')
+    let column = new WRColumn('Options', [num_matches_entry, country_dd, district_dd, event_entry, sort_dd, reset_history])
+
+    preview.replaceChildren(new WRPage('', [new WRColumn('', [card]), column]))
 
     // read stored played_matches from localStorage
     let stored_plays = localStorage.getItem(LS_KEY)
@@ -120,7 +117,10 @@ function init_page()
             return response.json()
         })
         .then(data => {
-            let current_events = []
+            let countries = new Set([''])
+            let districts = new Set(['', 'None'])
+            current_events = []
+
             let current_date = Date.now()
             for (let d of data)
             {
@@ -129,26 +129,59 @@ function init_page()
                 // find all events currently taking place
                 if (current_date > Date.parse(d.start_date) && current_date < end_date)
                 {
-                    let event_id = `${cfg.year}${d.event_code}`
-                    current_events.push(event_id)
-
-                    // apply event search filters
-                    if ((!event_filter || d.event_code.startsWith(event_filter.toLowerCase())) &&
-                        (!country_filter || d.country.toUpperCase() === country_filter.toUpperCase()) &&
-                        (!district_filter || (d.district && d.district.abbreviation === district_filter.toLowerCase()) ||
-                                             (district_filter === 'none' && d.district === null)))
+                    current_events.push(d)
+                    countries.add(d.country)
+                    if (d.district)
                     {
-                        events[event_id] = clean_event_name(d.name)
+                        districts.add(d.district.abbreviation.toUpperCase())
                     }
                 }
             }
 
-            // remove played matches for events that have passed
-            played_matches = played_matches.filter(m => current_events.includes(m.split('_')[0]))
+            // rebuild country dropdown
+            country_dd.options = countries
+            country_dd.element.replaceChildren(...country_dd.option_elements)
 
-            // fetch matches for each event
-            get_all_matches(events)
+            // rebuild district dropdown
+            district_dd.options = districts
+            district_dd.element.replaceChildren(...district_dd.option_elements)
+
+            // remove played matches for events that have passed
+            let event_ids = current_events.map(e => `${cfg.year}${e.event_code}`)
+            played_matches = played_matches.filter(m => event_ids.includes(m.split('_')[0]))
+
+            filter_events()
         })
+}
+
+/**
+ * Filters the list of current events using the provided filters.
+ */
+function filter_events()
+{
+    console.log('Filtering events')
+
+    // read filter inputs
+    let event_filter = event_entry.element.value.toLowerCase()
+    let district_filter = district_dd.element.value.toLowerCase()
+    let country_filter = country_dd.element.value.toUpperCase()
+
+    // rebuild the selected events map
+    selected_events = {}
+    for (let e of current_events)
+    {
+        // apply event search filters
+        if ((!event_filter || e.event_code.startsWith(event_filter)) &&
+            (!district_filter || (e.district && e.district.abbreviation === district_filter) ||
+                                 (district_filter === 'none' && e.district === null)) &&
+            (!country_filter || e.country.toUpperCase() === country_filter))
+        {
+            selected_events[`${cfg.year}${e.event_code}`] = clean_event_name(e.name)
+        }
+    }
+
+    // fetch matches for each event
+    get_all_matches(selected_events)
 }
 
 /**
@@ -165,8 +198,9 @@ function get_all_matches()
 
     // reset match list
     matches = []
-    for (let event of Object.keys(events))
+    for (let event in selected_events)
     {
+        // fetch matches for each event
         fetch(`https://www.thebluealliance.com/api/v3/event/${event}/matches${cfg.tba_query}`)
             .then(response => {
                 if (response.status == 401) {
@@ -182,6 +216,25 @@ function get_all_matches()
             .catch(err => {
                 count_matches()
             })
+
+        // fetch OPRs for each event
+        fetch(`https://www.thebluealliance.com/api/v3/event/${event}/oprs${cfg.tba_query}`)
+            .then(response => {
+                if (response.status == 401) {
+                    alert('Invalid API Key Suspected')
+                }
+                return response.json()
+            })
+            .then(data => {
+                oprs = {...oprs, ...data.oprs}
+            })
+    }
+
+    // if no matches were selected, build the empty table
+    if (Object.keys(selected_events).length === 0)
+    {
+        build_table()
+        read = 0
     }
 }
 
@@ -192,7 +245,7 @@ function get_all_matches()
 function count_matches()
 {
     // wait until each event is accounted for
-    if (++read === Object.keys(events).length)
+    if (++read === Object.keys(selected_events).length)
     {
         // sort matches in descending time order
         matches.sort((a, b) => b.actual_time - a.actual_time)
@@ -339,16 +392,19 @@ function build_table()
 
     let table = document.createElement('table')
     table.id = 'live_matches'
-    let header = create_header_row(['Event', 'Match', 'BD', 'Time', 'Red Teams', 'Red Score', 'Blue Score', 'Blue Teams', 'Video'])
+    let header = create_header_row(['Event', 'Match', 'Time', 'Red Teams', 'Red', 'Blue', 'Blue Teams', 'Sort', 'Video'])
     header.className = 'sticky_header'
     table.append(header)
     contents.replaceChildren(table)
+
+    let num_rows = parseInt(num_matches_entry.element.value)
+    let sort = sort_dd.element.value.toLowerCase()
 
     let priorities = {}
     for (let i in matches)
     {
         // only show the specified number of matches
-        if (i >= NUM_ROWS)
+        if (i >= num_rows)
         {
             break
         }
@@ -364,22 +420,15 @@ function build_table()
 
         // open the TBA event page when the event name is clicked
         let event = row.insertCell()
-        event.innerText = events[m.event_key]
+        event.innerText = selected_events[m.event_key]
         event.onclick = () => window_open(`https://thebluealliance.com/event/${m.event_key}`, true)
-        event.title = `Open ${events[m.event_key]} in TBA`
+        event.title = `Open ${selected_events[m.event_key]} in TBA`
 
         // open the TBA match page when the match name is clicked
         let match_num = row.insertCell()
         match_num.innerText = get_short_name(m)
         match_num.onclick = () => window_open(`https://thebluealliance.com/match/${m.key}`, true)
         match_num.title = `Open ${get_short_name(m)} in TBA`
-
-        // open the TBA match page when the breakdown is clicked
-        let breakdown = row.insertCell()
-        let has_breakdown = m.score_breakdown !== null
-        breakdown.innerText = has_breakdown ? '✅' : '❌'
-        breakdown.onclick = () => window_open(`https://thebluealliance.com/match/${m.key}`, true)
-        breakdown.title = `Open ${get_short_name(m)} in TBA`
 
         let match_date = new Date(m.actual_time * 1000)
         let minutes = `${match_date.getMinutes()}`.padStart(2, '0')
@@ -411,6 +460,13 @@ function build_table()
             blue_score.style.fontWeight = 'bold'
         }
 
+        let sort_score = ''
+        if (m.score_breakdown !== null)
+        {
+            sort_score = calculate_match_priority(m, sort)
+        }
+        row.insertCell().innerText = sort_score
+
         // get the match's YouTube videos
         let vidLink = row.insertCell()
         let videos = get_yt_videos(m)
@@ -420,7 +476,7 @@ function build_table()
             let video_key = videos[video_index]
 
             // add a green play button if there is at least 1 video
-            vidLink.innerText = 'Play'
+            vidLink.innerText = videos.length === 1 ? 'Play' : `Play (${videos.length})`
             // clicking the button plays it immediately
             vidLink.onclick = () => {
                 if (player.getCurrentTime() < 30 && played_matches.includes(current_match))
@@ -456,9 +512,9 @@ function build_table()
             }
 
             // if no video is currently playing, build a list of unplayed and available matches
-            if (!played_matches.includes(m.key) && !unavailable_matches.includes(m.key) && !current_match && has_breakdown)
+            if (!played_matches.includes(m.key) && !unavailable_matches.includes(m.key) && !current_match && sort_score)
             {
-                priorities[m.key] = { 'video': video_key, 'priority': calculate_match_priority(m) }
+                priorities[m.key] = { 'video': video_key, 'priority': sort_score }
             }
         }
 
@@ -496,17 +552,37 @@ function build_table()
  * Calculates a score used to rank match video priorities.
  * Currently it is total fuel.
  * @param {Object} match Match object from TBA
+ * @param {String} sort Name of sort algorithm to use, match time by default
  * @returns Calculated priority score or -1 if no breakdown
  */
-function calculate_match_priority(match)
+function calculate_match_priority(match, sort='')
 {
     if (match.score_breakdown !== null)
     {
-        if (SORT === 'total fuel count')
+        if (sort === 'total fuel count')
         {
             let red_fuel = match.score_breakdown.red.hubScore.totalCount
             let blue_fuel = match.score_breakdown.blue.hubScore.totalCount
             return red_fuel + blue_fuel
+        }
+        else if (sort === 'auto fuel count')
+        {
+            let red_fuel = match.score_breakdown.red.hubScore.autoCount
+            let blue_fuel = match.score_breakdown.blue.hubScore.autoCount
+            return red_fuel + blue_fuel
+        }
+        else if (sort === 'tower points')
+        {
+            let red = match.score_breakdown.red.totalTowerPoints
+            let blue = match.score_breakdown.blue.totalTowerPoints
+            return red + blue
+        }
+        else if (sort === 'mean opr')
+        {
+            let red = match.alliances.red.team_keys.map(t => oprs[t]).reduce((a, b) => a + b)
+            let blue = match.alliances.blue.team_keys.map(t => oprs[t]).reduce((a, b) => a + b)
+            let mean = (red + blue) / 6
+            return parseInt(mean * 10) / 10
         }
         else
         {
