@@ -59,6 +59,7 @@ function init_page()
     // button to rotate between available videos, only shown if a match has multiple
     video_toggle = document.createElement('div')
     video_toggle.onclick = switch_video
+    video_toggle.className = 'switch_button'
 
     // add a description of the current filter
     description = document.createElement('div')
@@ -272,10 +273,12 @@ function onPlayerStateChange(event)
                     if (get_yt_videos(m).length > 1)
                     {
                         video_toggle.innerText = 'Switch Video'
+                        video_toggle.style.padding = '8px'
                     }
                     else
                     {
                         video_toggle.innerText = ''
+                        video_toggle.style.padding = '0'
                     }
                 }
 

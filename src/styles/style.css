@@ -363,3 +363,11 @@ tr:nth-child(even) {
         background: #FFF200;
     }
 }
+
+.switch_button {
+    background-color: var(--hover-color)
+}
+
+.switch_button:hover {
+    background-color: var(--active-color)
+}
