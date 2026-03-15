@@ -21,6 +21,7 @@ var played_matches = []
 var state_error = false
 var unavailable_matches = []
 var switching = false
+var firstStarted = false
 
 var video, contents, player, video_toggle
 
@@ -177,8 +178,15 @@ function onPlayerReady(event)
         if (match.length)
         {
             // load and start playing its video
-            player.loadVideoById(get_yt_videos(match[0])[video_index])
-            player.playVideo()
+            let key = get_yt_videos(match[0])[video_index]
+            if (navigator.getAutoplayPolicy('mediaelement') === 'allowed')
+            {
+                player.loadVideoById(key)
+            }
+            else
+            {
+                console.log('Auto play disabled')
+            }
         }
     }
 }
@@ -195,6 +203,7 @@ function onPlayerStateChange(event)
         case YT.PlayerState.PLAYING:
             console.log('Video started')
             state_error = false
+            firstStarted = true
 
             // detect if the selected video is being started for the first time
             if (current_match && !played_matches.includes(current_match))
@@ -357,7 +366,6 @@ function build_table()
                 video_index = 0
                 unavailable_matches = []
                 player.loadVideoById(video_key)
-                player.playVideo()
             }
             // right clicking the button opens the video in a new tab
             vidLink.oncontextmenu = () => {
@@ -390,8 +398,14 @@ function build_table()
                 if (player && player.hasOwnProperty('loadVideoById'))
                 {
                     console.log('Player loaded before matches, playing first match,', m.key)
-                    player.loadVideoById(video_key)
-                    player.playVideo()
+                    if (firstStarted || navigator.getAutoplayPolicy('mediaelement') === 'allowed')
+                    {
+                        player.loadVideoById(video_key)
+                    }
+                    else
+                    {
+                        console.log('Auto play disabled')
+                    }
                 }
             }
         }
@@ -427,7 +441,6 @@ function switch_video()
         // start the next video where the first one left off
         switching = true
         player.loadVideoById(videos[video_index], startSeconds=player.getCurrentTime())
-        player.playVideo()
     }
 }
 
