@@ -29,6 +29,10 @@ const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const NUM_ROWS = 100
 const LS_KEY = 'played-matches'
 
+var country_filter = ''
+var district_filter = ''
+var event_filter = ''
+
 // fetch new matches every 60 seconds
 setInterval(get_all_matches, 60 * 1000)
 
@@ -85,8 +89,12 @@ function init_page()
             {
                 // get end of day by adding 1 day in ms
                 let end_date = Date.parse(d.end_date) + 86400000
-                // find all events currently taking place
-                if (current_date > Date.parse(d.start_date) && current_date < end_date)
+                // find all events currently taking place and matching current filters
+                if (current_date > Date.parse(d.start_date) && current_date < end_date &&
+                    (!event_filter || d.event_code.startsWith(event_filter.toLowerCase())) &&
+                    (!country_filter || d.country.toUpperCase() === country_filter.toUpperCase()) &&
+                    (!district_filter || (d.district && d.district.abbreviation === district_filter.toLowerCase()) ||
+                                         (district_filter === 'none' && d.district === null)))
                 {
                     events[`${cfg.year}${d.event_code}`] = clean_event_name(d.name)
                 }
