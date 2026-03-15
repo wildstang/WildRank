@@ -60,6 +60,7 @@ function init_page()
     video_toggle.onclick = switch_video
 
     contents = document.createElement('span')
+    contents.innerText = 'Fetching matches...'
     card = new WRCard([video, video_toggle, contents])
     preview.replaceChildren(card)
 
@@ -136,9 +137,13 @@ function init_page()
 function get_all_matches()
 {
     console.log('Updating matches')
+    if (read > 0)
+    {
+        console.log('Update already in progress, aborting')
+        return
+    }
 
     // reset match list
-    read = 0
     matches = []
     for (let event of Object.keys(events))
     {
@@ -172,6 +177,7 @@ function count_matches()
         // sort matches in descending time order
         matches.sort((a, b) => b.actual_time - a.actual_time)
         build_table()
+        read = 0
     }
 }
 
