@@ -388,6 +388,33 @@ class TeamResult extends BaseResult
     }
 }
 
+function clean_event_name(name)
+{
+    // remove sponsors and district championship prefixes from event name
+    let lower_name = name.toLowerCase()
+    let presentIndex = lower_name.indexOf('presented')
+    let sponsorIndex = lower_name.indexOf('sponsored')
+    let champIndex = lower_name.indexOf('championship - ')
+    if (presentIndex > 0)
+    {
+        name = name.substring(0, presentIndex - 1)
+    }
+    else if (sponsorIndex > 0)
+    {
+        name = name.substring(0, sponsorIndex - 1)
+    }
+    if (champIndex > 0)
+    {
+        name = name.substring(champIndex + 15)
+    }
+    if (name.endsWith(' Event'))
+    {
+        name = name.substring(0, name.length - 6)
+    }
+
+    return name
+}
+
 /**
  * Object containing all data fetched from TBA and scouted results.
  */
@@ -442,26 +469,7 @@ class Data
 
         if (tba_event.hasOwnProperty('name'))
         {
-            // remove sponsors and district championship prefixes from event name
-            let name = tba_event.name
-            let lower_name = name.toLowerCase()
-            let presentIndex = lower_name.indexOf('presented')
-            let sponsorIndex = lower_name.indexOf('sponsored')
-            let champIndex = lower_name.indexOf('championship - ')
-            if (presentIndex > 0)
-            {
-                name = name.substring(0, presentIndex - 1)
-            }
-            else if (sponsorIndex > 0)
-            {
-                name = name.substring(0, sponsorIndex - 1)
-            }
-            if (champIndex > 0)
-            {
-                name = name.substring(champIndex + 15)
-            }
-
-            this.event_name = name
+            this.event_name = clean_event_name(tba_event.name)
         }
 
         this.double_elim_event = tba_event.playoff_type === 10

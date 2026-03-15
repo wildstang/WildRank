@@ -343,3 +343,23 @@ tr:nth-child(even) {
     width: calc(299px - 2*var(--input-padding));
     margin: 4px auto;
 }
+
+#live_matches {
+    display: block;
+    height: 350px;
+    overflow-y: scroll;
+}
+
+.playing_match {
+    animation-name: playing_color;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate-reverse;
+    animation-timing-function: linear;
+}
+
+@keyframes playing_color {
+    to {
+        background: #FFF200;
+    }
+}

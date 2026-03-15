@@ -40,7 +40,7 @@ const CONFIGS = {
     'extras': {
         'App': ['bracket', 'whiteboard', 'export'],
         'Team': ['misc/event-selector', 'misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde', 'misc/live'],
+        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde', 'misc/live', 'misc/watch'],
         'Game Specific': ['misc/2025-score-calculator', 'misc/2025-audit']
     }
 }
@@ -114,7 +114,8 @@ const BUTTONS = {
     'misc/test':                    { name: 'Input Tester',             limits: [] },
     'misc/top-partners':            { name: 'Top Partners',             limits: [] },
     'misc/transfer-test':           { name: 'Transfer Test',            limits: [] },
-    'misc/verde':                   { name: 'VerdeRank',                limits: ['teams'] }
+    'misc/verde':                   { name: 'VerdeRank',                limits: ['teams'] },
+    'misc/watch':                   { name: 'WildZone',                 limits: [] }
 }
 
 var role_page = ''
