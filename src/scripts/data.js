@@ -1303,7 +1303,7 @@ class Data
             }
             else
             {
-                ordered = this.get_match_results(result_id)
+                ordered = this.team_numbers.map(team => this.compute_stat(result_id, team, stat))
             }
             ordered = ordered.sort((a, b) => a - b)
             if (!result.negative)
