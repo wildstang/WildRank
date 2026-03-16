@@ -88,21 +88,6 @@ function init_page()
         played_matches = JSON.parse(stored_plays)
     }
 
-    // warn about autoplay
-    if (navigator.getAutoplayPolicy('mediaelement') !== 'allowed' && sessionStorage.getItem('dismiss_warning') !== 'true')
-    {
-        let notification = document.getElementById('warning_notification')
-        notification.innerText = 'Autoplay is not enabled; select a match to start playback.'
-        notification.style.transform = 'translate(0%)'
-        notification.style.visibility = 'visible'
-        notification.onclick = _ => {
-            // dismiss the warning for this session
-            sessionStorage.setItem('dismiss_warning', true)
-            notification.style.transform = 'translate(0%, 100%)'
-            notification.style.visibility = 'collapse'
-        }
-    }
-
     // get TBA key from config, prompt for it if not available
     let key_query = cfg.tba_query
     if (!key_query)
@@ -282,6 +267,13 @@ function onYouTubeIframeAPIReady()
  */
 function onPlayerReady(event)
 {
+    // mute to allow autoplay
+    if (get_autoplay_policy() === 'allowed-muted')
+    {
+        console.log('Autoplay allowed when muted, muting player')
+        player.mute()
+    }
+
     if (current_match)
     {
         console.log('Player loaded after matches, playing first match')
@@ -354,8 +346,8 @@ function onPlayerStateChange(event)
             break
         case -1:
             console.log('STATE ERROR')
-            // unknown state errors are triggered until the user interaction when autoload is disabled, ignore these
-            if (firstStarted || navigator.getAutoplayPolicy('mediaelement') === 'allowed')
+            // unknown state errors are triggered until the user interaction when autoplay is disabled, ignore these
+            if (firstStarted || get_autoplay_policy() !== 'disallowed')
             {
                 // this unknown state occurs both before a video starts playing and if it fails to play (i.e. is still processing)
                 // it also occurs an extra time when a video is given a start time, which is used when switching between a single match's videos
@@ -644,4 +636,17 @@ function get_short_name(match)
     {
         return `M ${match.set_number}`
     }
+}
+
+/**
+ * Attempts to read the browser's autoplay policy.
+ * @returns allowed, allowed-muted, or disallowed
+ */
+function get_autoplay_policy()
+{
+    if (navigator.getAutoplayPolicy === undefined)
+    {
+        return 'allowed-muted'
+    }
+    return navigator.getAutoplayPolicy('mediaelement')
 }
