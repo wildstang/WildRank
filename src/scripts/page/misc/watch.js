@@ -29,7 +29,7 @@ var num_matches_entry, country_dd, district_dd, event_entry, sort_dd
 
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const LS_KEY = 'played-matches'
-const SORTS = ['Match Time', 'Mean OPR', 'Total Fuel Count', 'Auto Fuel Count', 'Tower Points']
+const SORTS = ['Match Time', 'Mean OPR', 'Total Fuel Count', 'Auto Fuel Count', 'Tower Points', 'Controversial']
 
 // fetch new matches every 60 seconds
 setInterval(get_all_matches, 60 * 1000)
@@ -575,6 +575,17 @@ function calculate_match_priority(match, sort='')
             let blue = match.alliances.blue.team_keys.map(t => oprs[t]).reduce((a, b) => a + b)
             let mean = (red + blue) / 6
             return parseInt(mean * 10) / 10
+        }
+        else if (sort === 'controversial')
+        {
+            let red = match.alliances.red.score
+            let blue = match.alliances.blue.score
+            let mov = match.winning_alliance.toLowerCase() === 'red' ? red - blue : blue - red
+            red -= match.score_breakdown.red.foulPoints
+            blue -= match.score_breakdown.blue.foulPoints
+            let no_foul_mov = match.winning_alliance.toLowerCase() === 'red' ? red - blue : blue - red
+            console.log(mov, no_foul_mov)
+            return -no_foul_mov
         }
         else
         {
