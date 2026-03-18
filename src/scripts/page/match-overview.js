@@ -117,6 +117,13 @@ function open_option(match_key)
             cell.style.backgroundColor = scouted ? 'green' : 'red'
         }
     }
+    let last_row = completion_table.insertRow()
+    last_row.append(create_header('Last Match'))
+    for (let team_num of teams)
+    {
+        let max = dal.get_last_team_match(match.match_num, team_num)
+        last_row.insertCell().innerText = max === 0 ? 'N/A' : max
+    }
 
     // generate extras
     let extras = []
