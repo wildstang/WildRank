@@ -207,7 +207,8 @@ function register_service_worker()
  */
 function trigger_install_warning()
 {
-    if (get_browser() !== 'Firefox' && get_display_mode() !== 'standalone' && sessionStorage.getItem('dismiss_warning') !== 'true' && !page.startsWith('misc/'))
+    let browser = get_browser()
+    if (browser !== 'Firefox' && get_display_mode() !== 'standalone' && sessionStorage.getItem('dismiss_warning') !== 'true' && !page.startsWith('misc/'))
     {
         let notification = document.getElementById('warning_notification')
         notification.innerText = `${cfg.title} is not properly installed. Data may be lost!`

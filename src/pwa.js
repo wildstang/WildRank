@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-5.1.0'
+const CACHE_NAME = 'wildrank-5.1.1'
 const CACHE_LIST = [
     // html files
     '/',
@@ -40,7 +40,7 @@ const CACHE_LIST = [
     '/scripts/page/misc/watch.js',
     '/scripts/page/misc/2025-audit.js',
     '/scripts/page/misc/2025-score-calculator.js',*/
-    '/scripts/page/misc/partner-match.js',
+    '/scripts/page/misc/partner-matches.js',
     '/scripts/page/misc/test.js',
     '/scripts/page/about.js',
     '/scripts/page/bracket.js',
