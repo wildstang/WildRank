@@ -1811,7 +1811,7 @@ class Config
         {
             return parseInt(this.user.state.event_id.substring(0, 4))
         }
-        return 0
+        return new Date().getFullYear()
     }
 
     /**
