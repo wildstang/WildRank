@@ -26,7 +26,7 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
     'prep': {
-        'Event Prep': ['preload_event', 'config-generator', 'events', 'misc/socials', 'event-generator'],
+        'Event Prep': ['preload_event', 'config-generator', 'events', 'misc/socials', 'event-generator', 'misc/partner-matches'],
         'Edit Values': ['edit-coach', 'edit-favorites', 'edit-fms']
     },
     'debug': {
@@ -106,6 +106,7 @@ const BUTTONS = {
     'misc/international-counter':   { name: 'International Counter',    limits: [] },
     'misc/live':                    { name: 'Live Event Tracker',       limits: [] },
     'misc/max-score':               { name: 'Max Score',                limits: [] },
+    'misc/partner-matches':         { name: 'Partner Matches',          limits: [] },
     'misc/revival-counter':         { name: 'Revival Counter',          limits: [] },
     'misc/score-counter':           { name: 'Score Counter',            limits: [] },
     'misc/socials':                 { name: 'Social Handles',           limits: [] },

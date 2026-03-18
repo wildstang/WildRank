@@ -1347,4 +1347,24 @@ class Data
         }
         return ''
     }
+
+    /**
+     * Determines the last match number containing the given team before the given match.
+     * @param {Number} match_num Quals match number
+     * @param {Number} team_num Team number
+     * @returns Last match number containing the given team before the given match.
+     */
+    get_last_team_match(match_num, team_num)
+    {
+        let max = 0
+        for (let key of this.teams[team_num].matches)
+        {
+            let m = this.matches[key]
+            if (m.comp_level === 'qm' && m.match_num > max && m.match_num < match_num)
+            {
+                max = m.match_num
+            }
+        }
+        return max
+    }
 }
