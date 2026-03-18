@@ -110,7 +110,8 @@ function init_page()
             for (let d of data)
             {
                 // get end of day by adding 1 day in ms
-                let end_date = Date.parse(d.end_date) + 86400000
+                // multiply by two to help account for timezone conflicts
+                let end_date = Date.parse(d.end_date) + 2*86400000
                 // find all events currently taking place
                 if (current_date > Date.parse(d.start_date) && current_date < end_date)
                 {
