@@ -25,7 +25,7 @@ var switching = false
 var firstStarted = false
 
 var video, contents, player, video_toggle
-var num_matches_entry, country_dd, district_dd, event_entry, sort_dd
+var num_matches_entry, country_dd, district_dd, event_entry, sort_dd, expand_cb
 
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const LS_KEY = 'played-matches'
@@ -77,7 +77,9 @@ function init_page()
         build_table()
     })
     reset_history.add_class('slim')
-    let column = new WRColumn('Options', [num_matches_entry, country_dd, district_dd, event_entry, sort_dd, reset_history])
+    expand_cb = new WRCheckbox('Entire Week')
+    expand_cb.on_click = get_events
+    let column = new WRColumn('Options', [num_matches_entry, country_dd, district_dd, event_entry, sort_dd, expand_cb, reset_history])
 
     preview.replaceChildren(new WRPage('', [new WRColumn('', [card]), column]))
 
@@ -88,6 +90,14 @@ function init_page()
         played_matches = JSON.parse(stored_plays)
     }
 
+    get_events()
+}
+
+/**
+ * Fetches all current events from TBA.
+ */
+function get_events()
+{
     // get TBA key from config, prompt for it if not available
     let key_query = cfg.tba_query
     if (!key_query)
@@ -112,6 +122,10 @@ function init_page()
                 // get end of day by adding 1 day in ms
                 // multiply by two to help account for timezone conflicts
                 let end_date = Date.parse(d.end_date) + 2*86400000
+                if (expand_cb.checked)
+                {
+                    end_date = Date.parse(d.start_date) + 7*86400000
+                }
                 // find all events currently taking place
                 if (current_date > Date.parse(d.start_date) && current_date < end_date)
                 {
@@ -579,14 +593,9 @@ function calculate_match_priority(match, sort='')
         }
         else if (sort === 'controversial')
         {
-            let red = match.alliances.red.score
-            let blue = match.alliances.blue.score
-            let mov = match.winning_alliance.toLowerCase() === 'red' ? red - blue : blue - red
-            red -= match.score_breakdown.red.foulPoints
-            blue -= match.score_breakdown.blue.foulPoints
-            let no_foul_mov = match.winning_alliance.toLowerCase() === 'red' ? red - blue : blue - red
-            console.log(mov, no_foul_mov)
-            return -no_foul_mov
+            let red = match.alliances.red.score - match.score_breakdown.red.foulPoints
+            let blue = match.alliances.blue.score - match.score_breakdown.blue.foulPoints
+            return -match.winning_alliance.toLowerCase() === 'red' ? red - blue : blue - red
         }
         else
         {
