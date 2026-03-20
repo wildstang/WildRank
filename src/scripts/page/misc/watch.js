@@ -399,7 +399,7 @@ function build_table()
 
     let table = document.createElement('table')
     table.id = 'live_matches'
-    let header = create_header_row(['Event', 'Match', 'Time', 'Red Teams', 'Red', 'Blue', 'Blue Teams', 'Sort', 'Video'])
+    let header = create_header_row(['Event', 'Match', 'Time', 'Blue Teams', 'Blue', 'Red', 'Red Teams', 'Sort', 'Video'])
     header.className = 'sticky_header'
     table.append(header)
     contents.replaceChildren(table)
@@ -441,30 +441,30 @@ function build_table()
         let minutes = `${match_date.getMinutes()}`.padStart(2, '0')
         row.insertCell().innerText = `${DAYS[match_date.getDay()]} ${match_date.getHours()}:${minutes}`
 
-        let red_teams = row.insertCell()
-        red_teams.innerText = m.alliances.red.team_keys.map(t => t.substring(3)).join(' ')
-        red_teams.style.color = 'var(--red-alliance-color)'
-
-        let red_score = row.insertCell()
-        red_score.innerText = m.alliances.red.score
-        red_score.style.color = 'var(--red-alliance-color)'
-        if (m.winning_alliance == 'red')
-        {
-            red_teams.style.fontWeight = 'bold'
-            red_score.style.fontWeight = 'bold'
-        }
+        let blue_teams = row.insertCell()
+        blue_teams.innerText = m.alliances.blue.team_keys.map(t => t.substring(3)).join(' ')
+        blue_teams.style.color = 'var(--blue-alliance-color)'
 
         let blue_score = row.insertCell()
         blue_score.innerText = m.alliances.blue.score
         blue_score.style.color = 'var(--blue-alliance-color)'
-
-        let blue_teams = row.insertCell()
-        blue_teams.innerText = m.alliances.blue.team_keys.map(t => t.substring(3)).join(' ')
-        blue_teams.style.color = 'var(--blue-alliance-color)'
         if (m.winning_alliance == 'blue')
         {
             blue_teams.style.fontWeight = 'bold'
             blue_score.style.fontWeight = 'bold'
+        }
+
+        let red_score = row.insertCell()
+        red_score.innerText = m.alliances.red.score
+        red_score.style.color = 'var(--red-alliance-color)'
+
+        let red_teams = row.insertCell()
+        red_teams.innerText = m.alliances.red.team_keys.map(t => t.substring(3)).join(' ')
+        red_teams.style.color = 'var(--red-alliance-color)'
+        if (m.winning_alliance == 'red')
+        {
+            red_teams.style.fontWeight = 'bold'
+            red_score.style.fontWeight = 'bold'
         }
 
         let sort_score = ''
