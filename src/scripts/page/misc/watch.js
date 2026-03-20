@@ -27,7 +27,7 @@ var firstStarted = false
 var video, contents, player, video_toggle
 var num_matches_entry, country_dd, district_dd, event_entry, sort_dd, expand_cb
 
-const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const DAYS = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa']
 const LS_KEY = 'played-matches'
 const SORTS = ['Match Time', 'Mean OPR', 'Total Fuel Count', 'Auto Fuel Count', 'Tower Points', 'Controversial']
 
