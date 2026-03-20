@@ -226,7 +226,12 @@ function update_rankings()
 
                 // build a table containing the top 15 teams
                 let table = document.createElement('table')
-                table.append(create_header_row(['Rank', 'Team #', 'Avg RP', 'Avg Coop', 'Avg Match', 'Matches']))
+                let first_sort = data.sort_order_info[0].name
+                if (first_sort === 'Ranking Score')
+                {
+                    first_sort = 'Avg RP'
+                }
+                table.append(create_header_row(['Rank', 'Team #', first_sort, data.sort_order_info[1].name, data.sort_order_info[2].name, 'Matches']))
                 for (let team of rankings.slice(0, 15))
                 {
                     row = table.insertRow()
