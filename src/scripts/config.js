@@ -1850,6 +1850,16 @@ class Config
         {
             return this.user.settings.tba_key
         }
+        else if (get_browser() === 'Chrome')
+        {
+            let key = prompt('Enter your TBA key:').trim()
+            if (key)
+            {
+                this.user.settings.tba_key = key
+                this.user.store_config()
+            }
+            return key
+        }
         else
         {
             if (confirm('No API key found for TBA! Do you want to open TBA?'))
