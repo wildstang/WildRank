@@ -1458,18 +1458,21 @@ class Result
                     if (map_val !== null)
                     {
                         let result = cfg.get_result_from_key(this.result)
-                        let value_type = result.value_type
-                        if (value_type === 'str-option')
+                        if (result !== null)
                         {
-                            return this.values[result.options.indexOf(map_val)]
-                        }
-                        else if (value_type === 'boolean')
-                        {
-                            return this.values[map_val ? 0 : 1]
-                        }
-                        else if (value_type === 'int-option')
-                        {
-                            return this.values[map_val]
+                            let value_type = result.value_type
+                            if (value_type === 'str-option')
+                            {
+                                return this.values[result.options.indexOf(map_val)]
+                            }
+                            else if (value_type === 'boolean')
+                            {
+                                return this.values[map_val ? 0 : 1]
+                            }
+                            else if (value_type === 'int-option')
+                            {
+                                return this.values[map_val]
+                            }
                         }
                     }
                 }

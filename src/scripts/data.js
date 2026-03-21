@@ -271,16 +271,20 @@ class BaseResult
                     else if (valid_values.length > 1)
                     {
                         // combine multiple results
-                        switch (cfg.get_result_from_key(key).value_type)
+                        let res = cfg.get_result_from_key(key)
+                        if (res !== null)
                         {
-                            case 'number':
-                                return mean(valid_values)
-                            case 'string':
-                                return valid_values.join('\n')
-                            case 'boolean':
-                            case 'int-option':
-                            case 'str-option':
-                                return median(valid_values)
+                            switch (res.value_type)
+                            {
+                                case 'number':
+                                    return mean(valid_values)
+                                case 'string':
+                                    return valid_values.join('\n')
+                                case 'boolean':
+                                case 'int-option':
+                                case 'str-option':
+                                    return median(valid_values)
+                            }
                         }
                     }
                 }
@@ -289,7 +293,8 @@ class BaseResult
                 if (this.fms_results.hasOwnProperty(sub_key))
                 {
                     let value = this.fms_results[sub_key]
-                    if (cfg.get_result_from_key(key).type === 'yes_no')
+                    let res = cfg.get_result_from_key(key)
+                    if (res !== null && res.type === 'yes_no')
                     {
                         return value === 'Yes'
                     }
