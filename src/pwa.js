@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-5.1.2'
+const CACHE_NAME = 'wildrank-5.1.3'
 const CACHE_LIST = [
     // html files
     '/',
@@ -89,6 +89,12 @@ const CACHE_LIST = [
     // assets
     '/assets/2026/fuel.png',
     '/assets/2026/field-2026.png',
+    '/assets/2026/low-bps.png',
+    '/assets/2026/med-bps.png',
+    '/assets/2026/high-bps.png',
+    '/assets/2026/low-fill.png',
+    '/assets/2026/med-fill.png',
+    '/assets/2026/high-fill.png',
     /* icons should be cached when pwa is installed
     '/assets/icons/icon-192x192-maskable.png',
     '/assets/icons/icon-192x192.png',
