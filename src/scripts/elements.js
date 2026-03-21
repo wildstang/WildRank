@@ -788,7 +788,6 @@ class WRSlider extends WRElement
         this.slider.id = this.input_id
         this.slider.type = 'range'
         this.slider.className = 'wr_slider_range'
-        this.slider.value = this.value
         this.slider.oninput = () => {
             this.update_text()
             if (this.on_change)
@@ -808,6 +807,7 @@ class WRSlider extends WRElement
         {
             this.slider.step = this.incr
         }
+        this.slider.value = this.value
         this.slider.classList.add(...this.classes)
 
         this.element.className = 'wr_slider'
