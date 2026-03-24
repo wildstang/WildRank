@@ -427,9 +427,8 @@ function build_page_from_config()
                 if (selected_col == col_name || selected_col == 'New' || selected_col == '')
                 {
                     let cycle = column.cycle
-                    let column_frame = new WRColumn(col_name)
+                    let column_frame = new WRColumn(`${col_name}${cycle ? ' (CYCLE)' : ''}`)
                     column_frame.label_el.onclick = () => change_column_name(column.id)
-                    column_frame.add_input(cycle ? 'cycle' : '')
                     page_frame.add_column(column_frame)
                     if (selected_col != col_name)
                     {
