@@ -459,7 +459,9 @@ function build_page_from_config()
             }
         }
     }
-    config_preview.replaceChildren(...pages.map(p => p))
+
+    let mode_buttons = build_shift_buttons(cfg.scout.configs[mode_idx].id)
+    config_preview.replaceChildren(mode_buttons, ...pages.map(p => p))
 
     // mark each selected box as such
     for (let id of select_ids)
