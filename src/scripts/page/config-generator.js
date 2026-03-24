@@ -439,15 +439,19 @@ function build_page_from_config()
                     // iterate through input in the column
                     for (let input of column.inputs)
                     {
+                        let items = []
                         let item = build_input_from_config(input)
                         if (item)
                         {
                             item.oncontextmenu = () => change_input_name(input.id)
-                            column_frame.add_input(item)
+                            items.push(item)
                         }
 
                         let button = build_shift_buttons(input.id)
-                        column_frame.add_input(button)
+                        items.push(button)
+
+                        let stack = new WRStack(items)
+                        column_frame.add_input(stack)
                     }
                     if (cycle)
                     {
