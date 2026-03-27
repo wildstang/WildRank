@@ -766,6 +766,7 @@ function build_import_results(on_complete=() => {})
 {
     let i = new Importer()
     i.results = true
+    i.event_data = true
     i.select_multiple = true
     i.on_complete = on_complete
     return i
