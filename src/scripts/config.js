@@ -1559,7 +1559,13 @@ class Result
                         {
                             if (cycle.hasOwnProperty(key))
                             {
-                                if (cycle[key] !== this.conditions[key])
+                                let c_res = cfg.get_result_from_key(this.cycle).inputs.filter(i => i.id === key)[0]
+                                let val = cycle[key]
+                                if (typeof val === 'number' && c_res.hasOwnProperty('options') && c_res.options.length > val)
+                                {
+                                    val = c_res.options[val]
+                                }
+                                if (val !== this.conditions[key])
                                 {
                                     passed = false
                                 }
@@ -1748,7 +1754,8 @@ class Result
      */
     get recompute()
     {
-        return ['math', 'max', 'min', 'where'].includes(this.type)
+        // TODO: this is broken
+        return ['max', 'min'].includes(this.type)
     }
 
     /**
