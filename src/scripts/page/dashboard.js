@@ -193,6 +193,8 @@ function populate()
                         let team = match_teams[team_key]
                         mode_counts[mode].total++
                         let count = 0
+                        let unsure = false
+                        let ignored = false
                         if (dal.is_match_scouted(match, team, mode))
                         {
                             count = dal.matches[match].results[team].results[mode].length
@@ -200,10 +202,12 @@ function populate()
                             mode_counts[mode].complete++
                             if (dal.matches[match].results[team].meta[mode].every(m => m.status.unsure))
                             {
+                                unsure = true
                                 mode_counts[mode].unsure++
                             }
                             if (dal.matches[match].results[team].meta[mode].every(m => m.status.ignore))
                             {
+                                ignored = true
                                 mode_counts[mode].ignore++
                             }
                         }
@@ -213,7 +217,7 @@ function populate()
                         td.innerText = team
                         td.title = `${dal.teams[team].name} (${count})`
                         let expected = cfg.get_scout_config(mode).id === 'scout' ? 3 : 1
-                        td.style.backgroundColor = get_completion_color(count, expected)
+                        td.style.backgroundColor = get_completion_color(count, expected, ignored, unsure)
                         if (count > 0)
                         {
                             td.onclick = (event) => window_open(build_url('result-state', {'match': match, 'team': team}))
@@ -250,6 +254,8 @@ function populate()
                 let team = teams[i]
                 mode_counts[mode].total++
                 let count = 0
+                let unsure = false
+                let ignored = false
                 if (dal.is_team_scouted(team, mode))
                 {
                     count = dal.teams[team].results[mode].length
@@ -257,10 +263,12 @@ function populate()
                     mode_counts[mode].complete++
                     if (dal.teams[team].meta[mode].every(m => m.status.unsure))
                     {
+                        unsure = true
                         mode_counts[mode].unsure++
                     }
                     if (dal.teams[team].meta[mode].every(m => m.status.ignore))
                     {
+                        ignored = true
                         mode_counts[mode].ignore++
                     }
                 }
@@ -269,7 +277,7 @@ function populate()
                 let td = teams_row.insertCell()
                 td.innerText = team
                 td.title = `${dal.teams[team].name} (${count})`
-                td.style.backgroundColor = get_completion_color(count, 1)
+                td.style.backgroundColor = get_completion_color(count, 1, ignored, unsure)
                 if (count > 0)
                 {
                     td.onclick = (event) => window_open(build_url('result-state', {'team': team}))
@@ -308,15 +316,26 @@ function make_percentage(count, total)
 
 /**
  * Computes a color from green to red representing the given completion percentage.
- * @param {Number} percent Completion percentage
+ * @param {Number} completed_modes Number of results
+ * @param {Number} num_modes Number of expected results
+ * @param {Number} ignored Whether all results are ignored
+ * @param {Number} unsure Whether all results are unsure
  * @returns Hex color string
  */
-function get_completion_color(completed_modes, num_modes)
+function get_completion_color(completed_modes, num_modes, ignored=false, unsure=false)
 {
     let colors = ['red', 'orange', 'yellow', 'yellowgreen', 'green']
-    if (completed_modes > num_modes)
+    if (ignored)
     {
-        return 'blue'
+        return 'black'
+    }
+    else if (unsure)
+    {
+        return 'pink'
+    }
+    else if (completed_modes > num_modes)
+    {
+        return 'teal'
     }
     return colors[Math.round(completed_modes / num_modes * (colors.length - 1))]
 }
