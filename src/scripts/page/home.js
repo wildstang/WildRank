@@ -26,8 +26,8 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
     'prep': {
-        'Event Prep': ['preload_event', 'config-generator', 'events', 'misc/socials', 'event-generator', 'misc/partner-matches'],
-        'Edit Values': ['edit-coach', 'edit-favorites', 'edit-fms']
+        'Event Data': ['preload_event', 'event-generator', 'events', 'misc/socials', 'misc/partner-matches'],
+        'Edit Config': ['config-generator', 'edit-coach', 'edit-favorites', 'edit-fms', 'export_config'],
     },
     'debug': {
         'Config': ['settings', 'config-debug'],
@@ -70,6 +70,7 @@ const BUTTONS = {
     'event-generator':      { name: 'Event Generator',          limits: [] },
     'events':               { name: 'Other Events',             limits: ['teams'] },
     'export':               { name: 'Server Exporter',          limits: [] },
+    'export_config':        { name: 'Export Config',            limits: [] },
     'export_results':       { name: 'Export All Results',       limits: [] },
     'match-overview':       { name: 'Match Summaries',          limits: ['matches'] },
     'matches':              { name: 'Scout',                    limits: ['matches'] },
@@ -203,6 +204,10 @@ function open_role(role)
             else if (key === 'import_results')
             {
                 button = build_import_results(() => open_role(role)).build_button('Import Results')
+            }
+            else if (key === 'export_config')
+            {
+                button = build_export_setup().build_button('Export Config')
             }
             else if (key === 'export_results')
             {
