@@ -331,9 +331,79 @@ function save_config()
         return
     }
 
+    // updates defaults based on the config preview
+    parse_current_columns()
+
     cfg.scout.version = version_entry.element.value
     cfg.scout.store_config()
     alert('Scouting config updated')
+}
+
+/**
+ * Update the defaults inside the current columns based on what is entered in the config preview.
+ */
+function parse_current_columns()
+{
+    // read selected mode, page, and column
+    let mode_idx = mode_dd.element.selectedIndex
+    let page_idx = page_dd.element.selectedIndex
+    let column_idx = column_dd.element.selectedIndex
+
+    // if a valid mode is selected
+    if (mode_idx >= 0 && mode_idx < cfg.scout.configs.length)
+    {
+        let mode = cfg.scout.configs[mode_idx]
+        for (let p in mode.pages)
+        {
+            // if no page is selected or the current page is selected
+            if (page_idx < 0 || page_idx === mode.pages.length || parseInt(p) === page_idx)
+            {
+                let page = mode.pages[p]
+                for (let c in page.columns)
+                {
+                    // if no column is selected or the current column is selected
+                    if (column_idx < 0 || column_idx === page.columns.length || parseInt(c) === column_idx)
+                    {
+                        update_defaults_from_column(page.columns[c])
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Update the defaults inside the given column based on what is entered in the config preview.
+ * @param {Column} column A column that is currently present in the config preview
+ */
+function update_defaults_from_column(column)
+{
+    let results = get_results_from_column(column, 'match-team')
+    for (let input of column.inputs)
+    {
+        let result = results[input.id]
+        if (input.type === 'multicounter')
+        {
+            // use first counter as the default
+            result = results[`${input.id}_${create_id_from_name(input.options[0])}`]
+        }
+        else if (input.type === 'multiselect')
+        {
+            // default is a array of booleans
+            result = input.options.map(op => results[`${input.id}_${create_id_from_name(op)}`])
+        }
+        else if (['select', 'dropdown'].includes(input.type))
+        {
+            // convert from an index to the string option
+            result = input.options[result]
+        }
+
+        if (result !== input.default)
+        {
+            console.log(`${input.id} default changed from ${input.default} to ${result}`)
+            input.default = result
+        }
+    }
 }
 
 /**
