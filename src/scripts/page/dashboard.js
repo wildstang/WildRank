@@ -222,6 +222,10 @@ function populate()
                         {
                             td.onclick = (event) => window_open(build_url('result-state', {'match': match, 'team': team}))
                         }
+                        else
+                        {
+                            td.onclick = (event) => window_open(build_url('teams', {'team': team}))
+                        }
                     }
                 }
             }
@@ -281,6 +285,10 @@ function populate()
                 if (count > 0)
                 {
                     td.onclick = (event) => window_open(build_url('result-state', {'team': team}))
+                }
+                else
+                {
+                    td.onclick = (event) => window_open(build_url('teams', {'team': team}))
                 }
             }
         }
