@@ -26,7 +26,7 @@ const CONFIGS = {
         'Overviews': ['teams', 'match-overview', 'users', 'dashboard']
     },
     'prep': {
-        'Event Data': ['preload_event', 'event-generator', 'events', 'misc/socials', 'misc/partner-matches'],
+        'Event Data': ['preload_event', 'event-generator', 'events', 'misc/partner-matches', 'misc/socials', 'misc/verde'],
         'Edit Config': ['config-generator', 'edit-coach', 'edit-favorites', 'edit-fms', 'export_config'],
     },
     'debug': {
@@ -38,10 +38,8 @@ const CONFIGS = {
         'Other': ['random']
     },
     'extras': {
-        'App': ['bracket', 'whiteboard', 'export'],
-        'Team': ['misc/event-selector', 'misc/event-planner', 'misc/team-profile', 'misc/top-partners', 'misc/sponsor-counter', 'misc/revival-counter'],
-        'Events': ['misc/match-counter', 'misc/district-counter', 'misc/international-counter', 'misc/score-counter', 'misc/max-score', 'misc/verde', 'misc/live', 'misc/watch'],
-        'Game Specific': ['misc/2025-score-calculator', 'misc/2025-audit']
+        'App': ['bracket', 'whiteboard'],
+        'Events': ['misc/event-selector', 'misc/live', 'misc/watch']
     }
 }
 
