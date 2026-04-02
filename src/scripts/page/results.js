@@ -140,11 +140,14 @@ function open_option(option)
 
     // build a card for each match, fms, and smart result
     let result = dal.get_match_result(match_key, team_num)
-    for (let scout_mode in result.results)
+    for (let scout_mode of cfg.match_scouting_modes)
     {
-        for (let i in result.results[scout_mode])
+        if (scout_mode in result.results)
         {
-            add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i], result.file_names[scout_mode][i])
+            for (let i in result.results[scout_mode])
+            {
+                add_result_card(scout_mode, result.results[scout_mode][i], result.meta[scout_mode][i], result.file_names[scout_mode][i])
+            }
         }
     }
     if (Object.keys(result.results).length)
