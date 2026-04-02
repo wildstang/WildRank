@@ -1661,7 +1661,15 @@ class Result
             switch(this.value_type)
             {
                 case 'boolean':
-                    return value ? 'Yes' : 'No'
+                    if (value === 1)
+                    {
+                        return 'Yes'
+                    }
+                    else if (value === 0)
+                    {
+                        return 'No'
+                    }
+                    return (value * 100).toFixed(0) + '%'
     
                 case 'int-option':
                     if (typeof value === 'object')
