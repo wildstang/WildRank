@@ -455,6 +455,9 @@ function download_config()
         return
     }
 
+    // updates defaults based on the config
+    parse_current_columns()
+
     cfg.scout.version = version_entry.element.value
     download_object(`${cfg.year}-config.json`, cfg.scout.as_string)
 }
