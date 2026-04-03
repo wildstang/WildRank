@@ -1547,7 +1547,7 @@ class Result
                 let count = 0
                 let denominator = 0
                 let calc_percent = typeof this.denominator !== 'undefined'
-                let count_result = typeof this.result === 'undefined' || !this.result
+                let count_result = this.sum === undefined || !this.sum
                 let cycles = get_value(this.cycle)
                 if (cycles !== null)
                 {
@@ -1581,9 +1581,9 @@ class Result
                             {
                                 count++
                             }
-                            else if (cycle.hasOwnProperty(this.result))
+                            else if (cycle.hasOwnProperty(this.sum))
                             {
-                                count += cycle[this.result]
+                                count += cycle[this.sum]
                             }
                             if (calc_percent && cycle.hasOwnProperty(this.denominator))
                             {
