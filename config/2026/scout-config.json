@@ -1,5 +1,5 @@
 {
-    "version": "2026-midwest",
+    "version": "260403",
     "configs": [
         {
             "type": "match-team",
@@ -601,56 +601,6 @@
                                     "disallow_default": false,
                                     "name": "Notes",
                                     "id": "tech_tech_notes_notes"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "type": "match-alliance",
-            "name": "Drive",
-            "id": "driver",
-            "pages": [
-                {
-                    "name": "Teams",
-                    "id": "driver_teams",
-                    "columns": [
-                        {
-                            "cycle": false,
-                            "name": "TEAM",
-                            "id": "driver_teams_team",
-                            "inputs": [
-                                {
-                                    "type": "select",
-                                    "default": "3",
-                                    "disallow_default": false,
-                                    "options": [
-                                        "1",
-                                        "2",
-                                        "3",
-                                        "4",
-                                        "5"
-                                    ],
-                                    "images": [],
-                                    "colors": [
-                                        "#FF4E11",
-                                        "#FF8E15",
-                                        "#FAB733",
-                                        "#ACB334",
-                                        "#69B34C"
-                                    ],
-                                    "vertical": true,
-                                    "name": "Uber Rating",
-                                    "id": "driver_teams_team_uber_rating"
-                                },
-                                {
-                                    "type": "text",
-                                    "default": "",
-                                    "disallow_default": false,
-                                    "name": "Notes",
-                                    "id": "driver_teams_team_notes"
                                 }
                             ]
                         }
