@@ -305,7 +305,7 @@ function get_results_from_column(column, scout_type, team='')
 }
 
 /**
- * Determines if any disallowed defaults have changed.
+ * Determines if any invalid values are submitted
  * 
  * @param {object} column Scouting configuration column
  * @param {string} scout_type Scouting mode type, used to determine when to replace keywords.
@@ -314,51 +314,66 @@ function get_results_from_column(column, scout_type, team='')
  */
 function check_column(column, scout_type, team='')
 {
+    let results = {}
     for (let input of column.inputs)
     {
-        if (!input.disallow_default)
-        {
-            continue
-        }
-
         let id = input.id
-        let options = input.options
-        let def = input.default
-
         let value = get_result_from_input(input, scout_type, team)
-        switch (input.type)
+
+        // check against default values when disallowed
+        if (input.disallow_default)
         {
-            case 'multicounter':
-                def = Array(options.length).fill(def)
-            case 'multiselect':
-                for (let i in options)
-                {
-                    let name = `${id}_${create_id_from_name(options[i])}`
-                    if (value[name] === def[i])
+            let options = input.options
+            let def = input.default
+
+            switch (input.type)
+            {
+                case 'multicounter':
+                    def = Array(options.length).fill(def)
+                case 'multiselect':
+                    for (let i in options)
+                    {
+                        let name = `${id}_${create_id_from_name(options[i])}`
+                        if (value[name] === def[i])
+                        {
+                            if (scout_type === 'match-alliance')
+                            {
+                                id += `-${team}`
+                            }
+                            results[id] = 'unchanged default'
+                        }
+                    }
+                    break
+                case 'select':
+                    def = options.indexOf(def)
+                default:
+                    if (value[id] === def)
                     {
                         if (scout_type === 'match-alliance')
                         {
                             id += `-${team}`
                         }
-                        return id
+                        results[id] = 'unchanged default'
                     }
-                }
-                break
-            case 'select':
-                def = options.indexOf(def)
-            default:
-                if (value[id] === def)
+            }
+        }
+
+        // prevent invalid numbers from being submitted
+        if (input.type === 'number')
+        {
+            let id = input.id
+            if (isNaN(value[id]))
+            {
+                if (scout_type === 'match-alliance')
                 {
-                    if (scout_type === 'match-alliance')
-                    {
-                        id += `-${team}`
-                    }
-                    return id
+                    id += `-${team}`
                 }
+                results[id] = 'invalid number'
+            }
         }
     }
 
-    return false
+    return results
 }
 
 /**

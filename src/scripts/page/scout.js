@@ -286,30 +286,39 @@ function update_cycle(cycle, decrement)
                 // determine if necessary defaults are changed before saving
                 if (!decrement)
                 {
-                    let cid = check_column(column, scout_type, teams[i])
-                    if (cid)
+                    let errors = check_column(column, scout_type, teams[i])
+                    let error_keys = Object.keys(errors)
+                    if (error_keys.length)
                     {
-                        document.getElementById(cid).style['background-color'] = '#FFF2A8'
-                        let container = document.getElementById(`${cid}-container`)
-                        if (container !== null)
+                        for (let cid of error_keys)
                         {
-                            container.style['background-color'] = '#FFF2A8'
+                            document.getElementById(cid).style['background-color'] = 'var(--highlight-color)'
+                            let container = document.getElementById(`${cid}-container`)
+                            if (container !== null)
+                            {
+                                container.style['background-color'] = 'var(--highlight-color)'
+                            }
                         }
-                        alert(`${cycle} has unchanged defaults! (${cid})`)
+
+                        alert(`Invalid value(s) found! (${error_keys.join(', ')})`)
                         return false
                     }
                 }
                 // determine that nothing is changed in the new cycle before going back
                 else if (saved_cycles === cycle_num + 1)
                 {
-                    let cid = check_cycle(column)
-                    if (cid && !confirm(`The current cycle is unsaved (${cid})! Do you want to continue?`))
+                    let errors = check_column(column, scout_type, teams[i])
+                    let error_keys = Object.keys(errors)
+                    if (error_keys.length && !confirm(`The current cycle is unsaved! Do you want to continue?`))
                     {
-                        document.getElementById(cid).style['background-color'] = '#FFF2A8'
-                        let container = document.getElementById(`${cid}-container`)
-                        if (container !== null)
+                        for (let cid of error_keys)
                         {
-                            container.style['background-color'] = '#FFF2A8'
+                            document.getElementById(cid).style['background-color'] = 'var(--highlight-color)'
+                            let container = document.getElementById(`${cid}-container`)
+                            if (container !== null)
+                            {
+                                container.style['background-color'] = 'var(--highlight-color)'
+                            }
                         }
                         return false
                     }
@@ -405,11 +414,11 @@ function get_results_from_page()
     let cid = check_cycles()
     if (cid)
     {
-        document.getElementById(cid).style['background-color'] = '#FFF2A8'
+        document.getElementById(cid).style['background-color'] = 'var(--highlight-color)'
         let container = document.getElementById(cid).parentElement.parentElement
         if (container !== null)
         {
-            container.style['background-color'] = '#FFF2A8'
+            container.style['background-color'] = 'var(--highlight-color)'
         }
         if (confirm(`There are unsaved cycles (${cid})! Do you want to return?`))
         {
@@ -417,17 +426,22 @@ function get_results_from_page()
         }
     }
 
-    // check for unchanged defaults
-    let iid = check_results()
-    if (iid)
+    // check for unchanged defaults or other invalid values
+    let errors = check_results()
+    let error_keys = Object.keys(errors)
+    if (error_keys.length)
     {
-        document.getElementById(iid).style['background-color'] = '#FAA0A0'
-        let container = document.getElementById(`${iid}-container`)
-        if (container !== null)
+        for (let iid of error_keys)
         {
-            container.style['background-color'] = '#FAA0A0'
+            document.getElementById(iid).style['background-color'] = 'var(--error-color)'
+            let container = document.getElementById(`${iid}-container`)
+            if (container !== null)
+            {
+                container.style['background-color'] = 'var(--error-color)'
+            }
         }
-        alert(`There are unchanged defaults! (${iid})`)
+
+        alert(`Invalid value(s) found! (${error_keys.join(', ')})`)
         return
     }
 
@@ -544,12 +558,13 @@ function get_results_from_page()
 }
 
 /**
- * Determines if any cycles have unchanged defaults.
- * @returns The ID of any cycles with unchanged defaults
+ * Determines if any inputs have invalid results.
+ * @returns An object containing all offending IDs.
  */
 function check_results()
 {
     // get each result
+    let results = {}
     for (let page of cfg.get_scout_config(scout_mode).pages)
     {
         for (let i in page.columns)
@@ -557,14 +572,10 @@ function check_results()
             let column = page.columns[i]
             if (!column.cycle)
             {
-                let ret = check_column(column, scout_type, teams[i])
-                if (ret)
-                {
-                    return ret
-                }
+                results = Object.assign(results, check_column(column, scout_type, teams[i]))
             }
         }
     }
 
-    return false
+    return results
 }
