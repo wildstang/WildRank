@@ -1516,6 +1516,10 @@ class Result
                     try
                     {
                         let res = eval(math_fn)
+                        if (isNaN(res))
+                        {
+                            res = 0
+                        }
                         return res
                     }
                     catch (err)
