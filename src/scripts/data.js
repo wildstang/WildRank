@@ -274,6 +274,7 @@ class BaseResult
                         let res = cfg.get_result_from_key(key)
                         if (res !== null)
                         {
+                            // TODO: improve decision making here, particularly option and cycle handling
                             switch (res.value_type)
                             {
                                 case 'number':
@@ -284,6 +285,18 @@ class BaseResult
                                 case 'int-option':
                                 case 'str-option':
                                     return median(valid_values)
+                                case 'object':
+                                    // start with an empty array so null isn't returned
+                                    let longest = []
+                                    // find the result with the most cycles
+                                    for (let cycle of valid_values)
+                                    {
+                                        if (cycle.length > longest.length)
+                                        {
+                                            longest = cycle
+                                        }
+                                    }
+                                    return longest
                             }
                         }
                     }
