@@ -40,6 +40,7 @@ function init_page()
     page.add_column(button_col)
 
     let save_stat_el = new WRButton('Save Stat to Config', save_stat)
+    save_stat_el.add_class('advance')
     button_col.add_input(save_stat_el)
 
     let save_list_el = new WRButton('Save Rankings as Picklist', save_list)
@@ -124,6 +125,7 @@ function calculate()
     {
         return
     }
+    console.log(result)
 
     // compute smart result for each team
     let team_vals = {}
