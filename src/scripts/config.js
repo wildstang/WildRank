@@ -1545,8 +1545,6 @@ class Result
 
             case 'where':
                 let count = 0
-                let denominator = 0
-                let calc_percent = typeof this.denominator !== 'undefined'
                 let count_result = this.sum === undefined || !this.sum
                 let cycles = get_value(this.cycle)
                 if (cycles !== null)
@@ -1585,27 +1583,10 @@ class Result
                             {
                                 count += cycle[this.sum]
                             }
-                            if (calc_percent && cycle.hasOwnProperty(this.denominator))
-                            {
-                                denominator += cycle[this.denominator]
-                            }
                         }
                     }
 
-                    // store smart result
-                    if (calc_percent)
-                    {
-                        let percent = count / (count + denominator)
-                        if (isNaN(percent))
-                        {
-                            return 0
-                        }
-                        return percent
-                    }
-                    else
-                    {
-                        return count
-                    }
+                    return count
                 }
                 break
 
@@ -1766,8 +1747,7 @@ class Result
      */
     get recompute()
     {
-        // TODO: maybe recompute math
-        return ['max', 'min'].includes(this.type) || (this.type === 'where' && this.denominator !== undefined)
+        return ['max', 'min', 'math'].includes(this.type)
     }
 
     /**

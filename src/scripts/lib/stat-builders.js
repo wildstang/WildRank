@@ -399,10 +399,6 @@ class WhereStat extends Stat
         this.count.on_change = calculate
         this.count.description = 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.'
 
-        this.cycle_percent = new WRDropdown('Percent: Remaining Value', [''].concat(counters))
-        this.cycle_percent.on_change = calculate
-        this.cycle_percent.description = 'The remaining value used to complete a percentage. "" means percentage won\'t be calculated.'
-
         this.filters = []
         for (let s of this.selects)
         {
@@ -417,7 +413,7 @@ class WhereStat extends Stat
             this.filters.push(filter)
         }
 
-        this.container.replaceChildren(this.count, this.cycle_percent, ...this.filters)
+        this.container.replaceChildren(this.count, ...this.filters)
     }
 
     build_stat()
@@ -429,7 +425,6 @@ class WhereStat extends Stat
 
         let cycle = this.cycles[this.cycle_filter.element.selectedIndex]
         let count = this.count.element.selectedIndex
-        let wdenominator = this.cycle_percent.element.selectedIndex
         let vals = {}
         for (let i in this.selects)
         {
@@ -458,10 +453,6 @@ class WhereStat extends Stat
         else
         {
             stat.negative = false
-        }
-        if (wdenominator != 0)
-        {
-            stat.denominator = this.counters[wdenominator-1].id
         }
         return stat
     }
