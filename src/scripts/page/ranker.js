@@ -141,7 +141,7 @@ function calculate()
         {
             if (result.recompute)
             {
-                let value = result.compute_smart_result(null, team_num)
+                let value = result.compute_smart_result(null, true, team_num)
                 if (value !== null)
                 {
                     team_vals[team_num] = value

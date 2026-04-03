@@ -1269,7 +1269,7 @@ class Data
             // some smart results need to be recomputed when used across matches
             else if (result.recompute)
             {
-                value = result.compute_smart_result(null, teams)
+                value = result.compute_smart_result(null, true, teams)
             }
             // compute stat for team results
             else if (cfg.get_team_keys().includes(result_id))

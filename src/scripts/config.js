@@ -1403,7 +1403,7 @@ class Result
      * Computes the current smart result based on the given result, or all results if no result is given.
      * @param {BaseResult} result Match or team result or null
      * @param {Boolean} recursive Whether to calculate smart results that depend on other smart results
-     * @param {} teams Which teams to calculate results for
+     * @param {Array} teams Which teams to calculate results for
      * @returns The smart result value.
      */
     compute_smart_result(result, recursive=true, teams='all')
@@ -1762,8 +1762,8 @@ class Result
      */
     get recompute()
     {
-        // TODO: this is broken
-        return ['max', 'min'].includes(this.type)
+        // TODO: maybe recompute math
+        return ['max', 'min'].includes(this.type) || (this.type === 'where' && this.denominator !== undefined)
     }
 
     /**
