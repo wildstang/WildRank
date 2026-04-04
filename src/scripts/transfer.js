@@ -844,7 +844,6 @@ class Zip
             let file_event = 'generic'
             let latest_match_time = 0
             let total_matches_played = 0
-            let total_teams = 0
             let scout_config = ''
             let scouted_config = ''
 
@@ -856,7 +855,7 @@ class Zip
             {
                 for (let match of JSON.parse(file))
                 {
-                    if (!file_event)
+                    if (file_event === 'generic')
                     {
                         file_event = match.event_key
                     }
@@ -880,9 +879,8 @@ class Zip
                 }
                 file_event = file_name.split('-')[1]
             }
-            else if (file_name.startsWith('teams-'))
+            else if (file_name.startsWith('teams-') || file_name.startsWith('coprs-'))
             {
-                total_teams = JSON.parse(file).length
                 file_event = file_name.split('-')[1]
             }
             else if (file_name.endsWith('-scout-config'))
@@ -920,14 +918,129 @@ class Zip
             {
                 event.total_matches_played = total_matches_played
             }
-            else if (total_teams)
-            {
-                event.total_teams = total_teams
-            }
             else if (scout_config)
             {
                 event.scout_config = scout_config
             }
+        }
+    }
+
+    import()
+    {
+        this.import_configs()
+        this.import_event_data()
+        this.import_results()
+    }
+
+    import_configs()
+    {
+        if (Object.keys(this.events).includes('generic'))
+        {
+            console.log('Configs found')
+        }
+    }
+
+    get event_id()
+    {
+        let event_keys = Object.keys(this.events)
+        if (event_keys.includes('generic'))
+        {
+            event_keys.splice(event_keys.indexOf('generic'))
+        }
+
+        let event_id = ''
+        if (event_keys.length)
+        {
+            if (event_keys.length === 1)
+            {
+                event_id = event_keys[0]
+            }
+            else if (event_keys.includes(this.zip_event_id))
+            {
+                event_id = this.zip_event_id
+            }
+            else if (event_keys.includes(dal.event_id))
+            {
+                event_id = dal.event_id
+            }
+        }
+
+        return event_id
+    }
+
+    import_event_data()
+    {
+        let event_id = this.event_id
+        if (event_id)
+        {
+            console.log('Event ID', event_id)
+            let latest_match_time = 0
+            for (let match of Object.values(dal.matches))
+            {
+                if (match.time > latest_match_time)
+                {
+                    latest_match_time = match.time
+                }
+            }
+            let total_matches_played = 0
+            let rankings = JSON.parse(localStorage.getItem(`rankings-${event_id}`))
+            if (rankings !== null)
+            {
+                for (let team of rankings)
+                {
+                    total_matches_played += team.matches_played
+                }
+            }
+
+            let event = this.events[event_id]
+            if (event.total_matches_played > total_matches_played ||
+                event.generic.latest_match_time > latest_match_time)
+            {
+                // event data is newer
+                for (let config of event.configs)
+                {
+                    // store config
+                    console.log('Storing', config)
+                }
+            }
+        }
+        else
+        {
+            console.log('No events')
+        }
+    }
+
+    import_results()
+    {
+        let event_id = this.event_id
+        if (event_id)
+        {
+            let event = this.events[event_id]
+            let config = ''
+            if (this.generic !== undefined && this.generic.scout_config)
+            {
+                config = this.generic.scout_config
+            }
+            else if (cfg.scout.version)
+            {
+                config = cfg.scout.version
+            }
+
+            if (config && Object.keys(event.results).includes(config))
+            {
+                for (let result of event.results[config])
+                {
+                    console.log('Storing', result)
+                }
+            }
+            else
+            {
+                
+            }
+        }
+        else
+        {
+            console.log('No events')
         }
     }
 }
@@ -972,9 +1085,11 @@ function parse_zip(zip_name, zip)
                 file_contents[file.name.split('.')[0]] = text
                 if (++read_count === files.length)
                 {
-                    console.log(new Zip(zip_name, file_contents))
+                    let zip = new Zip(zip_name, file_contents)
+                    console.log(zip)
+                    zip.import()
                 }
-            })
+            }).catch(e => console.error(e))
         }
     }
 }
