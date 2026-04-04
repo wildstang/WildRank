@@ -7,7 +7,7 @@
 
 include('input-builder')
 
-const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'String', 'Text']
+const INPUTS = ['Multicounter', 'Checkbox', 'Counter', 'Select', 'Dropdown', 'Multiselect', 'Slider', 'Number', 'Timer', 'String', 'Text']
 
 var mode_dd, page_dd, column_dd, type_dd, name_entry, builder, id_entry, version_entry
 var config_preview, options
@@ -164,6 +164,9 @@ function populate_options()
                 break
             case 'Counter':
                 builder = new CounterB()
+                break
+            case 'Timer':
+                builder = new TimerB()
                 break
             case 'String':
                 builder = new StringB()

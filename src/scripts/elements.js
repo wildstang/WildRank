@@ -486,45 +486,35 @@ customElements.define('wr-checkbox', WRCheckbox)
 
 class WRTimer extends WRElement
 {
-    constructor(label)
+    constructor(label, value=0)
     {
         super()
 
         this.label = label
-        this.start = -1
-        this.value = 0
-        this.last_touch = -1
+        this.start = value ? Date.now() - value : -1
+        this.value = value
 
-        this.label_el = document.createElement('label')
+        this.label_el = document.createElement('h4')
         this.value_el = document.createElement('label')
-        this.element = document.createElement('div')
     }
 
-    on_click()
+    toggle_timer()
     {
-        let duration = Date.now() - this.last_touch
-        if (this.last_touch < 0 || duration < 500)
+        if (this.start < 0)
         {
-            if (this.start < 0)
-            {
-                this.start = Date.now()
-                let t = this
-                this.counter = setInterval(function () { t.update() }, 100);
-            }
-            else if (this.value === 0)
-            {
-                this.value = (Date.now() - this.start) / 1000
-                clearInterval(this.counter)
-            }
-            this.value_el.innerHTML = parseFloat(this.value).toFixed(1)
+            this.start = Date.now()
+            let t = this
+            this.counter = setInterval(function () { t.update() }, 100);
         }
-        else if (duration > 500)
+        else if (this.value === 0)
         {
-            this.on_right_click()
+            this.value = (Date.now() - this.start) / 1000
+            clearInterval(this.counter)
         }
+        this.value_el.innerHTML = parseFloat(this.value).toFixed(1)
     }
 
-    on_right_click()
+    reset_timer()
     {
         if (typeof this.counter !== 'undefined')
         {
@@ -532,8 +522,20 @@ class WRTimer extends WRElement
         }
         this.start = -1
         this.value = 0
-        this.value_el.innerHTML = this.value
-        return false
+        this.value_el.innerHTML = this.value.toFixed(1)
+    }
+
+    adjust_timer(increment=true)
+    {
+        if (this.value > 0)
+        {
+            this.value += increment ? 0.1 : -0.1
+            if (this.value < 0)
+            {
+                this.value = 0
+            }
+            this.value_el.innerHTML = this.value.toFixed(1)
+        }
     }
 
     on_touch()
@@ -549,21 +551,50 @@ class WRTimer extends WRElement
 
     connectedCallback()
     {
+        this.label_el.className = 'input_label'
         this.label_el.replaceChildren(this.label)
 
         this.value_el.id = this.input_id
-        this.value_el.className = 'wr_counter_count'
+        this.value_el.style.flex = '1 1 0px'
+        this.value_el.className = 'wr_select_option wr_counter_count'
         this.value_el.replaceChildren(this.value)
+        this.value_el.onmousedown = this.toggle_timer.bind(this)
+        this.value_el.onmouseup = this.toggle_timer.bind(this)
+        this.value_el.oncontextmenu = () => false
+        this.value_el.ontouchstart = this.toggle_timer.bind(this)
+        this.value_el.ontouchend = this.toggle_timer.bind(this)
 
-        this.element.className = 'wr_counter'
-        this.element.classList.add(...this.classes)
-        this.element.replaceChildren(this.value_el, ' ', this.label_el)
-        this.element.onclick = this.on_click.bind(this)
-        this.element.oncontextmenu = () => false
-        this.element.onauxclick = this.on_right_click.bind(this)
-        this.element.ontouchstart = this.on_touch.bind(this)
+        let decrement = document.createElement('span')
+        decrement.className = 'wr_select_option'
+        decrement.style.minWidth = '18px'
+        decrement.innerText = '-'
+        decrement.onclick = _ => this.adjust_timer.bind(this)(false)
+        decrement.ontouchend = _ => this.adjust_timer.bind(this)(false)
 
-        this.replaceChildren(this.element)
+        let increment = document.createElement('span')
+        increment.className = 'wr_select_option'
+        increment.style.minWidth = '18px'
+        increment.innerText = '+'
+        increment.onclick = this.adjust_timer.bind(this)
+        increment.ontouchend = this.adjust_timer.bind(this)
+
+        let reset = document.createElement('span')
+        reset.className = 'wr_select_option'
+        reset.style.minWidth = '18px'
+        reset.innerText = 'R'
+        reset.onclick = this.reset_timer.bind(this)
+        reset.ontouchend = this.toggle_timer.bind(this)
+
+        let row = document.createElement('div')
+        row.className = 'wr_select_row'
+        row.append(decrement, this.value_el, increment, reset)
+
+        let element = document.createElement('div')
+        element.className = 'wr_select'
+        element.classList.add(...this.classes)
+        element.replaceChildren(row)
+
+        this.replaceChildren(this.label_el, element)
     }
 }
 

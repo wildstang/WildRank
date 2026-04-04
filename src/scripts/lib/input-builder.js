@@ -135,6 +135,32 @@ class ColumnB extends InputBuilder
     }
 }
 
+class TimerB extends InputBuilder
+{
+    constructor(name='timer')
+    {
+        super(name)
+
+        this.negative = this.build_negative_checkbox()
+        this.disallow = this.build_disallow_checkbox()
+    }
+
+    build_inputs()
+    {
+        return [this.negative, this.disallow]
+    }
+
+    build_description()
+    {
+        let desc = super.build_description()
+        desc.default = 0
+        desc.negative = this.negative.checked
+        desc.disallow_default = this.disallow.checked
+        desc.options = []
+        return desc
+    }
+}
+
 class CounterB extends InputBuilder
 {
     constructor(name='counter')

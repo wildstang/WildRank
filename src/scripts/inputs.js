@@ -70,7 +70,7 @@ function build_input_from_config(input, scout_type, team='', default_override=''
             item = new WRExtended(name, default_val)
             break
         case 'timer':
-            item = new WRTimer(name)
+            item = new WRTimer(name, default_val)
             break
     }
 
@@ -153,6 +153,7 @@ function set_input_value(input, value)
             document.getElementById(id).checked = value
             break
         case 'counter':
+        case 'timer':
             document.getElementById(id).innerHTML = value
             break
         case 'dropdown':
