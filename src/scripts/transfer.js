@@ -827,6 +827,158 @@ function import_zip_from_cache(cache_res)
     }
 }
 
+class Zip
+{
+    constructor(name, files)
+    {
+        this.files = files
+        this.zip_event_id = find_event_id(name)
+        this.events = {}
+
+        let file_names = Object.keys(files)
+        for (let i in file_names)
+        {
+            let file_name = file_names[i]
+            let file = files[file_name]
+
+            let file_event = 'generic'
+            let latest_match_time = 0
+            let total_matches_played = 0
+            let total_teams = 0
+            let scout_config = ''
+            let scouted_config = ''
+
+            if (file_name.startsWith('event-'))
+            {
+                file_event = JSON.parse(file).key
+            }
+            else if (file_name.startsWith('matches-'))
+            {
+                for (let match of JSON.parse(file))
+                {
+                    if (!file_event)
+                    {
+                        file_event = match.event_key
+                    }
+                    if (match.actual_time > latest_match_time)
+                    {
+                        latest_match_time = match.actual_time
+                    }
+                }
+            }
+            else if (file_name.startsWith('result-'))
+            {
+                let res = JSON.parse(file)
+                file_event = res.meta.result.event_id
+                scouted_config = res.meta.scouter.config_version
+            }
+            else if (file_name.startsWith('rankings-'))
+            {
+                for (let team of JSON.parse(file))
+                {
+                    total_matches_played += team.matches_played
+                }
+                file_event = file_name.split('-')[1]
+            }
+            else if (file_name.startsWith('teams-'))
+            {
+                total_teams = JSON.parse(file).length
+                file_event = file_name.split('-')[1]
+            }
+            else if (file_name.endsWith('-scout-config'))
+            {
+                scout_config = JSON.parse(file).version
+            }
+            else
+            {
+                console.log('Unrecognized file', file_name)
+            }
+
+            if (!Object.keys(this.events).includes(file_event))
+            {
+                this.events[file_event] = { configs: [], results: {} }
+            }
+
+            let event = this.events[file_event]
+            if (scouted_config)
+            {
+                if (!Object.keys(event.results).includes(scouted_config))
+                {
+                    event.results[scouted_config] = []
+                }
+                event.results[scouted_config].push(file_name)
+            }
+            else
+            {
+                event.configs.push(file_name)
+            }
+            if (latest_match_time)
+            {
+                event.latest_match_time = latest_match_time
+            }
+            else if (total_matches_played)
+            {
+                event.total_matches_played = total_matches_played
+            }
+            else if (total_teams)
+            {
+                event.total_teams = total_teams
+            }
+            else if (scout_config)
+            {
+                event.scout_config = scout_config
+            }
+        }
+    }
+}
+
+function prompt_for_file()
+{
+    let input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/zip'
+    input.addEventListener('change', handle_zip)
+    input.click()
+}
+
+function handle_zip(event)
+{
+    let selected_files = []
+    if (event.dataTransfer)
+    {
+        selected_files = Array.from(event.dataTransfer.files)
+    }
+    else
+    {
+        selected_files = Array.from(event.target.files)
+    }
+
+    if (selected_files.length === 1)
+    {
+        JSZip.loadAsync(selected_files[0]).then(zip => parse_zip(selected_files[0].name, zip))
+    }
+}
+
+let read_count = 0
+let file_contents = {}
+function parse_zip(zip_name, zip)
+{
+    let files = Object.values(zip.files)
+    for (let file of files)
+    {
+        if (!file.dir)
+        {
+            file.async('string').then(text => {
+                file_contents[file.name.split('.')[0]] = text
+                if (++read_count === files.length)
+                {
+                    console.log(new Zip(zip_name, file_contents))
+                }
+            })
+        }
+    }
+}
+
 class Importer extends BaseTransfer
 {
     constructor(open_results=false)
