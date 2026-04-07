@@ -7,6 +7,7 @@
  */
 
 include('mini-picklists')
+include('result-cards')
 
 var avatar, team_number, team_name, loc, ranking, completion_table, results_box
 
@@ -117,115 +118,5 @@ function populate_results(team_num)
     results_box.scrollTo(0, 0)
 
     let team = dal.teams[team_num]
-    for (let mode of cfg.team_scouting_modes)
-    {
-        if (mode in team.results)
-        {
-            for (let i in team.results[mode])
-            {
-                add_result_card(mode, team.results[mode][i], team.meta[mode][i], team.file_names[mode][i])
-            }
-        }
-    }
-    if (Object.keys(team.fms_results).length > 0)
-    {
-        add_fms_card(team_num, team.fms_results)
-    }
-    add_smart_card(team_num, team.smart_results)
-}
-
-/**
- * Builds a card and adds it to the page for the given scouting mode in the given result.
- * @param {String} scout_mode Scouting mode
- * @param {Object} result Match result for scouting mode
- * @param {Object} meta Match result metadata for scouting mode
- * @param {Object} file_name Match result file name
- */
-function add_result_card(scout_mode, result, meta, file_name)
-{
-    let config = cfg.get_scout_config(scout_mode)
-
-    let result_name = document.createElement('h3')
-    result_name.innerText = `${config.name} Result`
-
-    let meta_tab = document.createElement('table')
-    meta_tab.className = 'meta_table'
-    meta_tab.append(create_header_row(['Scouter', 'Time', 'Ignored', 'Unsure']))
-    let value_row = meta_tab.insertRow()
-    value_row.insertCell().innerText = cfg.get_name(meta.scouter.user_id, true)
-    let scout_time = meta.scouter.start_time * 1000
-    value_row.insertCell().innerText = new Date(scout_time).toLocaleTimeString("en-US")
-    let ignore_box = document.createElement('input')
-    ignore_box.type = 'checkbox'
-    ignore_box.checked = meta.status.ignore
-    ignore_box.onclick = () => toggle_ignore(result, meta, file_name)
-    value_row.insertCell().append(ignore_box)
-    value_row.insertCell().innerText = meta.status.unsure ? meta.status.unsure_reason : '-'
-
-    let result_tab = document.createElement('table')
-    result_tab.append(create_header_row(['', 'Result', 'Event Avg']))
-    for (let key in result)
-    {
-        let res = cfg.get_result_from_key(`result.${key}`)
-        let row = result_tab.insertRow()
-        row.append(create_header(res.name))
-        row.insertCell().innerText = res.clean_value(result[key])
-        row.insertCell().innerText = res.clean_value(dal.compute_stat(`result.${key}`))
-    }
-
-    let card = new WRCard([result_name, meta_tab, result_tab], true)
-    let page = new WRPage('', [card])
-    results_box.append(page)
-}
-
-/**
- * Builds a card and adds it to the page for the given FMS result.
- * @param {String} team_num Team number
- * @param {Object} fms_result FMS result for team
- */
-function add_fms_card(team_num, fms_result)
-{
-    let result_name = document.createElement('h3')
-    result_name.innerText = `FMS Result`
-
-    let result_tab = document.createElement('table')
-    result_tab.append(create_header_row(['', 'Result', 'Event Avg']))
-    for (let key in fms_result)
-    {
-        let result = cfg.get_result_from_key(`fms.${key}`)
-        let row = result_tab.insertRow()
-        row.append(create_header(result.name))
-        row.insertCell().innerText = result.clean_value(fms_result[key])
-        row.insertCell().innerText = result.clean_value(dal.compute_stat(`fms.${key}`))
-    }
-
-    let card = new WRCard([result_name, result_tab], true)
-    let page = new WRPage('', [card])
-    results_box.append(page)
-}
-
-/**
- * Builds a card and adds it to the page for the given smart result.
- * @param {String} team_num Team number
- * @param {Object} smart_result Smart result for team
- */
-function add_smart_card(team_num, smart_result)
-{
-    let result_name = document.createElement('h3')
-    result_name.innerText = `Smart Result`
-
-    let result_tab = document.createElement('table')
-    result_tab.append(create_header_row(['', 'Result', 'Event Avg']))
-    for (let key in smart_result)
-    {
-        let result = cfg.get_result_from_key(`smart.${key}`)
-        let row = result_tab.insertRow()
-        row.append(create_header(result.name))
-        row.insertCell().innerText = result.clean_value(smart_result[key])
-        row.insertCell().innerText = result.clean_value(dal.compute_stat(`smart.${key}`))
-    }
-
-    let card = new WRCard([result_name, result_tab], true)
-    let page = new WRPage('', [card])
-    results_box.append(page)
+    add_all_results(team, cfg.team_scouting_modes, team_num)
 }
