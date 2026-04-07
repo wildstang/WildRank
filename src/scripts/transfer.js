@@ -172,10 +172,10 @@ function handle_teams(teams)
         for (let team of teams)
         {
             let year = cfg.year
-            fetch(`${api_endpoint}/team/frc${team.team_number}/media/${year}${key_query}`)
+            fetch(`${api_endpoint}/team/${team.key}/media/${year}${cfg.tba_query}`)
                 .then(response => response.json())
-                .then(handle_media)
-                .catch(err => console.error(err))
+                .then(data => handle_media(data, team.team_number))
+                .catch(console.error)
         }
         return 'teams-true'
     }
@@ -672,14 +672,18 @@ class Exporter extends BaseTransfer
         for (let i in files)
         {
             let file = files[i]
-            let name = file + (file === cfg.user_list.name ? '.csv' : '.json')
-            let base64 = false
-            let data = localStorage.getItem(file)
+            let name = `${file}.json`
             if (file.startsWith('avatar-'))
             {
-                name = `avatars/${file}`
+                name = `avatars/${file}.b64`
             }
-            zip.file(name, data, { base64: base64 })
+            else if (file === cfg.user_list.name)
+            {
+                name = `${file}.csv`
+            }
+
+            let data = localStorage.getItem(file)
+            zip.file(name, data)
         }
 
         // download zip
