@@ -60,7 +60,7 @@ function init_page()
 
         buttons_el = document.createElement('div')
         preview.append(card, buttons_el)
-        
+
         open_option(first)
     }
     else
