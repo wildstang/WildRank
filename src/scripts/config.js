@@ -1646,27 +1646,27 @@ class Result
             switch(this.value_type)
             {
                 case 'boolean':
-                    if (value === 1)
+                    // intentionally only 2 equals to catch booleans
+                    if (value == 1)
                     {
                         return 'Yes'
                     }
-                    else if (value === 0)
+                    else if (value == 0)
                     {
                         return 'No'
                     }
                     return (value * 100).toFixed(0) + '%'
-    
+
                 case 'int-option':
                     if (typeof value === 'object')
                     {
                         return Object.keys(value).map(i => `${this.options[i]}: ${value[i]}`).join('<br>')
                     }
                     return this.options[value]
-    
+
                 case 'number':
                     return value.toFixed(2)
-    
-                case 'object':
+
                 case 'string':
                 case 'str-option':
                     return value
