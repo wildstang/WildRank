@@ -20,7 +20,7 @@ var rank_keys = []
 function init_page()
 {
     matches = JSON.parse(localStorage.getItem(`matches-${dal.event_id}`))
-    if (matches !== null && matches.length > 0)
+    if (matches !== null && matches.length > 0 && matches[0].score_breakdown !== null)
     {
         let breakdown = matches[0].score_breakdown.red
         match_keys = Object.keys(breakdown).filter(k => 
