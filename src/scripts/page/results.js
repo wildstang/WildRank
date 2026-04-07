@@ -204,7 +204,12 @@ function add_result_card(scout_mode, match_result, meta, file_name)
         let result = cfg.get_result_from_key(`result.${key}`)
         let row = result_tab.insertRow()
         row.append(create_header(result.name))
-        row.insertCell().innerText = result.clean_value(match_result[key])
+        let cell = row.insertCell()
+        cell.innerText = result.clean_value(match_result[key])
+        if (result.type === 'cycle')
+        {
+            cell.onclick = event => window_open(build_url('cycles', {'match': meta.result.match_key, 'team': meta.result.team_num}))
+        }
         row.insertCell().innerText = result.clean_value(dal.compute_stat(`result.${key}`, meta.result.team_num))
         row.insertCell().innerText = result.clean_value(dal.compute_stat(`result.${key}`))
     }

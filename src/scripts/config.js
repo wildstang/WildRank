@@ -1670,6 +1670,9 @@ class Result
                 case 'string':
                 case 'str-option':
                     return value
+
+                case 'object':
+                    return value.length === 1 ? `1 Cycle` : `${value.length} Cycles`
             }
             return value
         }
