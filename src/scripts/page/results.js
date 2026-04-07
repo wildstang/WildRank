@@ -176,15 +176,11 @@ function add_result_card(scout_mode, match_result, meta, file_name)
 
     let meta_tab = document.createElement('table')
     meta_tab.className = 'meta_table'
-    let user_row = meta_tab.insertRow()
-    user_row.append(create_header('Scouter'))
-    user_row.insertCell().innerText = cfg.get_name(meta.scouter.user_id, true)
-    let match_time_row = meta_tab.insertRow()
-    match_time_row.append(create_header('Match Time'))
+    meta_tab.append(create_header_row(['Scouter', 'Match Time', 'Scout Time', 'Ignored', 'Unsure']))
+    let value_row = meta_tab.insertRow()
+    value_row.insertCell().innerText = cfg.get_name(meta.scouter.user_id, true)
     let match_time = dal.matches[meta.result.match_key].time * 1000
-    match_time_row.insertCell().innerText = new Date(match_time).toLocaleTimeString("en-US")
-    let scout_time_row = meta_tab.insertRow()
-    scout_time_row.append(create_header('Scout Time'))
+    value_row.insertCell().innerText = new Date(match_time).toLocaleTimeString('en-US')
     let scout_time = meta.scouter.start_time * 1000
     let delta_secs = (match_time - scout_time) / 1000
     let abs_secs = Math.abs(delta_secs)
@@ -193,17 +189,13 @@ function add_result_card(scout_mode, match_result, meta, file_name)
     {
         delta = `${(abs_secs / 60).toFixed(0)} mins`
     }
-    scout_time_row.insertCell().innerText = `${new Date(scout_time).toLocaleTimeString("en-US")} (${delta} ${delta_secs > 0 ? 'early' : 'late'})`
+    value_row.insertCell().innerText = `${new Date(scout_time).toLocaleTimeString("en-US")} (${delta} ${delta_secs > 0 ? 'early' : 'late'})`
     let ignore_box = document.createElement('input')
     ignore_box.type = 'checkbox'
     ignore_box.checked = meta.status.ignore
     ignore_box.onclick = () => toggle_ignore(match_result, meta, file_name)
-    let ignore_row = meta_tab.insertRow()
-    ignore_row.append(create_header('Ignored'))
-    ignore_row.insertCell().append(ignore_box)
-    let unsure_row = meta_tab.insertRow()
-    unsure_row.append(create_header('Unsure'))
-    unsure_row.insertCell().innerText = meta.status.unsure ? meta.status.unsure_reason : '-'
+    value_row.insertCell().append(ignore_box)
+    value_row.insertCell().innerText = meta.status.unsure ? meta.status.unsure_reason : '-'
 
     let result_tab = document.createElement('table')
     result_tab.append(create_header_row(['', 'Result', 'Team Avg', 'Event Avg']))
