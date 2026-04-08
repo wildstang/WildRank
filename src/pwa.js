@@ -5,7 +5,7 @@
  * date:        2022-01-21
  */
 
-const CACHE_NAME = 'wildrank-5.1.4'
+const CACHE_NAME = 'wildrank-260408'
 const CACHE_LIST = [
     // html files
     '/',
@@ -21,6 +21,7 @@ const CACHE_LIST = [
     '/scripts/lib/input-builder.js',
     '/scripts/lib/mini-picklists.js',
     '/scripts/lib/picklists-core.js',
+    '/scripts/lib/result-cards.js',
     '/scripts/lib/stat-builders.js',
     '/scripts/lib/whiteboard-obj.js',
     /* don't cache misc scripts that rely on tba or are out of date
