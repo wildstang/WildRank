@@ -114,7 +114,9 @@ function populate_dropdowns()
             }
             else
             {
-                let new_type_dd = new WRDropdown('Type:', INPUTS, type_dd.element.value)
+                let col = columns[column_idx]
+                let inputs = col.cycle ? INPUTS.filter(i => Result.VALID_CYCLE_INPUTS.includes(i.toLowerCase())) : INPUTS
+                let new_type_dd = new WRDropdown('Type:', inputs, type_dd.element.value)
                 type_dd.element.replaceChildren(...new_type_dd.option_elements)
             }
         }
