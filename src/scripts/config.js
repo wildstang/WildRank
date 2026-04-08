@@ -980,7 +980,7 @@ class Result
 {
     static VALID_INPUTS = ['checkbox', 'counter', 'dropdown', 'multicounter', 'multiselect', 'number', 'select', 'slider', 'string',
         'text', 'timer']
-    static VALID_CYCLE_INPUTS = ['dropdown', 'select', 'checkbox', 'counter', 'number', 'slider']
+    static VALID_CYCLE_INPUTS = ['dropdown', 'select', 'checkbox', 'counter', 'number', 'slider', 'timer']
     static VALID_SMARTS = ['filter', 'map', 'math', 'max', 'min', 'where', 'wrank']
     static VALID_FMS = ['boolean', 'int', 'float', 'state', 'yes_no']
 

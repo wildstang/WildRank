@@ -353,6 +353,10 @@ function update_cycle(cycle, decrement)
                             }
                             set_input_value(input, values)
                             break
+                        case 'timer':
+                            // calls WRTimer.reset_timer()
+                            document.getElementById(`${id}-reset`).onclick()
+                            break
                         case 'dropdown':
                         case 'select':
                             def = ops.indexOf(def)

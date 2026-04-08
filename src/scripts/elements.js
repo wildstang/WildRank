@@ -584,6 +584,7 @@ class WRTimer extends WRElement
         reset.innerText = 'R'
         reset.onclick = this.reset_timer.bind(this)
         reset.ontouchend = this.toggle_timer.bind(this)
+        reset.id = `${this.input_id}-reset`
 
         let row = document.createElement('div')
         row.className = 'wr_select_row'
