@@ -155,7 +155,7 @@ function open_option(option)
     }
 
     // build one page for each mode-result
-    let cycles_keys = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['object'])
+    let cycles_keys = cfg.filter_keys(cfg.get_match_keys(true, false, false), ['cycle'])
     let match_result = dal.get_match_result(match_key, team_num)
     let match_results = match_result.results
     for (let mode in match_results)

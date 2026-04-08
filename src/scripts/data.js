@@ -278,6 +278,20 @@ class BaseResult
                             switch (res.value_type)
                             {
                                 case 'number':
+                                    if (res.type === 'cycle')
+                                    {
+                                        // start with an empty array so null isn't returned
+                                        let longest = []
+                                        // find the result with the most cycles
+                                        for (let cycle of valid_values)
+                                        {
+                                            if (cycle.length > longest.length)
+                                            {
+                                                longest = cycle
+                                            }
+                                        }
+                                        return longest
+                                    }
                                     return mean(valid_values)
                                 case 'string':
                                     return valid_values.join('\n')
@@ -285,18 +299,6 @@ class BaseResult
                                 case 'int-option':
                                 case 'str-option':
                                     return median(valid_values)
-                                case 'object':
-                                    // start with an empty array so null isn't returned
-                                    let longest = []
-                                    // find the result with the most cycles
-                                    for (let cycle of valid_values)
-                                    {
-                                        if (cycle.length > longest.length)
-                                        {
-                                            longest = cycle
-                                        }
-                                    }
-                                    return longest
                             }
                         }
                     }

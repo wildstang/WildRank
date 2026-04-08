@@ -320,7 +320,7 @@ function init_page()
     add_button_filter('(De)Select All', toggle_select_all, false)
 
     // build lists
-    keys = cfg.filter_keys(cfg.get_keys(), ['string', 'object'], true)
+    keys = cfg.filter_keys(cfg.get_keys(), ['string'], true)
     enable_list()
     enable_list(false)
     // iterate through result keys

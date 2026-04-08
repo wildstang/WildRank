@@ -1141,7 +1141,7 @@ class Result
                     break
 
                 case 'where':
-                    let cycle_valid = has_string(tag, obj, 'cycle', cfg.filter_keys(cfg.get_keys(), ['object']))
+                    let cycle_valid = has_string(tag, obj, 'cycle', cfg.filter_keys(cfg.get_keys(), ['cycle']))
                     let conditions_valid = has_object(tag, obj, 'conditions')
                     tests.push(cycle_valid, conditions_valid)
                     if (cycle_valid === true && conditions_valid === true)
@@ -1243,7 +1243,7 @@ class Result
      */
     get available_stats()
     {
-        if (['boolean', 'checkbox', 'counter', 'filter', 'int', 'float', 'map', 'math',
+        if (['boolean', 'checkbox', 'counter', 'cycle', 'filter', 'int', 'float', 'map', 'math',
             'number', 'slider', 'timer', 'where', 'wrank', 'yes_no'].includes(this.type))
         {
             return ['max', 'mean', 'median', 'mid', 'min', 'mode', 'stddev', 'sum']
@@ -1289,6 +1289,11 @@ class Result
         }
         stat = stat.toLowerCase()
 
+        if (this.type === 'cycle')
+        {
+            results = results.map(c => c.length)
+        }
+
         switch(this.type)
         {
             case 'yes_no':
@@ -1296,6 +1301,7 @@ class Result
             case 'checkbox':
                 results = results.map(r => r ? 1 : 0)
             case 'counter':
+            case 'cycle':
             case 'filter':
             case 'int':
             case 'float':
@@ -1360,7 +1366,6 @@ class Result
                         console.log(`Unrecognized mode ${stat}, returning null`)
                 }
 
-            case 'cycle':
             case 'string':
             case 'text':
                 return '---'
@@ -1665,14 +1670,15 @@ class Result
                     return this.options[value]
 
                 case 'number':
+                    if (this.type === 'cycle' && Array.isArray(value))
+                    {
+                        value = value.length
+                    }
                     return value.toFixed(2)
 
                 case 'string':
                 case 'str-option':
                     return value
-
-                case 'object':
-                    return value.length === 1 ? `1 Cycle` : `${value.length} Cycles`
             }
             return value
         }
@@ -1688,7 +1694,7 @@ class Result
         {
             return 'boolean'
         }
-        else if (['counter', 'filter', 'int', 'float', 'map', 'math', 'number', 'slider', 'timer', 'where', 'wrank'].includes(this.type))
+        else if (['counter', 'cycle', 'filter', 'int', 'float', 'map', 'math', 'number', 'slider', 'timer', 'where', 'wrank'].includes(this.type))
         {
             return 'number'
         }
@@ -1703,10 +1709,6 @@ class Result
         else if (['max', 'min', 'state'].includes(this.type))
         {
             return 'str-option'
-        }
-        else if (this.type === 'cycle')
-        {
-            return 'object'
         }
         return ''
     }
@@ -2123,7 +2125,8 @@ class Config
     filter_keys(keys, allowed_values, invert_filter=false)
     {
         return keys.filter(k => {
-            let is_allowed = allowed_values.includes(this.get_result_from_key(k).value_type)
+            let res = this.get_result_from_key(k)
+            let is_allowed = allowed_values.includes(res.value_type) || (res.type === 'cycle' && allowed_values.includes('cycle'))
             if (invert_filter)
             {
                 return !is_allowed

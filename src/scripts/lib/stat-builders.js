@@ -368,7 +368,7 @@ class WhereStat extends Stat
     {
         super('where')
 
-        this.cycles = cfg.filter_keys(cfg.get_keys(), 'object')
+        this.cycles = cfg.filter_keys(cfg.get_keys(), ['cycle'])
         let cycles = cfg.get_names(this.cycles)
 
         this.cycle_filter = new WRDropdown('Cycle', cycles)
