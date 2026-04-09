@@ -569,21 +569,18 @@ class WRTimer extends WRElement
         decrement.style.minWidth = '18px'
         decrement.innerText = '-'
         decrement.onclick = _ => this.adjust_timer.bind(this)(false)
-        decrement.ontouchend = _ => this.adjust_timer.bind(this)(false)
 
         let increment = document.createElement('span')
         increment.className = 'wr_select_option'
         increment.style.minWidth = '18px'
         increment.innerText = '+'
         increment.onclick = this.adjust_timer.bind(this)
-        increment.ontouchend = this.adjust_timer.bind(this)
 
         let reset = document.createElement('span')
         reset.className = 'wr_select_option'
         reset.style.minWidth = '18px'
         reset.innerText = 'R'
         reset.onclick = this.reset_timer.bind(this)
-        reset.ontouchend = this.toggle_timer.bind(this)
         reset.id = `${this.input_id}-reset`
 
         let row = document.createElement('div')
