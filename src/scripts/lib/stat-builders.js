@@ -391,7 +391,7 @@ class WhereStat extends Stat
     select_cycle()
     {
         let cycle_id = this.cycles[this.cycle_filter.element.selectedIndex].replace('results.', '')
-        this.counters = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['counter', 'number', 'slider'].includes(i.type))
+        this.counters = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['counter', 'number', 'slider', 'timer'].includes(i.type))
         let counters = this.counters.map(c => c.name)
         this.selects = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['dropdown', 'select', 'checkbox'].includes(i.type))
 
