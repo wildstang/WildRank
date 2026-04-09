@@ -307,18 +307,14 @@ function update_cycle(cycle, decrement)
                 // determine that nothing is changed in the new cycle before going back
                 else if (saved_cycles === cycle_num + 1)
                 {
-                    let errors = check_column(column, scout_type, teams[i])
-                    let error_keys = Object.keys(errors)
-                    if (error_keys.length && !confirm(`The current cycle is unsaved! Do you want to continue?`))
+                    let cid = check_cycles()
+                    if (cid && !confirm(`The current cycle is unsaved! Do you want to continue?`))
                     {
-                        for (let cid of error_keys)
+                        document.getElementById(cid).style['background-color'] = 'var(--highlight-color)'
+                        let container = document.getElementById(cid).parentElement.parentElement
+                        if (container !== null)
                         {
-                            document.getElementById(cid).style['background-color'] = 'var(--highlight-color)'
-                            let container = document.getElementById(`${cid}-container`)
-                            if (container !== null)
-                            {
-                                container.style['background-color'] = 'var(--highlight-color)'
-                            }
+                            container.style['background-color'] = 'var(--highlight-color)'
                         }
                         return false
                     }
