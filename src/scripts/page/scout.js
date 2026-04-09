@@ -356,6 +356,10 @@ function update_cycle(cycle, decrement)
                         case 'timer':
                             // calls WRTimer.reset_timer()
                             document.getElementById(`${id}-reset`).onclick()
+                            if (!starting_new_cycle)
+                            {
+                                set_input_value(input, existing_result[id])
+                            }
                             break
                         case 'dropdown':
                         case 'select':
