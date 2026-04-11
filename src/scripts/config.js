@@ -1566,15 +1566,19 @@ class Result
                         {
                             if (cycle.hasOwnProperty(key))
                             {
-                                let c_res = cfg.get_result_from_key(this.cycle).inputs.filter(i => i.id === key)[0]
-                                let val = cycle[key]
-                                if (typeof val === 'number' && c_res.hasOwnProperty('options') && c_res.options.length > val)
+                                let c_res = cfg.get_result_from_key(this.cycle).inputs.filter(i => i.id === key)
+                                if (c_res.length)
                                 {
-                                    val = c_res.options[val]
-                                }
-                                if (val !== this.conditions[key])
-                                {
-                                    passed = false
+                                    c_res = c_res[0]
+                                    let val = cycle[key]
+                                    if (typeof val === 'number' && c_res.hasOwnProperty('options') && c_res.options.length > val)
+                                    {
+                                        val = c_res.options[val]
+                                    }
+                                    if (val !== this.conditions[key])
+                                    {
+                                        passed = false
+                                    }
                                 }
                             }
                         }
