@@ -347,10 +347,12 @@ class UserList
             {
                 let admin = cells.length >= 3 ? cells[2].toLowerCase() === 'true' : false
                 let position = cells.length >= 4 ? parseInt(cells[3]) : -1
+                let mode = cells.length >= 5 ? cells[4] : ''
                 this.users[cells[0]] = {
                     "name": cells[1],
                     "admin": admin,
-                    "position": position
+                    "position": position,
+                    "mode": mode
                 }
             }
         }
@@ -366,7 +368,7 @@ class UserList
         let user_list = ''
         for (let key in this.users)
         {
-            user_list += `${key},${this.users[key].name},${this.users[key].admin},${this.users[key].position}\n`
+            user_list += `${key},${this.users[key].name},${this.users[key].admin},${this.users[key].position},${this.users[key].mode}\n`
         }
         return user_list
     }
@@ -1930,6 +1932,18 @@ class Config
     }
 
     /**
+     * A list of scouting mode names.
+     */
+    get scouting_mode_names()
+    {
+        if (this.scout.configs)
+        {
+            return this.scout.configs.map(m => m.name)
+        }
+        return []
+    }
+
+    /**
      * A list of match scouting mode IDs.
      */
     get match_scouting_modes()
@@ -2318,23 +2332,37 @@ class Config
     }
 
     /**
-     * Determines the current scouters selected position, enforcing position set in user-list.
+     * Determines the current scouters selected position.
      * 
      * @returns The current scouter's selected position.
      */
     get_selected_position()
     {
-        let pos = -1
-        let user_id = this.user.state.user_id
+        return this.user.state.position
+    }
+
+    /**
+     * Finds a user's default mode from their ID number.
+     * 
+     * @param {String} user_id User ID number
+     * @returns The default mode name of a user or an empty string.
+     */
+    get_default_mode(user_id='')
+    {
+        if (!user_id)
+        {
+            user_id = this.user.state.user_id
+        }
+        user_id = `${user_id}`
         if (Object.keys(this.users).includes(user_id))
         {
-            pos = this.users[user_id].position
+            let mode = this.users[user_id].mode
+            if (this.scouting_modes.includes(mode))
+            {
+                return mode
+            }
         }
-        if (pos < 0)
-        {
-            pos = this.user.state.position
-        }
-        return pos
+        return ''
     }
 
     //

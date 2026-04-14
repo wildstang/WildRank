@@ -157,28 +157,28 @@ function update_user_type()
         {
             position_el = new WRDropdown(`${cfg.get_name()}'s Position`)
             let cfg_pos = cfg.get_position()
-            if (cfg_pos >= 0 && cfg_pos < 6)
+            let positions = get_position_names()
+            for (let pos of positions)
             {
-                position_el.add_option(position_to_name(cfg_pos))
-            }
-            else
-            {
-                let positions = get_position_names()
-                for (let pos of positions)
+                position_el.add_option(pos)
+                if (positions[cfg_pos] === pos)
                 {
-                    position_el.add_option(pos)
-                    if (positions[cfg.user.state.position] === pos)
-                    {
-                        position_el.value = position_el.options[cfg.user.state.position]
-                    }
+                    position_el.value = position_el.options[cfg_pos]
                 }
             }
 
             // build stack of buttons to scout
+            let default_mode_idx = cfg.scouting_modes.indexOf(cfg.get_default_mode())
+            if (default_mode_idx < 0)
+            {
+                default_mode_idx = 0
+            }
+            let default_mode = cfg.scouting_modes[default_mode_idx]
             let modes = cfg.scouting_modes
-            let primary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
+            modes.splice(default_mode_idx, 1)
+            let primary_scout = new WRButton(`${cfg.get_scout_config(default_mode).name} Scout`, () => scout(default_mode))
             primary_scout.add_class('advance')
-            let secondary_scout = new WRButton(`${cfg.get_scout_config(modes[1]).name} Scout`, () => scout(modes[1]))
+            let secondary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
             let other_scout = new WRMultiButton('')
             other_scout.add_class('slim')
             for (let mode of modes.splice(2))

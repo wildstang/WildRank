@@ -8,7 +8,7 @@
 
 var users, scouters = []
 
-var id_number, name_entry, user_card, admin_box, position_dropdown, pos_card, time_card, pit_card, filter_box
+var id_number, name_entry, user_card, admin_box, position_dropdown, mode_dropdown, pos_card, time_card, pit_card, filter_box
 
 /**
  * Initialize the structure of the page.
@@ -51,8 +51,9 @@ function init_page()
             }
             position_dropdown.add_option(`${color} ${pos}`)
         }
+        mode_dropdown = new WRDropdown('Default Mode', [''].concat(cfg.scouting_mode_names))
         let save = new WRButton('Apply Changes', save_user)
-        let user_col = new WRColumn('', [id_number, name_entry, card, admin_box, position_dropdown, save])
+        let user_col = new WRColumn('', [id_number, name_entry, card, admin_box, position_dropdown, mode_dropdown, save])
 
         // info column
         pos_card = new WRCard('')
@@ -134,6 +135,8 @@ function open_option(user_id)
     admin_box.set_checked(cfg.is_admin(user_id))
     let pos = cfg.get_position(user_id) + 1
     position_dropdown.element.value = position_dropdown.options[pos]
+    let mode = cfg.scouting_modes.indexOf(cfg.get_default_mode(user_id)) + 1
+    mode_dropdown.element.value = mode_dropdown.options[mode]
 
     let pos_counts = {}
     let mode_counts = {}
@@ -299,6 +302,13 @@ function save_user()
     if (position >= 0)
     {
         user.position = position
+    }
+
+    // add position if selected
+    let mode_idx = mode_dropdown.element.selectedIndex - 1
+    if (mode_idx >= 0)
+    {
+        user.mode = cfg.scouting_modes[mode_idx]
     }
 
     // apply and store config
