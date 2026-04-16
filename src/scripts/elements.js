@@ -500,16 +500,26 @@ class WRTimer extends WRElement
 
     toggle_timer()
     {
+        // press, start record the start time and start updating
         if (this.start < 0)
         {
             this.start = Date.now()
             let t = this
             this.counter = setInterval(function () { t.update() }, 100);
         }
+        // release, record value and stop updating
         else if (this.value === 0)
         {
             this.value = (Date.now() - this.start) / 1000
             clearInterval(this.counter)
+        }
+        // press again, clear recorded value and continue counting
+        else
+        {
+            this.start = Date.now() - this.value * 1000
+            this.value = 0
+            let t = this
+            this.counter = setInterval(function () { t.update() }, 100);
         }
         this.value_el.innerHTML = parseFloat(this.value).toFixed(1)
     }
