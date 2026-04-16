@@ -1586,14 +1586,20 @@ class Result
                         }
                         if (passed)
                         {
+                            let value = 0
                             if (count_result)
                             {
-                                count++
+                                value = 1
                             }
                             else if (cycle.hasOwnProperty(this.sum))
                             {
-                                count += cycle[this.sum]
+                                value = cycle[this.sum]
                             }
+                            if (this.multiplier !== undefined && cycle.hasOwnProperty(this.sum))
+                            {
+                                value *= cycle[this.multiplier] / 100
+                            }
+                            count += value
                         }
                     }
 

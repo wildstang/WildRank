@@ -393,11 +393,17 @@ class WhereStat extends Stat
         let cycle_id = this.cycles[this.cycle_filter.element.selectedIndex].replace('results.', '')
         this.counters = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['counter', 'number', 'slider', 'timer'].includes(i.type))
         let counters = this.counters.map(c => c.name)
+        this.percents = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['number', 'slider'].includes(i.type) && i.options.length >= 2 && i.options[1] === 100)
+        let percents = this.percents.map(c => c.name)
         this.selects = cfg.get_result_from_key(cycle_id).inputs.filter(i => ['dropdown', 'select', 'checkbox'].includes(i.type))
 
         this.count = new WRDropdown('Count', ['Count'].concat(counters))
         this.count.on_change = calculate
         this.count.description = 'The cycle-counter you would like to add up as part of the stat. "Count" means count matching cycles.'
+
+        this.multiplier = new WRDropdown('Percent Multiplier', [''].concat(percents))
+        this.multiplier.on_change = calculate
+        this.multiplier.description = 'A number that is assumed to be a percent. Used to multiply the value selected above.'
 
         this.filters = []
         for (let s of this.selects)
@@ -413,7 +419,7 @@ class WhereStat extends Stat
             this.filters.push(filter)
         }
 
-        this.container.replaceChildren(this.count, ...this.filters)
+        this.container.replaceChildren(this.count, this.multiplier, ...this.filters)
     }
 
     build_stat()
@@ -425,6 +431,7 @@ class WhereStat extends Stat
 
         let cycle = this.cycles[this.cycle_filter.element.selectedIndex]
         let count = this.count.element.selectedIndex
+        let multiplier = this.multiplier.element.selectedIndex
         let vals = {}
         for (let i in this.selects)
         {
@@ -453,6 +460,10 @@ class WhereStat extends Stat
         else
         {
             stat.negative = false
+        }
+        if (multiplier != 0)
+        {
+            stat.multiplier = this.percents[multiplier-1].id
         }
         return stat
     }
