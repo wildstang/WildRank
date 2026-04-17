@@ -27,7 +27,7 @@ const CONFIGS = {
     },
     'prep': {
         'Event Data': ['preload_event', 'event-generator', 'events', 'misc/partner-matches', 'misc/socials', 'misc/verde'],
-        'Edit Config': ['config-generator', 'edit-coach', 'edit-favorites', 'edit-fms', 'export_config'],
+        'Edit Config': ['config-generator', 'ranker', 'edit-coach', 'edit-favorites', 'edit-fms', 'export_config'],
     },
     'debug': {
         'Config': ['settings', 'config-debug'],
