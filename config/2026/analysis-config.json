@@ -1,5 +1,5 @@
 {
-    "version": "2026-base",
+    "version": "2026-champs-wip",
     "fms_breakdown_results": [
         {
             "id": "bd_totalpoints",
@@ -46,13 +46,85 @@
             "negative": false
         },
         {
+            "id": "copr_hub_teleop_points",
+            "name": "Hub Teleop OPR",
+            "type": "float",
+            "negative": false
+        },
+        {
+            "id": "copr_hub_auto_points",
+            "name": "Hub Auto OPR",
+            "type": "float",
+            "negative": false
+        },
+        {
+            "id": "copr_hub_total_points",
+            "name": "Hub OPR",
+            "type": "float",
+            "negative": false
+        },
+        {
+            "id": "copr_majorfoulcount",
+            "name": "Fouls Committed OPR",
+            "type": "float",
+            "negative": true
+        },
+        {
+            "id": "copr_foulpoints",
+            "name": "Foul OPR",
+            "type": "float",
+            "negative": false
+        },
+        {
             "id": "copr_totalpoints",
-            "name": "OPR",
+            "name": "Total OPR",
+            "type": "float",
+            "negative": false
+        },
+        {
+            "id": "copr_totaltowerpoints",
+            "name": "Climb OPR",
             "type": "float",
             "negative": false
         }
     ],
-    "smart_results": [],
-    "coach": [],
+    "smart_results": [
+        {
+            "type": "where",
+            "conditions": {},
+            "cycle": "result.match_match_tele_cycles",
+            "sum": "match_match_tele_cycles_scoring_time",
+            "negative": false,
+            "name": "Scoring Time",
+            "id": "scoring_time"
+        },
+        {
+            "type": "where",
+            "conditions": {},
+            "cycle": "result.match_match_tele_cycles",
+            "sum": "match_match_tele_cycles_scoring_time",
+            "negative": false,
+            "multiplier": "match_match_tele_cycles_accuracy",
+            "name": "Accurate Scoring Time",
+            "id": "accurate_scoring_time"
+        },
+        {
+            "type": "math",
+            "math": "smart.accurate_scoring_time*result.pit_pit_specs_bps",
+            "negative": false,
+            "name": "Fuel Scored",
+            "id": "fuel_scored"
+        }
+    ],
+    "coach": [
+        {
+            "function": "mean",
+            "key": "fms.copr_hub_total_points"
+        },
+        {
+            "function": "mean",
+            "key": "fms.copr_majorfoulcount"
+        }
+    ],
     "favorites": []
 }

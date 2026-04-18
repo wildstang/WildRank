@@ -1,5 +1,5 @@
 {
-    "version": "260403",
+    "version": "2026-champs-wip",
     "configs": [
         {
             "type": "match-team",
@@ -20,6 +20,7 @@
                                     "default": "-",
                                     "disallow_default": true,
                                     "options": [
+                                        "-",
                                         "Left Trench",
                                         "Left Bump",
                                         "Hub",
@@ -33,28 +34,21 @@
                                     "id": "match_match_auto_starting_position"
                                 },
                                 {
-                                    "type": "checkbox",
-                                    "default": false,
+                                    "type": "counter",
+                                    "default": 0,
                                     "negative": false,
                                     "disallow_default": false,
-                                    "name": "Entered Neutral Zone",
-                                    "id": "match_match_auto_entered_neutral_zone"
+                                    "options": [],
+                                    "name": "Center Dips",
+                                    "id": "match_match_auto_center_dips"
                                 },
                                 {
                                     "type": "checkbox",
                                     "default": false,
                                     "negative": false,
                                     "disallow_default": false,
-                                    "name": "Crossed Hub Centerline",
+                                    "name": "Changed Sides",
                                     "id": "match_match_auto_crossed_hub_centerline"
-                                },
-                                {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Double Dip",
-                                    "id": "match_match_auto_double_dip"
                                 }
                             ]
                         },
@@ -64,25 +58,13 @@
                             "id": "match_match_tele_cycles",
                             "inputs": [
                                 {
-                                    "type": "select",
-                                    "default": "-",
-                                    "disallow_default": true,
-                                    "options": [
-                                        "-",
-                                        "low",
-                                        "med",
-                                        "high"
-                                    ],
-                                    "images": [
-                                        "2026/grid/D1.png",
-                                        "2026/low-fill.png",
-                                        "2026/med-fill.png",
-                                        "2026/high-fill.png"
-                                    ],
-                                    "colors": [],
-                                    "vertical": true,
-                                    "name": "Hopper Fill",
-                                    "id": "match_match_tele_cycles_hopper_fill"
+                                    "type": "timer",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [],
+                                    "name": "Scoring Time",
+                                    "id": "match_match_tele_cycles_scoring_time"
                                 },
                                 {
                                     "type": "slider",
@@ -238,19 +220,6 @@
                                     "id": "pit_pit_specs_hopper_capacity"
                                 },
                                 {
-                                    "type": "slider",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": true,
-                                    "options": [
-                                        0,
-                                        115,
-                                        5
-                                    ],
-                                    "name": "Weight (lbs)",
-                                    "id": "pit_pit_specs_weight_"
-                                },
-                                {
                                     "type": "number",
                                     "default": 0,
                                     "negative": false,
@@ -263,12 +232,32 @@
                                     "id": "pit_pit_specs_number_of_batteries"
                                 },
                                 {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        50
+                                    ],
+                                    "name": "Estimated Fuel Per Second",
+                                    "id": "pit_pit_specs_bps"
+                                },
+                                {
                                     "type": "checkbox",
                                     "default": false,
                                     "negative": false,
                                     "disallow_default": false,
                                     "name": "Turret Aiming?",
                                     "id": "pit_pit_specs_turret_aiming"
+                                },
+                                {
+                                    "type": "checkbox",
+                                    "default": false,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "name": "Feed Practice?",
+                                    "id": "pit_pit_specs_feed_practice"
                                 },
                                 {
                                     "type": "text",
@@ -301,7 +290,7 @@
                                 },
                                 {
                                     "type": "select",
-                                    "default": "Neo",
+                                    "default": "Kraken",
                                     "disallow_default": false,
                                     "options": [
                                         "Neo",
@@ -359,6 +348,18 @@
                                     ],
                                     "name": "Total Auto Paths",
                                     "id": "pit_pit_other_total_auto_paths"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        30
+                                    ],
+                                    "name": "Time to Climb",
+                                    "id": "pit_pit_other_climb_time"
                                 },
                                 {
                                     "type": "multiselect",
