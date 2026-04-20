@@ -198,8 +198,8 @@ function set_input_value(input, value)
             }
             break
         case 'slider':
-            /// TODO: update value text
             document.getElementById(id).value = value
+            document.getElementById(`${id}-value`).innerText = value
             break
     }
 }

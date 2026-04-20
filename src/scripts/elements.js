@@ -824,6 +824,8 @@ class WRSlider extends WRElement
             this.append(this.label_el)
         }
 
+        this.value_el.id = `${this.input_id}-value`
+
         this.slider.id = this.input_id
         this.slider.type = 'range'
         this.slider.className = 'wr_slider_range'
