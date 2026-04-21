@@ -431,7 +431,7 @@ function find_event_id(file_name)
     let words = file_name.substring(0, file_name.indexOf('.')).split('-')
     for (let word of words)
     {
-        if (word.length > 5 && word.length < 10)
+        if (word.length > 5 && word.length <= 11)
         {
             let year = parseInt(word.substring(0, 4))
             if (!isNaN(year) && year > 2000 && year < 2100)
