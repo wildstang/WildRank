@@ -173,25 +173,31 @@ function update_user_type()
             {
                 default_mode_idx = 0
             }
-            let default_mode = cfg.scouting_modes[default_mode_idx]
             let modes = cfg.scouting_modes
-            modes.splice(default_mode_idx, 1)
+            let default_mode = modes.splice(default_mode_idx, 1)[0]
             let primary_scout = new WRButton(`${cfg.get_scout_config(default_mode).name} Scout`, () => scout(default_mode))
             primary_scout.add_class('advance')
-            let secondary_scout = new WRButton(`${cfg.get_scout_config(modes[0]).name} Scout`, () => scout(modes[0]))
+            let buttons = [primary_scout]
+            if (modes.length % 2 === 1)
+            {
+                let secondary_mode = modes.splice(0, 1)[0]
+                buttons.push(new WRButton(`${cfg.get_scout_config(secondary_mode).name} Scout`, () => scout(secondary_mode)))
+                
+            }
             let other_scout = new WRMultiButton('')
             other_scout.add_class('slim')
-            for (let mode of modes.splice(2))
+            for (let mode of modes)
             {
                 let name = cfg.get_scout_config(mode).name
                 other_scout.add_option(name, () => scout(mode), () => scout(mode, true))
             }
+            buttons.push(other_scout)
 
             // button used to trigger a fresh start of the setup
             let signout = new WRButton('Sign Out', clear_user_id)
             signout.add_class('slim')
 
-            role_options.replaceChildren(position_el, new WRStack([primary_scout, secondary_scout, other_scout]), signout)
+            role_options.replaceChildren(position_el, new WRStack(buttons), signout)
         }
     }
     else if (user_type_el.selected_option === 'View')
