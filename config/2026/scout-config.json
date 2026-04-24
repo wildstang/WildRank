@@ -252,14 +252,6 @@
                                     "id": "pit_pit_specs_turret_aiming"
                                 },
                                 {
-                                    "type": "checkbox",
-                                    "default": false,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "name": "Feed Practice?",
-                                    "id": "pit_pit_specs_feed_practice"
-                                },
-                                {
                                     "type": "text",
                                     "default": "",
                                     "disallow_default": false,
@@ -350,18 +342,6 @@
                                     "id": "pit_pit_other_total_auto_paths"
                                 },
                                 {
-                                    "type": "number",
-                                    "default": 0,
-                                    "negative": false,
-                                    "disallow_default": false,
-                                    "options": [
-                                        0,
-                                        30
-                                    ],
-                                    "name": "Time to Climb",
-                                    "id": "pit_pit_other_climb_time"
-                                },
-                                {
                                     "type": "multiselect",
                                     "default": [
                                         false,
@@ -382,7 +362,12 @@
                                 },
                                 {
                                     "type": "multiselect",
-                                    "default": [],
+                                    "default": [
+                                        false,
+                                        false,
+                                        false,
+                                        false
+                                    ],
                                     "disallow_default": false,
                                     "options": [
                                         "Center",
@@ -602,6 +587,160 @@
                                     "disallow_default": false,
                                     "name": "Notes",
                                     "id": "tech_tech_notes_notes"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "team",
+            "name": "Prescout",
+            "id": "prescout",
+            "pages": [
+                {
+                    "name": "Prescout",
+                    "id": "prescout_prescout",
+                    "columns": [
+                        {
+                            "cycle": true,
+                            "name": "Match Notes",
+                            "id": "prescout_prescout_match_notes",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "Left Trench",
+                                        "Left Bump",
+                                        "Hub",
+                                        "Right Bump",
+                                        "Right Trench"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": true,
+                                    "name": "Auto Start Pos",
+                                    "id": "prescout_prescout_match_notes_auto_start_pos"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": true,
+                                    "disallow_default": true,
+                                    "options": [
+                                        0,
+                                        20
+                                    ],
+                                    "name": "Match Time - Get to NZ Fuel (Auto)",
+                                    "id": "prescout_prescout_match_notes_match_time_get_to_nz_fuel_"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": false,
+                                    "options": [
+                                        "-",
+                                        "Left Trench",
+                                        "Left Bump",
+                                        "Hub",
+                                        "Right Bump",
+                                        "Right Trench"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Return Lane from NZ",
+                                    "id": "prescout_prescout_match_notes_return_lane_from_nz"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        20
+                                    ],
+                                    "name": "Match Time - Return from NZ",
+                                    "id": "prescout_prescout_match_notes_match_time_return_from_nz"
+                                }
+                            ]
+                        },
+                        {
+                            "cycle": false,
+                            "name": "Overall Notes",
+                            "id": "prescout_prescout_overall_notes",
+                            "inputs": [
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "Bump",
+                                        "Trench"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Height",
+                                    "id": "prescout_prescout_overall_notes_height"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "Turret",
+                                        "Dumper",
+                                        "Other"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Archetype",
+                                    "id": "prescout_prescout_overall_notes_archetype"
+                                },
+                                {
+                                    "type": "number",
+                                    "default": 0,
+                                    "negative": false,
+                                    "disallow_default": false,
+                                    "options": [
+                                        0,
+                                        40
+                                    ],
+                                    "name": "BPS",
+                                    "id": "prescout_prescout_overall_notes_bps"
+                                },
+                                {
+                                    "type": "select",
+                                    "default": "-",
+                                    "disallow_default": true,
+                                    "options": [
+                                        "-",
+                                        "0-100",
+                                        "100-200",
+                                        "200-300",
+                                        "300+"
+                                    ],
+                                    "images": [],
+                                    "colors": [],
+                                    "vertical": false,
+                                    "name": "Scoring Capability",
+                                    "id": "prescout_prescout_overall_notes_scoring_capability"
+                                },
+                                {
+                                    "type": "text",
+                                    "default": "",
+                                    "disallow_default": false,
+                                    "name": "Notes",
+                                    "id": "prescout_prescout_overall_notes_notes"
                                 }
                             ]
                         }
