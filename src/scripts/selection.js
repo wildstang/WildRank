@@ -195,12 +195,13 @@ function add_button_filter(text, func, left=true)
  * Builds a checkbox filter for the specified option list.
  * @param {String} text Checkbox label
  * @param {Function} func Function to call when the checkbox is toggled
+ * @param {Boolean} val Default checkbox value
  * @param {Boolean} left Whether to use the left filter location
  * @returns The WRCheckbox
  */
-function add_checkbox_filter(text, func, left=true)
+function add_checkbox_filter(text, func, val=false, left=true)
 {
-    let checkbox = new WRCheckbox(text, false)
+    let checkbox = new WRCheckbox(text, val)
     checkbox.on_click = func
     get_filter(left).append(checkbox)
     return checkbox

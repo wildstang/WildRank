@@ -18,11 +18,11 @@ function init_page()
     header_info.innerText = 'User Profiles'
 
     // get all scouters
+    users = Object.keys(cfg.users)
     scouters = dal.get_all_scouters()
-    if (scouters.length > 0)
+    if (users.length > 0)
     {
         // get list of users
-        users = Object.keys(cfg.users)
         for (let user of scouters)
         {
             if (!users.includes(user.toString()))
@@ -66,12 +66,12 @@ function init_page()
         preview.replaceChildren(new WRPage('', [user_col, card_col]))
 
         enable_list(true, true)
-        filter_box = add_checkbox_filter('Show All Users', build_options)
+        filter_box = add_checkbox_filter('Show All Users', build_options, scouters.length === 0)
         build_options()
     }
     else
     {
-        add_error_card('No Results Found')
+        add_error_card('No Users Found')
     }
 }
 
