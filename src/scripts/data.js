@@ -59,7 +59,7 @@ function new_result(scout_mode, start_time, unsure, unsure_reason, result)
                 user_id: parseInt(cfg.user.state.user_id),
                 position: parseInt(cfg.get_selected_position()),
                 start_time: start_time,
-                duration: Math.round((Date.now() - start_time) / 1000),
+                duration: Math.round((Date.now() / 1000) - start_time),
                 config_version: cfg.scout.version,
                 app_version: cfg.app_version
             },
