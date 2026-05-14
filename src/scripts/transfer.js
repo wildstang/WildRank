@@ -1122,9 +1122,9 @@ class Importer extends BaseTransfer
                 }
                 // skip results that have an updated version already imported
                 let old_json = JSON.parse(old_text)
-                if (old_json !== null && new_meta.scouter.time < old_json.meta.scouter.time)
+                if (old_json !== null && new_meta.scouter.start_time < old_json.meta.scouter.start_time)
                 {
-                    this.log(`Existing result of ${file_name} is ${old_json.meta.scouter.time - new_meta.scouter.time} newer`)
+                    this.log(`Existing result of ${file_name} is ${old_json.meta.scouter.start_time - new_meta.scouter.start_time} newer`)
                     return false
                 }
 
