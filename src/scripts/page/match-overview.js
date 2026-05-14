@@ -91,7 +91,7 @@ function open_option(match_key)
     match_num_el.innerText = match.name
 
     // place match time
-    time_el.innerText = new Date(match.time).toLocaleTimeString("en-US")
+    time_el.innerText = new Date(match.time * 1000).toLocaleTimeString("en-US")
 
     team_tab.replaceChildren()
     build_alliance_row(team_tab, match, 'blue')

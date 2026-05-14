@@ -106,7 +106,7 @@ function open_option(match_key)
 
     // place match number and team to scout on card
     match_num_el.innerText = dal.matches[match_key].name
-    match_time_el.innerText = new Date(dal.matches[match_key].time).toLocaleTimeString("en-US")
+    match_time_el.innerText = new Date(dal.matches[match_key].time * 1000).toLocaleTimeString("en-US")
 
     // determine teams and updates avatar(s) and number(s)
     let teams = scout_type === 'match-alliance' ? dal.get_match_alliance(match_key, scout_pos) : [dal.get_match_team(match_key, scout_pos)]

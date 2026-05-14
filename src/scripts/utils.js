@@ -413,7 +413,7 @@ function prompt_for_result(metas, op)
     {
         let descriptions = metas.map((r, i) => {
             let scouter = cfg.get_name(r.scouter.user_id)
-            let time = new Date(r.scouter.start_time).toLocaleTimeString("en-US")
+            let time = new Date(r.scouter.start_time * 1000).toLocaleTimeString("en-US")
             return `${i}: ${scouter} @ ${time}`
         })
         let choice = prompt(`${metas.length} results found. Please choose a result to ${op}:\n${descriptions.join('\n')}`)

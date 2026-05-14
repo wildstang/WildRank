@@ -191,7 +191,7 @@ function open_option(match_key)
     let blue_teams = Object.keys(match_teams).filter(k => k.startsWith('blue')).map(k => match_teams[k])
 
     // place match time and number on title
-    let time = new Date(dal.matches[match_key].time).toLocaleTimeString("en-US")
+    let time = new Date(dal.matches[match_key].time * 1000).toLocaleTimeString("en-US")
     header_info.innerText = `${dal.matches[match_key].name} - ${time}`
 
     let red_page = new WRPage('', [new WRColumn('', [red_card]), new WRColumn('', [buttons])])
